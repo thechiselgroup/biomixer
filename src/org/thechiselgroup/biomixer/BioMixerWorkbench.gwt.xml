@@ -36,7 +36,6 @@
   <inherits name='org.thechiselgroup.choosel.visualization_component.chart.Chart'/>
   <inherits name='org.thechiselgroup.choosel.visualization_component.graph.Graph'/>
   <inherits name='org.thechiselgroup.choosel.visualization_component.text.Text'/>
-  <inherits name='org.thechiselgroup.choosel.visualization_component.timeline.Timeline'/>
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 
@@ -52,6 +51,9 @@
   <!-- Client XPath/XSLT support via wrapping native browser support -->
   <script src="js/lib/sarissa-0.9.9.4/sarissa-compressed.js"/>
   <script src="js/lib/sarissa-0.9.9.4/sarissa_ieemu_xpath-compressed.js"/>
+
+  <script src="js/lib/simile-ajax-api-2.2.0/simile-ajax-api.js"/>
+  <script src="js/lib/timeline-2.3.0/timeline-api.js"/>  
 
   <source path='client'/>
   <source path='shared'/>
