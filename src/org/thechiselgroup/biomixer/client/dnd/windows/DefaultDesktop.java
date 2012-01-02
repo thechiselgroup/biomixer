@@ -19,11 +19,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.geometry.Size;
-import org.thechiselgroup.choosel.core.client.ui.ZIndex;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.Size;
+import org.thechiselgroup.biomixer.client.core.ui.ZIndex;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;

@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.popup;
 
-import org.thechiselgroup.choosel.core.client.ui.popup.DefaultPopupManagerFactory;
-import org.thechiselgroup.choosel.core.client.ui.popup.Popup;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupFactory;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupManager;
+import org.thechiselgroup.biomixer.client.core.ui.popup.DefaultPopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 
 import com.google.inject.Inject;
 

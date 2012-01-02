@@ -15,23 +15,23 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.configuration;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.AVATAR_FACTORY_ALL_RESOURCES;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.AVATAR_FACTORY_ALL_RESOURCES;
 
 import java.util.Collections;
 
+import org.thechiselgroup.biomixer.client.core.resources.ui.AbstractResourceSetAvatarFactoryProvider;
+import org.thechiselgroup.biomixer.client.core.resources.ui.DisableIfEmptyResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.FixedLabelResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.resources.ui.popup.PopupResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.HighlightingModel;
 import org.thechiselgroup.biomixer.client.dnd.resources.DraggableResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropTargetResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.dnd.resources.HighlightingDraggableResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDropTargetManager;
-import org.thechiselgroup.choosel.core.client.resources.ui.AbstractResourceSetAvatarFactoryProvider;
-import org.thechiselgroup.choosel.core.client.resources.ui.DisableIfEmptyResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.FixedLabelResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.resources.ui.popup.PopupResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
-import org.thechiselgroup.choosel.core.client.visualization.model.extensions.HighlightingModel;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

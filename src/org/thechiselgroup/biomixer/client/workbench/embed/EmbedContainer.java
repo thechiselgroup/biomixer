@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.embed;
 
-import org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants;
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;

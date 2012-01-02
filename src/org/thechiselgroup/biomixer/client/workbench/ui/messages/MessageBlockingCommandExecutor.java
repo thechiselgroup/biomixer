@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.messages;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.DEFAULT;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.DEFAULT;
 
-import org.thechiselgroup.choosel.core.client.command.AsyncCommand;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommand;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

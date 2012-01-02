@@ -24,12 +24,12 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Query;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationException;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthorizationException;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ViewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ViewPreviewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.ViewPersistenceService;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;

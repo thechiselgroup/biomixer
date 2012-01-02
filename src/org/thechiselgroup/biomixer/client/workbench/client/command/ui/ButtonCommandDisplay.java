@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.client.command.ui;
 
-import org.thechiselgroup.choosel.core.client.ui.HasEnabledState;
+import org.thechiselgroup.biomixer.client.core.ui.HasEnabledState;
 
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.IsWidget;

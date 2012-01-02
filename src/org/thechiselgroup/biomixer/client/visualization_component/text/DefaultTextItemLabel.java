@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
-import org.thechiselgroup.choosel.core.client.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;

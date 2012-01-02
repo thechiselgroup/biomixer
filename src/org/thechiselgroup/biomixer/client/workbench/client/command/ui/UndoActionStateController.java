@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.client.command.ui;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.command.UndoableCommand;
-import org.thechiselgroup.choosel.core.client.ui.Action;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.ui.Action;
 
 public class UndoActionStateController extends
         CommandManagerActionStateController {

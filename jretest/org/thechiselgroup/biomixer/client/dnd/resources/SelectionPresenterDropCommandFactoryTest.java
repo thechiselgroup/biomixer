@@ -24,16 +24,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.visualization.View;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualizationModel;
-import org.thechiselgroup.choosel.core.client.visualization.model.extensions.ResourceModel;
-import org.thechiselgroup.choosel.core.client.visualization.model.extensions.SelectionModel;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceModel;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.SelectionModel;
 
 import com.google.gwt.user.client.ui.Widget;
 

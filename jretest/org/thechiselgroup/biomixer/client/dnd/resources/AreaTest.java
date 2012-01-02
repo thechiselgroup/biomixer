@@ -26,10 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.geometry.Rectangle;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.dnd.test.DndTestHelpers;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
-import org.thechiselgroup.choosel.core.client.geometry.Rectangle;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
 
 public class AreaTest {
 

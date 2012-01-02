@@ -15,14 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
+import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 import org.thechiselgroup.biomixer.client.workbench.embed.StoredViewEmbedLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.ChooselApplicationInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
-import org.thechiselgroup.choosel.core.client.ui.SidePanelSection;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
-import org.thechiselgroup.choosel.core.client.visualization.View;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

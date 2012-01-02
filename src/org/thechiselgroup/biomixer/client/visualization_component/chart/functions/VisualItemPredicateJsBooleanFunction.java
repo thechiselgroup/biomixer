@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.chart.functions;
 
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.predicates.VisualItemPredicate;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.predicates.VisualItemPredicate;
 import org.thechiselgroup.choosel.protovis.client.jsutil.JsArgs;
 import org.thechiselgroup.choosel.protovis.client.jsutil.JsBooleanFunction;
 

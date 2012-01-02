@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.command.UndoableCommand;
-import org.thechiselgroup.choosel.core.client.resources.command.AddResourceSetToResourceSetCommand;
-import org.thechiselgroup.choosel.core.client.resources.command.MergeResourceSetsCommand;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.resources.command.AddResourceSetToResourceSetCommand;
+import org.thechiselgroup.biomixer.client.core.resources.command.MergeResourceSetsCommand;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
 
 public class ResourceSetPresenterDropCommandFactory extends
         AbstractResourceSetAvatarDropCommandFactory {

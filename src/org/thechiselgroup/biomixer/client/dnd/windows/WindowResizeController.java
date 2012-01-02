@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.dnd.windows;
 
 import java.util.HashMap;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 
 import com.google.gwt.user.client.ui.Widget;
 

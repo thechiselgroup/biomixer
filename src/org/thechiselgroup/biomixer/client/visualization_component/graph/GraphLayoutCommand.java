@@ -18,12 +18,12 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 import java.util.List;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.choosel.core.client.command.AbstractUndoableCommand;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
 
 // TODO store results after execute for redo because some graph layouts are non-deterministic
 // TODO use animations (requires extending the flex graph interface) 

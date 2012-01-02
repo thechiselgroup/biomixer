@@ -19,16 +19,16 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.thechiselgroup.choosel.core.client.persistence.IdentifiableCreatingPersistence;
-import org.thechiselgroup.choosel.core.client.persistence.Memento;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.ui.Color;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemValueResolverContext;
-import org.thechiselgroup.choosel.core.client.visualization.model.managed.ManagedVisualItemValueResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.AbstractBasicVisualItemValueResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.SingleSlotDependentVisualItemResolverFactory;
+import org.thechiselgroup.biomixer.client.core.persistence.IdentifiableCreatingPersistence;
+import org.thechiselgroup.biomixer.client.core.persistence.Memento;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.ui.Color;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
+import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedVisualItemValueResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.AbstractBasicVisualItemValueResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.SingleSlotDependentVisualItemResolverFactory;
 
 public class BioMixerConceptByOntologyColorResolver extends
         AbstractBasicVisualItemValueResolver {

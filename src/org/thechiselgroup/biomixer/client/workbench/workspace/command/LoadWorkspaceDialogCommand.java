@@ -17,13 +17,13 @@ package org.thechiselgroup.biomixer.client.workbench.workspace.command;
 
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommand;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 import org.thechiselgroup.biomixer.client.workbench.services.AsyncCallbackVoidDelegate;
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.DialogManager;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePersistenceManager;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePreview;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommand;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.choosel.core.client.command.AbstractUndoableCommand;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
 
 public class MoveNodeCommand extends AbstractUndoableCommand implements
         HasDescription {

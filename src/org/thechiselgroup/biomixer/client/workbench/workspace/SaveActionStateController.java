@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-import org.thechiselgroup.choosel.core.client.ui.HasEnabledState;
-import org.thechiselgroup.choosel.core.client.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.ui.HasEnabledState;
+import org.thechiselgroup.biomixer.client.core.util.Disposable;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;

@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 
 //TODO possible class name change
 public interface DropTargetCapabilityChecker {

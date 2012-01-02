@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.importer;
 
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.AbstractDialog;
-import org.thechiselgroup.choosel.core.client.importer.CSVStringTableParser;
-import org.thechiselgroup.choosel.core.client.importer.Importer;
-import org.thechiselgroup.choosel.core.client.importer.ParseException;
-import org.thechiselgroup.choosel.core.client.importer.StringTable;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetContainer;
+import org.thechiselgroup.biomixer.client.core.importer.CSVStringTableParser;
+import org.thechiselgroup.biomixer.client.core.importer.Importer;
+import org.thechiselgroup.biomixer.client.core.importer.ParseException;
+import org.thechiselgroup.biomixer.client.core.importer.StringTable;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetContainer;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.AbstractDialog;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;

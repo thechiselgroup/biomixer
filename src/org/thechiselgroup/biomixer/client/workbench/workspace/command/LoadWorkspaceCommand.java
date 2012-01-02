@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace.command;
 
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommand;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 import org.thechiselgroup.biomixer.client.workbench.workspace.Workspace;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePersistenceManager;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommand;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

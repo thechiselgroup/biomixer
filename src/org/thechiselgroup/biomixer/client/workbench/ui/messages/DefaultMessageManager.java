@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.messages;
 
-import org.thechiselgroup.choosel.core.client.ui.ActionBar;
-import org.thechiselgroup.choosel.core.client.ui.CSS;
-import org.thechiselgroup.choosel.core.client.ui.ZIndex;
-import org.thechiselgroup.choosel.core.client.util.RemoveHandle;
+import org.thechiselgroup.biomixer.client.core.ui.ActionBar;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.ZIndex;
+import org.thechiselgroup.biomixer.client.core.util.RemoveHandle;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;

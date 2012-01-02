@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.feedback;
 
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.AbstractDialog;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommand;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommand;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.AbstractDialog;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;

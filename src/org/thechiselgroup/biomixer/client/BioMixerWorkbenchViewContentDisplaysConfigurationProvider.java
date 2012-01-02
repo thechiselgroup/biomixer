@@ -15,21 +15,21 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultViewContentDisplaysConfigurationProvider;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayConfiguration;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FixedValueResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.SubsetDelegatingValueResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver.StatusRule;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.barchart.BarChart;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.barchart.BarChartViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLineViewContentDisplayFactory;
-import org.thechiselgroup.choosel.core.client.ui.Colors;
-import org.thechiselgroup.choosel.core.client.util.DataType;
-import org.thechiselgroup.choosel.core.client.visualization.DefaultViewContentDisplaysConfigurationProvider;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.choosel.core.client.visualization.model.initialization.ViewContentDisplayConfiguration;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.FixedValueResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.SubsetDelegatingValueResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.VisualItemStatusResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.VisualItemStatusResolver.StatusRule;
 
 import com.google.inject.Inject;
 

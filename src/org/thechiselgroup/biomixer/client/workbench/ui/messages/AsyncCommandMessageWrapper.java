@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.messages;
 
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommand;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.util.RemoveHandle;
 import org.thechiselgroup.biomixer.client.workbench.services.AsyncCallbackDelegate;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommand;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
-import org.thechiselgroup.choosel.core.client.util.RemoveHandle;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

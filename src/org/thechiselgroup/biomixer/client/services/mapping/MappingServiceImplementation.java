@@ -21,16 +21,16 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.core.util.callbacks.TransformingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.UriList;
-import org.thechiselgroup.choosel.core.client.util.UriUtils;
-import org.thechiselgroup.choosel.core.client.util.callbacks.TransformingAsyncCallback;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
-import org.thechiselgroup.choosel.core.client.util.transform.Transformer;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
-import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

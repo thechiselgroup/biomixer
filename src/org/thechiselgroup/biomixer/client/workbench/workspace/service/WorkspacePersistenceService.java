@@ -17,9 +17,9 @@ package org.thechiselgroup.biomixer.client.workbench.workspace.service;
 
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspaceDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspacePreviewDTO;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;

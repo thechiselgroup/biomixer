@@ -15,16 +15,16 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.chart.piechart;
 
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.predicates.GreaterThanSlotValuePredicate;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.ChartViewContentDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.barchart.BarChart;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.VisualItemColorSlotAccessor;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.VisualItemPredicateJsBooleanFunction;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.VisualItemStringSlotAccessor;
-import org.thechiselgroup.choosel.core.client.ui.Colors;
-import org.thechiselgroup.choosel.core.client.util.DataType;
-import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.predicates.GreaterThanSlotValuePredicate;
 import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVAlignment;
 import org.thechiselgroup.choosel.protovis.client.PVEventHandler;

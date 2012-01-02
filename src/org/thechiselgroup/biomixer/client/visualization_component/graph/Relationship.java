@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import java.io.Serializable;
 
-import org.thechiselgroup.choosel.core.client.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 @Deprecated
 public class Relationship implements Serializable {

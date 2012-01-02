@@ -20,9 +20,9 @@ import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.server.core.util.IOUtils;
 import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.server.util.IOUtils;
 
 public class LightTermResponseWithoutRelationshipsParserTest {
 

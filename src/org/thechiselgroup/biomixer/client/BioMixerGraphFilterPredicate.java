@@ -20,15 +20,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.thechiselgroup.choosel.core.client.persistence.Memento;
-import org.thechiselgroup.choosel.core.client.persistence.Persistable;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableObjectFactory;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetCollector;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
-import org.thechiselgroup.choosel.core.client.util.predicates.Predicate;
+import org.thechiselgroup.biomixer.client.core.persistence.Memento;
+import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableObjectFactory;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.predicates.Predicate;
 
 public class BioMixerGraphFilterPredicate implements Predicate<Resource>,
         Persistable {

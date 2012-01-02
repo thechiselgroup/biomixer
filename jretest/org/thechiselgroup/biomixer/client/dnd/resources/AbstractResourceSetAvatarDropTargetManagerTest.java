@@ -28,11 +28,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
 import org.thechiselgroup.biomixer.client.dnd.test.DndTestHelpers;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupFactory;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
 
 import com.google.gwt.user.client.ui.Widget;
 

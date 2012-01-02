@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
-import org.thechiselgroup.choosel.core.client.visualization.model.ViewContentDisplay;
-import org.thechiselgroup.choosel.core.client.visualization.model.initialization.ViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
 public class ListViewContentDisplayFactory implements ViewContentDisplayFactory {
 

@@ -27,12 +27,12 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.util.callbacks.NullAsyncCallback;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePersistenceManager;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePreview;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.LoadWorkspaceDialogCommand;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.LoadWorkspaceDialogCommand.DetailsDisplay;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.LoadWorkspaceDialogCommand.LoadWorkspacePreviewsCallback;
-import org.thechiselgroup.choosel.core.client.util.callbacks.NullAsyncCallback;
 
 public class LoadWorkspaceDialogCommandTest {
 

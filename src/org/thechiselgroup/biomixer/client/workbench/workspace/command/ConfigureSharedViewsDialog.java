@@ -18,12 +18,12 @@ package org.thechiselgroup.biomixer.client.workbench.workspace.command;
 import java.util.HashMap;
 import java.util.List;
 
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.AbstractDialog;
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.DialogCallback;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.AbstractDialog;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogCallback;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ViewPreview;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
-import org.thechiselgroup.choosel.core.client.visualization.View;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.messages;
 
-import org.thechiselgroup.choosel.core.client.util.RemoveHandle;
+import org.thechiselgroup.biomixer.client.core.util.RemoveHandle;
 
 public interface MessageManager {
 

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.thechiselgroup.choosel.core.shared.test.matchers.collections.CollectionMatchers.containsExactlyLightweightCollection;
+import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactlyLightweightCollection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,20 +40,20 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.resources.DefaultResourceManager;
-import org.thechiselgroup.choosel.core.client.resources.DefaultResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
-import org.thechiselgroup.choosel.core.client.resources.UriList;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

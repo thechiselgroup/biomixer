@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.command.AbstractUndoableCommand;
-import org.thechiselgroup.choosel.core.client.command.UndoableCommand;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
-import org.thechiselgroup.choosel.core.client.visualization.model.extensions.SelectionModel;
+import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
+import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.SelectionModel;
 
 import com.google.gwt.user.client.ui.Widget;
 

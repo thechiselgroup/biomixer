@@ -28,11 +28,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
-import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

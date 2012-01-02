@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.graph;
 
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.DefaultArcTypeProvider;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
 
 import com.google.inject.Inject;
 

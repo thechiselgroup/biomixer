@@ -26,16 +26,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.DefaultCommandManager;
+import org.thechiselgroup.biomixer.client.core.command.NullCommand;
+import org.thechiselgroup.biomixer.client.core.command.TestUndoableCommandWithDescription;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.ui.Action;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.workbench.client.command.ui.RedoActionStateController;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.command.DefaultCommandManager;
-import org.thechiselgroup.choosel.core.client.command.NullCommand;
-import org.thechiselgroup.choosel.core.client.command.TestUndoableCommandWithDescription;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.ui.Action;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemValueResolver;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemValueResolverContext;
 
 public class RedoActionStateControllerTest {
 

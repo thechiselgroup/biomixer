@@ -18,9 +18,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
 
 /**
  * @deprecated Use {@link AbstractGraphNodeSingleResourceNeighbourhoodExpander}

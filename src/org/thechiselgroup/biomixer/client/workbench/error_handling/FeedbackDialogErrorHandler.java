@@ -15,16 +15,16 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.error_handling;
 
-import static org.thechiselgroup.choosel.core.client.error_handling.ErrorHandlingConstants.LOG;
+import static org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingConstants.LOG;
 
 import java.util.Collection;
 
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ExceptionUtil;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
 import org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackDialog;
 import org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackServiceAsync;
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.DialogManager;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.ExceptionUtil;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.choosel.core.client.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 /**
  * Concept URIs are composed of the virtual ontology id and the encoded full id

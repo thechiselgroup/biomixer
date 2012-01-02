@@ -24,14 +24,14 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.SUM_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.TEXT_PROPERTY_RESOLVER_FACTORY;
 
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
+import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultSlotMappingInitializer;
+import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotMappingInitializer;
+import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactoryProvider;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ShareConfigurationFactory;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ShareConfigurationViewPart;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightList;
-import org.thechiselgroup.choosel.core.client.visualization.ViewPart;
-import org.thechiselgroup.choosel.core.client.visualization.model.managed.DefaultSlotMappingInitializer;
-import org.thechiselgroup.choosel.core.client.visualization.model.managed.SlotMappingInitializer;
-import org.thechiselgroup.choosel.core.client.visualization.model.managed.VisualItemValueResolverFactoryProvider;
 
 import com.google.inject.Inject;
 

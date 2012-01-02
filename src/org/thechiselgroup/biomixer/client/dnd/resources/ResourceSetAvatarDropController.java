@@ -15,19 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.command.UndoableCommand;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.ui.CSS;
-import org.thechiselgroup.choosel.core.client.ui.popup.DefaultDelayedPopupManager;
-import org.thechiselgroup.choosel.core.client.ui.popup.DelayedPopupManager;
-import org.thechiselgroup.choosel.core.client.ui.popup.Popup;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupFactory;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
-import org.thechiselgroup.choosel.core.client.visualization.View;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualizationModel;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.popup.DefaultDelayedPopupManager;
+import org.thechiselgroup.biomixer.client.core.ui.popup.DelayedPopupManager;
+import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
 
 import com.allen_sauer.gwt.dnd.client.DragContext;
 import com.allen_sauer.gwt.dnd.client.drop.SimpleDropController;

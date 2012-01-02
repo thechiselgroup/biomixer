@@ -26,13 +26,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.util.Disposable;
 import org.thechiselgroup.biomixer.client.dnd.test.DndTestHelpers;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.util.Disposable;
 
 public class DropTargetResourceSetAvatarFactoryTest {
 

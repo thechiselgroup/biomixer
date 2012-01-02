@@ -30,10 +30,10 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.server.workbench.urlfetch.DefaultDocumentFetchService;
 import org.thechiselgroup.biomixer.server.workbench.urlfetch.DocumentFetchService;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

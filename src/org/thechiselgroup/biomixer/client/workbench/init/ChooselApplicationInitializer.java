@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.workbench.init;
 import java.util.List;
 import java.util.Map;
 
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;

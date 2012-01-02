@@ -24,8 +24,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.thechiselgroup.biomixer.client.Concept.createConceptResource;
 import static org.thechiselgroup.biomixer.client.Mapping.createMappingResource;
-import static org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils.toResourceSet;
-import static org.thechiselgroup.choosel.core.shared.test.matchers.collections.CollectionMatchers.containsExactlyLightweightCollection;
+import static org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils.toResourceSet;
+import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactlyLightweightCollection;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,15 +39,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.shared.test.mockito.FirstInvocationArgumentAnswer;
+import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

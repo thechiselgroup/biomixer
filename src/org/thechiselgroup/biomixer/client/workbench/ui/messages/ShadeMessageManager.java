@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.messages;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.DEFAULT;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.DEFAULT;
 
-import org.thechiselgroup.choosel.core.client.ui.shade.ShadeManager;
-import org.thechiselgroup.choosel.core.client.util.RemoveHandle;
+import org.thechiselgroup.biomixer.client.core.ui.shade.ShadeManager;
+import org.thechiselgroup.biomixer.client.core.util.RemoveHandle;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

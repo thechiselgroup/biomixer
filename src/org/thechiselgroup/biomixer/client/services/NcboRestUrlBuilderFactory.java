@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services;
 
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
 public class NcboRestUrlBuilderFactory implements UrlBuilderFactory {
 

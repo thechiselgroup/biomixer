@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.choosel.core.client.ui.HasEnabledState;
+import org.thechiselgroup.biomixer.client.core.ui.HasEnabledState;
 
 import com.google.gwt.user.client.ui.HasName;
 

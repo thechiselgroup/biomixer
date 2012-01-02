@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
 
 /*
  * This class implements algorithms related to WindowPanel and executes them on callback

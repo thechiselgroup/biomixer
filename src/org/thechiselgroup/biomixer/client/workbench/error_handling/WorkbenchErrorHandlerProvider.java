@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.error_handling;
 
-import org.thechiselgroup.choosel.core.client.error_handling.CompositeErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.LoggingErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.CompositeErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

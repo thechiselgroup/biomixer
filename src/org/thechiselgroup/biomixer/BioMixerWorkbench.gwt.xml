@@ -17,18 +17,27 @@
 -->
 <module rename-to='org.thechiselgroup.biomixer.BioMixerWorkbench'>
 
+  <!-- CSS files -->
+  <stylesheet src="css/reset.css" />
+  <stylesheet src="css/reset-fonts.css" />
+  <stylesheet src="css/choosel.css" />
+  <stylesheet src="css/choosel-dnd.css" />
+  <stylesheet src="css/choosel-window.css" />
+  <stylesheet src="css/choosel-actionbar.css" />
+  <stylesheet src="css/date-picker.css" />
+
   <!-- GWT basics --> 
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.user.theme.standard.StandardResources" />
  
+  <!-- Logging -->
+  <inherits name="com.google.gwt.logging.Logging"/>
+ 
   <!-- Dependency injection: guice, gin -->
   <inherits name="com.google.gwt.inject.Inject"/>
-  
-  <!-- Choosel core -->
-  <inherits name='org.thechiselgroup.choosel.core.Core'/>
-
-  <!-- Choosel dnd & windows -->
-  <inherits name='org.thechiselgroup.choosel.dnd.Dnd'/>
+    
+  <!-- GWT effects: gwt-fx -->
+  <inherits name='org.adamtacy.GWTEffects' /> 
   
   <!-- GWT SWF Bridge: gwt2swf -->
   <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' /> 

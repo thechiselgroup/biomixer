@@ -18,8 +18,8 @@ package org.thechiselgroup.biomixer.client.dnd.resources;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.geometry.Rectangle;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
-import org.thechiselgroup.choosel.core.client.geometry.Rectangle;
 
 /**
  * Area for shade and drop target calculation.

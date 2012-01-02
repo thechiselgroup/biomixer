@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.workbench.workspace.dto;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import org.thechiselgroup.choosel.core.client.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 public class WorkspaceDTO implements Serializable {
 

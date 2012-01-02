@@ -20,16 +20,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.thechiselgroup.choosel.core.client.ui.SidePanelSection;
-import org.thechiselgroup.choosel.core.client.util.DataType;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionUtils;
-import org.thechiselgroup.choosel.core.client.util.collections.Delta;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollection;
-import org.thechiselgroup.choosel.core.client.util.math.MathUtils;
-import org.thechiselgroup.choosel.core.client.util.math.NumberArray;
-import org.thechiselgroup.choosel.core.client.visualization.model.AbstractViewContentDisplay;
-import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
+import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;

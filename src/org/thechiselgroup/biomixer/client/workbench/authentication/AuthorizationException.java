@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.authentication;
 
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 
 public class AuthorizationException extends ServiceException {
 

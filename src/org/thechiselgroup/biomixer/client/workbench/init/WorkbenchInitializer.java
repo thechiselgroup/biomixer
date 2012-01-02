@@ -15,8 +15,32 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.init;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.DATA_SOURCES;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.DATA_SOURCES;
 
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandToCommandAdapter;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.development.CreateBenchmarkResourcesCommand;
+import org.thechiselgroup.biomixer.client.core.development.DevelopmentSettings;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.importer.Importer;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetAddedEvent;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetAddedEventHandler;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetContainer;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetRemovedEvent;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetRemovedEventHandler;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourceSetsPresenter;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetsPresenter;
+import org.thechiselgroup.biomixer.client.core.ui.Action;
+import org.thechiselgroup.biomixer.client.core.ui.ActionBar;
+import org.thechiselgroup.biomixer.client.core.ui.TextCommandPresenter;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.Dialog;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.util.BrowserDetect;
 import org.thechiselgroup.biomixer.client.dnd.windows.AbstractWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.CreateWindowCommand;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
@@ -28,8 +52,6 @@ import org.thechiselgroup.biomixer.client.workbench.authentication.ui.Authentica
 import org.thechiselgroup.biomixer.client.workbench.authentication.ui.AuthenticationBasedEnablingStateWrapper;
 import org.thechiselgroup.biomixer.client.workbench.client.command.ui.RedoActionStateController;
 import org.thechiselgroup.biomixer.client.workbench.client.command.ui.UndoActionStateController;
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.Dialog;
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.DialogManager;
 import org.thechiselgroup.biomixer.client.workbench.workspace.SaveActionStateController;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspaceManager;
@@ -42,28 +64,6 @@ import org.thechiselgroup.biomixer.client.workbench.workspace.command.LoadWorksp
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.NewWorkspaceCommand;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.SaveWorkspaceCommand;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.ShareWorkspaceCommand;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandToCommandAdapter;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.development.CreateBenchmarkResourcesCommand;
-import org.thechiselgroup.choosel.core.client.development.DevelopmentSettings;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.importer.Importer;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetAddedEvent;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetAddedEventHandler;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetContainer;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetRemovedEvent;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetRemovedEventHandler;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarResourceSetsPresenter;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetsPresenter;
-import org.thechiselgroup.choosel.core.client.ui.Action;
-import org.thechiselgroup.choosel.core.client.ui.ActionBar;
-import org.thechiselgroup.choosel.core.client.ui.TextCommandPresenter;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
-import org.thechiselgroup.choosel.core.client.util.BrowserDetect;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;

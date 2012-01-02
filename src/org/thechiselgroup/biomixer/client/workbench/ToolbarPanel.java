@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench;
 
-import org.thechiselgroup.choosel.core.client.ui.Action;
-import org.thechiselgroup.choosel.core.client.ui.ActionBarPanel;
-import org.thechiselgroup.choosel.core.client.ui.ActionToolbarButton;
-import org.thechiselgroup.choosel.core.client.ui.ActionToolbarImage;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.ui.Action;
+import org.thechiselgroup.biomixer.client.core.ui.ActionBarPanel;
+import org.thechiselgroup.biomixer.client.core.ui.ActionToolbarButton;
+import org.thechiselgroup.biomixer.client.core.ui.ActionToolbarImage;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;

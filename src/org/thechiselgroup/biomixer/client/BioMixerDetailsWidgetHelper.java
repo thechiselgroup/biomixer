@@ -15,17 +15,17 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.AbstractDetailsWidgetHelper;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.dnd.resources.DraggableResourceSetAvatar;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.AbstractDetailsWidgetHelper;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HTML;

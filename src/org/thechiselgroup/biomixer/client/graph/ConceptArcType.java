@@ -16,17 +16,17 @@
 package org.thechiselgroup.biomixer.client.graph;
 
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollection;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightList;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
 
 public class ConceptArcType implements ArcType {
 

@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.command.AbstractUndoableCommand;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
 // TODO store position
 public class CreateWindowCommand extends AbstractUndoableCommand implements HasDescription {

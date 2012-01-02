@@ -15,15 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.configuration;
 
+import org.thechiselgroup.biomixer.client.core.resources.ui.AbstractResourceSetAvatarFactoryProvider;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.resources.ui.UpdateResourceSetAvatarLabelFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.HighlightingModel;
 import org.thechiselgroup.biomixer.client.dnd.resources.DraggableResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropTargetResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.dnd.resources.HighlightingDraggableResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDropTargetManager;
-import org.thechiselgroup.choosel.core.client.resources.ui.AbstractResourceSetAvatarFactoryProvider;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.resources.ui.UpdateResourceSetAvatarLabelFactory;
-import org.thechiselgroup.choosel.core.client.visualization.model.extensions.HighlightingModel;
 
 import com.google.inject.Inject;
 

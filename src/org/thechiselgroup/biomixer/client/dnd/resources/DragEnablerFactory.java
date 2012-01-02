@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 
 import com.google.inject.Inject;
 

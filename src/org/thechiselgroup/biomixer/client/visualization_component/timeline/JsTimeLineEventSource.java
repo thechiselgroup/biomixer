@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
-import org.thechiselgroup.choosel.core.client.util.collections.ArrayUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.ArrayUtils;
 
 import com.google.gwt.core.client.JavaScriptObject;
 

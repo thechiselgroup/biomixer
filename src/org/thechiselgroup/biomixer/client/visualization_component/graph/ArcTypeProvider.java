@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 
 public interface ArcTypeProvider {
 

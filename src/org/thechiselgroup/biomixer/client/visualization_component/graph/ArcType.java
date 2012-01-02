@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollection;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
 
 /**
  * A specific class of arcs. Calculates arc items for a given resource item.

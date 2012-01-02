@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.ZIndex;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyUtils;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.ui.CSS;
-import org.thechiselgroup.choosel.core.client.ui.ZIndex;
 
 import com.google.gwt.dom.client.Element;
 

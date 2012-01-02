@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-import org.thechiselgroup.choosel.core.client.ui.ResizingTextBox;
-import org.thechiselgroup.choosel.core.client.util.Initializable;
+import org.thechiselgroup.biomixer.client.core.ui.ResizingTextBox;
+import org.thechiselgroup.biomixer.client.core.util.Initializable;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;

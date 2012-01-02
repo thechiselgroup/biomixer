@@ -21,12 +21,12 @@ import java.util.Date;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthorizationException;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspaceDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspaceSharingService;
 import org.thechiselgroup.biomixer.server.workbench.util.PasswordGenerator;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
 
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.users.UserService;

@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 
 import com.google.inject.Inject;
 

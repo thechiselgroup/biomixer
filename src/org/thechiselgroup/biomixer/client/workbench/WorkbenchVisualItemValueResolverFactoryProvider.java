@@ -17,20 +17,20 @@ package org.thechiselgroup.biomixer.client.workbench;
 
 import java.util.Date;
 
-import org.thechiselgroup.choosel.core.client.ui.Color;
-import org.thechiselgroup.choosel.core.client.util.DataType;
-import org.thechiselgroup.choosel.core.client.util.math.AverageCalculation;
-import org.thechiselgroup.choosel.core.client.util.math.MaxCalculation;
-import org.thechiselgroup.choosel.core.client.util.math.MinCalculation;
-import org.thechiselgroup.choosel.core.client.util.math.SumCalculation;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.choosel.core.client.visualization.model.managed.DefaultVisualItemResolverFactoryProvider;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.ResourceCountResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.VisualItemIdResolver;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.CalculationResolverFactory;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.FirstResourcePropertyResolverFactory;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.FixedVisualItemResolverFactory;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.SingletonVisualItemResolverFactory;
+import org.thechiselgroup.biomixer.client.core.ui.Color;
+import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.math.AverageCalculation;
+import org.thechiselgroup.biomixer.client.core.util.math.MaxCalculation;
+import org.thechiselgroup.biomixer.client.core.util.math.MinCalculation;
+import org.thechiselgroup.biomixer.client.core.util.math.SumCalculation;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultVisualItemResolverFactoryProvider;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.ResourceCountResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemIdResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.CalculationResolverFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.FirstResourcePropertyResolverFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.FixedVisualItemResolverFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.SingletonVisualItemResolverFactory;
 
 import com.google.inject.Inject;
 

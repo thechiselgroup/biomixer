@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
 
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.event.shared.HandlerRegistration;

@@ -15,6 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
@@ -25,14 +33,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandlingAsyncCallback;
-import org.thechiselgroup.choosel.core.client.resources.DefaultResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.util.UriUtils;
-import org.thechiselgroup.choosel.core.client.visualization.DefaultView;
-import org.thechiselgroup.choosel.core.client.visualization.View;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;

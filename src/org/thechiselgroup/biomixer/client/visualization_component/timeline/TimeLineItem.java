@@ -17,12 +17,12 @@ package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
 import java.util.Date;
 
-import org.thechiselgroup.choosel.core.client.ui.CSS;
-import org.thechiselgroup.choosel.core.client.ui.Color;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Status;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemInteraction;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.Color;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;

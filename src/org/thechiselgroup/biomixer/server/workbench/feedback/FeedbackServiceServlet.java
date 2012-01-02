@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.server.workbench.feedback;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
+import org.thechiselgroup.biomixer.client.core.util.task.Task;
 import org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackService;
 import org.thechiselgroup.biomixer.server.workbench.server.ChooselServiceServlet;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
-import org.thechiselgroup.choosel.core.client.util.task.Task;
 
 import com.google.appengine.api.mail.MailServiceFactory;
 import com.google.appengine.api.users.UserServiceFactory;

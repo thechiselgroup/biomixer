@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.services.search;
 
 import java.util.Set;
 
-import org.thechiselgroup.choosel.core.client.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

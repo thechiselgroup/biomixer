@@ -15,15 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.DATA_SOURCES;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.DATA_SOURCES;
 
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetAddedEvent;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetAddedEventHandler;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetContainer;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetRemovedEvent;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetRemovedEventHandler;
-import org.thechiselgroup.choosel.core.client.ui.HasEnabledState;
-import org.thechiselgroup.choosel.core.client.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetAddedEvent;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetAddedEventHandler;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetContainer;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetRemovedEvent;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetRemovedEventHandler;
+import org.thechiselgroup.biomixer.client.core.ui.HasEnabledState;
+import org.thechiselgroup.biomixer.client.core.util.Disposable;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.inject.name.Named;

@@ -15,23 +15,23 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.ROOT_PANEL;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.ROOT_PANEL;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.geometry.Rectangle;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.shade.ShadeManager;
+import org.thechiselgroup.biomixer.client.core.util.RemoveHandle;
+import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.HighlightingModel;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.geometry.Rectangle;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.ui.CSS;
-import org.thechiselgroup.choosel.core.client.ui.shade.ShadeManager;
-import org.thechiselgroup.choosel.core.client.util.RemoveHandle;
-import org.thechiselgroup.choosel.core.client.util.math.MathUtils;
-import org.thechiselgroup.choosel.core.client.visualization.model.extensions.HighlightingModel;
 
 import com.allen_sauer.gwt.dnd.client.AbstractDragController;
 import com.allen_sauer.gwt.dnd.client.DragContext;

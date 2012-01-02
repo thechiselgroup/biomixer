@@ -15,19 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.client.command.ui;
 
-import org.thechiselgroup.choosel.core.client.command.CommandAddedEvent;
-import org.thechiselgroup.choosel.core.client.command.CommandAddedEventHandler;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.command.CommandManagerClearedEvent;
-import org.thechiselgroup.choosel.core.client.command.CommandManagerClearedEventHandler;
-import org.thechiselgroup.choosel.core.client.command.CommandRedoneEvent;
-import org.thechiselgroup.choosel.core.client.command.CommandRedoneEventHandler;
-import org.thechiselgroup.choosel.core.client.command.CommandUndoneEvent;
-import org.thechiselgroup.choosel.core.client.command.CommandUndoneEventHandler;
-import org.thechiselgroup.choosel.core.client.command.UndoableCommand;
-import org.thechiselgroup.choosel.core.client.ui.Action;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
-import org.thechiselgroup.choosel.core.client.util.Initializable;
+import org.thechiselgroup.biomixer.client.core.command.CommandAddedEvent;
+import org.thechiselgroup.biomixer.client.core.command.CommandAddedEventHandler;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.CommandManagerClearedEvent;
+import org.thechiselgroup.biomixer.client.core.command.CommandManagerClearedEventHandler;
+import org.thechiselgroup.biomixer.client.core.command.CommandRedoneEvent;
+import org.thechiselgroup.biomixer.client.core.command.CommandRedoneEventHandler;
+import org.thechiselgroup.biomixer.client.core.command.CommandUndoneEvent;
+import org.thechiselgroup.biomixer.client.core.command.CommandUndoneEventHandler;
+import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.ui.Action;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.util.Initializable;
 
 public abstract class CommandManagerActionStateController implements
         Initializable {

@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
 
 import com.allen_sauer.gwt.dnd.client.util.WidgetLocation;
 import com.google.gwt.user.client.ui.AbsolutePanel;

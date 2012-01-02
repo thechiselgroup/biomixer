@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.chart;
 
-import org.thechiselgroup.choosel.core.client.util.collections.ArrayUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.ArrayUtils;
 
 public class SlotValues {
 

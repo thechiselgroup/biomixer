@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui;
 
+import org.thechiselgroup.biomixer.client.core.persistence.Memento;
+import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.dnd.windows.AbstractWindowContent;
-import org.thechiselgroup.choosel.core.client.persistence.Memento;
-import org.thechiselgroup.choosel.core.client.persistence.Persistable;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetCollector;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;

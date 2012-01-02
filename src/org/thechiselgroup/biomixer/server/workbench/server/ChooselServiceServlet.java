@@ -20,11 +20,11 @@ import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
-import org.thechiselgroup.choosel.core.client.util.task.DirectTaskExecutor;
-import org.thechiselgroup.choosel.core.client.util.task.LogErrorTaskExecutor;
-import org.thechiselgroup.choosel.core.client.util.task.Task;
-import org.thechiselgroup.choosel.core.client.util.task.TaskExecutor;
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
+import org.thechiselgroup.biomixer.client.core.util.task.DirectTaskExecutor;
+import org.thechiselgroup.biomixer.client.core.util.task.LogErrorTaskExecutor;
+import org.thechiselgroup.biomixer.client.core.util.task.Task;
+import org.thechiselgroup.biomixer.client.core.util.task.TaskExecutor;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 

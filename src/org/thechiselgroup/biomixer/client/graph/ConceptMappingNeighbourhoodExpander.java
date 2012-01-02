@@ -19,15 +19,15 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandlingAsyncCallback;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollections;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 
 import com.google.inject.Inject;
 

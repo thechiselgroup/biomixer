@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 
 public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
 

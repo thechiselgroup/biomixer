@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 
 public class DesktopWindowManager extends AbstractWindowManager {
 

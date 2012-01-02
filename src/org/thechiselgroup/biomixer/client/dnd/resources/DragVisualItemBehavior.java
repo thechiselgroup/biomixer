@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.visualization.model.MappedHandlerVisualItemBehavior;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemInteraction;
+import org.thechiselgroup.biomixer.client.core.visualization.model.MappedHandlerVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 
 /**
  * Manages dragging of {@link VisualItem}.

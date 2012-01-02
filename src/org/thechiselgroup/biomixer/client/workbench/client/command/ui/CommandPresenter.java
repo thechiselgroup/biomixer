@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.client.command.ui;
 
-import org.thechiselgroup.choosel.core.client.util.Initializable;
+import org.thechiselgroup.biomixer.client.core.util.Initializable;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

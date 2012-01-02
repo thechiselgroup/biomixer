@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.visualization.View;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
 
 import com.google.gwt.user.client.ui.Widget;
 

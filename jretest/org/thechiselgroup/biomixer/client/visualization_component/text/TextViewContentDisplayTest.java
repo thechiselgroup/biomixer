@@ -20,27 +20,27 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.thechiselgroup.choosel.core.client.util.collections.Delta.createAddedDelta;
-import static org.thechiselgroup.choosel.core.client.util.collections.Delta.createUpdatedDelta;
-import static org.thechiselgroup.choosel.core.client.util.collections.LightweightCollections.toCollection;
+import static org.thechiselgroup.biomixer.client.core.util.collections.Delta.createAddedDelta;
+import static org.thechiselgroup.biomixer.client.core.util.collections.Delta.createUpdatedDelta;
+import static org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections.toCollection;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceCategorizer;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollections;
-import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
-import org.thechiselgroup.choosel.core.client.visualization.model.ViewContentDisplayCallback;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Status;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
-import org.thechiselgroup.choosel.core.client.visualization.model.implementation.VisualItemTestUtils;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemTestUtils;
 
 public class TextViewContentDisplayTest {
 

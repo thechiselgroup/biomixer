@@ -15,15 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.resources.ui.DefaultResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.DisableIfEmptyResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.HideIfEmptyResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarFactoryProvider;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupFactory;
-import org.thechiselgroup.choosel.core.client.visualization.DefaultViewAccessor;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.resources.ui.DefaultResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.DisableIfEmptyResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.HideIfEmptyResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactoryProvider;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultViewAccessor;
 
 import com.google.inject.Inject;
 

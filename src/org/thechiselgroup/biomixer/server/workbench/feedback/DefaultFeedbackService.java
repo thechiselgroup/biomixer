@@ -17,8 +17,8 @@ package org.thechiselgroup.biomixer.server.workbench.feedback;
 
 import java.io.IOException;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackService;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
 
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;

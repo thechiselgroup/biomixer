@@ -17,13 +17,13 @@ package org.thechiselgroup.biomixer.server.workbench.workspace;
 
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
+import org.thechiselgroup.biomixer.client.core.util.task.Task;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspaceDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspacePreviewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceService;
 import org.thechiselgroup.biomixer.server.workbench.server.ChooselServiceServlet;
 import org.thechiselgroup.biomixer.server.workbench.server.PMF;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
-import org.thechiselgroup.choosel.core.client.util.task.Task;
 
 import com.google.appengine.api.users.UserServiceFactory;
 

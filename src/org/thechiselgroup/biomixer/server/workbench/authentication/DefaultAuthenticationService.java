@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.server.workbench.authentication;
 
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.client.workbench.authentication.Authentication;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationService;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
 
 import com.google.appengine.api.users.UserService;
 

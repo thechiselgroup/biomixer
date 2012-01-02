@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace.command;
 
-import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.DATA_SOURCES;
+import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.DATA_SOURCES;
 
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetContainer;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspaceManager;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetContainer;
 
 import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;

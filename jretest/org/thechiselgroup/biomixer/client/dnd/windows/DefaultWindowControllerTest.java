@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
 
 // TODO test cases that test minimum sizes
 public class DefaultWindowControllerTest {

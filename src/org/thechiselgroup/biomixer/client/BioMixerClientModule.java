@@ -15,6 +15,17 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.label.CategoryLabelProvider;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationServiceProvider;
+import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
+import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.ProfilingUrlFetchServiceDecorator;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
+import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplaysConfiguration;
+import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactoryProvider;
+import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui.VisualItemValueResolverUIControllerFactoryProvider;
 import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
@@ -36,18 +47,7 @@ import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.util.url.FlashUrlFetchService;
-import org.thechiselgroup.choosel.core.client.label.CategoryLabelProvider;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationServiceProvider;
-import org.thechiselgroup.choosel.core.client.resources.ui.DetailsWidgetHelper;
-import org.thechiselgroup.choosel.core.client.util.date.GwtDateTimeFormatFactory;
-import org.thechiselgroup.choosel.core.client.util.url.ProfilingUrlFetchServiceDecorator;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
-import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
-import org.thechiselgroup.choosel.core.client.visualization.model.initialization.ViewContentDisplaysConfiguration;
-import org.thechiselgroup.choosel.core.client.visualization.model.managed.VisualItemValueResolverFactoryProvider;
-import org.thechiselgroup.choosel.core.client.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.ui.VisualItemValueResolverUIControllerFactoryProvider;
-import org.thechiselgroup.choosel.core.shared.util.date.DateTimeFormatFactory;
+import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormatFactory;
 
 import com.google.inject.Provider;
 import com.google.inject.Singleton;

@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench;
 
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
 import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackDialog;
 import org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackServiceAsync;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
 
 import com.google.inject.Inject;
 

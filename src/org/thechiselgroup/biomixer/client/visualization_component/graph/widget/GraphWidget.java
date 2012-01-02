@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.util.collections.ArrayUtils;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.collections.ArrayUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 
 import pl.rmalinowski.gwt2swf.client.ui.SWFWidget;
 

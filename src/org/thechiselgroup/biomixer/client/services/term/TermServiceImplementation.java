@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.util.UriUtils;
-import org.thechiselgroup.choosel.core.client.util.transform.Transformer;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
-import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

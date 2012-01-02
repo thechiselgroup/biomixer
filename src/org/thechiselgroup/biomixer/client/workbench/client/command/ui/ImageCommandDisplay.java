@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.client.command.ui;
 
-import static org.thechiselgroup.choosel.core.client.ui.IconURLBuilder.getIconUrl;
+import static org.thechiselgroup.biomixer.client.core.ui.IconURLBuilder.getIconUrl;
 
-import org.thechiselgroup.choosel.core.client.ui.IconURLBuilder.IconType;
-import org.thechiselgroup.choosel.core.client.ui.ImageButton;
+import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
+import org.thechiselgroup.biomixer.client.core.ui.IconURLBuilder.IconType;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;

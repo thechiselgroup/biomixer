@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-import org.thechiselgroup.choosel.core.client.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemInteraction;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;

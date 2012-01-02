@@ -24,9 +24,9 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ResourceSetDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WindowDTO;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION, detachable = "true")
 public class PersistentWorkspace {

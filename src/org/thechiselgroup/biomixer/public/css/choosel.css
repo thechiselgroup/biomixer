@@ -1,0 +1,464 @@
+/*
+ * Focus reset: no outlines around focused elements anymore - these
+ * need to be defined manually.
+ */
+:focus {
+	outline: 0;
+}
+
+/*
+ * Text area scrollbar reset: do not show scrollbars if not scrollable
+ * on IE.
+ */
+textarea { 
+	overflow: auto; 
+}
+
+/*
+ * Images displayed inline in tds cause unnecessary gaps in IE.
+ *
+ * https://developer.mozilla.org/en/Images,_Tables,_and_Mysterious_Gaps
+ */
+td img {
+	display: block;
+}
+ 
+
+.feedback-message {
+	padding: 3px;
+}
+
+.feedback-comments {
+	margin: 3px;
+    padding: 3px;
+    width: 100%;
+    height: 150px;
+}
+
+.feedback-comments:hover {
+    background-color: rgb(255, 255, 225);
+    border: solid 1px rgb(104, 140, 175);
+}
+
+.feedback-comments:focus {
+    border: solid 1px #E7B076;
+    background-color: rgb(255, 255, 225);
+}
+
+.feedback-comments:active {
+    border: solid 1px #E7B076;
+    background-color: rgb(255, 255, 225);
+}
+
+.authentication {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 5px;
+	border-bottom: 1px solid rgb(104, 140, 175);
+	border-left: 1px solid rgb(104, 140, 175);
+	background-color: #ffffff;
+}
+
+.userid {
+	color: rgb(112, 106, 170);
+	font-weight: bold;
+	padding-right: 5px;
+}
+
+.warning {
+    font-weight: bold;
+    padding-right: 5px;
+    color: #FF0000;
+}
+
+.branding-app-title {
+	position: relative;
+	left: 20px;
+	top: 20px;
+	font-size: 50px;
+    color: rgb(124, 160, 195);
+	display: inline;
+}
+
+.branding-minor-app-title {
+	display: inline;
+	position: relative;
+	left: 20px;
+	top: 20px;
+	font-size: 20px;
+    color: rgb(124, 160, 195);
+}
+
+.branding-copy-right {
+    position: relative;
+    left: 20px;
+    top: 20px;
+    font-size: 15px;
+    color: rgb(124, 160, 195);
+    /* rgb(164, 195, 235); */
+}
+
+.popups-Popup {
+    position: absolute;
+    border: 1px solid rgb(212, 208, 200);
+    background-color: rgb(255, 255, 225);
+    padding: 3px;
+    
+	box-shadow: 1px 1px 2px #333333;
+	-moz-box-shadow: 1px 1px 2px #333333;
+	-webkit-box-shadow: 1px 1px 2px #333333;    
+}
+
+.popups-Alpha {
+    filter:alpha(Opacity=85);
+    opacity:0.85; 
+    -moz-opacity:0.85;
+    -khtml-opacity:0.85;
+    
+    box-shadow: 1px 1px 2px #333333;
+    -moz-box-shadow: 1px 1px 2px #333333;
+    -webkit-box-shadow: 1px 1px 2px #333333;       
+}
+
+.popup-content-header {
+	font-weight: bold;
+	font-size: 16px;
+    border: 1px solid rgb(255, 255, 225);
+    background-color: rgb(255, 255, 225);
+}
+
+.popup-content-header:hover {
+    background-color: rgb(255, 255, 255);
+    border: 1px solid rgb(212, 208, 200);
+}
+
+.popup-content-header:focus {
+    border: solid 1px #E7B076;
+    background-color: rgb(255, 255, 255);
+}
+
+.popup-content-header:active {
+    border: solid 1px #E7B076;
+    background-color: rgb(255, 255, 255);
+}
+ 
+
+.popup-content-subheader {
+    font-size: 12px;
+    color: rgb(128, 128, 128);
+    padding-left: 5px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgb(212, 208, 200);
+}
+
+.popup-content-info {
+    width: 225px;
+}
+
+.popup-content-info p {
+    border: 0px;
+    margin: 0px;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-bottom: 5px;
+}
+
+table.popup-content-action {
+    width: 225px;
+	
+	margin: 0px;
+    
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+	padding-bottom: 2px;
+
+	border-top: 0px;
+	border-left: 0px;
+	border-right: 0px;
+	border-bottom: 1px solid rgb(212, 208, 200);
+}
+
+button.popup-content-action {
+    background: none;
+    border: none;
+    
+    padding-left: 0px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-decoration: underline;
+    color: rgb(104, 140, 175);
+}
+
+button.popup-content-action:hover {
+    color: #E7B076;
+}
+
+button.popup-content-action:focus {
+    color: #E7B076;
+    background: none;
+}
+
+button.popup-content-action:active {
+	border: none;
+    color: #E7B076;
+}
+
+.listViewScrollbar {
+    background-color: rgb(255, 255, 255);
+}
+
+.choosel-TextViewContentDisplay-TagCloud div {
+	display: inline;
+	white-space: nowrap;
+	float: left;
+	line-height: 26px;
+}
+
+.DefaultView-ConfigurationPanel {
+	border-left: 1px solid rgb(159, 188, 215);
+	width: 200px;
+	height: 100%;
+}
+
+.DefaultView-ConfigurationPanel .gwt-StackPanelItem {
+	border-top: 1px solid rgb(159, 188, 215);
+    background-color: rgb(193, 217, 241);
+    padding: 2px;
+    color: rgb(0, 0, 0);
+    text-align: center;
+    font-weight: normal;
+}
+
+.DefaultView-ConfigurationPanel .gwt-StackPanelItem-first {
+    border-top: 0px;
+}
+
+.DefaultView-ConfigurationPanel .gwt-StackPanelItem-selected {
+    font-weight: bold;
+	border-bottom: 1px solid rgb(159, 188, 215);
+}
+
+.DefaultView-ConfigurationPanel .gwt-StackPanelContent {
+	background-color: rgb(218, 229, 243);
+}
+
+.DefaultView-Expander {
+	padding: 8px 4px;
+}
+
+.infoLabel {
+    font-size: 13px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    color: rgb(112, 106, 170);
+}
+
+.shade {
+    background-color: rgba(0, 0, 0, 0.50);
+    
+    border: 0px;
+    padding: 0px;    
+}
+
+.textItem {
+    padding: 2px;
+    border: 0px;
+    margin: 2px;
+    cursor: default;
+}
+
+.textItemSelected {
+	color: #E7B076;
+	/** border: 1px solid #7D5F40; */
+    font-weight: bold;
+}
+
+.textItemHighlighted {
+    padding: 1px;
+    border: 1px solid rgb(212, 208, 200);
+    background-color: rgb(255, 255, 225);
+}
+
+.textItemPartiallyHighlighted {
+    padding: 1px;
+    border: 1px dashed rgb(212, 208, 200);
+    background-color: rgb(255, 255, 240);
+}
+
+.view-configurationPanel {
+    border-bottom: 1px solid rgb(159, 188, 215);
+    background-color: #DAE5F3;
+    padding: 2px;
+}
+
+.graph-loading-info {
+	position: absolute;
+	left: 15px;
+	top: 60px;
+    font: 18px;
+    font-weight: bold;
+    color: rgb(112, 106, 170);	
+}
+
+.note {
+    background-color: rgba(255,255,255,0.85);
+    color: rgb(0, 0, 0);
+    font-size: 13px;
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    border: 0px;
+    padding: 5px;
+}
+
+.note:hover {
+    background-color: rgb(255, 255, 225);
+    border: 0px;
+}
+
+.note:focus {
+    background-color: rgb(255, 255, 225);
+    border: 0px;
+}
+
+.note:active {
+    background-color: rgb(255, 255, 225);
+    border: 0px;
+}
+
+.resourceItemIcon {
+	width: 16px;
+	height: 16px;
+	border-width: 1px;
+	border-style: solid;
+	padding: 0px;	
+	/*
+	 * take border into account. Safari does not support
+	 * % values.
+	 */
+	border-radius: 9px;
+	-moz-border-radius: 9px;
+	-webkit-border-radius: 9px;
+}
+
+.choosel-ImportPanel {
+    width: 100%;
+    height: 100%;
+}
+
+table.choosel-ImportPanel tbody tr td {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+table.choosel-ImportPanel tbody tr td:last-child {
+	padding-bottom: 5px;
+}
+
+table.choosel-ImportPanel tbody tr td:first-child {
+	padding-top: 5px;
+}
+
+.choosel-ImportPanel textarea  {
+	width: 100%;
+	height: 100%;
+}
+
+.choosel-ImportPanel-DataSetName {
+	margin-bottom: 5px;
+}
+
+.choosel-ImportPanel-DataSetName .choosel-ImportPanel-Label {
+	display: inline;
+}
+
+.choosel-ImportPanel-DataSetName input[type="text"] {
+	margin-left: 5px;
+}
+
+.choosel-ImportPanel-Errors {
+	font-weight: bold;
+	display: inline;
+	color: red;
+}
+
+.choosel-ImportPanel-Errors div {
+	display: inline;
+}
+
+.choosel-ImportPanel-Label {
+	font-weight: bold;
+}
+
+/*
+ * general styling of input elements
+ */
+input[type="text"], textarea {
+    background-color: #FFFFFF;
+    border:solid 1px rgb(164, 195, 235);
+    font-size: 13px;
+}
+
+input[type="text"]:hover, textarea:hover {
+    background-color: rgb(255, 255, 225);
+    border: solid 1px rgb(104, 140, 175);
+}
+
+input[type="text"]:focus, textarea:focus {
+    border: solid 1px #E7B076;
+    background-color: rgb(255, 255, 225);
+}
+
+input[type="text"]:active, textarea:active {
+    border: solid 1px #E7B076;
+    background-color: rgb(255, 255, 225);
+}
+
+.choosel-ConfigurationPanel {
+}
+
+.choosel-ConfigurationPanel-SettingLabel {
+	font-weight: bold;
+	padding-bottom: 2px;
+	padding-top: 5px;
+}
+
+.choosel-ConfigurationPanel-Setting {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.Choosel-Help-Content {
+	background-color: #ffffff;
+	overflow: auto;
+}
+
+.Choosel-Help-Content h1 {
+	font-size: 20pt;
+	padding-left: 20px;
+	padding-bottom: 5px;
+	padding-top: 10px;
+}
+
+.Choosel-Help-Content h2 {
+	font-size: 14pt;
+	font-weight: bold;
+	padding-left: 20px;
+	padding-bottom: 5px;
+	padding-top: 5px;
+}
+
+.Choosel-Help-Content div {
+	padding-left: 20px;
+	padding-bottom: 5px;
+	padding-top: 5px;
+}
+
+.Choosel-Help-Content ul, .Choosel-Help-Content ol {
+    list-style-position: inside;
+}

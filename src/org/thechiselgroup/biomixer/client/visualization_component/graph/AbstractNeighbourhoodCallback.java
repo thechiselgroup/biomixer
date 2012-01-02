@@ -18,11 +18,11 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
-import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandlingAsyncCallback;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
 
 @Deprecated
 public abstract class AbstractNeighbourhoodCallback extends

@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.visualization.model.DelegatingViewContentDisplay;
-import org.thechiselgroup.choosel.core.client.visualization.model.ViewContentDisplay;
-import org.thechiselgroup.choosel.core.client.visualization.model.ViewContentDisplayCallback;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
+import org.thechiselgroup.biomixer.client.core.visualization.model.DelegatingViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 
 public class DropEnabledViewContentDisplay extends DelegatingViewContentDisplay {
 

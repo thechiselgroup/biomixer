@@ -32,14 +32,14 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.util.ServiceException;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ResourceSetDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WindowDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspaceDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspacePreviewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceService;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.util.ServiceException;
-import org.thechiselgroup.choosel.core.shared.test.AdvancedAsserts;
+import org.thechiselgroup.biomixer.shared.core.test.AdvancedAsserts;
 
 public class WorkspacePersistenceServiceImplementationTest {
 

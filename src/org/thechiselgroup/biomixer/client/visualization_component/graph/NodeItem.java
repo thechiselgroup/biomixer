@@ -22,13 +22,13 @@ import static org.thechiselgroup.biomixer.client.visualization_component.graph.w
 import static org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay.NODE_FONT_WEIGHT_BOLD;
 import static org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay.NODE_FONT_WEIGHT_NORMAL;
 
+import org.thechiselgroup.biomixer.client.core.ui.Color;
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.choosel.core.client.ui.Color;
-import org.thechiselgroup.choosel.core.client.ui.Colors;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Status;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem.Subset;
 
 public class NodeItem {
 

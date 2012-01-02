@@ -21,8 +21,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
 
 public class DefaultWorkspaceManagerTest {
 

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
-import org.thechiselgroup.choosel.core.client.util.math.NumberArray;
+import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
 
 /**
  * Calculates <code>numberOfBins</code> equal-length bins between the minimum

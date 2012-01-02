@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.dnd.windows;
 
 import java.util.Map;
 
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 
 public class DefaultWindowContentProducer implements WindowContentProducer {
 

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
-import org.thechiselgroup.choosel.core.client.util.math.NumberArray;
+import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
 
 //TODO think about renaming interface
 public interface BinBoundaryCalculator {

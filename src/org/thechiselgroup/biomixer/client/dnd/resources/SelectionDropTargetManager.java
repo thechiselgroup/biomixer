@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.ui.popup.PopupFactory;
-import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;

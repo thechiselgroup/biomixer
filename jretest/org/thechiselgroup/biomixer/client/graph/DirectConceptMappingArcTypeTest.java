@@ -26,17 +26,17 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceAccessor;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
+import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemTestUtils;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceAccessor;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollections;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
-import org.thechiselgroup.choosel.core.client.visualization.model.implementation.VisualItemTestUtils;
-import org.thechiselgroup.choosel.core.shared.test.matchers.collections.CollectionMatchers;
+import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
 
 public class DirectConceptMappingArcTypeTest {
 

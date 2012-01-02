@@ -21,6 +21,16 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.persistence.Memento;
+import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
+import org.thechiselgroup.biomixer.client.core.ui.HasTextParameter;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
 import org.thechiselgroup.biomixer.client.dnd.windows.AbstractWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
@@ -28,16 +38,6 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
-import org.thechiselgroup.choosel.core.client.persistence.Memento;
-import org.thechiselgroup.choosel.core.client.persistence.Persistable;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetCollector;
-import org.thechiselgroup.choosel.core.client.ui.HasTextParameter;
-import org.thechiselgroup.choosel.core.client.visualization.DefaultView;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;

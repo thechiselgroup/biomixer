@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-import org.thechiselgroup.choosel.core.client.ui.SidePanelSection;
-import org.thechiselgroup.choosel.core.client.visualization.View;
+import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 
 import com.google.gwt.user.client.ui.IsWidget;
 

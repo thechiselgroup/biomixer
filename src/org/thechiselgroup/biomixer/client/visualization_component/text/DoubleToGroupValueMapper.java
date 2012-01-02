@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.text;
 
 import java.util.List;
 
-import org.thechiselgroup.choosel.core.client.util.math.NumberArray;
+import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
 
 public class DoubleToGroupValueMapper<T> {
 

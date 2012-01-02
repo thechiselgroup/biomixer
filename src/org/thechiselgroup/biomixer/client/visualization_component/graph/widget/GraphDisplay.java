@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
 import java.util.Collection;
 
-import org.thechiselgroup.choosel.core.client.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;

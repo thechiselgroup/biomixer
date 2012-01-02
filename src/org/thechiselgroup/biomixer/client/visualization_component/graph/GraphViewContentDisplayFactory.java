@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
-import org.thechiselgroup.choosel.core.client.resources.ResourceCategorizer;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.visualization.model.ViewContentDisplay;
-import org.thechiselgroup.choosel.core.client.visualization.model.initialization.ViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
 import com.google.inject.Inject;
 

@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-import org.thechiselgroup.choosel.core.client.ui.SidePanelSection;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightList;
-import org.thechiselgroup.choosel.core.client.visualization.View;
-import org.thechiselgroup.choosel.core.client.visualization.ViewPart;
+import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
 
 public class ShareConfigurationViewPart implements ViewPart {
 

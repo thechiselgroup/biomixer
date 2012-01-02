@@ -18,11 +18,11 @@ package org.thechiselgroup.biomixer.client.workbench.embed;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.BrowserDetect;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.ApplicationInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
-import org.thechiselgroup.choosel.core.client.error_handling.LoggingErrorHandler;
-import org.thechiselgroup.choosel.core.client.util.BrowserDetect;
-import org.thechiselgroup.choosel.core.client.visualization.View;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;

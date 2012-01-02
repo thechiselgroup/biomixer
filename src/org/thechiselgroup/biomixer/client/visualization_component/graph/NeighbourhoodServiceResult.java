@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.thechiselgroup.choosel.core.client.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 /**
  * @deprecated Use {@link ResourceNeighbourhood} instead.

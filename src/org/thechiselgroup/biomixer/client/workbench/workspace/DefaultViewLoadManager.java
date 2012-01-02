@@ -18,6 +18,17 @@ package org.thechiselgroup.biomixer.client.workbench.workspace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
+import org.thechiselgroup.biomixer.client.core.resources.UnmodifiableResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
+import org.thechiselgroup.biomixer.client.core.util.callbacks.TransformingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
@@ -26,17 +37,6 @@ import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ResourceSetDTO
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ViewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ViewPreviewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.ViewPersistenceServiceAsync;
-import org.thechiselgroup.choosel.core.client.persistence.Persistable;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
-import org.thechiselgroup.choosel.core.client.resources.UnmodifiableResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.choosel.core.client.util.callbacks.TransformingAsyncCallback;
-import org.thechiselgroup.choosel.core.client.util.transform.Transformer;
-import org.thechiselgroup.choosel.core.client.visualization.View;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

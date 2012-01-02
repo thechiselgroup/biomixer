@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.choosel.core.client.label.MappingCategoryLabelProvider;
+import org.thechiselgroup.biomixer.client.core.label.MappingCategoryLabelProvider;
 
 public class BioMixerMappingCategoryLabelProvider extends
         MappingCategoryLabelProvider {

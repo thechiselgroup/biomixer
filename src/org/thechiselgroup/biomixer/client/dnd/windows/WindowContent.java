@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.util.Initializable;
+import org.thechiselgroup.biomixer.client.core.util.Initializable;
 
 import com.google.gwt.user.client.ui.IsWidget;
 

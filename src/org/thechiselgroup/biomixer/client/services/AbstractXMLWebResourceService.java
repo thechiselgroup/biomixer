@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services;
 
-import org.thechiselgroup.choosel.core.client.util.callbacks.TransformingAsyncCallback;
-import org.thechiselgroup.choosel.core.client.util.transform.Transformer;
-import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
-import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
+import org.thechiselgroup.biomixer.client.core.util.callbacks.TransformingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

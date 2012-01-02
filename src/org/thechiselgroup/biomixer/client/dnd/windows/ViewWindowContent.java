@@ -15,13 +15,13 @@ import com.google.gwt.user.client.ui.Widget;
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.persistence.Memento;
-import org.thechiselgroup.choosel.core.client.persistence.Persistable;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetCollector;
-import org.thechiselgroup.choosel.core.client.util.Disposable;
-import org.thechiselgroup.choosel.core.client.visualization.View;
+import org.thechiselgroup.biomixer.client.core.persistence.Memento;
+import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
+import org.thechiselgroup.biomixer.client.core.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 
 import com.google.gwt.user.client.ui.Widget;
 

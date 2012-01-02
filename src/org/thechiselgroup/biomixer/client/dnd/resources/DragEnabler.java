@@ -15,16 +15,16 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
+import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
+import org.thechiselgroup.biomixer.client.core.ui.ZIndex;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyDetachedEvent;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyDetachedEventHandler;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.choosel.core.client.resources.ui.ResourceSetAvatarType;
-import org.thechiselgroup.choosel.core.client.ui.CSS;
-import org.thechiselgroup.choosel.core.client.ui.ZIndex;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemInteraction;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemInteraction.Type;
 
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.MouseDownEvent;

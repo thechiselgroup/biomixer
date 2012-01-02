@@ -30,11 +30,11 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.SUM_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.TEXT_PROPERTY_RESOLVER_FACTORY;
 
-import org.thechiselgroup.choosel.core.client.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
-import org.thechiselgroup.choosel.core.client.visualization.model.persistence.PropertyDependantVisualItemResolverPersistence;
-import org.thechiselgroup.choosel.core.client.visualization.model.persistence.SingletonVisualItemResolverPersistence;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.PropertyDependantVisualItemValueResolverFactory;
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.SingletonVisualItemResolverFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
+import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.PropertyDependantVisualItemResolverPersistence;
+import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.SingletonVisualItemResolverPersistence;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.PropertyDependantVisualItemValueResolverFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.SingletonVisualItemResolverFactory;
 
 import com.google.inject.Provider;
 

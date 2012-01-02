@@ -18,18 +18,18 @@ package org.thechiselgroup.biomixer.client.workbench.workspace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
+import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.UnmodifiableResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.persistence.DefaultResourceSetCollector;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.services.AsyncCallbackDelegate;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ResourceSetDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ViewDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.ViewPersistenceServiceAsync;
-import org.thechiselgroup.choosel.core.client.error_handling.LoggingErrorHandler;
-import org.thechiselgroup.choosel.core.client.persistence.Persistable;
-import org.thechiselgroup.choosel.core.client.resources.DefaultResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.UnmodifiableResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.persistence.DefaultResourceSetCollector;
-import org.thechiselgroup.choosel.core.client.visualization.View;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

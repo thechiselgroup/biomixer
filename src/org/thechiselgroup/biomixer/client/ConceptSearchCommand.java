@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
 
 import com.google.inject.Inject;
 

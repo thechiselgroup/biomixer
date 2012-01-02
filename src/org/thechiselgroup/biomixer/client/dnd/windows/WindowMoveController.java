@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 
 import com.allen_sauer.gwt.dnd.client.util.WidgetLocation;
 

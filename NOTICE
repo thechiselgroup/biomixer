@@ -4,6 +4,62 @@ by various people and organizations (further software components
 may be used by those components):
 
 
+Mockito
+Testing with mock objects
+Version: 1.8.2
+URL: http://mockito.org/
+License: MIT License
+
+
+Gin
+Dependency injection for GWT
+Version: 20091021
+URL: http://code.google.com/p/google-gin/
+License: Apache License 2.0
+
+
+Guice
+Dependency injection framework, required for Gin
+Version: 2.0
+URL: http://code.google.com/p/google-guice/
+License: Apache License 2.0
+
+
+GWT FX
+Visual Effects
+Version: 0.5.0-m1
+URL: http://code.google.com/p/gwt-fx/
+License: Apache License 2.0
+
+
+reset5
+CSS Reset
+Version: N/A
+URL: http://code.google.com/p/reset5/
+License: MIT
+
+
+YUI 2: Fonts CSS
+CSS Reset
+Version: N/A
+URL: http://developer.yahoo.com/yui/fonts/
+License: BSD
+
+
+Tango Icon Library
+Icons used in Choosel
+Version: 0.8.90 (Choosel uses derived icons)
+URL: http://tango.freedesktop.org/Tango_Desktop_Project
+License: Public Domain
+
+
+GWT DnD
+Drag and Drop functionality
+Version: 3.0.0
+URL: http://code.google.com/p/gwt-dnd/
+License: Apache License 2.0
+
+
 Protovis
 JavaScript Visualization Library
 Version: 3.2

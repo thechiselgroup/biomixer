@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePresenter.WorkspacePresenterDisplay;
-import org.thechiselgroup.choosel.core.shared.test.mockito.StubbingArgumentCaptor;
+import org.thechiselgroup.biomixer.shared.core.test.mockito.StubbingArgumentCaptor;
 
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;

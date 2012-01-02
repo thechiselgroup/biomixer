@@ -21,12 +21,12 @@ import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.thechiselgroup.choosel.core.client.resources.DefaultResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetUtils;
-import org.thechiselgroup.choosel.core.client.util.DataType;
-import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetUtils;
+import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 
 public class DefaultDropTargetCapabilityCheckerTest {
 

@@ -17,19 +17,19 @@ package org.thechiselgroup.biomixer.client.visualization_component.chart.scatter
 
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.ui.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayProperty;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.ChartViewContentDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.TickFormatFunction;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.VisualItemColorSlotAccessor;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.VisualItemDoubleSlotAccessor;
 import org.thechiselgroup.biomixer.client.visualization_component.chart.functions.VisualItemStringSlotAccessor;
-import org.thechiselgroup.choosel.core.client.ui.Colors;
-import org.thechiselgroup.choosel.core.client.ui.TextBoundsEstimator;
-import org.thechiselgroup.choosel.core.client.util.DataType;
-import org.thechiselgroup.choosel.core.client.util.collections.Delta;
-import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollection;
-import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
-import org.thechiselgroup.choosel.core.client.visualization.model.ViewContentDisplayProperty;
-import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 import org.thechiselgroup.choosel.protovis.client.PV;
 import org.thechiselgroup.choosel.protovis.client.PVAlignment;
 import org.thechiselgroup.choosel.protovis.client.PVDot;

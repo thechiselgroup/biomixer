@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
-import org.thechiselgroup.choosel.core.client.command.AbstractUndoableCommand;
-import org.thechiselgroup.choosel.core.client.geometry.Point;
-import org.thechiselgroup.choosel.core.client.util.HasDescription;
+import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
 public class MoveWindowCommand extends AbstractUndoableCommand implements HasDescription {
 

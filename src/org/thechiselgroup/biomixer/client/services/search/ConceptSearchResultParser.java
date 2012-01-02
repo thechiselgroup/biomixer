@@ -19,10 +19,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.XPathEvaluationException;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
 
 import com.google.inject.Inject;
 

@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.workbench.workspace.dto;
 
 import java.io.Serializable;
 
-import org.thechiselgroup.choosel.core.client.persistence.Memento;
+import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 
 public class WindowDTO implements Serializable {
 

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.init;
 
-import org.thechiselgroup.choosel.core.client.error_handling.LoggingErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 
 import com.google.gwt.inject.client.Ginjector;
 

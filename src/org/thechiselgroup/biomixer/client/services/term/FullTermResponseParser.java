@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.XPathEvaluationException;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.UriList;
-import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
 
 import com.google.inject.Inject;
 

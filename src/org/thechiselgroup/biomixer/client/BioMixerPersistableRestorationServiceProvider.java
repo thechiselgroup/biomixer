@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationServiceProvider;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationServiceProvider;
 
 public class BioMixerPersistableRestorationServiceProvider extends
         PersistableRestorationServiceProvider {

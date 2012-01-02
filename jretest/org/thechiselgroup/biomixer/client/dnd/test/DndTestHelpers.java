@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.dnd.test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 
 import com.allen_sauer.gwt.dnd.client.util.DragClientBundle;
 import com.allen_sauer.gwt.dnd.client.util.DragClientBundle.DragCssResource;

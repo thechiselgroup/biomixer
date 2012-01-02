@@ -19,11 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.AbstractDialog;
-import org.thechiselgroup.biomixer.client.workbench.ui.dialog.DialogCallback;
+import org.thechiselgroup.biomixer.client.core.command.AsyncCommandExecutor;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.AbstractDialog;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogCallback;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePersistenceManager;
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePreview;
-import org.thechiselgroup.choosel.core.client.command.AsyncCommandExecutor;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;

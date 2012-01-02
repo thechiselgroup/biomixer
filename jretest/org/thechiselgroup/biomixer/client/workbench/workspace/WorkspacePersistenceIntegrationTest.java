@@ -18,23 +18,23 @@ package org.thechiselgroup.biomixer.client.workbench.workspace;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils.createResource;
-import static org.thechiselgroup.choosel.core.shared.test.matchers.collections.CollectionMatchers.containsExactly;
+import static org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils.createResource;
+import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
+import org.thechiselgroup.biomixer.client.core.test.IntegrationTest;
+import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspaceSharingServiceAsync;
-import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
-import org.thechiselgroup.choosel.core.client.resources.DefaultResourceManager;
-import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
-import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
-import org.thechiselgroup.choosel.core.client.test.IntegrationTest;
-import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

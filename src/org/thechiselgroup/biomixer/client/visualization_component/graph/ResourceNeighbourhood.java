@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.thechiselgroup.choosel.core.client.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 public class ResourceNeighbourhood implements Serializable {
 

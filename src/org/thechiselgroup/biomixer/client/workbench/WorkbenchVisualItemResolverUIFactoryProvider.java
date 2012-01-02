@@ -30,7 +30,7 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.SUM_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.TEXT_PROPERTY_RESOLVER_FACTORY;
 
-import org.thechiselgroup.choosel.core.client.visualization.resolvers.ui.DefaultVisualItemResolverUIFactoryProvider;
+import org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui.DefaultVisualItemResolverUIFactoryProvider;
 
 import com.google.inject.Inject;
 

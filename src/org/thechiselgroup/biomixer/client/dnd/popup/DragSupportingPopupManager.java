@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.popup;
 
+import org.thechiselgroup.biomixer.client.core.ui.popup.DefaultPopupManager;
+import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyAttachedEvent;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyAttachedEventHandler;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyDetachedEvent;
 import org.thechiselgroup.biomixer.client.dnd.DragProxyDetachedEventHandler;
-import org.thechiselgroup.choosel.core.client.ui.popup.DefaultPopupManager;
-import org.thechiselgroup.choosel.core.client.ui.popup.Popup;
 
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
 import com.google.gwt.event.logical.shared.HasAttachHandlers;
