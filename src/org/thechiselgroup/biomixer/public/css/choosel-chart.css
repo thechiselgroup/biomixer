@@ -1,0 +1,16 @@
+.Choosel-Chart-Widget {
+    background-color: #FFFFFF;
+    
+}
+
+/*
+ * Should be set when chart widgets appear in TD. To prevent a text 
+ * spacing issue in strict mode, block display is required, but protovis 
+ * resets it to inline-block in the inline style, so we need !important.
+ * 
+ * https://developer.mozilla.org/en/Images,_Tables,_and_Mysterious_Gaps
+ * https://github.com/mbostock/protovis/pull/2
+ */
+td div.Choosel-Chart-Widget {
+    display: block !important;
+}

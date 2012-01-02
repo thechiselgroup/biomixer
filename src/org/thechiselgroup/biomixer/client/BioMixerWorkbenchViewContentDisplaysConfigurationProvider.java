@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.visualization_component.chart.barchart.BarChart;
+import org.thechiselgroup.biomixer.client.visualization_component.chart.barchart.BarChartViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
@@ -28,8 +30,6 @@ import org.thechiselgroup.choosel.core.client.visualization.resolvers.FixedValue
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.SubsetDelegatingValueResolver;
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.VisualItemStatusResolver;
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.VisualItemStatusResolver.StatusRule;
-import org.thechiselgroup.choosel.visualization_component.chart.client.barchart.BarChart;
-import org.thechiselgroup.choosel.visualization_component.chart.client.barchart.BarChartViewContentDisplayFactory;
 
 import com.google.inject.Inject;
 

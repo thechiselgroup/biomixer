@@ -32,8 +32,8 @@
   
   <!-- GWT SWF Bridge: gwt2swf -->
   <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' /> 
-
-  <inherits name='org.thechiselgroup.choosel.visualization_component.chart.Chart'/>
+  
+  <inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT" />
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 

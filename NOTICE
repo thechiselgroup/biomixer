@@ -4,10 +4,17 @@ by various people and organizations (further software components
 may be used by those components):
 
 
-Google Web Toolkit (GWT)
-Web application framework
-Version: 2.1.1
-URL: http://code.google.com/webtoolkit/
+Protovis
+JavaScript Visualization Library
+Version: 3.2
+URL: http://vis.stanford.edu/protovis/
+License: BSD License
+
+
+Protovis-GWT
+GWT Wrapper for Protovis
+Version: Custom Build
+URL: http://code.google.com/p/choosel/wiki/ProtovisGWT
 License: Apache License 2.0
 
 
