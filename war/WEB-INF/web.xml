@@ -13,7 +13,7 @@
   
   <servlet>
     <servlet-name>authentication</servlet-name>
-    <servlet-class>org.thechiselgroup.choosel.workbench.server.authentication.AuthenticationServiceServlet</servlet-class>
+    <servlet-class>org.thechiselgroup.biomixer.server.workbench.authentication.AuthenticationServiceServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>authentication</servlet-name>
@@ -22,7 +22,7 @@
 
   <servlet>
     <servlet-name>feedback</servlet-name>
-    <servlet-class>org.thechiselgroup.choosel.workbench.server.feedback.FeedbackServiceServlet</servlet-class>
+    <servlet-class>org.thechiselgroup.biomixer.server.workbench.feedback.FeedbackServiceServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>feedback</servlet-name>
@@ -31,7 +31,7 @@
   
   <servlet>
     <servlet-name>workspace</servlet-name>
-    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.WorkspacePersistenceServiceServlet</servlet-class>
+    <servlet-class>org.thechiselgroup.biomixer.server.workbench.workspace.WorkspacePersistenceServiceServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>workspace</servlet-name>
@@ -40,7 +40,7 @@
 
   <servlet>
     <servlet-name>workspace-sharing</servlet-name>
-    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.WorkspaceSharingServiceServlet</servlet-class>
+    <servlet-class>org.thechiselgroup.biomixer.server.workbench.workspace.WorkspaceSharingServiceServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>workspace-sharing</servlet-name>
@@ -49,7 +49,7 @@
   
   <servlet>
     <servlet-name>acceptInvitation</servlet-name>
-    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.AcceptInvitationServlet</servlet-class>
+    <servlet-class>org.thechiselgroup.biomixer.server.workbench.workspace.AcceptInvitationServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>acceptInvitation</servlet-name>
@@ -58,20 +58,22 @@
 
   <servlet>
     <servlet-name>view</servlet-name>
-    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.ViewPersistenceServiceServlet</servlet-class>
+    <servlet-class>org.thechiselgroup.biomixer.server.workbench.workspace.ViewPersistenceServiceServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>view</servlet-name>
     <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/view</url-pattern>
   </servlet-mapping>
 
+  <!-- remote logging service -->  
   <servlet>
-    <servlet-name>remoteLoggerServiceImpl</servlet-name>
-    <servlet-class>com.allen_sauer.gwt.log.server.RemoteLoggerServiceImpl</servlet-class>
+    <servlet-name>remoteLoggingServlet</servlet-name>
+    <servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class>
   </servlet>
+  
   <servlet-mapping>
-    <servlet-name>remoteLoggerServiceImpl</servlet-name>
-    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/gwt-log</url-pattern>
+    <servlet-name>remoteLoggingServlet</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/remote_logging</url-pattern>
   </servlet-mapping>
  
 </web-app>
