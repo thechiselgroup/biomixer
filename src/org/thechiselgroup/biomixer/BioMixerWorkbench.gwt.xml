@@ -34,7 +34,6 @@
   <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' /> 
 
   <inherits name='org.thechiselgroup.choosel.visualization_component.chart.Chart'/>
-  <inherits name='org.thechiselgroup.choosel.visualization_component.graph.Graph'/>
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 

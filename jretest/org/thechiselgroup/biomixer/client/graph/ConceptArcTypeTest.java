@@ -26,14 +26,14 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
 import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
 import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollections;
 import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
 import org.thechiselgroup.choosel.core.client.visualization.model.implementation.VisualItemTestUtils;
-import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
-import org.thechiselgroup.choosel.visualization_component.graph.client.widget.Arc;
 
 public class ConceptArcTypeTest {
 

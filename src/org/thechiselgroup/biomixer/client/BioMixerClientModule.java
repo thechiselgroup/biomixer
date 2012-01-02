@@ -27,6 +27,8 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphExpansionRegistry;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchClientModule;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
@@ -46,8 +48,6 @@ import org.thechiselgroup.choosel.core.client.visualization.resolvers.ui.VisualI
 import org.thechiselgroup.choosel.core.shared.util.date.DateTimeFormatFactory;
 import org.thechiselgroup.choosel.dnd.client.windows.Branding;
 import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ArcTypeProvider;
-import org.thechiselgroup.choosel.visualization_component.graph.client.GraphExpansionRegistry;
 
 import com.google.inject.Provider;
 import com.google.inject.Singleton;

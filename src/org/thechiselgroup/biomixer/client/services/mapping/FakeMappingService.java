@@ -23,11 +23,11 @@ import java.util.logging.Logger;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.choosel.core.client.error_handling.LoggerProvider;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
 import org.thechiselgroup.choosel.core.client.resources.UriList;
 import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;

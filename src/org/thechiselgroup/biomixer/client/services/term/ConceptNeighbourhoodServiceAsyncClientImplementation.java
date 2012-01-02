@@ -16,12 +16,12 @@
 package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.choosel.core.client.util.UriUtils;
 import org.thechiselgroup.choosel.core.client.util.transform.Transformer;
 import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
 import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
 import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

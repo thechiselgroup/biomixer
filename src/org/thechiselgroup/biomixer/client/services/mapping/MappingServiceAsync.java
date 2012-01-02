@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.mapping;
 
-import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

@@ -17,6 +17,10 @@ package org.thechiselgroup.biomixer.client.graph;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
 import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
 import org.thechiselgroup.choosel.core.client.util.collections.CollectionFactory;
@@ -24,10 +28,6 @@ import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollec
 import org.thechiselgroup.choosel.core.client.util.collections.LightweightList;
 import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 import org.thechiselgroup.choosel.core.client.visualization.model.VisualItemContainer;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ArcType;
-import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
-import org.thechiselgroup.choosel.visualization_component.graph.client.widget.Arc;
-import org.thechiselgroup.choosel.visualization_component.graph.client.widget.ArcSettings;
 
 public class MappingArcType implements ArcType {
 

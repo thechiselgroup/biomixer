@@ -17,6 +17,10 @@ package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
@@ -29,10 +33,6 @@ import org.thechiselgroup.choosel.core.client.visualization.DefaultView;
 import org.thechiselgroup.choosel.core.client.visualization.View;
 import org.thechiselgroup.choosel.dnd.client.windows.ViewWindowContent;
 import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
-import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
-import org.thechiselgroup.choosel.visualization_component.graph.client.GraphLayoutSupport;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
-import org.thechiselgroup.choosel.visualization_component.graph.client.widget.GraphLayouts;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;

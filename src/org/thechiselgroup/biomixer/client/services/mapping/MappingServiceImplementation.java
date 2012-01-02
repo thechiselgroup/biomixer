@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
 import org.thechiselgroup.choosel.core.client.resources.UriList;
 import org.thechiselgroup.choosel.core.client.util.UriUtils;
@@ -30,7 +31,6 @@ import org.thechiselgroup.choosel.core.client.util.transform.Transformer;
 import org.thechiselgroup.choosel.core.client.util.url.UrlBuilder;
 import org.thechiselgroup.choosel.core.client.util.url.UrlBuilderFactory;
 import org.thechiselgroup.choosel.core.client.util.url.UrlFetchService;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

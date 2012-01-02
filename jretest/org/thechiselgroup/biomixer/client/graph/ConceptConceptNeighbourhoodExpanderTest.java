@@ -41,6 +41,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
 import org.thechiselgroup.choosel.core.client.resources.DefaultResourceManager;
 import org.thechiselgroup.choosel.core.client.resources.DefaultResourceSet;
@@ -50,10 +54,6 @@ import org.thechiselgroup.choosel.core.client.resources.ResourceSet;
 import org.thechiselgroup.choosel.core.client.resources.ResourceSetTestUtils;
 import org.thechiselgroup.choosel.core.client.resources.UriList;
 import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.visualization_component.graph.client.GraphNodeExpansionCallback;
-import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
-import org.thechiselgroup.choosel.visualization_component.graph.client.widget.GraphDisplay;
-import org.thechiselgroup.choosel.visualization_component.graph.client.widget.Node;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

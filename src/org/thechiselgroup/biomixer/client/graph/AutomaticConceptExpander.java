@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.graph;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
-import org.thechiselgroup.choosel.visualization_component.graph.client.GraphNodeExpander;
-import org.thechiselgroup.choosel.visualization_component.graph.client.GraphNodeExpansionCallback;
 
 import com.google.inject.Inject;
 
