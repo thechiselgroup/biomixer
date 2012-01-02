@@ -25,10 +25,14 @@
   <stylesheet src="css/choosel-window.css" />
   <stylesheet src="css/choosel-actionbar.css" />
   <stylesheet src="css/date-picker.css" />
+  <stylesheet src="css/choosel-dnd.css" />
 
   <!-- GWT basics --> 
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.user.theme.standard.StandardResources" />
+ 
+  <!-- Drag & drop: gwt-dnd -->
+  <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>
  
   <!-- Logging -->
   <inherits name="com.google.gwt.logging.Logging"/>

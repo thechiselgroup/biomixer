@@ -102,9 +102,8 @@
 			<attribute name="javadoc_location" value="file:/C:/opt/appengine-java-sdk-1.4.2/docs/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/protovis-gwt-0.4.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.thechiselgroup.choosel.protovis"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.3.0"/>
 	<classpathentry kind="lib" path="lib/gwt2swf-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/gwt-dnd-3.0.0-patched.jar"/>
@@ -118,5 +117,6 @@
 	<classpathentry kind="lib" path="lib/validation-api-1.0.0.GA.jar"/>
 	<classpathentry kind="lib" path="testlibs/mockito-all-1.8.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.3.0"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
