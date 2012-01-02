@@ -1,0 +1,68 @@
+The Bio-Mixer Workbench Module includes and uses the 
+following software components and resources developed 
+by various people and organizations (further software components 
+may be used by those components):
+
+
+Google Web Toolkit (GWT)
+Web application framework
+Version: 2.1.1
+URL: http://code.google.com/webtoolkit/
+License: Apache License 2.0
+
+
+Simile Timeline
+Timeline Component
+Version: 2.3.0
+URL: http://code.google.com/p/simile-widgets/
+License: New BSD License
+
+
+Simile Ajax API
+Required for Simile Timeline integration
+Version: 2.2.0
+URL: http://code.google.com/p/simile-widgets/
+License: New BSD License
+
+
+Google App Engine / Java (GAE/J)
+Server-side web application framework
+Version: 1.4.0
+URL: http://code.google.com/p/googleappengine/
+License: Apache License 2.0
+
+
+Google Web Toolkit (GWT)
+Web application framework
+Version: 2.1.1
+URL: http://code.google.com/webtoolkit/
+License: Apache License 2.0
+
+
+GWT 2 SWF
+Flash/Flex integration into GWT
+Version: 0.6.0
+URL: http://code.google.com/p/gwt2swf/
+License: Apache License 2.0
+
+
+Apache Xalan
+Server-side XSLT Processor
+Version: 2.7.1
+URL: http://xml.apache.org/xalan-j/
+License: Apache License 2.0
+
+
+Sarissa
+Client-side XSLT Processor
+Version: 0.9.9.4
+URL: http://dev.abiss.gr/sarissa/
+License: Apache License 2.0 
+
+
+Open CSV
+CSV Parser Library
+Version: 2.2
+URL: http://opencsv.sourceforge.net/
+License: Apache License 2.0
+Note: Only CSVParser class is used (as org.thechiselgroup.choosel.client.util.CSVParser). Source-code has been modified.
