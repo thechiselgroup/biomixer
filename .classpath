@@ -10,7 +10,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/org.thechiselgroup.choosel.visualization_component.graph"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.thechiselgroup.choosel.visualization_component.text"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.thechiselgroup.choosel.visualization_component.timeline"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.thechiselgroup.choosel.workbench"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER/gwt-2.3.0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.thechiselgroup.choosel.dnd"/>
+	<classpathentry kind="lib" path="lib/gwt2swf-0.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

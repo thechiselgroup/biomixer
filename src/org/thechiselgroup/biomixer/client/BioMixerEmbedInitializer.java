@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.choosel.workbench.client.embed.EmbedInitializer;
+import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 
 import com.google.inject.Inject;
 

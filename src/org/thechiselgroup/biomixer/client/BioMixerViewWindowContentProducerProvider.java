@@ -27,6 +27,7 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
 import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
+import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchViewWindowContentProducer;
 import org.thechiselgroup.choosel.core.client.resources.HasResourceCategorizer;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
 import org.thechiselgroup.choosel.core.client.resources.ResourceSetChangedEvent;
@@ -49,7 +50,6 @@ import org.thechiselgroup.choosel.dnd.client.resources.DropEnabledViewContentDis
 import org.thechiselgroup.choosel.visualization_component.graph.client.ArcItemContainer;
 import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
 import org.thechiselgroup.choosel.visualization_component.graph.client.widget.ArcSettings;
-import org.thechiselgroup.choosel.workbench.client.ChooselWorkbenchViewWindowContentProducer;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

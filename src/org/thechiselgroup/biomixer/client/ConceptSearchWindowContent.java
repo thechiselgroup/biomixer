@@ -15,13 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.FIXED_NUMBER_1_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.TEXT_PROPERTY_RESOLVER_FACTORY;
 import static org.thechiselgroup.choosel.visualization_component.text.client.TextVisualization.LABEL_SLOT;
-import static org.thechiselgroup.choosel.workbench.client.WorkbenchVisualItemValueResolverFactoryProvider.FIXED_NUMBER_1_RESOLVER_FACTORY;
-import static org.thechiselgroup.choosel.workbench.client.WorkbenchVisualItemValueResolverFactoryProvider.TEXT_PROPERTY_RESOLVER_FACTORY;
 
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.choosel.core.client.persistence.Memento;
 import org.thechiselgroup.choosel.core.client.persistence.Persistable;
 import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
@@ -37,7 +38,6 @@ import org.thechiselgroup.choosel.dnd.client.windows.AbstractWindowContent;
 import org.thechiselgroup.choosel.dnd.client.windows.ViewWindowContent;
 import org.thechiselgroup.choosel.dnd.client.windows.WindowPanel;
 import org.thechiselgroup.choosel.visualization_component.text.client.TextVisualization;
-import org.thechiselgroup.choosel.workbench.client.ui.configuration.ViewWindowContentProducer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;

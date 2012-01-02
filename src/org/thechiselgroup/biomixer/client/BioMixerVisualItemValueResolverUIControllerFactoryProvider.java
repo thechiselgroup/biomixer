@@ -20,7 +20,7 @@ import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolver
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
 
-import org.thechiselgroup.choosel.workbench.client.WorkbenchVisualItemResolverUIFactoryProvider;
+import org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemResolverUIFactoryProvider;
 
 public class BioMixerVisualItemValueResolverUIControllerFactoryProvider extends
         WorkbenchVisualItemResolverUIFactoryProvider {

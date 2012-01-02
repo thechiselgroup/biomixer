@@ -15,14 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
+import org.thechiselgroup.biomixer.client.workbench.ui.HelpWindowContentFactory;
+import org.thechiselgroup.biomixer.client.workbench.ui.NoteWindowContentFactory;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.choosel.dnd.client.windows.OverlayWindowContentProducer;
 import org.thechiselgroup.choosel.dnd.client.windows.WindowContent;
 import org.thechiselgroup.choosel.dnd.client.windows.WindowContentFactory;
 import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
-import org.thechiselgroup.choosel.workbench.client.init.WorkbenchInitializer;
-import org.thechiselgroup.choosel.workbench.client.ui.HelpWindowContentFactory;
-import org.thechiselgroup.choosel.workbench.client.ui.NoteWindowContentFactory;
-import org.thechiselgroup.choosel.workbench.client.ui.configuration.ViewWindowContentProducer;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;

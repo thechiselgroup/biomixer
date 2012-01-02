@@ -17,6 +17,8 @@ package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
+import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
 import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.choosel.core.client.resources.DefaultResourceSet;
@@ -31,8 +33,6 @@ import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
 import org.thechiselgroup.choosel.visualization_component.graph.client.GraphLayoutSupport;
 import org.thechiselgroup.choosel.visualization_component.graph.client.ResourceNeighbourhood;
 import org.thechiselgroup.choosel.visualization_component.graph.client.widget.GraphLayouts;
-import org.thechiselgroup.choosel.workbench.client.embed.EmbeddedViewLoader;
-import org.thechiselgroup.choosel.workbench.client.init.WindowLocation;
 
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;

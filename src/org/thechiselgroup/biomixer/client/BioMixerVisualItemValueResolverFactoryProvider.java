@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider;
 import org.thechiselgroup.choosel.core.client.util.DataType;
 import org.thechiselgroup.choosel.core.client.util.collections.LightweightCollection;
 import org.thechiselgroup.choosel.core.client.visualization.model.Slot;
 import org.thechiselgroup.choosel.core.client.visualization.model.VisualItem;
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.managed.SingleSlotDependentVisualItemResolverFactory;
 import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
-import org.thechiselgroup.choosel.workbench.client.WorkbenchVisualItemValueResolverFactoryProvider;
 
 import com.google.inject.Inject;
 

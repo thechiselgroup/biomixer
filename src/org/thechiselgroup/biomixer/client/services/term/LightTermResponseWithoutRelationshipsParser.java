@@ -17,8 +17,8 @@ package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
-import org.thechiselgroup.choosel.workbench.shared.util.xml.DocumentProcessor;
 
 import com.google.inject.Inject;
 

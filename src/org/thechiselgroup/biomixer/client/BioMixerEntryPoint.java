@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.choosel.workbench.client.init.ChooselEntryPoint;
-import org.thechiselgroup.choosel.workbench.client.init.ChooselGinjector;
+import org.thechiselgroup.biomixer.client.workbench.init.ChooselEntryPoint;
+import org.thechiselgroup.biomixer.client.workbench.init.ChooselGinjector;
 
 import com.google.gwt.core.client.GWT;
 

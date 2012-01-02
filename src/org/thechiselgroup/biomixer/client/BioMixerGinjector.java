@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.choosel.workbench.client.init.ChooselGinjector;
+import org.thechiselgroup.biomixer.client.workbench.init.ChooselGinjector;
 
 import com.google.gwt.inject.client.GinModules;
 

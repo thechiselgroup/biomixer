@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 import org.thechiselgroup.choosel.core.client.ui.TextCommandPresenter;
 import org.thechiselgroup.choosel.visualization_component.chart.client.barchart.BarChart;
 import org.thechiselgroup.choosel.visualization_component.graph.client.Graph;
 import org.thechiselgroup.choosel.visualization_component.text.client.TextVisualization;
 import org.thechiselgroup.choosel.visualization_component.timeline.client.TimeLine;
-import org.thechiselgroup.choosel.workbench.client.init.WorkbenchInitializer;
 
 import com.google.inject.Inject;
 

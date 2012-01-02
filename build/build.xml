@@ -14,7 +14,6 @@
 	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.graph/build/build-classpath.xml" />
 	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.text/build/build-classpath.xml" />
 	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.timeline/build/build-classpath.xml" />
-	<import file="${root.dir}/org.thechiselgroup.choosel.workbench/build/build-classpath.xml" />
 
 	<path id="org.thechiselgroup.biomixer-classpath">
 		<pathelement location="${src.dir}" />
@@ -32,7 +31,6 @@
 		<path refid="org.thechiselgroup.choosel.visualization_component.map-classpath" />
 		<path refid="org.thechiselgroup.choosel.visualization_component.text-classpath" />
 		<path refid="org.thechiselgroup.choosel.visualization_component.timeline-classpath" />
-		<path refid="org.thechiselgroup.choosel.workbench-classpath" />
 	</path>
 
 	<!--
@@ -46,9 +44,6 @@
 		</antcall>
 		<antcall target="build-module">
 			<param name="module-name" value="org.thechiselgroup.choosel.dnd" />
-		</antcall>
-		<antcall target="build-module">
-			<param name="module-name" value="org.thechiselgroup.choosel.workbench" />
 		</antcall>
 
 		<copy todir="${build.dir}/WEB-INF/lib">

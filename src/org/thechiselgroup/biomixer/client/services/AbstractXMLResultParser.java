@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services;
 
-import org.thechiselgroup.choosel.workbench.shared.util.xml.DocumentProcessor;
-import org.thechiselgroup.choosel.workbench.shared.util.xml.XPathEvaluationException;
+import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
+import org.thechiselgroup.biomixer.shared.workbench.util.xml.XPathEvaluationException;
 
 import com.google.inject.Inject;
 

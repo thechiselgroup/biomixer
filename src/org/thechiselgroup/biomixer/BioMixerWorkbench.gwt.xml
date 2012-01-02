@@ -17,7 +17,22 @@
 -->
 <module rename-to='org.thechiselgroup.biomixer.BioMixerWorkbench'>
 
-  <inherits name='org.thechiselgroup.choosel.workbench.Workbench'/>
+  <!-- GWT basics --> 
+  <inherits name='com.google.gwt.user.User'/>
+  <inherits name="com.google.gwt.user.theme.standard.StandardResources" />
+ 
+  <!-- Dependency injection: guice, gin -->
+  <inherits name="com.google.gwt.inject.Inject"/>
+  
+  <!-- Choosel core -->
+  <inherits name='org.thechiselgroup.choosel.core.Core'/>
+
+  <!-- Choosel dnd & windows -->
+  <inherits name='org.thechiselgroup.choosel.dnd.Dnd'/>
+  
+  <!-- GWT SWF Bridge: gwt2swf -->
+  <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' /> 
+
   <inherits name='org.thechiselgroup.choosel.visualization_component.chart.Chart'/>
   <inherits name='org.thechiselgroup.choosel.visualization_component.graph.Graph'/>
   <inherits name='org.thechiselgroup.choosel.visualization_component.text.Text'/>
@@ -34,6 +49,13 @@
   <set-property name="gwt.logging.simpleRemoteHandler" value="DISABLED"/>
   <set-property name="gwt.logging.developmentModeHandler" value="ENABLED"/>  
   
+  <!-- Client XPath/XSLT support via wrapping native browser support -->
+  <script src="js/lib/sarissa-0.9.9.4/sarissa-compressed.js"/>
+  <script src="js/lib/sarissa-0.9.9.4/sarissa_ieemu_xpath-compressed.js"/>
+
+  <source path='client'/>
+  <source path='shared'/>
+    
   <entry-point class='org.thechiselgroup.biomixer.client.BioMixerEntryPoint'/>
   
 </module>

@@ -26,10 +26,10 @@ import java.util.List;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
 import org.thechiselgroup.choosel.core.client.resources.Resource;
 import org.thechiselgroup.choosel.core.server.util.IOUtils;
 import org.thechiselgroup.choosel.core.server.util.date.SimpleDateTimeFormatFactory;
-import org.thechiselgroup.choosel.workbench.server.util.xml.StandardJavaXMLDocumentProcessor;
 
 public class MappingResponseParserTest {
 
