@@ -35,7 +35,6 @@
 
   <inherits name='org.thechiselgroup.choosel.visualization_component.chart.Chart'/>
   <inherits name='org.thechiselgroup.choosel.visualization_component.graph.Graph'/>
-  <inherits name='org.thechiselgroup.choosel.visualization_component.text.Text'/>
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 

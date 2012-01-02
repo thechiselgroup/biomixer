@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLineViewContentDisplayFactory;
 import org.thechiselgroup.choosel.core.client.ui.Colors;
@@ -29,7 +30,6 @@ import org.thechiselgroup.choosel.core.client.visualization.resolvers.VisualItem
 import org.thechiselgroup.choosel.visualization_component.chart.client.barchart.BarChart;
 import org.thechiselgroup.choosel.visualization_component.chart.client.barchart.BarChartViewContentDisplayFactory;
 import org.thechiselgroup.choosel.visualization_component.graph.client.GraphViewContentDisplayFactory;
-import org.thechiselgroup.choosel.visualization_component.text.client.TextViewContentDisplayFactory;
 
 import com.google.inject.Inject;
 
