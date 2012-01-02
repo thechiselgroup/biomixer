@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui.dialog;
 
+import org.thechiselgroup.biomixer.client.dnd.windows.AbstractWindowManager;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
 import org.thechiselgroup.choosel.core.client.command.NullCommandManager;
 import org.thechiselgroup.choosel.core.client.ui.ActionBar;
 import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.choosel.core.client.ui.shade.ShadeManager;
 import org.thechiselgroup.choosel.core.client.util.RemoveHandle;
-import org.thechiselgroup.choosel.dnd.client.windows.AbstractWindowManager;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowPanel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

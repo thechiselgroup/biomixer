@@ -15,6 +15,23 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench;
 
+import org.thechiselgroup.biomixer.client.dnd.popup.DragSupportingPopupManagerFactory;
+import org.thechiselgroup.biomixer.client.dnd.resources.AllSetDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.resources.DefaultDropTargetCapabilityChecker;
+import org.thechiselgroup.biomixer.client.dnd.resources.DefaultResourceSetAvatarDragController;
+import org.thechiselgroup.biomixer.client.dnd.resources.DragEnablerFactory;
+import org.thechiselgroup.biomixer.client.dnd.resources.DropTargetCapabilityChecker;
+import org.thechiselgroup.biomixer.client.dnd.resources.NullResourceSetAvatarDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
+import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.resources.SelectionDropTargetFactoryProvider;
+import org.thechiselgroup.biomixer.client.dnd.resources.SelectionDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.resources.ViewDisplayDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
+import org.thechiselgroup.biomixer.client.dnd.windows.DefaultDesktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.authentication.DefaultAuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.client.command.ui.CommandPresenterFactory;
@@ -97,23 +114,6 @@ import org.thechiselgroup.choosel.core.client.visualization.model.managed.Visual
 import org.thechiselgroup.choosel.core.client.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.ui.DefaultVisualItemResolverUIFactoryProvider;
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.ui.VisualItemValueResolverUIControllerFactoryProvider;
-import org.thechiselgroup.choosel.dnd.client.popup.DragSupportingPopupManagerFactory;
-import org.thechiselgroup.choosel.dnd.client.resources.AllSetDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.resources.DefaultDropTargetCapabilityChecker;
-import org.thechiselgroup.choosel.dnd.client.resources.DefaultResourceSetAvatarDragController;
-import org.thechiselgroup.choosel.dnd.client.resources.DragEnablerFactory;
-import org.thechiselgroup.choosel.dnd.client.resources.DropTargetCapabilityChecker;
-import org.thechiselgroup.choosel.dnd.client.resources.NullResourceSetAvatarDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.resources.ResourceSetAvatarDragController;
-import org.thechiselgroup.choosel.dnd.client.resources.ResourceSetAvatarDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.resources.ResourceSetDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.resources.SelectionDropTargetFactoryProvider;
-import org.thechiselgroup.choosel.dnd.client.resources.SelectionDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.resources.ViewDisplayDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.windows.Branding;
-import org.thechiselgroup.choosel.dnd.client.windows.DefaultDesktop;
-import org.thechiselgroup.choosel.dnd.client.windows.Desktop;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
 
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.inject.client.AbstractGinModule;

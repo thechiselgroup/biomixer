@@ -18,10 +18,10 @@ package org.thechiselgroup.biomixer.client.workbench.ui.dialog;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
 import org.thechiselgroup.choosel.core.client.ui.DialogPanel;
 import org.thechiselgroup.choosel.core.client.ui.ZIndex;
 import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowPanel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

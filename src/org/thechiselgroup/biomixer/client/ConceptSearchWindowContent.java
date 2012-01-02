@@ -21,6 +21,10 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
+import org.thechiselgroup.biomixer.client.dnd.windows.AbstractWindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
@@ -34,10 +38,6 @@ import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetA
 import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.choosel.core.client.ui.HasTextParameter;
 import org.thechiselgroup.choosel.core.client.visualization.DefaultView;
-import org.thechiselgroup.choosel.dnd.client.resources.DropEnabledViewContentDisplay;
-import org.thechiselgroup.choosel.dnd.client.windows.AbstractWindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.ViewWindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowPanel;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;

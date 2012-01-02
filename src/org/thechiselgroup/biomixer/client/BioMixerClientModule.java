@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
 import org.thechiselgroup.biomixer.client.graph.BioMixerGraphExpansionRegistry;
 import org.thechiselgroup.biomixer.client.services.NcboRestUrlBuilderFactory;
@@ -46,8 +48,6 @@ import org.thechiselgroup.choosel.core.client.visualization.model.managed.Visual
 import org.thechiselgroup.choosel.core.client.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
 import org.thechiselgroup.choosel.core.client.visualization.resolvers.ui.VisualItemValueResolverUIControllerFactoryProvider;
 import org.thechiselgroup.choosel.core.shared.util.date.DateTimeFormatFactory;
-import org.thechiselgroup.choosel.dnd.client.windows.Branding;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
 
 import com.google.inject.Provider;
 import com.google.inject.Singleton;

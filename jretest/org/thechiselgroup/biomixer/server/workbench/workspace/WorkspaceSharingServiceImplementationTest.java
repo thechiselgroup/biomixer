@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthorizationException;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspaceDTO;
 import org.thechiselgroup.biomixer.server.workbench.util.PasswordGenerator;
-import org.thechiselgroup.choosel.dnd.client.windows.Branding;
 
 import com.google.appengine.api.mail.MailService;
 import com.google.appengine.api.mail.MailService.Message;

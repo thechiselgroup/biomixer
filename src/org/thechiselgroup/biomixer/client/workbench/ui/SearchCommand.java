@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui;
 
+import org.thechiselgroup.biomixer.client.dnd.windows.CreateWindowCommand;
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.choosel.core.client.command.CommandManager;
 import org.thechiselgroup.choosel.core.client.ui.HasTextParameter;
-import org.thechiselgroup.choosel.dnd.client.windows.CreateWindowCommand;
-import org.thechiselgroup.choosel.dnd.client.windows.Desktop;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
 
 import com.google.gwt.user.client.Command;
 

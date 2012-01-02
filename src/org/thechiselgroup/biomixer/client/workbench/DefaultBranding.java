@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench;
 
-import org.thechiselgroup.choosel.dnd.client.windows.Branding;
+import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 
 public class DefaultBranding implements Branding {
 

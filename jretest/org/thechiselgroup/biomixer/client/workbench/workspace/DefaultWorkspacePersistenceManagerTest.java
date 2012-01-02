@@ -36,6 +36,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WorkspaceDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspaceSharingServiceAsync;
@@ -52,11 +57,6 @@ import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetA
 import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.choosel.core.client.visualization.View;
-import org.thechiselgroup.choosel.dnd.client.windows.Desktop;
-import org.thechiselgroup.choosel.dnd.client.windows.ViewWindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowPanel;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

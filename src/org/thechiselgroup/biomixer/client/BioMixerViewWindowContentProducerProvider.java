@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
 import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
 import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
@@ -49,7 +50,6 @@ import org.thechiselgroup.choosel.core.client.visualization.model.managed.Preset
 import org.thechiselgroup.choosel.core.client.visualization.model.managed.SlotMappingInitializer;
 import org.thechiselgroup.choosel.core.client.visualization.ui.NullVisualMappingsControl;
 import org.thechiselgroup.choosel.core.client.visualization.ui.VisualMappingsControl;
-import org.thechiselgroup.choosel.dnd.client.resources.DropEnabledViewContentDisplay;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

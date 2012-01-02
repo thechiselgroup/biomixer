@@ -20,6 +20,11 @@ import static org.thechiselgroup.choosel.core.client.configuration.ChooselInject
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.dnd.resources.DraggableResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.dnd.resources.DropTargetResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.dnd.resources.HighlightingDraggableResourceSetAvatarFactory;
+import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
+import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDropTargetManager;
 import org.thechiselgroup.choosel.core.client.command.CommandManager;
 import org.thechiselgroup.choosel.core.client.resources.action.RemoveSetAction;
 import org.thechiselgroup.choosel.core.client.resources.ui.HighlightingResourceSetAvatarFactory;
@@ -32,11 +37,6 @@ import org.thechiselgroup.choosel.core.client.resources.ui.popup.PopupResourceSe
 import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.choosel.core.client.visualization.ViewAccessor;
 import org.thechiselgroup.choosel.core.client.visualization.model.extensions.HighlightingModel;
-import org.thechiselgroup.choosel.dnd.client.resources.DraggableResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.dnd.client.resources.DropTargetResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.dnd.client.resources.HighlightingDraggableResourceSetAvatarFactory;
-import org.thechiselgroup.choosel.dnd.client.resources.ResourceSetAvatarDragController;
-import org.thechiselgroup.choosel.dnd.client.resources.ResourceSetAvatarDropTargetManager;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

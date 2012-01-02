@@ -18,6 +18,10 @@ package org.thechiselgroup.biomixer.client.workbench.workspace;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowPanel;
 import org.thechiselgroup.biomixer.client.workbench.services.AsyncCallbackVoidDelegate;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.ResourceSetDTO;
 import org.thechiselgroup.biomixer.client.workbench.workspace.dto.WindowDTO;
@@ -35,10 +39,6 @@ import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
 import org.thechiselgroup.choosel.core.client.resources.UnmodifiableResourceSet;
 import org.thechiselgroup.choosel.core.client.resources.persistence.DefaultResourceSetCollector;
 import org.thechiselgroup.choosel.core.client.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.choosel.dnd.client.windows.Desktop;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowPanel;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

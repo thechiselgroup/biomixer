@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.ui;
 
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentFactory;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentFactory;
 
 public class NoteWindowContentFactory implements WindowContentFactory {
 

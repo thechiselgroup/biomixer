@@ -24,6 +24,8 @@ import static org.thechiselgroup.choosel.core.shared.test.matchers.collections.C
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspaceSharingServiceAsync;
 import org.thechiselgroup.choosel.core.client.persistence.PersistableRestorationService;
@@ -33,8 +35,6 @@ import org.thechiselgroup.choosel.core.client.resources.ResourceManager;
 import org.thechiselgroup.choosel.core.client.resources.ResourceSetFactory;
 import org.thechiselgroup.choosel.core.client.test.IntegrationTest;
 import org.thechiselgroup.choosel.core.client.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.choosel.dnd.client.windows.Desktop;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

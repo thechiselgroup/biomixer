@@ -24,6 +24,13 @@ import static org.thechiselgroup.choosel.core.client.configuration.ChooselInject
 
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.dnd.resources.DragEnablerFactory;
+import org.thechiselgroup.biomixer.client.dnd.resources.DragVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
+import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDropTargetManager;
+import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.choosel.core.client.command.CommandManager;
 import org.thechiselgroup.choosel.core.client.error_handling.ErrorHandler;
 import org.thechiselgroup.choosel.core.client.label.LabelProvider;
@@ -69,13 +76,6 @@ import org.thechiselgroup.choosel.core.client.visualization.ui.DefaultResourceMo
 import org.thechiselgroup.choosel.core.client.visualization.ui.DefaultSelectionModelPresenter;
 import org.thechiselgroup.choosel.core.client.visualization.ui.DefaultVisualMappingsControl;
 import org.thechiselgroup.choosel.core.client.visualization.ui.VisualMappingsControl;
-import org.thechiselgroup.choosel.dnd.client.resources.DragEnablerFactory;
-import org.thechiselgroup.choosel.dnd.client.resources.DragVisualItemBehavior;
-import org.thechiselgroup.choosel.dnd.client.resources.DropEnabledViewContentDisplay;
-import org.thechiselgroup.choosel.dnd.client.resources.ResourceSetAvatarDropTargetManager;
-import org.thechiselgroup.choosel.dnd.client.windows.ViewWindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;

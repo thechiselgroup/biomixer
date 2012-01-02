@@ -17,6 +17,10 @@ package org.thechiselgroup.biomixer.client.workbench.init;
 
 import static org.thechiselgroup.choosel.core.client.configuration.ChooselInjectionConstants.DATA_SOURCES;
 
+import org.thechiselgroup.biomixer.client.dnd.windows.AbstractWindowContent;
+import org.thechiselgroup.biomixer.client.dnd.windows.CreateWindowCommand;
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.InfoDialog;
 import org.thechiselgroup.biomixer.client.workbench.ToolbarPanel;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationManager;
@@ -60,10 +64,6 @@ import org.thechiselgroup.choosel.core.client.ui.ActionBar;
 import org.thechiselgroup.choosel.core.client.ui.TextCommandPresenter;
 import org.thechiselgroup.choosel.core.client.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.choosel.core.client.util.BrowserDetect;
-import org.thechiselgroup.choosel.dnd.client.windows.AbstractWindowContent;
-import org.thechiselgroup.choosel.dnd.client.windows.CreateWindowCommand;
-import org.thechiselgroup.choosel.dnd.client.windows.Desktop;
-import org.thechiselgroup.choosel.dnd.client.windows.WindowContentProducer;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
