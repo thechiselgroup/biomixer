@@ -1,0 +1,63 @@
+<!-- TODO refactor using ant import target, move stuff into workbench or core -->
+<project name="org.thechiselgroup.biomixer" default="production" basedir=".">
+
+	<property name="application.name" value="${ant.project.name}" />
+	<property name="gwt-module.name" value="${application.name}.BioMixerWorkbench" />
+	<property name="root.dir" value="../.." />
+
+	<import file="${root.dir}/org.thechiselgroup.choosel.core/build/application-build.xml" />
+
+	<import file="${root.dir}/org.thechiselgroup.choosel.core/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.dnd/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.protovis/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.chart/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.graph/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.text/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.visualization_component.timeline/build/build-classpath.xml" />
+	<import file="${root.dir}/org.thechiselgroup.choosel.workbench/build/build-classpath.xml" />
+
+	<path id="org.thechiselgroup.biomixer-classpath">
+		<pathelement location="${src.dir}" />
+		<pathelement location="${build.dir}/WEB-INF/classes" />
+	</path>
+
+	<path id="compile.classpath">
+		<path refid="org.google.gwt-classpath" />
+		<path refid="org.thechiselgroup.biomixer-classpath" />
+		<path refid="org.thechiselgroup.choosel.core-classpath" />
+		<path refid="org.thechiselgroup.choosel.dnd-classpath" />
+		<path refid="org.thechiselgroup.choosel.protovis-classpath" />
+		<path refid="org.thechiselgroup.choosel.visualization_component.chart-classpath" />
+		<path refid="org.thechiselgroup.choosel.visualization_component.graph-classpath" />
+		<path refid="org.thechiselgroup.choosel.visualization_component.map-classpath" />
+		<path refid="org.thechiselgroup.choosel.visualization_component.text-classpath" />
+		<path refid="org.thechiselgroup.choosel.visualization_component.timeline-classpath" />
+		<path refid="org.thechiselgroup.choosel.workbench-classpath" />
+	</path>
+
+	<!--
+	Builds the jar files from the different Choosel modules that are required for the server side, and copies
+	them to WEB-INF/lib. We only need to do this for the server side jars, because we reference the client side
+	code in (a) our classpath for gwt-compile and (b) our launch config for the dev environment. 
+	-->
+	<target name="copy-choosel-jars" depends="prepare">
+		<antcall target="build-module">
+			<param name="module-name" value="org.thechiselgroup.choosel.core" />
+		</antcall>
+		<antcall target="build-module">
+			<param name="module-name" value="org.thechiselgroup.choosel.dnd" />
+		</antcall>
+		<antcall target="build-module">
+			<param name="module-name" value="org.thechiselgroup.choosel.workbench" />
+		</antcall>
+
+		<copy todir="${build.dir}/WEB-INF/lib">
+			<fileset dir="${build.temp.dir}/lib" includes="*.jar" />
+		</copy>
+	</target>
+
+	<target name="draft" depends="copy-choosel-jars,draft-gwt-compile" />
+	
+	<target name="production" depends="copy-choosel-jars,production-gwt-compile" />
+
+</project>

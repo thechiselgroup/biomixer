@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.6.4//EN" "http://google-web-toolkit.googlecode.com/svn/tags/1.6.4/distro-source/core/src/gwt-module.dtd">
+<!--  
+ Copyright 2009-2010 Lars Grammel 
+ 
+ Licensed under the Apache License, Version 2.0 (the "License"); 
+ you may not use this file except in compliance with the License. 
+ You may obtain a copy of the License at 
+ 
+     http://www.apache.org/licenses/LICENSE-2.0 
+     
+ Unless required by applicable law or agreed to in writing, software 
+ distributed under the License is distributed on an "AS IS" BASIS, 
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ See the License for the specific language governing permissions and 
+ limitations under the License. 
+-->
+<module rename-to='org.thechiselgroup.biomixer.BioMixerWorkbench'>
+
+  <inherits name='org.thechiselgroup.choosel.workbench.Workbench'/>
+  <inherits name='org.thechiselgroup.choosel.visualization_component.chart.Chart'/>
+  <inherits name='org.thechiselgroup.choosel.visualization_component.graph.Graph'/>
+  <inherits name='org.thechiselgroup.choosel.visualization_component.text.Text'/>
+  <inherits name='org.thechiselgroup.choosel.visualization_component.timeline.Timeline'/>
+  
+  <!-- client-side logging configuration -->
+  <!-- TODO deactivate for deployment --> 
+  <set-property name="gwt.logging.enabled" value="TRUE"/> 
+  <set-property name="gwt.logging.logLevel" value="INFO"/>
+  <set-property name="gwt.logging.popupHandler" value="DISABLED"/>
+  <set-property name="gwt.logging.systemHandler" value="DISABLED"/>
+  <set-property name="gwt.logging.consoleHandler" value="ENABLED"/>
+  <set-property name="gwt.logging.firebugHandler" value="ENABLED"/>
+  <set-property name="gwt.logging.simpleRemoteHandler" value="DISABLED"/>
+  <set-property name="gwt.logging.developmentModeHandler" value="ENABLED"/>  
+  
+  <entry-point class='org.thechiselgroup.biomixer.client.BioMixerEntryPoint'/>
+  
+</module>

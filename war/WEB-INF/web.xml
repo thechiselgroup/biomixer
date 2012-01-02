@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- CHOOSEL WORKBENCH SERVICES -->
+  
+  <servlet>
+    <servlet-name>authentication</servlet-name>
+    <servlet-class>org.thechiselgroup.choosel.workbench.server.authentication.AuthenticationServiceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>authentication</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/authentication</url-pattern>
+  </servlet-mapping>  
+
+  <servlet>
+    <servlet-name>feedback</servlet-name>
+    <servlet-class>org.thechiselgroup.choosel.workbench.server.feedback.FeedbackServiceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>feedback</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/feedback</url-pattern>
+  </servlet-mapping>  
+  
+  <servlet>
+    <servlet-name>workspace</servlet-name>
+    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.WorkspacePersistenceServiceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>workspace</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/workspace</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>workspace-sharing</servlet-name>
+    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.WorkspaceSharingServiceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>workspace-sharing</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/workspace-sharing</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>acceptInvitation</servlet-name>
+    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.AcceptInvitationServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>acceptInvitation</servlet-name>
+    <url-pattern>/acceptInvitation</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>view</servlet-name>
+    <servlet-class>org.thechiselgroup.choosel.workbench.server.workspace.ViewPersistenceServiceServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>view</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/view</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>remoteLoggerServiceImpl</servlet-name>
+    <servlet-class>com.allen_sauer.gwt.log.server.RemoteLoggerServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>remoteLoggerServiceImpl</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/gwt-log</url-pattern>
+  </servlet-mapping>
+ 
+</web-app>
