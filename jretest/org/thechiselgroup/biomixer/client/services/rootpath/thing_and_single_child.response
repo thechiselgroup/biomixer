@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<success>
+  <accessedResource>/bioportal/path/42948/</accessedResource>
+  <accessDate>2012-01-05 10:46:59.439 PST</accessDate>
+  <data>
+    <classBean>
+      <id>owl:Thing</id>
+      <fullId>http://www.w3.org/2002/07/owl#Thing</fullId>
+      <label>owl:Thing</label>
+      <type>class</type>
+      <isObsolete>0</isObsolete>
+      <relations>
+        <entry>
+          <string>SubClass</string>
+          <list>
+            <classBean>
+              <id>OMV:Location</id>
+              <fullId>http://omv.ontoware.org/2005/05/ontology#Location</fullId>
+              <label>Location</label>
+              <type>class</type>
+              <isObsolete>0</isObsolete>
+              <relations>
+                <entry>
+                  <string>ChildCount</string>
+                  <int>0</int>
+                </entry>
+              </relations>
+            </classBean>
+          </list>
+        </entry>
+        <entry>
+          <string>ChildCount</string>
+          <int>1</int>
+        </entry>
+      </relations>
+    </classBean>
+  </data>
+</success>
