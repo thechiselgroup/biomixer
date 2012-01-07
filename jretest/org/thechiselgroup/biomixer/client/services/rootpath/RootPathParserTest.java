@@ -2,6 +2,7 @@ package org.thechiselgroup.biomixer.client.services.rootpath;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourcePath;
 import org.thechiselgroup.biomixer.server.core.util.IOUtils;
 import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
@@ -18,6 +20,51 @@ public class RootPathParserTest {
     private RootPathParser underTest;
 
     private final String ontologyId = "42948";
+
+    /**
+     * Checks the size of the list of resources in the path, not including the
+     * target resource
+     * 
+     * @param path
+     *            : ResourcePath
+     * @param expectedSize
+     *            : Expected size of list of resources in ResourcePath
+     */
+    private void assertPathResourceSize(ResourcePath path, int expectedSize) {
+        assertThat(path.getResources().size(), equalTo(expectedSize));
+    }
+
+    public void assertResourceStringValueConsistent(Resource resource,
+            String valueKey, String expectedValue) {
+        assertThat((String) resource.getValue(valueKey), equalTo(expectedValue));
+    }
+
+    private void assertResourceUriConsistent(Resource resource, String conceptId) {
+        assertThat(resource.getUri(), equalTo(generateUri(conceptId)));
+    }
+
+    private void assertUriListSize(UriList uriList, int size) {
+        if (uriList == null) {
+            // XXX should there be an empty list in the properties? Might be
+            // better than leaving null.
+            assertThat(size, equalTo(0));
+        } else {
+            assertThat(uriList.size(), equalTo(size));
+        }
+
+    }
+
+    private String generateUri(String conceptId) {
+        return Concept.toConceptURI(ontologyId, conceptId);
+    }
+
+    private UriList getChildUris(Resource concept) {
+        return (UriList) concept.getProperties().get("childConcepts");
+    }
+
+    private UriList getParentUris(Resource concept) {
+        return (UriList) concept.getProperties().get("parentConcepts");
+    }
 
     private ResourcePath getResourcePath(String conceptId, String xmlFilename)
             throws IOException, Exception {
@@ -34,85 +81,85 @@ public class RootPathParserTest {
                 "thing_and_single_child.response");
 
         // just the target, no neighbouring path elements
-        assertThat(path.getResources().size(), equalTo(0));
-
+        assertPathResourceSize(path, 0);
         Resource target = path.getTarget();
-
-        assertThat(target.getUri(),
-                equalTo(Concept.toConceptURI(ontologyId, conceptId)));
-
-        assertThat((String) target.getValue(Concept.FULL_ID),
-                equalTo(conceptId));
-
-        assertThat((String) target.getValue(Concept.ONTOLOGY_ID),
-                equalTo(ontologyId));
-
-        assertThat((String) target.getValue(Concept.LABEL), equalTo("Location"));
-
+        assertResourceUriConsistent(target, conceptId);
+        assertResourceStringValueConsistent(target, Concept.FULL_ID, conceptId);
+        assertResourceStringValueConsistent(target, Concept.ONTOLOGY_ID,
+                ontologyId);
+        assertResourceStringValueConsistent(target, Concept.LABEL, "Location");
     }
 
+    @Test
     public void parseResponseThingAndThreeChildren() throws Exception {
         String conceptId = "http://omv.ontoware.org/2005/05/ontology#OntologyEngineeringMethodology";
         ResourcePath path = getResourcePath(conceptId,
                 "thing_and_three_children.response");
 
         // target plus two siblings
-        assertThat(path.getResources().size(), equalTo(2));
-
-        assertThat(path.getTarget().getUri(),
-                equalTo(Concept.toConceptURI(ontologyId, conceptId)));
-
-        assertThat(
-                path.getResources().get(0).getUri(),
-                equalTo(Concept
-                        .toConceptURI(ontologyId,
-                                "http://omv.ontoware.org/2005/05/ontology#OntologyLanguage")));
-
-        assertThat(
-                path.getResources().get(1).getUri(),
-                equalTo(Concept
-                        .toConceptURI(ontologyId,
-                                "http://omv.ontoware.org/2005/05/ontology#KnowledgeRepresentationParadigm")));
-
+        assertPathResourceSize(path, 2);
+        assertResourceUriConsistent(path.getTarget(), conceptId);
+        assertResourceUriConsistent(path.getResources().get(0),
+                "http://omv.ontoware.org/2005/05/ontology#OntologyLanguage");
+        assertResourceUriConsistent(path.getResources().get(1),
+                "http://omv.ontoware.org/2005/05/ontology#KnowledgeRepresentationParadigm");
     }
 
     @Test
     public void parseResponseThreeLevelChildrenDoubleBranch() throws Exception {
 
-        // Graph structure with t as target, x as other nodes
+        // Graph structure with t as target, 1=concept1, etc
 
-        // x
+        // 1
         // |\
-        // x x
+        // 2 3
         // |
         // t
 
         String conceptId = "http://protege.stanford.edu/ontologies/metadata/BioPortalMetadata.owl#BioPortalUser";
+        String concept1fullId = "http://omv.ontoware.org/2005/05/ontology#Party";
+        String concept2fullId = "http://omv.ontoware.org/2005/05/ontology#Person";
+        String concept3fullId = "http://omv.ontoware.org/2005/05/ontology#Organisation";
+
         ResourcePath path = getResourcePath(conceptId,
                 "three_level_children_single_branch.response");
-
-        assertThat(path.getResources().size(), equalTo(3));
-
-        assertThat(path.getTarget().getUri(),
-                equalTo(Concept.toConceptURI(ontologyId, conceptId)));
-
         Resource concept1 = path.getResources().get(0);
         Resource concept2 = path.getResources().get(1);
         Resource concept3 = path.getResources().get(2);
+        Resource target = path.getTarget();
 
-        assertThat(concept1.getUri(), equalTo(Concept.toConceptURI(ontologyId,
-                "http://omv.ontoware.org/2005/05/ontology#Party")));
+        assertPathResourceSize(path, 3);
+        assertResourceUriConsistent(target, conceptId);
+        assertResourceUriConsistent(concept1, concept1fullId);
+        assertResourceUriConsistent(concept2, concept2fullId);
+        assertResourceUriConsistent(concept3, concept3fullId);
 
-        assertThat(concept2.getUri(), equalTo(Concept.toConceptURI(ontologyId,
-                "http://omv.ontoware.org/2005/05/ontology#Person")));
+        // TODO: code duplication, don't know how to eliminate
+        UriList concept1parentUris = getParentUris(concept1);
+        UriList concept1childUris = getChildUris(concept1);
+        assertUriListSize(concept1parentUris, 0);
+        assertUriListSize(concept1childUris, 2);
+        assertTrue(concept1childUris.contains(generateUri(concept2fullId)));
+        assertTrue(concept1childUris.contains(generateUri(concept3fullId)));
 
-        assertThat(concept3.getUri(), equalTo(Concept.toConceptURI(ontologyId,
-                "http://omv.ontoware.org/2005/05/ontology#Organisation")));
+        UriList concept2parentUris = getParentUris(concept2);
+        UriList concept2childUris = getChildUris(concept2);
+        assertUriListSize(concept2parentUris, 1);
+        assertUriListSize(concept2childUris, 1);
+        assertTrue(concept2parentUris.contains(generateUri(concept1fullId)));
+        assertTrue(concept2childUris.contains(generateUri(conceptId))); // target
 
-        System.out.println("Concept1: " + concept1.toString());
-        System.out.println("Concept2: " + concept2.toString());
-        System.out.println("Concept3: " + concept3.toString());
-        System.out.println("Target: " + path.getTarget().toString());
+        UriList concept3parentUris = getParentUris(concept3);
+        UriList concept3childUris = getChildUris(concept3);
+        assertUriListSize(concept3parentUris, 1);
+        assertUriListSize(concept3childUris, 0);
+        assertTrue(concept3parentUris.contains(generateUri(concept1fullId)));
+
+        UriList targetParentUris = getParentUris(target);
+        UriList targetChildUris = getChildUris(target);
+        assertUriListSize(targetParentUris, 1);
+        assertUriListSize(targetChildUris, 0);
+        assertTrue(targetParentUris.contains(generateUri(concept2fullId)));
     }
 
     @Test
@@ -121,24 +168,32 @@ public class RootPathParserTest {
         ResourcePath path = getResourcePath(conceptId,
                 "two_level_children_single_branch.response");
 
-        assertThat(path.getResources().size(), equalTo(1));
-
-        assertThat(path.getTarget().getUri(),
-                equalTo(Concept.toConceptURI(ontologyId, conceptId)));
-
-        assertThat((String) path.getTarget().getValue(Concept.LABEL),
-                equalTo("OntologyView"));
+        assertPathResourceSize(path, 1);
+        Resource target = path.getTarget();
+        assertResourceUriConsistent(target, conceptId);
+        assertResourceStringValueConsistent(target, Concept.LABEL,
+                "OntologyView");
 
         Resource concept1 = path.getResources().get(0);
+        String concept1fullId = "http://omv.ontoware.org/2005/05/ontology#Ontology";
+        assertResourceUriConsistent(concept1, concept1fullId);
+        assertResourceStringValueConsistent(concept1, Concept.LABEL, "Ontology");
 
-        assertThat(concept1.getUri(), equalTo(Concept.toConceptURI(ontologyId,
-                "http://omv.ontoware.org/2005/05/ontology#Ontology")));
+        UriList concept1parentUris = getParentUris(concept1);
+        UriList concept1childUris = getChildUris(concept1);
 
-        assertThat((String) concept1.getValue(Concept.LABEL),
-                equalTo("Ontology"));
+        assertUriListSize(concept1parentUris, 0);
+        assertUriListSize(concept1childUris, 1);
+        assertTrue(concept1childUris.contains(generateUri(conceptId)));
 
-        System.out.println("Concept1: " + concept1.toString());
-        System.out.println("Target: " + path.getTarget().toString());
+        UriList targetParentUris = (UriList) target.getProperties().get(
+                "parentConcepts");
+        UriList targetChildUris = getChildUris(target);
+
+        assertUriListSize(targetParentUris, 1);
+        assertUriListSize(targetChildUris, 0);
+        assertTrue(targetParentUris.contains(generateUri(concept1fullId)));
+
     }
 
     @Before
