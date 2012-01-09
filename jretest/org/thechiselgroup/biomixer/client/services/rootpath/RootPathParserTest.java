@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +53,27 @@ public class RootPathParserTest {
             assertThat(uriList.size(), equalTo(size));
         }
 
+    }
+
+    @Test
+    public void generatePathThreeLevelChildrenDoubleBranch() throws Exception {
+        String conceptId = "http://protege.stanford.edu/ontologies/metadata/BioPortalMetadata.owl#BioPortalUser";
+        String concept1fullId = "http://omv.ontoware.org/2005/05/ontology#Party";
+        String concept2fullId = "http://omv.ontoware.org/2005/05/ontology#Person";
+        String concept3fullId = "http://omv.ontoware.org/2005/05/ontology#Organisation";
+
+        ResourcePath fullResoucePath = getResourcePath(conceptId,
+                "three_level_children_single_branch.response");
+        List<Resource> pathToRootResources = fullResoucePath
+                .getPathToRootResources();
+
+        assertThat(pathToRootResources.size(), equalTo(3));
+        assertTrue(pathToRootResources.get(0).getUri()
+                .equals(generateUri(conceptId)));
+        assertTrue(pathToRootResources.get(1).getUri()
+                .equals(generateUri(concept2fullId)));
+        assertTrue(pathToRootResources.get(2).getUri()
+                .equals(generateUri(concept1fullId)));
     }
 
     private String generateUri(String conceptId) {

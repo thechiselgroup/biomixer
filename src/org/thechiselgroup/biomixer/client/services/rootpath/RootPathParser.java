@@ -20,6 +20,16 @@ public class RootPathParser extends AbstractXMLResultParser {
 
     private Resource target;
 
+    private String ontologyId;
+
+    private String conceptId;
+
+    private List<Resource> resources;
+
+    private List<Object> processLater;
+
+    private List<String> subclassOrSuperclassConceptIds;
+
     @Inject
     public RootPathParser(DocumentProcessor documentProcessor) {
         super(documentProcessor);
@@ -30,30 +40,32 @@ public class RootPathParser extends AbstractXMLResultParser {
         return getText(r, "fullId/text()");
     }
 
+    private void initializeState(String ontologyId, String conceptId) {
+        // XXX don't know if these should really be fields. It avoids passing
+        // them all as parameters to traverseLayer though.
+        this.ontologyId = ontologyId;
+        this.conceptId = conceptId;
+        target = null;
+        resources = new ArrayList<Resource>();
+        processLater = new ArrayList<Object>();
+        subclassOrSuperclassConceptIds = new ArrayList<String>();
+    }
+
     public ResourcePath parse(String ontologyId, String conceptId,
             String xmlText) throws Exception {
 
-        target = null;
+        initializeState(ontologyId, conceptId);
 
         Object rootNode = parseDocument(xmlText);
 
         // This is the top level node, i.e. "Thing"
         Object[] nodes = getNodes(rootNode, "//success/data/classBean");
-
         assert nodes.length == 1;
 
-        List<Resource> resources = new ArrayList<Resource>();
+        traverseLayer(nodes[0], null);
+        assert target != null;
 
-        List<Object> processLater = new ArrayList<Object>();
-
-        List<String> subclassOrSuperclassConceptIds = new ArrayList<String>();
-
-        // Need each node of each layer to manage its list of parents and
-        // children
-
-        traverseLayer(ontologyId, conceptId, nodes[0], resources, processLater,
-                subclassOrSuperclassConceptIds, null);
-
+        // XXX don't really understand why this is needed yet
         for (Object n : processLater) {
             if (subclassOrSuperclassConceptIds.contains(getConceptId(n))) {
                 continue;
@@ -61,8 +73,6 @@ public class RootPathParser extends AbstractXMLResultParser {
 
             process(n, ontologyId, new UriList(), new UriList());
         }
-
-        assert target != null;
 
         return new ResourcePath(target, resources);
     }
@@ -100,10 +110,7 @@ public class RootPathParser extends AbstractXMLResultParser {
 
     }
 
-    private void traverseLayer(String ontologyId, String conceptId,
-            Object entryNode, List<Resource> resources,
-            List<Object> processLater,
-            List<String> subclassOrSuperclassConceptIds, Resource previous)
+    private void traverseLayer(Object entryNode, Resource previous)
             throws XPathEvaluationException {
 
         Object[] nodes = getNodes(entryNode, "relations/entry");
@@ -165,8 +172,7 @@ public class RootPathParser extends AbstractXMLResultParser {
                 }
 
                 /* Check for greater depths to traverse */
-                traverseLayer(ontologyId, conceptId, relationship, resources,
-                        processLater, subclassOrSuperclassConceptIds, resource);
+                traverseLayer(relationship, resource);
             }
 
             if (previous != null) {
