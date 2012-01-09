@@ -26,4 +26,9 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
         registerLoader(loader);
     }
 
+    @Inject
+    private void setRootPathLoader(RootPathLoader loader) {
+        registerLoader(loader);
+    }
+
 }

@@ -30,7 +30,9 @@ public class RootPathServiceAsyncClientImplementation extends
         UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
         String path = "/bioportal/path/" + ontologyVersionId + "/";
         urlBuilder.setPath(path);
-        urlBuilder.setParameter("concept1_id", conceptId);
+        System.out.println("Source=" + conceptId);
+        urlBuilder.setParameter("source", conceptId);
+        urlBuilder.setParameter("target", "root");
         return urlBuilder.buildString();
     }
 

@@ -97,6 +97,26 @@ public class RootPathParserTest {
     }
 
     @Test
+    public void parseBioPortalUserFullResponse() throws Exception {
+        String conceptId = "http://protege.stanford.edu/ontologies/metadata/BioPortalMetadata.owl#BioPortalUser";
+        String concept1fullId = "http://omv.ontoware.org/2005/05/ontology#Party";
+        String concept2fullId = "http://omv.ontoware.org/2005/05/ontology#Person";
+        String concept3fullId = "http://omv.ontoware.org/2005/05/ontology#Organisation";
+
+        ResourcePath path = getResourcePath(conceptId,
+                "bioportaluser_full.response");
+
+        List<Resource> pathToRootResources = path.getPathToRootResources();
+        assertThat(pathToRootResources.size(), equalTo(3));
+        assertThat(pathToRootResources.get(0).getUri(),
+                equalTo(generateUri(conceptId)));
+        assertThat(pathToRootResources.get(1).getUri(),
+                equalTo(generateUri(concept2fullId)));
+        assertThat(pathToRootResources.get(2).getUri(),
+                equalTo(generateUri(concept1fullId)));
+    }
+
+    @Test
     public void parseResponseThingAndSingleChild() throws Exception {
         String conceptId = "http://omv.ontoware.org/2005/05/ontology#Location";
         ResourcePath path = getResourcePath(conceptId,

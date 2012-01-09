@@ -162,7 +162,7 @@ public class RootPathParser extends AbstractXMLResultParser {
                 resource.applyPartialProperties(partialPropertiesForChildren);
                 childConcepts.add(resource.getUri());
 
-                if (!resource.getValue(Concept.FULL_ID).equals(conceptId)) {
+                if (!resource.getValue(Concept.SHORT_ID).equals(conceptId)) {
                     resources.add(resource);
                     subclassOrSuperclassConceptIds.add(Concept
                             .getFullId(resource));

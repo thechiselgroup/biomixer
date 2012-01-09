@@ -33,6 +33,8 @@ import org.thechiselgroup.biomixer.client.graph.BioMixerGraphExpansionRegistry;
 import org.thechiselgroup.biomixer.client.services.NcboRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceImplementation;
+import org.thechiselgroup.biomixer.client.services.rootpath.RootPathServiceAsync;
+import org.thechiselgroup.biomixer.client.services.rootpath.RootPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
@@ -82,6 +84,10 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         bind(DateTimeFormatFactory.class).to(GwtDateTimeFormatFactory.class)
                 .in(Singleton.class);
         bind(LightTermResponseWithoutRelationshipsParser.class).in(
+                Singleton.class);
+
+        bind(RootPathServiceAsync.class).to(
+                RootPathServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
         bind(UrlBuilderFactory.class).to(NcboRestUrlBuilderFactory.class).in(
