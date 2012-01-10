@@ -34,10 +34,10 @@ public class RootPathLoader implements EmbeddedViewLoader {
     @Inject
     private ErrorHandler errorHandler;
 
-    private void doLoadData(final DefaultView view, final String ontologyId,
-            final String conceptFullId) {
+    private void doLoadData(final DefaultView view,
+            final String virtualOntologyId, final String conceptId) {
 
-        rootPathService.findPathToRoot(ontologyId, conceptFullId,
+        rootPathService.findPathToRoot(virtualOntologyId, conceptId,
                 new ErrorHandlingAsyncCallback<ResourcePath>(errorHandler) {
                     @Override
                     protected void runOnSuccess(ResourcePath resourcePath)
@@ -67,16 +67,16 @@ public class RootPathLoader implements EmbeddedViewLoader {
     }
 
     // XXX same as concept neighbourhood loader
-    private void loadData(final DefaultView view, final String ontologyId,
-            final String conceptFullId) {
+    private void loadData(final DefaultView view,
+            final String virtualOntologyId, final String conceptId) {
 
         if (view.isReady()) {
-            doLoadData(view, ontologyId, conceptFullId);
+            doLoadData(view, virtualOntologyId, conceptId);
         } else {
             new Timer() {
                 @Override
                 public void run() {
-                    loadData(view, ontologyId, conceptFullId);
+                    loadData(view, virtualOntologyId, conceptId);
                 }
             }.schedule(200);
         }
@@ -91,10 +91,11 @@ public class RootPathLoader implements EmbeddedViewLoader {
         graphView.init();
         callback.onSuccess(graphView);
 
-        String conceptFullId = windowLocation.getParameter("full_concept_id");
-        conceptFullId = UriUtils.decodeURIComponent(conceptFullId);
-        String ontologyId = windowLocation.getParameter("ontology_id");
+        String conceptId = windowLocation.getParameter("concept_id");
+        conceptId = UriUtils.decodeURIComponent(conceptId);
+        String virtualOntologyId = windowLocation
+                .getParameter("virtual_ontology_id");
 
-        loadData((DefaultView) graphView, ontologyId, conceptFullId);
+        loadData((DefaultView) graphView, virtualOntologyId, conceptId);
     }
 }

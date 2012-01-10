@@ -26,27 +26,29 @@ public class RootPathServiceAsyncClientImplementation extends
 
     }
 
-    private String buildUrl(String ontologyVersionId, String conceptId) {
+    private String buildUrl(String virtualOntologyId, String conceptId) {
+        // TODO: convert from virtualOntologyId to ontologyVersionId
+
+        String ontologyVersionId = virtualOntologyId;
         UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
         String path = "/bioportal/path/" + ontologyVersionId + "/";
         urlBuilder.setPath(path);
-        System.out.println("Source=" + conceptId);
         urlBuilder.setParameter("source", conceptId);
         urlBuilder.setParameter("target", "root");
         return urlBuilder.buildString();
     }
 
     @Override
-    public void findPathToRoot(final String ontologyVersionId,
+    public void findPathToRoot(final String virtualOntologyId,
             final String conceptId, final AsyncCallback<ResourcePath> callback) {
 
-        String url = buildUrl(ontologyVersionId, conceptId);
+        String url = buildUrl(virtualOntologyId, conceptId);
 
         fetchUrl(callback, url, new Transformer<String, ResourcePath>() {
             @Override
             public ResourcePath transform(String xmlText) throws Exception {
                 return resultParser
-                        .parse(ontologyVersionId, conceptId, xmlText);
+                        .parse(virtualOntologyId, conceptId, xmlText);
             }
 
         });
