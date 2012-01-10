@@ -46,6 +46,8 @@ public class RootPathParser extends AbstractXMLResultParser {
             String conceptId) {
         // XXX don't know if these should really be fields. It avoids passing
         // them all as parameters to traverseLayer though.
+        // TODO: put in constructor. Not sure how injection works yet so leaving
+        // them here for the moment
         this.ontologyId = ontologyId;
         this.virtualOntologyId = virtualOntologyId;
         this.conceptId = conceptId;

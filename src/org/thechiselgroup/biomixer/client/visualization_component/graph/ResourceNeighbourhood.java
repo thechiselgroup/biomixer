@@ -25,7 +25,6 @@ public class ResourceNeighbourhood implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    // Contains information about links between the nodes
     private Map<String, Serializable> partialProperties;
 
     // This list only contains the neighbours, not the central node
