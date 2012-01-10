@@ -22,6 +22,8 @@ public class RootPathParserTest {
 
     private final String ontologyId = "42948";
 
+    private final String virtualOntologyId = "1148";
+
     /**
      * Checks the size of the list of resources in the path, not including the
      * target resource
@@ -94,7 +96,8 @@ public class RootPathParserTest {
         String responseXML = IOUtils.readIntoString(RootPathParserTest.class
                 .getResourceAsStream(xmlFilename));
 
-        return underTest.parse(ontologyId, conceptId, responseXML);
+        return underTest.parse(ontologyId, virtualOntologyId, conceptId,
+                responseXML);
     }
 
     @Test
@@ -132,7 +135,7 @@ public class RootPathParserTest {
         assertResourceStringValueConsistent(target, Concept.FULL_ID,
                 conceptFullId);
         assertResourceStringValueConsistent(target, Concept.ONTOLOGY_ID,
-                ontologyId);
+                virtualOntologyId);
         assertResourceStringValueConsistent(target, Concept.LABEL, "Location");
     }
 

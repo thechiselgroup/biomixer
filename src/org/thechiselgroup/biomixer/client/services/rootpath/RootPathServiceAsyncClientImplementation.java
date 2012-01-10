@@ -50,9 +50,7 @@ public class RootPathServiceAsyncClientImplementation extends
                         urlBuilder.setPath(path);
                         urlBuilder.setParameter("source", conceptId);
                         urlBuilder.setParameter("target", "root");
-
-                        String url = urlBuilder.buildString();
-                        return url;
+                        return urlBuilder.buildString();
                     }
 
                     @Override
@@ -67,7 +65,8 @@ public class RootPathServiceAsyncClientImplementation extends
                                     public ResourcePath transform(String xmlText)
                                             throws Exception {
                                         return resultParser.parse(
-                                                ontologyVersionId, conceptId,
+                                                ontologyVersionId,
+                                                virtualOntologyId, conceptId,
                                                 xmlText);
                                     }
 
