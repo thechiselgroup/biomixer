@@ -25,7 +25,7 @@ public class OntologyVersionServiceAsyncClientImplementation extends
 
     private String buildUrl(String virtualOntologyId) {
         UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
-        String path = "/bioportal/virtual/ontology" + virtualOntologyId + "/";
+        String path = "/bioportal/virtual/ontology/" + virtualOntologyId + "/";
         urlBuilder.setPath(path);
         return urlBuilder.buildString();
     }
