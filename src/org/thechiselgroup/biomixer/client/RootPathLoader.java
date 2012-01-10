@@ -9,6 +9,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.services.ontology_version.OntologyVersionServiceAsync;
 import org.thechiselgroup.biomixer.client.services.rootpath.RootPathServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
@@ -29,16 +30,21 @@ public class RootPathLoader implements EmbeddedViewLoader {
     private RootPathServiceAsync rootPathService;
 
     @Inject
+    private OntologyVersionServiceAsync ontologyVersionService;
+
+    @Inject
     private WindowContentProducer windowContentProducer;
 
     @Inject
     private ErrorHandler errorHandler;
 
     private void doLoadData(final DefaultView view,
-            final String virtualOntologyId, final String conceptId) {
+            final String virtualOntologyId, final String ontologyVersionId,
+            final String conceptId) {
 
-        rootPathService.findPathToRoot(virtualOntologyId, conceptId,
-                new ErrorHandlingAsyncCallback<ResourcePath>(errorHandler) {
+        rootPathService.findPathToRoot(virtualOntologyId, ontologyVersionId,
+                conceptId, new ErrorHandlingAsyncCallback<ResourcePath>(
+                        errorHandler) {
                     @Override
                     protected void runOnSuccess(ResourcePath resourcePath)
                             throws Exception {
@@ -68,15 +74,17 @@ public class RootPathLoader implements EmbeddedViewLoader {
 
     // XXX same as concept neighbourhood loader
     private void loadData(final DefaultView view,
-            final String virtualOntologyId, final String conceptId) {
+            final String virtualOntologyId, final String ontologyVersionId,
+            final String conceptId) {
 
         if (view.isReady()) {
-            doLoadData(view, virtualOntologyId, conceptId);
+            doLoadData(view, virtualOntologyId, ontologyVersionId, conceptId);
         } else {
             new Timer() {
                 @Override
                 public void run() {
-                    loadData(view, virtualOntologyId, conceptId);
+                    loadData(view, virtualOntologyId, ontologyVersionId,
+                            conceptId);
                 }
             }.schedule(200);
         }
@@ -91,11 +99,19 @@ public class RootPathLoader implements EmbeddedViewLoader {
         graphView.init();
         callback.onSuccess(graphView);
 
-        String conceptId = windowLocation.getParameter("concept_id");
-        conceptId = UriUtils.decodeURIComponent(conceptId);
-        String virtualOntologyId = windowLocation
+        final String conceptId = UriUtils.decodeURIComponent(windowLocation
+                .getParameter("concept_id"));
+        final String virtualOntologyId = windowLocation
                 .getParameter("virtual_ontology_id");
 
-        loadData((DefaultView) graphView, virtualOntologyId, conceptId);
+        ontologyVersionService.getOntologyVersionId(virtualOntologyId,
+                new ErrorHandlingAsyncCallback<String>(errorHandler) {
+                    @Override
+                    protected void runOnSuccess(String result) throws Exception {
+                        loadData((DefaultView) graphView, virtualOntologyId,
+                                result, conceptId);
+                    }
+
+                });
     }
 }
