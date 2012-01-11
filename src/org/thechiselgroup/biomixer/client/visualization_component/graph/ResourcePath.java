@@ -58,6 +58,7 @@ public class ResourcePath implements Serializable {
                     /* Found the next step in the path */
                     pathResources.add(resource);
                     currentResource = resource;
+                    break;
                 }
             }
 
