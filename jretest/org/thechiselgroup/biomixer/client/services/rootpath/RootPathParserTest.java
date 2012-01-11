@@ -20,7 +20,7 @@ public class RootPathParserTest {
 
     private RootPathParser underTest;
 
-    private final String ontologyId = "42948";
+    private final String ontologyVersionId = "42948";
 
     private final String virtualOntologyId = "1148";
 
@@ -80,7 +80,7 @@ public class RootPathParserTest {
     }
 
     private String generateUri(String conceptId) {
-        return Concept.toConceptURI(ontologyId, conceptId);
+        return Concept.toConceptURI(virtualOntologyId, conceptId);
     }
 
     private UriList getChildUris(Resource concept) {
@@ -96,7 +96,7 @@ public class RootPathParserTest {
         String responseXML = IOUtils.readIntoString(RootPathParserTest.class
                 .getResourceAsStream(xmlFilename));
 
-        return underTest.parse(ontologyId, virtualOntologyId, conceptId,
+        return underTest.parse(ontologyVersionId, virtualOntologyId, conceptId,
                 responseXML);
     }
 
@@ -134,7 +134,7 @@ public class RootPathParserTest {
         assertResourceUriConsistent(target, conceptFullId);
         assertResourceStringValueConsistent(target, Concept.FULL_ID,
                 conceptFullId);
-        assertResourceStringValueConsistent(target, Concept.ONTOLOGY_ID,
+        assertResourceStringValueConsistent(target, Concept.VIRTUAL_ONTOLOGY_ID,
                 virtualOntologyId);
         assertResourceStringValueConsistent(target, Concept.LABEL, "Location");
     }

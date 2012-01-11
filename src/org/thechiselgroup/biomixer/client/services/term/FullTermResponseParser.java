@@ -139,7 +139,7 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         concept.putValue(Concept.FULL_ID, conceptId);
         concept.putValue(Concept.SHORT_ID, conceptShortId);
         concept.putValue(Concept.LABEL, label);
-        concept.putValue(Concept.ONTOLOGY_ID, ontologyId);
+        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
 

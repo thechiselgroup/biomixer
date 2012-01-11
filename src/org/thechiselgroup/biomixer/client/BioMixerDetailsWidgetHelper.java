@@ -74,7 +74,7 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
 
             addRow(resource, verticalPanel, "Ontology",
                     Concept.CONCEPT_ONTOLOGY_NAME);
-            addRow(resource, verticalPanel, "Ontology ID", Concept.ONTOLOGY_ID);
+            addRow(resource, verticalPanel, "Ontology ID", Concept.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
 
         } else if (Mapping.isMapping(resource)) {
@@ -94,7 +94,7 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
                 addRow(sourceConcept, verticalPanel, "Source concept",
                         Concept.LABEL);
                 addRow(sourceConcept, verticalPanel, "Source ontology ID",
-                        Concept.ONTOLOGY_ID);
+                        Concept.VIRTUAL_ONTOLOGY_ID);
                 // TODO ontology names (might need service for ontologies)
             }
 
@@ -104,7 +104,7 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
                 addRow(targetConcept, verticalPanel, "Target concept",
                         Concept.LABEL);
                 addRow(targetConcept, verticalPanel, "Target ontology ID",
-                        Concept.ONTOLOGY_ID);
+                        Concept.VIRTUAL_ONTOLOGY_ID);
                 // TODO ontology names (might need service for ontologies)
             }
         } else {

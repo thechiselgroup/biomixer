@@ -72,7 +72,6 @@ public class RootPathLoader implements EmbeddedViewLoader {
         }.schedule(50);
     }
 
-    // XXX same as concept neighbourhood loader
     private void loadData(final DefaultView view,
             final String virtualOntologyId, final String ontologyVersionId,
             final String conceptId) {

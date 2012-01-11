@@ -55,7 +55,7 @@ public class LightTermResponseWithoutRelationshipsParser extends
         Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
 
         result.putValue(Concept.FULL_ID, fullId);
-        result.putValue(Concept.ONTOLOGY_ID, ontologyId);
+        result.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
         result.putValue(Concept.TYPE, type);
         result.putValue(Concept.LABEL, label);
 

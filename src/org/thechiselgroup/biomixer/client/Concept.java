@@ -36,7 +36,7 @@ public final class Concept {
 
     public static final String TYPE = "type";
 
-    public static final String ONTOLOGY_ID = "ontologyId";
+    public static final String VIRTUAL_ONTOLOGY_ID = "virtualOntologyId";
 
     /**
      * URIs of mapping where this concept is the source.
@@ -48,7 +48,7 @@ public final class Concept {
      */
     public static String INCOMING_MAPPINGS = "incomingMappings";
 
-    public static final String CONCEPT_ONTOLOGY_VERSION_ID = "ontologyVersionId";
+    public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
     public static final String CONCEPT_ONTOLOGY_NAME = "ontologyName";
 
@@ -68,7 +68,7 @@ public final class Concept {
         // XXX
         concept.putValue(Concept.SHORT_ID, conceptId);
         concept.putValue(Concept.FULL_ID, conceptId);
-        concept.putValue(Concept.ONTOLOGY_ID, ontologyId);
+        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
 
         return concept;
     }

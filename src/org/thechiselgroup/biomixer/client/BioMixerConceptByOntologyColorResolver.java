@@ -113,7 +113,7 @@ public class BioMixerConceptByOntologyColorResolver extends
             } else {
                 Resource resource = visualItem.getResources().getFirstElement();
                 String ontologyId = (String) resource
-                        .getValue(Concept.ONTOLOGY_ID);
+                        .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
 
                 return getColor(ontologyId);
             }

@@ -227,7 +227,7 @@ public class BioMixerViewWindowContentProducerProvider extends
                         for (Resource resource : addedResources) {
                             if (Concept.isConcept(resource)) {
                                 String ontologyId = (String) resource
-                                        .getValue(Concept.ONTOLOGY_ID);
+                                        .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
                                 if (!ontologyToFilterBox
                                         .containsKey(ontologyId)) {
 

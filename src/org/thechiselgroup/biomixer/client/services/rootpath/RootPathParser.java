@@ -20,7 +20,7 @@ public class RootPathParser extends AbstractXMLResultParser {
 
     private Resource target;
 
-    private String ontologyId;
+    private String ontologyVersionId;
 
     private String virtualOntologyId;
 
@@ -42,13 +42,13 @@ public class RootPathParser extends AbstractXMLResultParser {
         return getText(r, "fullId/text()");
     }
 
-    private void initializeState(String ontologyId, String virtualOntologyId,
-            String conceptId) {
+    private void initializeState(String ontologyVersionId,
+            String virtualOntologyId, String conceptId) {
         // XXX don't know if these should really be fields. It avoids passing
         // them all as parameters to traverseLayer though.
         // TODO: put in constructor. Not sure how injection works yet so leaving
         // them here for the moment
-        this.ontologyId = ontologyId;
+        this.ontologyVersionId = ontologyVersionId;
         this.virtualOntologyId = virtualOntologyId;
         this.conceptId = conceptId;
         target = null;
@@ -57,10 +57,11 @@ public class RootPathParser extends AbstractXMLResultParser {
         subclassOrSuperclassConceptIds = new ArrayList<String>();
     }
 
-    public ResourcePath parse(String ontologyId, String virtualOntologyId,
-            String conceptId, String xmlText) throws Exception {
+    public ResourcePath parse(String ontologyVersionId,
+            String virtualOntologyId, String conceptId, String xmlText)
+            throws Exception {
 
-        initializeState(ontologyId, virtualOntologyId, conceptId);
+        initializeState(ontologyVersionId, virtualOntologyId, conceptId);
 
         Object rootNode = parseDocument(xmlText);
 
@@ -98,13 +99,13 @@ public class RootPathParser extends AbstractXMLResultParser {
             childCount = Integer.parseInt(getText(nodes[0], "int/text()"));
         }
 
-        Resource concept = new Resource(Concept.toConceptURI(ontologyId,
+        Resource concept = new Resource(Concept.toConceptURI(virtualOntologyId,
                 conceptId));
 
         concept.putValue(Concept.FULL_ID, conceptId);
         concept.putValue(Concept.SHORT_ID, conceptShortId);
         concept.putValue(Concept.LABEL, label);
-        concept.putValue(Concept.ONTOLOGY_ID, virtualOntologyId);
+        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
 

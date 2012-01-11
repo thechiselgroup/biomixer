@@ -155,13 +155,13 @@ public class ConceptConceptNeighbourhoodExpanderTest {
                 CONCEPT_1_FULL_ID);
         concept1 = new Resource(concept1Uri);
         concept1.putValue(Concept.FULL_ID, CONCEPT_1_FULL_ID);
-        concept1.putValue(Concept.ONTOLOGY_ID, CONCEPT_1_ONTOLOGY_ID);
+        concept1.putValue(Concept.VIRTUAL_ONTOLOGY_ID, CONCEPT_1_ONTOLOGY_ID);
 
         concept2Uri = Concept.toConceptURI(CONCEPT_2_ONTOLOGY_ID,
                 CONCEPT_2_FULL_ID);
         concept2 = new Resource(concept2Uri);
         concept2.putValue(Concept.FULL_ID, CONCEPT_2_FULL_ID);
-        concept2.putValue(Concept.ONTOLOGY_ID, CONCEPT_2_ONTOLOGY_ID);
+        concept2.putValue(Concept.VIRTUAL_ONTOLOGY_ID, CONCEPT_2_ONTOLOGY_ID);
 
         when(graphDisplay.getNode(concept2Uri)).thenReturn(concept2Node);
         when(graphDisplay.getNode(concept1Uri)).thenReturn(inputNode);
