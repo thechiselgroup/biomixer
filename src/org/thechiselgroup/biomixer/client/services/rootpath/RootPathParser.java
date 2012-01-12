@@ -110,7 +110,7 @@ public class RootPathParser extends AbstractXMLResultParser {
                 Integer.valueOf(childCount));
 
         // TODO: parent concepts?
-        childConcepts.add(concept.getUri());
+        // childConcepts.add(concept.getUri());
 
         return concept;
 
@@ -146,7 +146,7 @@ public class RootPathParser extends AbstractXMLResultParser {
 
             if (previous != null) {
                 parentConcepts.add(previous.getUri());
-                partialPropertiesForChildren.put(Concept.CHILD_CONCEPTS,
+                partialPropertiesForChildren.put(Concept.PARENT_CONCEPTS,
                         parentConcepts);
                 // apply this to each child found
             }
@@ -186,7 +186,7 @@ public class RootPathParser extends AbstractXMLResultParser {
             }
 
             if (previous != null) {
-                partialPropertiesForPrevious.put(Concept.PARENT_CONCEPTS,
+                partialPropertiesForPrevious.put(Concept.CHILD_CONCEPTS,
                         childConcepts);
                 previous.applyPartialProperties(partialPropertiesForPrevious);
             }

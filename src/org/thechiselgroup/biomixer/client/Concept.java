@@ -54,9 +54,9 @@ public final class Concept {
 
     public static final String CONCEPT_CHILD_COUNT = "childCount";
 
-    public static final String CHILD_CONCEPTS = "parentConcepts";
+    public static final String CHILD_CONCEPTS = "childConcepts";
 
-    public static final String PARENT_CONCEPTS = "childConcepts";
+    public static final String PARENT_CONCEPTS = "parentConcepts";
 
     // TODO change to full id
     public static Resource createConceptResource(String ontologyId,

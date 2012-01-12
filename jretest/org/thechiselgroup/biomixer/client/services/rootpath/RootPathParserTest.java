@@ -34,7 +34,7 @@ public class RootPathParserTest {
      *            : Expected size of list of resources in ResourcePath
      */
     private void assertPathResourceSize(ResourcePath path, int expectedSize) {
-        assertThat(path.getResources().size(), equalTo(expectedSize));
+        assertThat(path.getSurroundingResources().size(), equalTo(expectedSize));
     }
 
     public void assertResourceStringValueConsistent(Resource resource,
@@ -101,6 +101,48 @@ public class RootPathParserTest {
     }
 
     @Test
+    public void parentChildLinks() throws Exception {
+        String conceptId = "BioPortalUser";
+        ResourcePath path = getResourcePath(conceptId,
+                "three_level_children_single_branch.response");
+
+        List<Resource> pathToRootResources = path.getPathToRootResources();
+        Resource targetConcept = pathToRootResources.get(0);
+        System.out.println(targetConcept.toString());
+        Resource concept2 = pathToRootResources.get(1);
+        Resource concept3 = pathToRootResources.get(2);
+
+        UriList targetParentUriList = targetConcept
+                .getUriListValue(Concept.PARENT_CONCEPTS);
+        UriList targetChildUriList = targetConcept
+                .getUriListValue(Concept.CHILD_CONCEPTS);
+
+        assertThat(targetParentUriList.size(), equalTo(1));
+        assertThat(targetChildUriList.size(), equalTo(0));
+        assertThat(targetParentUriList.getUri(0), equalTo(concept2.getUri()));
+
+        UriList concept2ParentUriList = concept2
+                .getUriListValue(Concept.PARENT_CONCEPTS);
+        UriList concept2ChildUriList = concept2
+                .getUriListValue(Concept.CHILD_CONCEPTS);
+
+        assertThat(concept2ParentUriList.size(), equalTo(1));
+        assertThat(concept2ChildUriList.size(), equalTo(1));
+        assertThat(concept2ParentUriList.getUri(0), equalTo(concept3.getUri()));
+        assertThat(concept2ChildUriList.getUri(0),
+                equalTo(targetConcept.getUri()));
+
+        UriList concept3ParentUriList = concept3
+                .getUriListValue(Concept.PARENT_CONCEPTS);
+        UriList concept3ChildUriList = concept3
+                .getUriListValue(Concept.CHILD_CONCEPTS);
+
+        assertThat(concept3ParentUriList.size(), equalTo(0));
+        assertThat(concept3ChildUriList.size(), equalTo(2));
+        assertTrue(concept3ChildUriList.contains(concept2.getUri()));
+    }
+
+    @Test
     public void parseBioPortalUserFullResponse() throws Exception {
         String conceptId = "BioPortalUser";
         String conceptFullId = "http://protege.stanford.edu/ontologies/metadata/BioPortalMetadata.owl#BioPortalUser";
@@ -134,8 +176,8 @@ public class RootPathParserTest {
         assertResourceUriConsistent(target, conceptFullId);
         assertResourceStringValueConsistent(target, Concept.FULL_ID,
                 conceptFullId);
-        assertResourceStringValueConsistent(target, Concept.VIRTUAL_ONTOLOGY_ID,
-                virtualOntologyId);
+        assertResourceStringValueConsistent(target,
+                Concept.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
         assertResourceStringValueConsistent(target, Concept.LABEL, "Location");
     }
 
@@ -149,9 +191,9 @@ public class RootPathParserTest {
         // target plus two siblings
         assertPathResourceSize(path, 2);
         assertResourceUriConsistent(path.getTarget(), conceptFullId);
-        assertResourceUriConsistent(path.getResources().get(0),
+        assertResourceUriConsistent(path.getSurroundingResources().get(0),
                 "http://omv.ontoware.org/2005/05/ontology#OntologyLanguage");
-        assertResourceUriConsistent(path.getResources().get(1),
+        assertResourceUriConsistent(path.getSurroundingResources().get(1),
                 "http://omv.ontoware.org/2005/05/ontology#KnowledgeRepresentationParadigm");
     }
 
@@ -174,9 +216,9 @@ public class RootPathParserTest {
 
         ResourcePath path = getResourcePath(conceptId,
                 "three_level_children_single_branch.response");
-        Resource concept1 = path.getResources().get(0);
-        Resource concept2 = path.getResources().get(1);
-        Resource concept3 = path.getResources().get(2);
+        Resource concept1 = path.getSurroundingResources().get(0);
+        Resource concept2 = path.getSurroundingResources().get(1);
+        Resource concept3 = path.getSurroundingResources().get(2);
         Resource target = path.getTarget();
 
         assertPathResourceSize(path, 3);
@@ -226,7 +268,7 @@ public class RootPathParserTest {
         assertResourceStringValueConsistent(target, Concept.LABEL,
                 "OntologyView");
 
-        Resource concept1 = path.getResources().get(0);
+        Resource concept1 = path.getSurroundingResources().get(0);
         String concept1fullId = "http://omv.ontoware.org/2005/05/ontology#Ontology";
         assertResourceUriConsistent(concept1, concept1fullId);
         assertResourceStringValueConsistent(concept1, Concept.LABEL, "Ontology");

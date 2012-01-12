@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 
@@ -44,7 +45,7 @@ public class ResourcePath implements Serializable {
         pathResources.add(currentResource);
 
         UriList parents = (UriList) currentResource.getProperties().get(
-                "parentConcepts");
+                Concept.PARENT_CONCEPTS);
 
         // Repeat until root is found (has no more parents)
         while (parents != null) {
@@ -63,14 +64,20 @@ public class ResourcePath implements Serializable {
             }
 
             parents = (UriList) currentResource.getProperties().get(
-                    "parentConcepts");
+                    Concept.PARENT_CONCEPTS);
         }
 
         cachedPathResources = pathResources;
         return pathResources;
     }
 
-    public List<Resource> getResources() {
+    /**
+     * 
+     * @return Returns all resources found when parsing NCBO rest service
+     *         response, EXCEPT the target. This may include resources that are
+     *         not directly on the path to the root.
+     */
+    public List<Resource> getSurroundingResources() {
         return resources;
     }
 
