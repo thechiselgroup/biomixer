@@ -19,14 +19,6 @@ public class TreeNode {
         children.add(child);
     }
 
-    public void addChildren(List<NodeItem> childrenItemNodes) {
-        assert childrenItemNodes != null;
-
-        for (NodeItem childItemNode : childrenItemNodes) {
-            children.add(new TreeNode(childItemNode));
-        }
-    }
-
     public List<TreeNode> getChildren() {
         return children;
     }
