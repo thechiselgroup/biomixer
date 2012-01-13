@@ -3,31 +3,27 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layouts
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeItem;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 public class TreeFactoryTest {
 
     private TreeFactory underTest;
 
-    private void assertThatChildrenContainsDummyNodes(TreeNode treeNode,
-            DummyNodeContainer dummyNodes, int[] dummyNodeNumbers) {
-        for (int i = 0; i < dummyNodeNumbers.length; i++) {
-            assertThatChildrenContainsNodeItem(treeNode,
-                    dummyNodes.getDummyNodeItem(dummyNodeNumbers[i]));
+    private void assertThatChildrenContainStubNodes(TreeNode treeNode,
+            StubGraphStructure stubGraph, int[] stubNodeNumbers) {
+        for (int i = 0; i < stubNodeNumbers.length; i++) {
+            assertThatChildrenContainNodeItem(treeNode,
+                    stubGraph.getNodeItem(stubNodeNumbers[i]));
         }
     }
 
-    private void assertThatChildrenContainsNodeItem(TreeNode treeNode,
+    private void assertThatChildrenContainNodeItem(TreeNode treeNode,
             NodeItem nodeItem) {
         boolean nodeItemFound = false;
         for (TreeNode child : treeNode.getChildren()) {
@@ -63,175 +59,157 @@ public class TreeFactoryTest {
         return desiredTree;
     }
 
-    public int numberOf(List<Tree> trees) {
-        return trees.size();
+    @Test
+    public void oneRootOneChild() {
+        int numberOfNodes = 2;
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        stubGraph.createArc(0, 1);
+
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
+        assertThat(trees.size(), equalTo(1));
+
+        Tree tree = trees.get(0);
+        assertThat(tree.size(), equalTo(numberOfNodes));
+        TreeNode root = tree.getRoot();
+        assertTrue(root.getNodeItem().equals(stubGraph.getNodeItem(0)));
+        assertThat(root.getNumberOfDescendants(), equalTo(numberOfNodes - 1));
+        assertTrue(root.getChildren().get(0).getNodeItem()
+                .equals(stubGraph.getNodeItem(1)));
     }
 
     @Test
-    public void oneRootOneChildOneGrandchildTreeTest() {
-        DummyNodeContainer dummyNodes = DummyNodeContainer
-                .getDummyNodeContainer(3);
-        DummyArcContainer dummyArcs = DummyArcContainer
-                .getDummyArcContainer(new String[][] { { "0", "1" },
-                        { "1", "2" } });
+    public void oneRootOneChildOneGrandchild() {
+        int numberOfNodes = 3;
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        stubGraph.createArc(0, 1);
+        stubGraph.createArc(1, 2);
 
-        List<Tree> trees = underTest.getTrees(dummyNodes.getDummyNodeItems(),
-                dummyArcs.getDummyArcItems());
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
 
-        assertThat(numberOf(trees), equalTo(1));
+        assertThat(trees.size(), equalTo(1));
         Tree tree = trees.get(0);
-        assertThat(tree.size(), equalTo(3));
+        assertThat(tree.size(), equalTo(numberOfNodes));
         TreeNode root = tree.getRoot();
         assertThat(root.getNumberOfDescendants(), equalTo(2));
         assertThat(root.getChildren().size(), equalTo(1));
         TreeNode rootChild = root.getChildren().get(0);
-        assertTrue(rootChild.getNodeItem().equals(
-                dummyNodes.getDummyNodeItem(1)));
+        assertTrue(rootChild.getNodeItem().equals(stubGraph.getNodeItem(1)));
         assertThat(rootChild.getNumberOfDescendants(), equalTo(1));
         assertThat(rootChild.getChildren().size(), equalTo(1));
         TreeNode rootGrandChild = rootChild.getChildren().get(0);
-        assertTrue(rootGrandChild.getNodeItem().equals(
-                dummyNodes.getDummyNodeItem(2)));
+        assertTrue(rootGrandChild.getNodeItem()
+                .equals(stubGraph.getNodeItem(2)));
         assertThat(rootGrandChild.getNumberOfDescendants(), equalTo(0));
         assertThat(rootGrandChild.getChildren().size(), equalTo(0));
     }
 
     @Test
-    public void oneRootOneChildTreeTest() {
-        int numberOfNodes = 2;
-        DummyNodeContainer dummyNodes = DummyNodeContainer
-                .getDummyNodeContainer(numberOfNodes);
-        DummyArcContainer dummyArcs = DummyArcContainer
-                .getDummyArcContainer(new String[][] { { "0", "1" } });
-
-        List<Tree> trees = underTest.getTrees(dummyNodes.getDummyNodeItems(),
-                dummyArcs.getDummyArcItems());
-        assertThat(numberOf(trees), equalTo(1));
-
-        Tree tree = trees.get(0);
-        assertThat(tree.size(), equalTo(numberOfNodes));
-        TreeNode root = tree.getRoot();
-        assertTrue(root.getNodeItem().equals(dummyNodes.getDummyNodeItem(0)));
-        assertThat(root.getNumberOfDescendants(), equalTo(numberOfNodes - 1));
-        assertTrue(root.getChildren().get(0).getNodeItem()
-                .equals(dummyNodes.getDummyNodeItem(1)));
-    }
-
-    @Test
-    public void oneRootThreeChildrenTreeTest() {
+    public void oneRootThreeChildren() {
         int numberOfNodes = 4;
-        DummyNodeContainer dummyNodes = DummyNodeContainer
-                .getDummyNodeContainer(numberOfNodes);
-        DummyArcContainer dummyArcs = DummyArcContainer
-                .getDummyArcContainer(new String[][] { { "0", "1" },
-                        { "0", "2" }, { "0", "3" } });
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        stubGraph.createArc(0, 1);
+        stubGraph.createArc(0, 2);
+        stubGraph.createArc(0, 3);
 
-        List<Tree> trees = underTest.getTrees(dummyNodes.getDummyNodeItems(),
-                dummyArcs.getDummyArcItems());
-        assertThat(numberOf(trees), equalTo(1));
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
+        assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
         assertThat(tree.size(), equalTo(numberOfNodes));
         TreeNode root = tree.getRoot();
-        assertTrue(root.getNodeItem().equals(dummyNodes.getDummyNodeItem(0)));
+        assertTrue(root.getNodeItem().equals(stubGraph.getNodeItem(0)));
         assertThat(root.getNumberOfDescendants(), equalTo(numberOfNodes - 1));
         assertThat(root.getChildren().size(), equalTo(3));
-        assertThatChildrenContainsDummyNodes(root, dummyNodes, new int[] { 1,
-                2, 3 });
+        assertThatChildrenContainStubNodes(root, stubGraph, new int[] { 1, 2,
+                3 });
     }
 
     @Test
-    public void oneRootTwoChildrenOneHasThreeChildrenOtherHasNoneTreeTest() {
+    public void oneRootTwoChildrenOneHasThreeChildrenOtherHasNone() {
         int numberOfNodes = 6;
-        DummyNodeContainer dummyNodes = DummyNodeContainer
-                .getDummyNodeContainer(numberOfNodes);
-        DummyArcContainer dummyArcs = DummyArcContainer
-                .getDummyArcContainer(new String[][] { { "0", "1" },
-                        { "0", "2" }, { "1", "3" }, { "1", "4" }, { "1", "5" } });
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        stubGraph.createArc(0, 1);
+        stubGraph.createArc(0, 2);
+        stubGraph.createArc(1, 3);
+        stubGraph.createArc(1, 4);
+        stubGraph.createArc(1, 5);
 
-        List<Tree> trees = underTest.getTrees(dummyNodes.getDummyNodeItems(),
-                dummyArcs.getDummyArcItems());
-        assertThat(numberOf(trees), equalTo(1));
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
+        assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
         assertThat(tree.size(), equalTo(numberOfNodes));
         TreeNode root = tree.getRoot();
-        assertTrue(root.getNodeItem().equals(dummyNodes.getDummyNodeItem(0)));
+        assertTrue(root.getNodeItem().equals(stubGraph.getNodeItem(0)));
         assertThat(root.getNumberOfDescendants(), equalTo(numberOfNodes - 1));
         assertThat(root.getChildren().size(), equalTo(2));
-        assertThatChildrenContainsNodeItem(root, dummyNodes.getDummyNodeItem(1));
-        assertThatChildrenContainsNodeItem(root, dummyNodes.getDummyNodeItem(2));
+        assertThatChildrenContainNodeItem(root, stubGraph.getNodeItem(1));
+        assertThatChildrenContainNodeItem(root, stubGraph.getNodeItem(2));
         TreeNode nodeWithoutChildren = getTreeNodeForNodeItem(
-                root.getChildren(), dummyNodes.getDummyNodeItem(2));
+                root.getChildren(), stubGraph.getNodeItem(2));
         assertThat(nodeWithoutChildren.getNumberOfDescendants(), equalTo(0));
         TreeNode nodeWithChildren = getTreeNodeForNodeItem(root.getChildren(),
-                dummyNodes.getDummyNodeItem(1));
+                stubGraph.getNodeItem(1));
         assertThat(nodeWithChildren.getNumberOfDescendants(), equalTo(3));
         assertThat(nodeWithChildren.getChildren().size(), equalTo(3));
-        assertThatChildrenContainsDummyNodes(nodeWithChildren, dummyNodes,
+        assertThatChildrenContainStubNodes(nodeWithChildren, stubGraph,
                 new int[] { 3, 4, 5 });
     }
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.underTest = TreeFactory.getInstance();
+        this.underTest = new TreeFactory();
     }
 
     @Test
-    public void singleNodeTreeTest() {
+    public void singleNode() {
+        int numberOfNodes = 1;
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
 
-        Node dummyNode = mock(Node.class);
-        when(dummyNode.getId()).thenReturn("1");
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
 
-        NodeItem singleNodeItem = mock(NodeItem.class);
-        when(singleNodeItem.getNode()).thenReturn(dummyNode);
-
-        NodeItem[] nodes = { singleNodeItem };
-        ArcItem[] arcs = {};
-
-        List<Tree> trees = underTest.getTrees(nodes, arcs);
-
-        assertThat(numberOf(trees), equalTo(1));
+        assertThat(trees.size(), equalTo(1));
         assertThat(trees.get(0).size(), equalTo(1));
     }
 
     @Test
-    public void twoRootsNoChildrenTreeTest() {
+    public void twoRootsNoChildren() {
         int numberOfNodes = 2;
-        DummyNodeContainer dummyNodes = DummyNodeContainer
-                .getDummyNodeContainer(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
 
-        List<Tree> trees = underTest.getTrees(dummyNodes.getDummyNodeItems(),
-                new ArcItem[] {});
-        assertThat(numberOf(trees), equalTo(2));
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
+        assertThat(trees.size(), equalTo(2));
         assertThat(trees.get(0).size(), equalTo(1));
         assertThat(trees.get(1).size(), equalTo(1));
     }
 
     @Test
-    public void twoRootsOneWithTwoChildrenOneWithOneTreeTest() {
+    public void twoRootsOneWithTwoChildrenOneWithOne() {
         int numberOfNodes = 5;
-        DummyNodeContainer dummyNodes = DummyNodeContainer
-                .getDummyNodeContainer(numberOfNodes);
-        DummyArcContainer dummyArcs = DummyArcContainer
-                .getDummyArcContainer(new String[][] { { "0", "2" },
-                        { "0", "3" }, { "1", "4" } });
+        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        stubGraph.createArc(0, 2);
+        stubGraph.createArc(0, 3);
+        stubGraph.createArc(1, 4);
 
-        List<Tree> trees = underTest.getTrees(dummyNodes.getDummyNodeItems(),
-                dummyArcs.getDummyArcItems());
-        assertThat(numberOf(trees), equalTo(2));
+        List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
+                stubGraph.getArcItems());
+        assertThat(trees.size(), equalTo(2));
 
-        Tree tree1 = getTreeWithRootNodeItem(trees,
-                dummyNodes.getDummyNodeItem(0));
+        Tree tree1 = getTreeWithRootNodeItem(trees, stubGraph.getNodeItem(0));
         assertThat(tree1.size(), equalTo(3));
-        assertThatChildrenContainsDummyNodes(tree1.getRoot(), dummyNodes,
+        assertThatChildrenContainStubNodes(tree1.getRoot(), stubGraph,
                 new int[] { 2, 3 });
 
-        Tree tree2 = getTreeWithRootNodeItem(trees,
-                dummyNodes.getDummyNodeItem(1));
+        Tree tree2 = getTreeWithRootNodeItem(trees, stubGraph.getNodeItem(1));
         assertThat(tree2.size(), equalTo(2));
-        assertThatChildrenContainsDummyNodes(tree2.getRoot(), dummyNodes,
+        assertThatChildrenContainStubNodes(tree2.getRoot(), stubGraph,
                 new int[] { 4 });
     }
 }

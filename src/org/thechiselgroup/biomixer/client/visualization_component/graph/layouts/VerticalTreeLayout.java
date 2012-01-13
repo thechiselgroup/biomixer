@@ -13,8 +13,7 @@ public class VerticalTreeLayout implements GraphLayout {
     public void run(NodeItem[] nodes, ArcItem[] arcs,
             GraphLayoutCallback callback) {
 
-        List<Tree> treesOnGraph = TreeFactory.getInstance().getTrees(nodes,
-                arcs);
+        List<Tree> treesOnGraph = new TreeFactory().getTrees(nodes, arcs);
 
         // TODO: now that tree structures are reconstructed, use this
         // information to place each node

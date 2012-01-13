@@ -15,10 +15,13 @@ public class TreeNode {
         this.nodeItem = nodeItem;
     }
 
+    public void addChild(TreeNode child) {
+        children.add(child);
+    }
+
     public void addChildren(List<NodeItem> childrenItemNodes) {
-        if (childrenItemNodes == null) {
-            return;
-        }
+        assert childrenItemNodes != null;
+
         for (NodeItem childItemNode : childrenItemNodes) {
             children.add(new TreeNode(childItemNode));
         }
@@ -32,16 +35,16 @@ public class TreeNode {
         return nodeItem;
     }
 
-    public boolean isLeaf() {
-        return children.size() == 0;
-    }
-
     public int getNumberOfDescendants() {
         int numberOfDescendants = 0;
         for (TreeNode child : children) {
             numberOfDescendants += child.getNumberOfDescendants() + 1;
         }
         return numberOfDescendants;
+    }
+
+    public boolean isLeaf() {
+        return children.size() == 0;
     }
 
 }
