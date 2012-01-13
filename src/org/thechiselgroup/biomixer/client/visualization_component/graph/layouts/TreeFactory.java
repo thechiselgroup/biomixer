@@ -1,7 +1,9 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layouts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeItem;
@@ -9,33 +11,25 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
 
 public class TreeFactory {
 
-    private TreeNode getTreeNodeById(String id, List<TreeNode> allTreeNodes) {
-        for (TreeNode treeNode : allTreeNodes) {
-            if (treeNode.getNodeItem().getNode().getId().equals(id)) {
-                return treeNode;
-            }
-        }
-        return null;
-    }
-
-    public List<Tree> getTrees(NodeItem[] nodes, ArcItem[] arcs) {
-        List<TreeNode> allTreeNodes = new ArrayList<TreeNode>();
+    public List<Tree> getTrees(List<NodeItem> nodes, List<ArcItem> arcs) {
+        Map<String, TreeNode> treeNodesById = new HashMap<String, TreeNode>();
         for (NodeItem nodeItem : nodes) {
-            allTreeNodes.add(new TreeNode(nodeItem));
+            treeNodesById.put(nodeItem.getNode().getId(),
+                    new TreeNode(nodeItem));
         }
 
         List<TreeNode> potentialRoots = new ArrayList<TreeNode>();
-        potentialRoots.addAll(allTreeNodes);
+        potentialRoots.addAll(treeNodesById.values());
 
         for (ArcItem arcItem : arcs) {
             Arc arc = arcItem.getArc();
-            TreeNode sourceNode = getTreeNodeById(arc.getSourceNodeId(),
-                    allTreeNodes);
-            TreeNode targetNode = getTreeNodeById(arc.getTargetNodeId(),
-                    allTreeNodes);
+            // XXX arcs point from child to parent. Therefore sourceNode is a
+            // child of targetNode.
+            TreeNode sourceNode = treeNodesById.get(arc.getSourceNodeId());
+            TreeNode targetNode = treeNodesById.get(arc.getTargetNodeId());
 
-            sourceNode.addChild(targetNode);
-            potentialRoots.remove(targetNode);
+            targetNode.addChild(sourceNode);
+            potentialRoots.remove(sourceNode);
         }
 
         List<Tree> trees = new ArrayList<Tree>();

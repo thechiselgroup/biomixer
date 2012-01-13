@@ -13,11 +13,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 
 public class StubGraphStructure {
 
-    private final List<Node> stubNodes = new ArrayList<Node>();
-
     private final List<NodeItem> stubNodeItems = new ArrayList<NodeItem>();
-
-    private final List<Arc> stubArcs = new ArrayList<Arc>();
 
     private final List<ArcItem> stubArcItems = new ArrayList<ArcItem>();
 
@@ -27,11 +23,10 @@ public class StubGraphStructure {
         }
     }
 
-    public void createArc(int sourceId, int targetId) {
+    public void createArc(int parentId, int childId) {
         Arc stubArc = mock(Arc.class);
-        when(stubArc.getSourceNodeId()).thenReturn("" + sourceId);
-        when(stubArc.getTargetNodeId()).thenReturn("" + targetId);
-        stubArcs.add(stubArc);
+        when(stubArc.getTargetNodeId()).thenReturn("" + parentId);
+        when(stubArc.getSourceNodeId()).thenReturn("" + childId);
 
         ArcItem stubArcItem = mock(ArcItem.class);
         when(stubArcItem.getArc()).thenReturn(stubArc);
@@ -41,7 +36,6 @@ public class StubGraphStructure {
     private void createNode(int number) {
         Node stubNode = mock(Node.class);
         when(stubNode.getId()).thenReturn("" + number);
-        stubNodes.add(stubNode);
 
         NodeItem stubNodeItem = mock(NodeItem.class);
         when(stubNodeItem.getNode()).thenReturn(stubNode);
@@ -49,27 +43,27 @@ public class StubGraphStructure {
     }
 
     public Arc getArc(int number) {
-        return stubArcs.get(number);
+        return stubArcItems.get(number).getArc();
     }
 
     public ArcItem getArcItem(int number) {
         return stubArcItems.get(number);
     }
 
-    public ArcItem[] getArcItems() {
-        return stubArcItems.toArray(new ArcItem[stubArcItems.size()]);
+    public List<ArcItem> getArcItems() {
+        return stubArcItems;
     }
 
     public Node getNode(int number) {
-        return stubNodes.get(number);
+        return stubNodeItems.get(number).getNode();
     }
 
     public NodeItem getNodeItem(int number) {
         return stubNodeItems.get(number);
     }
 
-    public NodeItem[] getNodeItems() {
-        return stubNodeItems.toArray(new NodeItem[stubNodeItems.size()]);
+    public List<NodeItem> getNodeItems() {
+        return stubNodeItems;
     }
 
 }

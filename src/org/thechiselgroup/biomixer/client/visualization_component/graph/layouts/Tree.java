@@ -1,5 +1,6 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layouts;
 
+import java.util.List;
 
 public class Tree {
 
@@ -7,6 +8,20 @@ public class Tree {
 
     public Tree(TreeNode root) {
         this.root = root;
+    }
+
+    public int getHeight() {
+        return root.height();
+    }
+
+    /**
+     * 
+     * @param depth
+     *            : 0 -> height - 1
+     * @return Find all nodes at the specified depth from the root
+     */
+    public List<TreeNode> getNodesAtDepth(int depth) {
+        return root.getNodesFromLevelsBelow(depth);
     }
 
     public TreeNode getRoot() {

@@ -27,6 +27,24 @@ public class TreeNode {
         return nodeItem;
     }
 
+    public List<TreeNode> getNodesFromLevelsBelow(int levelsBelow) {
+        if (levelsBelow == 0) {
+            // This is for the case where there is just the root
+            List<TreeNode> selfList = new ArrayList<TreeNode>();
+            selfList.add(this);
+            return selfList;
+        } else if (levelsBelow == 1) {
+            return children;
+        } else {
+            List<TreeNode> descendantNodes = new ArrayList<TreeNode>();
+            for (TreeNode childNode : children) {
+                descendantNodes.addAll(childNode
+                        .getNodesFromLevelsBelow(levelsBelow - 1));
+            }
+            return descendantNodes;
+        }
+    }
+
     public int getNumberOfDescendants() {
         int numberOfDescendants = 0;
         for (TreeNode child : children) {
@@ -35,8 +53,19 @@ public class TreeNode {
         return numberOfDescendants;
     }
 
-    public boolean isLeaf() {
-        return children.size() == 0;
-    }
+    public int height() {
+        if (children.size() == 0) {
+            return 1;
+        }
 
+        int maxHeight = Integer.MIN_VALUE;
+        for (int i = 0; i < children.size(); i++) {
+            int height = children.get(i).height();
+            if (height > maxHeight) {
+                maxHeight = height;
+            }
+        }
+
+        return maxHeight + 1;
+    }
 }
