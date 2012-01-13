@@ -108,7 +108,6 @@ public class RootPathParserTest {
 
         List<Resource> pathToRootResources = path.getPathToRootResources();
         Resource targetConcept = pathToRootResources.get(0);
-        System.out.println(targetConcept.toString());
         Resource concept2 = pathToRootResources.get(1);
         Resource concept3 = pathToRootResources.get(2);
 
