@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,18 +13,13 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph;
+package org.thechiselgroup.biomixer.shared.svg;
 
-import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
-
-public interface GraphLayoutCallback {
+public interface SvgElementFactory {
 
     /**
-     * @return size of the graph display area in pixel
+     * Creates an SVG element with the given tag name.
      */
-    SizeInt getDisplayArea();
-
-    void setLocation(NodeItem node, Point location);
+    SvgElement createElement(String tagName);
 
 }

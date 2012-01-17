@@ -16,11 +16,11 @@
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.Size;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 
 public class PositionManager {
 
-    private Size desktop;
+    private SizeInt desktop;
 
     private final int horizontalSteps;
 
@@ -30,7 +30,7 @@ public class PositionManager {
 
     private final int verticalSteps;
 
-    public PositionManager(Size desktop, int horizontalSteps,
+    public PositionManager(SizeInt desktop, int horizontalSteps,
             int verticalSteps, int padding) {
 
         this.desktop = desktop;

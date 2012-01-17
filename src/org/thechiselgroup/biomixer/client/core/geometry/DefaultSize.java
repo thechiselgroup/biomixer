@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.geometry;
 
-public class DefaultSize implements Size {
+public class DefaultSize implements SizeInt {
 
     private int width;
 

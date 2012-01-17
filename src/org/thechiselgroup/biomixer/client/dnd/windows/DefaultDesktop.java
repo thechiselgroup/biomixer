@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.Size;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.ui.ZIndex;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 
@@ -34,7 +34,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
 // TODO wrapper similar to action bar
-public class DefaultDesktop extends AbsolutePanel implements Desktop, Size {
+public class DefaultDesktop extends AbsolutePanel implements Desktop, SizeInt {
 
     private static final String CSS_DESKTOP = "desktop";
 

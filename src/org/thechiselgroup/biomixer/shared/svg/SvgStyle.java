@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.geometry;
+package org.thechiselgroup.biomixer.shared.svg;
 
-public interface Size {
+public interface SvgStyle {
 
-    int getHeight();
-
-    int getWidth();
+    void setProperty(String attribute, String value);
 
 }

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.Size;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayout;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutCallback;
@@ -20,7 +20,7 @@ public class VerticalTreeLayout implements GraphLayout {
                 Arrays.asList(nodes), Arrays.asList(arcs));
         assert treesOnGraph.size() >= 1;
 
-        Size displayArea = callback.getDisplayArea();
+        SizeInt displayArea = callback.getDisplayArea();
 
         // XXX if there is more than one tree this will give them each the same
         // width to work with. It might be better to take into account the

@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.Size;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
@@ -436,7 +436,7 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     @Override
-    public Size getDisplayArea() {
+    public SizeInt getDisplayArea() {
         Widget displayWidget = graphDisplay.asWidget();
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();

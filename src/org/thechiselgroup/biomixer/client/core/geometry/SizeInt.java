@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright 2009, 2010 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph;
+package org.thechiselgroup.biomixer.client.core.geometry;
 
-import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
+public interface SizeInt {
 
-public interface GraphLayoutCallback {
+    int getHeight();
 
-    /**
-     * @return size of the graph display area in pixel
-     */
-    SizeInt getDisplayArea();
-
-    void setLocation(NodeItem node, Point location);
+    int getWidth();
 
 }

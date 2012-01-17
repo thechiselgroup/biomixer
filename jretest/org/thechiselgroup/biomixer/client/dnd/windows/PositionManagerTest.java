@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.Size;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 
 public class PositionManagerTest {
 
@@ -34,7 +34,7 @@ public class PositionManagerTest {
     private static final int TEST_VERTICAL_STEPS = 3;
 
     @Mock
-    private Size desktop;
+    private SizeInt desktop;
 
     private PositionManager manager;
 
