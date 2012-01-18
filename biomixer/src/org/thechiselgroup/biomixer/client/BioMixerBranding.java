@@ -45,7 +45,7 @@ public class BioMixerBranding implements Branding {
 
     @Override
     public String getCopyright() {
-        return "(C) 2010 The CHISEL Group (www.thechiselgroup.org)";
+        return "(C) 2012 The CHISEL Group (www.thechiselgroup.org)";
     }
 
     @Override
