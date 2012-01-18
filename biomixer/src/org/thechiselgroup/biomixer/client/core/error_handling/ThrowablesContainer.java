@@ -15,16 +15,16 @@ public class ThrowablesContainer {
 
     public void addThrowableCaught(ThrowableCaught throwableCaught) {
         throwables.add(throwableCaught);
-        fireEvent(new ThrowableCaughtEvent(throwableCaught, this));
+        fireThrowableAddedEvent(new ThrowableCaughtEvent(throwableCaught, this));
     }
 
-    private void fireEvent(ThrowableCaughtEvent event) {
+    private void fireThrowableAddedEvent(ThrowableCaughtEvent event) {
         for (ThrowablesContainerEventListener listener : eventListeners) {
             listener.onThrowableCaughtAdded(event);
         }
     }
 
-    private void fireEvent(ThrowableRemovedEvent event) {
+    private void fireThrowableRemovedEvent(ThrowableCaughtEvent event) {
         for (ThrowablesContainerEventListener listener : eventListeners) {
             listener.onThrowableCaughtRemoved(event);
         }
@@ -40,7 +40,8 @@ public class ThrowablesContainer {
 
     public void removeThrowableCaught(ThrowableCaught throwableCaught) {
         throwables.remove(throwableCaught);
-        fireEvent(new ThrowableRemovedEvent(throwableCaught, this));
+        fireThrowableRemovedEvent(new ThrowableCaughtEvent(throwableCaught,
+                this));
     }
 
 }

@@ -1,6 +1,7 @@
 package org.thechiselgroup.biomixer.client.core.error_handling;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -32,8 +33,8 @@ public class UserFeedbackErrorHandlerTest {
         ArgumentCaptor<ThrowableCaughtEvent> argument = ArgumentCaptor
                 .forClass(ThrowableCaughtEvent.class);
         verify(listener).onThrowableCaughtAdded(argument.capture());
-        assertTrue(thrown.equals(argument.getValue().getThrowableCaught()
-                .getThrowable()));
+        assertThat(argument.getValue().getThrowableCaught().getThrowable(),
+                equalTo(thrown));
     }
 
 }

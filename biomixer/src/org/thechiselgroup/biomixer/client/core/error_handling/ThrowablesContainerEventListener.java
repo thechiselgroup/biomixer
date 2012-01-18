@@ -6,6 +6,6 @@ public interface ThrowablesContainerEventListener extends EventListener {
 
     void onThrowableCaughtAdded(ThrowableCaughtEvent event);
 
-    void onThrowableCaughtRemoved(ThrowableRemovedEvent event);
+    void onThrowableCaughtRemoved(ThrowableCaughtEvent event);
 
 }
