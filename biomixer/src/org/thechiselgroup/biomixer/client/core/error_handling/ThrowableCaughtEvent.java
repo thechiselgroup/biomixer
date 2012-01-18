@@ -1,8 +1,9 @@
 package org.thechiselgroup.biomixer.client.core.error_handling;
 
 import java.util.Date;
+import java.util.EventObject;
 
-public class ThrowableCaught {
+public class ThrowableCaughtEvent extends EventObject {
 
     private final Date timeStamp;
 
@@ -10,7 +11,8 @@ public class ThrowableCaught {
 
     // maybe some additional information
 
-    public ThrowableCaught(Throwable throwable) {
+    public ThrowableCaughtEvent(Throwable throwable, Object source) {
+        super(source);
         this.timeStamp = new Date();
         this.throwable = throwable;
     }

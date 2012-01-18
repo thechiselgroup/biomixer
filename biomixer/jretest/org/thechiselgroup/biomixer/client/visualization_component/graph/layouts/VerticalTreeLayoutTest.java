@@ -7,9 +7,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -26,15 +23,6 @@ public class VerticalTreeLayoutTest {
     private VerticalTreeLayout underTest;
 
     private GraphLayoutCallback callback;
-
-    private List<Point> getLocations(StubGraphStructure stubGraph,
-            int... nodeNumbers) {
-        List<Point> points = new ArrayList<Point>();
-        for (int nodeNumber : nodeNumbers) {
-            points.add(callback.getLocation(stubGraph.getNodeItem(nodeNumber)));
-        }
-        return points;
-    }
 
     private GraphLayoutCallback initializeGraphLayoutCallback(int width,
             int height) {

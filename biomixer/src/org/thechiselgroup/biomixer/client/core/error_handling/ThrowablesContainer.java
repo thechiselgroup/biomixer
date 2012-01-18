@@ -5,13 +5,31 @@ import java.util.List;
 
 public class ThrowablesContainer {
 
-    private final List<ThrowableCaught> throwables = new ArrayList<ThrowableCaught>();
+    private final List<ThrowableCaughtEvent> throwables = new ArrayList<ThrowableCaughtEvent>();
 
-    public void addThrowableCaught(ThrowableCaught throwable) {
-        throwables.add(throwable);
-        // fire event
+    private final List<ThrowableEventListener> eventListeners = new ArrayList<ThrowableEventListener>();
+
+    public void addListener(ThrowableEventListener listener) {
+        eventListeners.add(listener);
     }
 
-    // event listeners
+    public void addThrowableCaught(ThrowableCaughtEvent throwableCaughtEvent) {
+        throwables.add(throwableCaughtEvent);
+        fireEvent(throwableCaughtEvent);
+    }
+
+    private void fireEvent(ThrowableCaughtEvent event) {
+        for (ThrowableEventListener listener : eventListeners) {
+            listener.notifyOfThrowableEvent(event);
+        }
+    }
+
+    public List<ThrowableCaughtEvent> getThrowablesCaught() {
+        return throwables;
+    }
+
+    public void removeListener(ThrowableEventListener listener) {
+        eventListeners.remove(listener);
+    }
 
 }
