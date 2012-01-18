@@ -1,15 +1,18 @@
 package org.thechiselgroup.biomixer.client.core.error_handling;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 public class UserFeedbackErrorHandlerTest {
 
     private UserFeedbackErrorHandler underTest;
+
+    private final String genericErrorMessage = "generic error";
 
     @Before
     public void setUp() {
@@ -18,21 +21,19 @@ public class UserFeedbackErrorHandlerTest {
 
     @Test
     public void singleListener() {
-        TestThrowableEventListener listener = new TestThrowableEventListener();
+        ThrowablesContainerEventListener listener = mock(ThrowablesContainerEventListener.class);
         underTest.addListener(listener);
-        assertThat(listener.getStatus(),
-                equalTo(TestThrowableEventListener.Status.NOT_NOTIFIED));
 
-        String errorMessage = "generic error";
-        underTest.handleError(new Throwable(errorMessage));
-        assertThat(listener.getStatus(),
-                equalTo(TestThrowableEventListener.Status.NOTIFIED));
+        Throwable thrown = new Throwable(genericErrorMessage);
+        underTest.handleError(thrown);
 
-        ThrowableCaughtEvent throwableCaughtEvent = listener
-                .getThrowableCaught();
-        assertTrue(throwableCaughtEvent.getSource().equals(underTest));
-        assertThat(throwableCaughtEvent.getThrowable().getMessage(),
-                equalTo(errorMessage));
+        // XXX implement equals for ThrowableCaughtEvent and ThrowableCaught?
+        // The timestamp might be problematic
+        ArgumentCaptor<ThrowableCaughtEvent> argument = ArgumentCaptor
+                .forClass(ThrowableCaughtEvent.class);
+        verify(listener).onThrowableCaughtAdded(argument.capture());
+        assertTrue(thrown.equals(argument.getValue().getThrowableCaught()
+                .getThrowable()));
     }
 
 }

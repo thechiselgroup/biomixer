@@ -5,31 +5,42 @@ import java.util.List;
 
 public class ThrowablesContainer {
 
-    private final List<ThrowableCaughtEvent> throwables = new ArrayList<ThrowableCaughtEvent>();
+    private final List<ThrowableCaught> throwables = new ArrayList<ThrowableCaught>();
 
-    private final List<ThrowableEventListener> eventListeners = new ArrayList<ThrowableEventListener>();
+    private final List<ThrowablesContainerEventListener> eventListeners = new ArrayList<ThrowablesContainerEventListener>();
 
-    public void addListener(ThrowableEventListener listener) {
+    public void addListener(ThrowablesContainerEventListener listener) {
         eventListeners.add(listener);
     }
 
-    public void addThrowableCaught(ThrowableCaughtEvent throwableCaughtEvent) {
-        throwables.add(throwableCaughtEvent);
-        fireEvent(throwableCaughtEvent);
+    public void addThrowableCaught(ThrowableCaught throwableCaught) {
+        throwables.add(throwableCaught);
+        fireEvent(new ThrowableCaughtEvent(throwableCaught, this));
     }
 
     private void fireEvent(ThrowableCaughtEvent event) {
-        for (ThrowableEventListener listener : eventListeners) {
-            listener.notifyOfThrowableEvent(event);
+        for (ThrowablesContainerEventListener listener : eventListeners) {
+            listener.onThrowableCaughtAdded(event);
         }
     }
 
-    public List<ThrowableCaughtEvent> getThrowablesCaught() {
+    private void fireEvent(ThrowableRemovedEvent event) {
+        for (ThrowablesContainerEventListener listener : eventListeners) {
+            listener.onThrowableCaughtRemoved(event);
+        }
+    }
+
+    public List<ThrowableCaught> getThrowablesCaught() {
         return throwables;
     }
 
-    public void removeListener(ThrowableEventListener listener) {
+    public void removeListener(ThrowablesContainerEventListener listener) {
         eventListeners.remove(listener);
+    }
+
+    public void removeThrowableCaught(ThrowableCaught throwableCaught) {
+        throwables.remove(throwableCaught);
+        fireEvent(new ThrowableRemovedEvent(throwableCaught, this));
     }
 
 }
