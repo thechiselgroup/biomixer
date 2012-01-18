@@ -25,6 +25,8 @@ public interface GraphLayoutCallback {
      */
     SizeInt getDisplayArea();
 
+    Point getLocation(NodeItem node);
+
     void setLocation(NodeItem node, Point location);
 
 }

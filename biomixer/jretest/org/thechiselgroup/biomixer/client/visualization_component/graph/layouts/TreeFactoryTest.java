@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.thechiselgroup.biomixer.client.visualization_component.graph.layouts.TreeNodeMatcher.isTree;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class TreeFactoryTest {
     }
 
     private void assertThatChildrenContainStubNodes(TreeNode treeNode,
-            StubGraphStructure stubGraph, int[] stubNodeNumbers) {
+            StubGraphStructure stubGraph, int... stubNodeNumbers) {
         for (int i = 0; i < stubNodeNumbers.length; i++) {
             assertThatChildrenContainNodeItem(treeNode,
                     stubGraph.getNodeItem(stubNodeNumbers[i]));
@@ -31,8 +32,7 @@ public class TreeFactoryTest {
 
     @Test
     public void getNodesAtDepthTest() {
-        int numberOfNodes = 6;
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(6);
         stubGraph.createArc(0, 1);
         stubGraph.createArc(0, 2);
         stubGraph.createArc(1, 3);
@@ -122,6 +122,11 @@ public class TreeFactoryTest {
         Tree tree = trees.get(0);
         assertThat(tree.size(), equalTo(numberOfNodes));
         TreeNode root = tree.getRoot();
+
+        // assertThat(root, equalsTree(0, 2, equalsTree(1, 1, equalsTree(2,
+        // 0))))
+
+        assertThat(root, isTree(stubGraph));
         assertThat(root.getNumberOfDescendants(), equalTo(2));
         assertThat(root.getChildren().size(), equalTo(1));
         TreeNode rootChild = root.getChildren().get(0);
@@ -151,11 +156,11 @@ public class TreeFactoryTest {
         Tree tree = trees.get(0);
         assertThat(tree.size(), equalTo(numberOfNodes));
         TreeNode root = tree.getRoot();
+        assertThat(root, isTree(stubGraph));
         assertTrue(root.getNodeItem().equals(stubGraph.getNodeItem(0)));
         assertThat(root.getNumberOfDescendants(), equalTo(numberOfNodes - 1));
         assertThat(root.getChildren().size(), equalTo(3));
-        assertThatChildrenContainStubNodes(root, stubGraph,
-                new int[] { 1, 2, 3 });
+        assertThatChildrenContainStubNodes(root, stubGraph, 1, 2, 3);
         assertThat(tree.getHeight(), equalTo(2));
     }
 
@@ -200,8 +205,7 @@ public class TreeFactoryTest {
                 stubGraph.getNodeItem(1));
         assertThat(nodeWithChildren.getNumberOfDescendants(), equalTo(3));
         assertThat(nodeWithChildren.getChildren().size(), equalTo(3));
-        assertThatChildrenContainStubNodes(nodeWithChildren, stubGraph,
-                new int[] { 3, 4, 5 });
+        assertThatChildrenContainStubNodes(nodeWithChildren, stubGraph, 3, 4, 5);
         assertThat(tree.getHeight(), equalTo(3));
     }
 
@@ -227,14 +231,12 @@ public class TreeFactoryTest {
 
     private boolean treeNodesContainNodeItem(NodeItem nodeItem,
             List<TreeNode> children) {
-        boolean nodeItemFound = false;
         for (TreeNode child : children) {
             if (child.getNodeItem().equals(nodeItem)) {
-                nodeItemFound = true;
-                break;
+                return true;
             }
         }
-        return nodeItemFound;
+        return false;
     }
 
     @Test
@@ -263,8 +265,7 @@ public class TreeFactoryTest {
 
         Tree tree1 = getTreeWithRootNodeItem(trees, stubGraph.getNodeItem(0));
         assertThat(tree1.size(), equalTo(3));
-        assertThatChildrenContainStubNodes(tree1.getRoot(), stubGraph,
-                new int[] { 2, 3 });
+        assertThatChildrenContainStubNodes(tree1.getRoot(), stubGraph, 2, 3);
         assertThat(tree1.getHeight(), equalTo(2));
 
         Tree tree2 = getTreeWithRootNodeItem(trees, stubGraph.getNodeItem(1));

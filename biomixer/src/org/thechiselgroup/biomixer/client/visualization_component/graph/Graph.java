@@ -166,7 +166,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     public class GraphLayoutAction implements ViewContentDisplayAction {
 
-        private String layout;
+        private final String layout;
 
         public GraphLayoutAction(String layout) {
             this.layout = layout;
@@ -210,7 +210,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return arcType + ":" + sourceId + "_" + targetId;
     }
 
-    private ArcTypeProvider arcStyleProvider;
+    private final ArcTypeProvider arcStyleProvider;
 
     private final CommandManager commandManager;
 
@@ -220,16 +220,16 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private boolean ready = false;
 
-    private GraphExpansionRegistry registry;
+    private final GraphExpansionRegistry registry;
 
-    private ResourceCategorizer resourceCategorizer;
+    private final ResourceCategorizer resourceCategorizer;
 
-    private ResourceManager resourceManager;
+    private final ResourceManager resourceManager;
 
-    private UnionResourceSet nodeResources = new UnionResourceSet(
+    private final UnionResourceSet nodeResources = new UnionResourceSet(
             new DefaultResourceSet());
 
-    private Map<String, ArcItemContainer> arcItemContainersByArcTypeID = CollectionFactory
+    private final Map<String, ArcItemContainer> arcItemContainersByArcTypeID = CollectionFactory
             .createStringMap();
 
     private ResourceSet automaticResources;
@@ -240,7 +240,7 @@ public class Graph extends AbstractViewContentDisplay implements
      * callbacks that return after the graph has been disposed or before it has
      * been initialized).
      */
-    private GraphNodeExpansionCallback expansionCallback = new GraphNodeExpansionCallback() {
+    private final GraphNodeExpansionCallback expansionCallback = new GraphNodeExpansionCallback() {
 
         @Override
         public void addAutomaticResource(Resource resource) {
@@ -441,6 +441,11 @@ public class Graph extends AbstractViewContentDisplay implements
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();
         return new DefaultSize(width, height);
+    }
+
+    @Override
+    public Point getLocation(NodeItem nodeItem) {
+        return graphDisplay.getLocation(nodeItem.getNode());
     }
 
     @Override

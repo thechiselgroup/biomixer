@@ -24,6 +24,12 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNod
 
 import com.google.inject.Inject;
 
+/**
+ * 
+ * This class is for expanding concepts related to a mapping node, as opposed to
+ * a concept node as in the ConceptMappingNeighbourhoodExpander.
+ * 
+ */
 public class MappingExpander implements GraphNodeExpander {
 
     private final ResourceManager resourceManager;
