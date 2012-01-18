@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -21,7 +21,7 @@ public class BioMixerBranding implements Branding {
 
     private static final String MESSAGE = "<i>\"To understand is hard. Once one understands, "
             + "action is easy.\"</i>"
-            + "<p>(C) Copyright 2009, 2010 "
+            + "<p>(C) Copyright 2012 "
             + "The CHISEL Group, University of Victoria<br/>"
             + "(<a href=\"http://www.thechiselgroup.org/\" "
             + "target=\"_blank\">www.thechiselgroup.org</a>)<p>"
