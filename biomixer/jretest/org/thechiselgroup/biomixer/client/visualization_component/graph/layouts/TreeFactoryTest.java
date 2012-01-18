@@ -1,6 +1,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layouts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -175,7 +176,19 @@ public class TreeFactoryTest {
         Tree tree = trees.get(0);
         assertThat(tree.size(), equalTo(numberOfNodes));
         TreeNode root = tree.getRoot();
+
         assertTrue(root.getNodeItem().equals(stubGraph.getNodeItem(0)));
+        /*
+         * TODO as an intermediate step to achieve
+         * 
+         * assertThat(root, equalsTree(0, 2, equalsTree(1, 1, equalsTree(2,
+         * 0))))
+         * 
+         * can the above code line (180) be replaced with the following one
+         * (190)?
+         */
+        assertEquals("" + 0, root.getNodeItem().getNode().getId());
+
         assertThat(root.getNumberOfDescendants(), equalTo(numberOfNodes - 1));
         assertThat(root.getChildren().size(), equalTo(2));
         assertThatChildrenContainNodeItem(root, stubGraph.getNodeItem(1));
