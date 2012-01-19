@@ -7,6 +7,7 @@ import static org.thechiselgroup.biomixer.client.visualization_component.graph.l
 
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
@@ -69,20 +70,17 @@ public class TreeFactoryTest {
     private Tree getTreeWithRootNodeItem(List<Tree> trees,
             NodeItem dummyNodeItem) {
 
-        Tree desiredTree = null;
         for (Tree tree : trees) {
             if (tree.getRoot().getNodeItem().equals(dummyNodeItem)) {
-                desiredTree = tree;
-                // TODO return immediately
-                break;
+                return tree;
             }
         }
 
-        // TODO Assert.fail() instead, with return null
-        assert desiredTree != null;
-        return desiredTree;
+        Assert.fail();
+        return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void oneRootOneChild() {
         StubGraphStructure stubGraph = new StubGraphStructure(2);
@@ -97,6 +95,7 @@ public class TreeFactoryTest {
         assertThat(tree.getRoot(), equalsTree(0, 1, equalsTree(1, 0)));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void oneRootOneChildOneGrandchild() {
         StubGraphStructure stubGraph = new StubGraphStructure(3);
@@ -108,9 +107,7 @@ public class TreeFactoryTest {
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
-        // TODO add suppresswarnings
         assertThat(tree.getHeight(), equalTo(3));
-
         assertThat(tree.getRoot(),
                 equalsTree(0, 2, equalsTree(1, 1, equalsTree(2, 0))));
     }
@@ -135,6 +132,7 @@ public class TreeFactoryTest {
                         equalsTree(3, 0)));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void oneRootTwoChildrenOneHasThreeChildrenOtherHasNone() {
         StubGraphStructure stubGraph = new StubGraphStructure(6);
@@ -199,6 +197,7 @@ public class TreeFactoryTest {
         assertThat(trees.get(1).size(), equalTo(1));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void twoRootsOneWithTwoChildrenOneWithOne() {
         StubGraphStructure stubGraph = new StubGraphStructure(5);
