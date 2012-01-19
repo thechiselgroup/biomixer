@@ -1,6 +1,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layouts;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeItem;
@@ -23,18 +24,24 @@ public class TreeNode {
         return children;
     }
 
+    public int getHeight() {
+        int maxHeight = 0;
+        for (int i = 0; i < children.size(); i++) {
+            int height = children.get(i).getHeight();
+            if (height > maxHeight) {
+                maxHeight = height;
+            }
+        }
+        return maxHeight + 1;
+    }
+
     public NodeItem getNodeItem() {
         return nodeItem;
     }
 
     public List<TreeNode> getNodesFromLevelsBelow(int levelsBelow) {
         if (levelsBelow == 0) {
-            // This is for the case where there is just the root
-            List<TreeNode> selfList = new ArrayList<TreeNode>();
-            selfList.add(this);
-            return selfList;
-        } else if (levelsBelow == 1) {
-            return children;
+            return Arrays.asList(this);
         } else {
             List<TreeNode> descendantNodes = new ArrayList<TreeNode>();
             for (TreeNode childNode : children) {
@@ -53,19 +60,7 @@ public class TreeNode {
         return numberOfDescendants;
     }
 
-    public int height() {
-        if (children.size() == 0) {
-            return 1;
-        }
-
-        int maxHeight = Integer.MIN_VALUE;
-        for (int i = 0; i < children.size(); i++) {
-            int height = children.get(i).height();
-            if (height > maxHeight) {
-                maxHeight = height;
-            }
-        }
-
-        return maxHeight + 1;
+    public boolean isLeaf() {
+        return children.size() == 0;
     }
 }

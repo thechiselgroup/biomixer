@@ -85,8 +85,7 @@ public class TreeFactoryTest {
 
     @Test
     public void oneRootOneChild() {
-        int numberOfNodes = 2; // TODO inline
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(2);
         stubGraph.createArc(0, 1);
 
         List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
@@ -94,26 +93,26 @@ public class TreeFactoryTest {
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
-        assertThat(tree.getRoot(), equalsTree(0, 1, equalsTree(1, 0)));
         assertThat(tree.getHeight(), equalTo(2));
+        assertThat(tree.getRoot(), equalsTree(0, 1, equalsTree(1, 0)));
     }
 
     @Test
     public void oneRootOneChildOneGrandchild() {
-        int numberOfNodes = 3; // TODO inline
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(3);
         stubGraph.createArc(0, 1);
         stubGraph.createArc(1, 2);
 
         List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
                 stubGraph.getArcItems());
-
         assertThat(trees.size(), equalTo(1));
+
         Tree tree = trees.get(0);
         // TODO add suppresswarnings
+        assertThat(tree.getHeight(), equalTo(3));
+
         assertThat(tree.getRoot(),
                 equalsTree(0, 2, equalsTree(1, 1, equalsTree(2, 0))));
-        assertThat(tree.getHeight(), equalTo(3));
     }
 
     @SuppressWarnings("unchecked")
@@ -129,17 +128,16 @@ public class TreeFactoryTest {
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
+        assertThat(tree.getHeight(), equalTo(2));
         assertThat(
                 tree.getRoot(),
                 equalsTree(0, 3, equalsTree(1, 0), equalsTree(2, 0),
                         equalsTree(3, 0)));
-        assertThat(tree.getHeight(), equalTo(2));
     }
 
     @Test
     public void oneRootTwoChildrenOneHasThreeChildrenOtherHasNone() {
-        int numberOfNodes = 6;
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(6);
         stubGraph.createArc(0, 1);
         stubGraph.createArc(0, 2);
         stubGraph.createArc(1, 3);
@@ -151,6 +149,7 @@ public class TreeFactoryTest {
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
+        assertThat(tree.getHeight(), equalTo(3));
         assertThat(
                 tree.getRoot(),
                 equalsTree(
@@ -158,8 +157,6 @@ public class TreeFactoryTest {
                         5,
                         equalsTree(1, 3, equalsTree(3, 0), equalsTree(4, 0),
                                 equalsTree(5, 0)), equalsTree(2, 0)));
-
-        assertThat(tree.getHeight(), equalTo(3));
     }
 
     @Before
@@ -170,16 +167,15 @@ public class TreeFactoryTest {
 
     @Test
     public void singleNode() {
-        int numberOfNodes = 1;
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(1);
 
         List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
                 stubGraph.getArcItems());
 
         assertThat(trees.size(), equalTo(1));
         Tree tree = trees.get(0);
-        assertThat(tree.size(), equalTo(1));
         assertThat(tree.getHeight(), equalTo(1));
+        assertThat(tree.size(), equalTo(1));
     }
 
     private boolean treeNodesContainNodeItem(NodeItem nodeItem,
@@ -220,8 +216,8 @@ public class TreeFactoryTest {
                 equalsTree(0, 2, equalsTree(2, 0), equalsTree(3, 0)));
 
         Tree tree2 = getTreeWithRootNodeItem(trees, stubGraph.getNodeItem(1));
-        assertThat(tree2.getRoot(), equalsTree(1, 1, equalsTree(4, 0)));
         assertThat(tree2.getHeight(), equalTo(2));
+        assertThat(tree2.getRoot(), equalsTree(1, 1, equalsTree(4, 0)));
     }
 
 }

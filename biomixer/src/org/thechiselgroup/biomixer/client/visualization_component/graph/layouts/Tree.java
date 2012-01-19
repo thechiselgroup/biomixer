@@ -11,7 +11,7 @@ public class Tree {
     }
 
     public int getHeight() {
-        return root.height();
+        return root.getHeight();
     }
 
     /**
@@ -21,6 +21,7 @@ public class Tree {
      * @return Find all nodes at the specified depth from the root
      */
     public List<TreeNode> getNodesAtDepth(int depth) {
+        assert depth >= 0;
         return root.getNodesFromLevelsBelow(depth);
     }
 

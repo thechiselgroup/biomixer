@@ -57,6 +57,9 @@ public class TreeNodeMatcher extends TypeSafeMatcher<TreeNode> {
     @Override
     public void describeTo(Description description) {
         description.appendValue(nodeIndex);
+        for (Matcher<TreeNode> matcher : treeNodeMatchers) {
+            matcher.describeTo(description);
+        }
     }
 
     @Override

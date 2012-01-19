@@ -43,7 +43,7 @@ public class StubGraphStructure {
     }
 
     public Arc getArc(int number) {
-        return stubArcItems.get(number).getArc();
+        return getArcItem(number).getArc();
     }
 
     public ArcItem getArcItem(int number) {
@@ -55,7 +55,7 @@ public class StubGraphStructure {
     }
 
     public Node getNode(int number) {
-        return stubNodeItems.get(number).getNode();
+        return getNodeItem(number).getNode();
     }
 
     public NodeItem getNodeItem(int number) {
