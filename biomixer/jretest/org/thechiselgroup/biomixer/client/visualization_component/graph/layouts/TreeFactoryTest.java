@@ -30,16 +30,22 @@ public class TreeFactoryTest {
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
+
+        // TODO find a more declarative way to do this.
         List<TreeNode> nodesAtDepth0 = tree.getNodesAtDepth(0);
         assertThat(nodesAtDepth0.size(), equalTo(1));
         assertTrue(treeNodesContainNodeItem(stubGraph.getNodeItem(0),
                 nodesAtDepth0));
+
+        // TODO find a more declarative way to do this.
         List<TreeNode> nodesAtDepth1 = tree.getNodesAtDepth(1);
         assertThat(nodesAtDepth1.size(), equalTo(2));
         assertTrue(treeNodesContainNodeItem(stubGraph.getNodeItem(1),
                 nodesAtDepth1));
         assertTrue(treeNodesContainNodeItem(stubGraph.getNodeItem(2),
                 nodesAtDepth1));
+
+        // TODO find a more declarative way to do this.
         List<TreeNode> nodesAtDepth2 = tree.getNodesAtDepth(2);
         assertThat(nodesAtDepth2.size(), equalTo(3));
         assertTrue(treeNodesContainNodeItem(stubGraph.getNodeItem(3),
