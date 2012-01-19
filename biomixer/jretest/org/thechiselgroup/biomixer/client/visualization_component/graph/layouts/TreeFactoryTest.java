@@ -67,16 +67,19 @@ public class TreeFactoryTest {
         for (Tree tree : trees) {
             if (tree.getRoot().getNodeItem().equals(dummyNodeItem)) {
                 desiredTree = tree;
+                // TODO return immediately
                 break;
             }
         }
+
+        // TODO Assert.fail() instead, with return null
         assert desiredTree != null;
         return desiredTree;
     }
 
     @Test
     public void oneRootOneChild() {
-        int numberOfNodes = 2;
+        int numberOfNodes = 2; // TODO inline
         StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
         stubGraph.createArc(0, 1);
 
@@ -91,7 +94,7 @@ public class TreeFactoryTest {
 
     @Test
     public void oneRootOneChildOneGrandchild() {
-        int numberOfNodes = 3;
+        int numberOfNodes = 3; // TODO inline
         StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
         stubGraph.createArc(0, 1);
         stubGraph.createArc(1, 2);
@@ -101,15 +104,16 @@ public class TreeFactoryTest {
 
         assertThat(trees.size(), equalTo(1));
         Tree tree = trees.get(0);
+        // TODO add suppresswarnings
         assertThat(tree.getRoot(),
                 equalsTree(0, 2, equalsTree(1, 1, equalsTree(2, 0))));
         assertThat(tree.getHeight(), equalTo(3));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void oneRootThreeChildren() {
-        int numberOfNodes = 4;
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(4);
         stubGraph.createArc(0, 1);
         stubGraph.createArc(0, 2);
         stubGraph.createArc(0, 3);
@@ -184,8 +188,7 @@ public class TreeFactoryTest {
 
     @Test
     public void twoRootsNoChildren() {
-        int numberOfNodes = 2;
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(2);
 
         List<Tree> trees = underTest.getTrees(stubGraph.getNodeItems(),
                 stubGraph.getArcItems());
@@ -196,8 +199,7 @@ public class TreeFactoryTest {
 
     @Test
     public void twoRootsOneWithTwoChildrenOneWithOne() {
-        int numberOfNodes = 5;
-        StubGraphStructure stubGraph = new StubGraphStructure(numberOfNodes);
+        StubGraphStructure stubGraph = new StubGraphStructure(5);
         stubGraph.createArc(0, 2);
         stubGraph.createArc(0, 3);
         stubGraph.createArc(1, 4);
