@@ -10,6 +10,8 @@ public class ThrowableCaught {
 
     // maybe some additional information
 
+    // TODO test constructor where you can set the date
+    // & use it in the unit tests
     public ThrowableCaught(Throwable throwable) {
         this.timeStamp = new Date();
         this.throwable = throwable;
@@ -28,6 +30,11 @@ public class ThrowableCaught {
 
     public Date getTimeStamp() {
         return timeStamp;
+    }
+
+    @Override
+    public String toString() {
+        return timeStamp.toString() + ": " + throwable.getLocalizedMessage();
     }
 
 }

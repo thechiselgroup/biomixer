@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
@@ -26,12 +27,13 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class ListBoxControl<T> implements IsWidget {
 
-    private ListBoxPresenter presenter;
+    private final ListBoxPresenter presenter;
 
     private ChangeHandler changeHandler;
 
     private HandlerRegistration changeHandlerRegistration;
 
+    // TODO class invariant - must never be null.
     private List<T> values;
 
     private final Transformer<T, String> formatter;
@@ -66,6 +68,10 @@ public class ListBoxControl<T> implements IsWidget {
         }
 
         return values.get(selectedIndex);
+    }
+
+    public List<T> getValues() {
+        return values == null ? new ArrayList<T>() : values;
     }
 
     public boolean isVisible() {
