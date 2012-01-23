@@ -30,6 +30,8 @@ public interface ListBoxPresenter extends HasChangeHandlers, IsWidget {
 
     boolean isVisible();
 
+    void removeItem(String label);
+
     void setSelectedIndex(int index);
 
     void setVisible(boolean visible);

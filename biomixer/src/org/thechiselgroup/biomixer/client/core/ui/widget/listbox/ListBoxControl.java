@@ -33,8 +33,8 @@ public class ListBoxControl<T> implements IsWidget {
 
     private HandlerRegistration changeHandlerRegistration;
 
-    // TODO class invariant - must never be null.
-    private List<T> values;
+    // class invariant - must never be null.
+    private List<T> values = new ArrayList<T>();
 
     private final Transformer<T, String> formatter;
 
@@ -52,6 +52,11 @@ public class ListBoxControl<T> implements IsWidget {
         this.presenter.setVisibleItemCount(1);
     }
 
+    public void addItem(T item) throws Exception {
+        presenter.addItem(formatter.transform(item));
+        values.add(item);
+    }
+
     @Override
     public Widget asWidget() {
         return presenter.asWidget();
@@ -63,7 +68,7 @@ public class ListBoxControl<T> implements IsWidget {
     public T getSelectedValue() {
         int selectedIndex = presenter.getSelectedIndex();
 
-        if (selectedIndex == -1 || values == null) {
+        if (selectedIndex == -1 || selectedIndex >= values.size()) {
             return null;
         }
 
@@ -71,11 +76,16 @@ public class ListBoxControl<T> implements IsWidget {
     }
 
     public List<T> getValues() {
-        return values == null ? new ArrayList<T>() : values;
+        return values;
     }
 
     public boolean isVisible() {
         return presenter.isVisible();
+    }
+
+    public void removeItem(T item) throws Exception {
+        presenter.removeItem(formatter.transform(item));
+        values.remove(item);
     }
 
     // TODO this should be changed to addChangeHandler (this is a memory bug)

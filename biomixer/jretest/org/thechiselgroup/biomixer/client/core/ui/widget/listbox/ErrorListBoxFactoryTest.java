@@ -16,12 +16,13 @@
 package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 
@@ -33,35 +34,52 @@ public class ErrorListBoxFactoryTest {
 
     private ThrowablesContainer throwablesContainer;
 
-    private final ListBoxPresenter presenter = mock(ListBoxPresenter.class);
+    @Mock
+    private ListBoxPresenter presenter;
 
     @Test
-    public void createErrorListBox() {
+    public void addedThrowablesCaughtBeforeErrorListBoxCreationShouldBeInValues() {
+        throwablesContainer
+                .addThrowableCaught(createThrowableCaught(errorMessage1));
         ListBoxControl<ThrowableCaught> errorListBox = ErrorListBoxFactory
                 .createErrorBox(throwablesContainer, presenter);
-
-        ThrowableCaught throwableCaught = new ThrowableCaught(new Throwable(
-                errorMessage1));
-        throwablesContainer.addThrowableCaught(throwableCaught);
-        verify(presenter).addItem(throwableCaught.toString());
+        throwablesContainer
+                .addThrowableCaught(createThrowableCaught(errorMessage2));
+        assertThat(errorListBox.getValues(),
+                containsExactly(throwablesContainer.getThrowablesCaught()));
     }
 
     @Test
-    public void createErrorListBox2Errors() {
+    public void addedThrowablesCaughtShouldBeValuesOfErrorListBox() {
         ListBoxControl<ThrowableCaught> errorListBox = ErrorListBoxFactory
                 .createErrorBox(throwablesContainer, presenter);
 
-        throwablesContainer.addThrowableCaught(new ThrowableCaught(
-                new Throwable(errorMessage1)));
-        throwablesContainer.addThrowableCaught(new ThrowableCaught(
-                new Throwable(errorMessage2)));
+        throwablesContainer
+                .addThrowableCaught(createThrowableCaught(errorMessage1));
+        throwablesContainer
+                .addThrowableCaught(createThrowableCaught(errorMessage2));
 
         assertThat(errorListBox.getValues(),
                 containsExactly(throwablesContainer.getThrowablesCaught()));
     }
 
+    private ThrowableCaught createThrowableCaught(String errorMessage) {
+        return new ThrowableCaught(new Throwable(errorMessage));
+    }
+
+    @Test
+    public void descriptionOfAddedThrowableShouldGetAddedToPresenter() {
+        ListBoxControl<ThrowableCaught> errorListBox = ErrorListBoxFactory
+                .createErrorBox(throwablesContainer, presenter);
+
+        ThrowableCaught throwableCaught = createThrowableCaught(errorMessage1);
+        throwablesContainer.addThrowableCaught(throwableCaught);
+        verify(presenter).addItem(throwableCaught.toString());
+    }
+
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         throwablesContainer = new ThrowablesContainer();
     }
 }
