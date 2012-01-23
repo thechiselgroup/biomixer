@@ -39,9 +39,10 @@ public class ThrowablesContainer {
     }
 
     public void removeThrowableCaught(ThrowableCaught throwableCaught) {
+        assert throwables.contains(throwableCaught);
+
         throwables.remove(throwableCaught);
         fireThrowableRemovedEvent(new ThrowableCaughtEvent(throwableCaught,
                 this));
     }
-
 }

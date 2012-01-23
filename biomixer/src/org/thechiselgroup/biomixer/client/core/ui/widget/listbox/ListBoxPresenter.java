@@ -24,13 +24,15 @@ public interface ListBoxPresenter extends HasChangeHandlers, IsWidget {
 
     void clear();
 
+    int getItemCount();
+
     int getSelectedIndex();
 
     String getValue(int index);
 
     boolean isVisible();
 
-    void removeItem(String label);
+    void removeItem(int index);
 
     void setSelectedIndex(int index);
 

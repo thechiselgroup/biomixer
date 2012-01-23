@@ -178,7 +178,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
         // TODO change configuration to configurationUIModel
         return new DefaultVisualMappingsControl(uiModel, resourceGrouping,
-                this.uiProvider, resolverFactoryProvider);
+                this.uiProvider, resolverFactoryProvider, errorHandler);
     }
 
     @Override

@@ -41,18 +41,4 @@ public class ExtendedListBox extends ListBox implements ListBoxPresenter {
         return this;
     }
 
-    private int getLabelIndex(String label) {
-        for (int i = 0; i < getItemCount(); i++) {
-            if (getValue(i).equals(label)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    @Override
-    public void removeItem(String label) {
-        removeItem(getLabelIndex(label));
-    }
-
 }

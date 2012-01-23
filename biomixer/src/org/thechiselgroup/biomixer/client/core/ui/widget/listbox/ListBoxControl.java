@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -29,9 +30,17 @@ public class ListBoxControl<T> implements IsWidget {
 
     private final ListBoxPresenter presenter;
 
+    /**
+     * TODO: clearly define behaviour.
+     * 
+     * This change handler is only for when a user selects something, not when
+     * content changes.
+     */
     private ChangeHandler changeHandler;
 
     private HandlerRegistration changeHandlerRegistration;
+
+    private ErrorHandler errorHandler;
 
     // class invariant - must never be null.
     private List<T> values = new ArrayList<T>();
@@ -41,25 +50,48 @@ public class ListBoxControl<T> implements IsWidget {
     // TODO refactor: use handler registration / deregistration for
     // changeHandler
     public ListBoxControl(ListBoxPresenter presenter,
-            Transformer<T, String> formatter) {
+            Transformer<T, String> formatter, ErrorHandler errorHandler) {
+        this(presenter, formatter, errorHandler, new ArrayList<T>());
+    }
+
+    public ListBoxControl(ListBoxPresenter presenter,
+            Transformer<T, String> formatter, ErrorHandler errorHandler,
+            List<T> initialValues) {
 
         assert formatter != null;
         assert presenter != null;
+        assert errorHandler != null;
+        assert initialValues != null;
 
         this.formatter = formatter;
         this.presenter = presenter;
+        this.errorHandler = errorHandler;
 
         this.presenter.setVisibleItemCount(1);
+        this.values.addAll(initialValues);
     }
 
-    public void addItem(T item) throws Exception {
-        presenter.addItem(formatter.transform(item));
-        values.add(item);
+    public void addItem(T item) {
+        try {
+            presenter.addItem(formatter.transform(item));
+            values.add(item);
+        } catch (Exception e) {
+            errorHandler.handleError(e);
+        }
     }
 
     @Override
     public Widget asWidget() {
         return presenter.asWidget();
+    }
+
+    public int getLabelIndex(String label) {
+        for (int i = 0; i < presenter.getItemCount(); i++) {
+            if (presenter.getValue(i).equals(label)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -68,7 +100,8 @@ public class ListBoxControl<T> implements IsWidget {
     public T getSelectedValue() {
         int selectedIndex = presenter.getSelectedIndex();
 
-        if (selectedIndex == -1 || selectedIndex >= values.size()) {
+        assert selectedIndex < values.size();
+        if (selectedIndex == -1) {
             return null;
         }
 
@@ -83,9 +116,13 @@ public class ListBoxControl<T> implements IsWidget {
         return presenter.isVisible();
     }
 
-    public void removeItem(T item) throws Exception {
-        presenter.removeItem(formatter.transform(item));
-        values.remove(item);
+    public void removeItem(T item) {
+        try {
+            presenter.removeItem(getLabelIndex(formatter.transform(item)));
+            values.remove(item);
+        } catch (Exception e) {
+            errorHandler.handleError(e);
+        }
     }
 
     // TODO this should be changed to addChangeHandler (this is a memory bug)
@@ -118,7 +155,9 @@ public class ListBoxControl<T> implements IsWidget {
             try {
                 presenter.addItem(formatter.transform(value));
             } catch (Exception e) {
-                // TODO handle transformation error
+                // XXX this can lead to a bug where things get out of sync with
+                // what is displayed
+                errorHandler.handleError(e);
             }
         }
         setSelectedValue(selectedValue);

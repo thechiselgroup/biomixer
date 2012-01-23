@@ -1,0 +1,2 @@
+serviceClass: org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspaceSharingService
+path: 898F47F7E8AFDE0AE59EF2872491B0B2.gwt.rpc

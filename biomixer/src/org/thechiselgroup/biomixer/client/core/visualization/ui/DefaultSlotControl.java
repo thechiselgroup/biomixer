@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -48,14 +49,16 @@ public class DefaultSlotControl extends SlotControl {
 
     private Widget currentUIControllerWidget;
 
-    // TODO I don't like how I need this here just to get the visualItems. I feel
+    // TODO I don't like how I need this here just to get the visualItems. I
+    // feel
     // like this class should not know about view items. It could always keep
     // track of updates, but then it is possible to introduce inconsistencies
     private DefaultManagedSlotMappingConfiguration configuration;
 
     public DefaultSlotControl(Slot slot,
             DefaultManagedSlotMappingConfiguration configurationUIModel,
-            VisualItemValueResolverUIController uiController) {
+            VisualItemValueResolverUIController uiController,
+            ErrorHandler errorHandler) {
 
         super(slot);
         this.uiController = uiController;
@@ -91,7 +94,7 @@ public class DefaultSlotControl extends SlotControl {
                             VisualItemValueResolverFactory factory) {
                         return factory.getLabel();
                     }
-                });
+                }, errorHandler);
     }
 
     // TODO add special UI stuff for resolvers that are in error

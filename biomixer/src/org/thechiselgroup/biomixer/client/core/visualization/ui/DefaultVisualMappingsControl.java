@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.DataTypeLists;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.HasResourceCategorizer;
@@ -64,7 +65,9 @@ public class DefaultVisualMappingsControl implements VisualMappingsControl {
 
     private DataTypeLists<SlotControl> slotControlsByDataType;
 
-    private Map<Slot, SlotControl> slotToSlotControls = new HashMap<Slot, SlotControl>();
+    private final Map<Slot, SlotControl> slotToSlotControls = new HashMap<Slot, SlotControl>();
+
+    private final ErrorHandler errorHandler;
 
     private final VisualItemValueResolverUIControllerFactoryProvider uiProvider;
 
@@ -74,7 +77,8 @@ public class DefaultVisualMappingsControl implements VisualMappingsControl {
             DefaultManagedSlotMappingConfiguration slotMappingConfigurationUIModel,
             HasResourceCategorizer resourceGrouping,
             VisualItemValueResolverUIControllerFactoryProvider uiProvider,
-            VisualItemValueResolverFactoryProvider resolverFactoryProvider) {
+            VisualItemValueResolverFactoryProvider resolverFactoryProvider,
+            ErrorHandler errorHandler) {
 
         assert slotMappingConfigurationUIModel != null;
         assert resourceGrouping != null;
@@ -85,6 +89,7 @@ public class DefaultVisualMappingsControl implements VisualMappingsControl {
         this.resourceGrouping = resourceGrouping;
         this.uiProvider = uiProvider;
         this.resolverFactoryProvider = resolverFactoryProvider;
+        this.errorHandler = errorHandler;
     }
 
     private void addSlotControl(Slot slot, SlotControl slotControl) {
@@ -127,7 +132,7 @@ public class DefaultVisualMappingsControl implements VisualMappingsControl {
                 slot, resolver);
 
         DefaultSlotControl slotControl = new DefaultSlotControl(slot,
-                slotMappingConfigurationUIModel, newResolverUI);
+                slotMappingConfigurationUIModel, newResolverUI, errorHandler);
 
         this.slotToSlotControls.put(slot, slotControl);
 
@@ -179,7 +184,7 @@ public class DefaultVisualMappingsControl implements VisualMappingsControl {
         // TODO include bin aggregation for numerical slots
 
         groupingBox = new ListBoxControl<String>(new ExtendedListBox(false),
-                new NullTransformer<String>());
+                new NullTransformer<String>(), errorHandler);
 
         /**
          * This is an event handle which watches the resource grouping box for

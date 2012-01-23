@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedSlotMapping;
@@ -23,11 +24,15 @@ import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.P
 public class PropertyListBoxResolverUIControllerFactory implements
         VisualItemValueResolverUIControllerFactory {
 
-    private PropertyDependantVisualItemValueResolverFactory resolverFactory;
+    private final PropertyDependantVisualItemValueResolverFactory resolverFactory;
+
+    private final ErrorHandler errorHandler;
 
     public PropertyListBoxResolverUIControllerFactory(
-            PropertyDependantVisualItemValueResolverFactory resolverFactory) {
+            PropertyDependantVisualItemValueResolverFactory resolverFactory,
+            ErrorHandler errorHandler) {
 
+        this.errorHandler = errorHandler;
         assert resolverFactory != null;
         this.resolverFactory = resolverFactory;
     }
@@ -38,7 +43,7 @@ public class PropertyListBoxResolverUIControllerFactory implements
             LightweightCollection<VisualItem> visualItems) {
 
         return new PropertyListBoxResolverUIController(resolverFactory,
-                uiModel, visualItems);
+                uiModel, visualItems, errorHandler);
     }
 
     @Override

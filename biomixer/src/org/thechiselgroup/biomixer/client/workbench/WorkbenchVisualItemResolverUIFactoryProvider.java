@@ -30,12 +30,19 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.SUM_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider.TEXT_PROPERTY_RESOLVER_FACTORY;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui.DefaultVisualItemResolverUIFactoryProvider;
 
 import com.google.inject.Inject;
 
 public class WorkbenchVisualItemResolverUIFactoryProvider extends
         DefaultVisualItemResolverUIFactoryProvider {
+
+    @Inject
+    public WorkbenchVisualItemResolverUIFactoryProvider(
+            ErrorHandler errorHandler) {
+        super(errorHandler);
+    }
 
     // TODO it might be possible to auto-map those based on type information
     @Inject

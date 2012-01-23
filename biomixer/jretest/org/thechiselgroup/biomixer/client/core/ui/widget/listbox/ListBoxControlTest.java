@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
 import java.util.Arrays;
@@ -25,12 +26,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+
+import com.google.gwt.event.dom.client.ChangeHandler;
 
 public class ListBoxControlTest {
 
     @Mock
     private ListBoxPresenter presenter;
+
+    @Mock
+    private ErrorHandler errorHandler;
+
+    @Mock
+    private ChangeHandler changeHandler;
 
     private ListBoxControl<Integer> listBoxControl;
 
@@ -43,8 +53,7 @@ public class ListBoxControlTest {
     };
 
     @Test
-    public void addOneItemShouldBeInValuesAndStringRepresentationInPresenter()
-            throws Exception {
+    public void addOneItemShouldBeInValuesAndStringRepresentationInPresenter() {
         listBoxControl.addItem(1);
         verify(presenter).addItem("1");
         assertThat(listBoxControl.getValues(),
@@ -52,8 +61,7 @@ public class ListBoxControlTest {
     }
 
     @Test
-    public void addTwoItemsShouldBGeInValuesAndStringRepresentationInPresenter()
-            throws Exception {
+    public void addTwoItemsShouldBGeInValuesAndStringRepresentationInPresenter() {
         listBoxControl.addItem(1);
         verify(presenter).addItem("1");
         listBoxControl.addItem(2);
@@ -63,19 +71,34 @@ public class ListBoxControlTest {
     }
 
     @Test
-    public void removeOneItemShouldNotBeInValuesOrPresenter() throws Exception {
+    public void removeOneItemShouldNotBeInValuesOrPresenter() {
         listBoxControl.addItem(1);
         listBoxControl.addItem(2);
+        // XXX would be better to have an automatic way of setting up these
+        // responses
+        when(presenter.getItemCount()).thenReturn(2);
+        when(presenter.getValue(0)).thenReturn("1");
+        when(presenter.getValue(1)).thenReturn("2");
         listBoxControl.removeItem(1);
-        verify(presenter).removeItem("1");
+        verify(presenter).removeItem(0);
         assertThat(listBoxControl.getValues(),
                 containsExactly(Arrays.asList(2)));
+    }
+
+    @Test
+    public void setChangeHandlerShouldAddChangeHandlerToPresenter() {
+        listBoxControl.setChangeHandler(changeHandler);
+        verify(presenter).addChangeHandler(changeHandler);
     }
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        this.listBoxControl = new ListBoxControl<Integer>(presenter, formatter);
+        this.listBoxControl = new ListBoxControl<Integer>(presenter, formatter,
+                errorHandler);
+        // nothing is selected in these tests. Without this the mock returns a
+        // 0, causing an index out of bounds exception for empty lists
+        when(presenter.getSelectedIndex()).thenReturn(-1);
     }
 
     @Test
@@ -95,5 +118,4 @@ public class ListBoxControlTest {
         assertThat(listBoxControl.getValues(),
                 containsExactly(Arrays.asList(1, 2, 3)));
     }
-
 }

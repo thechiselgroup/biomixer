@@ -15,17 +15,29 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.collections.Registry;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.PropertyDependantVisualItemValueResolverFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.SingletonVisualItemResolverFactory;
+
+import com.google.inject.Inject;
 
 public class DefaultVisualItemResolverUIFactoryProvider extends
         Registry<VisualItemValueResolverUIControllerFactory> implements
         VisualItemValueResolverUIControllerFactoryProvider {
 
+    private final ErrorHandler errorHandler;
+
+    @Inject
+    public DefaultVisualItemResolverUIFactoryProvider(ErrorHandler errorHandler) {
+        super();
+        this.errorHandler = errorHandler;
+    }
+
     public void register(
             PropertyDependantVisualItemValueResolverFactory resolverFactory) {
-        register(new PropertyListBoxResolverUIControllerFactory(resolverFactory));
+        register(new PropertyListBoxResolverUIControllerFactory(
+                resolverFactory, errorHandler));
     }
 
     public void register(SingletonVisualItemResolverFactory resolverFactory) {

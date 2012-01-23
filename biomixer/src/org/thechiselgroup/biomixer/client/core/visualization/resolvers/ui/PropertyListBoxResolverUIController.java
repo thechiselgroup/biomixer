@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui;
 
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetUtils;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
@@ -37,17 +38,19 @@ public class PropertyListBoxResolverUIController implements
 
     private final PropertyDependantVisualItemValueResolverFactory resolverFactory;
 
-    private ManagedSlotMapping uiModel;
+    private final ManagedSlotMapping uiModel;
 
     private List<String> properties;
 
-    private ListBoxControl<String> selector;
+    private final ListBoxControl<String> selector;
+
+    private ErrorHandler errorHandler;
 
     /**
      * This change handler will automatically synchronize the resolvers changes
      * with the property that is selected in the UI
      */
-    private ChangeHandler propertySelectChangeHandler = new ChangeHandler() {
+    private final ChangeHandler propertySelectChangeHandler = new ChangeHandler() {
 
         // this change represents that the resolver has changed without the
         // factory changing
@@ -61,23 +64,25 @@ public class PropertyListBoxResolverUIController implements
     public PropertyListBoxResolverUIController(
             PropertyDependantVisualItemValueResolverFactory resolverFactory,
             ManagedSlotMapping uiModel,
-            LightweightCollection<VisualItem> visualItems) {
+            LightweightCollection<VisualItem> visualItems,
+            ErrorHandler errorHandler) {
 
         this(resolverFactory, uiModel, visualItems, ResourceSetUtils
                 .getSharedPropertiesOfDataType(visualItems,
-                        resolverFactory.getDataType()).get(0));
+                        resolverFactory.getDataType()).get(0), errorHandler);
     }
 
     public PropertyListBoxResolverUIController(
             PropertyDependantVisualItemValueResolverFactory resolverFactory,
             ManagedSlotMapping uiModel,
-            LightweightCollection<VisualItem> visualItems, String property) {
+            LightweightCollection<VisualItem> visualItems, String property,
+            ErrorHandler errorHandler) {
 
         this.uiModel = uiModel;
         this.resolverFactory = resolverFactory;
 
         selector = new ListBoxControl<String>(new ExtendedListBox(false),
-                new NullTransformer<String>());
+                new NullTransformer<String>(), errorHandler);
         selector.setChangeHandler(propertySelectChangeHandler);
 
         setProperties(ResourceSetUtils.getSharedPropertiesOfDataType(

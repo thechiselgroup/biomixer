@@ -1,0 +1,2 @@
+serviceClass: org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackService
+path: 307F9D4E281D85A96F5FFC96651782FD.gwt.rpc

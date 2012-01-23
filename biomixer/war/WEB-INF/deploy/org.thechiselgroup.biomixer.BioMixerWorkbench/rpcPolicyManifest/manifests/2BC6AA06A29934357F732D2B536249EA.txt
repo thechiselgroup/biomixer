@@ -1,0 +1,2 @@
+serviceClass: org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceService
+path: 30D7DDA06502E4DA60FE39F9CD5CEAEB.gwt.rpc

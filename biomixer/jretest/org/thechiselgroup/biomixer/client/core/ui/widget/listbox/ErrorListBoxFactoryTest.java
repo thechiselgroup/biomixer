@@ -19,10 +19,14 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 
@@ -37,44 +41,69 @@ public class ErrorListBoxFactoryTest {
     @Mock
     private ListBoxPresenter presenter;
 
+    @Mock
+    private ErrorHandler errorHandler;
+
+    private ListBoxControl<ThrowableCaught> underTest;
+
     @Test
     public void addedThrowablesCaughtBeforeErrorListBoxCreationShouldBeInValues() {
-        throwablesContainer
-                .addThrowableCaught(createThrowableCaught(errorMessage1));
-        ListBoxControl<ThrowableCaught> errorListBox = ErrorListBoxFactory
-                .createErrorBox(throwablesContainer, presenter);
-        throwablesContainer
-                .addThrowableCaught(createThrowableCaught(errorMessage2));
-        assertThat(errorListBox.getValues(),
-                containsExactly(throwablesContainer.getThrowablesCaught()));
+        createAndAddThrowableCaught(errorMessage1);
+        createErrorBox();
+        createAndAddThrowableCaught(errorMessage2);
+        assertErrorBoxContainsAllCaughtThrowables();
     }
 
     @Test
     public void addedThrowablesCaughtShouldBeValuesOfErrorListBox() {
-        ListBoxControl<ThrowableCaught> errorListBox = ErrorListBoxFactory
-                .createErrorBox(throwablesContainer, presenter);
-
-        throwablesContainer
-                .addThrowableCaught(createThrowableCaught(errorMessage1));
-        throwablesContainer
-                .addThrowableCaught(createThrowableCaught(errorMessage2));
-
-        assertThat(errorListBox.getValues(),
-                containsExactly(throwablesContainer.getThrowablesCaught()));
+        createErrorBox();
+        createAndAddThrowableCaught(errorMessage1);
+        createAndAddThrowableCaught(errorMessage2);
+        assertErrorBoxContainsAllCaughtThrowables();
     }
 
-    private ThrowableCaught createThrowableCaught(String errorMessage) {
-        return new ThrowableCaught(new Throwable(errorMessage));
+    private ThrowableCaught createAndAddThrowableCaught(String errorMessage) {
+        ThrowableCaught throwableCaught = createThrowableCaught(errorMessage,
+                new Date());
+        throwablesContainer.addThrowableCaught(throwableCaught);
+        return throwableCaught;
+    }
+
+    private void createErrorBox() {
+        this.underTest = ErrorListBoxFactory.createErrorBox(
+                throwablesContainer, presenter, errorHandler);
+    }
+
+    private ThrowableCaught createThrowableCaught(String errorMessage, Date date) {
+        return new ThrowableCaught(new Throwable(errorMessage), date);
     }
 
     @Test
     public void descriptionOfAddedThrowableShouldGetAddedToPresenter() {
-        ListBoxControl<ThrowableCaught> errorListBox = ErrorListBoxFactory
-                .createErrorBox(throwablesContainer, presenter);
+        createErrorBox();
 
-        ThrowableCaught throwableCaught = createThrowableCaught(errorMessage1);
+        ThrowableCaught throwableCaught = createThrowableCaught(errorMessage1,
+                new GregorianCalendar(2012, 1, 23).getTime());
+
         throwablesContainer.addThrowableCaught(throwableCaught);
-        verify(presenter).addItem(throwableCaught.toString());
+        // XXX this test will break in a different timezone
+        // --> need to inject formatter
+        verify(presenter).addItem(
+                "Thu Feb 23 00:00:00 PST 2012: " + errorMessage1);
+    }
+
+    @Test
+    public void removeThrowableCaughtShouldBeRemovedFromValuesOfErrorListBox() {
+        createErrorBox();
+        ThrowableCaught throwable = createAndAddThrowableCaught(errorMessage1);
+        createAndAddThrowableCaught(errorMessage2);
+        throwablesContainer.removeThrowableCaught(throwable);
+        assertErrorBoxContainsAllCaughtThrowables();
+    }
+
+    private void assertErrorBoxContainsAllCaughtThrowables() {
+        assertThat(underTest.getValues(),
+                containsExactly(throwablesContainer.getThrowablesCaught()));
     }
 
     @Before
