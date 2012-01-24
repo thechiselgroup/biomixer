@@ -37,9 +37,9 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemTestUtils;
 
 public class TextViewContentDisplayTest {

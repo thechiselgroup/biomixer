@@ -26,10 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.resources.CountingResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
 
 public class CountingResourceSetTest {
 
@@ -52,7 +48,8 @@ public class CountingResourceSetTest {
 
     @Test
     public void addAllWithContainedResourcesDoesNotFireEvent() {
-        ResourceSet containedResources = ResourceSetTestUtils.createResources(1, 2, 3);
+        ResourceSet containedResources = ResourceSetTestUtils.createResources(
+                1, 2, 3);
 
         underTest.addAll(containedResources);
         underTest.addEventHandler(changedHandler);
@@ -84,14 +81,16 @@ public class CountingResourceSetTest {
 
     @Test
     public void mixedAddAllFiresEventWithNewResources() {
-        ResourceSet containedResources = ResourceSetTestUtils.createResources(1);
+        ResourceSet containedResources = ResourceSetTestUtils
+                .createResources(1);
         ResourceSet resources = ResourceSetTestUtils.createResources(1, 2, 3);
 
         underTest.addAll(containedResources);
         underTest.addEventHandler(changedHandler);
         underTest.addAll(resources);
 
-        verifyOnResourcesAdded(ResourceSetTestUtils.createResources(2, 3), changedHandler);
+        verifyOnResourcesAdded(ResourceSetTestUtils.createResources(2, 3),
+                changedHandler);
     }
 
     @Test
@@ -104,7 +103,8 @@ public class CountingResourceSetTest {
         underTest.addEventHandler(changedHandler);
         underTest.removeAll(resources);
 
-        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(2, 3), changedHandler);
+        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(2, 3),
+                changedHandler);
     }
 
     @Test
@@ -161,14 +161,19 @@ public class CountingResourceSetTest {
     @Test
     public void retainAll() {
         underTest.addAll(ResourceSetTestUtils.createResources(1, 2, 3, 4));
-        boolean result = underTest.retainAll(ResourceSetTestUtils.createResources(1, 2));
+        boolean result = underTest.retainAll(ResourceSetTestUtils
+                .createResources(1, 2));
 
         assertEquals(true, result);
         assertEquals(2, underTest.size());
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(3)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(4)));
     }
 
     @Test
@@ -181,24 +186,33 @@ public class CountingResourceSetTest {
                 changedHandler).getValue().getRemovedResources().toList();
 
         assertEquals(2, removedResources.size());
-        assertEquals(false, removedResources.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(false, removedResources.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(true, removedResources.contains(ResourceSetTestUtils.createResource(3)));
-        assertEquals(true, removedResources.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(false, removedResources.contains(ResourceSetTestUtils
+                .createResource(1)));
+        assertEquals(false, removedResources.contains(ResourceSetTestUtils
+                .createResource(2)));
+        assertEquals(true, removedResources.contains(ResourceSetTestUtils
+                .createResource(3)));
+        assertEquals(true, removedResources.contains(ResourceSetTestUtils
+                .createResource(4)));
     }
 
     @Test
     public void retainAllWithDoubleResource() {
         underTest.addAll(ResourceSetTestUtils.createResources(1, 2, 3, 4));
         underTest.addAll(ResourceSetTestUtils.createResources(3));
-        boolean result = underTest.retainAll(ResourceSetTestUtils.createResources(1, 2));
+        boolean result = underTest.retainAll(ResourceSetTestUtils
+                .createResources(1, 2));
 
         assertEquals(true, result);
         assertEquals(3, underTest.size());
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(3)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(4)));
     }
 
     @Test
@@ -212,10 +226,14 @@ public class CountingResourceSetTest {
                 changedHandler).getValue().getRemovedResources().toList();
 
         assertEquals(1, removedResources.size());
-        assertEquals(false, removedResources.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(false, removedResources.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(false, removedResources.contains(ResourceSetTestUtils.createResource(3)));
-        assertEquals(true, removedResources.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(false, removedResources.contains(ResourceSetTestUtils
+                .createResource(1)));
+        assertEquals(false, removedResources.contains(ResourceSetTestUtils
+                .createResource(2)));
+        assertEquals(false, removedResources.contains(ResourceSetTestUtils
+                .createResource(3)));
+        assertEquals(true, removedResources.contains(ResourceSetTestUtils
+                .createResource(4)));
     }
 
     @Test

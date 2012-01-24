@@ -28,9 +28,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.importer.Importer;
-import org.thechiselgroup.biomixer.client.core.importer.ParseException;
-import org.thechiselgroup.biomixer.client.core.importer.StringTable;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 

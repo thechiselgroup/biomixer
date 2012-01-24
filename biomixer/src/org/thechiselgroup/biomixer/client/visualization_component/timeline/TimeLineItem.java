@@ -20,9 +20,9 @@ import java.util.Date;
 import org.thechiselgroup.biomixer.client.core.ui.CSS;
 import org.thechiselgroup.biomixer.client.core.ui.Color;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
@@ -201,7 +201,8 @@ public class TimeLineItem {
     }
 
     private void updateTickZIndex() {
-        if (visualItem.isStatus(Subset.HIGHLIGHTED, Status.FULL, Status.PARTIAL)) {
+        if (visualItem
+                .isStatus(Subset.HIGHLIGHTED, Status.FULL, Status.PARTIAL)) {
             CSS.setZIndex(tickElementID, Z_INDEX_HIGHLIGHTED);
             timeLineEvent.setTickZIndex("" + Z_INDEX_HIGHLIGHTED);
         } else if (visualItem.isStatus(Subset.SELECTED, Status.FULL,

@@ -24,8 +24,8 @@ public class FixedVisualItemResolverFactory extends
     public FixedVisualItemResolverFactory(String id, DataType dataType,
             Object value) {
 
-        super(id, dataType, value.toString(),
-                new FixedValueResolver(value, dataType));
+        super(id, dataType, value.toString(), new FixedValueResolver(value,
+                dataType));
     }
 
 }

@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.core.visualization;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
-import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
@@ -29,8 +28,6 @@ import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSet
 import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
 import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
-import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ErrorListBoxFactory;
-import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;

@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.CategorizableResourceGroupingChange;
+import org.thechiselgroup.biomixer.client.core.resources.CategorizableResourceGroupingChange.ChangeType;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceGrouping;
@@ -42,7 +43,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
-import org.thechiselgroup.biomixer.client.core.resources.CategorizableResourceGroupingChange.ChangeType;
 import org.thechiselgroup.biomixer.client.core.util.Disposable;
 import org.thechiselgroup.biomixer.client.core.util.HandlerRegistrationSet;
 import org.thechiselgroup.biomixer.client.core.util.Initializable;
@@ -57,12 +57,12 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.SlotMappingCh
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainerChangeEventHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 

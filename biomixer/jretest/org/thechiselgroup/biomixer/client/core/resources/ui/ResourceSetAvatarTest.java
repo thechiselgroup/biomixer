@@ -28,8 +28,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.Disposable;
 

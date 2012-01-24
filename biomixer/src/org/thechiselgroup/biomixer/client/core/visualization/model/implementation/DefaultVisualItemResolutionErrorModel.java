@@ -113,7 +113,8 @@ public class DefaultVisualItemResolutionErrorModel implements
      * <li>errorsBySlotId must not contain empty lists</li>
      * <li>errorsByVisualItemId must not contain empty lists</li>
      * <li>errorsBySlotId keys must match Slots in slotsWithErrors</li>
-     * <li>errorsByVisualItemId keys must match VisualItems in visualItemsWithErrors</li>
+     * <li>errorsByVisualItemId keys must match VisualItems in
+     * visualItemsWithErrors</li>
      * </ul>
      */
     private void assertInvariantIntegrity() {

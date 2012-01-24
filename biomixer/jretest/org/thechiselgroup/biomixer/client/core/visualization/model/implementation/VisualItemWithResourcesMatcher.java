@@ -29,7 +29,8 @@ public class VisualItemWithResourcesMatcher extends
     public static VisualItemWithResourcesMatcher containsEqualResources(
             Resource... resources) {
 
-        return new VisualItemWithResourcesMatcher(ResourceSetTestUtils.toResourceSet(resources));
+        return new VisualItemWithResourcesMatcher(
+                ResourceSetTestUtils.toResourceSet(resources));
     }
 
     public static VisualItemWithResourcesMatcher containsEqualResources(

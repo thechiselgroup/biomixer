@@ -164,12 +164,12 @@ public class JsTimeLine extends JavaScriptObject {
      * functions, thus preventing info bubbles from being shown.
      */
     public final native void disableBubbles() /*-{
-		for ( var i = 0; i < this.getBandCount(); i++) {
-			var eventPainter = this.getBand(i)._eventPainter;
-			eventPainter._showBubble = function(x, y, evt) {
-			};
-		}
-    }-*/;
+                                              for ( var i = 0; i < this.getBandCount(); i++) {
+                                              var eventPainter = this.getBand(i)._eventPainter;
+                                              eventPainter._showBubble = function(x, y, evt) {
+                                              };
+                                              }
+                                              }-*/;
 
     /**
      * Returns getCenterVisibleDate() from the main (first) band as GMT String
@@ -177,9 +177,9 @@ public class JsTimeLine extends JavaScriptObject {
      * ("EEE, d MMM yyyy HH:mm:ss Z")
      */
     public final native String getCenterVisibleDateAsGMTString() /*-{
-		// TODO change if bands are not synchronized any more
-		return this.getBand(0).getCenterVisibleDate().toGMTString();
-    }-*/;
+                                                                 // TODO change if bands are not synchronized any more
+                                                                 return this.getBand(0).getCenterVisibleDate().toGMTString();
+                                                                 }-*/;
 
     public final String getEventElementID(int bandIndex, String elementType,
             JsTimeLineEvent event) {
@@ -196,32 +196,32 @@ public class JsTimeLine extends JavaScriptObject {
      * to "Fri, 29 Sep 2000 06:23:54 GMT" ("EEE, d MMM yyyy HH:mm:ss Z")
      */
     public final native String getMaxVisibleDateAsGMTString(int band) /*-{
-		return this.getBand(band).getMaxVisibleDate().toGMTString();
-    }-*/;
+                                                                      return this.getBand(band).getMaxVisibleDate().toGMTString();
+                                                                      }-*/;
 
     public final native String getMaxVisibleDateAsGMTString(int band,
             JavaScriptObject centerDate) /*-{
-		return this.getBand(band).getMaxVisibleDateForCenter(centerDate)
-				.toGMTString();
-    }-*/;
+                                         return this.getBand(band).getMaxVisibleDateForCenter(centerDate)
+                                         .toGMTString();
+                                         }-*/;
 
     /**
      * Returns getMinVisibleDate() from the band as GMT String in a form similar
      * to "Fri, 29 Sep 2000 06:23:54 GMT" ("EEE, d MMM yyyy HH:mm:ss Z")
      */
     public final native String getMinVisibleDateAsGMTString(int band) /*-{
-		return this.getBand(band).getMinVisibleDate().toGMTString();
-    }-*/;
+                                                                      return this.getBand(band).getMinVisibleDate().toGMTString();
+                                                                      }-*/;
 
     public final native String getMinVisibleDateAsGMTString(int band,
             JavaScriptObject centerDate) /*-{
-		return this.getBand(band).getMinVisibleDateForCenter(centerDate)
-				.toGMTString();
-    }-*/;
+                                         return this.getBand(band).getMinVisibleDateForCenter(centerDate)
+                                         .toGMTString();
+                                         }-*/;
 
     public final native int getTimeLineID() /*-{
-		return this.timelineID;
-    }-*/;
+                                            return this.timelineID;
+                                            }-*/;
 
     /**
      * Returns the zoom index of a band. What time interval the zoom index
@@ -229,16 +229,16 @@ public class JsTimeLine extends JavaScriptObject {
      * {@link #create(Element, JsTimeLineEventSource, String)}).
      */
     public final native int getZoomIndex(int bandIndex) /*-{
-		return this.getBand(bandIndex)._zoomIndex;
-    }-*/;
+                                                        return this.getBand(bandIndex)._zoomIndex;
+                                                        }-*/;
 
     public final native void layout() /*-{
-		this.layout();
-    }-*/;
+                                      this.layout();
+                                      }-*/;
 
     public final native void paint() /*-{
-		this.paint();
-    }-*/;
+                                     this.paint();
+                                     }-*/;
 
     // @formatter:off
     public final native void registerInteractionHandler(JsTimelineInteractionCallback callback) /*-{

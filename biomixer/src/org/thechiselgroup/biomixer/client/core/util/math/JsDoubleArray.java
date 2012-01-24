@@ -15,22 +15,21 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util.math;
 
-
 import com.google.gwt.core.client.JsArrayNumber;
 
 public final class JsDoubleArray extends JsArrayNumber implements NumberArray {
 
     public static native NumberArray create() /*-{
-        return new Array();
-    }-*/;
+                                              return new Array();
+                                              }-*/;
 
     protected JsDoubleArray() {
     }
 
     @Override
     public final native boolean isEmpty() /*-{
-        return this.length === 0;
-    }-*/;
+                                          return this.length === 0;
+                                          }-*/;
 
     /**
      * Fast JavaScript max implementation.
@@ -39,8 +38,8 @@ public final class JsDoubleArray extends JsArrayNumber implements NumberArray {
      */
     @Override
     public native double max() /*-{
-        return Math.max.apply(null, this);
-    }-*/;
+                               return Math.max.apply(null, this);
+                               }-*/;
 
     /**
      * Fast JavaScript min implementation.
@@ -49,6 +48,6 @@ public final class JsDoubleArray extends JsArrayNumber implements NumberArray {
      */
     @Override
     public native double min() /*-{
-        return Math.min.apply(null, this);
-    }-*/;
+                               return Math.min.apply(null, this);
+                               }-*/;
 }

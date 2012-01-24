@@ -20,7 +20,8 @@ import java.util.Collection;
 import org.hamcrest.Description;
 import org.junit.internal.matchers.TypeSafeMatcher;
 
-public final class ContainsValueMatcher<T> extends TypeSafeMatcher<Collection<T>> {
+public final class ContainsValueMatcher<T> extends
+        TypeSafeMatcher<Collection<T>> {
 
     private final T value;
 

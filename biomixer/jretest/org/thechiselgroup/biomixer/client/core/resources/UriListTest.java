@@ -18,7 +18,6 @@ package org.thechiselgroup.biomixer.client.core.resources;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.core.resources.UriList;
 
 public class UriListTest {
 

@@ -41,12 +41,12 @@ public interface Popup {
     double DEFAULT_EFFECT_DURATION = 0.5;
 
     // TODO extract into interface
-    <H extends EventHandler> HandlerRegistration addDomHandler(
-            final H handler, DomEvent.Type<H> type);
+    <H extends EventHandler> HandlerRegistration addDomHandler(final H handler,
+            DomEvent.Type<H> type);
 
     // TODO extract into interface
-    <H extends EventHandler> HandlerRegistration addHandler(
-            final H handler, GwtEvent.Type<H> type);
+    <H extends EventHandler> HandlerRegistration addHandler(final H handler,
+            GwtEvent.Type<H> type);
 
     Widget getContentWidget();
 

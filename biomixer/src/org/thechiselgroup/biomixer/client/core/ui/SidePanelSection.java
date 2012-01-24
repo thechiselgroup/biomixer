@@ -36,12 +36,12 @@ public class SidePanelSection {
         this.sectionTitle = sectionTitle;
     }
 
-    public Widget getWidget() {
-        return widget;
-    }
-
     public String getSectionTitle() {
         return sectionTitle;
+    }
+
+    public Widget getWidget() {
+        return widget;
     }
 
 }

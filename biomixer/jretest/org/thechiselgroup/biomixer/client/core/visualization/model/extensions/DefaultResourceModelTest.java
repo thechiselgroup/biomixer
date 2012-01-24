@@ -35,7 +35,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
-import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.DefaultResourceModel;
 
 public class DefaultResourceModelTest {
 
@@ -46,8 +45,10 @@ public class DefaultResourceModelTest {
 
     @Test
     public void addResourcesAddsToAllResources() {
-        ResourceSet resources1 = ResourceSetTestUtils.createResources("test", 1, 2, 3);
-        ResourceSet resources2 = ResourceSetTestUtils.createResources("test", 3, 4, 5);
+        ResourceSet resources1 = ResourceSetTestUtils.createResources("test",
+                1, 2, 3);
+        ResourceSet resources2 = ResourceSetTestUtils.createResources("test",
+                3, 4, 5);
 
         underTest.addUnnamedResources(resources1);
         underTest.addUnnamedResources(resources2);
@@ -64,8 +65,10 @@ public class DefaultResourceModelTest {
 
     @Test
     public void addResourceSetsAddsToAllResources() {
-        ResourceSet resources1 = ResourceSetTestUtils.createResources("test", 1, 2, 3);
-        ResourceSet resources2 = ResourceSetTestUtils.createResources("test", 3, 4, 5);
+        ResourceSet resources1 = ResourceSetTestUtils.createResources("test",
+                1, 2, 3);
+        ResourceSet resources2 = ResourceSetTestUtils.createResources("test",
+                3, 4, 5);
 
         underTest.addResourceSet(resources1);
         underTest.addResourceSet(resources2);
@@ -88,13 +91,14 @@ public class DefaultResourceModelTest {
         underTest.addResourceSet(resources);
 
         assertThat(
-                underTest.getAutomaticResourceSet().contains(ResourceSetTestUtils.createResource(1)),
-                is(true));
+                underTest.getAutomaticResourceSet().contains(
+                        ResourceSetTestUtils.createResource(1)), is(true));
     }
 
     @Test
     public void containsAddedLabeledResources() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.addResourceSet(resources);
 
@@ -139,8 +143,10 @@ public class DefaultResourceModelTest {
 
     @Test
     public void removeLabeledResourceSetDoesNotRemoveDuplicateResources() {
-        ResourceSet resources1 = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
-        ResourceSet resources2 = ResourceSetTestUtils.createLabeledResources(3, 4, 5);
+        ResourceSet resources1 = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
+        ResourceSet resources2 = ResourceSetTestUtils.createLabeledResources(3,
+                4, 5);
 
         underTest.addResourceSet(resources1);
         underTest.addResourceSet(resources2);
@@ -164,11 +170,16 @@ public class DefaultResourceModelTest {
         ResourceSet allResources = underTest.getResources();
 
         assertEquals(2, allResources.size());
-        assertEquals(true, allResources.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, allResources.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(false, allResources.contains(ResourceSetTestUtils.createResource(3)));
-        assertEquals(false, allResources.contains(ResourceSetTestUtils.createResource(4)));
-        assertEquals(false, allResources.contains(ResourceSetTestUtils.createResource(5)));
+        assertEquals(true,
+                allResources.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                allResources.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(false,
+                allResources.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(false,
+                allResources.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(false,
+                allResources.contains(ResourceSetTestUtils.createResource(5)));
     }
 
     @Test
@@ -179,12 +190,17 @@ public class DefaultResourceModelTest {
         state.setValue(DefaultResourceModel.MEMENTO_RESOURCE_SET_COUNT, 0);
 
         ResourceSetAccessor accessor = mock(ResourceSetAccessor.class);
-        when(accessor.getResourceSet(0)).thenReturn(ResourceSetTestUtils.createResources(1));
-        when(accessor.getResourceSet(1)).thenReturn(ResourceSetTestUtils.createResources());
+        when(accessor.getResourceSet(0)).thenReturn(
+                ResourceSetTestUtils.createResources(1));
+        when(accessor.getResourceSet(1)).thenReturn(
+                ResourceSetTestUtils.createResources());
 
         underTest.restore(state, restorationManager, accessor);
 
-        assertEquals(true, underTest.getResources().contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(
+                true,
+                underTest.getResources().contains(
+                        ResourceSetTestUtils.createResource(1)));
     }
 
     @Before

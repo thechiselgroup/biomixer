@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.command;
 
-import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
 import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
 public interface TestUndoableCommandWithDescription extends UndoableCommand,

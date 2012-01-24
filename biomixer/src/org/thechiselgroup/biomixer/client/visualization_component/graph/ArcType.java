@@ -31,8 +31,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
 public interface ArcType {
 
     /**
-     * Returns all arcs that should be connected to a given {@link VisualItem} in
-     * the context of other {@link VisualItem}s.
+     * Returns all arcs that should be connected to a given {@link VisualItem}
+     * in the context of other {@link VisualItem}s.
      * 
      * @param visualItem
      *            {@link VisualItem} for which potential arcs should be returned

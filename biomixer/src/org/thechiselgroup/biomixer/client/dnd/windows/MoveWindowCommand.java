@@ -19,7 +19,8 @@ import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
-public class MoveWindowCommand extends AbstractUndoableCommand implements HasDescription {
+public class MoveWindowCommand extends AbstractUndoableCommand implements
+        HasDescription {
 
     private final int sourceX;
 
@@ -47,9 +48,9 @@ public class MoveWindowCommand extends AbstractUndoableCommand implements HasDes
      */
     public MoveWindowCommand(WindowPanel windowPanel, int sourceX, int sourceY,
             int targetX, int targetY, boolean animate) {
-    	//the move window command gets run as a result of user interaction,
-    	//there is no reason to run it again.
-    	super(true);
+        // the move window command gets run as a result of user interaction,
+        // there is no reason to run it again.
+        super(true);
         assert windowPanel != null;
 
         this.windowPanel = windowPanel;
@@ -61,34 +62,34 @@ public class MoveWindowCommand extends AbstractUndoableCommand implements HasDes
     }
 
     @Override
-    public void performExecute() {
-        windowPanel.setLocation(targetX, targetY, animate);
-    }
-
-    @Override
     public String getDescription() {
         return "Move window '" + windowPanel.getTitle() + "' to (" + targetX
                 + ", " + targetY + ")";
+    }
+
+    public Point getSourceLocation() {
+        return new Point(sourceX, sourceY);
+    }
+
+    public Point getTargetLocation() {
+        return new Point(targetX, targetY);
+    }
+
+    /**
+     * @return the windowPanel
+     */
+    public WindowPanel getWindow() {
+        return windowPanel;
+    }
+
+    @Override
+    public void performExecute() {
+        windowPanel.setLocation(targetX, targetY, animate);
     }
 
     @Override
     public void performUndo() {
         windowPanel.setLocation(sourceX, sourceY, animate);
     }
-    
-    public Point getSourceLocation() {
-    	return new Point(sourceX, sourceY);
-    }
-    
-    public Point getTargetLocation() {
-    	return new Point(targetX, targetY);
-    }
-    
-    /**
-	 * @return the windowPanel
-	 */
-	public WindowPanel getWindow() {
-		return windowPanel;
-	}
 
 }

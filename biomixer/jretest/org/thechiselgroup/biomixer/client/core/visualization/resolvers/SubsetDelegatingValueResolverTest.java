@@ -26,10 +26,8 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.AbstractResourceSetTest;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.biomixer.client.core.visualization.resolvers.SubsetDelegatingValueResolver;
-import org.thechiselgroup.biomixer.client.core.visualization.resolvers.SubsetVisualItemValueResolver;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.ManagedVisualItemValueResolverDecorator;
 
 public class SubsetDelegatingValueResolverTest extends AbstractResourceSetTest {

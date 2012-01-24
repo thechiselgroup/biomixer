@@ -44,7 +44,8 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
     }
 
     @Override
-    protected boolean isNeighbourhoodLoaded(VisualItem visualItem, Resource resource) {
+    protected boolean isNeighbourhoodLoaded(VisualItem visualItem,
+            Resource resource) {
         assert Concept.isConcept(resource);
         return resourceManager.containsAllReferencedResources(resource,
                 Concept.INCOMING_MAPPINGS)
@@ -56,7 +57,8 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
     protected void loadNeighbourhood(VisualItem visualItem, Resource resource,
             AsyncCallback<ResourceNeighbourhood> callback) {
 
-        String ontologyId = (String) resource.getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+        String ontologyId = (String) resource
+                .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
         String conceptId = (String) resource.getValue(Concept.FULL_ID);
 
         mappingService.getMappings(ontologyId, conceptId, callback);

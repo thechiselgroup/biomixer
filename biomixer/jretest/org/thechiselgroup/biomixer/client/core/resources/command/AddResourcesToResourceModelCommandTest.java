@@ -29,7 +29,6 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.command.AddResourcesToResourceModelCommand;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceModel;
@@ -97,7 +96,8 @@ public class AddResourcesToResourceModelCommandTest {
                 argument.capture());
         LightweightList<Resource> result = argument.getValue();
         assertEquals(1, result.size());
-        assertEquals(true, resources.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(true,
+                resources.contains(ResourceSetTestUtils.createResource(2)));
     }
 
 }

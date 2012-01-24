@@ -17,8 +17,8 @@ package org.thechiselgroup.biomixer.client.core.visualization.resolvers;
 
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 
 public class TextPropertyResolver extends FirstResourcePropertyResolver {
 

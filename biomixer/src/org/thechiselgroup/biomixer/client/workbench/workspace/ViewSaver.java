@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-
 public interface ViewSaver {
 
     void saveView(DefaultShareConfiguration shareConfiguration);

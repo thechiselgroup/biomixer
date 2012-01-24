@@ -94,7 +94,8 @@ public class TextVisualization extends AbstractViewContentDisplay {
      * items.
      * </p>
      */
-    private void addVisualItems(LightweightCollection<VisualItem> addedVisualItems) {
+    private void addVisualItems(
+            LightweightCollection<VisualItem> addedVisualItems) {
 
         assert addedVisualItems != null;
 

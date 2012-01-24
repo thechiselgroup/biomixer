@@ -108,8 +108,10 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         expandUnderTestWithMappings(concept.getUri(), mappings,
                 new HashMap<String, Serializable>());
 
-        verify(expansionCallback, times(1)).addAutomaticResource(sourceResource);
-        verify(expansionCallback, times(1)).addAutomaticResource(targetResource);
+        verify(expansionCallback, times(1))
+                .addAutomaticResource(sourceResource);
+        verify(expansionCallback, times(1))
+                .addAutomaticResource(targetResource);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -157,10 +159,12 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         verify(expansionCallback, times(1)).addAutomaticResource(
                 addedSourceResource);
-        verify(expansionCallback, times(1)).addAutomaticResource(incomingMapping);
+        verify(expansionCallback, times(1)).addAutomaticResource(
+                incomingMapping);
         verify(expansionCallback, times(1)).addAutomaticResource(
                 addedTargetResource);
-        verify(expansionCallback, times(1)).addAutomaticResource(outgoingMapping);
+        verify(expansionCallback, times(1)).addAutomaticResource(
+                outgoingMapping);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -212,8 +216,10 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         expandUnderTestWithMappings(concept.getUri(), mappings,
                 new HashMap<String, Serializable>());
 
-        verify(expansionCallback, times(1)).addAutomaticResource(incomingMapping);
-        verify(expansionCallback, times(1)).addAutomaticResource(outgoingMapping);
+        verify(expansionCallback, times(1)).addAutomaticResource(
+                incomingMapping);
+        verify(expansionCallback, times(1)).addAutomaticResource(
+                outgoingMapping);
     }
 
     @Test
@@ -434,7 +440,8 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         incomingMapping = Mapping.createMappingResource("mapping2",
                 sourceResource.getUri(), concept.getUri());
 
-        when(expansionCallback.getResourceManager()).thenReturn(resourceManager);
+        when(expansionCallback.getResourceManager())
+                .thenReturn(resourceManager);
 
         when(resourceManager.add(any(Resource.class))).thenAnswer(
                 new FirstInvocationArgumentAnswer<Resource>());

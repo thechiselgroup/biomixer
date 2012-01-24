@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.core.geometry.Rectangle;
 
 public class RectangleTest {
 

@@ -58,10 +58,8 @@ public class MappingArcType implements ArcType {
             assert resources.size() == 1;
             Resource firstResource = resources.getFirstElement();
 
-            String sourceUri = (String) firstResource
-                    .getValue(Mapping.SOURCE);
-            String targetUri = (String) firstResource
-                    .getValue(Mapping.TARGET);
+            String sourceUri = (String) firstResource.getValue(Mapping.SOURCE);
+            String targetUri = (String) firstResource.getValue(Mapping.TARGET);
 
             arcs.add(createArc(sourceUri, visualItemId));
             arcs.add(createArc(visualItemId, targetUri));

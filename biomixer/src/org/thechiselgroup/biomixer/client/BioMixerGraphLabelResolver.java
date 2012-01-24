@@ -18,8 +18,8 @@ package org.thechiselgroup.biomixer.client;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FirstResourcePropertyResolver;
 
 public class BioMixerGraphLabelResolver extends FirstResourcePropertyResolver {

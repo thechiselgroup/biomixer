@@ -26,8 +26,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.ui.TestMouseOverEvent;
-import org.thechiselgroup.biomixer.client.core.ui.popup.DefaultPopupManager;
-import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 
 import com.google.gwt.event.dom.client.HasAllMouseHandlers;
 import com.google.gwt.event.dom.client.MouseOverHandler;

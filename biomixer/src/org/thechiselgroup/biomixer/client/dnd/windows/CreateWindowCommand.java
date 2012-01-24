@@ -19,7 +19,8 @@ import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
 import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 
 // TODO store position
-public class CreateWindowCommand extends AbstractUndoableCommand implements HasDescription {
+public class CreateWindowCommand extends AbstractUndoableCommand implements
+        HasDescription {
 
     private final WindowContent content;
 
@@ -33,17 +34,17 @@ public class CreateWindowCommand extends AbstractUndoableCommand implements HasD
     }
 
     @Override
-    public void performExecute() {
-        windowPanel = desktop.createWindow(content);
-    }
-
-    @Override
     public String getDescription() {
         return "Create window '" + content.getLabel() + "'";
     }
 
     public WindowPanel getWindow() {
         return windowPanel;
+    }
+
+    @Override
+    public void performExecute() {
+        windowPanel = desktop.createWindow(content);
     }
 
     @Override

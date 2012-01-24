@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.visualization.behaviors.HighlightingVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
@@ -70,8 +69,8 @@ public class HighlightingVisualItemBehaviorTest {
                 Type.MOUSE_OVER));
         underTest.onInteraction(visualItem, new VisualItemInteraction(
                 Type.DRAG_START));
-        underTest.onInteraction(visualItem,
-                new VisualItemInteraction(Type.DRAG_END));
+        underTest.onInteraction(visualItem, new VisualItemInteraction(
+                Type.DRAG_END));
 
         assertThat(hoverModel.getResources(),
                 containsExactly(ResourceSetTestUtils.createResources()));

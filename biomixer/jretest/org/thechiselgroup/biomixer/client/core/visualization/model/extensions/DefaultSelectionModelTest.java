@@ -46,9 +46,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSetRemovedEvent
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetRemovedEventHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.DefaultResourceSetCollector;
-import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.DefaultSelectionModel;
-import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceSetActivatedEvent;
-import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceSetActivatedEventHandler;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 
@@ -130,7 +127,8 @@ public class DefaultSelectionModelTest {
 
         selection.add(ResourceSetTestUtils.createResource(1));
 
-        verifyOnResourcesAdded(ResourceSetTestUtils.createResources(1), resourceSetChangedHandler);
+        verifyOnResourcesAdded(ResourceSetTestUtils.createResources(1),
+                resourceSetChangedHandler);
     }
 
     @Test
@@ -140,7 +138,8 @@ public class DefaultSelectionModelTest {
         underTest.addEventHandler(resourceSetChangedHandler);
         underTest.setSelection(selection);
 
-        verifyOnResourcesAdded(ResourceSetTestUtils.createResources(1), resourceSetChangedHandler);
+        verifyOnResourcesAdded(ResourceSetTestUtils.createResources(1),
+                resourceSetChangedHandler);
 
     }
 
@@ -187,7 +186,8 @@ public class DefaultSelectionModelTest {
         underTest.addEventHandler(resourceSetChangedHandler);
         selection.remove(ResourceSetTestUtils.createResource(1));
 
-        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(1), resourceSetChangedHandler);
+        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(1),
+                resourceSetChangedHandler);
     }
 
     @Test
@@ -202,7 +202,8 @@ public class DefaultSelectionModelTest {
         underTest.addEventHandler(resourceSetChangedHandler);
         underTest.setSelection(resources2);
 
-        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(1), resourceSetChangedHandler);
+        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(1),
+                resourceSetChangedHandler);
     }
 
     @Test
@@ -235,8 +236,14 @@ public class DefaultSelectionModelTest {
 
         List<ResourceSet> selectionSets = underTest.getSelectionSets();
         assertEquals(1, selectionSets.size());
-        assertEquals(true, selectionSets.get(0).contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, underTest.getSelection().contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(
+                true,
+                selectionSets.get(0).contains(
+                        ResourceSetTestUtils.createResource(1)));
+        assertEquals(
+                true,
+                underTest.getSelection().contains(
+                        ResourceSetTestUtils.createResource(1)));
     }
 
     private void verifyActivatedEventFired(ResourceSet selection) {

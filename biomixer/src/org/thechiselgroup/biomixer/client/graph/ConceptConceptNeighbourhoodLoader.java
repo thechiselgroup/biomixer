@@ -39,8 +39,9 @@ public class ConceptConceptNeighbourhoodLoader extends
     }
 
     @Override
-    protected void expandNeighbourhood(VisualItem visualItem, Resource resource,
-            GraphNodeExpansionCallback graph, List<Resource> neighbourhood) {
+    protected void expandNeighbourhood(VisualItem visualItem,
+            Resource resource, GraphNodeExpansionCallback graph,
+            List<Resource> neighbourhood) {
 
         /*
          * We do not add the resources in the neighbourhood to the graph as this

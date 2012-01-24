@@ -50,8 +50,8 @@ public final class JavaScriptStringSet implements Set<String> {
         }
 
         private native void add(Object key) /*-{
-            this.values[key] = key;
-        }-*/;
+                                            this.values[key] = key;
+                                            }-*/;
 
         // @formatter:off
         public native void clear() /*-{
@@ -62,8 +62,8 @@ public final class JavaScriptStringSet implements Set<String> {
         // @formatter:on
 
         private native boolean contains(Object key) /*-{
-            return key in this.values;
-        }-*/;
+                                                    return key in this.values;
+                                                    }-*/;
 
         // @formatter:off
         private native JsArrayString getAll() /*-{
@@ -76,8 +76,8 @@ public final class JavaScriptStringSet implements Set<String> {
         // @formatter:on 
 
         private native void remove(Object key) /*-{
-            delete this.values[key];
-        }-*/;
+                                               delete this.values[key];
+                                               }-*/;
 
     }
 
@@ -134,10 +134,10 @@ public final class JavaScriptStringSet implements Set<String> {
     }
 
     private native NativeStringSet createNativeStringSet() /*-{
-        var nativeSet = new Object();
-        nativeSet.values = new Object();
-        return nativeSet;
-    }-*/;
+                                                           var nativeSet = new Object();
+                                                           nativeSet.values = new Object();
+                                                           return nativeSet;
+                                                           }-*/;
 
     @Override
     public boolean isEmpty() {

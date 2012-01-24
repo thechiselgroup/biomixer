@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.ui;
 
-
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedSlotMappingConfigurationChangedEvent;
 
 import com.google.gwt.user.client.ui.Widget;
@@ -27,11 +26,10 @@ public class NullVisualMappingsControl implements VisualMappingsControl {
         return null;
     }
 
-
     @Override
     public void updateConfigurationForSlotMappingChangedEvent(
             ManagedSlotMappingConfigurationChangedEvent e) {
-        
+
     }
 
 }

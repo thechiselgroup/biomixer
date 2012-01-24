@@ -34,7 +34,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetsPresente
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceSetActivatedEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceSetActivatedEventHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.SelectionModel;
-import org.thechiselgroup.biomixer.client.core.visualization.ui.DefaultSelectionModelPresenter;
 
 public class DefaultSelectionModelPresenterTest {
 

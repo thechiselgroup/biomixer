@@ -23,10 +23,6 @@ import static org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestU
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
@@ -65,7 +61,8 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.add(ResourceSetTestUtils.createResource(1));
 
         assertEquals(1, underTest.size());
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
     }
 
     @Test
@@ -73,15 +70,19 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.addAll(ResourceSetTestUtils.createResources(1, 2, 3));
 
         assertEquals(3, underTest.size());
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
     }
 
     @Test
     public void changeAddsAndRemovesResources() {
         underTest.addAll(ResourceSetTestUtils.createResources(1, 2));
-        underTest.change(ResourceSetTestUtils.createResources(3), ResourceSetTestUtils.createResources(1));
+        underTest.change(ResourceSetTestUtils.createResources(3),
+                ResourceSetTestUtils.createResources(1));
 
         assertSizeEquals(2);
         assertContainsResource(1, false);
@@ -93,7 +94,8 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
     public void changeFiresSingleEvent() {
         underTest.addAll(ResourceSetTestUtils.createResources(1, 2));
         registerEventHandler();
-        underTest.change(ResourceSetTestUtils.createResources(3), ResourceSetTestUtils.createResources(1));
+        underTest.change(ResourceSetTestUtils.createResources(3),
+                ResourceSetTestUtils.createResources(1));
 
         captureOnResourceSetChanged(1, changedHandler);
     }
@@ -126,13 +128,16 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
                 .getIntersection(paramList);
 
         assertEquals(2, intersection.size());
-        assertEquals(ResourceSetTestUtils.createResource(3), intersection.get(0));
-        assertEquals(ResourceSetTestUtils.createResource(4), intersection.get(1));
+        assertEquals(ResourceSetTestUtils.createResource(3),
+                intersection.get(0));
+        assertEquals(ResourceSetTestUtils.createResource(4),
+                intersection.get(1));
     }
 
     @Test
     public void intersectionMixedResourcesUnderTestAndParameter() {
-        underTest.addAll(ResourceSetTestUtils.createResources(3, 1, 4, 2, 11, 12, 15, 13, 10));
+        underTest.addAll(ResourceSetTestUtils.createResources(3, 1, 4, 2, 11,
+                12, 15, 13, 10));
 
         LightweightList<Resource> paramList = CollectionFactory
                 .createLightweightList();
@@ -148,11 +153,16 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
                 .getIntersection(paramList);
 
         assertEquals(5, intersection.size());
-        assertEquals(ResourceSetTestUtils.createResource(1), intersection.get(0));
-        assertEquals(ResourceSetTestUtils.createResource(11), intersection.get(1));
-        assertEquals(ResourceSetTestUtils.createResource(13), intersection.get(2));
-        assertEquals(ResourceSetTestUtils.createResource(3), intersection.get(3));
-        assertEquals(ResourceSetTestUtils.createResource(4), intersection.get(4));
+        assertEquals(ResourceSetTestUtils.createResource(1),
+                intersection.get(0));
+        assertEquals(ResourceSetTestUtils.createResource(11),
+                intersection.get(1));
+        assertEquals(ResourceSetTestUtils.createResource(13),
+                intersection.get(2));
+        assertEquals(ResourceSetTestUtils.createResource(3),
+                intersection.get(3));
+        assertEquals(ResourceSetTestUtils.createResource(4),
+                intersection.get(4));
     }
 
     @Test
@@ -169,8 +179,10 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
                 .getIntersection(paramList);
 
         assertEquals(2, intersection.size());
-        assertEquals(ResourceSetTestUtils.createResource(2), intersection.get(0));
-        assertEquals(ResourceSetTestUtils.createResource(4), intersection.get(1));
+        assertEquals(ResourceSetTestUtils.createResource(2),
+                intersection.get(0));
+        assertEquals(ResourceSetTestUtils.createResource(4),
+                intersection.get(1));
 
     }
 
@@ -188,7 +200,8 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
                 .getIntersection(paramList);
 
         assertEquals(1, intersection.size());
-        assertEquals(ResourceSetTestUtils.createResource(3), intersection.get(0));
+        assertEquals(ResourceSetTestUtils.createResource(3),
+                intersection.get(0));
 
     }
 
@@ -198,9 +211,12 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.invertAll(ResourceSetTestUtils.createResources(2, 3));
 
         assertEquals(2, underTest.size());
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
     }
 
     @Test
@@ -213,9 +229,11 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
                 changedHandler).getValue();
 
         assertThat(event.getAddedResources().toList(),
-                CollectionMatchers.containsExactly(ResourceSetTestUtils.createResources(3)));
+                CollectionMatchers.containsExactly(ResourceSetTestUtils
+                        .createResources(3)));
         assertThat(event.getRemovedResources().toList(),
-                CollectionMatchers.containsExactly(ResourceSetTestUtils.createResources(2)));
+                CollectionMatchers.containsExactly(ResourceSetTestUtils
+                        .createResources(2)));
     }
 
     @Test
@@ -250,9 +268,12 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.remove(ResourceSetTestUtils.createResource(1));
 
         assertEquals(2, underTest.size());
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
     }
 
     @Test
@@ -261,9 +282,12 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.removeAll(ResourceSetTestUtils.createResources(1, 2, 3));
 
         assertEquals(0, underTest.size());
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
     }
 
     @Test
@@ -281,20 +305,25 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.addEventHandler(changedHandler);
         underTest.removeAll(ResourceSetTestUtils.createResources(1, 2, 3));
 
-        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(2, 3), changedHandler);
+        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(2, 3),
+                changedHandler);
     }
 
     @Test
     public void retainAll() {
         underTest.addAll(ResourceSetTestUtils.createResources(1, 2, 3, 4));
-        boolean result = underTest.retainAll(ResourceSetTestUtils.createResources(1, 2));
+        boolean result = underTest.retainAll(ResourceSetTestUtils
+                .createResources(1, 2));
 
         assertEquals(true, result);
         assertEquals(2, underTest.size());
         assertContainsResource(1, true);
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(2)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(3)));
-        assertEquals(false, underTest.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(3)));
+        assertEquals(false,
+                underTest.contains(ResourceSetTestUtils.createResource(4)));
     }
 
     @Test
@@ -303,7 +332,8 @@ public class DefaultResourceSetTest extends AbstractResourceSetTest {
         underTest.addEventHandler(changedHandler);
         underTest.retainAll(ResourceSetTestUtils.createResources(1, 2));
 
-        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(3, 4), changedHandler);
+        verifyOnResourcesRemoved(ResourceSetTestUtils.createResources(3, 4),
+                changedHandler);
     }
 
     @Test

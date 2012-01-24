@@ -23,11 +23,6 @@ import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.
 
 import org.junit.Assert;
 import org.mockito.ArgumentCaptor;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
 
 public final class ResourceSetTestUtils {
 

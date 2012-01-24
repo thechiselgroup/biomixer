@@ -33,12 +33,11 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteractionHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualItem;
 
 public class DefaultVisualItemTest {
 

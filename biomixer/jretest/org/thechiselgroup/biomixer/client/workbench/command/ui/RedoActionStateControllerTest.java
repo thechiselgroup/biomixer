@@ -39,94 +39,94 @@ import org.thechiselgroup.biomixer.client.workbench.client.command.ui.RedoAction
 
 public class RedoActionStateControllerTest {
 
-	private static final String COMMAND_DESCRIPTION = "command";
+    private static final String COMMAND_DESCRIPTION = "command";
 
-	@Mock
-	private TestUndoableCommandWithDescription command;
+    @Mock
+    private TestUndoableCommandWithDescription command;
 
-	private CommandManager commandManager;
+    private CommandManager commandManager;
 
-	private RedoActionStateController underTest;
+    private RedoActionStateController underTest;
 
-	private Action action;
+    private Action action;
 
-	@Mock
-	private VisualItemValueResolver resolver;
+    @Mock
+    private VisualItemValueResolver resolver;
 
-	// TODO tests for command manager with initial state
-	@Test
-	public void buttonsDisabledInitialyForEmptyCommandManager() {
-		verify(action, times(1)).setEnabled(false);
-	}
+    // TODO tests for command manager with initial state
+    @Test
+    public void buttonsDisabledInitialyForEmptyCommandManager() {
+        verify(action, times(1)).setEnabled(false);
+    }
 
-	@Test
-	public void disableButtonsOnClear() {
-		commandManager.execute(command);
-		commandManager.execute(command);
-		commandManager.undo();
+    @Test
+    public void disableButtonsOnClear() {
+        commandManager.execute(command);
+        commandManager.execute(command);
+        commandManager.undo();
 
-		verify(action, times(3)).setEnabled(false);
+        verify(action, times(3)).setEnabled(false);
 
-		commandManager.clear();
+        commandManager.clear();
 
-		verify(action, times(4)).setEnabled(false);
-	}
+        verify(action, times(4)).setEnabled(false);
+    }
 
-	@Test
-	public void disableRedoButtonOnEventIfNotRedoable() {
-		commandManager.execute(command);
-		commandManager.undo();
-		commandManager.redo();
+    @Test
+    public void disableRedoButtonOnEventIfNotRedoable() {
+        commandManager.execute(command);
+        commandManager.undo();
+        commandManager.redo();
 
-		verify(action, times(3)).setEnabled(false);
-	}
+        verify(action, times(3)).setEnabled(false);
+    }
 
-	@Test
-	public void disableRedoCommandDescriptionOnEventIfNotRedoable() {
-		commandManager.execute(command);
-		commandManager.undo();
-		commandManager.redo();
+    @Test
+    public void disableRedoCommandDescriptionOnEventIfNotRedoable() {
+        commandManager.execute(command);
+        commandManager.undo();
+        commandManager.redo();
 
-		verify(action, times(3)).setDescription("");
-	}
+        verify(action, times(3)).setDescription("");
+    }
 
-	@Test
-	public void enableRedoButtonOnEventIfRedoable() {
-		commandManager.execute(command);
-		commandManager.undo();
+    @Test
+    public void enableRedoButtonOnEventIfRedoable() {
+        commandManager.execute(command);
+        commandManager.undo();
 
-		verify(action, times(1)).setEnabled(true);
-	}
+        verify(action, times(1)).setEnabled(true);
+    }
 
-	@Test
-	public void setRedoButtonDescriptionOnEventIfRedoable() {
-		commandManager.execute(command);
-		commandManager.undo();
+    @Test
+    public void setRedoButtonDescriptionOnEventIfRedoable() {
+        commandManager.execute(command);
+        commandManager.undo();
 
-		verify(action, times(1)).setDescription(COMMAND_DESCRIPTION);
-	}
+        verify(action, times(1)).setDescription(COMMAND_DESCRIPTION);
+    }
 
-	@Before
-	public void setUp() throws Exception {
-		MockitoGWTBridge.setUp();
-		MockitoAnnotations.initMocks(this);
+    @Before
+    public void setUp() throws Exception {
+        MockitoGWTBridge.setUp();
+        MockitoAnnotations.initMocks(this);
 
-		action = spy(new Action("", new NullCommand()));
-		commandManager = spy(new DefaultCommandManager());
-		underTest = new RedoActionStateController(commandManager, action);
+        action = spy(new Action("", new NullCommand()));
+        commandManager = spy(new DefaultCommandManager());
+        underTest = new RedoActionStateController(commandManager, action);
 
-		when(
-				resolver.resolve(any(VisualItem.class),
-						any(VisualItemValueResolverContext.class)))
-				.thenReturn("");
-		when(command.getDescription()).thenReturn(COMMAND_DESCRIPTION);
+        when(
+                resolver.resolve(any(VisualItem.class),
+                        any(VisualItemValueResolverContext.class))).thenReturn(
+                "");
+        when(command.getDescription()).thenReturn(COMMAND_DESCRIPTION);
 
-		underTest.init();
-	}
+        underTest.init();
+    }
 
-	@After
-	public void tearDown() {
-		MockitoGWTBridge.tearDown();
-	}
+    @After
+    public void tearDown() {
+        MockitoGWTBridge.tearDown();
+    }
 
 }

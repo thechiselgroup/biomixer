@@ -45,7 +45,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.CalculationResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FirstResourcePropertyResolver;
 
@@ -119,7 +118,8 @@ public class DefaultVisualizationModelSlotMappingTest {
     }
 
     private VisualItem getFirstVisualItem() {
-        return underTest.getFullVisualItemContainer().getVisualItems().getFirstElement();
+        return underTest.getFullVisualItemContainer().getVisualItems()
+                .getFirstElement();
     }
 
     @Test
@@ -171,7 +171,8 @@ public class DefaultVisualizationModelSlotMappingTest {
         underTest.setResolver(numberSlot, new CalculationResolver(
                 NUMBER_PROPERTY_1, calculation));
 
-        List<VisualItem> resourceItems = underTest.getFullVisualItemContainer().getVisualItems().toList();
+        List<VisualItem> resourceItems = underTest.getFullVisualItemContainer()
+                .getVisualItems().toList();
         assertEquals(1, resourceItems.size());
         VisualItem resourceItem = resourceItems.get(0);
         assertEquals(expectedResult, resourceItem.getValue(numberSlot));

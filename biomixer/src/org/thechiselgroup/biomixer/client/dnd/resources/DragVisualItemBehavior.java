@@ -34,6 +34,11 @@ public class DragVisualItemBehavior extends
     }
 
     @Override
+    protected DragEnabler createHandler(VisualItem visualItem) {
+        return dragEnablerFactory.createDragEnabler(visualItem);
+    }
+
+    @Override
     protected void onInteraction(VisualItem visualItem,
             VisualItemInteraction interaction, DragEnabler enabler) {
 
@@ -58,11 +63,6 @@ public class DragVisualItemBehavior extends
             }
             break;
         }
-    }
-
-    @Override
-    protected DragEnabler createHandler(VisualItem visualItem) {
-        return dragEnablerFactory.createDragEnabler(visualItem);
     }
 
 }

@@ -51,6 +51,14 @@ public final class Mapping {
         return mapping;
     }
 
+    public static String getSource(Resource mapping) {
+        return (String) mapping.getValue(SOURCE);
+    }
+
+    public static String getTarget(Resource mapping) {
+        return (String) mapping.getValue(TARGET);
+    }
+
     public static boolean isMapping(Resource resource) {
         return resource.getUri().startsWith(RESOURCE_URI_PREFIX);
     }
@@ -60,14 +68,6 @@ public final class Mapping {
     }
 
     private Mapping() {
-    }
-
-    public static String getSource(Resource mapping) {
-        return (String) mapping.getValue(SOURCE);
-    }
-
-    public static String getTarget(Resource mapping) {
-        return (String) mapping.getValue(TARGET);
     }
 
 }

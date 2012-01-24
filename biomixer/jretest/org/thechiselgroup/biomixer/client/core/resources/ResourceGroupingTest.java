@@ -49,17 +49,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.resources.CategorizableResourceGroupingChange;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSetFactory;
-import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceGrouping;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceGroupingChangedEvent;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceGroupingChangedHandler;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceMultiCategorizer;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
-import org.thechiselgroup.biomixer.client.core.resources.UncategorizableResourceGroupingChange;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 
 public class ResourceGroupingTest {

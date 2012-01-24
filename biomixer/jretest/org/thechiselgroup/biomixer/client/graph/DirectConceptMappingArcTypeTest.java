@@ -68,8 +68,8 @@ public class DirectConceptMappingArcTypeTest {
         concept.getUriListValue(Concept.INCOMING_MAPPINGS)
                 .add(mapping.getUri());
 
-        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(concept.getUri(),
-                ResourceSetTestUtils.toResourceSet(concept));
+        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(
+                concept.getUri(), ResourceSetTestUtils.toResourceSet(concept));
 
         assertThat(underTest.getArcs(conceptResourceItem, context),
                 CollectionMatchers.containsExactly(LightweightCollections
@@ -88,8 +88,8 @@ public class DirectConceptMappingArcTypeTest {
         concept.getUriListValue(Concept.INCOMING_MAPPINGS)
                 .add(mapping.getUri());
 
-        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(concept.getUri(),
-                ResourceSetTestUtils.toResourceSet(concept));
+        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(
+                concept.getUri(), ResourceSetTestUtils.toResourceSet(concept));
 
         assertThat(underTest.getArcs(conceptResourceItem, context),
                 CollectionMatchers.containsExactly(LightweightCollections
@@ -108,8 +108,8 @@ public class DirectConceptMappingArcTypeTest {
         concept.getUriListValue(Concept.OUTGOING_MAPPINGS)
                 .add(mapping.getUri());
 
-        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(concept.getUri(),
-                ResourceSetTestUtils.toResourceSet(concept));
+        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(
+                concept.getUri(), ResourceSetTestUtils.toResourceSet(concept));
 
         assertThat(underTest.getArcs(conceptResourceItem, context),
                 CollectionMatchers.containsExactly(LightweightCollections
@@ -128,8 +128,8 @@ public class DirectConceptMappingArcTypeTest {
         concept.getUriListValue(Concept.OUTGOING_MAPPINGS)
                 .add(mapping.getUri());
 
-        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(concept.getUri(),
-                ResourceSetTestUtils.toResourceSet(concept));
+        VisualItem conceptResourceItem = VisualItemTestUtils.createVisualItem(
+                concept.getUri(), ResourceSetTestUtils.toResourceSet(concept));
 
         assertThat(underTest.getArcs(conceptResourceItem, context),
                 CollectionMatchers.containsExactly(LightweightCollections

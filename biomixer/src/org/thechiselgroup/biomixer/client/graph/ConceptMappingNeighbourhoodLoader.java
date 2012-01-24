@@ -41,8 +41,9 @@ public class ConceptMappingNeighbourhoodLoader extends
     }
 
     @Override
-    protected void expandNeighbourhood(VisualItem visualItem, Resource resource,
-            GraphNodeExpansionCallback graph, List<Resource> neighbourhood) {
+    protected void expandNeighbourhood(VisualItem visualItem,
+            Resource resource, GraphNodeExpansionCallback graph,
+            List<Resource> neighbourhood) {
 
         /*
          * Adds mappings for which both concept ends are contained in graph (if

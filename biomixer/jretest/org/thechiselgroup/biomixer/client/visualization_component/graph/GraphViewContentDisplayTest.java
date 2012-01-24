@@ -323,7 +323,8 @@ public class GraphViewContentDisplayTest {
 
         stubColorSlotValues(visualItem);
         callback.addVisualItem(visualItem);
-        addVisualItemToUnderTest(LightweightCollections.toCollection(visualItem));
+        addVisualItemToUnderTest(LightweightCollections
+                .toCollection(visualItem));
 
         ArgumentCaptor<DefaultVisualItem> argument = ArgumentCaptor
                 .forClass(DefaultVisualItem.class);
@@ -345,7 +346,8 @@ public class GraphViewContentDisplayTest {
 
         stubColorSlotValues(visualItem);
         callback.addVisualItem(visualItem);
-        addVisualItemToUnderTest(LightweightCollections.toCollection(visualItem));
+        addVisualItemToUnderTest(LightweightCollections
+                .toCollection(visualItem));
 
         underTest.update(Delta.createRemovedDelta(LightweightCollections
                 .toCollection(visualItem)), LightweightCollections
@@ -365,10 +367,10 @@ public class GraphViewContentDisplayTest {
         ResourceSet resourceSet1 = ResourceSetTestUtils.createResources(1);
         ResourceSet resourceSet2 = ResourceSetTestUtils.createResources(2);
 
-        VisualItem resourceItem1 = VisualItemTestUtils.createVisualItem(groupId1,
-                resourceSet1);
-        VisualItem resourceItem2 = VisualItemTestUtils.createVisualItem(groupId2,
-                resourceSet2);
+        VisualItem resourceItem1 = VisualItemTestUtils.createVisualItem(
+                groupId1, resourceSet1);
+        VisualItem resourceItem2 = VisualItemTestUtils.createVisualItem(
+                groupId2, resourceSet2);
 
         LightweightCollection<VisualItem> resourceItems = LightweightCollections
                 .toCollection(resourceItem1, resourceItem2);
@@ -607,7 +609,8 @@ public class GraphViewContentDisplayTest {
     private void simulateAddVisualItems(
             LightweightCollection<VisualItem> visualItems) {
         for (VisualItem visualItem : visualItems) {
-            when(graphDisplay.containsNode(visualItem.getId())).thenReturn(true);
+            when(graphDisplay.containsNode(visualItem.getId()))
+                    .thenReturn(true);
             stubColorSlotValues(visualItem);
         }
         callback.addVisualItems(visualItems);
@@ -615,8 +618,8 @@ public class GraphViewContentDisplayTest {
     }
 
     public void stubColorSlotValues(VisualItem visualItem) {
-        when(visualItem.getValue(Graph.NODE_BORDER_COLOR))
-                .thenReturn(borderColor);
+        when(visualItem.getValue(Graph.NODE_BORDER_COLOR)).thenReturn(
+                borderColor);
         when(visualItem.getValue(Graph.NODE_BACKGROUND_COLOR)).thenReturn(
                 backgroundColor);
     }

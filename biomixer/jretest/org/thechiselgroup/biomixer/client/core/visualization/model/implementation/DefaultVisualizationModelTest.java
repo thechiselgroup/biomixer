@@ -46,7 +46,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FixedValueResolver;
 
 public class DefaultVisualizationModelTest {
@@ -78,12 +77,13 @@ public class DefaultVisualizationModelTest {
         model.setCategorizer(new ResourceByPropertyMultiCategorizer(
                 TEXT_PROPERTY_2));
 
-        assertThat(model.getFullVisualItemContainer().getVisualItems().getFirstElement().getResources(),
-                containsExactly(r1, r2));
+        assertThat(model.getFullVisualItemContainer().getVisualItems()
+                .getFirstElement().getResources(), containsExactly(r1, r2));
     }
 
     private VisualItem getFirstVisualItem() {
-        return underTest.getFullVisualItemContainer().getVisualItems().getFirstElement();
+        return underTest.getFullVisualItemContainer().getVisualItems()
+                .getFirstElement();
     }
 
     @Test

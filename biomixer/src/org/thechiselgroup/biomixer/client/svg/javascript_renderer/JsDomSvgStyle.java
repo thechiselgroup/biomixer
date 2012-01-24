@@ -14,7 +14,7 @@ public class JsDomSvgStyle extends JavaScriptObject implements SvgStyle {
 
     @Override
     public final native void setProperty(String attribute, String value) /*-{
-		this[attribute] = value;
-    }-*/;
+                                                                         this[attribute] = value;
+                                                                         }-*/;
 
 }

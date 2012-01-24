@@ -28,7 +28,7 @@ public class StringTable implements Serializable {
 
     // this is for GWT serialization only
     public StringTable() {
-        
+
     }
 
     public StringTable(String[] columns, List<String[]> values) {

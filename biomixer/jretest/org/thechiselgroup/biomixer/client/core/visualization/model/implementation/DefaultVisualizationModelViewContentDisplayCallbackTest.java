@@ -28,7 +28,6 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 
 /**
  * <p>

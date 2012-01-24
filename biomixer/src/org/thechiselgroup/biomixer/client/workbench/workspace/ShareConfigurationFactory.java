@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
-
 public interface ShareConfigurationFactory {
 
     public ShareConfiguration createShareConfiguration();

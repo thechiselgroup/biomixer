@@ -46,12 +46,13 @@ public class BioMixerWindowContentProducerProvider implements
         contentProducer.register(WorkbenchInitializer.WINDOW_CONTENT_NOTE,
                 new NoteWindowContentFactory());
 
-        contentProducer.register(ConceptSearchWindowContent.ID, new WindowContentFactory() {
-            @Override
-            public WindowContent createWindowContent() {
-                return ncboSearchViewContent;
-            }
-        });
+        contentProducer.register(ConceptSearchWindowContent.ID,
+                new WindowContentFactory() {
+                    @Override
+                    public WindowContent createWindowContent() {
+                        return ncboSearchViewContent;
+                    }
+                });
 
         return contentProducer;
     }

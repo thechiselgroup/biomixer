@@ -27,7 +27,6 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualItemResolutionErrorModel;
 
 public class DefaultVisualItemResolutionErrorModelTest {
 

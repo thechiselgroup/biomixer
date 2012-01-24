@@ -57,16 +57,14 @@ public class DefaultDelayedPopupManager implements DelayedPopupManager {
             public void onMouseOver(MouseOverEvent event) {
                 hideTimer.cancel();
             }
-        },
-                MouseOverEvent.getType());
+        }, MouseOverEvent.getType());
 
         this.popup.addDomHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
                 hideDelayed();
             }
-        },
-                MouseOutEvent.getType());
+        }, MouseOutEvent.getType());
     }
 
     public DefaultDelayedPopupManager(Popup popup) {

@@ -16,8 +16,8 @@
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
@@ -53,17 +53,17 @@ public class TextItem {
         this.visualItem = visualItem;
     }
 
-    public String getLabelValue() {
-        return (String) visualItem.getValue(TextVisualization.LABEL_SLOT);
-    }
-
     public double getFontSizeValue() {
-        return ((Number) visualItem
-                .getValue(TextVisualization.FONT_SIZE_SLOT)).doubleValue();
+        return ((Number) visualItem.getValue(TextVisualization.FONT_SIZE_SLOT))
+                .doubleValue();
     }
 
     public TextItemLabel getLabel() {
         return label;
+    }
+
+    public String getLabelValue() {
+        return (String) visualItem.getValue(TextVisualization.LABEL_SLOT);
     }
 
     public VisualItem getResourceItem() {

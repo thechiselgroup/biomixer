@@ -29,9 +29,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourceSetsPresenter;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 
 public class ResourceSetAvatarResourceSetsPresenterTest {

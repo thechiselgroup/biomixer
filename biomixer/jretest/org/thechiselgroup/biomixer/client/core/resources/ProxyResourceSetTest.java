@@ -31,13 +31,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ProxyResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetDelegateChangedEvent;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetDelegateChangedEventHandler;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
 
 public class ProxyResourceSetTest {

@@ -74,7 +74,8 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
 
             addRow(resource, verticalPanel, "Ontology",
                     Concept.CONCEPT_ONTOLOGY_NAME);
-            addRow(resource, verticalPanel, "Ontology ID", Concept.VIRTUAL_ONTOLOGY_ID);
+            addRow(resource, verticalPanel, "Ontology ID",
+                    Concept.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
 
         } else if (Mapping.isMapping(resource)) {

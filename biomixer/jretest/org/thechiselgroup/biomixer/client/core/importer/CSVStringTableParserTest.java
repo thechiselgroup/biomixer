@@ -21,9 +21,6 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.importer.CSVStringTableParser;
-import org.thechiselgroup.biomixer.client.core.importer.ParseException;
-import org.thechiselgroup.biomixer.client.core.importer.StringTable;
 
 public class CSVStringTableParserTest {
 

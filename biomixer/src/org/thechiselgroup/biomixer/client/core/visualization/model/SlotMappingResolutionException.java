@@ -22,8 +22,8 @@ public class SlotMappingResolutionException extends RuntimeException {
     public SlotMappingResolutionException(Slot slot, VisualItem visualItem,
             Exception cause) {
 
-        super("slot resolution failed [view item=" + visualItem + ";slot=" + slot
-                + "]", cause);
+        super("slot resolution failed [view item=" + visualItem + ";slot="
+                + slot + "]", cause);
     }
 
 }

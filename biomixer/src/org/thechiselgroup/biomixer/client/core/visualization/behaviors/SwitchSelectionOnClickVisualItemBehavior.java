@@ -64,7 +64,8 @@ public class SwitchSelectionOnClickVisualItemBehavior implements
     }
 
     @Override
-    public void onVisualItemContainerChanged(VisualItemContainerChangeEvent event) {
+    public void onVisualItemContainerChanged(
+            VisualItemContainerChangeEvent event) {
     }
 
     protected void switchSelection(VisualItem visualItem) {

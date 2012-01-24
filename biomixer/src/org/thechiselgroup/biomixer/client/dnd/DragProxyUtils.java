@@ -26,9 +26,6 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public final class DragProxyUtils {
 
-    private DragProxyUtils() {
-    }
-
     /**
      * <p>
      * Fires a {@link DragProxyAttachedEvent} on the widget and its parents.
@@ -64,6 +61,9 @@ public final class DragProxyUtils {
             w.fireEvent(event);
             w = w.getParent();
         }
+    }
+
+    private DragProxyUtils() {
     }
 
 }

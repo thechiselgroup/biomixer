@@ -29,8 +29,8 @@ public class SelectionPresenterDropCommandFactory extends
         AbstractResourceSetAvatarDropCommandFactory {
 
     // TODO refactor (replace avatar with resource set)
-    private class AddSelectionSetCommand extends AbstractUndoableCommand implements
-            HasDescription {
+    private class AddSelectionSetCommand extends AbstractUndoableCommand
+            implements HasDescription {
         private final ResourceSetAvatar avatar;
 
         private ResourceSet oldSelection;
@@ -40,15 +40,15 @@ public class SelectionPresenterDropCommandFactory extends
         }
 
         @Override
+        public String getDescription() {
+            return "add resource set as selection to view";
+        }
+
+        @Override
         public void performExecute() {
             oldSelection = getSelectionModel().getSelection();
             getSelectionModel().addSelectionSet(avatar.getResourceSet());
             getSelectionModel().setSelection(avatar.getResourceSet());
-        }
-
-        @Override
-        public String getDescription() {
-            return "add resource set as selection to view";
         }
 
         @Override

@@ -15,7 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.model.managed;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils.createResource;
 import static org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemValueResolverTestUtils.mockResolverThatCanAlwaysResolve;
@@ -43,14 +45,11 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactor
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModelTestHelper;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultManagedSlotMappingConfiguration;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultVisualItemResolverFactoryProvider;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotMappingInitializer;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FirstResourcePropertyResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FixedValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.SubsetDelegatingValueResolver;
@@ -107,9 +106,8 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -148,13 +146,11 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId2, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId2, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -265,13 +261,11 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId2, DataType.TEXT));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId2, DataType.TEXT));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -323,9 +317,8 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -360,9 +353,9 @@ public class SlotMappingIntegrationTest {
      * <p>
      * We create the view with the single slot and set up the resolver to select
      * on property x. We then add the first resource, and the View will create 1
-     * VisualItem with value 1. We then add the second resource, and the resolver
-     * will automatically change to resolve on property y, and the View will
-     * have 2 VisualItems in it each with value 2.
+     * VisualItem with value 1. We then add the second resource, and the
+     * resolver will automatically change to resolve on property y, and the View
+     * will have 2 VisualItems in it each with value 2.
      * </p>
      */
     /*
@@ -379,9 +372,8 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -420,13 +412,11 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId2, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId2, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -458,13 +448,11 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId2, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId2, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -505,8 +493,8 @@ public class SlotMappingIntegrationTest {
      * <p>
      * We create a simple view that has one resolver and one slot. The slot and
      * resolver are as above. We then initialize the View and add the data item.
-     * Each of those resources should be converted into a VisualItem, with a slot
-     * value = 2.
+     * Each of those resources should be converted into a VisualItem, with a
+     * slot value = 2.
      * </p>
      */
     @Test
@@ -515,9 +503,8 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -570,13 +557,11 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId2, DataType.TEXT));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId2, DataType.TEXT));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -626,8 +611,8 @@ public class SlotMappingIntegrationTest {
      * We create a simple view that has one resolver and one slot. The slot is a
      * Number and the resolver is a FixedResolver, so it can resolve any
      * ResourceSet . We then initialize the View and add the data items. Each of
-     * those resources should be converted into a VisualItem, with a slot value of
-     * 1.
+     * those resources should be converted into a VisualItem, with a slot value
+     * of 1.
      * </p>
      */
     @Test
@@ -638,8 +623,8 @@ public class SlotMappingIntegrationTest {
                 requiredSlots);
 
         /* set up the provider to return the correct resolvers */
-        resolverProvider.register(new FixedVisualItemResolverFactory(resolverId1,
-                DataType.NUMBER, 1));
+        resolverProvider.register(new FixedVisualItemResolverFactory(
+                resolverId1, DataType.NUMBER, 1));
 
         /* define and create initializer */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();
@@ -681,9 +666,8 @@ public class SlotMappingIntegrationTest {
         when(helper.getViewContentDisplay().getSlots()).thenReturn(
                 requiredSlots);
 
-        resolverProvider
-                .register(new FirstResourcePropertyResolverFactory(
-                        resolverId1, DataType.NUMBER));
+        resolverProvider.register(new FirstResourcePropertyResolverFactory(
+                resolverId1, DataType.NUMBER));
 
         /* define initialization mapping */
         final Map<Slot, VisualItemValueResolver> initialSlotMapping = new HashMap<Slot, VisualItemValueResolver>();

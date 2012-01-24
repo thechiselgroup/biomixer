@@ -21,11 +21,11 @@ import org.thechiselgroup.biomixer.client.core.util.math.Calculation;
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
 import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 
-public class CalculationResolver extends SubsetVisualItemValueResolver implements
-        PropertyDependantVisualItemValueResolver {
+public class CalculationResolver extends SubsetVisualItemValueResolver
+        implements PropertyDependantVisualItemValueResolver {
 
     private final String property;
 

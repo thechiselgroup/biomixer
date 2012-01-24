@@ -24,11 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.FilteredResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent;
 import org.thechiselgroup.biomixer.client.core.util.predicates.Predicate;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
 
@@ -126,9 +121,11 @@ public class FilteredResourceSetTest extends AbstractResourceSetTest {
         ResourceSetChangedEvent event = captureOnResourceSetChanged(1,
                 changedHandler).getValue();
         assertThat(event.getRemovedResources(),
-                CollectionMatchers.containsExactly(ResourceSetTestUtils.createResources(1)));
+                CollectionMatchers.containsExactly(ResourceSetTestUtils
+                        .createResources(1)));
         assertThat(event.getAddedResources(),
-                CollectionMatchers.containsExactly(ResourceSetTestUtils.createResources(2)));
+                CollectionMatchers.containsExactly(ResourceSetTestUtils
+                        .createResources(2)));
     }
 
     @Test
@@ -164,8 +161,9 @@ public class FilteredResourceSetTest extends AbstractResourceSetTest {
 
     private void preparePredicate(int resourceNumber, boolean value,
             Predicate<Resource> predicate) {
-        when(predicate.evaluate(ResourceSetTestUtils.createResource(resourceNumber))).thenReturn(
-                value);
+        when(
+                predicate.evaluate(ResourceSetTestUtils
+                        .createResource(resourceNumber))).thenReturn(value);
     }
 
     @Test

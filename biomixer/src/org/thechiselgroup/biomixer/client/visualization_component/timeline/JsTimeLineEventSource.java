@@ -22,15 +22,15 @@ import com.google.gwt.core.client.JavaScriptObject;
 public class JsTimeLineEventSource extends JavaScriptObject {
 
     public static native JsTimeLineEventSource create() /*-{
-        return new $wnd.Timeline.DefaultEventSource();
-    }-*/;
+                                                        return new $wnd.Timeline.DefaultEventSource();
+                                                        }-*/;
 
     protected JsTimeLineEventSource() {
     }
 
     private final native void addEvents(JavaScriptObject events) /*-{
-        this.addMany(events);
-    }-*/;
+                                                                 this.addMany(events);
+                                                                 }-*/;
 
     public final void addEvents(JsTimeLineEvent[] events) {
         addEvents(ArrayUtils.toJsArray(events));

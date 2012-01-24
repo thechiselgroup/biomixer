@@ -20,9 +20,9 @@ import static org.thechiselgroup.biomixer.client.core.util.collections.Lightweig
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.ManagedVisualItemValueResolverDecorator;
 
 public class SubsetDelegatingValueResolver implements VisualItemValueResolver {

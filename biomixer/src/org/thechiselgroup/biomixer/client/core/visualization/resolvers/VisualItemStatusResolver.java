@@ -18,9 +18,9 @@ package org.thechiselgroup.biomixer.client.core.visualization.resolvers;
 import java.util.Arrays;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Status;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Subset;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolverContext;
 import org.thechiselgroup.biomixer.client.core.visualization.model.predicates.VisualItemPredicate;
 
 public class VisualItemStatusResolver extends

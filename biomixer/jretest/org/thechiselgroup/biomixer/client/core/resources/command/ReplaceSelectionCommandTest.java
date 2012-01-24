@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.command.ReplaceSelectionCommand;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.SelectionModel;
 
 public class ReplaceSelectionCommandTest {
@@ -42,7 +41,8 @@ public class ReplaceSelectionCommandTest {
 
     @Test
     public void setNewSelectionSetOnExecute() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
 
@@ -51,7 +51,8 @@ public class ReplaceSelectionCommandTest {
 
     @Test
     public void setOldSelectionSetOnUndo() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
         command.undo();

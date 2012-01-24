@@ -26,7 +26,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 

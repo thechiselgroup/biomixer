@@ -205,7 +205,7 @@ public class ResourceSetAvatarDropControllerTest {
         underTest.onDrop(dragContext);
 
         verify(command, times(1)).execute();
-        //should not re-execute the command... just add it to the stack
+        // should not re-execute the command... just add it to the stack
         verify(commandManager, times(1)).execute(command);
     }
 }

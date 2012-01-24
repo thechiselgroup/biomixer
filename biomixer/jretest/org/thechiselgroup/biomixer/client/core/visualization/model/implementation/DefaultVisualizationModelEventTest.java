@@ -31,7 +31,6 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainerChangeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainerChangeEventHandler;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 
 import com.google.gwt.event.shared.HandlerRegistration;
 
@@ -61,12 +60,13 @@ public class DefaultVisualizationModelEventTest {
         Resource resource = ResourceSetTestUtils.createResource(1);
         helper.getContainedResources().add(resource);
 
-        LightweightCollection<VisualItem> addedVisualItems = captureEvent(handler)
-                .getDelta().getAddedElements();
+        LightweightCollection<VisualItem> addedVisualItems = captureEvent(
+                handler).getDelta().getAddedElements();
 
         assertEquals(1, addedVisualItems.size());
 
-        ResourceSet resources = addedVisualItems.iterator().next().getResources();
+        ResourceSet resources = addedVisualItems.iterator().next()
+                .getResources();
 
         assertEquals(1, resources.size());
         assertEquals(true, resources.contains(resource));
@@ -93,8 +93,8 @@ public class DefaultVisualizationModelEventTest {
         helper.getContainedResources().remove(resource);
 
         VisualItemContainerChangeEvent event2 = captureEvent(handler2);
-        LightweightCollection<VisualItem> removedVisualItems = event2.getDelta()
-                .getRemovedElements();
+        LightweightCollection<VisualItem> removedVisualItems = event2
+                .getDelta().getRemovedElements();
         assertEquals(1, removedVisualItems.size());
         assertEquals(true, removedVisualItems.contains(visualItem));
     }

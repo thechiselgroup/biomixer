@@ -36,42 +36,56 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
 public final class VisualItemTestUtils {
 
-    private VisualItemTestUtils() {
+    public static Matcher<LightweightCollection<VisualItem>> containsVisualItemsForExactResourceSets(
+            final ResourceSet... resourceSets) {
+
+        return new TypeSafeMatcher<LightweightCollection<VisualItem>>() {
+            @Override
+            public void describeTo(Description description) {
+                for (ResourceSet resourceSet : resourceSets) {
+                    description.appendValue(resourceSet);
+                }
+            }
+
+            @Override
+            public boolean matchesSafely(LightweightCollection<VisualItem> set) {
+                if (set.size() != resourceSets.length) {
+                    return false;
+                }
+
+                for (ResourceSet resourceSet : resourceSets) {
+                    boolean found = false;
+                    for (VisualItem item : set) {
+                        ResourceSet itemSet = item.getResources();
+
+                        if (itemSet.size() == resourceSet.size()
+                                && itemSet.containsAll(resourceSet)) {
+                            found = true;
+                        }
+                    }
+
+                    if (!found) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        };
     }
 
-    public static LightweightList<VisualItem> createVisualItems(int... visualItemId) {
-        ResourceSet[] resourceSets = new ResourceSet[visualItemId.length];
-        for (int i = 0; i < resourceSets.length; i++) {
-            resourceSets[i] = ResourceSetTestUtils.toLabeledResourceSet("" + visualItemId[i],
-                    ResourceSetTestUtils.createResource(visualItemId[i]));
-        }
-        return VisualItemTestUtils.createVisualItems(resourceSets);
-    }
-
-    /**
-     * Creates list of resource items with using the label of the resource sets
-     * as group ids.
-     */
-    public static LightweightList<VisualItem> createVisualItems(
-            ResourceSet... resourceSets) {
-    
-        LightweightList<VisualItem> resourceItems = CollectionFactory
-                .createLightweightList();
-        for (ResourceSet resourceSet : resourceSets) {
-            resourceItems.add(VisualItemTestUtils.createVisualItem(resourceSet.getLabel(),
-                    resourceSet));
-        }
-    
-        return resourceItems;
+    public static VisualItem createVisualItem(int id) {
+        return createVisualItem("" + id,
+                ResourceSetTestUtils.createResources(id));
     }
 
     public static VisualItem createVisualItem(String visualItemId,
             ResourceSet resources) {
-    
+
         final AtomicReference<Object> displayObjectBuffer = new AtomicReference<Object>();
-    
+
         VisualItem visualItem = mock(VisualItem.class);
-    
+
         when(visualItem.getResources()).thenReturn(resources);
         when(visualItem.getId()).thenReturn(visualItemId);
         doAnswer(new Answer<Void>() {
@@ -87,50 +101,39 @@ public final class VisualItemTestUtils {
                 return displayObjectBuffer.get();
             }
         });
-    
+
         return visualItem;
     }
 
-    public static VisualItem createVisualItem(int id) {
-        return createVisualItem("" + id, ResourceSetTestUtils.createResources(id));
+    public static LightweightList<VisualItem> createVisualItems(
+            int... visualItemId) {
+        ResourceSet[] resourceSets = new ResourceSet[visualItemId.length];
+        for (int i = 0; i < resourceSets.length; i++) {
+            resourceSets[i] = ResourceSetTestUtils.toLabeledResourceSet(""
+                    + visualItemId[i],
+                    ResourceSetTestUtils.createResource(visualItemId[i]));
+        }
+        return VisualItemTestUtils.createVisualItems(resourceSets);
     }
 
-    public static Matcher<LightweightCollection<VisualItem>> containsVisualItemsForExactResourceSets(
-            final ResourceSet... resourceSets) {
-    
-        return new TypeSafeMatcher<LightweightCollection<VisualItem>>() {
-            @Override
-            public void describeTo(Description description) {
-                for (ResourceSet resourceSet : resourceSets) {
-                    description.appendValue(resourceSet);
-                }
-            }
-    
-            @Override
-            public boolean matchesSafely(LightweightCollection<VisualItem> set) {
-                if (set.size() != resourceSets.length) {
-                    return false;
-                }
-    
-                for (ResourceSet resourceSet : resourceSets) {
-                    boolean found = false;
-                    for (VisualItem item : set) {
-                        ResourceSet itemSet = item.getResources();
-    
-                        if (itemSet.size() == resourceSet.size()
-                                && itemSet.containsAll(resourceSet)) {
-                            found = true;
-                        }
-                    }
-    
-                    if (!found) {
-                        return false;
-                    }
-                }
-    
-                return true;
-            }
-        };
+    /**
+     * Creates list of resource items with using the label of the resource sets
+     * as group ids.
+     */
+    public static LightweightList<VisualItem> createVisualItems(
+            ResourceSet... resourceSets) {
+
+        LightweightList<VisualItem> resourceItems = CollectionFactory
+                .createLightweightList();
+        for (ResourceSet resourceSet : resourceSets) {
+            resourceItems.add(VisualItemTestUtils.createVisualItem(
+                    resourceSet.getLabel(), resourceSet));
+        }
+
+        return resourceItems;
+    }
+
+    private VisualItemTestUtils() {
     }
 
 }

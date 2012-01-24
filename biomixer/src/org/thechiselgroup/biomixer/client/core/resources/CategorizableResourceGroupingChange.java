@@ -64,8 +64,8 @@ public class CategorizableResourceGroupingChange extends ResourceGroupingChange 
                 || !CollectionUtils.intersects(removedResources.toList(),
                         addedResources.toList());
 
-        return new CategorizableResourceGroupingChange(ChangeType.GROUP_CHANGED,
-                groupID, resourceSet,
+        return new CategorizableResourceGroupingChange(
+                ChangeType.GROUP_CHANGED, groupID, resourceSet,
                 addedResources == null ? LightweightCollections
                         .<Resource> emptyCollection() : addedResources,
                 removedResources == null ? LightweightCollections
@@ -103,8 +103,8 @@ public class CategorizableResourceGroupingChange extends ResourceGroupingChange 
         assert CollectionUtils.contentEquals(resourceSet,
                 CollectionUtils.toList(addedResources));
 
-        return new CategorizableResourceGroupingChange(ChangeType.GROUP_CREATED,
-                groupID, resourceSet, addedResources,
+        return new CategorizableResourceGroupingChange(
+                ChangeType.GROUP_CREATED, groupID, resourceSet, addedResources,
                 LightweightCollections.<Resource> emptyCollection());
     }
 
@@ -139,8 +139,8 @@ public class CategorizableResourceGroupingChange extends ResourceGroupingChange 
         assert CollectionUtils.contentEquals(resourceSet,
                 CollectionUtils.toList(removedResources));
 
-        return new CategorizableResourceGroupingChange(ChangeType.GROUP_REMOVED,
-                groupID, resourceSet,
+        return new CategorizableResourceGroupingChange(
+                ChangeType.GROUP_REMOVED, groupID, resourceSet,
                 LightweightCollections.<Resource> emptyCollection(),
                 removedResources);
     }
@@ -149,8 +149,8 @@ public class CategorizableResourceGroupingChange extends ResourceGroupingChange 
 
     private String groupID;
 
-    private CategorizableResourceGroupingChange(ChangeType delta, String groupID,
-            ResourceSet resourceSet,
+    private CategorizableResourceGroupingChange(ChangeType delta,
+            String groupID, ResourceSet resourceSet,
             LightweightCollection<Resource> addedResources,
             LightweightCollection<Resource> removedResources) {
 

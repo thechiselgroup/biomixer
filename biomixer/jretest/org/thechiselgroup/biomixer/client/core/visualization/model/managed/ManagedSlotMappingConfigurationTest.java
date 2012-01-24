@@ -18,7 +18,11 @@ package org.thechiselgroup.biomixer.client.core.visualization.model.managed;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemValueResolverTestUtils.createSlots;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
@@ -51,14 +55,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemVal
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualItemResolutionErrorModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemTestUtils;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultManagedSlotMappingConfiguration;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedSlotMapping;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedSlotMappingConfigurationChangedEvent;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedSlotMappingConfigurationChangedEventHandler;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedVisualItemValueResolver;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotMappingInitializer;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactory;
-import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactoryProvider;
 
 /**
  * 
@@ -163,8 +159,9 @@ public class ManagedSlotMappingConfigurationTest {
     public void configurationUIModelContainsUIModelForEachSlotInViewModel() {
         setUpSlots(DataType.TEXT, DataType.NUMBER);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
         LightweightCollection<ManagedSlotMapping> uiModels = underTest
                 .getManagedSlotMappings();
 
@@ -175,8 +172,9 @@ public class ManagedSlotMappingConfigurationTest {
     public void configurationUIModelContainsUIModelForOneSlotInViewModel() {
         setUpSlots(DataType.TEXT);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
         LightweightList<ManagedSlotMapping> uiModels = underTest
                 .getManagedSlotMappings();
 
@@ -192,8 +190,9 @@ public class ManagedSlotMappingConfigurationTest {
         when(visualItem.getId()).thenReturn("a");
         errorModel.reportError(slots[0], visualItem);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         assertThat(underTest.getSlotsWithInvalidResolvers(),
                 containsExactly(slots[0]));
@@ -204,8 +203,9 @@ public class ManagedSlotMappingConfigurationTest {
         setUpSlots(DataType.TEXT);
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         assertEquals(resolver1, underTest.getCurrentResolver(slots[0]));
     }
@@ -241,8 +241,9 @@ public class ManagedSlotMappingConfigurationTest {
         setUpSlots(DataType.TEXT);
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver2);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         assertEquals(1, underTest.getSlotsWithInvalidResolvers().size());
         assertEquals(slots[0], underTest.getSlotsWithInvalidResolvers().get(0));
@@ -255,8 +256,9 @@ public class ManagedSlotMappingConfigurationTest {
         when(visualizationModel.getResolver(slots[0])).thenReturn(
                 unManagedResolver);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         assertThat(underTest.getSlotsWithInvalidResolvers(),
                 containsExactly(slots[0]));
@@ -271,8 +273,8 @@ public class ManagedSlotMappingConfigurationTest {
         SlotMappingInitializer initializer = new TestSlotMappingInitializer(
                 initialSlotMapping);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                initializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, initializer, visualizationModel, errorModel);
 
         VisualItemContainerChangeEventHandler handler = captureVisualItemContainerChangeEventHandler();
 
@@ -309,8 +311,8 @@ public class ManagedSlotMappingConfigurationTest {
         SlotMappingInitializer initializer = new TestSlotMappingInitializer(
                 initialSlotMapping);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                initializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, initializer, visualizationModel, errorModel);
 
         assertThat(underTest.getSlotsWithInvalidResolvers(),
                 containsExactly(slots[0]));
@@ -322,8 +324,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         underTest.setCurrentResolver(slots[0], resolver2);
         verify(visualizationModel, times(1)).setResolver(slots[0], resolver2);
@@ -374,8 +377,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         setUpResolverProvider(factory1, factory2);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         VisualItemContainerChangeEventHandler visualItemContainerHandler = captureVisualItemContainerChangeEventHandler();
 
@@ -404,8 +408,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         setUpResolverProvider(factory1, factory2);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         VisualItemContainerChangeEventHandler visualItemContainerHandler = captureVisualItemContainerChangeEventHandler();
 
@@ -428,8 +433,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
         setUpResolverProvider(factory1, factory2);
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         ManagedSlotMapping slotMapping = underTest
                 .getManagedSlotMapping(slots[0]);
@@ -453,8 +459,9 @@ public class ManagedSlotMappingConfigurationTest {
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
 
         setUpResolverProvider(factory1, factory2);
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver2);
         assertEquals(resolver2, underTest.getCurrentResolver(slots[0]));
@@ -469,8 +476,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
 
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver2);
         assertThat(underTest.getSlotsWithInvalidResolvers(),
@@ -483,8 +491,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
         setUpResolverProvider(factory1, factory2);
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         SlotMappingChangedHandler slotMappingChangeHandler = captureSlotMappingChangedHandler();
         ManagedSlotMappingConfigurationChangedEventHandler handler = mock(ManagedSlotMappingConfigurationChangedEventHandler.class);
@@ -506,8 +515,9 @@ public class ManagedSlotMappingConfigurationTest {
 
         when(visualizationModel.getResolver(slots[0])).thenReturn(resolver1);
         setUpResolverProvider(factory1, factory2);
-        underTest = new DefaultManagedSlotMappingConfiguration(resolverProvider,
-                slotMappingInitializer, visualizationModel, errorModel);
+        underTest = new DefaultManagedSlotMappingConfiguration(
+                resolverProvider, slotMappingInitializer, visualizationModel,
+                errorModel);
 
         SlotMappingChangedHandler slotMappingChangeHandler = captureSlotMappingChangedHandler();
         ManagedSlotMappingConfigurationChangedEventHandler handler = mock(ManagedSlotMappingConfigurationChangedEventHandler.class);

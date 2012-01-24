@@ -37,7 +37,8 @@ public class HighlightingManager implements Disposable {
 
     private HighlightingModel hoverModel;
 
-    public HighlightingManager(HighlightingModel hoverModel, ResourceSet resources) {
+    public HighlightingManager(HighlightingModel hoverModel,
+            ResourceSet resources) {
         assert hoverModel != null;
         assert resources != null;
 

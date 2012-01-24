@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.shared.workbench.util.xml;
 
-
 /**
  * Enables XPath operations on XML document independent from implementation
  * (Standard Java, Sarissa (in GWT client)).

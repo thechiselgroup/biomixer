@@ -26,16 +26,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.command.CommandAddedEvent;
-import org.thechiselgroup.biomixer.client.core.command.CommandAddedEventHandler;
-import org.thechiselgroup.biomixer.client.core.command.CommandManagerClearedEvent;
-import org.thechiselgroup.biomixer.client.core.command.CommandManagerClearedEventHandler;
-import org.thechiselgroup.biomixer.client.core.command.CommandRedoneEvent;
-import org.thechiselgroup.biomixer.client.core.command.CommandRedoneEventHandler;
-import org.thechiselgroup.biomixer.client.core.command.CommandUndoneEvent;
-import org.thechiselgroup.biomixer.client.core.command.CommandUndoneEventHandler;
-import org.thechiselgroup.biomixer.client.core.command.DefaultCommandManager;
-import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
 
 public class DefaultCommandManagerTest {
 

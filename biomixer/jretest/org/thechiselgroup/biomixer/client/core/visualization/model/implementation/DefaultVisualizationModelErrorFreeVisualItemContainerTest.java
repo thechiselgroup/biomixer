@@ -57,7 +57,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemCon
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainerChangeEventHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 
 /**
  * <p>

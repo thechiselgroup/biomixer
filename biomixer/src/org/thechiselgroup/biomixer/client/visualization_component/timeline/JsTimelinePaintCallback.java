@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
-
 public interface JsTimelinePaintCallback {
 
     void eventPainted(int bandIndex, JsTimeLineEvent event);

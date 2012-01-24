@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.command.AddResourceSetToViewCommand;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceModel;
 
 public class AddResourceSetToResourceModelCommandTest {
@@ -57,7 +56,10 @@ public class AddResourceSetToResourceModelCommandTest {
                 .forClass(Collection.class);
         verify(resourceModel, times(1)).addUnnamedResources(argument.capture());
 
-        assertEquals(true, argument.getValue().contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(
+                true,
+                argument.getValue().contains(
+                        ResourceSetTestUtils.createResource(1)));
     }
 
     @Before

@@ -99,23 +99,23 @@ public class ArrayUtils {
     }
 
     public native static void pushArray(JavaScriptObject array, double d) /*-{
-        array.push(d);
-    }-*/;
+                                                                          array.push(d);
+                                                                          }-*/;
 
     public native static void pushArray(JavaScriptObject array, int i) /*-{
-        array.push(i);
-    }-*/;
+                                                                       array.push(i);
+                                                                       }-*/;
 
     public native static void pushArray(JavaScriptObject array, String o) /*-{
-        array.push(o);
-    }-*/;
+                                                                          array.push(o);
+                                                                          }-*/;
 
     public native static void remove(Object o, JavaScriptObject array) /*-{
-        var index = array.indexOf(o);
-        if (index != -1) {
-        array.splice(index, 1);
-        }
-    }-*/;
+                                                                       var index = array.indexOf(o);
+                                                                       if (index != -1) {
+                                                                       array.splice(index, 1);
+                                                                       }
+                                                                       }-*/;
 
     public static JavaScriptObject toJsArray(List<? extends Object> objectList) {
         JavaScriptObject result = createArray();

@@ -17,8 +17,8 @@ package org.thechiselgroup.biomixer.client.workbench.client.command.ui;
 
 import static org.thechiselgroup.biomixer.client.core.ui.IconURLBuilder.getIconUrl;
 
-import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
 import org.thechiselgroup.biomixer.client.core.ui.IconURLBuilder.IconType;
+import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;

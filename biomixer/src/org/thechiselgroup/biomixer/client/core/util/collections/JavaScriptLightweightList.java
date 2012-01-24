@@ -44,21 +44,21 @@ public final class JavaScriptLightweightList<T> implements LightweightList<T> {
         }
 
         public final native void add(T t) /*-{
-            this.push(t);
-        }-*/;
+                                          this.push(t);
+                                          }-*/;
 
         public final native T get(int i) /*-{
-            return this[i];
-        }-*/;
+                                         return this[i];
+                                         }-*/;
 
         public final native int size() /*-{
-            return this.length;
-        }-*/;
+                                       return this.length;
+                                       }-*/;
     }
 
     private static native <T> NativeList<T> createNativeList() /*-{
-        return new Array();
-    }-*/;
+                                                               return new Array();
+                                                               }-*/;
 
     private NativeList<T> jsList;
 

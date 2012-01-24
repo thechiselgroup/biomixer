@@ -24,11 +24,12 @@ import org.thechiselgroup.biomixer.client.core.visualization.resolvers.AbstractB
  * interface must be immutable.
  * </p>
  * <p>
- * {@code VisualItemValueResolver}s can use other {@code VisualItemValueResolver}s
- * defined on other {@link Slot}s of this {@link VisualizationModel} in their
- * calculation. The {@link VisualItemValueResolverContext} exposes those during
- * the calculation. However, they must declare the {@link Slot}s they depend on
- * in {@link #getTargetSlots()}.
+ * {@code VisualItemValueResolver}s can use other
+ * {@code VisualItemValueResolver}s defined on other {@link Slot}s of this
+ * {@link VisualizationModel} in their calculation. The
+ * {@link VisualItemValueResolverContext} exposes those during the calculation.
+ * However, they must declare the {@link Slot}s they depend on in
+ * {@link #getTargetSlots()}.
  * </p>
  * 
  * @author Lars Grammel

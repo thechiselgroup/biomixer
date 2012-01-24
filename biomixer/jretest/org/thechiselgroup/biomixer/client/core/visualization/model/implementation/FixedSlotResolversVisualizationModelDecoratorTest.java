@@ -38,7 +38,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.SlotMappingCh
 import org.thechiselgroup.biomixer.client.core.visualization.model.SlotMappingChangedHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.FixedSlotResolversVisualizationModelDecorator;
 
 public class FixedSlotResolversVisualizationModelDecoratorTest {
 

@@ -24,6 +24,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
  */
 public interface GraphNodeExpander {
 
-    void expand(VisualItem visualItem, GraphNodeExpansionCallback expansionCallback);
+    void expand(VisualItem visualItem,
+            GraphNodeExpansionCallback expansionCallback);
 
 }

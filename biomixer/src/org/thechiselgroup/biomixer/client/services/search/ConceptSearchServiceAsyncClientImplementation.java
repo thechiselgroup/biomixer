@@ -47,7 +47,8 @@ public class ConceptSearchServiceAsyncClientImplementation extends
     private String buildUrl(String queryText) {
         UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
         urlBuilder.setPath("/bioportal/search/");
-        urlBuilder.setParameter("query", UriUtils.encodeURIComponent(queryText));
+        urlBuilder
+                .setParameter("query", UriUtils.encodeURIComponent(queryText));
         urlBuilder.setParameter("isexactmatch", "1");
         return urlBuilder.buildString();
     }

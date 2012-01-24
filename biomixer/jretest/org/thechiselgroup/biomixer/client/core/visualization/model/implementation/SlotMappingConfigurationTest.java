@@ -32,7 +32,6 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.SlotMappingChangedHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultSlotMappingConfiguration;
 
 public class SlotMappingConfigurationTest {
 
@@ -78,7 +77,8 @@ public class SlotMappingConfigurationTest {
         slot1 = new Slot("s1", "", DataType.NUMBER);
         slot2 = new Slot("s2", "", DataType.NUMBER);
 
-        underTest = new DefaultSlotMappingConfiguration(new Slot[] { slot1, slot2 });
+        underTest = new DefaultSlotMappingConfiguration(new Slot[] { slot1,
+                slot2 });
     }
 
 }

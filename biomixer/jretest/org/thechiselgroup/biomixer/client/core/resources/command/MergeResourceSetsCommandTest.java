@@ -26,7 +26,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.command.MergeResourceSetsCommand;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceModel;
 
 public class MergeResourceSetsCommandTest {
@@ -42,7 +41,8 @@ public class MergeResourceSetsCommandTest {
 
     @Test
     public void addSourceSetToViewOnUndo() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
         command.undo();
@@ -52,18 +52,21 @@ public class MergeResourceSetsCommandTest {
 
     @Test
     public void removeOnlyAdditionalResourcesFromTargetSetOnUndo() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources(1));
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources(1));
 
         command.execute();
         command.undo();
 
         assertEquals(1, targetSet.size());
-        assertEquals(true, targetSet.contains(ResourceSetTestUtils.createResource(1)));
+        assertEquals(true,
+                targetSet.contains(ResourceSetTestUtils.createResource(1)));
     }
 
     @Test
     public void removeSourceSetFromViewOnExecute() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
 
@@ -72,7 +75,8 @@ public class MergeResourceSetsCommandTest {
 
     @Test
     public void resourceAddedToTargetSetOnExecute() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
 
@@ -81,7 +85,8 @@ public class MergeResourceSetsCommandTest {
 
     @Test
     public void resourceAddedToTargetSetOnExecuteAfterUndo() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
         command.undo();
@@ -92,7 +97,8 @@ public class MergeResourceSetsCommandTest {
 
     @Test
     public void resourceRemovedFromTargetSetOnUndo() {
-        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3), ResourceSetTestUtils.createResources());
+        setUpCommand(ResourceSetTestUtils.createResources(1, 2, 3),
+                ResourceSetTestUtils.createResources());
 
         command.execute();
         command.undo();

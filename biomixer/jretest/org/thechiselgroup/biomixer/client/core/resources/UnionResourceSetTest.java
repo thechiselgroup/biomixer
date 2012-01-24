@@ -25,11 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
-import org.thechiselgroup.biomixer.client.core.resources.UnionResourceSet;
 
 public class UnionResourceSetTest {
 
@@ -40,29 +35,37 @@ public class UnionResourceSetTest {
 
     @Test
     public void addMultipleResourcesToContainedResourceSet() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.addResourceSet(resources);
 
         resources.addAll(ResourceSetTestUtils.createResources(4, 5));
 
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(4)));
-        assertEquals(true, underTest.contains(ResourceSetTestUtils.createResource(5)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(4)));
+        assertEquals(true,
+                underTest.contains(ResourceSetTestUtils.createResource(5)));
     }
 
     @Test
     public void addResourcesAddsToAllResources() {
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1, 2, 3));
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(3, 4, 5));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1,
+                2, 3));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(3,
+                4, 5));
 
         assertEquals(5, underTest.size());
-        assertTrue(underTest.containsAll(ResourceSetTestUtils.createLabeledResources(1, 2, 3)));
-        assertTrue(underTest.containsAll(ResourceSetTestUtils.createLabeledResources(3, 4, 5)));
+        assertTrue(underTest.containsAll(ResourceSetTestUtils
+                .createLabeledResources(1, 2, 3)));
+        assertTrue(underTest.containsAll(ResourceSetTestUtils
+                .createLabeledResources(3, 4, 5)));
     }
 
     @Test
     public void containsResourcesAddedToChildren() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.addResourceSet(resources);
         resources.add(ResourceSetTestUtils.createResource(5));
@@ -73,7 +76,8 @@ public class UnionResourceSetTest {
 
     @Test
     public void doesNotContainResourcesRemovedFromChildren() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.addResourceSet(resources);
         resources.remove(ResourceSetTestUtils.createResource(1));
@@ -85,22 +89,27 @@ public class UnionResourceSetTest {
 
     @Test
     public void doesNotRemoveDuplicateResourceOnRemove() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.addResourceSet(resources);
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(3, 4, 5));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(3,
+                4, 5));
         resources.remove(ResourceSetTestUtils.createResource(3));
 
         assertEquals(5, underTest.size());
         assertTrue(underTest.containsAll(resources));
-        assertTrue(underTest.containsAll(ResourceSetTestUtils.createLabeledResources(3, 4, 5)));
+        assertTrue(underTest.containsAll(ResourceSetTestUtils
+                .createLabeledResources(3, 4, 5)));
     }
 
     @Test
     public void doNotFireEventWhenResourceSetAddedButNoNewResources() {
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1, 2, 3));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1,
+                2, 3));
         underTest.addEventHandler(resourceSetChangedHandler);
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1, 2, 3));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1,
+                2, 3));
 
         captureOnResourceSetChanged(0, resourceSetChangedHandler);
     }
@@ -108,7 +117,8 @@ public class UnionResourceSetTest {
     @Test
     public void fireEventWhenResourceSetAdded() {
         underTest.addEventHandler(resourceSetChangedHandler);
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1, 2, 3));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1,
+                2, 3));
 
         verifyOnResourcesAdded(ResourceSetTestUtils.createResources(1, 2, 3),
                 resourceSetChangedHandler);
@@ -117,7 +127,8 @@ public class UnionResourceSetTest {
     @Test
     public void noContainmenChangeWhenResourceAddedAfterRemove() {
         Resource addedResource = ResourceSetTestUtils.createResource(8);
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.addResourceSet(resources);
         underTest.removeResourceSet(resources);
@@ -129,21 +140,25 @@ public class UnionResourceSetTest {
 
     @Test
     public void noFailureOnRemoveInvalidResourceSet() {
-        ResourceSet resources1 = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources1 = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         underTest.removeResourceSet(resources1);
     }
 
     @Test
     public void removeResourcesDoesNotRemoveDuplicateResource() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(3, 4, 5);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(3,
+                4, 5);
 
-        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1, 2, 3));
+        underTest.addResourceSet(ResourceSetTestUtils.createLabeledResources(1,
+                2, 3));
         underTest.addResourceSet(resources);
         underTest.removeResourceSet(resources);
 
         assertEquals(3, underTest.size());
-        assertTrue(underTest.containsAll(ResourceSetTestUtils.createLabeledResources(1, 2, 3)));
+        assertTrue(underTest.containsAll(ResourceSetTestUtils
+                .createLabeledResources(1, 2, 3)));
     }
 
     @Before

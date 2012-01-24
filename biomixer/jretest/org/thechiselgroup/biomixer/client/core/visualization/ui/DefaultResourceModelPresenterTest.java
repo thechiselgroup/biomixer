@@ -33,7 +33,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetsPresenter;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.DefaultResourceModel;
-import org.thechiselgroup.biomixer.client.core.visualization.ui.DefaultResourceModelPresenter;
 
 public class DefaultResourceModelPresenterTest {
 
@@ -60,22 +59,31 @@ public class DefaultResourceModelPresenterTest {
 
     @Test
     public void allResourcesPresenterContainsSetWithAllResources() {
-        resourceModel.addResourceSet(ResourceSetTestUtils.createLabeledResources(1));
-        resourceModel.addUnnamedResources(ResourceSetTestUtils.createResources(2));
+        resourceModel.addResourceSet(ResourceSetTestUtils
+                .createLabeledResources(1));
+        resourceModel.addUnnamedResources(ResourceSetTestUtils
+                .createResources(2));
 
         ArgumentCaptor<ResourceSet> argument = ArgumentCaptor
                 .forClass(ResourceSet.class);
         verify(allResourcesPresenter, times(1)).addResourceSet(
                 argument.capture());
 
-        assertEquals(true, argument.getValue().contains(ResourceSetTestUtils.createResource(1)));
-        assertEquals(true, argument.getValue().contains(ResourceSetTestUtils.createResource(2)));
+        assertEquals(
+                true,
+                argument.getValue().contains(
+                        ResourceSetTestUtils.createResource(1)));
+        assertEquals(
+                true,
+                argument.getValue().contains(
+                        ResourceSetTestUtils.createResource(2)));
         assertEquals(2, argument.getValue().size());
     }
 
     @Test
     public void callOriginalSetsPresenterOnLabeledResourcesAdded() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         resourceModel.addResourceSet(resources);
 
@@ -84,7 +92,8 @@ public class DefaultResourceModelPresenterTest {
 
     @Test
     public void callOriginalSetsPresenterOnLabeledResourcesAddedOnlyOnce() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         resourceModel.addResourceSet(resources);
         resourceModel.addResourceSet(resources);
@@ -94,7 +103,8 @@ public class DefaultResourceModelPresenterTest {
 
     @Test
     public void callResourceSetsPresenterOnLabeledResourcesRemoved() {
-        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1, 2, 3);
+        ResourceSet resources = ResourceSetTestUtils.createLabeledResources(1,
+                2, 3);
 
         resourceModel.addResourceSet(resources);
         resourceModel.removeResourceSet(resources);

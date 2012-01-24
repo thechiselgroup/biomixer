@@ -29,10 +29,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.ui.DisableResourceSetAvatarIfEmptyManager;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourcesChangedEvent;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourcesChangedEventHandler;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 
 import com.google.gwt.event.shared.HandlerRegistration;

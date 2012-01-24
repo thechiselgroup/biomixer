@@ -31,13 +31,15 @@ public class VisualItemInteractionLogger implements VisualItemBehavior {
     }
 
     @Override
-    public void onInteraction(VisualItem visualItem, VisualItemInteraction interaction) {
-        logger.info("onInteraction[Interaction=" + interaction + " ; VisualItem="
-                + visualItem + "]");
+    public void onInteraction(VisualItem visualItem,
+            VisualItemInteraction interaction) {
+        logger.info("onInteraction[Interaction=" + interaction
+                + " ; VisualItem=" + visualItem + "]");
     }
 
     @Override
-    public void onVisualItemContainerChanged(VisualItemContainerChangeEvent event) {
+    public void onVisualItemContainerChanged(
+            VisualItemContainerChangeEvent event) {
     }
 
 }

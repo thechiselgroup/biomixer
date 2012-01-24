@@ -63,8 +63,8 @@ public class ConceptArcTypeTest {
         concept.getUriListValue(Concept.CHILD_CONCEPTS).add(childConcept1Uri);
         concept.getUriListValue(Concept.CHILD_CONCEPTS).add(childConcept2Uri);
 
-        assertThat(underTest.getArcs(
-                VisualItemTestUtils.createVisualItem(concept.getUri(), ResourceSetTestUtils.toResourceSet(concept)),
+        assertThat(underTest.getArcs(VisualItemTestUtils.createVisualItem(
+                concept.getUri(), ResourceSetTestUtils.toResourceSet(concept)),
                 context), containsExactly(LightweightCollections.toCollection(
                 createExpectedArc(childConcept1Uri, concept.getUri()),
                 createExpectedArc(childConcept2Uri, concept.getUri()))));
@@ -78,8 +78,8 @@ public class ConceptArcTypeTest {
         concept.getUriListValue(Concept.PARENT_CONCEPTS).add(parentConcept1Uri);
         concept.getUriListValue(Concept.PARENT_CONCEPTS).add(parentConcept2Uri);
 
-        assertThat(underTest.getArcs(
-                VisualItemTestUtils.createVisualItem(concept.getUri(), ResourceSetTestUtils.toResourceSet(concept)),
+        assertThat(underTest.getArcs(VisualItemTestUtils.createVisualItem(
+                concept.getUri(), ResourceSetTestUtils.toResourceSet(concept)),
                 context), containsExactly(LightweightCollections.toCollection(
                 createExpectedArc(concept.getUri(), parentConcept1Uri),
                 createExpectedArc(concept.getUri(), parentConcept2Uri))));

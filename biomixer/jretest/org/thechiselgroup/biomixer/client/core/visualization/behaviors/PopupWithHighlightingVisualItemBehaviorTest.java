@@ -35,7 +35,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
-import org.thechiselgroup.biomixer.client.core.visualization.behaviors.PopupWithHighlightingVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;

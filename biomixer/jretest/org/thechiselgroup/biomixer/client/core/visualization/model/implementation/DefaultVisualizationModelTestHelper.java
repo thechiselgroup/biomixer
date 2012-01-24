@@ -34,7 +34,6 @@ import org.thechiselgroup.biomixer.client.core.util.collections.NullIterator;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemBehavior;
-import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualizationModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactoryProvider;
 
@@ -89,8 +88,7 @@ public final class DefaultVisualizationModelTestHelper {
     }
 
     public DefaultVisualizationModel createTestVisualizationModel() {
-        when(resolverProvider.getAll()).thenReturn(
-                resolverFactories);
+        when(resolverProvider.getAll()).thenReturn(resolverFactories);
 
         when(viewContentDisplay.getSlots()).thenReturn(slots);
         when(viewContentDisplay.isReady()).thenReturn(true);

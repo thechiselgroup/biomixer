@@ -19,7 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.core.util.BrowserDetect;
 
 public class BrowserDetectTest {
 

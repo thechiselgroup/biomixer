@@ -39,8 +39,9 @@ public class ConceptConceptNeighbourhoodExpander extends
     }
 
     @Override
-    protected void expandNeighbourhood(VisualItem visualItem, Resource resource,
-            GraphNodeExpansionCallback graph, List<Resource> neighbourhood) {
+    protected void expandNeighbourhood(VisualItem visualItem,
+            Resource resource, GraphNodeExpansionCallback graph,
+            List<Resource> neighbourhood) {
 
         for (Resource neighbour : neighbourhood) {
             if (!graph.containsResourceWithUri(neighbour.getUri())) {

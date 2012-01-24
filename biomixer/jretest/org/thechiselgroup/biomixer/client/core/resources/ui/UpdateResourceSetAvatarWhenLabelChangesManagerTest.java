@@ -29,10 +29,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourcesChangedEvent;
-import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourcesChangedEventHandler;
-import org.thechiselgroup.biomixer.client.core.resources.ui.UpdateResourceSetAvatarWhenLabelChangesManager;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -56,7 +52,8 @@ public class UpdateResourceSetAvatarWhenLabelChangesManagerTest {
         MockitoGWTBridge.setUp();
         MockitoAnnotations.initMocks(this);
 
-        resources = spy(ResourceSetTestUtils.createLabeledResources(INITIAL_LABEL, "type", 2));
+        resources = spy(ResourceSetTestUtils.createLabeledResources(
+                INITIAL_LABEL, "type", 2));
 
         when(avatar.getResourceSet()).thenReturn(resources);
         when(
@@ -81,7 +78,8 @@ public class UpdateResourceSetAvatarWhenLabelChangesManagerTest {
 
         argument.getValue().onResourcesChanged(
                 new ResourceSetAvatarResourcesChangedEvent(avatar,
-                        ResourceSetTestUtils.createLabeledResources("label", "type", 1), resources));
+                        ResourceSetTestUtils.createLabeledResources("label",
+                                "type", 1), resources));
 
         verify(avatar, times(1)).setText("label");
     }

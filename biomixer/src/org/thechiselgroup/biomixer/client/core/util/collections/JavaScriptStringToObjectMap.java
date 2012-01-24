@@ -41,12 +41,12 @@ public final class JavaScriptStringToObjectMap<T> implements Map<String, T> {
         }
 
         public final native InternalMapEntry<T> get(int index) /*-{
-            return this[index];
-        }-*/;
+                                                               return this[index];
+                                                               }-*/;
 
         public final native int length() /*-{
-            return this.length;
-        }-*/;
+                                         return this.length;
+                                         }-*/;
 
     }
 
@@ -107,8 +107,8 @@ public final class JavaScriptStringToObjectMap<T> implements Map<String, T> {
         // @formatter:on
 
         private native boolean containsKey(Object key) /*-{
-            return key in this.map;
-        }-*/;
+                                                       return key in this.map;
+                                                       }-*/;
 
         /**
          * @return sorted map entry array
@@ -158,20 +158,20 @@ public final class JavaScriptStringToObjectMap<T> implements Map<String, T> {
         // @formatter:on
 
         private native InternalMapEntry<T> getMapEntry(Object key) /*-{
-            return this.map[key];
-        }-*/;
+                                                                   return this.map[key];
+                                                                   }-*/;
 
         private native void putMapEntry(Object key, InternalMapEntry<T> entry) /*-{
-            this.map[key] = entry;
-            this.keys = null;
-            this.entries = null;
-        }-*/;
+                                                                               this.map[key] = entry;
+                                                                               this.keys = null;
+                                                                               this.entries = null;
+                                                                               }-*/;
 
         private native void remove(Object key) /*-{
-            delete this.map[key];
-            this.keys = null;
-            this.entries = null;
-        }-*/;
+                                               delete this.map[key];
+                                               this.keys = null;
+                                               this.entries = null;
+                                               }-*/;
 
     }
 
@@ -576,12 +576,12 @@ public final class JavaScriptStringToObjectMap<T> implements Map<String, T> {
     }
 
     private native NativeMap<T> createNativeMap() /*-{
-        var nativeMap = new Object();
-        nativeMap.map = new Object(); // associative array
-        nativeMap.keys = null; // cache for sorted keys
-        nativeMap.entries = null; // cache for sorted entries
-        return nativeMap;
-    }-*/;
+                                                  var nativeMap = new Object();
+                                                  nativeMap.map = new Object(); // associative array
+                                                  nativeMap.keys = null; // cache for sorted keys
+                                                  nativeMap.entries = null; // cache for sorted entries
+                                                  return nativeMap;
+                                                  }-*/;
 
     @Override
     public Set<java.util.Map.Entry<String, T>> entrySet() {

@@ -13,8 +13,8 @@ public class JsDomSvgElementFactory implements SvgElementFactory {
      * of wrapper objects.
      */
     static native SvgElement createSvgElement(String tagName)/*-{
-		return document.createElementNS("http://www.w3.org/2000/svg", tagName);
-    }-*/;
+                                                             return document.createElementNS("http://www.w3.org/2000/svg", tagName);
+                                                             }-*/;
 
     @Override
     public final SvgElement createElement(String tagName) {

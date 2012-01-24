@@ -73,8 +73,8 @@ public class DefaultDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         }
 
         // multiple resources: show numbers
-        verticalPanel.add(new HTML("<br/><b>" + visualItem.getResources().size()
-                + " items</b>"));
+        verticalPanel.add(new HTML("<br/><b>"
+                + visualItem.getResources().size() + " items</b>"));
 
         return verticalPanel;
     }

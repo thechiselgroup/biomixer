@@ -25,8 +25,8 @@ import com.google.inject.Inject;
 public class ConceptSearchCommand extends SearchCommand {
 
     @Inject
-    public ConceptSearchCommand(CommandManager commandManager,
-            Desktop desktop, WindowContentProducer viewFactory) {
+    public ConceptSearchCommand(CommandManager commandManager, Desktop desktop,
+            WindowContentProducer viewFactory) {
         super(commandManager, desktop, viewFactory, "ncbo-search");
     }
 

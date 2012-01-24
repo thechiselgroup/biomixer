@@ -21,7 +21,6 @@ import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.command.ReplaceResourceSetContentCommand;
 
 public class ReplaceResourceSetContentCommandTest {
 
@@ -31,21 +30,25 @@ public class ReplaceResourceSetContentCommandTest {
 
     @Test
     public void resourcesReplacedOnExecute() {
-        setUpCommand(ResourceSetTestUtils.createResources(4), ResourceSetTestUtils.createResources(1, 2, 3));
+        setUpCommand(ResourceSetTestUtils.createResources(4),
+                ResourceSetTestUtils.createResources(1, 2, 3));
 
         underTest.execute();
 
-        assertThat(resources, containsExactly(ResourceSetTestUtils.createResources(1, 2, 3)));
+        assertThat(resources,
+                containsExactly(ResourceSetTestUtils.createResources(1, 2, 3)));
     }
 
     @Test
     public void restoreTargetSetOnUndo() {
-        setUpCommand(ResourceSetTestUtils.createResources(4), ResourceSetTestUtils.createResources(1, 2, 3));
+        setUpCommand(ResourceSetTestUtils.createResources(4),
+                ResourceSetTestUtils.createResources(1, 2, 3));
 
         underTest.execute();
         underTest.undo();
 
-        assertThat(resources, containsExactly(ResourceSetTestUtils.createResources(4)));
+        assertThat(resources,
+                containsExactly(ResourceSetTestUtils.createResources(4)));
     }
 
     private void setUpCommand(ResourceSet resources, ResourceSet newContent) {
