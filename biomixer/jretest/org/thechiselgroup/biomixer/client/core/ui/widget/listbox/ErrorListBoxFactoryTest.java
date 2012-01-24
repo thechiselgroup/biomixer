@@ -62,6 +62,11 @@ public class ErrorListBoxFactoryTest {
         assertErrorBoxContainsAllCaughtThrowables();
     }
 
+    private void assertErrorBoxContainsAllCaughtThrowables() {
+        assertThat(underTest.getValues(),
+                containsExactly(throwablesContainer.getThrowablesCaught()));
+    }
+
     private ThrowableCaught createAndAddThrowableCaught(String errorMessage) {
         ThrowableCaught throwableCaught = createThrowableCaught(errorMessage,
                 new Date());
@@ -86,10 +91,7 @@ public class ErrorListBoxFactoryTest {
                 new GregorianCalendar(2012, 1, 23).getTime());
 
         throwablesContainer.addThrowableCaught(throwableCaught);
-        // XXX this test will break in a different timezone
-        // --> need to inject formatter
-        verify(presenter).addItem(
-                "Thu Feb 23 00:00:00 PST 2012: " + errorMessage1);
+        verify(presenter).addItem("Thu Feb 23 00:00:00 2012: " + errorMessage1);
     }
 
     @Test
@@ -99,11 +101,6 @@ public class ErrorListBoxFactoryTest {
         createAndAddThrowableCaught(errorMessage2);
         throwablesContainer.removeThrowableCaught(throwable);
         assertErrorBoxContainsAllCaughtThrowables();
-    }
-
-    private void assertErrorBoxContainsAllCaughtThrowables() {
-        assertThat(underTest.getValues(),
-                containsExactly(throwablesContainer.getThrowablesCaught()));
     }
 
     @Before

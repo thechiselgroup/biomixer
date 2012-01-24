@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaughtEvent;
@@ -32,7 +35,12 @@ public class ErrorListBoxFactory {
                 presenter, new Transformer<ThrowableCaught, String>() {
                     @Override
                     public String transform(ThrowableCaught throwableCaught) {
-                        return throwableCaught.toString();
+                        DateFormat formatter = new SimpleDateFormat(
+                                "E MMM dd HH:mm:ss yyyy");
+                        return formatter.format(throwableCaught.getTimeStamp())
+                                + ": "
+                                + throwableCaught.getThrowable()
+                                        .getLocalizedMessage();
                     }
                 }, errorHandler, throwablesContainer.getThrowablesCaught());
 
