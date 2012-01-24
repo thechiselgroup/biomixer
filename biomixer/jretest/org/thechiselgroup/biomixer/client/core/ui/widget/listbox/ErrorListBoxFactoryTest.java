@@ -29,6 +29,7 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
+import org.thechiselgroup.biomixer.server.core.util.date.SimpleDateTimeFormatFactory;
 
 public class ErrorListBoxFactoryTest {
 
@@ -76,7 +77,8 @@ public class ErrorListBoxFactoryTest {
 
     private void createErrorBox() {
         this.underTest = ErrorListBoxFactory.createErrorBox(
-                throwablesContainer, presenter, errorHandler);
+                throwablesContainer, presenter,
+                new SimpleDateTimeFormatFactory(), errorHandler);
     }
 
     private ThrowableCaught createThrowableCaught(String errorMessage, Date date) {

@@ -16,6 +16,8 @@
 package org.thechiselgroup.biomixer.client.core.visualization;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
+import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
@@ -27,6 +29,9 @@ import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSet
 import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
 import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ErrorListBoxFactory;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -108,27 +113,29 @@ public class DefaultView implements View {
      * Sections that will be displayed in the side panel. This is a lightweight
      * collections so we can check whether it is empty or not.
      */
-    private LightweightCollection<SidePanelSection> sidePanelSections;
+    private final LightweightCollection<SidePanelSection> sidePanelSections;
 
-    private ViewContentDisplay contentDisplay;
+    private final ViewContentDisplay contentDisplay;
 
     private VisualizationModel visualizationModel;
 
-    private ResourceModel resourceModel;
+    private final ResourceModel resourceModel;
 
-    private SelectionModel selectionModel;
+    private final SelectionModel selectionModel;
 
     private boolean isInitialized;
 
-    private String contentType;
+    private final String contentType;
 
-    private ErrorHandler errorHandler;
+    private final ErrorHandler errorHandler;
+
+    private final ListBoxControl<ThrowableCaught> errorListBoxControl;
 
     private String label;
 
-    private ManagedSlotMappingConfigurationPersistence managedSlotMappingConfigurationPersistence;
+    private final ManagedSlotMappingConfigurationPersistence managedSlotMappingConfigurationPersistence;
 
-    private ManagedSlotMappingConfiguration managedSlotMappingConfiguration;
+    private final ManagedSlotMappingConfiguration managedSlotMappingConfiguration;
 
     private static final String MEMENTO_CONTENT_DISPLAY = "content-display";
 
@@ -155,7 +162,8 @@ public class DefaultView implements View {
             SelectionModel selectionModel,
             ManagedSlotMappingConfiguration managedSlotMappingConfiguration,
             ManagedSlotMappingConfigurationPersistence managedSlotMappingConfigurationPersistence,
-            ErrorHandler errorHandler) {
+            ErrorHandler errorHandler,
+            ListBoxControl<ThrowableCaught> errorListBoxControl) {
 
         assert label != null;
         assert contentType != null;
@@ -182,6 +190,7 @@ public class DefaultView implements View {
         this.managedSlotMappingConfiguration = managedSlotMappingConfiguration;
         this.managedSlotMappingConfigurationPersistence = managedSlotMappingConfigurationPersistence;
         this.errorHandler = errorHandler;
+        this.errorListBoxControl = errorListBoxControl;
     }
 
     @Override
@@ -346,6 +355,7 @@ public class DefaultView implements View {
         viewPanel.add(configurationBar, DockPanel.NORTH);
         viewPanel.add(contentDisplay.asWidget(), DockPanel.CENTER);
         viewPanel.add(sideBar, DockPanel.EAST);
+        viewPanel.add(errorListBoxControl.asWidget(), DockPanel.SOUTH);
 
         viewPanel.setCellHeight(contentDisplay.asWidget(), "100%");
     }

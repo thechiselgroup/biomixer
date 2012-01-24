@@ -43,6 +43,7 @@ import org.thechiselgroup.biomixer.client.core.resources.persistence.DefaultReso
 import org.thechiselgroup.biomixer.client.core.test.IntegrationTest;
 import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
@@ -50,7 +51,6 @@ import org.thechiselgroup.biomixer.client.core.util.math.AverageCalculation;
 import org.thechiselgroup.biomixer.client.core.util.math.MaxCalculation;
 import org.thechiselgroup.biomixer.client.core.util.math.MinCalculation;
 import org.thechiselgroup.biomixer.client.core.util.math.SumCalculation;
-import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
@@ -77,7 +77,7 @@ public class DefaultViewPersistenceIntegrationTest {
             implements
             IdentifiableCreatingPersistence<ManagedVisualItemValueResolver> {
 
-        private PropertyDependantVisualItemValueResolverFactory factory;
+        private final PropertyDependantVisualItemValueResolverFactory factory;
 
         public PropertyDependentVisualItemResolverPersistence(
                 PropertyDependantVisualItemValueResolverFactory factory) {
@@ -147,7 +147,8 @@ public class DefaultViewPersistenceIntegrationTest {
                 LightweightCollections.<SidePanelSection> emptyCollection(),
                 viewModel, resourceModel, selectionModel,
                 managedSlotMappingConfiguration,
-                slotMappingConfigurationPersistence, mock(ErrorHandler.class)) {
+                slotMappingConfigurationPersistence, mock(ErrorHandler.class),
+                mock(ListBoxControl.class)) {
             @Override
             protected void initUI() {
             };

@@ -30,6 +30,9 @@
   <!-- GWT basics --> 
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.user.theme.standard.StandardResources" />
+  
+  <!-- GWT Date and Number Formatting -->
+  <inherits name="com.google.gwt.i18n.I18N"/>
  
   <!-- Drag & drop: gwt-dnd -->
   <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>

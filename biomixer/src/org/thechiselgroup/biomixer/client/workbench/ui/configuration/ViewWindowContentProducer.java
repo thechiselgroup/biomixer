@@ -26,6 +26,8 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
+import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.label.LabelProvider;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.resources.HasResourceCategorizer;
@@ -37,8 +39,12 @@ import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFac
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourceSetsPresenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ErrorListBoxFactory;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
@@ -276,11 +282,18 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                     }
                 });
 
+        // TODO: inject GwtDateTimeFormatFactory
+        ListBoxControl<ThrowableCaught> listBoxControl = ErrorListBoxFactory
+                .createErrorBox(new ThrowablesContainer(),
+                        new ExtendedListBox(), new GwtDateTimeFormatFactory(),
+                        errorHandler);
+
         DefaultView view = new DefaultView(contentDisplay, label, contentType,
                 selectionModelPresenter, resourceModelPresenter,
                 visualMappingsControl, sidePanelSections, visualizationModel,
                 resourceModel, selectionModel, managedConfiguration,
-                slotMappingConfigurationPersistence, errorHandler);
+                slotMappingConfigurationPersistence, errorHandler,
+                listBoxControl);
 
         for (ViewPart viewPart : viewParts) {
             viewPart.afterViewCreation(view);

@@ -15,28 +15,29 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaughtEvent;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainerEventListener;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormat;
+import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormatFactory;
 
 public class ErrorListBoxFactory {
 
     public static ListBoxControl<ThrowableCaught> createErrorBox(
             ThrowablesContainer throwablesContainer,
-            ListBoxPresenter presenter, ErrorHandler errorHandler) {
+            ListBoxPresenter presenter,
+            final DateTimeFormatFactory dateTimeFormatFactory,
+            ErrorHandler errorHandler) {
 
         final ListBoxControl<ThrowableCaught> listBoxControl = new ListBoxControl<ThrowableCaught>(
                 presenter, new Transformer<ThrowableCaught, String>() {
                     @Override
                     public String transform(ThrowableCaught throwableCaught) {
-                        DateFormat formatter = new SimpleDateFormat(
-                                "E MMM dd HH:mm:ss yyyy");
+                        DateTimeFormat formatter = dateTimeFormatFactory
+                                .createDateTimeFormat("E MMM dd HH:mm:ss yyyy");
                         return formatter.format(throwableCaught.getTimeStamp())
                                 + ": "
                                 + throwableCaught.getThrowable()
