@@ -499,7 +499,8 @@ public class DefaultView implements View {
          * http://code.google.com/p/google-web-toolkit/issues/detail?id=316
          */
 
-        int targetHeight = height - configurationBar.getOffsetHeight();
+        int targetHeight = height - configurationBar.getOffsetHeight()
+                - errorListBoxControl.asWidget().getOffsetHeight();
         int targetWidth = sideBar.isVisible() ? width
                 - sideBar.getOffsetWidth() : width;
 
