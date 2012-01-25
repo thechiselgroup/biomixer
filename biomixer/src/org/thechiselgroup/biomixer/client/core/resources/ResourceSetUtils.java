@@ -138,12 +138,6 @@ public final class ResourceSetUtils {
                 }
             }
 
-            case SHAPE: {
-                if (entry.getValue() instanceof String
-                        && isShape(entry.getValue())) {
-                    properties.add(entry.getKey());
-                }
-            }
             }
         }
         return properties;

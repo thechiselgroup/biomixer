@@ -18,6 +18,6 @@ package org.thechiselgroup.biomixer.client.core.util;
 // TODO rename to slot type and change into extensible class (e.g. for custom enumerations)
 public enum DataType {
 
-    TEXT, DATE, NUMBER, LOCATION, COLOR, SHAPE;
+    TEXT, DATE, NUMBER, LOCATION, COLOR;
 
 }

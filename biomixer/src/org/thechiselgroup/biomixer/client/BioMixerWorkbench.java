@@ -16,7 +16,6 @@
 package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.core.ui.TextCommandPresenter;
-import org.thechiselgroup.biomixer.client.visualization_component.chart.barchart.BarChart;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
@@ -57,7 +56,6 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
         initNCBOSearchField();
 
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Graph", Graph.ID);
-        addCreateWindowActionToToolbar(VIEWS_PANEL, "Bar Chart", BarChart.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
                 TextVisualization.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline", TimeLine.ID);

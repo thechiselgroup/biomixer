@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="jretest"/>
-	<classpathentry kind="lib" path="lib/protovis-gwt-0.4.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/gwt2swf-0.6.0.jar"/>
 	<classpathentry kind="lib" path="lib/xalan-2.7.1.jar"/>
