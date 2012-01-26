@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
@@ -23,7 +24,7 @@ public class ListViewContentDisplayFactory implements ViewContentDisplayFactory 
     public static final String ID = "org.thechiselgroup.choosel.visualization_component.text.client.NonTagCloudTextViewContentDisplayFactory";
 
     @Override
-    public ViewContentDisplay createViewContentDisplay() {
+    public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
         TextVisualization visualization = new TextVisualization();
         visualization.setTagCloud(false);
         return visualization;

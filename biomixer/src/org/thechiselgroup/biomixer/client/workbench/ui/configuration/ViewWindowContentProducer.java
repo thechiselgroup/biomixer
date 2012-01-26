@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
+import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainerErrorHandler;
 import org.thechiselgroup.biomixer.client.core.label.LabelProvider;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.resources.HasResourceCategorizer;
@@ -196,8 +197,11 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     public WindowContent createWindowContent(String contentType) {
         assert contentType != null;
 
+        ThrowablesContainer throwablesContainer = new ThrowablesContainer();
+        ErrorHandler throwablesContainerErrorHandler = new ThrowablesContainerErrorHandler(
+                throwablesContainer);
         ViewContentDisplay viewContentDisplay = viewContentDisplayConfiguration
-                .createDisplay(contentType);
+                .createDisplay(contentType, throwablesContainerErrorHandler);
 
         ViewContentDisplay contentDisplay = new DropEnabledViewContentDisplay(
                 viewContentDisplay, contentDropTargetManager);
@@ -249,8 +253,9 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                 new DefaultVisualizationModel(contentDisplay,
                         selectionModel.getSelectionProxy(),
                         hoverModel.getResources(), visualItemBehaviors,
-                        errorHandler, new DefaultResourceSetFactory(),
-                        categorizer, disposeUtil), fixedSlotResolvers);
+                        throwablesContainerErrorHandler,
+                        new DefaultResourceSetFactory(), categorizer,
+                        disposeUtil), fixedSlotResolvers);
 
         visualizationModel.setContentResourceSet(resourceModel.getResources());
 
@@ -292,16 +297,15 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
         // TODO: inject GwtDateTimeFormatFactory
         ListBoxControl<ThrowableCaught> listBoxControl = ErrorListBoxFactory
-                .createErrorBox(new ThrowablesContainer(),
-                        new ExtendedListBox(), new GwtDateTimeFormatFactory(),
-                        errorHandler);
+                .createErrorBox(throwablesContainer, new ExtendedListBox(),
+                        new GwtDateTimeFormatFactory(), errorHandler);
 
         DefaultView view = new DefaultView(contentDisplay, label, contentType,
                 selectionModelPresenter, resourceModelPresenter,
                 visualMappingsControl, sidePanelSections, visualizationModel,
                 resourceModel, selectionModel, managedConfiguration,
-                slotMappingConfigurationPersistence, errorHandler, disposeUtil,
-                listBoxControl);
+                slotMappingConfigurationPersistence,
+                throwablesContainerErrorHandler, disposeUtil, listBoxControl);
 
         for (ViewPart viewPart : viewParts) {
             viewPart.afterViewCreation(view);

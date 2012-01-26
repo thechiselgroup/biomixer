@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
 import com.google.inject.Inject;
@@ -26,7 +27,7 @@ public class TextViewContentDisplayFactory implements ViewContentDisplayFactory 
     }
 
     @Override
-    public TextVisualization createViewContentDisplay() {
+    public TextVisualization createViewContentDisplay(ErrorHandler errorHandler) {
         return new TextVisualization();
     }
 

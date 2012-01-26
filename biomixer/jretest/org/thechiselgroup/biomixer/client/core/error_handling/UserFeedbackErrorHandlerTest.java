@@ -26,13 +26,14 @@ import org.mockito.ArgumentCaptor;
 
 public class UserFeedbackErrorHandlerTest {
 
-    private UserFeedbackErrorHandler underTest;
+    private ThrowablesContainerErrorHandler underTest;
 
     private final String errorMessage = "errorMessage";
 
     @Before
     public void setUp() {
-        underTest = new UserFeedbackErrorHandler();
+        underTest = new ThrowablesContainerErrorHandler(
+                new ThrowablesContainer());
     }
 
     @Test

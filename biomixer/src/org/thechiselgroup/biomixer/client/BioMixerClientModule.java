@@ -29,7 +29,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui.Visual
 import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
-import org.thechiselgroup.biomixer.client.graph.BioMixerGraphExpansionRegistry;
 import org.thechiselgroup.biomixer.client.services.NcboRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceImplementation;
@@ -45,7 +44,7 @@ import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithout
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphExpansionRegistry;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphExpansionRegistryFactory;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchClientModule;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
@@ -65,8 +64,7 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         // Graph visualization bindings
         bind(ArcTypeProvider.class).to(BioMixerArcTypeProvider.class).in(
                 Singleton.class);
-        bind(GraphExpansionRegistry.class).to(
-                BioMixerGraphExpansionRegistry.class).in(Singleton.class);
+        bind(GraphExpansionRegistryFactory.class).in(Singleton.class);
 
         // other bindings
         bind(ConceptSearchServiceAsync.class).to(

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
@@ -22,7 +23,7 @@ public class TimeLineViewContentDisplayFactory implements
         ViewContentDisplayFactory {
 
     @Override
-    public ViewContentDisplay createViewContentDisplay() {
+    public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
         return new TimeLine();
     }
 

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.text;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
@@ -24,7 +25,7 @@ public class TagCloudViewContentDisplayFactory implements
     public static final String ID = "org.thechiselgroup.choosel.visualization_component.TagCloud";
 
     @Override
-    public ViewContentDisplay createViewContentDisplay() {
+    public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
         return new TextVisualization();
     }
 

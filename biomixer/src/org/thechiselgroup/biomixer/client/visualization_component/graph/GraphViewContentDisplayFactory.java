@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
@@ -33,20 +34,23 @@ public class GraphViewContentDisplayFactory implements
     private CommandManager commandManager;
 
     @Inject
-    private GraphExpansionRegistry registry;
-
-    @Inject
     private ResourceCategorizer resourceCategorizer;
 
     @Inject
     private ResourceManager resourceManager;
 
     @Inject
+    private GraphExpansionRegistryFactory registryFactory;
+
+    @Inject
     public GraphViewContentDisplayFactory() {
     }
 
     @Override
-    public ViewContentDisplay createViewContentDisplay() {
+    public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
+        GraphExpansionRegistry registry = registryFactory
+                .createRegistry(errorHandler);
+
         return new Graph(new Graph.DefaultDisplay(), commandManager,
                 resourceManager, resourceCategorizer, arcStyleProvider,
                 registry);

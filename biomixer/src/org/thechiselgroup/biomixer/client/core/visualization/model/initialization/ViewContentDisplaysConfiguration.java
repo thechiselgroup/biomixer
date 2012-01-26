@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.core.visualization.model.initializati
 import java.util.Map;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
@@ -28,8 +29,9 @@ public class ViewContentDisplaysConfiguration {
     private Map<String, ViewContentDisplayConfiguration> configurationMap = CollectionFactory
             .createStringMap();
 
-    public ViewContentDisplay createDisplay(String type) {
-        return getConfiguration(type).createViewContentDisplay();
+    public ViewContentDisplay createDisplay(String type,
+            ErrorHandler errorHandler) {
+        return getConfiguration(type).createViewContentDisplay(errorHandler);
     }
 
     private ViewContentDisplayConfiguration getConfiguration(String type) {

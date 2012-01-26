@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.model.initialization;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 
 public interface ViewContentDisplayFactory {
 
-    ViewContentDisplay createViewContentDisplay();
+    ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler);
 
     String getViewContentTypeID();
 

@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.core.visualization.model.initializati
 import java.util.HashMap;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
@@ -34,8 +35,8 @@ public class ViewContentDisplayConfiguration implements
     }
 
     @Override
-    public ViewContentDisplay createViewContentDisplay() {
-        return factory.createViewContentDisplay();
+    public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
+        return factory.createViewContentDisplay(errorHandler);
     }
 
     public Map<Slot, VisualItemValueResolver> getFixedSlotResolvers() {
