@@ -272,14 +272,14 @@ public class HelpWindowContent extends AbstractWindowContent implements
                 + "width=\"480\" height=\"385\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></object>";
 
         final String html = "<p>"
-                + "Bio-Mixer is a web-based environment that supports the flexible exploration of biomedical ontologies.</p>"
-                + "<br/><p><b>Bio-Mixer Overview</b></p>"
+                + "BioMixer is a web-based environment that supports the flexible exploration of biomedical ontologies.</p>"
+                + "<br/><p><b>BioMixer Overview</b></p>"
                 + "<p>"
                 + biomixerOverviewVideo
                 + "</p>"
                 + "<br/><br/>"
                 + "<p><b>This tutorial contains 20 videos that explain the "
-                + "different features of Bio-Mixer. <br/>Please use the video controls or hover over the video to"
+                + "different features of BioMixer. <br/>Please use the video controls or hover over the video to"
                 + " jump to a specific tutorial.</b></p>" + biomixerPlaylist;
 
         HTML help = new HTML(html);

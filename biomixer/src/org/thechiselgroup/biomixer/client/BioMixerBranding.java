@@ -29,8 +29,8 @@ public class BioMixerBranding implements Branding {
             + "target=\"_blank\">bio-mixer.appspot.com</a></p>"
             + "<p>User group: <a href=\"http://groups.google.com/group/bio-mixer\" "
             + "target=\"_blank\">groups.google.com/group/bio-mixer</a></p>"
-            + "For more information, visit <a href=\"http://code.google.com/p/bio-mixer/\" "
-            + "target=\"_blank\">code.google.com/p/bio-mixer/</a></p>"
+            + "For more information, visit <a href=\"https://github.com/thechiselgroup/biomixer\" "
+            + "target=\"_blank\">github.com/thechiselgroup/biomixer</a></p>"
             + "<br/><b>We appreciate your ideas and comments:</b>";
 
     @Override
@@ -40,7 +40,7 @@ public class BioMixerBranding implements Branding {
 
     @Override
     public String getApplicationTitle() {
-        return "Bio-Mixer";
+        return "BioMixer";
     }
 
     @Override

@@ -29,9 +29,9 @@ public class DefaultFeedbackService implements FeedbackService {
     // TODO use configuration file
     private static final String ADMIN = "lars.grammel@googlemail.com";
 
-    private MailService mailService;
+    private final MailService mailService;
 
-    private UserService userService;
+    private final UserService userService;
 
     public DefaultFeedbackService(UserService userService,
             MailService mailService) {
@@ -64,7 +64,7 @@ public class DefaultFeedbackService implements FeedbackService {
         }
 
         try {
-            mailService.send(new Message(sender, ADMIN, "[Bio-Mixer Feedback]",
+            mailService.send(new Message(sender, ADMIN, "[BioMixer Feedback]",
                     content.toString()));
         } catch (IOException e) {
             throw new ServiceException(e);
