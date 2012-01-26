@@ -1,8 +1,0 @@
-# Module org.thechiselgroup.biomixer.BioMixerWorkbench
-# RPC service class, partial path of RPC policy file
-org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspaceSharingService, 898F47F7E8AFDE0AE59EF2872491B0B2.gwt.rpc
-org.thechiselgroup.biomixer.client.workbench.workspace.service.WorkspacePersistenceService, 30D7DDA06502E4DA60FE39F9CD5CEAEB.gwt.rpc
-org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationService, 8049CC3C0E1BF4CC4E4B596EAE842E94.gwt.rpc
-org.thechiselgroup.biomixer.client.workbench.workspace.service.ViewPersistenceService, AD0E72C48E4CA173B83D112D465E2C88.gwt.rpc
-com.google.gwt.logging.shared.RemoteLoggingService, 87DC2560E7CFDB6294A50F15AB9D08A3.gwt.rpc
-org.thechiselgroup.biomixer.client.workbench.feedback.FeedbackService, 307F9D4E281D85A96F5FFC96651782FD.gwt.rpc

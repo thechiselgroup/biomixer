@@ -134,6 +134,8 @@ public class DefaultView implements View {
 
     private final ManagedSlotMappingConfiguration managedSlotMappingConfiguration;
 
+    private final DisposeUtil disposeUtil;
+
     private static final String MEMENTO_CONTENT_DISPLAY = "content-display";
 
     private static final String MEMENTO_RESOURCE_MODEL = "resource-model";
@@ -159,7 +161,7 @@ public class DefaultView implements View {
             SelectionModel selectionModel,
             ManagedSlotMappingConfiguration managedSlotMappingConfiguration,
             ManagedSlotMappingConfigurationPersistence managedSlotMappingConfigurationPersistence,
-            ErrorHandler errorHandler,
+            ErrorHandler errorHandler, DisposeUtil disposeUtil,
             ListBoxControl<ThrowableCaught> errorListBoxControl) {
 
         assert label != null;
@@ -187,6 +189,7 @@ public class DefaultView implements View {
         this.managedSlotMappingConfiguration = managedSlotMappingConfiguration;
         this.managedSlotMappingConfigurationPersistence = managedSlotMappingConfigurationPersistence;
         this.errorHandler = errorHandler;
+        this.disposeUtil = disposeUtil;
         this.errorListBoxControl = errorListBoxControl;
     }
 
@@ -202,12 +205,11 @@ public class DefaultView implements View {
 
     @Override
     public void dispose() {
-        resourceModelPresenter = DisposeUtil.safelyDispose(
-                resourceModelPresenter, errorHandler);
-        selectionModelPresenter = DisposeUtil.safelyDispose(
-                selectionModelPresenter, errorHandler);
-        visualizationModel = DisposeUtil.safelyDispose(visualizationModel,
-                errorHandler);
+        resourceModelPresenter = disposeUtil
+                .safelyDispose(resourceModelPresenter);
+        selectionModelPresenter = disposeUtil
+                .safelyDispose(selectionModelPresenter);
+        visualizationModel = disposeUtil.safelyDispose(visualizationModel);
     }
 
     @ForTest

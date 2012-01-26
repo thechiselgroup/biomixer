@@ -42,6 +42,7 @@ import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ErrorListBoxFactory;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
@@ -139,6 +140,10 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     @Inject
     private ErrorHandler errorHandler;
 
+    // XXX how does disposeUtil get setup with the correct error handler?
+    @Inject
+    private DisposeUtil disposeUtil;
+
     @Inject
     protected VisualItemValueResolverFactoryProvider resolverFactoryProvider;
 
@@ -226,10 +231,13 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         CompositeVisualItemBehavior visualItemBehaviors = new CompositeVisualItemBehavior();
 
         // visualItemBehaviors.add(new ViewInteractionLogger(logger));
-        visualItemBehaviors.add(new HighlightingVisualItemBehavior(hoverModel));
-        visualItemBehaviors.add(new DragVisualItemBehavior(dragEnablerFactory));
+        visualItemBehaviors.add(new HighlightingVisualItemBehavior(hoverModel,
+                disposeUtil));
+        visualItemBehaviors.add(new DragVisualItemBehavior(dragEnablerFactory,
+                disposeUtil));
         visualItemBehaviors.add(new PopupWithHighlightingVisualItemBehavior(
-                detailsWidgetHelper, popupManagerFactory, hoverModel));
+                detailsWidgetHelper, popupManagerFactory, hoverModel,
+                disposeUtil));
         visualItemBehaviors.add(new SwitchSelectionOnClickVisualItemBehavior(
                 selectionModel, commandManager));
 
@@ -242,7 +250,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                         selectionModel.getSelectionProxy(),
                         hoverModel.getResources(), visualItemBehaviors,
                         errorHandler, new DefaultResourceSetFactory(),
-                        categorizer), fixedSlotResolvers);
+                        categorizer, disposeUtil), fixedSlotResolvers);
 
         visualizationModel.setContentResourceSet(resourceModel.getResources());
 
@@ -292,7 +300,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                 selectionModelPresenter, resourceModelPresenter,
                 visualMappingsControl, sidePanelSections, visualizationModel,
                 resourceModel, selectionModel, managedConfiguration,
-                slotMappingConfigurationPersistence, errorHandler,
+                slotMappingConfigurationPersistence, errorHandler, disposeUtil,
                 listBoxControl);
 
         for (ViewPart viewPart : viewParts) {

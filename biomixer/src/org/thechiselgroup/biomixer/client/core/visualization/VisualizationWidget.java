@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.resources.HasResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceByUriMultiCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceMultiCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemBehavior;
@@ -43,9 +44,9 @@ import com.google.gwt.user.client.ui.Widget;
 public class VisualizationWidget<T extends ViewContentDisplay> extends
         SimplePanel implements HasResourceCategorizer {
 
-    private VisualizationModel viewModel;
+    private final VisualizationModel viewModel;
 
-    private T contentDisplay;
+    private final T contentDisplay;
 
     public VisualizationWidget(T contentDisplay, ResourceSet selectedResource,
             ResourceSet highlightedResources,
@@ -54,10 +55,12 @@ public class VisualizationWidget<T extends ViewContentDisplay> extends
         assert contentDisplay != null;
 
         this.contentDisplay = contentDisplay;
+        // XXX creating new DisposeUtil
         this.viewModel = new DefaultVisualizationModel(contentDisplay,
                 selectedResource, highlightedResources, visualItemBehavior,
                 errorHandler, new DefaultResourceSetFactory(),
-                new ResourceByUriMultiCategorizer());
+                new ResourceByUriMultiCategorizer(), new DisposeUtil(
+                        errorHandler));
 
         setWidget(contentDisplay.asWidget());
     }

@@ -41,6 +41,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceByUriMultiCateg
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
@@ -62,7 +63,7 @@ public class DefaultVisualizationModelTest {
                 helper.getViewContentDisplay(), new DefaultResourceSet(),
                 new DefaultResourceSet(), new CompositeVisualItemBehavior(),
                 mock(ErrorHandler.class), new DefaultResourceSetFactory(),
-                new ResourceByUriMultiCategorizer());
+                new ResourceByUriMultiCategorizer(), mock(DisposeUtil.class));
 
         Resource r1 = createResource(1);
         r1.putValue(TEXT_PROPERTY_1, "value1-1");

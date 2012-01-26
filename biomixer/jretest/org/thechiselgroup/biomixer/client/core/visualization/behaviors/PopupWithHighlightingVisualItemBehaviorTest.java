@@ -35,6 +35,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
@@ -124,7 +125,8 @@ public class PopupWithHighlightingVisualItemBehaviorTest {
 
         underTest = new PopupWithHighlightingVisualItemBehavior(
                 mock(DetailsWidgetHelper.class),
-                mock(PopupManagerFactory.class), hoverModel) {
+                mock(PopupManagerFactory.class), hoverModel,
+                mock(DisposeUtil.class)) {
             @Override
             protected PopupManager createHandler(VisualItem visualItem) {
                 return popupManager;

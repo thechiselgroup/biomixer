@@ -17,6 +17,8 @@ package org.thechiselgroup.biomixer.client.core.util;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 
+import com.google.inject.Inject;
+
 /**
  * <p>
  * Utility class for disposing objects.
@@ -26,7 +28,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
  * 
  * @author Lars Grammel
  */
-public final class DisposeUtil {
+public class DisposeUtil {
 
     /**
      * <p>
@@ -49,6 +51,13 @@ public final class DisposeUtil {
         return null;
     }
 
+    private final ErrorHandler errorHandler;
+
+    @Inject
+    public DisposeUtil(ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+    }
+
     /**
      * <p>
      * Safely disposes {@code o}, if {@code o} is {@link Disposable}. Any
@@ -64,16 +73,13 @@ public final class DisposeUtil {
      *         {@code someField = DisposeUtil.safelyDispose(someField, errorHandler);}
      *         .
      */
-    public static <T> T safelyDispose(T o, ErrorHandler errorHandler) {
+    public <T> T safelyDispose(T o) {
         try {
             return dispose(o);
         } catch (Throwable ex) {
             errorHandler.handleError(ex);
             return null;
         }
-    }
-
-    private DisposeUtil() {
     }
 
 }

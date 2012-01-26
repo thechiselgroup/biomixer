@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.core.visualization.behaviors;
 import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.MappedHandlerVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
@@ -35,8 +36,8 @@ public class PopupVisualItemBehavior extends
     private PopupManagerFactory popupManagerFactory;
 
     public PopupVisualItemBehavior(DetailsWidgetHelper detailsWidgetHelper,
-            PopupManagerFactory popupManagerFactory) {
-
+            PopupManagerFactory popupManagerFactory, DisposeUtil disposeUtil) {
+        super(disposeUtil);
         assert detailsWidgetHelper != null;
         assert popupManagerFactory != null;
 

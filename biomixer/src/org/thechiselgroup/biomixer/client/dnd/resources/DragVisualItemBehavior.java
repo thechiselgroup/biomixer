@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.MappedHandlerVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
@@ -25,11 +26,12 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 public class DragVisualItemBehavior extends
         MappedHandlerVisualItemBehavior<DragEnabler> {
 
-    private DragEnablerFactory dragEnablerFactory;
+    private final DragEnablerFactory dragEnablerFactory;
 
-    public DragVisualItemBehavior(DragEnablerFactory dragEnablerFactory) {
+    public DragVisualItemBehavior(DragEnablerFactory dragEnablerFactory,
+            DisposeUtil disposeUtil) {
+        super(disposeUtil);
         assert dragEnablerFactory != null;
-
         this.dragEnablerFactory = dragEnablerFactory;
     }
 

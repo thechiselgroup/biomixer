@@ -15,11 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.model;
 
-import static org.thechiselgroup.biomixer.client.core.util.DisposeUtil.safelyDispose;
-
 import java.util.Map;
 
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 
 public abstract class MappedHandlerVisualItemBehavior<T> implements
@@ -31,7 +29,11 @@ public abstract class MappedHandlerVisualItemBehavior<T> implements
     private final Map<String, T> mappedHandlers = CollectionFactory
             .createStringMap();
 
-    private ErrorHandler errorHandler;
+    private final DisposeUtil disposeUtil;
+
+    protected MappedHandlerVisualItemBehavior(DisposeUtil disposeUtil) {
+        this.disposeUtil = disposeUtil;
+    }
 
     private void assertContainsVisualItem(VisualItem visualItem) {
         assert visualItem != null;
@@ -93,7 +95,7 @@ public abstract class MappedHandlerVisualItemBehavior<T> implements
 
     public void onVisualItemRemoved(VisualItem visualItem) {
         assertContainsVisualItem(visualItem);
-        safelyDispose(mappedHandlers.remove(visualItem.getId()), errorHandler);
+        disposeUtil.safelyDispose(mappedHandlers.remove(visualItem.getId()));
     }
 
 }

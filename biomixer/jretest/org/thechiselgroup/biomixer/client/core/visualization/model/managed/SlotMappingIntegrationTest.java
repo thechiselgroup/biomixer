@@ -41,6 +41,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceByUriMultiCateg
 import org.thechiselgroup.biomixer.client.core.resources.ResourceMultiCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
@@ -62,7 +63,7 @@ public class SlotMappingIntegrationTest {
 
     private SlotMappingInitializer slotMappingInitializer;
 
-    private DefaultVisualItemResolverFactoryProvider resolverProvider = new DefaultVisualItemResolverFactoryProvider();
+    private final DefaultVisualItemResolverFactoryProvider resolverProvider = new DefaultVisualItemResolverFactoryProvider();
 
     @Mock
     private VisualItemBehavior visualItemBehavior;
@@ -189,10 +190,12 @@ public class SlotMappingIntegrationTest {
     private DefaultVisualizationModel createViewModel(
             ResourceMultiCategorizer categorizer) {
 
+        // XXX creating new DisposeUtil
         DefaultVisualizationModel model = new DefaultVisualizationModel(
                 helper.getViewContentDisplay(), new DefaultResourceSet(),
                 new DefaultResourceSet(), visualItemBehavior, errorHandler,
-                new DefaultResourceSetFactory(), categorizer);
+                new DefaultResourceSetFactory(), categorizer, new DisposeUtil(
+                        errorHandler));
         new DefaultManagedSlotMappingConfiguration(resolverProvider,
                 slotMappingInitializer, model, model);
         return model;

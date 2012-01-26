@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizerToMu
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.collections.NullIterator;
@@ -62,11 +63,11 @@ public final class DefaultVisualizationModelTestHelper {
 
     private ResourceSet selectedResources = new DefaultResourceSet();
 
-    private ViewContentDisplay viewContentDisplay = mock(ViewContentDisplay.class);
+    private final ViewContentDisplay viewContentDisplay = mock(ViewContentDisplay.class);
 
-    private VisualItemValueResolverFactoryProvider resolverProvider = mock(VisualItemValueResolverFactoryProvider.class);
+    private final VisualItemValueResolverFactoryProvider resolverProvider = mock(VisualItemValueResolverFactoryProvider.class);
 
-    private LightweightList<VisualItemValueResolverFactory> resolverFactories = CollectionFactory
+    private final LightweightList<VisualItemValueResolverFactory> resolverFactories = CollectionFactory
             .createLightweightList();
 
     public boolean addToContainedResources(Resource resource) {
@@ -93,12 +94,14 @@ public final class DefaultVisualizationModelTestHelper {
         when(viewContentDisplay.getSlots()).thenReturn(slots);
         when(viewContentDisplay.isReady()).thenReturn(true);
 
+        TestErrorHandler testErrorHandler = new TestErrorHandler();
         DefaultVisualizationModel visualizationModel = spy(new DefaultVisualizationModel(
                 viewContentDisplay, selectedResources, highlightedResources,
-                mock(VisualItemBehavior.class), new TestErrorHandler(),
+                mock(VisualItemBehavior.class), testErrorHandler,
                 new DefaultResourceSetFactory(),
                 new ResourceCategorizerToMultiCategorizerAdapter(
-                        new ResourceByUriTypeCategorizer())));
+                        new ResourceByUriTypeCategorizer()), new DisposeUtil(
+                        testErrorHandler)));
 
         visualizationModel.setContentResourceSet(containedResources);
         return visualizationModel;

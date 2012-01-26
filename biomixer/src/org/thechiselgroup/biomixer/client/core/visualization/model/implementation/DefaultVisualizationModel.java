@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.model.implementation;
 
-import static org.thechiselgroup.biomixer.client.core.util.DisposeUtil.safelyDispose;
 import static org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory.createLightweightList;
 import static org.thechiselgroup.biomixer.client.core.util.collections.Delta.createAddedRemovedDelta;
 import static org.thechiselgroup.biomixer.client.core.util.collections.Delta.createDelta;
@@ -44,6 +43,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEvent
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetChangedEventHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.HandlerRegistrationSet;
 import org.thechiselgroup.biomixer.client.core.util.Initializable;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
@@ -96,7 +96,7 @@ public class DefaultVisualizationModel implements VisualizationModel,
          * {@link DefaultVisualItem}s that display the resource sets in the
          * view.
          */
-        private Map<String, DefaultVisualItem> visualItemsById = CollectionFactory
+        private final Map<String, DefaultVisualItem> visualItemsById = CollectionFactory
                 .createStringMap();
 
         public DefaultVisualItemContainer(ErrorHandler errorHandler) {
@@ -130,7 +130,7 @@ public class DefaultVisualizationModel implements VisualizationModel,
             fireVisualItemContainerChangeEvent(Delta
                     .createRemovedDelta(getVisualItems()));
             for (DefaultVisualItem visualItem : getDefaultVisualItems()) {
-                safelyDispose(visualItem, errorHandler);
+                disposeUtil.safelyDispose(visualItem);
             }
         }
 
@@ -243,7 +243,7 @@ public class DefaultVisualizationModel implements VisualizationModel,
      */
     private class SubsetContainer implements Disposable {
 
-        private Subset subset;
+        private final Subset subset;
 
         private ResourceSet resources;
 
@@ -294,7 +294,7 @@ public class DefaultVisualizationModel implements VisualizationModel,
 
     }
 
-    private DefaultSlotMappingConfiguration slotMappingConfiguration;
+    private final DefaultSlotMappingConfiguration slotMappingConfiguration;
 
     private ViewContentDisplay contentDisplay;
 
@@ -306,14 +306,16 @@ public class DefaultVisualizationModel implements VisualizationModel,
 
     private final ErrorHandler errorHandler;
 
-    private DefaultVisualItemResolutionErrorModel errorModel = new DefaultVisualItemResolutionErrorModel();
+    private final DefaultVisualItemResolutionErrorModel errorModel = new DefaultVisualItemResolutionErrorModel();
 
     private Map<Subset, SubsetContainer> subsets = new EnumMap<Subset, SubsetContainer>(
             Subset.class);
 
     private DefaultVisualItemContainer fullVisualItemContainer;
 
-    private ErrorFreeVisualItemContainerDecorator errorFreeVisualItemContainer;
+    private final ErrorFreeVisualItemContainerDecorator errorFreeVisualItemContainer;
+
+    private final DisposeUtil disposeUtil;
 
     /**
      * @param errorHandler
@@ -326,19 +328,21 @@ public class DefaultVisualizationModel implements VisualizationModel,
             ResourceSet selectedResources, ResourceSet highlightedResources,
             VisualItemBehavior visualItemBehavior, ErrorHandler errorHandler,
             ResourceSetFactory resourceSetFactory,
-            ResourceMultiCategorizer multiCategorizer) {
+            ResourceMultiCategorizer multiCategorizer, DisposeUtil disposeUtil) {
 
         assert contentDisplay != null;
         assert selectedResources != null;
         assert highlightedResources != null;
         assert visualItemBehavior != null;
         assert errorHandler != null;
+        assert disposeUtil != null;
         assert resourceSetFactory != null;
         assert multiCategorizer != null;
 
         this.contentDisplay = contentDisplay;
         this.visualItemBehavior = visualItemBehavior;
         this.errorHandler = errorHandler;
+        this.disposeUtil = disposeUtil;
 
         this.fullVisualItemContainer = new DefaultVisualItemContainer(
                 errorHandler);
@@ -479,13 +483,13 @@ public class DefaultVisualizationModel implements VisualizationModel,
          * handlers should get removed and references should be set to null.
          */
 
-        fullVisualItemContainer = safelyDispose(fullVisualItemContainer,
-                errorHandler);
+        fullVisualItemContainer = disposeUtil
+                .safelyDispose(fullVisualItemContainer);
 
-        resourceGrouping = safelyDispose(resourceGrouping, errorHandler);
-        contentDisplay = safelyDispose(contentDisplay, errorHandler);
+        resourceGrouping = disposeUtil.safelyDispose(resourceGrouping);
+        contentDisplay = disposeUtil.safelyDispose(contentDisplay);
 
-        handlerRegistrations = safelyDispose(handlerRegistrations, errorHandler);
+        handlerRegistrations = disposeUtil.safelyDispose(handlerRegistrations);
 
         for (SubsetContainer subsetContainer : subsets.values()) {
             subsetContainer.dispose();

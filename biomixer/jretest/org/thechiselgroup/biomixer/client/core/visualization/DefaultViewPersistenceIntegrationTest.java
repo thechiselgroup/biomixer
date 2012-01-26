@@ -45,6 +45,7 @@ import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.math.AverageCalculation;
@@ -148,7 +149,7 @@ public class DefaultViewPersistenceIntegrationTest {
                 viewModel, resourceModel, selectionModel,
                 managedSlotMappingConfiguration,
                 slotMappingConfigurationPersistence, mock(ErrorHandler.class),
-                mock(ListBoxControl.class)) {
+                mock(DisposeUtil.class), mock(ListBoxControl.class)) {
             @Override
             protected void initUI() {
             };

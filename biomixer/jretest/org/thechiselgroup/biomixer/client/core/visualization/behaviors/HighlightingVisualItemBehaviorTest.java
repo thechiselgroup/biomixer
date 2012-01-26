@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.core.visualization.behaviors;
 
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
@@ -24,8 +25,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
@@ -95,6 +98,7 @@ public class HighlightingVisualItemBehaviorTest {
         when(visualItem.getId()).thenReturn(VIEW_ITEM_ID);
         when(visualItem.getResources()).thenReturn(resources);
 
-        underTest = new HighlightingVisualItemBehavior(hoverModel);
+        underTest = new HighlightingVisualItemBehavior(hoverModel,
+                new DisposeUtil(mock(ErrorHandler.class)));
     }
 }

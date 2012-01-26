@@ -1,2 +1,0 @@
-serviceClass: org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationService
-path: 8049CC3C0E1BF4CC4E4B596EAE842E94.gwt.rpc

@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupOpacityChangedEvent;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupOpacityChangedEventHandler;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.HighlightingModel;
@@ -46,9 +47,9 @@ public class PopupWithHighlightingVisualItemBehavior extends
     public PopupWithHighlightingVisualItemBehavior(
             DetailsWidgetHelper detailsWidgetHelper,
             PopupManagerFactory popupManagerFactory,
-            HighlightingModel hoverModel) {
+            HighlightingModel hoverModel, DisposeUtil disposeUtil) {
 
-        super(detailsWidgetHelper, popupManagerFactory);
+        super(detailsWidgetHelper, popupManagerFactory, disposeUtil);
 
         this.hoverModel = hoverModel;
     }

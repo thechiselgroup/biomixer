@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.behaviors;
 
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.MappedHandlerVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
@@ -26,9 +27,11 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.Hi
 public class HighlightingVisualItemBehavior extends
         MappedHandlerVisualItemBehavior<HighlightingManager> {
 
-    private HighlightingModel highlightingModel;
+    private final HighlightingModel highlightingModel;
 
-    public HighlightingVisualItemBehavior(HighlightingModel highlightingModel) {
+    public HighlightingVisualItemBehavior(HighlightingModel highlightingModel,
+            DisposeUtil disposeUtil) {
+        super(disposeUtil);
         assert highlightingModel != null;
 
         this.highlightingModel = highlightingModel;

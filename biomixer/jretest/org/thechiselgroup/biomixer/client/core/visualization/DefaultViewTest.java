@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
@@ -87,6 +88,7 @@ public class DefaultViewTest {
                 mock(SelectionModel.class),
                 mock(ManagedSlotMappingConfiguration.class),
                 mock(ManagedSlotMappingConfigurationPersistence.class),
-                mock(ErrorHandler.class), mock(ListBoxControl.class));
+                mock(ErrorHandler.class), new DisposeUtil(
+                        mock(ErrorHandler.class)), mock(ListBoxControl.class));
     }
 }

@@ -48,6 +48,7 @@ import org.thechiselgroup.biomixer.client.core.ui.popup.DefaultPopupFactory;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.biomixer.client.core.ui.shade.ShadeManager;
+import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.HandlerManagerProvider;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultViewAccessor;
@@ -254,6 +255,7 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
         bind(ShadeManager.class).in(Singleton.class);
         bind(DialogManager.class).in(Singleton.class);
         bindErrorHandler();
+        bind(DisposeUtil.class).in(Singleton.class);
         bind(MessageManager.class).annotatedWith(Names.named(DEFAULT))
                 .to(DefaultMessageManager.class).in(Singleton.class);
         bind(MessageManager.class).to(ShadeMessageManager.class).in(
