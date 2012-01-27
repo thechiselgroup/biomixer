@@ -16,7 +16,10 @@
 package org.thechiselgroup.biomixer.client.core.ui.widget.listbox;
 
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
 import java.util.Date;
@@ -30,6 +33,8 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.server.core.util.date.SimpleDateTimeFormatFactory;
+
+import com.google.gwt.user.client.ui.Widget;
 
 public class ErrorListBoxFactoryTest {
 
@@ -63,6 +68,14 @@ public class ErrorListBoxFactoryTest {
         assertErrorBoxContainsAllCaughtThrowables();
     }
 
+    @Test
+    public void addThrowableCaughtShouldSetWidgetVisible() {
+        createErrorBox();
+        createAndAddThrowableCaught(errorMessage1);
+        createAndAddThrowableCaught(errorMessage2);
+        verify(presenter.asWidget(), times(2)).setVisible(true);
+    }
+
     private void assertErrorBoxContainsAllCaughtThrowables() {
         assertThat(underTest.getValues(),
                 containsExactly(throwablesContainer.getThrowablesCaught()));
@@ -93,7 +106,7 @@ public class ErrorListBoxFactoryTest {
                 new GregorianCalendar(2012, 1, 23).getTime());
 
         throwablesContainer.addThrowableCaught(throwableCaught);
-        verify(presenter).addItem("Thu Feb 23 00:00:00 2012: " + errorMessage1);
+        verify(presenter).addItem(errorMessage1);
     }
 
     @Test
@@ -108,6 +121,8 @@ public class ErrorListBoxFactoryTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+        Widget asWidget = mock(Widget.class);
+        when(presenter.asWidget()).thenReturn(asWidget);
         throwablesContainer = new ThrowablesContainer();
     }
 }

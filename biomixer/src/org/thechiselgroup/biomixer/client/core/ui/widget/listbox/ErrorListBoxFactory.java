@@ -21,7 +21,6 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaughtEve
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainerEventListener;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormat;
 import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormatFactory;
 
 public class ErrorListBoxFactory {
@@ -36,12 +35,8 @@ public class ErrorListBoxFactory {
                 presenter, new Transformer<ThrowableCaught, String>() {
                     @Override
                     public String transform(ThrowableCaught throwableCaught) {
-                        DateTimeFormat formatter = dateTimeFormatFactory
-                                .createDateTimeFormat("E MMM dd HH:mm:ss yyyy");
-                        return formatter.format(throwableCaught.getTimeStamp())
-                                + ": "
-                                + throwableCaught.getThrowable()
-                                        .getLocalizedMessage();
+                        return throwableCaught.getThrowable()
+                                .getLocalizedMessage();
                     }
                 }, errorHandler, throwablesContainer.getThrowablesCaught());
 
