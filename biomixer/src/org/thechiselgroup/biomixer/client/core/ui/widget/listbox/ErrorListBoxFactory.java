@@ -50,6 +50,8 @@ public class ErrorListBoxFactory {
             @Override
             public void onThrowableCaughtAdded(ThrowableCaughtEvent event) {
                 listBoxControl.addItem(event.getThrowableCaught());
+                // make sure list box is visible
+                listBoxControl.asWidget().setVisible(true);
             }
 
             @Override

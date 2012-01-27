@@ -291,12 +291,6 @@ public class DefaultView implements View {
         initSelectionModelPresenter();
     }
 
-    private void initErrorListBox() {
-        Widget errorListBox = errorListBoxControl.asWidget();
-        errorListBox.setSize("100%", "");
-        errorListBox.setStyleName(CSS_VIEW_ERROR_LIST_BOX);
-    }
-
     private void initResourceModelPresenter() {
         Widget widget = resourceModelPresenter.asWidget();
 
@@ -366,6 +360,7 @@ public class DefaultView implements View {
         Widget errorListBox = errorListBoxControl.asWidget();
         errorListBox.setSize("100%", "");
         errorListBox.setStyleName(CSS_VIEW_ERROR_LIST_BOX);
+        errorListBox.setVisible(false);
         viewPanel.add(errorListBox, DockPanel.SOUTH);
 
         viewPanel.setCellHeight(contentDisplay.asWidget(), "100%");
@@ -513,8 +508,10 @@ public class DefaultView implements View {
          * http://code.google.com/p/google-web-toolkit/issues/detail?id=316
          */
 
-        int targetHeight = height - configurationBar.getOffsetHeight()
-                - errorListBoxControl.asWidget().getOffsetHeight();
+        int targetHeight = errorListBoxControl.isVisible() ? height
+                - configurationBar.getOffsetHeight()
+                - errorListBoxControl.asWidget().getOffsetHeight() : height
+                - configurationBar.getOffsetHeight();
         int targetWidth = sideBar.isVisible() ? width
                 - sideBar.getOffsetWidth() : width;
 
