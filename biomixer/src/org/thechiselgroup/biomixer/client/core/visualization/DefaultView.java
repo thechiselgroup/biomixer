@@ -87,6 +87,8 @@ public class DefaultView implements View {
 
     private static final String CSS_VIEW_CONFIGURATION_PANEL = "view-configurationPanel";
 
+    private static final String CSS_VIEW_ERROR_LIST_BOX = "view-errorListBox";
+
     // TODO rename
     private DockPanel configurationBar;
 
@@ -289,6 +291,12 @@ public class DefaultView implements View {
         initSelectionModelPresenter();
     }
 
+    private void initErrorListBox() {
+        Widget errorListBox = errorListBoxControl.asWidget();
+        errorListBox.setSize("100%", "");
+        errorListBox.setStyleName(CSS_VIEW_ERROR_LIST_BOX);
+    }
+
     private void initResourceModelPresenter() {
         Widget widget = resourceModelPresenter.asWidget();
 
@@ -354,7 +362,11 @@ public class DefaultView implements View {
         viewPanel.add(configurationBar, DockPanel.NORTH);
         viewPanel.add(contentDisplay.asWidget(), DockPanel.CENTER);
         viewPanel.add(sideBar, DockPanel.EAST);
-        viewPanel.add(errorListBoxControl.asWidget(), DockPanel.SOUTH);
+
+        Widget errorListBox = errorListBoxControl.asWidget();
+        errorListBox.setSize("100%", "");
+        errorListBox.setStyleName(CSS_VIEW_ERROR_LIST_BOX);
+        viewPanel.add(errorListBox, DockPanel.SOUTH);
 
         viewPanel.setCellHeight(contentDisplay.asWidget(), "100%");
     }

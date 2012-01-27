@@ -296,6 +296,10 @@ button.popup-content-action:active {
     padding: 2px;
 }
 
+.view-errorListBox {
+	margin: 0px;
+}
+
 .graph-loading-info {
 	position: absolute;
 	left: 15px;
