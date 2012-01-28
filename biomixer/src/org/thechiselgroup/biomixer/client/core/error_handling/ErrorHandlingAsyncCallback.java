@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ErrorHandlingAsyncCallback<T> implements AsyncCallback<T> {
 
-    private ErrorHandler errorHandler;
+    protected final ErrorHandler errorHandler;
 
     public ErrorHandlingAsyncCallback(ErrorHandler errorHandler) {
         assert errorHandler != null;
@@ -27,7 +27,7 @@ public class ErrorHandlingAsyncCallback<T> implements AsyncCallback<T> {
     }
 
     @Override
-    public final void onFailure(Throwable caught) {
+    public void onFailure(Throwable caught) {
         errorHandler.handleError(caught);
     }
 

@@ -47,10 +47,11 @@ public class ConceptMappingNeighbourhoodExpander extends
     }
 
     @Override
-    protected void expandNeighbourhood(VisualItem visualItem, Resource concept,
-            final GraphNodeExpansionCallback graph, List<Resource> mappings) {
+    protected void expandNeighbourhood(VisualItem visualItem,
+            final Resource concept, final GraphNodeExpansionCallback graph,
+            List<Resource> mappings) {
 
-        String conceptUri = concept.getUri();
+        final String conceptUri = concept.getUri();
 
         for (final Resource mapping : mappings) {
             String sourceUri = Mapping.getSource(mapping);
@@ -60,7 +61,7 @@ public class ConceptMappingNeighbourhoodExpander extends
             assert !(conceptUri.equals(sourceUri) && conceptUri
                     .equals(targetUri));
 
-            String otherUri = conceptUri.equals(sourceUri) ? targetUri
+            final String otherUri = conceptUri.equals(sourceUri) ? targetUri
                     : sourceUri;
 
             assert !otherUri.equals(conceptUri);
@@ -74,6 +75,19 @@ public class ConceptMappingNeighbourhoodExpander extends
             termService.getBasicInformation(Concept.getOntologyId(otherUri),
                     Concept.getConceptId(otherUri),
                     new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
+
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            errorHandler.handleError(new Exception(
+                                    "Could not get basic information for \""
+                                            + concept.getValue(Concept.LABEL)
+                                            + "\" (virtual ontology id: "
+                                            + concept
+                                                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID)
+                                            + ")", caught));
+
+                        }
+
                         @Override
                         protected void runOnSuccess(Resource result)
                                 throws Exception {

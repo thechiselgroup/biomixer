@@ -19,21 +19,21 @@ import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class TransformingAsyncCallback<From, To> implements AsyncCallback<From> {
+public class TransformingAsyncCallback<FROM, TO> implements AsyncCallback<FROM> {
 
     // NOTE: allows creation without specifying generics twice
-    public static <From, To> TransformingAsyncCallback<From, To> create(
-            AsyncCallback<To> callback, Transformer<From, To> transformer) {
+    public static <FROM, TO> TransformingAsyncCallback<FROM, TO> create(
+            AsyncCallback<TO> callback, Transformer<FROM, TO> transformer) {
 
-        return new TransformingAsyncCallback<From, To>(callback, transformer);
+        return new TransformingAsyncCallback<FROM, TO>(callback, transformer);
     }
 
-    private final AsyncCallback<To> callback;
+    private final AsyncCallback<TO> callback;
 
-    private final Transformer<From, To> transformer;
+    private final Transformer<FROM, TO> transformer;
 
-    protected TransformingAsyncCallback(AsyncCallback<To> callback,
-            Transformer<From, To> transformer) {
+    protected TransformingAsyncCallback(AsyncCallback<TO> callback,
+            Transformer<FROM, TO> transformer) {
 
         assert transformer != null;
         assert callback != null;
@@ -48,7 +48,7 @@ public class TransformingAsyncCallback<From, To> implements AsyncCallback<From> 
     }
 
     @Override
-    public void onSuccess(From result) {
+    public void onSuccess(FROM result) {
         try {
             callback.onSuccess(transformer.transform(result));
         } catch (Exception e) {

@@ -44,6 +44,15 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
     }
 
     @Override
+    protected String getErrorMessageWhenNeighbourhoodloadingFails(
+            Resource resource) {
+        return "Could not expand all mappings for \""
+                + resource.getValue(Concept.LABEL)
+                + "\" (virtual ontology id: "
+                + resource.getValue(Concept.VIRTUAL_ONTOLOGY_ID) + ")";
+    }
+
+    @Override
     protected boolean isNeighbourhoodLoaded(VisualItem visualItem,
             Resource resource) {
         assert Concept.isConcept(resource);

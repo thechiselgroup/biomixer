@@ -46,6 +46,14 @@ public class RootPathLoader implements EmbeddedViewLoader {
                 conceptId, new ErrorHandlingAsyncCallback<ResourcePath>(
                         errorHandler) {
                     @Override
+                    public void onFailure(Throwable caught) {
+                        errorHandler.handleError(new Exception(
+                                "Could not retrieve path for " + conceptId,
+                                caught));
+
+                    }
+
+                    @Override
                     protected void runOnSuccess(ResourcePath resourcePath)
                             throws Exception {
                         ResourceSet resourceSet = new DefaultResourceSet();
@@ -105,6 +113,14 @@ public class RootPathLoader implements EmbeddedViewLoader {
 
         ontologyVersionService.getOntologyVersionId(virtualOntologyId,
                 new ErrorHandlingAsyncCallback<String>(errorHandler) {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        errorHandler.handleError(new Exception(
+                                "Could not retrieve ontology id for virtual ontology id "
+                                        + virtualOntologyId, caught));
+
+                    }
+
                     @Override
                     protected void runOnSuccess(String result) throws Exception {
                         loadData((DefaultView) graphView, virtualOntologyId,

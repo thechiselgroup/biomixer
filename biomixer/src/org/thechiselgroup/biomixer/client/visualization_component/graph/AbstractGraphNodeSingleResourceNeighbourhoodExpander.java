@@ -71,6 +71,9 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
             Resource resource, GraphNodeExpansionCallback graph,
             List<Resource> neighbourhood);
 
+    protected abstract String getErrorMessageWhenNeighbourhoodloadingFails(
+            Resource resource);
+
     protected final Resource getSingleResource(VisualItem visualItem) {
         assert visualItem.getResources().size() == 1;
         return visualItem.getResources().getFirstElement();
@@ -94,6 +97,14 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
         loadNeighbourhood(visualItem, resource,
                 new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                         errorHandler) {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        errorHandler
+                                .handleError(new Exception(
+                                        getErrorMessageWhenNeighbourhoodloadingFails(resource),
+                                        caught));
+                    }
 
                     @Override
                     protected void runOnSuccess(ResourceNeighbourhood result)

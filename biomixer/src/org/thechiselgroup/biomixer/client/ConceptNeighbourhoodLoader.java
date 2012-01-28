@@ -60,18 +60,34 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
         termService.getBasicInformation(ontologyId, conceptFullId,
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
                     @Override
+                    public void onFailure(Throwable caught) {
+                        errorHandler.handleError(new Exception(
+                                "Could not retrieve data for " + conceptFullId,
+                                caught));
+
+                    }
+
+                    @Override
                     protected void runOnSuccess(Resource result)
                             throws Exception {
                         ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(result);
                         view.getResourceModel().addResourceSet(resourceSet);
                         layout(view);
-                    };
+                    }
                 });
 
         conceptNeighbourhoodService.getNeighbourhood(ontologyId, conceptFullId,
                 new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                         errorHandler) {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        errorHandler.handleError(new Exception(
+                                "Could not expand neighbourhood for "
+                                        + conceptFullId, caught));
+
+                    }
+
                     @Override
                     protected void runOnSuccess(ResourceNeighbourhood result)
                             throws Exception {
@@ -79,7 +95,7 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                         resourceSet.addAll(result.getResources());
                         view.getResourceModel().addResourceSet(resourceSet);
                         layout(view);
-                    };
+                    }
                 });
     }
 
