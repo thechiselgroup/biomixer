@@ -64,7 +64,7 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
 
     @Override
     protected void initCustomPanels() {
-        addToolbarPanel(NCBO_SEARCH, "NCBO Concept Search");
+        addToolbarPanel(NCBO_SEARCH, "BioPortal Concept Search");
     }
 
     private void initNCBOSearchField() {
