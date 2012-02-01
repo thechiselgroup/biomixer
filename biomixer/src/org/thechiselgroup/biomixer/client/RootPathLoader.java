@@ -48,9 +48,8 @@ public class RootPathLoader implements EmbeddedViewLoader {
                     @Override
                     public void onFailure(Throwable caught) {
                         errorHandler.handleError(new Exception(
-                                "Could not retrieve path for " + conceptId,
-                                caught));
-
+                                "Could not retrieve path to root for "
+                                        + conceptId, caught));
                     }
 
                     @Override

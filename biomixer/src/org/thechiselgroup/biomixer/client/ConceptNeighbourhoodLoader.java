@@ -62,9 +62,8 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                     @Override
                     public void onFailure(Throwable caught) {
                         errorHandler.handleError(new Exception(
-                                "Could not retrieve data for " + conceptFullId,
-                                caught));
-
+                                "Could not retrieve basic information for "
+                                        + conceptFullId, caught));
                     }
 
                     @Override
@@ -85,7 +84,6 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                         errorHandler.handleError(new Exception(
                                 "Could not expand neighbourhood for "
                                         + conceptFullId, caught));
-
                     }
 
                     @Override
