@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
@@ -51,7 +52,6 @@ public class TermServiceImplementationTest {
     @Mock
     private UrlBuilderFactory urlBuilderFactory;
 
-    @Mock
     private UrlBuilder urlBuilder;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -88,8 +88,10 @@ public class TermServiceImplementationTest {
         underTest = new TermServiceImplementation(urlFetchService,
                 urlBuilderFactory, responseParser);
 
+        this.urlBuilder = Mockito.spy(new UrlBuilder());
+
         when(urlBuilderFactory.createUrlBuilder()).thenReturn(urlBuilder);
-        when(urlBuilder.buildString()).thenReturn(URL);
+        when(urlBuilder.toString()).thenReturn(URL);
     }
 
     @SuppressWarnings("unchecked")

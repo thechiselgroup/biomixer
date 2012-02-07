@@ -84,25 +84,25 @@ public class DefaultShareConfiguration implements ShareConfiguration {
         // TODO create url builder factory that creates same host urls
         UrlBuilder urlBuilder = new UrlBuilder();
 
-        urlBuilder.setProtocol(HTTP);
-        urlBuilder.setHost(Window.Location.getHost());
-        urlBuilder.setPath(Window.Location.getPath());
-        urlBuilder.setParameter(WorkbenchInitializer.VIEW_ID, id.toString());
-        urlBuilder.setParameter(
+        urlBuilder.protocol(HTTP);
+        urlBuilder.host(Window.Location.getHost());
+        urlBuilder.path(Window.Location.getPath());
+        urlBuilder.parameter(WorkbenchInitializer.VIEW_ID, id.toString());
+        urlBuilder.parameter(
                 ChooselApplicationInitializer.APPLICATION_MODE_PARAMETER,
                 applicationMode);
 
         if (ChooselApplicationInitializer.EMBED.equals(applicationMode)) {
-            urlBuilder.setParameter(EmbedInitializer.EMBED_MODE_PARAMETER,
+            urlBuilder.parameter(EmbedInitializer.EMBED_MODE_PARAMETER,
                     StoredViewEmbedLoader.EMBED_MODE);
         }
 
         String gwtHost = Window.Location.getParameter(GWT_CODESVR);
         if (gwtHost != null) {
-            urlBuilder.setParameter(GWT_CODESVR, gwtHost);
+            urlBuilder.parameter(GWT_CODESVR, gwtHost);
         }
 
-        return urlBuilder.buildString();
+        return urlBuilder.toString();
     }
 
     @Override

@@ -18,9 +18,7 @@ package org.thechiselgroup.biomixer.client.services.search;
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
@@ -45,12 +43,9 @@ public class ConceptSearchServiceAsyncClientImplementation extends
     }
 
     private String buildUrl(String queryText) {
-        UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
-        urlBuilder.setPath("/bioportal/search/");
-        urlBuilder
-                .setParameter("query", UriUtils.encodeURIComponent(queryText));
-        urlBuilder.setParameter("isexactmatch", "1");
-        return urlBuilder.buildString();
+        return urlBuilderFactory.createUrlBuilder().path("/bioportal/search/")
+                .uriParameter("query", queryText)
+                .parameter("isexactmatch", "1").toString();
     }
 
     @Override

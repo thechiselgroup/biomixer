@@ -23,11 +23,9 @@ import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
-import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.callbacks.TransformingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
@@ -60,11 +58,9 @@ public class MappingServiceImplementation implements MappingServiceAsync {
     }
 
     protected String buildUrl(String ontologyId, String conceptId) {
-        UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
-        urlBuilder.setPath("bioportal/virtual/mappings/concepts/" + ontologyId);
-        urlBuilder.setParameter("conceptid",
-                UriUtils.encodeURIComponent(conceptId));
-        return urlBuilder.buildString();
+        return urlBuilderFactory.createUrlBuilder()
+                .path("bioportal/virtual/mappings/concepts/" + ontologyId)
+                .uriParameter("conceptid", conceptId).toString();
     }
 
     private Map<String, Serializable> calculatePartialProperties(

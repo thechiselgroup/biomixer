@@ -18,6 +18,8 @@ package org.thechiselgroup.biomixer.client.core.util.url;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+
 import com.google.gwt.http.client.URL;
 
 /**
@@ -90,11 +92,128 @@ public class UrlBuilder {
     }
 
     /**
+     * Set the hash portion of the location (ex. myAnchor or #myAnchor).
+     * 
+     * @param hash
+     *            the hash
+     */
+    public UrlBuilder hash(String hash) {
+        if (hash != null && hash.startsWith("#")) {
+            hash = hash.substring(1);
+        }
+        this.hash = hash;
+        return this;
+    }
+
+    /**
+     * Set the host portion of the location (ex. google.com). You can also
+     * specify the port in this method (ex. localhost:8888).
+     * 
+     * @param host
+     *            the host
+     */
+    public UrlBuilder host(String host) {
+        // Extract the port from the host.
+        if (host != null && host.contains(":")) {
+            String[] parts = host.split(":");
+            if (parts.length > 2) {
+                throw new IllegalArgumentException(
+                        "Host contains more than one colon: " + host);
+            }
+            try {
+                port(Integer.parseInt(parts[1]));
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException(
+                        "Could not parse port out of host: " + host);
+            }
+            host = parts[0];
+        }
+        this.host = host;
+        return this;
+    }
+
+    /**
+     * <p>
+     * Set a query parameter to a list of values. Each value in the list will be
+     * added as its own key/value pair.
+     * 
+     * <p>
+     * <h3>Example Output</h3>
+     * <code>?mykey=value0&mykey=value1&mykey=value2</code>
+     * </p>
+     * 
+     * @param key
+     *            the key
+     * @param values
+     *            the list of values
+     */
+    public UrlBuilder parameter(String key, String... values) {
+        assertNotNullOrEmpty(key, "Key cannot be null or empty", false);
+        assertNotNull(values,
+                "Values cannot null. Try using removeParameter instead.");
+        if (values.length == 0) {
+            throw new IllegalArgumentException(
+                    "Values cannot be empty.  Try using removeParameter instead.");
+        }
+        listParamMap.put(key, values);
+        return this;
+    }
+
+    /**
+     * Set the path portion of the location (ex. path/to/file.html).
+     * 
+     * @param path
+     *            the path
+     */
+    public UrlBuilder path(String path) {
+        if (path != null && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        this.path = path;
+        return this;
+    }
+
+    /**
+     * Set the port to connect to.
+     * 
+     * @param port
+     *            the port, or {@link #PORT_UNSPECIFIED}
+     */
+    public UrlBuilder port(int port) {
+        this.port = port;
+        return this;
+    }
+
+    /**
+     * Set the protocol portion of the location (ex. http).
+     * 
+     * @param protocol
+     *            the protocol
+     */
+    public UrlBuilder protocol(String protocol) {
+        assertNotNull(protocol, "Protocol cannot be null");
+        if (protocol.endsWith("://")) {
+            protocol = protocol.substring(0, protocol.length() - 3);
+        } else if (protocol.endsWith(":/")) {
+            protocol = protocol.substring(0, protocol.length() - 2);
+        } else if (protocol.endsWith(":")) {
+            protocol = protocol.substring(0, protocol.length() - 1);
+        }
+        if (protocol.contains(":")) {
+            throw new IllegalArgumentException("Invalid protocol: " + protocol);
+        }
+        assertNotNullOrEmpty(protocol, "Protocol cannot be empty", false);
+        this.protocol = protocol;
+        return this;
+    }
+
+    /**
      * Build the URL and return it as an encoded string.
      * 
      * @return the encoded URL string
      */
-    public String buildString() {
+    @Override
+    public String toString() {
         StringBuilder url = new StringBuilder();
 
         // http://
@@ -136,130 +255,7 @@ public class UrlBuilder {
         return url.toString();
     }
 
-    /**
-     * Remove a query parameter from the map.
-     * 
-     * @param name
-     *            the parameter name
-     */
-    public UrlBuilder removeParameter(String name) {
-        listParamMap.remove(name);
-        return this;
-    }
-
-    /**
-     * Set the hash portion of the location (ex. myAnchor or #myAnchor).
-     * 
-     * @param hash
-     *            the hash
-     */
-    public UrlBuilder setHash(String hash) {
-        if (hash != null && hash.startsWith("#")) {
-            hash = hash.substring(1);
-        }
-        this.hash = hash;
-        return this;
-    }
-
-    /**
-     * Set the host portion of the location (ex. google.com). You can also
-     * specify the port in this method (ex. localhost:8888).
-     * 
-     * @param host
-     *            the host
-     */
-    public UrlBuilder setHost(String host) {
-        // Extract the port from the host.
-        if (host != null && host.contains(":")) {
-            String[] parts = host.split(":");
-            if (parts.length > 2) {
-                throw new IllegalArgumentException(
-                        "Host contains more than one colon: " + host);
-            }
-            try {
-                setPort(Integer.parseInt(parts[1]));
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(
-                        "Could not parse port out of host: " + host);
-            }
-            host = parts[0];
-        }
-        this.host = host;
-        return this;
-    }
-
-    /**
-     * <p>
-     * Set a query parameter to a list of values. Each value in the list will be
-     * added as its own key/value pair.
-     * 
-     * <p>
-     * <h3>Example Output</h3>
-     * <code>?mykey=value0&mykey=value1&mykey=value2</code>
-     * </p>
-     * 
-     * @param key
-     *            the key
-     * @param values
-     *            the list of values
-     */
-    public UrlBuilder setParameter(String key, String... values) {
-        assertNotNullOrEmpty(key, "Key cannot be null or empty", false);
-        assertNotNull(values,
-                "Values cannot null. Try using removeParameter instead.");
-        if (values.length == 0) {
-            throw new IllegalArgumentException(
-                    "Values cannot be empty.  Try using removeParameter instead.");
-        }
-        listParamMap.put(key, values);
-        return this;
-    }
-
-    /**
-     * Set the path portion of the location (ex. path/to/file.html).
-     * 
-     * @param path
-     *            the path
-     */
-    public UrlBuilder setPath(String path) {
-        if (path != null && path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        this.path = path;
-        return this;
-    }
-
-    /**
-     * Set the port to connect to.
-     * 
-     * @param port
-     *            the port, or {@link #PORT_UNSPECIFIED}
-     */
-    public UrlBuilder setPort(int port) {
-        this.port = port;
-        return this;
-    }
-
-    /**
-     * Set the protocol portion of the location (ex. http).
-     * 
-     * @param protocol
-     *            the protocol
-     */
-    public UrlBuilder setProtocol(String protocol) {
-        assertNotNull(protocol, "Protocol cannot be null");
-        if (protocol.endsWith("://")) {
-            protocol = protocol.substring(0, protocol.length() - 3);
-        } else if (protocol.endsWith(":/")) {
-            protocol = protocol.substring(0, protocol.length() - 2);
-        } else if (protocol.endsWith(":")) {
-            protocol = protocol.substring(0, protocol.length() - 1);
-        }
-        if (protocol.contains(":")) {
-            throw new IllegalArgumentException("Invalid protocol: " + protocol);
-        }
-        assertNotNullOrEmpty(protocol, "Protocol cannot be empty", false);
-        this.protocol = protocol;
-        return this;
+    public UrlBuilder uriParameter(String key, String uriValue) {
+        return parameter(key, UriUtils.encodeURIComponent(uriValue));
     }
 }

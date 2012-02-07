@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
@@ -63,7 +64,6 @@ public class MappingServiceImplementationTest {
 
     private String conceptUri;
 
-    @Mock
     private UrlBuilder urlBuilder;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -157,8 +157,10 @@ public class MappingServiceImplementationTest {
         underTest = new MappingServiceImplementation(responseParser,
                 urlFetchService, urlBuilderFactory);
 
+        this.urlBuilder = Mockito.spy(new UrlBuilder());
+
         when(urlBuilderFactory.createUrlBuilder()).thenReturn(urlBuilder);
-        when(urlBuilder.buildString()).thenReturn(URL);
+        when(urlBuilder.toString()).thenReturn(URL);
     }
 
     @SuppressWarnings("unchecked")

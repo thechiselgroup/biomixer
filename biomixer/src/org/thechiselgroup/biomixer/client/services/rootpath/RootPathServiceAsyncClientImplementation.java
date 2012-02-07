@@ -1,7 +1,6 @@
 package org.thechiselgroup.biomixer.client.services.rootpath;
 
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
@@ -25,14 +24,11 @@ public class RootPathServiceAsyncClientImplementation extends
         this.resultParser = resultParser;
     }
 
-    private String buildUrl(final String conceptId,
-            final String ontologyVersionId) {
-        UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
-        String path = "/bioportal/path/" + ontologyVersionId + "/";
-        urlBuilder.setPath(path);
-        urlBuilder.setParameter("source", conceptId);
-        urlBuilder.setParameter("target", "root");
-        return urlBuilder.buildString();
+    private String buildUrl(String conceptId, String ontologyVersionId) {
+        return urlBuilderFactory.createUrlBuilder()
+                .path("/bioportal/path/" + ontologyVersionId + "/")
+                .parameter("source", conceptId).parameter("target", "root")
+                .toString();
     }
 
     @Override

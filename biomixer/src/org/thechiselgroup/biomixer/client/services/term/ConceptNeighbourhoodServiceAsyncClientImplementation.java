@@ -15,9 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
-import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
@@ -49,12 +47,9 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
     }
 
     private String buildUrl(String conceptId, String ontologyId) {
-        UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
-        urlBuilder.setPath("bioportal/virtual/ontology/" + ontologyId);
-        urlBuilder.setParameter("conceptid",
-                UriUtils.encodeURIComponent(conceptId));
-        return urlBuilder.buildString();
-
+        return urlBuilderFactory.createUrlBuilder()
+                .path("bioportal/virtual/ontology/" + ontologyId)
+                .uriParameter("conceptid", conceptId).toString();
     }
 
     @Override

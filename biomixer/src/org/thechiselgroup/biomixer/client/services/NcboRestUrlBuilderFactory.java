@@ -28,14 +28,11 @@ public class NcboRestUrlBuilderFactory implements UrlBuilderFactory {
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        UrlBuilder urlBuilder = new UrlBuilder();
-
-        urlBuilder.setHost(SERVER);
-        urlBuilder.setProtocol(PROTOCOL);
-        urlBuilder.setParameter(API_KEY_PARAMETER,
-                "6700f7bc-5209-43b6-95da-44336cbc0a3a");
-
-        return urlBuilder;
+        return new UrlBuilder()
+                .host(SERVER)
+                .protocol(PROTOCOL)
+                .parameter(API_KEY_PARAMETER,
+                        "6700f7bc-5209-43b6-95da-44336cbc0a3a");
     }
 
 }

@@ -1,7 +1,6 @@
 package org.thechiselgroup.biomixer.client.services.ontology_version;
 
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
@@ -24,10 +23,9 @@ public class OntologyVersionServiceAsyncClientImplementation extends
     }
 
     private String buildUrl(String virtualOntologyId) {
-        UrlBuilder urlBuilder = urlBuilderFactory.createUrlBuilder();
-        String path = "/bioportal/virtual/ontology/" + virtualOntologyId + "/";
-        urlBuilder.setPath(path);
-        return urlBuilder.buildString();
+        return urlBuilderFactory.createUrlBuilder()
+                .path("/bioportal/virtual/ontology/" + virtualOntologyId + "/")
+                .toString();
     }
 
     @Override
