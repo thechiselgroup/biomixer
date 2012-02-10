@@ -1,3 +1,18 @@
+/*******************************************************************************
+ * Copyright 2012 David Rusk 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0 
+ *     
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.  
+ *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layouts;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -8,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -92,5 +108,18 @@ public class VerticalTreeLayoutTest {
                 equalTo(new Point(50, 33)));
         assertThat(callback.getLocation(stubGraph.getNodeItem(1)),
                 equalTo(new Point(50, 66)));
+    }
+
+    @Ignore("TODO: test tree with two paths")
+    @Test
+    public void twoPathsSameTree() {
+        StubGraphStructure stubGraph = new StubGraphStructure(5);
+        stubGraph.createArc(0, 1);
+        stubGraph.createArc(1, 2);
+        stubGraph.createArc(2, 4);
+        stubGraph.createArc(0, 3);
+        stubGraph.createArc(3, 4);
+        run(stubGraph);
+        // assertThat(callback.getLocation(stubGraph.getNodeItem(0)))
     }
 }

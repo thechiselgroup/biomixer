@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright 2012 David Rusk 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.services.ontology;
 
-import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
+import org.thechiselgroup.biomixer.client.services.AbstractXMLResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 
 import com.google.inject.Inject;
 
-public class BioMixerEmbedInitializer extends EmbedInitializer {
+public class OntologyVersionParser extends AbstractXMLResultParser {
 
     @Inject
-    private void setConceptNeighbourhoodLoader(ConceptNeighbourhoodLoader loader) {
-        registerLoader(loader);
+    public OntologyVersionParser(DocumentProcessor documentProcessor) {
+        super(documentProcessor);
     }
 
-    @Inject
-    private void setRootPathsLoader(RootPathsLoader loader) {
-        registerLoader(loader);
+    public String parse(String virtualOntologyId, String xmlText)
+            throws Exception {
+        return getText(parseDocument(xmlText),
+                "//success/data/ontologyBean/id/text()");
     }
 
 }

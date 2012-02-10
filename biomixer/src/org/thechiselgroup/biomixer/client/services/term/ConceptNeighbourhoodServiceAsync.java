@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2009, 2010, 2012 Lars Grammel, David Rusk 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -15,13 +15,27 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface ConceptNeighbourhoodServiceAsync {
 
+    /**
+     * 
+     * @param conceptId
+     *            can be either a full concept id or a short concept id
+     */
     void getNeighbourhood(String ontologyId, String conceptFullId,
             AsyncCallback<ResourceNeighbourhood> callback);
+
+    /**
+     * 
+     * @param conceptId
+     *            can be either a full concept id or a short concept id
+     */
+    void getResourceWithRelations(String ontologyId, String conceptId,
+            AsyncCallback<Resource> callback);
 
 }

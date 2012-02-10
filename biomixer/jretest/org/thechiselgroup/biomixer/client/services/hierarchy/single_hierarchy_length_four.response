@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<success>
+  <accessedResource>/bioportal/virtual/rootpath/1487/SympatheticNervousSystem</accessedResource>
+  <accessDate>2012-02-02 08:28:30.9 PST</accessDate>
+  <data>
+    <list>
+      <classBean>
+        <ontologyVersionId>42651</ontologyVersionId>
+        <id>SympatheticNervousSystem</id>
+        <relations>
+          <entry>
+            <string>Path</string>
+            <string>BodySystem.NervousSystem.AutonomicNervousSystem</string>
+          </entry>
+        </relations>
+      </classBean>
+    </list>
+  </data>
+</success>

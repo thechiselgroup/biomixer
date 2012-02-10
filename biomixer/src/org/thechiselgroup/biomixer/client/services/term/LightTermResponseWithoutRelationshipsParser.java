@@ -49,12 +49,14 @@ public class LightTermResponseWithoutRelationshipsParser extends
         Object node = conceptNodes[0];
 
         String fullId = getText(node, "fullId/text()");
+        String shortId = getText(node, "id/text()");
         String label = getText(node, "label/text()");
         String type = getText(node, "type/text()");
 
         Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
 
         result.putValue(Concept.FULL_ID, fullId);
+        result.putValue(Concept.SHORT_ID, shortId);
         result.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
         result.putValue(Concept.TYPE, type);
         result.putValue(Concept.LABEL, label);

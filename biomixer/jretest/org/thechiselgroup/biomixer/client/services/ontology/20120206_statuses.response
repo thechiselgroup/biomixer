@@ -1,0 +1,3368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<success>
+  <accessedResource>/obs/ontologies</accessedResource>
+  <accessDate>2012-02-06 16:13:53.481 PST</accessDate>
+  <data>
+    <list>
+      <ontologyBean>
+        <id>945</id>
+
+        <localOntologyId>46004</localOntologyId>
+        <name>Mouse adult gross anatomy</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1000</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>987</id>
+        <localOntologyId>46350</localOntologyId>
+        <name>Cereal plant gross anatomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1001</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>952</id>
+
+        <localOntologyId>46380</localOntologyId>
+        <name>BRENDA tissue / enzyme source</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1005</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>988</id>
+        <localOntologyId>46163</localOntologyId>
+        <name>Cell type</name>
+        <version>2011-06-03</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1006</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>948</id>
+
+        <localOntologyId>46336</localOntologyId>
+        <name>Chemical entities of biological interest</name>
+        <version>84</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1007</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>882</id>
+        <localOntologyId>45398</localOntologyId>
+        <name>Dictyostelium discoideum anatomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1008</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>981</id>
+
+        <localOntologyId>46453</localOntologyId>
+        <name>Human disease</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1009</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>868</id>
+        <localOntologyId>45267</localOntologyId>
+        <name>Mouse gross anatomy and development</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1010</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>867</id>
+
+        <localOntologyId>45404</localOntologyId>
+        <name>Event (INOH pathway ontology)</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1011</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>985</id>
+        <localOntologyId>46454</localOntologyId>
+        <name>Evidence codes</name>
+        <version>1.30</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1012</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>672</id>
+
+        <localOntologyId>44302</localOntologyId>
+        <name>eVOC (Expressed Sequence Annotation for Humans)</name>
+        <version>2.9</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1013</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>970</id>
+        <localOntologyId>45937</localOntologyId>
+        <name>Drosophila gross anatomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1015</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>830</id>
+
+        <localOntologyId>45239</localOntologyId>
+        <name>Drosophila development</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1016</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>976</id>
+        <localOntologyId>46086</localOntologyId>
+        <name>FlyBase Controlled Vocabulary</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1017</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>973</id>
+
+        <localOntologyId>45817</localOntologyId>
+        <name>Fungal gross anatomy</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1019</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>853</id>
+        <localOntologyId>45254</localOntologyId>
+        <name>Human developmental anatomy, abstract version</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1021</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>863</id>
+
+        <localOntologyId>45262</localOntologyId>
+        <name>Human developmental anatomy, timed version</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1022</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>960</id>
+        <localOntologyId>45792</localOntologyId>
+        <name>Biological imaging methods</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1023</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>616</id>
+
+        <localOntologyId>44831</localOntologyId>
+        <name>Loggerhead nesting</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1024</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>983</id>
+        <localOntologyId>46433</localOntologyId>
+        <name>Mammalian phenotype</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1025</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>694</id>
+
+        <localOntologyId>44944</localOntologyId>
+        <name>Multiple alignment</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1026</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>969</id>
+        <localOntologyId>45796</localOntologyId>
+        <name>Medaka fish anatomy and development</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1027</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>849</id>
+
+        <localOntologyId>45784</localOntologyId>
+        <name>Molecule role (INOH Protein name/family name ontology)</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1029</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>958</id>
+        <localOntologyId>46273</localOntologyId>
+        <name>Mosquito gross anatomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1030</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>991</id>
+
+        <localOntologyId>46448</localOntologyId>
+        <name>Mouse pathology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1031</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>992</id>
+        <localOntologyId>46317</localOntologyId>
+        <name>NCI Thesaurus</name>
+        <version>11.06d</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1032</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>602</id>
+
+        <localOntologyId>44836</localOntologyId>
+        <name>NMR-instrument specific component of metabolomics investigations</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1033</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>984</id>
+        <localOntologyId>46237</localOntologyId>
+        <name>Pathway ontology</name>
+        <version>3.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1035</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>861</id>
+
+        <localOntologyId>45260</localOntologyId>
+        <name>Plant environmental conditions</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1036</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>962</id>
+        <localOntologyId>46149</localOntologyId>
+        <name>Plant Trait Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1037</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>972</id>
+
+        <localOntologyId>45902</localOntologyId>
+        <name>Plant Growth and Development Stage</name>
+        <version>Version #15, May 2011</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1038</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>710</id>
+        <localOntologyId>13386</localOntologyId>
+        <name>Proteomics data and process provenance</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1039</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>712</id>
+
+        <localOntologyId>39508</localOntologyId>
+        <name>Protein-protein interaction</name>
+        <version>1.52</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1040</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>605</id>
+        <localOntologyId>42456</localOntologyId>
+        <name>Protein modification</name>
+        <version>See Remote Site</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1041</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>865</id>
+
+        <localOntologyId>45681</localOntologyId>
+        <name>OBO relationship types</name>
+        <version>unknown</version>
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1042</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>843</id>
+        <localOntologyId>45248</localOntologyId>
+        <name>Physico-chemical process</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1043</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>627</id>
+
+        <localOntologyId>39509</localOntologyId>
+        <name>Sample processing and separation techniques</name>
+        <version>1.070708</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1044</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>854</id>
+        <localOntologyId>45638</localOntologyId>
+        <name>Systems Biology</name>
+        <version>19:04:2011 20:42</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1046</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>655</id>
+
+        <localOntologyId>13404</localOntologyId>
+        <name>Cereal plant development</name>
+        <version>1.6</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1047</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>964</id>
+        <localOntologyId>46450</localOntologyId>
+        <name>C. elegans gross anatomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1048</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>837</id>
+
+        <localOntologyId>45245</localOntologyId>
+        <name>C. elegans development</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1049</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>860</id>
+        <localOntologyId>3294</localOntologyId>
+        <name>Maize gross anatomy</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1050</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>961</id>
+
+        <localOntologyId>46443</localOntologyId>
+        <name>Zebrafish anatomy and development</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1051</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>663</id>
+        <localOntologyId>3905</localOntologyId>
+        <name>Protein Ontology</name>
+        <version>2.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1052</virtualOntologyId>
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>737</id>
+
+        <localOntologyId>44507</localOntologyId>
+        <name>Foundational Model of Anatomy</name>
+        <version>3.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1053</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>727</id>
+        <localOntologyId>44016</localOntologyId>
+        <name>Amino Acid</name>
+        <version>1.2 (inferred) </version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1054</virtualOntologyId>
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>691</id>
+
+        <localOntologyId>4525</localOntologyId>
+        <name>Galen</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1055</virtualOntologyId>
+
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>728</id>
+        <localOntologyId>4531</localOntologyId>
+        <name>Basic Vertebrate Anatomy</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1056</virtualOntologyId>
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>990</id>
+
+        <localOntologyId>46355</localOntologyId>
+        <name>RadLex</name>
+        <version>3.5</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1057</virtualOntologyId>
+
+        <format>PROTEGE</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>610</id>
+        <localOntologyId>39215</localOntologyId>
+        <name>SNP-Ontology</name>
+        <version>1.6</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1058</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>662</id>
+
+        <localOntologyId>39734</localOntologyId>
+        <name>Computer-based Patient Record Ontology</name>
+        <version>0.85</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1059</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>696</id>
+        <localOntologyId>8056</localOntologyId>
+        <name>Epoch Clinical Trial Ontologies</name>
+        <version>0.9</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1060</virtualOntologyId>
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>666</id>
+
+        <localOntologyId>39343</localOntologyId>
+        <name>Suggested Ontology for Pharmacogenomics</name>
+        <version>2.1.2</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1061</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>944</id>
+        <localOntologyId>46461</localOntologyId>
+        <name>PRotein Ontology (PRO)</name>
+        <version>24.0.</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1062</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>953</id>
+
+        <localOntologyId>46255</localOntologyId>
+        <name>Common Anatomy Reference Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1063</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>844</id>
+        <localOntologyId>45249</localOntologyId>
+        <name>Fly taxonomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1064</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>833</id>
+
+        <localOntologyId>45242</localOntologyId>
+        <name>Tick gross anatomy</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1065</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>974</id>
+        <localOntologyId>46436</localOntologyId>
+        <name>C. elegans phenotype</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1067</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>715</id>
+
+        <localOntologyId>14391</localOntologyId>
+        <name>Subcellular Anatomy Ontology (SAO)</name>
+        <version>1.2.5</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1068</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>873</id>
+        <localOntologyId>45418</localOntologyId>
+        <name>Environment Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1069</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>949</id>
+
+        <localOntologyId>46440</localOntologyId>
+        <name>Gene Ontology</name>
+        <version>1.1.2341</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1070</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>955</id>
+        <localOntologyId>46378</localOntologyId>
+        <name>Ontology of Clinical Research (OCRe)</name>
+        <version>Revision 191</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1076</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>989</id>
+
+        <localOntologyId>46441</localOntologyId>
+        <name>Mosquito insecticide resistance</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1077</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>947</id>
+        <localOntologyId>46005</localOntologyId>
+        <name>Spatial Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1078</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>858</id>
+
+        <localOntologyId>45258</localOntologyId>
+        <name>Teleost taxonomy</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1081</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>651</id>
+        <localOntologyId>44629</localOntologyId>
+        <name>Gene Regulation Ontology</name>
+        <version>0.5</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1082</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>736</id>
+
+        <localOntologyId>45233</localOntologyId>
+        <name>NanoParticle Ontology</name>
+        <version>2010-10-31 (inferred)</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1083</virtualOntologyId>
+
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>982</id>
+        <localOntologyId>45824</localOntologyId>
+        <name>NIFSTD</name>
+        <version>2.3 - June 10, 2011</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1084</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>895</id>
+
+        <localOntologyId>45532</localOntologyId>
+        <name>Ontology of Glucose Metabolism Disorder</name>
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1085</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>699</id>
+        <localOntologyId>39579</localOntologyId>
+        <name>Ontology for disease genetic investigation</name>
+        <version>0.7.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1086</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>716</id>
+
+        <localOntologyId>39577</localOntologyId>
+        <name>Ontology of Geographical Region</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1087</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>706</id>
+        <localOntologyId>39804</localOntologyId>
+        <name>MaHCO - An MHC Ontology</name>
+        <version>1.0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1088</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>635</id>
+
+        <localOntologyId>29684</localOntologyId>
+        <name>BIRNLex</name>
+        <version>1.3.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1089</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>971</id>
+        <localOntologyId>46012</localOntologyId>
+        <name>Amphibian gross anatomy</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1090</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>875</id>
+
+        <localOntologyId>45274</localOntologyId>
+        <name>Spider Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1091</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>739</id>
+        <localOntologyId>46205</localOntologyId>
+        <name>Infectious disease</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1092</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>721</id>
+
+        <localOntologyId>44947</localOntologyId>
+        <name>Pathogen transmission</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1094</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>864</id>
+        <localOntologyId>45264</localOntologyId>
+        <name>Xenopus anatomy and development</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1095</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>611</id>
+
+        <localOntologyId>40223</localOntologyId>
+        <name>African Traditional Medicine</name>
+        <version>1.101</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1099</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>624</id>
+        <localOntologyId>40117</localOntologyId>
+        <name>Ontology for Genetic Interval</name>
+        <version>0.15</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1100</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>884</id>
+
+        <localOntologyId>45221</localOntologyId>
+        <name>International Classification of Diseases</name>
+        <version>9</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1101</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>642</id>
+        <localOntologyId>44450</localOntologyId>
+        <name>Biomedical Resource Ontology</name>
+        <version>3.2.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1104</virtualOntologyId>
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>979</id>
+
+        <localOntologyId>46452</localOntologyId>
+        <name>Mass spectrometry</name>
+        <version>3.13.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1105</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>726</id>
+        <localOntologyId>45127</localOntologyId>
+        <name>Gene Regulation Ontology</name>
+        <version>0.5</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1106</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>963</id>
+
+        <localOntologyId>46388</localOntologyId>
+        <name>Phenotypic quality</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1107</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>950</id>
+        <localOntologyId>45953</localOntologyId>
+        <name>Plant Anatomy</name>
+        <version>Version #15, May 2011</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1108</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>966</id>
+
+        <localOntologyId>46412</localOntologyId>
+        <name>Sequence types and features</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1109</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>956</id>
+        <localOntologyId>46338</localOntologyId>
+        <name>Teleost Anatomy Ontology</name>
+        <version>2011-10-04</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1110</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>975</id>
+
+        <localOntologyId>46425</localOntologyId>
+        <name>Units of measurement</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1112</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>623</id>
+        <localOntologyId>42455</localOntologyId>
+        <name>Bilateria anatomy</name>
+        <version>Unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1114</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>986</id>
+
+        <localOntologyId>46320</localOntologyId>
+        <name>Yeast phenotypes</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1115</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>641</id>
+        <localOntologyId>45088</localOntologyId>
+        <name>Bleeding History Phenotype</name>
+        <version>0.4</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1116</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>703</id>
+
+        <localOntologyId>38611</localOntologyId>
+        <name>Skin Physiology Ontology</name>
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1122</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>946</id>
+        <localOntologyId>46089</localOntologyId>
+        <name>Ontology for Biomedical Investigations</name>
+        <version>2011-07-20</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1123</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>959</id>
+
+        <localOntologyId>46462</localOntologyId>
+        <name>Human Phenotype Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1125</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>621</id>
+        <localOntologyId>38631</localOntologyId>
+        <name>Family Health History Ontology</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1126</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>705</id>
+
+        <localOntologyId>40648</localOntologyId>
+        <name>Comparative Data Analysis Ontology</name>
+        <version>1.26</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1128</virtualOntologyId>
+
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>695</id>
+        <localOntologyId>42497</localOntologyId>
+        <name>Cancer Research and Management ACGT Master Ontology</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1130</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>724</id>
+
+        <localOntologyId>38801</localOntologyId>
+        <name>MGED Ontology</name>
+        <version>1.3.1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1131</virtualOntologyId>
+
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>685</id>
+        <localOntologyId>38802</localOntologyId>
+        <name>NCBI organismal classification</name>
+        <version>1.2</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1132</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>612</id>
+
+        <localOntologyId>40937</localOntologyId>
+        <name>BioTop</name>
+        <version>dev</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1134</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>618</id>
+        <localOntologyId>38873</localOntologyId>
+        <name>Pseudogene</name>
+        <version>0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1135</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>951</id>
+
+        <localOntologyId>46432</localOntologyId>
+        <name>Experimental Factor Ontology</name>
+        <version>2.17.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1136</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>840</id>
+        <localOntologyId>45601</localOntologyId>
+        <name>Ontology of Physics for Biology</name>
+        <version>0.930</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1141</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>704</id>
+
+        <localOntologyId>39038</localOntologyId>
+        <name>Cardiac Electrophysiology Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1142</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>850</id>
+        <localOntologyId>45252</localOntologyId>
+        <name>Dendritic cell</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1144</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>943</id>
+
+        <localOntologyId>45835</localOntologyId>
+        <name>Electrocardiography Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1146</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>683</id>
+        <localOntologyId>42948</localOntologyId>
+        <name>BioPortal Metadata</name>
+        <version>0.9.3</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1148</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>673</id>
+
+        <localOntologyId>39815</localOntologyId>
+        <name>DermLex: The Dermatology Lexicon</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1149</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>980</id>
+        <localOntologyId>46465</localOntologyId>
+        <name>Rat Strain Ontology</name>
+        <version>4.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1150</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>630</id>
+
+        <localOntologyId>40245</localOntologyId>
+        <name>Minimal anatomical terminology</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1152</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>600</id>
+        <localOntologyId>39336</localOntologyId>
+        <name>Cell Behavior Ontology</name>
+        <version>0.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1158</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>977</id>
+
+        <localOntologyId>46732</localOntologyId>
+        <name>Vaccine Ontology</name>
+        <version>Vision Release; 1.0.537</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1172</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>693</id>
+        <localOntologyId>44210</localOntologyId>
+        <name>Lipid Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1183</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>965</id>
+
+        <localOntologyId>46353</localOntologyId>
+        <name>Ontology for Parasite LifeCycle</name>
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1190</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>660</id>
+        <localOntologyId>40009</localOntologyId>
+        <name>Proteomics Pipeline Infrastructure for CPTAC</name>
+        <version>alpha 1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1192</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>978</id>
+
+        <localOntologyId>46319</localOntologyId>
+        <name>Ascomycete phenotype ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1222</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>669</id>
+        <localOntologyId>44749</localOntologyId>
+        <name>Symptom Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1224</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>881</id>
+
+        <localOntologyId>45298</localOntologyId>
+        <name>Situation-Based Access Control</name>
+        <version>1.3</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1237</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>707</id>
+        <localOntologyId>39927</localOntologyId>
+        <name>Cell line ontology</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1245</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>614</id>
+
+        <localOntologyId>39933</localOntologyId>
+        <name>GeoSpecies Ontology</name>
+        <version>beta</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1247</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>709</id>
+        <localOntologyId>44448</localOntologyId>
+        <name>Smoking Behavior Risk Ontology</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1249</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>617</id>
+
+        <localOntologyId>39976</localOntologyId>
+        <name>MeGO</name>
+        <version>1_8</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1257</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>688</id>
+        <localOntologyId>40133</localOntologyId>
+        <name>ABA Adult Mouse Brain</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1290</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>967</id>
+
+        <localOntologyId>45776</localOntologyId>
+        <name>Breast Cancer Grading Ontology</name>
+        <version>1.5</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1304</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>674</id>
+        <localOntologyId>44686</localOntologyId>
+        <name>Malaria Ontology</name>
+        <version>1.22</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1311</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>885</id>
+
+        <localOntologyId>45376</localOntologyId>
+        <name>Cell Line Ontology</name>
+        <version>2.0.27</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1314</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>954</id>
+        <localOntologyId>46467</localOntologyId>
+        <name>Neural ElectroMagnetic Ontologies</name>
+        <version>v2.20</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1321</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>686</id>
+
+        <localOntologyId>42117</localOntologyId>
+        <name>Ontology of homology and related concepts in biology</name>
+        <version>1.4</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1328</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>692</id>
+        <localOntologyId>40358</localOntologyId>
+        <name>Basic Formal Ontology</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1332</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>968</id>
+
+        <localOntologyId>45863</localOntologyId>
+        <name>Parasite Experiment Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1335</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>664</id>
+        <localOntologyId>40390</localOntologyId>
+        <name>COSTART</name>
+        <version>1995</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1341</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1005</id>
+
+        <localOntologyId>46442</localOntologyId>
+        <name>Health Level Seven</name>
+        <version>0234</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1343</virtualOntologyId>
+
+        <format>LEXGRID-XML</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>665</id>
+        <localOntologyId>40393</localOntologyId>
+        <name>International Classification of Primary Care</name>
+        <version>1993</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1344</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>628</id>
+
+        <localOntologyId>40397</localOntologyId>
+        <name>MedlinePlus Health Topics</name>
+        <version>20080614</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1347</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>877</id>
+        <localOntologyId>45553</localOntologyId>
+        <name>Online Mendelian Inheritance in Man</name>
+        <version>2010_04_08</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1348</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>656</id>
+
+        <localOntologyId>45074</localOntologyId>
+        <name>Physician Data Query</name>
+        <version>2010_08_10</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1349</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>650</id>
+        <localOntologyId>44774</localOntologyId>
+        <name>Logical Observation Identifier Names and Codes</name>
+        <version>232</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1350</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>603</id>
+
+        <localOntologyId>44776</localOntologyId>
+        <name>Medical Subject Headings</name>
+        <version>2011_2010_08_30</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1351</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>661</id>
+        <localOntologyId>40402</localOntologyId>
+        <name>National Drug File</name>
+        <version>2008_03_11</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1352</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>667</id>
+
+        <localOntologyId>46116</localOntologyId>
+        <name>SNOMED Clinical Terms</name>
+        <version>2010_07_31</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1353</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>678</id>
+        <localOntologyId>40404</localOntologyId>
+        <name>WHO Adverse Reaction Terminology</name>
+        <version>1997</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1354</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>957</id>
+
+        <localOntologyId>46464</localOntologyId>
+        <name>Hymenoptera Anatomy Ontology</name>
+        <version>2011-11-03</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1362</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>698</id>
+        <localOntologyId>40483</localOntologyId>
+        <name>PhysicalFields</name>
+        <version>v0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1369</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>676</id>
+
+        <localOntologyId>40791</localOntologyId>
+        <name>Amphibian taxonomy</name>
+        <version>See Remote Site</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1370</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>993</id>
+        <localOntologyId>46383</localOntologyId>
+        <name>NIF Dysfunction</name>
+        <version>1.3.3</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1381</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>742</id>
+
+        <localOntologyId>40642</localOntologyId>
+        <name>Information Artifact Ontology</name>
+        <version>2009-07-15</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1393</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>126</id>
+        <localOntologyId>40646</localOntologyId>
+        <name>Syndromic Surveillance Ontology</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1394</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>743</id>
+
+        <localOntologyId>40649</localOntologyId>
+        <name>MDSS Mo</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1395</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>994</id>
+        <localOntologyId>46106</localOntologyId>
+        <name>Gazetteer</name>
+        <version>$Revision: 1.504 $</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1397</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>745</id>
+
+        <localOntologyId>40652</localOntologyId>
+        <name>Ontology of Language Disorder in Autism</name>
+        <version>Protege 3.4</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1398</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>746</id>
+        <localOntologyId>40653</localOntologyId>
+        <name>Pilot Ontology</name>
+        <version>0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1399</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>900</id>
+
+        <localOntologyId>45766</localOntologyId>
+        <name>International Classification for Nursing Practice</name>
+        <version>2011</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1401</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>995</id>
+        <localOntologyId>46408</localOntologyId>
+        <name>NIF Cell</name>
+        <version>1.5</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1402</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>996</id>
+
+        <localOntologyId>46468</localOntologyId>
+        <name>Uber anatomy ontology</name>
+        <version>2011-11-07</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1404</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>750</id>
+        <localOntologyId>40802</localOntologyId>
+        <name>linkingkin2pep</name>
+        <version>0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1406</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>997</id>
+
+        <localOntologyId>46199</localOntologyId>
+        <name>Terminology for the Description of Dynamics</name>
+        <version>rel-2011-08-30 (inferred)</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1407</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>752</id>
+        <localOntologyId>40917</localOntologyId>
+        <name>PKO_Re</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1409</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>998</id>
+
+        <localOntologyId>46039</localOntologyId>
+        <name>Kinetic Simulation Algorithm Ontology</name>
+        <version>2.2</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1410</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>904</id>
+        <localOntologyId>45578</localOntologyId>
+        <name>International Classification of Functioning, Disability and Health (ICF)</name>
+        <version>1.0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1411</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>999</id>
+
+        <localOntologyId>45810</localOntologyId>
+        <name>Software Ontology</name>
+        <version>classified</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1413</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1000</id>
+        <localOntologyId>46293</localOntologyId>
+        <name>Ontology for General Medical Science</name>
+        <version>2011-09-20</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1414</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1001</id>
+
+        <localOntologyId>46081</localOntologyId>
+        <name>Common Terminology Criteria for Adverse Events</name>
+        <version>4.03</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1415</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>758</id>
+        <localOntologyId>42834</localOntologyId>
+        <name>TOK_Ontology</name>
+        <version>0.2.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1418</virtualOntologyId>
+        <format>OWL-FULL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>759</id>
+
+        <localOntologyId>44946</localOntologyId>
+        <name>Taxonomic rank vocabulary</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1419</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>760</id>
+        <localOntologyId>42280</localOntologyId>
+        <name>MedDRA</name>
+        <version>12.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1422</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1002</id>
+
+        <localOntologyId>46395</localOntologyId>
+        <name>RxNORM</name>
+        <version>10AB_110307F</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1423</virtualOntologyId>
+
+        <format>UMLS-RELA</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>761</id>
+        <localOntologyId>42282</localOntologyId>
+        <name>National Drug Data File</name>
+        <version>2009_08_07</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1424</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1003</id>
+
+        <localOntologyId>46303</localOntologyId>
+        <name>ICD-10-PCS</name>
+        <version>2011</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1425</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>763</id>
+        <localOntologyId>42284</localOntologyId>
+        <name>Master Drug Data Base</name>
+        <version>2009_08_05</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1426</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>352</id>
+
+        <localOntologyId>42295</localOntologyId>
+        <name>Read Codes, Clinical Terms Version 3 (CTV3) </name>
+        <version>1999</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1427</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>764</id>
+        <localOntologyId>42297</localOntologyId>
+        <name>ICPC-2 PLUS</name>
+        <version>2005</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1429</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>765</id>
+
+        <localOntologyId>42298</localOntologyId>
+        <name>AIR</name>
+        <version>1993</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1430</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>766</id>
+        <localOntologyId>44178</localOntologyId>
+        <name>Breast tissue cell lines</name>
+        <version>2.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1438</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>767</id>
+
+        <localOntologyId>42452</localOntologyId>
+        <name>General Formal Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1439</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>768</id>
+        <localOntologyId>42453</localOntologyId>
+        <name>General Formal Ontology: Biology</name>
+        <version>1.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1440</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1004</id>
+
+        <localOntologyId>46456</localOntologyId>
+        <name>Chemical Information Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1444</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1006</id>
+        <localOntologyId>46121</localOntologyId>
+        <name>Translational Medicine Ontology</name>
+        <version>1.0.2</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1461</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>771</id>
+
+        <localOntologyId>42765</localOntologyId>
+        <name>International Classification of  External Causes of Injuries</name>
+        <version>Original Source: 1.2; OWL version 1.02</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1484</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>772</id>
+        <localOntologyId>42651</localOntologyId>
+        <name>Body System</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1487</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1007</id>
+
+        <localOntologyId>46047</localOntologyId>
+        <name>SysMO-JERM</name>
+        <version>1.0Alpha</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1488</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>910</id>
+        <localOntologyId>45534</localOntologyId>
+        <name>Adverse Event Ontology</name>
+        <version>Vision Release; 1.0.46</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1489</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>775</id>
+
+        <localOntologyId>44006</localOntologyId>
+        <name>Platynereis stage ontology</name>
+        <version>04.21.2010</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1490</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>776</id>
+        <localOntologyId>42685</localOntologyId>
+        <name>IMGT-ONTOLOGY</name>
+        <version>1.0.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1491</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>777</id>
+
+        <localOntologyId>42764</localOntologyId>
+        <name>Tissue Microarray Ontology</name>
+        <version>1.0.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1494</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>778</id>
+        <localOntologyId>44666</localOntologyId>
+        <name>PMA 2010</name>
+        <version>0.9.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1497</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1008</id>
+
+        <localOntologyId>45846</localOntologyId>
+        <name>Bioinformatics data, formats, identifiers, operations and topics</name>
+        <version>beta12</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1498</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>912</id>
+        <localOntologyId>45339</localOntologyId>
+        <name>NCI Metathesaurus</name>
+        <version>201010D</version>
+
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1499</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>781</id>
+
+        <localOntologyId>44005</localOntologyId>
+        <name>RNA ontology</name>
+        <version>r113</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1500</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>782</id>
+        <localOntologyId>42835</localOntologyId>
+        <name>Neomark Oral Cancer-Centred Ontology</name>
+        <version>3.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1501</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>783</id>
+
+        <localOntologyId>42853</localOntologyId>
+        <name>Current Procedural Terminology</name>
+        <version>2010AA</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1504</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>784</id>
+        <localOntologyId>42998</localOntologyId>
+        <name>Ontology for MicroRNA Target Prediction</name>
+        <version>0.2</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1505</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1009</id>
+
+        <localOntologyId>45890</localOntologyId>
+        <name>Gene Ontology Extension</name>
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1506</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>786</id>
+        <localOntologyId>42983</localOntologyId>
+        <name>Cell Cycle Ontology</name>
+        <version>0.95</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1507</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>787</id>
+
+        <localOntologyId>44304</localOntologyId>
+        <name>ICPS Network</name>
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1509</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>788</id>
+        <localOntologyId>42994</localOntologyId>
+        <name>Metathesaurus CPT Hierarchical Terms</name>
+        <version>2010</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1510</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>789</id>
+
+        <localOntologyId>44354</localOntologyId>
+        <name>Interaction Network Ontology</name>
+        <version>1.0.17</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1515</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>790</id>
+        <localOntologyId>44103</localOntologyId>
+        <name>ICD10</name>
+        <version>1998 </version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1516</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1010</id>
+
+        <localOntologyId>46268</localOntologyId>
+        <name>Human developmental anatomy, abstract version, v2</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1517</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1011</id>
+        <localOntologyId>45980</localOntologyId>
+        <name>Leukocyte Surface Markers</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1520</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>791</id>
+
+        <localOntologyId>44245</localOntologyId>
+        <name>Neural Motor Recovery Ontology</name>
+        <version>0.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1521</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>792</id>
+        <localOntologyId>44167</localOntologyId>
+        <name>BioPAX</name>
+        <version>Level3 v1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1522</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>793</id>
+
+        <localOntologyId>44257</localOntologyId>
+        <name>OBOE SBC</name>
+        <version>0.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1523</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>794</id>
+        <localOntologyId>44258</localOntologyId>
+        <name>OBOE</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1524</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>795</id>
+
+        <localOntologyId>44432</localOntologyId>
+        <name>CRISP Thesaurus, 2006</name>
+        <version>2006</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1526</virtualOntologyId>
+
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>796</id>
+        <localOntologyId>44452</localOntologyId>
+        <name>VANDF</name>
+        <version>2010_01_25</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1527</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>797</id>
+
+        <localOntologyId>45082</localOntologyId>
+        <name>HUGO</name>
+        <version>July2010</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1528</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>798</id>
+        <localOntologyId>44454</localOntologyId>
+        <name>HCPCS</name>
+        <version>2010</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1529</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>799</id>
+
+        <localOntologyId>44451</localOntologyId>
+        <name>Animal natural history and life history</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1530</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1012</id>
+        <localOntologyId>46449</localOntologyId>
+        <name>SemanticScience Integrated Ontology</name>
+        <version>0.8.17</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1532</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1013</id>
+
+        <localOntologyId>46364</localOntologyId>
+        <name>BioAssay Ontology</name>
+        <version>1.4</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1533</virtualOntologyId>
+
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>801</id>
+        <localOntologyId>44565</localOntologyId>
+        <name>apollo-akesios</name>
+        <version>0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1534</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1014</id>
+
+        <localOntologyId>46455</localOntologyId>
+        <name>Brucellosis Ontology</name>
+        <version>Arbor version; 1.1.41</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1537</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>803</id>
+        <localOntologyId>44694</localOntologyId>
+        <name>Role Ontology</name>
+        <version>1.0.6</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1538</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>804</id>
+
+        <localOntologyId>44724</localOntologyId>
+        <name>Neural-Immune Gene Ontology</name>
+        <version>v1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1539</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>805</id>
+        <localOntologyId>44704</localOntologyId>
+        <name>Ontology for Drug Discovery Investigations</name>
+        <version>0.9</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1540</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>806</id>
+
+        <localOntologyId>44729</localOntologyId>
+        <name>Cell line ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1541</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>809</id>
+        <localOntologyId>44779</localOntologyId>
+        <name>Wheat trait </name>
+        <version>08.11.2010</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1545</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>810</id>
+
+        <localOntologyId>44941</localOntologyId>
+        <name>BRENDA tissue / enzyme source</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1547</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>914</id>
+        <localOntologyId>45138</localOntologyId>
+        <name>PHARE</name>
+        <version>110114</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1550</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1015</id>
+
+        <localOntologyId>46386</localOntologyId>
+        <name>Reproductive trait and phenotype ontology</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1552</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1016</id>
+        <localOntologyId>46302</localOntologyId>
+        <name>ICD10CM</name>
+        <version>2011_01</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1553</virtualOntologyId>
+        <format>RRF</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1017</id>
+
+        <localOntologyId>46368</localOntologyId>
+        <name>Vertebrate Anatomy Ontology</name>
+        <version>2011-10-09</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1555</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>820</id>
+        <localOntologyId>44958</localOntologyId>
+        <name>Cognitive Paradigm Ontology</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1560</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>821</id>
+
+        <localOntologyId>45012</localOntologyId>
+        <name>Vaccine Ontology</name>
+        <version>483</version>
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1562</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>822</id>
+        <localOntologyId>45063</localOntologyId>
+        <name>Vaccine Ontology</name>
+        <version>483</version>
+
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1563</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>823</id>
+
+        <localOntologyId>45068</localOntologyId>
+        <name>Vaccine Ontology</name>
+        <version>483</version>
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1564</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>916</id>
+        <localOntologyId>45307</localOntologyId>
+        <name>Ontology of Medically Related Social Entities</name>
+        <version>UNKNOWN</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1565</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>917</id>
+
+        <localOntologyId>45146</localOntologyId>
+        <name>Pharmacovigilance Ontology</name>
+        <version>0.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1567</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>918</id>
+        <localOntologyId>45288</localOntologyId>
+        <name>Anatomical Entity Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1568</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>919</id>
+
+        <localOntologyId>45230</localOntologyId>
+        <name>Host Pathogen Interactions Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1569</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>920</id>
+        <localOntologyId>45215</localOntologyId>
+        <name>Traditional Medicine Constitution Value Set</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1570</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>921</id>
+
+        <localOntologyId>45216</localOntologyId>
+        <name>Traditional Medicine Other Factors Value Set</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1571</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>922</id>
+        <localOntologyId>45217</localOntologyId>
+        <name>Traditional Medicine Signs and Symptoms Value Set</name>
+        <version>1.0</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1572</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>923</id>
+
+        <localOntologyId>45218</localOntologyId>
+        <name>Traditional Medicine Meridian Value Sets</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1573</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1018</id>
+        <localOntologyId>46269</localOntologyId>
+        <name>vertebrate Homologous Organ Groups</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1574</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>925</id>
+
+        <localOntologyId>45220</localOntologyId>
+        <name>ExO</name>
+        <version>1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1575</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>926</id>
+        <localOntologyId>45231</localOntologyId>
+        <name>FDA Medical Devices (2010)</name>
+        <version>1.3</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1576</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>927</id>
+
+        <localOntologyId>45290</localOntologyId>
+        <name>HOM_ElixhauserScores</name>
+        <version>1.2</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1578</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1019</id>
+        <localOntologyId>46023</localOntologyId>
+        <name>Adverse Event Reporting ontology</name>
+        <version>alpha 0.1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1580</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>929</id>
+
+        <localOntologyId>45294</localOntologyId>
+        <name>HEALTH_INDICATORS</name>
+        <version>0.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1581</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1020</id>
+        <localOntologyId>46394</localOntologyId>
+        <name>CAO</name>
+        <version>1.4</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1582</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1021</id>
+
+        <localOntologyId>46373</localOntologyId>
+        <name>Clinical Measurement Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1583</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1022</id>
+        <localOntologyId>46374</localOntologyId>
+        <name>Measurement Method Ontology</name>
+        <version>unknown</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1584</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1023</id>
+
+        <localOntologyId>46375</localOntologyId>
+        <name>Experimental Conditions Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1585</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1024</id>
+        <localOntologyId>45845</localOntologyId>
+        <name>Orphanet Ontology of Rare Diseases</name>
+        <version>lite_2011-06-17</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1586</virtualOntologyId>
+        <format>OWL-DL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1025</id>
+
+        <localOntologyId>46430</localOntologyId>
+        <name>Plant Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1587</virtualOntologyId>
+
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>935</id>
+        <localOntologyId>45330</localOntologyId>
+        <name>Ontology of General Purpose Datatypes</name>
+        <version>SVN revision 58</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1588</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>936</id>
+
+        <localOntologyId>45364</localOntologyId>
+        <name>Coriell Cell Line Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1589</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1026</id>
+        <localOntologyId>45966</localOntologyId>
+        <name>HOM_MDCs-DRGS</name>
+        <version>1.2</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1596</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1027</id>
+
+        <localOntologyId>46316</localOntologyId>
+        <name>Bone Dysplasia Ontology</name>
+        <version>1.3</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1613</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>939</id>
+        <localOntologyId>45567</localOntologyId>
+        <name>IxnO</name>
+        <version>1</version>
+
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1614</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1028</id>
+
+        <localOntologyId>46232</localOntologyId>
+        <name>Systems Chemical Biology/Chemogenomics </name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1615</virtualOntologyId>
+
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>941</id>
+        <localOntologyId>45588</localOntologyId>
+        <name> Phylogenetic Ontology</name>
+
+        <version>ver1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1616</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1029</id>
+        <localOntologyId>45834</localOntologyId>
+        <name>Neuro Behavior Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1621</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1030</id>
+        <localOntologyId>45991</localOntologyId>
+        <name>HOM-ICD9CM_PROCEDURES</name>
+
+        <version>1.2</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1625</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1031</id>
+        <localOntologyId>45950</localOntologyId>
+        <name>Enzyme Mechanism Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1626</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1032</id>
+        <localOntologyId>45948</localOntologyId>
+        <name>HOMERUN Ontology</name>
+
+        <version>0.3</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1627</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1033</id>
+        <localOntologyId>45880</localOntologyId>
+        <name>HOM-UCARE</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1629</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1034</id>
+        <localOntologyId>46195</localOntologyId>
+        <name>HOM-EPIC</name>
+
+        <version>1.3</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1630</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1035</id>
+        <localOntologyId>45879</localOntologyId>
+        <name>HOM-HARVARD</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1631</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1036</id>
+        <localOntologyId>45903</localOntologyId>
+        <name>Web Service Interaction Ontology</name>
+
+        <version>beta0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1632</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1037</id>
+        <localOntologyId>46220</localOntologyId>
+        <name>Cognitive Atlas</name>
+        <version>0.2.2</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1633</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1038</id>
+        <localOntologyId>45982</localOntologyId>
+        <name>Ontology of Data Mining</name>
+
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1638</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1039</id>
+        <localOntologyId>45987</localOntologyId>
+        <name>Epilepsy</name>
+        <version>V1</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1639</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1040</id>
+        <localOntologyId>45989</localOntologyId>
+        <name>Pediatric Terminology</name>
+
+        <version>Version 1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1640</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1041</id>
+        <localOntologyId>46068</localOntologyId>
+        <name>HOM-ICD9CM-ECODES</name>
+        <version>1.2</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1641</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1042</id>
+        <localOntologyId>45992</localOntologyId>
+        <name>HOM-DXPROCS_MDCDRG</name>
+
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1642</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1043</id>
+        <localOntologyId>46062</localOntologyId>
+        <name>HOM-ICD9_PROCS_OSHPD</name>
+        <version>1.4</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1643</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1044</id>
+        <localOntologyId>46066</localOntologyId>
+        <name>HOM-MDCDRG_OSHPD</name>
+
+        <version>1.4</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1645</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1045</id>
+        <localOntologyId>46064</localOntologyId>
+        <name>HOM-ICD9_DXandVCODES_OSHPD</name>
+        <version>1.2</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1647</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1046</id>
+        <localOntologyId>46190</localOntologyId>
+        <name>HOM-DATASOURCE_OSHPD</name>
+
+        <version>1.8</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1648</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1047</id>
+        <localOntologyId>46194</localOntologyId>
+        <name>HOM-OSHPD</name>
+        <version>1.9</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1649</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1048</id>
+        <localOntologyId>46042</localOntologyId>
+        <name>Units Ontology</name>
+
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1650</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1049</id>
+        <localOntologyId>46054</localOntologyId>
+        <name>Sleep Domain Ontology</name>
+        <version>1.0</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1651</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1050</id>
+        <localOntologyId>46061</localOntologyId>
+        <name>HOM-OSHPD_UseCase</name>
+
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1652</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1051</id>
+        <localOntologyId>46080</localOntologyId>
+        <name>HOM-PROCS2_OSHPD</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1653</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1052</id>
+        <localOntologyId>46083</localOntologyId>
+        <name>HOM-DXVCODES2_OSHPD</name>
+
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1654</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1053</id>
+        <localOntologyId>46460</localOntologyId>
+        <name>Vertebrate Trait Ontology</name>
+        <version>1.13</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1659</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1054</id>
+        <localOntologyId>46276</localOntologyId>
+        <name>HOM-DATASOURCE_EPIC</name>
+
+        <version>1.4</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1660</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1055</id>
+        <localOntologyId>46211</localOntologyId>
+        <name>HOM-Transplant Ontology</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1661</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1056</id>
+        <localOntologyId>46314</localOntologyId>
+        <name>Student Health Record</name>
+
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1665</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1057</id>
+        <localOntologyId>46315</localOntologyId>
+        <name>Emotion Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1666</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1058</id>
+        <localOntologyId>46285</localOntologyId>
+        <name>HOM-DATASOURCE_OSHPDSC</name>
+
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1667</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1059</id>
+        <localOntologyId>46286</localOntologyId>
+        <name>HOM-OSHPD-SC</name>
+        <version>1.1</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1668</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1060</id>
+        <localOntologyId>46356</localOntologyId>
+        <name>ICD_Oncology-3</name>
+
+        <version>1.2</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1670</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1061</id>
+        <localOntologyId>46348</localOntologyId>
+        <name>Quantitative Imaging Biomarker Ontology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1671</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1062</id>
+        <localOntologyId>46402</localOntologyId>
+        <name>DIKB-Evidence-Ontology</name>
+
+        <version>TODO:</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1672</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1063</id>
+        <localOntologyId>46404</localOntologyId>
+        <name>CEEROntology</name>
+        <version>unknown</version>
+        <description></description>
+        <status>99</status>
+
+        <virtualOntologyId>1675</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1064</id>
+        <localOntologyId>46410</localOntologyId>
+        <name>Randomized Controlled Trials (RCT) Ontology</name>
+
+        <version>2.0</version>
+        <description></description>
+        <status>28</status>
+        <virtualOntologyId>1676</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+      <ontologyBean>
+
+        <id>1065</id>
+        <localOntologyId>46469</localOntologyId>
+        <name>Human disease in Bioactivity</name>
+        <version>unknown</version>
+        <description></description>
+        <status>28</status>
+
+        <virtualOntologyId>1682</virtualOntologyId>
+        <format>OBO</format>
+      </ontologyBean>
+      <ontologyBean>
+        <id>1066</id>
+        <localOntologyId>46471</localOntologyId>
+        <name>BioActivity Ontology2</name>
+
+        <version>0.1</version>
+        <description></description>
+        <status>99</status>
+        <virtualOntologyId>1684</virtualOntologyId>
+        <format>OWL</format>
+      </ontologyBean>
+    </list>
+
+  </data>
+</success>

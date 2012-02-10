@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 /**
@@ -105,6 +108,15 @@ public final class Concept {
     }
 
     private Concept() {
+    }
+
+    public static List<String> asUris(String virtualOntologyId,
+            String... conceptIds) {
+        List<String> uris = new ArrayList<String>();
+        for (String conceptId : conceptIds) {
+            uris.add(toConceptURI(virtualOntologyId, conceptId));
+        }
+        return uris;
     }
 
 }

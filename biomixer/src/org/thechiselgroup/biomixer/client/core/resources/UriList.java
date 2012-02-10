@@ -49,6 +49,20 @@ public class UriList implements Serializable, Iterable<String> {
         delegate.add(uri);
     }
 
+    public void addAll(UriList other) {
+        for (String uri : other) {
+            add(uri);
+        }
+    }
+
+    public void addAllNew(UriList other) {
+        for (String uri : other) {
+            if (!contains(uri)) {
+                add(uri);
+            }
+        }
+    }
+
     public boolean contains(String uri) {
         assert uri != null;
         return delegate.contains(uri);
@@ -65,6 +79,11 @@ public class UriList implements Serializable, Iterable<String> {
     @Override
     public Iterator<String> iterator() {
         return delegate.iterator();
+    }
+
+    public void replace(String oldUri, String newUri) {
+        delegate.remove(oldUri);
+        delegate.add(newUri);
     }
 
     public void setLoaded(boolean isLoaded) {

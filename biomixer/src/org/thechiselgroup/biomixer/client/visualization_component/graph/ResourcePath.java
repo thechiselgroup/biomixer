@@ -49,22 +49,20 @@ public class ResourcePath implements Serializable {
 
         // Repeat until root is found (has no more parents)
         while (parents != null) {
-            /* XXX just handle case of one parent for now */
-            String parentUri = parents.getUri(0);
-
-            // Use URI to find Resource object
-            // XXX inefficient
-            for (Resource resource : resources) {
-                if (resource.getUri().equals(parentUri)) {
-                    /* Found the next step in the path */
-                    pathResources.add(resource);
-                    currentResource = resource;
-                    break;
+            for (String parentUri : parents) {
+                // Use URI to find Resource object
+                for (Resource resource : resources) {
+                    if (resource.getUri().equals(parentUri)) {
+                        /* Found the next step in the path */
+                        pathResources.add(resource);
+                        currentResource = resource;
+                        break;
+                    }
                 }
-            }
 
-            parents = (UriList) currentResource.getProperties().get(
-                    Concept.PARENT_CONCEPTS);
+                parents = (UriList) currentResource.getProperties().get(
+                        Concept.PARENT_CONCEPTS);
+            }
         }
 
         cachedPathResources = pathResources;

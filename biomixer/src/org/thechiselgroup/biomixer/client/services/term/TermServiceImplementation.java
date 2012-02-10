@@ -15,11 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -29,14 +33,22 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
 
     private final LightTermResponseWithoutRelationshipsParser responseParser;
 
+    private OntologyNameServiceAsync ontologyNameService;
+
+    private ErrorHandler errorHandler;
+
     @Inject
     public TermServiceImplementation(UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
+            OntologyNameServiceAsync ontologyNameService,
+            ErrorHandler errorHandler,
             LightTermResponseWithoutRelationshipsParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
 
         this.responseParser = responseParser;
+        this.ontologyNameService = ontologyNameService;
+        this.errorHandler = errorHandler;
     }
 
     protected String buildUrl(String ontologyId, String conceptFullId) {
@@ -54,13 +66,36 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
         assert conceptFullId != null;
         assert callback != null;
 
-        String url = buildUrl(ontologyId, conceptFullId);
+        final String url = buildUrl(ontologyId, conceptFullId);
 
-        fetchUrl(callback, url, new Transformer<String, Resource>() {
-            @Override
-            public Resource transform(String value) throws Exception {
-                return responseParser.parseConcept(ontologyId, value);
-            }
-        });
+        ontologyNameService.getOntologyName(ontologyId,
+                new ErrorHandlingAsyncCallback<String>(errorHandler) {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        errorHandler.handleError(new Exception(
+                                "Could not retrieve ontology name for virtual ontology id: "
+                                        + ontologyId, caught));
+                    }
+
+                    @Override
+                    public void runOnSuccess(final String ontologyName) {
+                        fetchUrl(callback, url,
+                                new Transformer<String, Resource>() {
+                                    @Override
+                                    public Resource transform(String value)
+                                            throws Exception {
+                                        Resource resource = responseParser
+                                                .parseConcept(ontologyId, value);
+                                        resource.putValue(
+                                                Concept.CONCEPT_ONTOLOGY_NAME,
+                                                ontologyName);
+                                        return resource;
+                                    }
+                                });
+                    }
+
+                });
     }
+
 }

@@ -30,12 +30,16 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
 import org.thechiselgroup.biomixer.client.services.NcboRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
+import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceImplementation;
-import org.thechiselgroup.biomixer.client.services.ontology_version.OntologyVersionServiceAsync;
-import org.thechiselgroup.biomixer.client.services.ontology_version.OntologyVersionServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.rootpath.RootPathServiceAsync;
-import org.thechiselgroup.biomixer.client.services.rootpath.RootPathServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
@@ -86,12 +90,20 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         bind(LightTermResponseWithoutRelationshipsParser.class).in(
                 Singleton.class);
 
-        bind(RootPathServiceAsync.class).to(
-                RootPathServiceAsyncClientImplementation.class).in(
+        bind(HierarchyPathServiceAsync.class).to(
+                HierarchyPathServiceAsyncClientImplementation.class).in(
+                Singleton.class);
+
+        bind(OntologyNameServiceAsync.class).to(
+                OntologyNameServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
         bind(OntologyVersionServiceAsync.class).to(
                 OntologyVersionServiceAsyncClientImplementation.class).in(
+                Singleton.class);
+
+        bind(OntologyStatusServiceAsync.class).to(
+                OntologyStatusServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
         bind(UrlBuilderFactory.class).to(NcboRestUrlBuilderFactory.class).in(

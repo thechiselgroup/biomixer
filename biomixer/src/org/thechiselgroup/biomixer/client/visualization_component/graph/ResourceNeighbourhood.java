@@ -50,6 +50,15 @@ public class ResourceNeighbourhood implements Serializable {
         return partialProperties;
     }
 
+    public Resource getResource(String uri) {
+        for (Resource resource : resources) {
+            if (resource.getUri().equals(uri)) {
+                return resource;
+            }
+        }
+        return null;
+    }
+
     public List<Resource> getResources() {
         return resources;
     }
