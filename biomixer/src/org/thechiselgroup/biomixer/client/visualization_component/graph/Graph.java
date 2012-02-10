@@ -686,12 +686,20 @@ public class Graph extends AbstractViewContentDisplay implements
     @Override
     public void runLayout(GraphLayout layout) {
         assert layout != null;
+        for (VisualItem visualItem : getVisualItems()) {
+            updateNode(visualItem);
+        }
+        updateArcsForVisuaItems(getVisualItems());
         layout.run(getNodeItems(), getArcItems(), this);
     }
 
     @Override
     public void runLayout(String layout) {
         assert layout != null;
+        LightweightCollection<VisualItem> visualItems = getVisualItems();
+        for (VisualItem visualItem : visualItems) {
+            System.out.println(visualItem.toString());
+        }
         graphDisplay.runLayout(layout);
     }
 
