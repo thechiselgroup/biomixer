@@ -70,14 +70,6 @@ public class RootPathsLoader implements EmbeddedViewLoader {
                         errorHandler) {
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler
-                                .handleError(new Exception(
-                                        "Could not retrieve status information for ontologies",
-                                        caught));
-                    }
-
-                    @Override
                     protected void runOnSuccess(
                             List<String> availableVirtualOntologyIds)
                             throws Exception {
@@ -94,6 +86,13 @@ public class RootPathsLoader implements EmbeddedViewLoader {
 
                     }
 
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve status information for ontologies",
+                                caught);
+                    }
+
                 });
     }
 
@@ -104,43 +103,19 @@ public class RootPathsLoader implements EmbeddedViewLoader {
                 new ErrorHandlingAsyncCallback<Set<String>>(errorHandler) {
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve hierarchy to root for "
-                                        + conceptId, caught));
-                    }
-
-                    @Override
                     protected void runOnSuccess(Set<String> shortIdsInHierarchy)
                             throws Exception {
 
                         for (String shortId : shortIdsInHierarchy) {
-                            conceptNeighbourhoodService
-                                    .getResourceWithRelations(
-                                            virtualOntologyId,
-                                            shortId,
-                                            new ErrorHandlingAsyncCallback<Resource>(
-                                                    errorHandler) {
-                                                @Override
-                                                public void onFailure(
-                                                        Throwable caught) {
-                                                    errorHandler
-                                                            .handleError(new Exception(
-                                                                    "Could not retrieve full term information for "
-                                                                            + conceptId,
-                                                                    caught));
-                                                }
-
-                                                @Override
-                                                protected void runOnSuccess(
-                                                        Resource resource) {
-                                                    view.getResourceModel()
-                                                            .getAutomaticResourceSet()
-                                                            .add(resource);
-                                                    layout(view);
-                                                }
-                                            });
+                            loadConcept(view, virtualOntologyId, shortId);
                         }
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve hierarchy to root for "
+                                        + conceptId, caught);
                     }
                 });
     }
@@ -158,6 +133,31 @@ public class RootPathsLoader implements EmbeddedViewLoader {
                         new VerticalTreeLayout());
             }
         }.schedule(50);
+    }
+
+    private void loadConcept(final DefaultView view,
+            final String virtualOntologyId, final String conceptShortId) {
+
+        conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
+                conceptShortId, new ErrorHandlingAsyncCallback<Resource>(
+                        errorHandler) {
+
+                    @Override
+                    protected void runOnSuccess(Resource resource) {
+                        view.getResourceModel().getAutomaticResourceSet()
+                                .add(resource);
+                        // TODO automatic layout re-execution on add?
+                        layout(view);
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve full term information for "
+                                        + conceptShortId + " ontology "
+                                        + virtualOntologyId, caught);
+                    }
+                });
     }
 
     private void loadHierarchyData(final DefaultView view,
@@ -188,12 +188,6 @@ public class RootPathsLoader implements EmbeddedViewLoader {
         conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
                 fullConceptId, new ErrorHandlingAsyncCallback<Resource>(
                         errorHandler) {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve full term information for "
-                                        + fullConceptId, caught));
-                    }
 
                     @Override
                     public void runOnSuccess(Resource resource) {
@@ -215,6 +209,13 @@ public class RootPathsLoader implements EmbeddedViewLoader {
                                     view);
                         }
                     }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve full term information for "
+                                        + fullConceptId, caught);
+                    }
                 });
     }
 
@@ -227,19 +228,19 @@ public class RootPathsLoader implements EmbeddedViewLoader {
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve basic information for "
-                                        + fullConceptId, caught));
-                    }
-
-                    @Override
                     protected void runOnSuccess(Resource result)
                             throws Exception {
 
                         String shortId = (String) result
                                 .getValue(Concept.SHORT_ID);
                         loadHierarchyData(graphView, virtualOntologyId, shortId);
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve basic information for "
+                                        + fullConceptId, caught);
                     }
 
                 });

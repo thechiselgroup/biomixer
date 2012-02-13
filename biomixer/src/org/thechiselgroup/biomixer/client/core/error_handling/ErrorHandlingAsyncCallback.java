@@ -27,8 +27,8 @@ public class ErrorHandlingAsyncCallback<T> implements AsyncCallback<T> {
     }
 
     @Override
-    public void onFailure(Throwable caught) {
-        errorHandler.handleError(caught);
+    public final void onFailure(Throwable caught) {
+        errorHandler.handleError(wrapException(caught));
     }
 
     @Override
@@ -40,8 +40,20 @@ public class ErrorHandlingAsyncCallback<T> implements AsyncCallback<T> {
         }
     }
 
+    /**
+     * Hook method. Override to implement behavior that should be executed when
+     * callback succeeds. Exceptions are handled by
+     * {@link #onFailure(Throwable)}.
+     */
     protected void runOnSuccess(T result) throws Exception {
-        // hook method
+    }
+
+    /**
+     * Hook method. Override to log custom exceptions in
+     * {@link #onFailure(Throwable)}, e.g. to provide custom error messages.
+     */
+    protected Throwable wrapException(Throwable caught) {
+        return caught;
     }
 
 }

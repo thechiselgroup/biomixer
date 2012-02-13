@@ -77,18 +77,6 @@ public class ConceptMappingNeighbourhoodExpander extends
                     new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                         @Override
-                        public void onFailure(Throwable caught) {
-                            errorHandler.handleError(new Exception(
-                                    "Could not get basic information for \""
-                                            + concept.getValue(Concept.LABEL)
-                                            + "\" (virtual ontology id: "
-                                            + concept
-                                                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID)
-                                            + ")", caught));
-
-                        }
-
-                        @Override
                         protected void runOnSuccess(Resource result)
                                 throws Exception {
 
@@ -96,6 +84,17 @@ public class ConceptMappingNeighbourhoodExpander extends
                                     .add(result);
                             graph.addAutomaticResource(mapping);
                             graph.addAutomaticResource(addedResource);
+                        }
+
+                        @Override
+                        protected Throwable wrapException(Throwable caught) {
+                            return new Exception(
+                                    "Could not get basic information for \""
+                                            + concept.getValue(Concept.LABEL)
+                                            + "\" (virtual ontology id: "
+                                            + concept
+                                                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID)
+                                            + ")", caught);
                         }
                     });
         }

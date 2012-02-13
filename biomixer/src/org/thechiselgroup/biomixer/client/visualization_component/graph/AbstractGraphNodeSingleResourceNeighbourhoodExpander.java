@@ -99,14 +99,6 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
                         errorHandler) {
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler
-                                .handleError(new Exception(
-                                        getErrorMessageWhenNeighbourhoodloadingFails(resource),
-                                        caught));
-                    }
-
-                    @Override
                     protected void runOnSuccess(ResourceNeighbourhood result)
                             throws Exception {
 
@@ -118,6 +110,13 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
                                 .getPartialProperties());
                         expandNeighbourhood(visualItem, resource, graph,
                                 resourceManager.addAll(result.getResources()));
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                getErrorMessageWhenNeighbourhoodloadingFails(resource),
+                                caught);
                     }
 
                 });

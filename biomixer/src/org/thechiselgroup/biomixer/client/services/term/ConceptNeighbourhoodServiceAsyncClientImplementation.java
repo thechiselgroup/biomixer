@@ -82,14 +82,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                 new ErrorHandlingAsyncCallback<String>(errorHandler) {
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve concept neighbourhood for concept "
-                                        + conceptId + " in ontology "
-                                        + ontologyId, caught));
-                    }
-
-                    @Override
                     public void runOnSuccess(final String ontologyName) {
                         fetchUrl(
                                 callback,
@@ -115,6 +107,14 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                 });
                     }
 
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve concept neighbourhood for concept "
+                                        + conceptId + " in ontology "
+                                        + ontologyId, caught);
+                    }
+
                 });
     }
 
@@ -129,14 +129,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
 
         ontologyNameService.getOntologyName(ontologyId,
                 new ErrorHandlingAsyncCallback<String>(errorHandler) {
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve concept neighbourhood for concept "
-                                        + conceptId + " in ontology "
-                                        + ontologyId, caught));
-                    }
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
@@ -154,6 +146,14 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                         return resource;
                                     }
                                 });
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve concept neighbourhood for concept "
+                                        + conceptId + " in ontology "
+                                        + ontologyId, caught);
                     }
 
                 });

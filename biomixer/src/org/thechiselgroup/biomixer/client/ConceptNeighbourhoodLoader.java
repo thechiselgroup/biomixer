@@ -60,13 +60,6 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
         termService.getBasicInformation(ontologyId, conceptFullId,
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve basic information for "
-                                        + conceptFullId, caught));
-                    }
-
-                    @Override
                     protected void runOnSuccess(final Resource targetResource)
                             throws Exception {
                         final ResourceSet resourceSet = new DefaultResourceSet();
@@ -77,15 +70,6 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                                         conceptFullId,
                                         new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                                                 errorHandler) {
-                                            @Override
-                                            public void onFailure(
-                                                    Throwable caught) {
-                                                errorHandler
-                                                        .handleError(new Exception(
-                                                                "Could not expand neighbourhood for "
-                                                                        + conceptFullId,
-                                                                caught));
-                                            }
 
                                             @Override
                                             protected void runOnSuccess(
@@ -102,7 +86,23 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                                                                 resourceSet);
                                                 layout(view);
                                             }
+
+                                            @Override
+                                            protected Throwable wrapException(
+                                                    Throwable caught) {
+                                                return new Exception(
+                                                        "Could not expand neighbourhood for "
+                                                                + conceptFullId,
+                                                        caught);
+                                            }
                                         });
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve basic information for "
+                                        + conceptFullId, caught);
                     }
                 });
 

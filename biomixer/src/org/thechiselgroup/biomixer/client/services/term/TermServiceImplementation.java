@@ -72,13 +72,6 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
                 new ErrorHandlingAsyncCallback<String>(errorHandler) {
 
                     @Override
-                    public void onFailure(Throwable caught) {
-                        errorHandler.handleError(new Exception(
-                                "Could not retrieve ontology name for virtual ontology id: "
-                                        + ontologyId, caught));
-                    }
-
-                    @Override
                     public void runOnSuccess(final String ontologyName) {
                         fetchUrl(callback, url,
                                 new Transformer<String, Resource>() {
@@ -93,6 +86,13 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
                                         return resource;
                                     }
                                 });
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve ontology name for virtual ontology id: "
+                                        + ontologyId, caught);
                     }
 
                 });
