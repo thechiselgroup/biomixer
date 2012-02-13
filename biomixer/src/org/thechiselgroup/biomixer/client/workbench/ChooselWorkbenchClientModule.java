@@ -49,6 +49,7 @@ import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.biomixer.client.core.ui.shade.ShadeManager;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
+import org.thechiselgroup.biomixer.client.core.util.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.HandlerManagerProvider;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultViewAccessor;
@@ -114,6 +115,7 @@ import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePersisten
 import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePresenter;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.ConfigureSharedViewsDialogCommand;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.LoadWorkspaceDialogCommand;
+import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 
 import com.google.gwt.event.shared.HandlerManager;
@@ -237,6 +239,9 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
     protected void configure() {
         configureGwtApiWrappers();
         configureLogging();
+
+        bind(DelayedExecutor.class).to(GwtDelayedExecutor.class).in(
+                Singleton.class);
 
         bind(CommandManager.class).to(DefaultCommandManager.class).in(
                 Singleton.class);

@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
@@ -33,8 +34,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
+import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -53,6 +54,9 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
 
     @Inject
     private ErrorHandler errorHandler;
+
+    @Inject
+    private DelayedExecutor executor;
 
     private void doLoadData(final DefaultView view, final String ontologyId,
             final String conceptFullId) {
@@ -114,29 +118,25 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
     }
 
     private void layout(final DefaultView view) {
-        new Timer() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 view.adaptTo(GraphLayoutSupport.class).runLayout(
                         GraphLayouts.HORIZONTAL_TREE_LAYOUT);
             }
-        }.schedule(50);
+        }, 50);
     }
 
     private void loadData(final DefaultView view, final String ontologyId,
             final String conceptFullId) {
 
         // XXX remove once proper view content display lifecycle is available
-        if (view.isReady()) {
-            doLoadData(view, ontologyId, conceptFullId);
-        } else {
-            new Timer() {
-                @Override
-                public void run() {
-                    loadData(view, ontologyId, conceptFullId);
-                }
-            }.schedule(200);
-        }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                doLoadData(view, ontologyId, conceptFullId);
+            }
+        }, new ViewIsReadyCondition(view), 200);
     }
 
     @Override

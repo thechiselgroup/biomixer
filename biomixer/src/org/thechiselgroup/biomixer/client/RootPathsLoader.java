@@ -24,6 +24,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
@@ -35,8 +36,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLay
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layouts.VerticalTreeLayout;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
+import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -61,6 +62,9 @@ public class RootPathsLoader implements EmbeddedViewLoader {
 
     @Inject
     private OntologyStatusServiceAsync ontologyStatusService;
+
+    @Inject
+    private DelayedExecutor executor;
 
     private void checkOntologyStatus(final View graphView,
             final String fullConceptId, final String virtualOntologyId) {
@@ -126,13 +130,13 @@ public class RootPathsLoader implements EmbeddedViewLoader {
     }
 
     private void layout(final DefaultView view) {
-        new Timer() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 view.adaptTo(GraphLayoutSupport.class).runLayout(
                         new VerticalTreeLayout());
             }
-        }.schedule(50);
+        }, 50);
     }
 
     private void loadConcept(final DefaultView view,
@@ -163,16 +167,12 @@ public class RootPathsLoader implements EmbeddedViewLoader {
     private void loadHierarchyData(final DefaultView view,
             final String virtualOntologyId, final String conceptId) {
 
-        if (view.isReady()) {
-            doLoadHierarchyData(view, virtualOntologyId, conceptId);
-        } else {
-            new Timer() {
-                @Override
-                public void run() {
-                    loadHierarchyData(view, virtualOntologyId, conceptId);
-                }
-            }.schedule(50);
-        }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                doLoadHierarchyData(view, virtualOntologyId, conceptId);
+            }
+        }, new ViewIsReadyCondition(view), 50);
     }
 
     private void loadTerm(final String virtualOntologyId,
@@ -249,20 +249,12 @@ public class RootPathsLoader implements EmbeddedViewLoader {
     private void loadUsingRecursiveTermService(final DefaultView view,
             final String virtualOntologyId, final String fullConceptId) {
 
-        if (view.isReady()) {
-            loadTerm(virtualOntologyId, fullConceptId, view);
-        } else {
-            new Timer() {
-
-                @Override
-                public void run() {
-                    loadUsingRecursiveTermService(view, virtualOntologyId,
-                            fullConceptId);
-
-                }
-
-            }.schedule(50);
-        }
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                loadTerm(virtualOntologyId, fullConceptId, view);
+            }
+        }, new ViewIsReadyCondition(view), 50);
     }
 
     @Override
