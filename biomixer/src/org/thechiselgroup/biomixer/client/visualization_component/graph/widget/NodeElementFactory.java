@@ -35,7 +35,7 @@ public class NodeElementFactory {
         nodeContainer.setAttribute(Svg.Y, 0.0);
 
         SvgElement rectangle = svgElementFactory.createElement(Svg.RECT);
-        rectangle.setAttribute(Svg.FILL, "none");
+        rectangle.setAttribute(Svg.FILL, "white");
         // TODO proper colors
         rectangle.setAttribute(Svg.STROKE, "black");
         rectangle.setAttribute(Svg.RX, 10.0);

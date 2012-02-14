@@ -119,11 +119,13 @@ public class GraphSvgWidget implements GraphDisplay {
         rootElement.setAttribute("xmlns", Svg.NAMESPACE);
         rootElement.setAttribute("version", "1.1");
 
-        for (NodeElement nodeElement : nodes) {
-            rootElement.appendChild(nodeElement.getContainer());
-        }
         for (ArcElement arcElement : arcs) {
             rootElement.appendChild(arcElement.getSvgElement());
+        }
+
+        // Nodes should be added after arcs so that they are drawn on top
+        for (NodeElement nodeElement : nodes) {
+            rootElement.appendChild(nodeElement.getContainer());
         }
         return rootElement;
     }
