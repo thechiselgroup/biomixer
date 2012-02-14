@@ -193,6 +193,7 @@ public class DefaultView implements View {
         this.errorHandler = errorHandler;
         this.disposeUtil = disposeUtil;
         this.errorListBoxControl = errorListBoxControl;
+        errorListBoxControl.setView(this);
     }
 
     @Override
@@ -505,7 +506,7 @@ public class DefaultView implements View {
         updateContentDisplaySize();
     }
 
-    private void updateContentDisplaySize() {
+    public void updateContentDisplaySize() {
         /*
          * special resize method required, because otherwise window height
          * cannot be reduced by dragging - see

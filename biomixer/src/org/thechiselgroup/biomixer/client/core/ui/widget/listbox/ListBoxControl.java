@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -41,6 +42,8 @@ public class ListBoxControl<T> implements IsWidget {
     private HandlerRegistration changeHandlerRegistration;
 
     private ErrorHandler errorHandler;
+
+    private DefaultView view;
 
     // class invariant - must never be null.
     private List<T> values = new ArrayList<T>();
@@ -168,8 +171,14 @@ public class ListBoxControl<T> implements IsWidget {
         }
     }
 
-    public void setVisible(boolean visible) {
-        presenter.setVisible(visible);
+    public void setView(DefaultView view) {
+        this.view = view;
     }
 
+    public void setVisible(boolean visible) {
+        presenter.setVisible(visible);
+        if (view != null) {
+            view.updateContentDisplaySize();
+        }
+    }
 }
