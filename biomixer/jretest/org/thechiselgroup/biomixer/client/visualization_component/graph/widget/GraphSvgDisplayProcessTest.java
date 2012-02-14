@@ -48,8 +48,7 @@ public class GraphSvgDisplayProcessTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void nodeHasExpectedLocation() {
-        Node node = new Node(ID1, LABEL1, TYPE);
-        underTest.addNode(node);
+        Node node = addNode(ID1, LABEL1, TYPE);
         Point newLocation = new Point(100, 100);
         underTest.setLocation(node, newLocation);
         assertThat(underTest.getLocation(node), equalTo(newLocation));

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
+import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -42,11 +43,21 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private ArcElementList arcs = new ArcElementList();
 
+    private SvgWidget asWidget;
+
+    private int width;
+
+    private int height;
+
     public GraphSvgDisplay(int width, int height) {
-        this(new JsDomSvgElementFactory());
+        this(width, height, new JsDomSvgElementFactory());
     }
 
-    public GraphSvgDisplay(SvgElementFactory svgElementFactory) {
+    public GraphSvgDisplay(int width, int height,
+            SvgElementFactory svgElementFactory) {
+        this.width = width;
+        this.height = height;
+        assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
         this.nodeElementFactory = new NodeElementFactory(svgElementFactory);
@@ -132,8 +143,32 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public Widget asWidget() {
-        // extend Widget and return this?
-        return null;
+        if (asWidget == null) {
+            asWidget = new SvgWidget();
+            asWidget.setPixelSize(width, height);
+        }
+        asWidget.clear();
+
+        SvgElement rootElement = asWidget.getSvgElement();
+
+        // add white background
+        SvgElement background = asWidget.getSvgElementFactory().createElement(
+                Svg.RECT);
+        background.setAttribute(Svg.WIDTH, width);
+        background.setAttribute(Svg.HEIGHT, height);
+        background.setAttribute(Svg.FILL, "white");
+        rootElement.appendChild(background);
+
+        for (ArcElement arcElement : arcs) {
+            rootElement.appendChild(arcElement.getSvgElement());
+        }
+
+        // Nodes should be added after arcs so that they are drawn on top
+        for (NodeElement nodeElement : nodes) {
+            rootElement.appendChild(nodeElement.getContainer());
+        }
+
+        return asWidget;
     }
 
     @Override

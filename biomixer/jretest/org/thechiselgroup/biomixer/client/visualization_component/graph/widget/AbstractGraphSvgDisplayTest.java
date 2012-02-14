@@ -35,19 +35,22 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected GraphSvgDisplay underTest;
 
-    protected void addArc(String arcId, String sourceNodeId,
+    protected Arc addArc(String arcId, String sourceNodeId,
             String targetNodeId, String type, boolean directed) {
-        underTest.addArc(new Arc(arcId, sourceNodeId, targetNodeId, type,
-                directed));
+        Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, directed);
+        underTest.addArc(arc);
+        return arc;
     }
 
-    protected void addNode(String id, String label, String type) {
-        underTest.addNode(new Node(id, label, type));
+    protected Node addNode(String id, String label, String type) {
+        Node node = new Node(id, label, type);
+        underTest.addNode(node);
+        return node;
     }
 
     @Before
     public void setUpGraphDisplay() {
-        underTest = new GraphSvgDisplay(new TextSvgElementFactory());
+        underTest = new GraphSvgDisplay(400, 300, new TextSvgElementFactory());
     }
 
 }

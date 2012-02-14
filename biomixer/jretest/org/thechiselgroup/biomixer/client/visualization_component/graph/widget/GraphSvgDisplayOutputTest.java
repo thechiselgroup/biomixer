@@ -36,8 +36,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     @Test
     public void addTwoNodesAddArcSetLocationShouldCauseArcToReposition() {
         addNode(ID1, LABEL1, TYPE);
-        Node node2 = new Node(ID2, LABEL2, TYPE);
-        underTest.addNode(node2);
+        Node node2 = addNode(ID2, LABEL2, TYPE);
         addArc(ARC_ID1, ID1, ID2, TYPE, true);
         underTest.setLocation(node2, new Point(130, 0));
         assertSvgElementEqualsFile("twoNodesOneArc", underTest.asSvg());
@@ -45,10 +44,8 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void addTwoNodesAndSetNewLocation() {
-        Node node1 = new Node(ID1, LABEL1, TYPE);
-        Node node2 = new Node(ID2, LABEL2, TYPE);
-        underTest.addNode(node1);
-        underTest.addNode(node2);
+        addNode(ID1, LABEL1, TYPE);
+        Node node2 = addNode(ID2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
         assertSvgElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
     }
@@ -62,10 +59,8 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void addTwoNodesRemoveOne() {
-        Node node1 = new Node(ID1, LABEL1, TYPE);
-        Node node2 = new Node(ID2, LABEL2, TYPE);
-        underTest.addNode(node1);
-        underTest.addNode(node2);
+        Node node1 = addNode(ID1, LABEL1, TYPE);
+        addNode(ID2, LABEL2, TYPE);
         underTest.removeNode(node1);
         assertSvgElementEqualsFile("addTwoNodesRemoveOne", underTest.asSvg());
     }
@@ -73,8 +68,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     @Test
     public void addTwoNodesSetLocationAddArc() {
         addNode(ID1, LABEL1, TYPE);
-        Node node2 = new Node(ID2, LABEL2, TYPE);
-        underTest.addNode(node2);
+        Node node2 = addNode(ID2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
         addArc(ARC_ID1, ID1, ID2, TYPE, true);
         assertSvgElementEqualsFile("twoNodesOneArc", underTest.asSvg());
@@ -83,23 +77,18 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     @Test
     public void removeArcBetweenTwoNodes() {
         addNode(ID1, LABEL1, TYPE);
-        Node node2 = new Node(ID2, LABEL2, TYPE);
-        underTest.addNode(node2);
+        Node node2 = addNode(ID2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = new Arc(ARC_ID1, ID1, ID2, TYPE, true);
-        underTest.addArc(arc);
+        Arc arc = addArc(ARC_ID1, ID1, ID2, TYPE, true);
         underTest.removeArc(arc);
         assertSvgElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
     }
 
     @Test
     public void removingNodeShouldRemoveArc() {
-        Node node1 = new Node(ID1, LABEL1, TYPE);
-        Node node2 = new Node(ID2, LABEL2, TYPE);
-        underTest.addNode(node1);
-        underTest.addNode(node2);
-        Arc arc = new Arc(ARC_ID1, ID1, ID2, TYPE, true);
-        underTest.addArc(arc);
+        Node node1 = addNode(ID1, LABEL1, TYPE);
+        Node node2 = addNode(ID2, LABEL2, TYPE);
+        addArc(ARC_ID1, ID1, ID2, TYPE, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
         assertSvgElementEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1",
