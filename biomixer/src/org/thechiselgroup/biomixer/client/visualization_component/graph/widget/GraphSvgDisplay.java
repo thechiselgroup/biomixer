@@ -30,7 +30,7 @@ import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgWidget implements GraphDisplay {
+public class GraphSvgDisplay implements GraphDisplay {
 
     private SvgElementFactory svgElementFactory;
 
@@ -42,11 +42,11 @@ public class GraphSvgWidget implements GraphDisplay {
 
     private ArcElementList arcs = new ArcElementList();
 
-    public GraphSvgWidget(int width, int height) {
+    public GraphSvgDisplay(int width, int height) {
         this(new JsDomSvgElementFactory());
     }
 
-    public GraphSvgWidget(SvgElementFactory svgElementFactory) {
+    public GraphSvgDisplay(SvgElementFactory svgElementFactory) {
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
         this.nodeElementFactory = new NodeElementFactory(svgElementFactory);

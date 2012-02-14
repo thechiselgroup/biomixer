@@ -54,7 +54,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphSvgWidget;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphSvgDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandleMouseDownEvent;
@@ -85,7 +85,7 @@ import com.google.inject.Inject;
 public class Graph extends AbstractViewContentDisplay implements
         RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
 
-    public static class DefaultDisplay extends GraphSvgWidget implements
+    public static class DefaultDisplay extends GraphSvgDisplay implements
             GraphDisplay {
 
         // TODO why is size needed in the first place??
