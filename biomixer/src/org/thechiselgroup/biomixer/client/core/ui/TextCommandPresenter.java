@@ -62,10 +62,11 @@ public class TextCommandPresenter implements Initializable {
         TextBoxActionHandler handler = new TextBoxActionHandler() {
             @Override
             protected void execute() {
-                if (textBox.getText().equals("")) {
+                String query = textBox.getText().trim();
+                if (query.length() == 0) {
                     return;
                 }
-                hasTextParameter.initParameter(textBox.getText());
+                hasTextParameter.initParameter(query);
 
                 // remove focus after enter / click
                 textBox.setFocus(false);

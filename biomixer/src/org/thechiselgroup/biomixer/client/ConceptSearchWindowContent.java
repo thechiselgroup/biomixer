@@ -21,7 +21,6 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 
 import java.util.Set;
 
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
@@ -40,6 +39,7 @@ import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAs
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -159,12 +159,17 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
             return;
         }
 
-        searchService.searchConcepts(
-                searchTerm,
-                new ErrorHandlingAsyncCallback<Set<Resource>>(resultView
-                        .getErrorHandler()) {
+        searchService.searchConcepts(searchTerm,
+                new AsyncCallback<Set<Resource>>() {
                     @Override
-                    public void runOnSuccess(Set<Resource> result) {
+                    public void onFailure(Throwable caught) {
+                        infoLabel.setText("Search failed for '" + searchTerm
+                                + "'");
+                        deckPanel.updateWindowSize();
+                    }
+
+                    @Override
+                    public void onSuccess(Set<Resource> result) {
                         if (result.isEmpty()) {
                             infoLabel
                                     .setText("No concepts found for search term '"
@@ -193,19 +198,6 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
                                 TextVisualization.FONT_SIZE_SLOT,
                                 // was: size 12
                                 FIXED_NUMBER_1_RESOLVER_FACTORY.create());
-                    }
-
-                    // TODO showWidget and updateWindowSize are not part of
-                    // wrapping the exception, but they need to happen on
-                    // failure, and onFailure was changed to final so they can't
-                    // be put there
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        infoLabel.setText("Error");
-                        deckPanel.showWidget(0);
-                        deckPanel.updateWindowSize();
-                        return new Exception("Search failed for '" + searchTerm
-                                + "'", caught);
                     }
 
                 });

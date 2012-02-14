@@ -247,10 +247,6 @@ public class DefaultView implements View {
         return contentType;
     }
 
-    public ErrorHandler getErrorHandler() {
-        return errorHandler;
-    }
-
     @Override
     public String getLabel() {
         return label;
