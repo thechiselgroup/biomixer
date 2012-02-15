@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
-import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiableSet;
+import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.event.PrioritizedHandlerManager;
@@ -46,7 +46,7 @@ public class DefaultSlotMappingConfiguration implements
     /**
      * All allowed slots by their ids.
      */
-    private IdentifiableSet<Slot> slotsByID = new IdentifiableSet<Slot>();
+    private IdentifiablesSet<Slot> slotsByID = new IdentifiablesSet<Slot>();
 
     private Slot[] slots;
 

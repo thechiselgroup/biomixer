@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.core.util.collections;
 
 public class Registry<T extends Identifiable> {
 
-    private IdentifiableSet<T> registeredObjects = new IdentifiableSet<T>();
+    private IdentifiablesSet<T> registeredObjects = new IdentifiablesSet<T>();
 
     public boolean contains(T t) {
         return registeredObjects.contains(t);

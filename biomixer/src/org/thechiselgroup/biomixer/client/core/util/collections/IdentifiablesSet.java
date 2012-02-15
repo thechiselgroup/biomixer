@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.core.util.collections;
 import java.util.Iterator;
 import java.util.Map;
 
-public class IdentifiableSet<T extends Identifiable> implements Iterable<T> {
+public class IdentifiablesSet<T extends Identifiable> implements Iterable<T> {
 
     private Map<String, T> content = CollectionFactory.createStringMap();
 
