@@ -516,7 +516,7 @@ public class DefaultView implements View {
         updateContentDisplaySize();
     }
 
-    public void updateContentDisplaySize() {
+    private void updateContentDisplaySize() {
         /*
          * special resize method required, because otherwise window height
          * cannot be reduced by dragging - see

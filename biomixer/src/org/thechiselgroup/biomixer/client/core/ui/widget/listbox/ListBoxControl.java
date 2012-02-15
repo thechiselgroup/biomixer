@@ -184,6 +184,6 @@ public class ListBoxControl<T> implements IsWidget {
 
     public void setVisible(boolean visible) {
         presenter.setVisible(visible);
-        fireVisibilityChangeEvent(new VisibilityChangeEvent(this));
+        fireVisibilityChangeEvent(new VisibilityChangeEvent(visible, this));
     }
 }
