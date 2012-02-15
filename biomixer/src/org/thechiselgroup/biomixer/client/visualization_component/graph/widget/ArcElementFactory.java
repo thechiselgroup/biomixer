@@ -34,8 +34,8 @@ public class ArcElementFactory {
         Point targetNodeMidPoint = targetNode.getMidPoint();
 
         SvgElement line = svgElementFactory.createElement(Svg.LINE);
-        // TODO find out how to set properties
-        line.setAttribute("style", "stroke:black;");
+        // TODO proper colour
+        line.setAttribute(Svg.STROKE, "black");
         line.setAttribute(Svg.X1, sourceNodeMidPoint.getX());
         line.setAttribute(Svg.X2, targetNodeMidPoint.getX());
         line.setAttribute(Svg.Y1, sourceNodeMidPoint.getY());
