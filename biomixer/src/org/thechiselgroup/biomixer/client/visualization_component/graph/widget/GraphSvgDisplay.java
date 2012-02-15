@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -39,9 +40,9 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private NodeElementFactory nodeElementFactory;
 
-    private NodeElementList nodes = new NodeElementList();
+    private IdentifiablesSet<NodeElement> nodes = new IdentifiablesSet<NodeElement>();
 
-    private ArcElementList arcs = new ArcElementList();
+    private IdentifiablesSet<ArcElement> arcs = new IdentifiablesSet<ArcElement>();
 
     private SvgWidget asWidget;
 
@@ -66,22 +67,22 @@ public class GraphSvgDisplay implements GraphDisplay {
     @Override
     public void addArc(Arc arc) {
         assert arc != null;
-        assert !arcs.containsArcWithId(arc.getId()) : "arc '" + arc.getId()
+        assert !arcs.contains(arc.getId()) : "arc '" + arc.getId()
                 + "'must not be already contained";
 
         String sourceNodeId = arc.getSourceNodeId();
         String targetNodeId = arc.getTargetNodeId();
 
-        assert nodes.containsNodeWithId(sourceNodeId) : "source node '"
-                + sourceNodeId + "' must be available";
-        assert nodes.containsNodeWithId(targetNodeId) : "target node '"
-                + targetNodeId + "' must be available";
+        assert nodes.contains(sourceNodeId) : "source node '" + sourceNodeId
+                + "' must be available";
+        assert nodes.contains(targetNodeId) : "target node '" + targetNodeId
+                + "' must be available";
 
-        NodeElement sourceNode = nodes.getNodeElement(sourceNodeId);
-        NodeElement targetNode = nodes.getNodeElement(targetNodeId);
+        NodeElement sourceNode = nodes.get(sourceNodeId);
+        NodeElement targetNode = nodes.get(targetNodeId);
         ArcElement arcElement = arcElementFactory.createArcElement(arc,
                 sourceNode, targetNode);
-        arcs.add(arcElement);
+        arcs.put(arcElement);
         sourceNode.addConnectedArc(arcElement);
         targetNode.addConnectedArc(arcElement);
     }
@@ -109,15 +110,14 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void addNode(Node node) {
-        assert !nodes.containsNodeWithId(node.getId()) : "node must not be contained";
-        nodes.add(nodeElementFactory.createNodeElement(node));
+        assert !nodes.contains(node.getId()) : "node must not be contained";
+        nodes.put(nodeElementFactory.createNodeElement(node));
     }
 
     @Override
     public void addNodeMenuItemHandler(String menuLabel,
             NodeMenuItemClickedHandler handler, String nodeClass) {
         // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -174,50 +174,52 @@ public class GraphSvgDisplay implements GraphDisplay {
     @Override
     public boolean containsArc(String arcId) {
         assert arcId != null;
-        return arcs.containsArcWithId(arcId);
+        return arcs.contains(arcId);
     }
 
     @Override
     public boolean containsNode(String nodeId) {
         assert nodeId != null;
-        return nodes.containsNodeWithId(nodeId);
+        return nodes.contains(nodeId);
     }
 
     @Override
     public Arc getArc(String arcId) {
         assert arcId != null;
-        assert arcs.containsArcWithId(arcId);
-        return arcs.getArcElement(arcId).getArc();
+        assert arcs.contains(arcId);
+        return arcs.get(arcId).getArc();
     }
 
     @Override
     public Point getLocation(Node node) {
         assert node != null;
-        assert nodes.containsNodeWithId(node.getId());
-        return nodes.getNodeElement(node.getId()).getLocation();
+        assert nodes.contains(node.getId());
+        return nodes.get(node.getId()).getLocation();
     }
 
     @Override
     public Node getNode(String nodeId) {
         assert nodeId != null;
-        assert nodes.containsNodeWithId(nodeId);
-        return nodes.getNodeElement(nodeId).getNode();
+        assert nodes.contains(nodeId);
+        return nodes.get(nodeId).getNode();
     }
 
     @Override
     public void removeArc(Arc arc) {
         assert arc != null;
-        assert arcs.containsArcWithId(arc.getId());
-        arcs.remove(arc.getId());
+        String id = arc.getId();
+        assert arcs.contains(id);
+        arcs.get(id).removeNodeConnections();
+        arcs.remove(id);
     }
 
     @Override
     public void removeNode(Node node) {
         assert node != null;
-        assert nodes.containsNodeWithId(node.getId());
+        assert nodes.contains(node.getId());
 
         List<ArcElement> connectedArcElements = new ArrayList<ArcElement>();
-        connectedArcElements.addAll(nodes.getNodeElement(node.getId())
+        connectedArcElements.addAll(nodes.get(node.getId())
                 .getConnectedArcElements());
 
         for (ArcElement arcElement : connectedArcElements) {
@@ -248,8 +250,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void setLocation(Node node, Point location) {
-        assert nodes.containsNodeWithId(node.getId());
-        nodes.getNodeElement(node.getId()).setLocation(location);
+        assert nodes.contains(node.getId());
+        nodes.get(node.getId()).setLocation(location);
     }
 
     @Override

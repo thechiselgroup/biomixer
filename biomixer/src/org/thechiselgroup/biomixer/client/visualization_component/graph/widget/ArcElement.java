@@ -16,10 +16,11 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class ArcElement {
+public class ArcElement implements Identifiable {
 
     private Arc arc;
 
@@ -44,7 +45,8 @@ public class ArcElement {
         return arc;
     }
 
-    public String getArcId() {
+    @Override
+    public String getId() {
         return getArc().getId();
     }
 

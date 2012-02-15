@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
@@ -28,7 +29,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
-public class NodeElement {
+public class NodeElement implements Identifiable {
 
     private Node node;
 
@@ -60,6 +61,11 @@ public class NodeElement {
         return container;
     }
 
+    @Override
+    public String getId() {
+        return getNode().getId();
+    }
+
     public Point getLocation() {
         return new Point((int) Double.parseDouble(container
                 .getAttributeAsString(Svg.X)),
@@ -81,10 +87,6 @@ public class NodeElement {
 
     public Node getNode() {
         return node;
-    }
-
-    public String getNodeId() {
-        return getNode().getId();
     }
 
     public SvgElement getRectangle() {
