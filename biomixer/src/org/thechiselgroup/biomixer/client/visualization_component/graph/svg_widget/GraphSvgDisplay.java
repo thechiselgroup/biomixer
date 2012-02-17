@@ -147,6 +147,12 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
         nodes.put(nodeElementFactory.createNodeElement(node));
+        // if this isn't the first node, need to position it
+        if (asWidget != null && nodes.size() > 1) {
+            // XXX need to rework how asWidget works and how things get added
+            asWidget();
+            setLocation(node, new Point(width / 2, height / 2));
+        }
     }
 
     @Override

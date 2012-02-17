@@ -66,6 +66,10 @@ public class IdentifiablesSet<T extends Identifiable> implements Iterable<T> {
         content.remove(id);
     }
 
+    public int size() {
+        return content.size();
+    }
+
     @Override
     public String toString() {
         return content.toString();

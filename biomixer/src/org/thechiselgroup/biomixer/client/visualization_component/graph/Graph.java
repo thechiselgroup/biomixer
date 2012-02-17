@@ -609,16 +609,14 @@ public class Graph extends AbstractViewContentDisplay implements
 
         assert node != null;
 
-        // if (getVisualItems().size() > 1) {
-        // return;
-        // }
+        if (getVisualItems().size() > 1) {
+            return;
+        }
 
         Widget displayWidget = graphDisplay.asWidget();
         if (displayWidget == null) {
             return; // for tests
         }
-
-        // TODO: algorithm for finding an unused place on graph
 
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();
