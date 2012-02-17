@@ -97,6 +97,8 @@ public final class Svg {
 
     public static final String Y2 = "y2";
 
+    public static final String STROKE_DASHARRAY = "stroke-dasharray";
+
     public static final String FONT_SIZE = "font-size";
 
     public static final String FONT_FAMILY = "font-family";

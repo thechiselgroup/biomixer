@@ -23,14 +23,19 @@ public class NodeElementFactory {
 
     private SvgElementFactory svgElementFactory;
 
-    public NodeElementFactory(SvgElementFactory svgElementFactory) {
+    private GraphSvgDisplay graphDisplay;
+
+    public NodeElementFactory(SvgElementFactory svgElementFactory,
+            GraphSvgDisplay graphDisplay) {
         this.svgElementFactory = svgElementFactory;
+        this.graphDisplay = graphDisplay;
     }
 
-    public NodeElement createNodeElement(Node node) {
+    public NodeElement createNodeElement(final Node node) {
         assert node != null;
 
         SvgElement nodeContainer = svgElementFactory.createElement(Svg.SVG);
+        nodeContainer.setAttribute(Svg.ID, node.getId());
         nodeContainer.setAttribute(Svg.X, 0.0);
         nodeContainer.setAttribute(Svg.Y, 0.0);
 
@@ -55,6 +60,9 @@ public class NodeElementFactory {
 
         nodeContainer.appendChild(rectangle);
         nodeContainer.appendChild(text);
+
+        nodeContainer.setEventListener(new SvgNodeEventHandler(node.getId(),
+                graphDisplay));
 
         return new NodeElement(node, nodeContainer, rectangle, text);
     }

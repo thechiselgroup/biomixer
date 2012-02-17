@@ -27,9 +27,9 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected static final String LABEL2 = "Concept2";
 
-    protected static final String ID1 = "id1";
+    protected static final String ID1 = "n1";
 
-    protected static final String ID2 = "id2";
+    protected static final String ID2 = "n2";
 
     protected static final String ARC_ID1 = "aid1";
 

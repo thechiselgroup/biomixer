@@ -27,6 +27,7 @@ import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
+import com.google.gwt.event.dom.client.DomEvent;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerRegistration;
@@ -52,6 +53,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
+        asWidget = new SvgWidget();
+        asWidget.setPixelSize(width, height);
     }
 
     public GraphSvgDisplay(int width, int height,
@@ -61,7 +64,8 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
-        this.nodeElementFactory = new NodeElementFactory(svgElementFactory);
+        this.nodeElementFactory = new NodeElementFactory(svgElementFactory,
+                this);
     }
 
     @Override
@@ -90,22 +94,36 @@ public class GraphSvgDisplay implements GraphDisplay {
     @Override
     public <T extends EventHandler> HandlerRegistration addEventHandler(
             Type<T> type, T handler) {
-        // TODO Auto-generated method stub
-        return null;
+        assert type != null;
+        assert handler != null;
+
+        if (type instanceof DomEvent.Type) {
+            return asWidget.addDomHandler(handler, (DomEvent.Type<T>) type);
+        } else {
+            return asWidget.addHandler(handler, type);
+        }
     }
 
     @Override
     public HandlerRegistration addGraphDisplayLoadingFailureHandler(
             GraphDisplayLoadingFailureEventHandler handler) {
-        // TODO Auto-generated method stub
-        return null;
+
+        assert handler != null;
+
+        return asWidget.addHandler(handler,
+                GraphDisplayLoadingFailureEvent.TYPE);
     }
 
     @Override
     public HandlerRegistration addGraphDisplayReadyHandler(
             GraphDisplayReadyEventHandler handler) {
-        // TODO Auto-generated method stub
-        return null;
+
+        assert handler != null;
+
+        HandlerRegistration handlerRegistration = asWidget.addHandler(handler,
+                GraphDisplayReadyEvent.TYPE);
+        onWidgetReady();
+        return handlerRegistration;
     }
 
     @Override
@@ -122,7 +140,9 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
-        // TODO
+        // TODO animate by finding intermediate positions along path to
+        // targetLocations and using setLocation on each of them in turn?
+        setLocation(node, targetLocation);
     }
 
     public SvgElement asSvg() {
@@ -143,12 +163,6 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public Widget asWidget() {
-        if (asWidget == null) {
-            asWidget = new SvgWidget();
-            asWidget.setPixelSize(width, height);
-        }
-        asWidget.clear();
-
         SvgElement rootElement = asWidget.getSvgElement();
 
         // add white background
@@ -204,6 +218,56 @@ public class GraphSvgDisplay implements GraphDisplay {
         return nodes.get(nodeId).getNode();
     }
 
+    public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
+        Point startLocation = nodes.get(nodeId).getLocation();
+        int startX = startLocation.getX();
+        int startY = startLocation.getY();
+        int endX = startX + deltaX;
+        int endY = startY + deltaY;
+
+        animateMoveTo(nodes.get(nodeId).getNode(), new Point(endX, endY));
+        asWidget.fireEvent(new NodeDragEvent(nodes.get(nodeId).getNode(),
+                startX, startY, endX, endY));
+    }
+
+    public void onNodeDragHandleMouseMove(String nodeID, int mouseX, int mouseY) {
+        asWidget.fireEvent(new NodeDragHandleMouseMoveEvent(getNode(nodeID),
+                mouseX, mouseY));
+    }
+
+    public void onNodeMouseClick(String nodeId, int mouseX, int mouseY) {
+        int x = asWidget.getAbsoluteLeft() + mouseX;
+        int y = asWidget.getAbsoluteTop() + mouseY;
+
+        asWidget.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
+    }
+
+    public void onNodeMouseDoubleClick(String nodeId, int mouseX, int mouseY) {
+        int x = asWidget.getAbsoluteLeft() + mouseX;
+        int y = asWidget.getAbsoluteTop() + mouseY;
+
+        asWidget.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId), x, y));
+    }
+
+    public void onNodeMouseOut(String nodeID, int mouseX, int mouseY) {
+        int x = asWidget.getAbsoluteLeft() + mouseX;
+        int y = asWidget.getAbsoluteTop() + mouseY;
+
+        asWidget.fireEvent(new NodeMouseOutEvent(getNode(nodeID), x, y));
+    }
+
+    public void onNodeMouseOver(String nodeId, int mouseX, int mouseY) {
+        int x = asWidget.getAbsoluteLeft() + mouseX;
+        int y = asWidget.getAbsoluteTop() + mouseY;
+
+        asWidget.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
+                x, y));
+    }
+
+    private void onWidgetReady() {
+        asWidget.fireEvent(new GraphDisplayReadyEvent(this));
+    }
+
     @Override
     public void removeArc(Arc arc) {
         assert arc != null;
@@ -245,7 +309,19 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void setArcStyle(Arc arc, String styleProperty, String styleValue) {
-        // TODO
+        ArcElement arcElement = arcs.get(arc.getId());
+
+        if (styleProperty.equals(ArcSettings.ARC_COLOR)) {
+            arcElement.setColor(styleValue);
+        }
+
+        else if (styleProperty.equals(ArcSettings.ARC_STYLE)) {
+            arcElement.setArcStyle(styleValue);
+        }
+
+        else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
+            arcElement.setArcThickness(styleValue);
+        }
     }
 
     @Override
@@ -256,7 +332,24 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void setNodeStyle(Node node, String styleProperty, String styleValue) {
-        // TODO
+        NodeElement nodeElement = nodes.get(node.getId());
+
+        if (styleProperty.equals(NODE_BACKGROUND_COLOR)) {
+            nodeElement.setBackgroundColor(styleValue);
+        }
+
+        else if (styleProperty.equals(NODE_FONT_COLOR)) {
+            nodeElement.setFontColor(styleValue);
+        }
+
+        else if (styleProperty.equals(NODE_FONT_WEIGHT)) {
+            nodeElement.setFontWeight(styleValue);
+        }
+
+        else if (styleProperty.equals(NODE_BORDER_COLOR)) {
+            nodeElement.setBorderColor(styleValue);
+        }
+
     }
 
 }

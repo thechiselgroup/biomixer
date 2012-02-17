@@ -101,6 +101,26 @@ public class NodeElement implements Identifiable {
         arcsConnectedToThisNode.remove(arc);
     }
 
+    public void setBackgroundColor(String color) {
+        rectangle.setAttribute(Svg.FILL, color);
+    }
+
+    public void setBorderColor(String color) {
+        rectangle.setAttribute(Svg.STROKE, color);
+    }
+
+    public void setFontColor(String color) {
+        text.setAttribute(Svg.FILL, color);
+    }
+
+    public void setFontWeight(String styleValue) {
+        if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_NORMAL)) {
+            text.setAttribute(Svg.FONT_WEIGHT, "normal");
+        } else if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_BOLD)) {
+            text.setAttribute(Svg.FONT_WEIGHT, "bold");
+        }
+    }
+
     public void setLocation(Point location) {
         container.setAttribute(Svg.X, location.getX());
         container.setAttribute(Svg.Y, location.getY());

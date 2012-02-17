@@ -67,6 +67,33 @@ public class ArcElement implements Identifiable {
         target.removeConnectedArc(this);
     }
 
+    /**
+     * Sets the arc style as either solid or dashed
+     * 
+     * @param styleValue
+     *            Use either ArcSettings.ARC_STYLE_SOLID or
+     *            ArcSettings.ARC_STYLE_DASHED
+     * 
+     */
+    public void setArcStyle(String arcStyle) {
+        if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)) {
+            // TODO: currently setting gap in dash array to 0. Should really
+            // have some way of removing the attribute.
+            arcSvgElement.setAttribute(Svg.STROKE_DASHARRAY, "10, 0");
+        } else if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)) {
+            // 10px dash, 5px gap
+            arcSvgElement.setAttribute(Svg.STROKE_DASHARRAY, "10, 5");
+        }
+    }
+
+    public void setArcThickness(String thickness) {
+        arcSvgElement.setAttribute(Svg.STROKE_WIDTH, thickness);
+    }
+
+    public void setColor(String color) {
+        arcSvgElement.setAttribute(Svg.STROKE, color);
+    }
+
     public void updateSourcePoint() {
         Point midPoint = source.getMidPoint();
         arcSvgElement.setAttribute(Svg.X1, midPoint.getX());
