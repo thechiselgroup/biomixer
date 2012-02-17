@@ -76,11 +76,10 @@ public class ArcElement implements Identifiable {
      * 
      */
     public void setArcStyle(String arcStyle) {
-        if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)) {
-            // TODO: currently setting gap in dash array to 0. Should really
-            // have some way of removing the attribute.
-            arcSvgElement.setAttribute(Svg.STROKE_DASHARRAY, "10, 0");
-        } else if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)) {
+        if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)
+                && arcSvgElement.hasAttribute(Svg.STROKE_DASHARRAY)) {
+            arcSvgElement.removeAttribute(Svg.STROKE_DASHARRAY);
+        } else if (arcStyle.equals(ArcSettings.ARC_STYLE_DASHED)) {
             // 10px dash, 5px gap
             arcSvgElement.setAttribute(Svg.STROKE_DASHARRAY, "10, 5");
         }

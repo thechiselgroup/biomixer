@@ -83,6 +83,12 @@ public class TextSvgElement implements SvgElement, SvgStyle {
     }
 
     @Override
+    public boolean hasAttribute(String attribute) {
+        // XXX check in cssAttributes?
+        return attributes.containsKey(attribute);
+    }
+
+    @Override
     public SvgElement insertBefore(SvgElement newChild, SvgElement refChild) {
         assert newChild != null;
         assert refChild != null;
@@ -93,6 +99,11 @@ public class TextSvgElement implements SvgElement, SvgStyle {
     @Override
     public void removeAllChildren() {
         children.clear();
+    }
+
+    @Override
+    public void removeAttribute(String attribute) {
+        attributes.remove(attribute);
     }
 
     @Override

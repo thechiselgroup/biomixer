@@ -128,7 +128,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void addNode(Node node) {
-        assert !nodes.contains(node.getId()) : "node must not be contained";
+        assert !nodes.contains(node.getId()) : node.toString()
+                + " must not be contained";
         nodes.put(nodeElementFactory.createNodeElement(node));
     }
 

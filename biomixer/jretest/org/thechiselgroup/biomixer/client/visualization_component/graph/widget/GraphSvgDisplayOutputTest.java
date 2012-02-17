@@ -75,6 +75,14 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         assertSvgElementEqualsFile("twoNodesOneArc", underTest.asSvg());
     }
 
+    private Arc addTwoSeparatedNodesWithArc() {
+        addNode(ID1, LABEL1, TYPE);
+        Node node2 = addNode(ID2, LABEL2, TYPE);
+        underTest.setLocation(node2, new Point(130, 0));
+        Arc arc = addArc(ARC_ID1, ID1, ID2, TYPE, true);
+        return arc;
+    }
+
     @Test
     public void animateToMovesOneNodeFinalDesinationShouldBeNewPoint() {
         Node node = addNode(ID1, LABEL1, TYPE);
@@ -84,10 +92,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void removeArcBetweenTwoNodes() {
-        addNode(ID1, LABEL1, TYPE);
-        Node node2 = addNode(ID2, LABEL2, TYPE);
-        underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = addArc(ARC_ID1, ID1, ID2, TYPE, true);
+        Arc arc = addTwoSeparatedNodesWithArc();
         underTest.removeArc(arc);
         assertSvgElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
     }
@@ -101,6 +106,46 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         underTest.removeNode(node1);
         assertSvgElementEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1",
                 underTest.asSvg());
+    }
+
+    @Test
+    public void setArcColor() {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_COLOR, "#AFC6E5");
+        assertSvgElementEqualsFile("setArcColor", underTest.asSvg());
+    }
+
+    @Test
+    public void setArcStyleDashed() {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DASHED);
+        assertSvgElementEqualsFile("setArcStyleDashed", underTest.asSvg());
+    }
+
+    @Test
+    public void setArcStyleDashedThenSolid() {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DASHED);
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_SOLID);
+        assertSvgElementEqualsFile("setArcStyleSolid", underTest.asSvg());
+    }
+
+    @Test
+    public void setArcStyleSolid() {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_SOLID);
+        assertSvgElementEqualsFile("setArcStyleSolid", underTest.asSvg());
+    }
+
+    @Test
+    public void setArcThickness() {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_THICKNESS, "3");
+        assertSvgElementEqualsFile("setArcThickness", underTest.asSvg());
     }
 
     @Test
@@ -145,5 +190,4 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         assertSvgElementEqualsFile("setNodeFontWeightBoldThenNormal",
                 underTest.asSvg());
     }
-
 }
