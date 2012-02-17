@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +23,22 @@ import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandleMouseMoveEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMenuItemClickedHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseDoubleClickEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;

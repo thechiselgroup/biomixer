@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.junit.Before;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
 public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
