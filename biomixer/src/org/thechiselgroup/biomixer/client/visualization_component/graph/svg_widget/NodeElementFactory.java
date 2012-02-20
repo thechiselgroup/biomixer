@@ -22,6 +22,12 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 public class NodeElementFactory {
 
+    public static final double TEXT_BUFFER = 10.0;
+
+    public static final double RX_DEFAULT = 10.0;
+
+    public static final double RY_DEFAULT = 10.0;
+
     private SvgElementFactory svgElementFactory;
 
     private GraphSvgDisplay graphDisplay;
@@ -40,22 +46,34 @@ public class NodeElementFactory {
         nodeContainer.setAttribute(Svg.X, 0.0);
         nodeContainer.setAttribute(Svg.Y, 0.0);
 
+        SvgElement text = svgElementFactory.createElement(Svg.TEXT);
+        text.setTextContent(node.getLabel());
+        text.setAttribute(Svg.X, 0.0);
+        text.setAttribute(Svg.Y, 0.0);
+
+        // XXX causing errors. Because not rendered yet?
+        // SizeDouble textBBox = text.getBBox();
+        // double textWidth = textBBox.getWidth();
+        // double textHeight = textBBox.getHeight();
+
         SvgElement rectangle = svgElementFactory.createElement(Svg.RECT);
         rectangle.setAttribute(Svg.FILL, "white");
         // TODO proper colors
         rectangle.setAttribute(Svg.STROKE, "black");
-        rectangle.setAttribute(Svg.RX, 10.0);
-        rectangle.setAttribute(Svg.RY, 10.0);
+        rectangle.setAttribute(Svg.RX, RX_DEFAULT);
+        rectangle.setAttribute(Svg.RY, RY_DEFAULT);
 
         // TODO currently using default width and height. Should be determined
         // based on text size.
+        // rectangle.setAttribute(Svg.WIDTH, textWidth + 2 * TEXT_BUFFER);
+        // rectangle.setAttribute(Svg.HEIGHT, textHeight + 2 * TEXT_BUFFER);
         rectangle.setAttribute(Svg.WIDTH, 100.0);
         rectangle.setAttribute(Svg.HEIGHT, 40.0);
         rectangle.setAttribute(Svg.X, 0.0);
         rectangle.setAttribute(Svg.Y, 0.0);
 
-        SvgElement text = svgElementFactory.createElement(Svg.TEXT);
-        text.setTextContent(node.getLabel());
+        // text.setAttribute(Svg.X, TEXT_BUFFER);
+        // text.setAttribute(Svg.Y, TEXT_BUFFER);
         text.setAttribute(Svg.X, 10.0);
         text.setAttribute(Svg.Y, 20.0);
 
