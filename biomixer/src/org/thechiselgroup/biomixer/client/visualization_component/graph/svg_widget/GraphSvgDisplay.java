@@ -80,8 +80,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
-        this.nodeElementFactory = new NodeElementFactory(svgElementFactory,
-                this);
+        this.nodeElementFactory = new NodeElementFactory(svgElementFactory);
     }
 
     @Override
@@ -146,7 +145,10 @@ public class GraphSvgDisplay implements GraphDisplay {
     public void addNode(Node node) {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
-        nodes.put(nodeElementFactory.createNodeElement(node));
+        NodeElement nodeElement = nodeElementFactory.createNodeElement(node);
+        nodeElement.getContainer().setEventListener(
+                new SvgNodeEventHandler(node.getId(), this));
+        nodes.put(nodeElement);
         // if this isn't the first node, need to position it
         if (asWidget != null && nodes.size() > 1) {
             // XXX need to rework how asWidget works and how things get added
