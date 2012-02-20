@@ -61,6 +61,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private IdentifiablesSet<ArcElement> arcs = new IdentifiablesSet<ArcElement>();
 
+    private SvgElement background;
+
     private SvgWidget asWidget;
 
     private int width;
@@ -70,6 +72,7 @@ public class GraphSvgDisplay implements GraphDisplay {
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
         asWidget = new SvgWidget();
+        asWidget.getSvgElement().appendChild(background);
         asWidget.setPixelSize(width, height);
     }
 
@@ -81,6 +84,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
         this.nodeElementFactory = new NodeElementFactory(svgElementFactory);
+        initBackground(width, height);
     }
 
     @Override
@@ -104,6 +108,18 @@ public class GraphSvgDisplay implements GraphDisplay {
         arcs.put(arcElement);
         sourceNode.addConnectedArc(arcElement);
         targetNode.addConnectedArc(arcElement);
+
+        if (asWidget != null) {
+            SvgElement rootElement = asWidget.getSvgElement();
+            // put arc right after background element so that nodes will be
+            // drawn on top
+            if (rootElement.getChildCount() == 1) {
+                rootElement.appendChild(arcElement.getSvgElement());
+            } else {
+                rootElement.insertBefore(arcElement.getSvgElement(),
+                        rootElement.getChild(1));
+            }
+        }
     }
 
     @Override
@@ -119,6 +135,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         }
     }
 
+    // TODO remove
     @Override
     public HandlerRegistration addGraphDisplayLoadingFailureHandler(
             GraphDisplayLoadingFailureEventHandler handler) {
@@ -129,6 +146,7 @@ public class GraphSvgDisplay implements GraphDisplay {
                 GraphDisplayLoadingFailureEvent.TYPE);
     }
 
+    // TODO remove
     @Override
     public HandlerRegistration addGraphDisplayReadyHandler(
             GraphDisplayReadyEventHandler handler) {
@@ -150,11 +168,15 @@ public class GraphSvgDisplay implements GraphDisplay {
                 new SvgNodeEventHandler(node.getId(), this));
         nodes.put(nodeElement);
         // if this isn't the first node, need to position it
+        // XXX remove this once FlexVis has been completely replaced
         if (asWidget != null && nodes.size() > 1) {
-            // XXX need to rework how asWidget works and how things get added
-            asWidget();
             setLocation(node, new Point(width / 2, height / 2));
         }
+
+        if (asWidget != null) {
+            asWidget.getSvgElement().appendChild(nodeElement.getContainer());
+        }
+
     }
 
     @Override
@@ -188,25 +210,6 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public Widget asWidget() {
-        SvgElement rootElement = asWidget.getSvgElement();
-
-        // add white background
-        SvgElement background = asWidget.getSvgElementFactory().createElement(
-                Svg.RECT);
-        background.setAttribute(Svg.WIDTH, width);
-        background.setAttribute(Svg.HEIGHT, height);
-        background.setAttribute(Svg.FILL, "white");
-        rootElement.appendChild(background);
-
-        for (ArcElement arcElement : arcs) {
-            rootElement.appendChild(arcElement.getSvgElement());
-        }
-
-        // Nodes should be added after arcs so that they are drawn on top
-        for (NodeElement nodeElement : nodes) {
-            rootElement.appendChild(nodeElement.getContainer());
-        }
-
         return asWidget;
     }
 
@@ -241,6 +244,13 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert nodeId != null;
         assert nodes.contains(nodeId);
         return nodes.get(nodeId).getNode();
+    }
+
+    private void initBackground(int width, int height) {
+        background = svgElementFactory.createElement(Svg.RECT);
+        background.setAttribute(Svg.WIDTH, width);
+        background.setAttribute(Svg.HEIGHT, height);
+        background.setAttribute(Svg.FILL, "white");
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
@@ -300,6 +310,10 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert arcs.contains(id);
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
+
+        if (asWidget != null) {
+            asWidget.getSvgElement().removeChild(arc.getId());
+        }
     }
 
     @Override
@@ -315,6 +329,10 @@ public class GraphSvgDisplay implements GraphDisplay {
             removeArc(arcElement.getArc());
         }
         nodes.remove(node.getId());
+
+        if (asWidget != null) {
+            asWidget.getSvgElement().removeChild(node.getId());
+        }
     }
 
     @Override

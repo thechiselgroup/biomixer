@@ -3,9 +3,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.svg.javascript_renderer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgStyle;
 
@@ -118,6 +123,22 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
 			this.removeAttribute(attribute);
 		}
     }-*/;
+
+    @Override
+    public final void removeChild(String id) {
+        List<Integer> indicesToRemove = new ArrayList<Integer>();
+        for (int i = 0; i < getChildCount(); i++) {
+            SvgElement child = getChild(i);
+            if (child.hasAttribute(Svg.ID)
+                    && child.getAttributeAsString(Svg.ID).equals(id)) {
+                indicesToRemove.add(i);
+            }
+        }
+        Collections.reverse(indicesToRemove);
+        for (Integer index : indicesToRemove) {
+            removeChild(getChild(index.intValue()));
+        }
+    }
 
     @Override
     public final native SvgElement removeChild(SvgElement oldChild) /*-{

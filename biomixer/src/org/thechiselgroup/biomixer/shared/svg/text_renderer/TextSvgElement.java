@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.shared.svg.text_renderer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,6 +25,7 @@ import java.util.TreeMap;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgStyle;
 
@@ -104,6 +106,17 @@ public class TextSvgElement implements SvgElement, SvgStyle {
     @Override
     public void removeAttribute(String attribute) {
         attributes.remove(attribute);
+    }
+
+    @Override
+    public void removeChild(String id) {
+        for (Iterator<SvgElement> it = children.iterator(); it.hasNext();) {
+            SvgElement child = it.next();
+            if (child.hasAttribute(Svg.ID)
+                    && child.getAttributeAsString(Svg.ID).equals(id)) {
+                it.remove();
+            }
+        }
     }
 
     @Override

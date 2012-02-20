@@ -101,6 +101,14 @@ public interface SvgElement {
     void removeAttribute(String attribute);
 
     /**
+     * Removes all children found with the specified id.
+     * 
+     * @param id
+     *            The id attribute of the child to be removed.
+     */
+    void removeChild(String id);
+
+    /**
      * Removes the child node indicated by oldChild from the list of children,
      * and returns it.
      * 
