@@ -35,7 +35,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     @Test
     public void addNodePutsRectangleInSvg() {
         addNode(ID1, LABEL1, TYPE);
-        assertSvgElementEqualsFile("addSingleNode", underTest.asSvg());
+        assertSvgRootElementEqualsFile("addSingleNode", underTest.asSvg());
     }
 
     @Test
@@ -44,7 +44,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node2 = addNode(ID2, LABEL2, TYPE);
         addArc(ARC_ID1, ID1, ID2, TYPE, true);
         underTest.setLocation(node2, new Point(130, 0));
-        assertSvgElementEqualsFile("twoNodesOneArc", underTest.asSvg());
+        assertSvgRootElementEqualsFile("twoNodesOneArc", underTest.asSvg());
     }
 
     @Test
@@ -52,14 +52,14 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         addNode(ID1, LABEL1, TYPE);
         Node node2 = addNode(ID2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
-        assertSvgElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
+        assertSvgRootElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
     }
 
     @Test
-    public void addTwoNodesPutsRectanglesInSvg() {
+    public void addTwoNodes() {
         addNode(ID1, LABEL1, TYPE);
         addNode(ID2, LABEL2, TYPE);
-        assertSvgElementEqualsFile("addTwoNodes", underTest.asSvg());
+        assertSvgRootElementEqualsFile("addTwoNodes", underTest.asSvg());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node1 = addNode(ID1, LABEL1, TYPE);
         addNode(ID2, LABEL2, TYPE);
         underTest.removeNode(node1);
-        assertSvgElementEqualsFile("addTwoNodesRemoveOne", underTest.asSvg());
+        assertSvgRootElementEqualsFile("addTwoNodesRemoveOne", underTest.asSvg());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node2 = addNode(ID2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
         addArc(ARC_ID1, ID1, ID2, TYPE, true);
-        assertSvgElementEqualsFile("twoNodesOneArc", underTest.asSvg());
+        assertSvgRootElementEqualsFile("twoNodesOneArc", underTest.asSvg());
     }
 
     private Arc addTwoSeparatedNodesWithArc() {
@@ -91,14 +91,14 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     public void animateToMovesOneNodeFinalDesinationShouldBeNewPoint() {
         Node node = addNode(ID1, LABEL1, TYPE);
         underTest.animateMoveTo(node, new Point(100, 100));
-        assertSvgElementEqualsFile("animateMoveOneNode", underTest.asSvg());
+        assertSvgRootElementEqualsFile("animateMoveOneNode", underTest.asSvg());
     }
 
     @Test
     public void removeArcBetweenTwoNodes() {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.removeArc(arc);
-        assertSvgElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
+        assertSvgRootElementEqualsFile("addTwoNodesSetLocation", underTest.asSvg());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         addArc(ARC_ID1, ID1, ID2, TYPE, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
-        assertSvgElementEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1",
+        assertSvgRootElementEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1",
                 underTest.asSvg());
     }
 
@@ -116,7 +116,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     public void setArcColor() {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_COLOR, "#AFC6E5");
-        assertSvgElementEqualsFile("setArcColor", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setArcColor", underTest.asSvg());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_DASHED);
-        assertSvgElementEqualsFile("setArcStyleDashed", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setArcStyleDashed", underTest.asSvg());
     }
 
     @Test
@@ -134,7 +134,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
                 ArcSettings.ARC_STYLE_DASHED);
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
-        assertSvgElementEqualsFile("setArcStyleSolid", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setArcStyleSolid", underTest.asSvg());
     }
 
     @Test
@@ -142,14 +142,14 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
-        assertSvgElementEqualsFile("setArcStyleSolid", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setArcStyleSolid", underTest.asSvg());
     }
 
     @Test
     public void setArcThickness() {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_THICKNESS, "3");
-        assertSvgElementEqualsFile("setArcThickness", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setArcThickness", underTest.asSvg());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node = addNode(ID1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BACKGROUND_COLOR,
                 Colors.YELLOW_1);
-        assertSvgElementEqualsFile("setNodeBackgroundColor", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setNodeBackgroundColor", underTest.asSvg());
     }
 
     @Test
@@ -165,7 +165,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node = addNode(ID1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BORDER_COLOR,
                 Colors.YELLOW_2);
-        assertSvgElementEqualsFile("setNodeBorderColor", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setNodeBorderColor", underTest.asSvg());
     }
 
     @Test
@@ -173,7 +173,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node = addNode(ID1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_COLOR,
                 Colors.ORANGE);
-        assertSvgElementEqualsFile("setNodeFontColor", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setNodeFontColor", underTest.asSvg());
     }
 
     @Test
@@ -181,7 +181,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Node node = addNode(ID1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
-        assertSvgElementEqualsFile("setNodeFontWeightBold", underTest.asSvg());
+        assertSvgRootElementEqualsFile("setNodeFontWeightBold", underTest.asSvg());
     }
 
     @Test
@@ -191,7 +191,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_NORMAL);
-        assertSvgElementEqualsFile("setNodeFontWeightBoldThenNormal",
+        assertSvgRootElementEqualsFile("setNodeFontWeightBoldThenNormal",
                 underTest.asSvg());
     }
 }

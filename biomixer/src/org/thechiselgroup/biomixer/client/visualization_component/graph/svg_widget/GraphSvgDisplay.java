@@ -164,8 +164,9 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
         NodeElement nodeElement = nodeElementFactory.createNodeElement(node);
-        nodeElement.getContainer().setEventListener(
+        nodeElement.getNodeContainer().setEventListener(
                 new SvgNodeEventHandler(node.getId(), this));
+        // TODO tab event listener for popping up expander options
         nodes.put(nodeElement);
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -174,7 +175,8 @@ public class GraphSvgDisplay implements GraphDisplay {
         }
 
         if (asWidget != null) {
-            asWidget.getSvgElement().appendChild(nodeElement.getContainer());
+            asWidget.getSvgElement()
+                    .appendChild(nodeElement.getBaseContainer());
         }
 
     }
@@ -203,7 +205,7 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         // Nodes should be added after arcs so that they are drawn on top
         for (NodeElement nodeElement : nodes) {
-            rootElement.appendChild(nodeElement.getContainer());
+            rootElement.appendChild(nodeElement.getBaseContainer());
         }
         return rootElement;
     }

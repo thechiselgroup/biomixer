@@ -1,11 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
   <line x1="50.0" y1="20.0" x2="180.0" y2="20.0" stroke="#AFC6E5" />
   <svg id="n1" x="0.0" y="0.0">
-    <rect fill="white" stroke="black" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
-    <text x="10.0" y="20.0">Concept1</text>
+    <svg>
+      <rect fill="white" stroke="black" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
+      <text x="10.0" y="20.0">Concept1</text>
+    </svg>
+    <svg x="35.0" y="40.0">
+      <rect fill="#FFFFFF" stroke="#000000" width="30.0" height="8.0" x="0.0" y="0.0" />
+      <polygon points="11.25,2.0 18.75,2.0 15.0,6.0 " fill="#000000" />
+    </svg>
   </svg>
   <svg id="n2" x="130.0" y="0.0">
-    <rect fill="white" stroke="black" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
-    <text x="10.0" y="20.0">Concept2</text>
+    <svg>
+      <rect fill="white" stroke="black" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
+      <text x="10.0" y="20.0">Concept2</text>
+    </svg>
+    <svg x="35.0" y="40.0">
+      <rect fill="#FFFFFF" stroke="#000000" width="30.0" height="8.0" x="0.0" y="0.0" />
+      <polygon points="11.25,2.0 18.75,2.0 15.0,6.0 " fill="#000000" />
+    </svg>
   </svg>
 </svg>

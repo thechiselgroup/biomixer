@@ -35,20 +35,27 @@ public class NodeElement implements Identifiable {
 
     private Node node;
 
-    private SvgElement container;
+    private SvgElement baseContainer;
 
-    private SvgElement rectangle;
+    private SvgElement nodeBox;
 
     private SvgElement text;
 
     private List<ArcElement> arcsConnectedToThisNode = new ArrayList<ArcElement>();
 
-    public NodeElement(Node node, SvgElement container, SvgElement rectangle,
-            SvgElement text) {
+    private final SvgElement expanderTab;
+
+    private final SvgElement nodeContainer;
+
+    public NodeElement(Node node, SvgElement baseContainer,
+            SvgElement nodeContainer, SvgElement nodeBox, SvgElement text,
+            SvgElement expanderTab) {
         this.node = node;
-        this.container = container;
-        this.rectangle = rectangle;
+        this.baseContainer = baseContainer;
+        this.nodeContainer = nodeContainer;
+        this.nodeBox = nodeBox;
         this.text = text;
+        this.expanderTab = expanderTab;
     }
 
     public void addConnectedArc(ArcElement arc) {
@@ -59,8 +66,17 @@ public class NodeElement implements Identifiable {
         return arcsConnectedToThisNode;
     }
 
-    public SvgElement getContainer() {
-        return container;
+    public SvgElement getBaseContainer() {
+        return baseContainer;
+    }
+
+    public SvgElement getExpanderTab() {
+        return expanderTab;
+    }
+
+    private SvgElement getExpanderTabBox() {
+        // TODO way of accessing rect element without assuming order
+        return expanderTab.getChild(0);
     }
 
     @Override
@@ -69,19 +85,22 @@ public class NodeElement implements Identifiable {
     }
 
     public Point getLocation() {
-        return new Point((int) Double.parseDouble(container
+        return new Point((int) Double.parseDouble(baseContainer
                 .getAttributeAsString(Svg.X)),
-                (int) Double.parseDouble(container.getAttributeAsString(Svg.Y)));
+                (int) Double.parseDouble(baseContainer
+                        .getAttributeAsString(Svg.Y)));
 
     }
 
     public Point getMidPoint() {
-        double x = Double.parseDouble(container.getAttributeAsString(Svg.X))
-                + Double.parseDouble(rectangle.getAttributeAsString(Svg.WIDTH))
+        double x = Double
+                .parseDouble(baseContainer.getAttributeAsString(Svg.X))
+                + Double.parseDouble(nodeBox.getAttributeAsString(Svg.WIDTH))
                 / 2;
 
-        double y = Double.parseDouble(container.getAttributeAsString(Svg.Y))
-                + Double.parseDouble(rectangle.getAttributeAsString(Svg.HEIGHT))
+        double y = Double
+                .parseDouble(baseContainer.getAttributeAsString(Svg.Y))
+                + Double.parseDouble(nodeBox.getAttributeAsString(Svg.HEIGHT))
                 / 2;
 
         return new Point(x, y);
@@ -91,8 +110,12 @@ public class NodeElement implements Identifiable {
         return node;
     }
 
-    public SvgElement getRectangle() {
-        return rectangle;
+    public SvgElement getNodeBox() {
+        return nodeBox;
+    }
+
+    public SvgElement getNodeContainer() {
+        return nodeContainer;
     }
 
     public SvgElement getText() {
@@ -104,11 +127,13 @@ public class NodeElement implements Identifiable {
     }
 
     public void setBackgroundColor(String color) {
-        rectangle.setAttribute(Svg.FILL, color);
+        nodeBox.setAttribute(Svg.FILL, color);
+        getExpanderTabBox().setAttribute(Svg.FILL, color);
     }
 
     public void setBorderColor(String color) {
-        rectangle.setAttribute(Svg.STROKE, color);
+        nodeBox.setAttribute(Svg.STROKE, color);
+        getExpanderTabBox().setAttribute(Svg.STROKE, color);
     }
 
     public void setFontColor(String color) {
@@ -124,8 +149,8 @@ public class NodeElement implements Identifiable {
     }
 
     public void setLocation(Point location) {
-        container.setAttribute(Svg.X, location.getX());
-        container.setAttribute(Svg.Y, location.getY());
+        baseContainer.setAttribute(Svg.X, location.getX());
+        baseContainer.setAttribute(Svg.Y, location.getY());
         updateConnectedArcs(location);
     }
 

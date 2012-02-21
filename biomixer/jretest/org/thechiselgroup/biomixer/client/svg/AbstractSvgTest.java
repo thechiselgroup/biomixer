@@ -21,6 +21,7 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.server.core.util.IOUtils;
+import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
@@ -29,18 +30,33 @@ public abstract class AbstractSvgTest {
 
     protected TextSvgElementFactory svgElementFactory;
 
+    public void assertElementEqualsFile(String fileIdentifier,
+            SvgElement element) {
+
+        TextSvgElement svgElement = svgElementFactory.createElement(Svg.SVG);
+        svgElement.setAttribute("xmlns", Svg.NAMESPACE);
+        svgElement.setAttribute("version", "1.1");
+        svgElement.appendChild(element);
+
+        try {
+            String fileName = getClass().getSimpleName() + "_" + fileIdentifier
+                    + ".svg";
+            InputStream stream = getClass().getResourceAsStream(fileName);
+            assert stream != null : "file " + fileName + " not loaded";
+            String expectedSvg = IOUtils.readIntoString(stream);
+            assertSvgElementEquals(expectedSvg, svgElement);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void assertSvgElementEquals(String expectedSvg, SvgElement element) {
         XmlTestUtils.assertXmlEquals(expectedSvg,
                 ((TextSvgElement) element).toXML());
     }
 
-    public void assertSvgElementEqualsFile(String fileIdentifier,
+    public void assertSvgRootElementEqualsFile(String fileIdentifier,
             SvgElement element) {
-
-        // TextSvgElement svgElement = svgElementFactory.createElement(Svg.SVG);
-        // svgElement.setAttribute("xmlns", Svg.NAMESPACE);
-        // svgElement.setAttribute("version", "1.1");
-        // svgElement.appendChild(element);
 
         try {
             String fileName = getClass().getSimpleName() + "_" + fileIdentifier
