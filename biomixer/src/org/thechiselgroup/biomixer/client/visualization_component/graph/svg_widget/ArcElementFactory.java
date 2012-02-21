@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -31,8 +31,8 @@ public class ArcElementFactory {
 
     public ArcElement createArcElement(Arc arc, NodeElement sourceNode,
             NodeElement targetNode) {
-        Point sourceNodeMidPoint = sourceNode.getMidPoint();
-        Point targetNodeMidPoint = targetNode.getMidPoint();
+        PointDouble sourceNodeMidPoint = sourceNode.getMidPoint();
+        PointDouble targetNodeMidPoint = targetNode.getMidPoint();
 
         SvgElement line = svgElementFactory.createElement(Svg.LINE);
         // TODO proper colour

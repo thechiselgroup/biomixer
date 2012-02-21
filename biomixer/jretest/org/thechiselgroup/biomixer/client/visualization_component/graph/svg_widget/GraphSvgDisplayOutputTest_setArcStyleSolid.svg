@@ -2,7 +2,7 @@
   <line x1="50.0" y1="20.0" x2="180.0" y2="20.0" stroke="black" />
   <svg id="n1" x="0.0" y="0.0">
     <svg>
-      <rect fill="white" stroke="black" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
+      <rect fill="#FFFFFF" stroke="#000000" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
       <text x="10.0" y="20.0">Concept1</text>
     </svg>
     <svg x="35.0" y="40.0">
@@ -12,7 +12,7 @@
   </svg>
   <svg id="n2" x="130.0" y="0.0">
     <svg>
-      <rect fill="white" stroke="black" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
+      <rect fill="#FFFFFF" stroke="#000000" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
       <text x="10.0" y="20.0">Concept2</text>
     </svg>
     <svg x="35.0" y="40.0">

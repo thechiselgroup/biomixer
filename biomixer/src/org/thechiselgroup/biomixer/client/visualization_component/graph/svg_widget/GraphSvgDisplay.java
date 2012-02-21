@@ -18,8 +18,11 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
@@ -69,6 +72,13 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private int height;
 
+    private int nodeMenuItemIdCounter = 0;
+
+    private final Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = CollectionFactory
+            .createStringMap();
+
+    private SvgExpanderPopupFactory expanderPopupFactory;
+
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
         asWidget = new SvgWidget();
@@ -84,6 +94,8 @@ public class GraphSvgDisplay implements GraphDisplay {
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
         this.nodeElementFactory = new NodeElementFactory(svgElementFactory);
+        this.expanderPopupFactory = new SvgExpanderPopupFactory(
+                svgElementFactory);
         initBackground(width, height);
     }
 
@@ -164,9 +176,15 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
         NodeElement nodeElement = nodeElementFactory.createNodeElement(node);
+
         nodeElement.getNodeContainer().setEventListener(
                 new SvgNodeEventHandler(node.getId(), this));
-        // TODO tab event listener for popping up expander options
+        nodeElement
+                .getExpanderTab()
+                .getContainer()
+                .setEventListener(
+                        new SvgNodeTabEventHandler(node.getId(), this));
+
         nodes.put(nodeElement);
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -183,8 +201,14 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void addNodeMenuItemHandler(String menuLabel,
-            NodeMenuItemClickedHandler handler, String nodeClass) {
-        // TODO Auto-generated method stub
+            NodeMenuItemClickedHandler handler, String nodeType) {
+
+        assert menuLabel != null;
+        assert handler != null;
+        assert nodeType != null;
+
+        String id = "menuItemId-" + (nodeMenuItemIdCounter++);
+        nodeMenuItemClickHandlers.put(id, handler);
     }
 
     @Override
@@ -238,7 +262,7 @@ public class GraphSvgDisplay implements GraphDisplay {
     public Point getLocation(Node node) {
         assert node != null;
         assert nodes.contains(node.getId());
-        return nodes.get(node.getId()).getLocation();
+        return nodes.get(node.getId()).getLocation().toPointInt();
     }
 
     @Override
@@ -256,7 +280,7 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
-        Point startLocation = nodes.get(nodeId).getLocation();
+        Point startLocation = nodes.get(nodeId).getLocation().toPointInt();
         int startX = startLocation.getX();
         int startY = startLocation.getY();
         int endX = startX + deltaX;
@@ -299,6 +323,31 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         asWidget.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
                 x, y));
+    }
+
+    public void onNodeTabClick(final String nodeId) {
+        SvgPopupExpanders popupExpanderList = expanderPopupFactory
+                .createExpanderPopupList(nodes.get(nodeId)
+                        .getTabTopLeftLocation(), nodeMenuItemClickHandlers
+                        .keySet());
+
+        Node node = nodes.get(nodeId).getNode();
+        // TODO set listeners
+        for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
+                .entrySet()) {
+            String expanderId = entry.getKey();
+            final NodeMenuItemClickedHandler handler = entry.getValue();
+            final BoxedTextSvgElement expanderEntry = popupExpanderList
+                    .getEntryByExpanderId(expanderId);
+            expanderEntry.getContainer().setEventListener(
+                    new NodeMenuItemSvgEventHandler(node, expanderEntry,
+                            handler));
+        }
+
+        if (asWidget != null) {
+            asWidget.getSvgElement().appendChild(
+                    popupExpanderList.getContainer());
+        }
     }
 
     private void onWidgetReady() {

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1">
   <svg id="n1" x="0.0" y="0.0">
     <svg>
-      <rect fill="white" stroke="#D4D0C8" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
+      <rect fill="#FFFFFF" stroke="#D4D0C8" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
       <text x="10.0" y="20.0">Concept1</text>
     </svg>
     <svg x="35.0" y="40.0">

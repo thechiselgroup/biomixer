@@ -55,6 +55,14 @@ public class PointDouble {
         return y;
     }
 
+    public PointDouble plus(PointDouble other) {
+        return new PointDouble(x + other.getX(), y + other.getY());
+    }
+
+    public Point toPointInt() {
+        return new Point((int) x, (int) y);
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";

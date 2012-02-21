@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -37,24 +38,17 @@ public class NodeElement implements Identifiable {
 
     private SvgElement baseContainer;
 
-    private SvgElement nodeBox;
-
-    private SvgElement text;
-
     private List<ArcElement> arcsConnectedToThisNode = new ArrayList<ArcElement>();
 
-    private final SvgElement expanderTab;
+    private final ExpanderTabSvgElement expanderTab;
 
-    private final SvgElement nodeContainer;
+    private final BoxedTextSvgElement boxedText;
 
     public NodeElement(Node node, SvgElement baseContainer,
-            SvgElement nodeContainer, SvgElement nodeBox, SvgElement text,
-            SvgElement expanderTab) {
+            BoxedTextSvgElement boxedText, ExpanderTabSvgElement expanderTab) {
         this.node = node;
         this.baseContainer = baseContainer;
-        this.nodeContainer = nodeContainer;
-        this.nodeBox = nodeBox;
-        this.text = text;
+        this.boxedText = boxedText;
         this.expanderTab = expanderTab;
     }
 
@@ -62,21 +56,16 @@ public class NodeElement implements Identifiable {
         arcsConnectedToThisNode.add(arc);
     }
 
-    public List<ArcElement> getConnectedArcElements() {
-        return arcsConnectedToThisNode;
-    }
-
     public SvgElement getBaseContainer() {
         return baseContainer;
     }
 
-    public SvgElement getExpanderTab() {
-        return expanderTab;
+    public List<ArcElement> getConnectedArcElements() {
+        return arcsConnectedToThisNode;
     }
 
-    private SvgElement getExpanderTabBox() {
-        // TODO way of accessing rect element without assuming order
-        return expanderTab.getChild(0);
+    public ExpanderTabSvgElement getExpanderTab() {
+        return expanderTab;
     }
 
     @Override
@@ -84,42 +73,33 @@ public class NodeElement implements Identifiable {
         return getNode().getId();
     }
 
-    public Point getLocation() {
-        return new Point((int) Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.X)),
-                (int) Double.parseDouble(baseContainer
-                        .getAttributeAsString(Svg.Y)));
-
+    /**
+     * 
+     * @return the coordinates of the top left corner of the node, using the
+     *         base svg element's coordinate system
+     */
+    public PointDouble getLocation() {
+        return new PointDouble(Double.parseDouble(baseContainer
+                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
+                .getAttributeAsString(Svg.Y)));
     }
 
-    public Point getMidPoint() {
-        double x = Double
-                .parseDouble(baseContainer.getAttributeAsString(Svg.X))
-                + Double.parseDouble(nodeBox.getAttributeAsString(Svg.WIDTH))
-                / 2;
-
-        double y = Double
-                .parseDouble(baseContainer.getAttributeAsString(Svg.Y))
-                + Double.parseDouble(nodeBox.getAttributeAsString(Svg.HEIGHT))
-                / 2;
-
-        return new Point(x, y);
+    public PointDouble getMidPoint() {
+        PointDouble topLeft = getLocation();
+        return new PointDouble(topLeft.getX() + boxedText.getTotalWidth() / 2,
+                topLeft.getY() + boxedText.getTotalHeight() / 2);
     }
 
     public Node getNode() {
         return node;
     }
 
-    public SvgElement getNodeBox() {
-        return nodeBox;
-    }
-
     public SvgElement getNodeContainer() {
-        return nodeContainer;
+        return boxedText.getContainer();
     }
 
-    public SvgElement getText() {
-        return text;
+    public PointDouble getTabTopLeftLocation() {
+        return getLocation().plus(expanderTab.getLocation());
     }
 
     public void removeConnectedArc(ArcElement arc) {
@@ -127,24 +107,24 @@ public class NodeElement implements Identifiable {
     }
 
     public void setBackgroundColor(String color) {
-        nodeBox.setAttribute(Svg.FILL, color);
-        getExpanderTabBox().setAttribute(Svg.FILL, color);
+        boxedText.setBackgroundColor(color);
+        expanderTab.setBackgroundColor(color);
     }
 
     public void setBorderColor(String color) {
-        nodeBox.setAttribute(Svg.STROKE, color);
-        getExpanderTabBox().setAttribute(Svg.STROKE, color);
+        boxedText.setBorderColor(color);
+        expanderTab.setBorderColor(color);
     }
 
     public void setFontColor(String color) {
-        text.setAttribute(Svg.FILL, color);
+        boxedText.setFontColor(color);
     }
 
     public void setFontWeight(String styleValue) {
         if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_NORMAL)) {
-            text.setAttribute(Svg.FONT_WEIGHT, "normal");
+            boxedText.setFontWeight("normal");
         } else if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_BOLD)) {
-            text.setAttribute(Svg.FONT_WEIGHT, "bold");
+            boxedText.setFontWeight("bold");
         }
     }
 
