@@ -77,6 +77,8 @@ public class GraphSvgDisplay implements GraphDisplay {
     private final Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = CollectionFactory
             .createStringMap();
 
+    private NodeInteractionManager nodeInteractionManager;
+
     private SvgExpanderPopupFactory expanderPopupFactory;
 
     public GraphSvgDisplay(int width, int height) {
@@ -84,6 +86,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         asWidget = new SvgWidget();
         asWidget.getSvgElement().appendChild(background);
         asWidget.setPixelSize(width, height);
+        initViewInteractionListener();
     }
 
     public GraphSvgDisplay(int width, int height,
@@ -97,6 +100,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         this.expanderPopupFactory = new SvgExpanderPopupFactory(
                 svgElementFactory);
         initBackground(width, height);
+        nodeInteractionManager = new NodeInteractionManager(this);
     }
 
     @Override
@@ -178,7 +182,8 @@ public class GraphSvgDisplay implements GraphDisplay {
         NodeElement nodeElement = nodeElementFactory.createNodeElement(node);
 
         nodeElement.getNodeContainer().setEventListener(
-                new SvgNodeEventHandler(node.getId(), this));
+                new SvgNodeEventHandler(node.getId(), this,
+                        nodeInteractionManager));
         nodeElement
                 .getExpanderTab()
                 .getContainer()
@@ -277,6 +282,11 @@ public class GraphSvgDisplay implements GraphDisplay {
         background.setAttribute(Svg.WIDTH, width);
         background.setAttribute(Svg.HEIGHT, height);
         background.setAttribute(Svg.FILL, "white");
+    }
+
+    private void initViewInteractionListener() {
+        asWidget.getSvgElement().setEventListener(
+                new ViewWideInteractionListener(nodeInteractionManager));
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {

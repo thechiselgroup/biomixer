@@ -18,48 +18,42 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 
-public class SvgNodeEventHandler implements ChooselEventHandler {
-
-    private String nodeId;
-
-    private GraphSvgDisplay graphDisplay;
+/**
+ * Detects events on the entire view.
+ * 
+ * @author drusk
+ * 
+ */
+public class ViewWideInteractionListener implements ChooselEventHandler {
 
     private final NodeInteractionManager nodeInteractionManager;
 
-    public SvgNodeEventHandler(String nodeId, GraphSvgDisplay graphDisplay,
+    public ViewWideInteractionListener(
             NodeInteractionManager nodeInteractionManager) {
-        this.nodeId = nodeId;
         this.nodeInteractionManager = nodeInteractionManager;
-        this.graphDisplay = graphDisplay;
     }
 
     @Override
     public void onEvent(ChooselEvent event) {
-        int clientX = event.getClientX();
-        int clientY = event.getClientY();
 
         switch (event.getEventType()) {
 
-        case MOUSE_OVER:
-            graphDisplay.onNodeMouseOver(nodeId, clientX, clientY);
-            break;
-
-        case MOUSE_OUT:
-            graphDisplay.onNodeMouseOut(nodeId, clientX, clientY);
-            break;
-
-        case MOUSE_UP:
-            nodeInteractionManager.onMouseUp();
-            break;
-
         case MOUSE_DOWN:
-            nodeInteractionManager.onMouseDown(nodeId);
+            // remove any popup tab
+            System.out.println("Mouse click, remove popup");
+            break;
+
+        case MOUSE_MOVE:
+            // inform NodeInteractionManager of movement
+            nodeInteractionManager.onMouseMove(event.getClientX(),
+                    event.getClientY());
             break;
 
         default:
             break;
 
         }
+
     }
 
 }
