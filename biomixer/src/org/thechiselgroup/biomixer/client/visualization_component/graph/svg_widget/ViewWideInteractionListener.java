@@ -28,9 +28,13 @@ public class ViewWideInteractionListener implements ChooselEventHandler {
 
     private final NodeInteractionManager nodeInteractionManager;
 
+    private ExpanderPopupManager expanderPopupManager;
+
     public ViewWideInteractionListener(
-            NodeInteractionManager nodeInteractionManager) {
+            NodeInteractionManager nodeInteractionManager,
+            ExpanderPopupManager expanderPopupManager) {
         this.nodeInteractionManager = nodeInteractionManager;
+        this.expanderPopupManager = expanderPopupManager;
     }
 
     @Override
@@ -40,7 +44,7 @@ public class ViewWideInteractionListener implements ChooselEventHandler {
 
         case MOUSE_DOWN:
             // remove any popup tab
-            System.out.println("Mouse click, remove popup");
+            expanderPopupManager.onMouseDown();
             break;
 
         case MOUSE_MOVE:

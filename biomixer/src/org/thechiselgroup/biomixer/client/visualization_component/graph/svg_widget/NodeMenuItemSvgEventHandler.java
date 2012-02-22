@@ -29,12 +29,16 @@ public class NodeMenuItemSvgEventHandler implements ChooselEventHandler {
 
     private final NodeMenuItemClickedHandler clickHandler;
 
+    private final ExpanderPopupManager expanderPopupManager;
+
     public NodeMenuItemSvgEventHandler(Node node,
             BoxedTextSvgElement expanderEntry,
-            NodeMenuItemClickedHandler clickHandler) {
+            NodeMenuItemClickedHandler clickHandler,
+            ExpanderPopupManager expanderPopupManager) {
         this.node = node;
         this.expanderEntry = expanderEntry;
         this.clickHandler = clickHandler;
+        this.expanderPopupManager = expanderPopupManager;
     }
 
     @Override
@@ -44,17 +48,19 @@ public class NodeMenuItemSvgEventHandler implements ChooselEventHandler {
 
         case MOUSE_OVER:
             // give rect highlight color
+            expanderPopupManager.onMouseOver();
             expanderEntry.setBackgroundColor(Colors.BLUE_1);
             break;
 
         case MOUSE_OUT:
             // give rect default color
+            expanderPopupManager.onMouseOut();
             expanderEntry.setBackgroundColor(Colors.WHITE);
             break;
 
         case CLICK:
-            // use handler
             clickHandler.onNodeMenuItemClicked(node);
+            expanderPopupManager.onMenuItemClick();
             break;
 
         default:

@@ -81,6 +81,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private SvgExpanderPopupFactory expanderPopupFactory;
 
+    private ExpanderPopupManager expanderPopupManager;
+
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
         asWidget = new SvgWidget();
@@ -101,6 +103,7 @@ public class GraphSvgDisplay implements GraphDisplay {
                 svgElementFactory);
         initBackground(width, height);
         nodeInteractionManager = new NodeInteractionManager(this);
+        expanderPopupManager = new ExpanderPopupManager(this);
     }
 
     @Override
@@ -286,7 +289,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private void initViewInteractionListener() {
         asWidget.getSvgElement().setEventListener(
-                new ViewWideInteractionListener(nodeInteractionManager));
+                new ViewWideInteractionListener(nodeInteractionManager,
+                        expanderPopupManager));
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
@@ -342,7 +346,6 @@ public class GraphSvgDisplay implements GraphDisplay {
                         .keySet());
 
         Node node = nodes.get(nodeId).getNode();
-        // TODO set listeners
         for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
                 .entrySet()) {
             String expanderId = entry.getKey();
@@ -351,8 +354,10 @@ public class GraphSvgDisplay implements GraphDisplay {
                     .getEntryByExpanderId(expanderId);
             expanderEntry.getContainer().setEventListener(
                     new NodeMenuItemSvgEventHandler(node, expanderEntry,
-                            handler));
+                            handler, expanderPopupManager));
         }
+
+        expanderPopupManager.setPopupExpander(popupExpanderList);
 
         if (asWidget != null) {
             asWidget.getSvgElement().appendChild(
@@ -394,6 +399,10 @@ public class GraphSvgDisplay implements GraphDisplay {
         if (asWidget != null) {
             asWidget.getSvgElement().removeChild(node.getId());
         }
+    }
+
+    public void removeSvgElement(SvgElement svgElement) {
+        asWidget.getSvgElement().removeChild(svgElement);
     }
 
     @Override
