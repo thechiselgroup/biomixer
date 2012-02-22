@@ -66,7 +66,9 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private SvgElement background;
 
-    private SvgWidget asWidget;
+    private SvgWidget asWidget = null;
+
+    private SvgElement rootSvgElement = null;
 
     private int width;
 
@@ -85,8 +87,10 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
-        asWidget = new SvgWidget();
-        asWidget.getSvgElement().appendChild(background);
+        // TODO: set up some sort of forwarding system so that things can be
+        // added before asWidget is called
+        asWidget();
+        rootSvgElement.appendChild(background);
         asWidget.setPixelSize(width, height);
         initViewInteractionListener();
     }
@@ -128,15 +132,14 @@ public class GraphSvgDisplay implements GraphDisplay {
         sourceNode.addConnectedArc(arcElement);
         targetNode.addConnectedArc(arcElement);
 
-        if (asWidget != null) {
-            SvgElement rootElement = asWidget.getSvgElement();
+        if (asWidgetNotNull()) {
             // put arc right after background element so that nodes will be
             // drawn on top
-            if (rootElement.getChildCount() == 1) {
-                rootElement.appendChild(arcElement.getSvgElement());
+            if (rootSvgElement.getChildCount() == 1) {
+                rootSvgElement.appendChild(arcElement.getSvgElement());
             } else {
-                rootElement.insertBefore(arcElement.getSvgElement(),
-                        rootElement.getChild(1));
+                rootSvgElement.insertBefore(arcElement.getSvgElement(),
+                        rootSvgElement.getChild(1));
             }
         }
     }
@@ -196,13 +199,12 @@ public class GraphSvgDisplay implements GraphDisplay {
         nodes.put(nodeElement);
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
-        if (asWidget != null && nodes.size() > 1) {
+        if (asWidgetNotNull() && nodes.size() > 1) {
             setLocation(node, new Point(width / 2, height / 2));
         }
 
-        if (asWidget != null) {
-            asWidget.getSvgElement()
-                    .appendChild(nodeElement.getBaseContainer());
+        if (asWidgetNotNull()) {
+            rootSvgElement.appendChild(nodeElement.getBaseContainer());
         }
 
     }
@@ -244,7 +246,15 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public Widget asWidget() {
+        if (asWidget == null) {
+            asWidget = new SvgWidget();
+            rootSvgElement = asWidget.getSvgElement();
+        }
         return asWidget;
+    }
+
+    private boolean asWidgetNotNull() {
+        return asWidget != null;
     }
 
     @Override
@@ -288,9 +298,8 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     private void initViewInteractionListener() {
-        asWidget.getSvgElement().setEventListener(
-                new ViewWideInteractionListener(nodeInteractionManager,
-                        expanderPopupManager));
+        rootSvgElement.setEventListener(new ViewWideInteractionListener(
+                nodeInteractionManager, expanderPopupManager));
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
@@ -359,9 +368,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         expanderPopupManager.setPopupExpander(popupExpanderList);
 
-        if (asWidget != null) {
-            asWidget.getSvgElement().appendChild(
-                    popupExpanderList.getContainer());
+        if (asWidgetNotNull()) {
+            rootSvgElement.appendChild(popupExpanderList.getContainer());
         }
     }
 
@@ -377,8 +385,8 @@ public class GraphSvgDisplay implements GraphDisplay {
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
 
-        if (asWidget != null) {
-            asWidget.getSvgElement().removeChild(arc.getId());
+        if (asWidgetNotNull()) {
+            rootSvgElement.removeChild(arc.getId());
         }
     }
 
@@ -396,13 +404,13 @@ public class GraphSvgDisplay implements GraphDisplay {
         }
         nodes.remove(node.getId());
 
-        if (asWidget != null) {
-            asWidget.getSvgElement().removeChild(node.getId());
+        if (asWidgetNotNull()) {
+            rootSvgElement.removeChild(node.getId());
         }
     }
 
     public void removeSvgElement(SvgElement svgElement) {
-        asWidget.getSvgElement().removeChild(svgElement);
+        rootSvgElement.removeChild(svgElement);
     }
 
     @Override

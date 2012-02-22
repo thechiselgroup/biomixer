@@ -4,7 +4,6 @@
 package org.thechiselgroup.biomixer.client.svg.javascript_renderer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
@@ -126,17 +125,16 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
 
     @Override
     public final void removeChild(String id) {
-        List<Integer> indicesToRemove = new ArrayList<Integer>();
+        List<SvgElement> childrenToRemove = new ArrayList<SvgElement>();
         for (int i = 0; i < getChildCount(); i++) {
             SvgElement child = getChild(i);
             if (child.hasAttribute(Svg.ID)
                     && child.getAttributeAsString(Svg.ID).equals(id)) {
-                indicesToRemove.add(i);
+                childrenToRemove.add(child);
             }
         }
-        Collections.reverse(indicesToRemove);
-        for (Integer index : indicesToRemove) {
-            removeChild(getChild(index.intValue()));
+        for (SvgElement child : childrenToRemove) {
+            removeChild(child);
         }
     }
 
