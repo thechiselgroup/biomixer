@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Copyright 2011 Lars Grammel. All rights reserved.
  *******************************************************************************/
-package org.thechiselgroup.choosel.svg.client;
+package org.thechiselgroup.biomixer.shared.svg;
 
 /**
  * Utility class for creating path expressions.
