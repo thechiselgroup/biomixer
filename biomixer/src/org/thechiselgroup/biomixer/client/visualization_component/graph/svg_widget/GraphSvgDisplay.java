@@ -46,10 +46,11 @@ import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
-import com.google.gwt.event.dom.client.DomEvent;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
 public class GraphSvgDisplay implements GraphDisplay {
@@ -69,6 +70,8 @@ public class GraphSvgDisplay implements GraphDisplay {
     private SvgWidget asWidget = null;
 
     private SvgElement rootSvgElement = null;
+
+    private EventBus eventBus = new SimpleEventBus();
 
     private int width;
 
@@ -132,7 +135,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         sourceNode.addConnectedArc(arcElement);
         targetNode.addConnectedArc(arcElement);
 
-        if (asWidgetNotNull()) {
+        if (isWidgetInitialized()) {
             // put arc right after background element so that nodes will be
             // drawn on top
             if (rootSvgElement.getChildCount() == 1) {
@@ -150,11 +153,12 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert type != null;
         assert handler != null;
 
-        if (type instanceof DomEvent.Type) {
-            return asWidget.addDomHandler(handler, (DomEvent.Type<T>) type);
-        } else {
-            return asWidget.addHandler(handler, type);
-        }
+        return eventBus.addHandler(type, handler);
+        // if (type instanceof DomEvent.Type) {
+        // return asWidget.addDomHandler(handler, (DomEvent.Type<T>) type);
+        // } else {
+        // return asWidget.addHandler(handler, type);
+        // }
     }
 
     // TODO remove
@@ -164,8 +168,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         assert handler != null;
 
-        return asWidget.addHandler(handler,
-                GraphDisplayLoadingFailureEvent.TYPE);
+        return eventBus.addHandler(GraphDisplayLoadingFailureEvent.TYPE,
+                handler);
     }
 
     // TODO remove
@@ -175,8 +179,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         assert handler != null;
 
-        HandlerRegistration handlerRegistration = asWidget.addHandler(handler,
-                GraphDisplayReadyEvent.TYPE);
+        HandlerRegistration handlerRegistration = eventBus.addHandler(
+                GraphDisplayReadyEvent.TYPE, handler);
         onWidgetReady();
         return handlerRegistration;
     }
@@ -199,11 +203,11 @@ public class GraphSvgDisplay implements GraphDisplay {
         nodes.put(nodeElement);
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
-        if (asWidgetNotNull() && nodes.size() > 1) {
+        if (isWidgetInitialized() && nodes.size() > 1) {
             setLocation(node, new Point(width / 2, height / 2));
         }
 
-        if (asWidgetNotNull()) {
+        if (isWidgetInitialized()) {
             rootSvgElement.appendChild(nodeElement.getBaseContainer());
         }
 
@@ -246,15 +250,11 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public Widget asWidget() {
-        if (asWidget == null) {
+        if (!isWidgetInitialized()) {
             asWidget = new SvgWidget();
             rootSvgElement = asWidget.getSvgElement();
         }
         return asWidget;
-    }
-
-    private boolean asWidgetNotNull() {
-        return asWidget != null;
     }
 
     @Override
@@ -274,6 +274,14 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert arcId != null;
         assert arcs.contains(arcId);
         return arcs.get(arcId).getArc();
+    }
+
+    protected int getGraphAbsoluteLeft() {
+        return asWidget.getAbsoluteLeft();
+    }
+
+    protected int getGraphAbsoluteTop() {
+        return asWidget.getAbsoluteTop();
     }
 
     @Override
@@ -302,6 +310,10 @@ public class GraphSvgDisplay implements GraphDisplay {
                 nodeInteractionManager, expanderPopupManager));
     }
 
+    private boolean isWidgetInitialized() {
+        return asWidget != null;
+    }
+
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
         Point startLocation = nodes.get(nodeId).getLocation().toPointInt();
         int startX = startLocation.getX();
@@ -310,41 +322,41 @@ public class GraphSvgDisplay implements GraphDisplay {
         int endY = startY + deltaY;
 
         animateMoveTo(nodes.get(nodeId).getNode(), new Point(endX, endY));
-        asWidget.fireEvent(new NodeDragEvent(nodes.get(nodeId).getNode(),
+        eventBus.fireEvent(new NodeDragEvent(nodes.get(nodeId).getNode(),
                 startX, startY, endX, endY));
     }
 
     public void onNodeDragHandleMouseMove(String nodeID, int mouseX, int mouseY) {
-        asWidget.fireEvent(new NodeDragHandleMouseMoveEvent(getNode(nodeID),
+        eventBus.fireEvent(new NodeDragHandleMouseMoveEvent(getNode(nodeID),
                 mouseX, mouseY));
     }
 
     public void onNodeMouseClick(String nodeId, int mouseX, int mouseY) {
-        int x = asWidget.getAbsoluteLeft() + mouseX;
-        int y = asWidget.getAbsoluteTop() + mouseY;
+        int x = getGraphAbsoluteLeft() + mouseX;
+        int y = getGraphAbsoluteTop() + mouseY;
 
-        asWidget.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
+        eventBus.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
     }
 
     public void onNodeMouseDoubleClick(String nodeId, int mouseX, int mouseY) {
-        int x = asWidget.getAbsoluteLeft() + mouseX;
-        int y = asWidget.getAbsoluteTop() + mouseY;
+        int x = getGraphAbsoluteLeft() + mouseX;
+        int y = getGraphAbsoluteTop() + mouseY;
 
-        asWidget.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId), x, y));
+        eventBus.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId), x, y));
     }
 
     public void onNodeMouseOut(String nodeID, int mouseX, int mouseY) {
-        int x = asWidget.getAbsoluteLeft() + mouseX;
-        int y = asWidget.getAbsoluteTop() + mouseY;
+        int x = getGraphAbsoluteLeft() + mouseX;
+        int y = getGraphAbsoluteTop() + mouseY;
 
-        asWidget.fireEvent(new NodeMouseOutEvent(getNode(nodeID), x, y));
+        eventBus.fireEvent(new NodeMouseOutEvent(getNode(nodeID), x, y));
     }
 
     public void onNodeMouseOver(String nodeId, int mouseX, int mouseY) {
-        int x = asWidget.getAbsoluteLeft() + mouseX;
-        int y = asWidget.getAbsoluteTop() + mouseY;
+        int x = getGraphAbsoluteLeft() + mouseX;
+        int y = getGraphAbsoluteTop() + mouseY;
 
-        asWidget.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
+        eventBus.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
                 x, y));
     }
 
@@ -368,13 +380,13 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         expanderPopupManager.setPopupExpander(popupExpanderList);
 
-        if (asWidgetNotNull()) {
+        if (isWidgetInitialized()) {
             rootSvgElement.appendChild(popupExpanderList.getContainer());
         }
     }
 
     private void onWidgetReady() {
-        asWidget.fireEvent(new GraphDisplayReadyEvent(this));
+        eventBus.fireEvent(new GraphDisplayReadyEvent(this));
     }
 
     @Override
@@ -385,7 +397,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
 
-        if (asWidgetNotNull()) {
+        if (isWidgetInitialized()) {
             rootSvgElement.removeChild(arc.getId());
         }
     }
@@ -404,7 +416,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         }
         nodes.remove(node.getId());
 
-        if (asWidgetNotNull()) {
+        if (isWidgetInitialized()) {
             rootSvgElement.removeChild(node.getId());
         }
     }

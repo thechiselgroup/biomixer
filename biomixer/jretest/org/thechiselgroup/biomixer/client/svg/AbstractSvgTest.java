@@ -30,6 +30,19 @@ public abstract class AbstractSvgTest {
 
     protected TextSvgElementFactory svgElementFactory;
 
+    public void assertElementEqualsFile(String fileIdentifier, String xmlElement) {
+        try {
+            String fileName = getClass().getSimpleName() + "_" + fileIdentifier
+                    + ".svg";
+            InputStream stream = getClass().getResourceAsStream(fileName);
+            assert stream != null : "file " + fileName + " not loaded";
+            String expectedSvg = IOUtils.readIntoString(stream);
+            XmlTestUtils.assertXmlEquals(expectedSvg, xmlElement);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void assertElementEqualsFile(String fileIdentifier,
             SvgElement element) {
 
@@ -38,16 +51,7 @@ public abstract class AbstractSvgTest {
         svgElement.setAttribute("version", "1.1");
         svgElement.appendChild(element);
 
-        try {
-            String fileName = getClass().getSimpleName() + "_" + fileIdentifier
-                    + ".svg";
-            InputStream stream = getClass().getResourceAsStream(fileName);
-            assert stream != null : "file " + fileName + " not loaded";
-            String expectedSvg = IOUtils.readIntoString(stream);
-            assertSvgElementEquals(expectedSvg, svgElement);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        assertSvgRootElementEqualsFile(fileIdentifier, svgElement);
     }
 
     public void assertSvgElementEquals(String expectedSvg, SvgElement element) {

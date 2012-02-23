@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.junit.Before;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
@@ -36,7 +35,7 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected static final String ARC_ID1 = "aid1";
 
-    protected GraphSvgDisplay underTest;
+    protected TestGraphSvgDisplay underTest;
 
     protected Arc addArc(String arcId, String sourceNodeId,
             String targetNodeId, String type, boolean directed) {
@@ -53,7 +52,8 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     @Before
     public void setUpGraphDisplay() {
-        underTest = new GraphSvgDisplay(400, 300, new TextSvgElementFactory());
+        underTest = new TestGraphSvgDisplay(400, 300,
+                new TextSvgElementFactory());
     }
 
 }
