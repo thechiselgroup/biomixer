@@ -331,8 +331,8 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public void onNodeMouseClick(String nodeId, int mouseX, int mouseY) {
-        int x = getGraphAbsoluteLeft() + mouseX;
-        int y = getGraphAbsoluteTop() + mouseY;
+        int x = mouseX - getGraphAbsoluteLeft();
+        int y = mouseY - getGraphAbsoluteTop();
 
         eventBus.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
     }
@@ -345,15 +345,15 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public void onNodeMouseOut(String nodeID, int mouseX, int mouseY) {
-        int x = getGraphAbsoluteLeft() + mouseX;
-        int y = getGraphAbsoluteTop() + mouseY;
+        int x = mouseX - getGraphAbsoluteLeft();
+        int y = mouseY - getGraphAbsoluteTop();
 
         eventBus.fireEvent(new NodeMouseOutEvent(getNode(nodeID), x, y));
     }
 
     public void onNodeMouseOver(String nodeId, int mouseX, int mouseY) {
-        int x = getGraphAbsoluteLeft() + mouseX;
-        int y = getGraphAbsoluteTop() + mouseY;
+        int x = mouseX - getGraphAbsoluteLeft();
+        int y = mouseY - getGraphAbsoluteTop();
 
         eventBus.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
                 x, y));
