@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
+import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 public class ArcElementFactory {
 
@@ -31,16 +31,12 @@ public class ArcElementFactory {
 
     public ArcElement createArcElement(Arc arc, NodeElement sourceNode,
             NodeElement targetNode) {
-        PointDouble sourceNodeMidPoint = sourceNode.getMidPoint();
-        PointDouble targetNodeMidPoint = targetNode.getMidPoint();
 
         SvgElement line = svgElementFactory.createElement(Svg.LINE);
         // TODO proper colour
         line.setAttribute(Svg.STROKE, "black");
-        line.setAttribute(Svg.X1, sourceNodeMidPoint.getX());
-        line.setAttribute(Svg.X2, targetNodeMidPoint.getX());
-        line.setAttribute(Svg.Y1, sourceNodeMidPoint.getY());
-        line.setAttribute(Svg.Y2, targetNodeMidPoint.getY());
+        SvgUtils.setX1Y1(line, sourceNode.getMidPoint());
+        SvgUtils.setX2Y2(line, targetNode.getMidPoint());
 
         return new ArcElement(arc, line, sourceNode, targetNode);
     }

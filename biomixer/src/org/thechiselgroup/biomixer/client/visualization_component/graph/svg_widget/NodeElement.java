@@ -122,9 +122,9 @@ public class NodeElement implements Identifiable {
 
     public void setFontWeight(String styleValue) {
         if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_NORMAL)) {
-            boxedText.setFontWeight("normal");
+            boxedText.setFontWeight(Svg.NORMAL);
         } else if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_BOLD)) {
-            boxedText.setFontWeight("bold");
+            boxedText.setFontWeight(Svg.BOLD);
         }
     }
 

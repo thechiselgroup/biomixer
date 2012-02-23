@@ -13,36 +13,25 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.shared.svg;
 
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 
-public class SvgNodeTabEventHandler implements ChooselEventHandler {
+public class SvgUtils {
 
-    private final NodeElement node;
-
-    private final GraphSvgDisplay graphDisplay;
-
-    public SvgNodeTabEventHandler(NodeElement node, GraphSvgDisplay graphDisplay) {
-        this.node = node;
-        this.graphDisplay = graphDisplay;
+    public static void setX1Y1(SvgElement svgElement, PointDouble point) {
+        svgElement.setAttribute(Svg.X1, point.getX());
+        svgElement.setAttribute(Svg.Y1, point.getY());
     }
 
-    @Override
-    public void onEvent(ChooselEvent event) {
+    public static void setX2Y2(SvgElement svgElement, PointDouble point) {
+        svgElement.setAttribute(Svg.X2, point.getX());
+        svgElement.setAttribute(Svg.Y2, point.getY());
+    }
 
-        switch (event.getEventType()) {
-
-        case CLICK:
-            graphDisplay.onNodeTabClick(node);
-            break;
-
-        default:
-            break;
-
-        }
-
+    public static void setXY(SvgElement svgElement, PointDouble point) {
+        svgElement.setAttribute(Svg.X, point.getX());
+        svgElement.setAttribute(Svg.Y, point.getY());
     }
 
 }

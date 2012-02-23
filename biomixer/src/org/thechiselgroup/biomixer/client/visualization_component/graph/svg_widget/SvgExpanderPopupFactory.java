@@ -15,17 +15,17 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
+import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 public class SvgExpanderPopupFactory {
 
@@ -38,24 +38,18 @@ public class SvgExpanderPopupFactory {
         this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory);
     }
 
-    private List<String> asSortedList(Set<String> strings) {
-        List<String> sortedList = new ArrayList<String>(strings);
-        Collections.sort(sortedList);
-        return sortedList;
-    }
-
     public SvgPopupExpanders createExpanderPopupList(
             PointDouble topLeftLocation, Set<String> expanderIds) {
 
         SvgElement popUpContainer = svgElementFactory.createElement(Svg.SVG);
-        popUpContainer.setAttribute(Svg.X, topLeftLocation.getX());
-        popUpContainer.setAttribute(Svg.Y, topLeftLocation.getY());
+        SvgUtils.setXY(popUpContainer, topLeftLocation);
 
         Map<String, BoxedTextSvgElement> boxedTextEntries = CollectionFactory
                 .createStringMap();
 
         double maxWidth = 0.0;
-        List<String> sortedExpanderIds = asSortedList(expanderIds);
+        List<String> sortedExpanderIds = CollectionUtils
+                .asSortedList(expanderIds);
         for (String expanderId : sortedExpanderIds) {
             BoxedTextSvgElement boxedText = boxedTextFactory
                     .createBoxedText(expanderId);

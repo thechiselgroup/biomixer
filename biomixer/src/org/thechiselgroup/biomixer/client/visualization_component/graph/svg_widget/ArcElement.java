@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
+import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 public class ArcElement implements Identifiable {
 
@@ -96,15 +96,11 @@ public class ArcElement implements Identifiable {
     }
 
     public void updateSourcePoint() {
-        PointDouble midPoint = source.getMidPoint();
-        arcSvgElement.setAttribute(Svg.X1, midPoint.getX());
-        arcSvgElement.setAttribute(Svg.Y1, midPoint.getY());
+        SvgUtils.setX1Y1(arcSvgElement, source.getMidPoint());
     }
 
     public void updateTargetPoint() {
-        PointDouble midPoint = target.getMidPoint();
-        arcSvgElement.setAttribute(Svg.X2, midPoint.getX());
-        arcSvgElement.setAttribute(Svg.Y2, midPoint.getY());
+        SvgUtils.setX2Y2(arcSvgElement, target.getMidPoint());
     }
 
 }

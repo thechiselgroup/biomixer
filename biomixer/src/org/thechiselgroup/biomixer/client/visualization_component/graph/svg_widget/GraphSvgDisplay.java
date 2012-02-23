@@ -192,13 +192,12 @@ public class GraphSvgDisplay implements GraphDisplay {
         NodeElement nodeElement = nodeElementFactory.createNodeElement(node);
 
         nodeElement.getNodeContainer().setEventListener(
-                new SvgNodeEventHandler(node.getId(), this,
+                new SvgNodeEventHandler(nodeElement, this,
                         nodeInteractionManager));
         nodeElement
                 .getExpanderTab()
                 .getContainer()
-                .setEventListener(
-                        new SvgNodeTabEventHandler(node.getId(), this));
+                .setEventListener(new SvgNodeTabEventHandler(nodeElement, this));
 
         nodes.put(nodeElement);
         // if this isn't the first node, need to position it
@@ -360,13 +359,11 @@ public class GraphSvgDisplay implements GraphDisplay {
                 x, y));
     }
 
-    public void onNodeTabClick(final String nodeId) {
+    public void onNodeTabClick(final NodeElement nodeElement) {
         SvgPopupExpanders popupExpanderList = expanderPopupFactory
-                .createExpanderPopupList(nodes.get(nodeId)
-                        .getTabTopLeftLocation(), nodeMenuItemClickHandlers
-                        .keySet());
+                .createExpanderPopupList(nodeElement.getTabTopLeftLocation(),
+                        nodeMenuItemClickHandlers.keySet());
 
-        Node node = nodes.get(nodeId).getNode();
         for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
                 .entrySet()) {
             String expanderId = entry.getKey();
@@ -374,8 +371,8 @@ public class GraphSvgDisplay implements GraphDisplay {
             final BoxedTextSvgElement expanderEntry = popupExpanderList
                     .getEntryByExpanderId(expanderId);
             expanderEntry.getContainer().setEventListener(
-                    new NodeMenuItemSvgEventHandler(node, expanderEntry,
-                            handler, expanderPopupManager));
+                    new NodeMenuItemSvgEventHandler(nodeElement.getNode(),
+                            expanderEntry, handler, expanderPopupManager));
         }
 
         expanderPopupManager.setPopupExpander(popupExpanderList);

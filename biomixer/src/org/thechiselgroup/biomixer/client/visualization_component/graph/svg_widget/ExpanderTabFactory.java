@@ -19,6 +19,7 @@ import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
+import org.thechiselgroup.biomixer.shared.svg.SvgPointsBuilder;
 
 public class ExpanderTabFactory {
 

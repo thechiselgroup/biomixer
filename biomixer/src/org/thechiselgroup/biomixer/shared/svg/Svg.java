@@ -107,6 +107,10 @@ public final class Svg {
 
     public static final String POINTS = "points";
 
+    public static final String BOLD = "bold";
+
+    public static final String NORMAL = "normal";
+
     public static String localUrl(String id) {
         return "url(#" + id + ")";
     }

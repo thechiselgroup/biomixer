@@ -20,15 +20,16 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 
 public class SvgNodeEventHandler implements ChooselEventHandler {
 
-    private String nodeId;
+    private NodeElement nodeElement;
 
     private GraphSvgDisplay graphDisplay;
 
     private final NodeInteractionManager nodeInteractionManager;
 
-    public SvgNodeEventHandler(String nodeId, GraphSvgDisplay graphDisplay,
+    public SvgNodeEventHandler(NodeElement nodeElement,
+            GraphSvgDisplay graphDisplay,
             NodeInteractionManager nodeInteractionManager) {
-        this.nodeId = nodeId;
+        this.nodeElement = nodeElement;
         this.nodeInteractionManager = nodeInteractionManager;
         this.graphDisplay = graphDisplay;
     }
@@ -41,11 +42,11 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
         switch (event.getEventType()) {
 
         case MOUSE_OVER:
-            graphDisplay.onNodeMouseOver(nodeId, clientX, clientY);
+            graphDisplay.onNodeMouseOver(nodeElement.getId(), clientX, clientY);
             break;
 
         case MOUSE_OUT:
-            graphDisplay.onNodeMouseOut(nodeId, clientX, clientY);
+            graphDisplay.onNodeMouseOut(nodeElement.getId(), clientX, clientY);
             break;
 
         case MOUSE_UP:
@@ -53,7 +54,7 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
             break;
 
         case MOUSE_DOWN:
-            nodeInteractionManager.onMouseDown(nodeId);
+            nodeInteractionManager.onMouseDown(nodeElement.getId());
             break;
 
         default:

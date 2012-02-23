@@ -25,6 +25,12 @@ import java.util.Set;
 
 public final class CollectionUtils {
 
+    public static List<String> asSortedList(Set<String> strings) {
+        List<String> sortedList = new ArrayList<String>(strings);
+        Collections.sort(sortedList);
+        return sortedList;
+    }
+
     // TODO unify with intersects
     public static <T> boolean containsNone(Collection<T> container,
             Collection<T> other) {
