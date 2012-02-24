@@ -20,7 +20,6 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.svg.XmlTestUtils;
 import org.thechiselgroup.biomixer.server.core.util.IOUtils;
@@ -30,14 +29,46 @@ public class SvgResultParserTest {
 
     private SvgResultParser underTest;
 
-    // Element type "svg" must be followed by either attribute specifications,
-    // ">" or "/>"
-    @Ignore("TODO fix parsing error")
+    /**
+     * 
+     * @param expectedFileName
+     *            name of the XML file containing the expected output
+     * @param inputFileName
+     *            name of the SVG file containing the input for the parser
+     * @param xpath
+     *            the XPath expression specifying which elements should be
+     *            selected from the input SVG
+     * @throws IOException
+     * @throws Exception
+     */
+    private void assertXmlEqualsSelection(String expectedFileName,
+            String inputFileName, String xpath) throws IOException, Exception {
+        XmlTestUtils.assertXmlEquals(getXMLFromFile(expectedFileName),
+                underTest.extractElementAsString(getXMLFromFile(inputFileName),
+                        xpath));
+    }
+
     @Test
-    public void extractElementAsText() throws Exception {
-        XmlTestUtils.assertXmlEquals(getXMLFromFile("expected_extraction.xml"),
-                underTest.extractElementAsString(
-                        getXMLFromFile("svg_parser_test.svg"), "//svg/svg"));
+    public void basicNoChildrenRootElementHasNamespace() throws Exception {
+        assertXmlEqualsSelection("expected_basic.xml", "basic_namespace.svg",
+                "/svg/text");
+    }
+
+    @Test
+    public void elementHasChildren() throws Exception {
+        assertXmlEqualsSelection("expected_childNodes.xml", "childNodes.svg",
+                "/svg/svg");
+    }
+
+    @Test
+    public void elementHasNoChildren() throws Exception {
+        assertXmlEqualsSelection("expected_basic.xml", "basic.svg", "/svg/text");
+    }
+
+    @Test
+    public void extractElementWithSpecifiedAttribute() throws Exception {
+        assertXmlEqualsSelection("expected_namedNode.xml", "namedNode.svg",
+                "//svg[@id='n2']");
     }
 
     private String getXMLFromFile(String xmlFilename) throws IOException {

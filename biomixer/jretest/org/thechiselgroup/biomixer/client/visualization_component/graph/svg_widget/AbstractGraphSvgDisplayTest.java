@@ -15,13 +15,17 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.parser.SvgResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMenuItemClickedHandler;
+import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
 public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
@@ -48,6 +52,8 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected TestGraphSvgDisplay underTest;
 
+    protected SvgResultParser parser;
+
     protected Arc addArc(String arcId, String sourceNodeId,
             String targetNodeId, String type, boolean directed) {
         Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, directed);
@@ -72,6 +78,15 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
                 new TextSvgElementFactory());
         underTest.addNodeMenuItemHandler("MenuItem1", menuItemHandler0, TYPE);
         underTest.addNodeMenuItemHandler("MenuItem2", menuItemHandler1, TYPE);
+    }
+
+    protected String extractElementAsString(String xpath) throws Exception {
+        return parser.extractElementAsString(underTest.asSvg(), xpath);
+    }
+
+    @Before
+    public void initParser() throws ParserConfigurationException {
+        parser = new SvgResultParser(new StandardJavaXMLDocumentProcessor());
     }
 
 }

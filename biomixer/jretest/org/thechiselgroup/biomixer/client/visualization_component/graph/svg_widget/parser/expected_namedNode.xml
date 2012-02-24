@@ -1,0 +1,4 @@
+<svg id="n2">
+  <rect x="1" y="1" height="2" width="3" fill="red"></rect>
+  <text x="1" y="1">Test2</text>
+</svg>

@@ -21,6 +21,13 @@ import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 import org.w3c.dom.Node;
 
+/**
+ * Returns the portion of an xml string specified by an xpath expression. This
+ * includes any child elements.
+ * 
+ * @author drusk
+ * 
+ */
 public class SvgResultParser extends AbstractXMLResultParser {
 
     public SvgResultParser(DocumentProcessor documentProcessor) {
@@ -32,12 +39,13 @@ public class SvgResultParser extends AbstractXMLResultParser {
         Object root = parseDocument(xml);
         Object[] nodes = getNodes(root, path);
         Node node = (Node) nodes[0];
-        return node.getTextContent();
+
+        return new DomNodeToStringTransformer().transform(node);
     }
 
-    public String extractElementAsString(SvgElement svgElement, String path)
+    public String extractElementAsString(SvgElement svgElement, String xpath)
             throws Exception {
         return extractElementAsString(((TextSvgElement) svgElement).toXML(),
-                path);
+                xpath);
     }
 }
