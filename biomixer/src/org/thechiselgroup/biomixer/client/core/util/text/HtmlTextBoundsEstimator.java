@@ -13,54 +13,79 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.ui;
+package org.thechiselgroup.biomixer.client.core.util.text;
 
 import java.util.Collection;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 
 import com.google.gwt.user.client.Element;
 
-public class TextBoundsEstimator extends BoundsEstimator {
+public class HtmlTextBoundsEstimator extends BoundsEstimator implements
+        TextBoundsEstimator {
 
-    public TextBoundsEstimator() {
+    public HtmlTextBoundsEstimator() {
     }
 
-    public TextBoundsEstimator(Element prototype) {
-        applyFontSettings(prototype);
-    }
-
-    public TextBoundsEstimator(String fontFamily, String fontStyle,
-            String fontWeight, String fontSize) {
-        applyFontSettings(fontFamily, fontStyle, fontWeight, fontSize);
-    }
-
-    public void applyFontSettings(Element prototype) {
-        String fontFamily = CSS.getComputedStyle(prototype, CSS.FONT_FAMILY);
-        String fontStyle = CSS.getComputedStyle(prototype, CSS.FONT_STYLE);
-        String fontWeight = CSS.getComputedStyle(prototype, CSS.FONT_WEIGHT);
-        String fontSize = CSS.getComputedStyle(prototype, CSS.FONT_SIZE);
-
-        applyFontSettings(fontFamily, fontStyle, fontWeight, fontSize);
-    }
-
-    public void applyFontSettings(String fontFamily, String fontStyle,
+    public HtmlTextBoundsEstimator(String fontFamily, String fontStyle,
             String fontWeight, String fontSize) {
 
+        configureFontFamily(fontFamily);
+        configureFontStyle(fontStyle);
+        configureFontWeight(fontWeight);
+        configureFontSize(fontSize);
+    }
+
+    @Override
+    public void configureFontFamily(String fontFamily) {
         CSS.setFontFamily(estimatorElement, fontFamily);
-        CSS.setFontStyle(estimatorElement, fontStyle);
-        CSS.setFontWeight(estimatorElement, fontWeight);
+    }
+
+    public void configureFontSettings(Element prototype) {
+        configureFontFamily(CSS.getComputedStyle(prototype, CSS.FONT_FAMILY));
+        configureFontStyle(CSS.getComputedStyle(prototype, CSS.FONT_STYLE));
+        configureFontWeight(CSS.getComputedStyle(prototype, CSS.FONT_WEIGHT));
+        configureFontSize(CSS.getComputedStyle(prototype, CSS.FONT_SIZE));
+    }
+
+    @Override
+    public void configureFontSize(String fontSize) {
         CSS.setFontSize(estimatorElement, fontSize);
     }
 
+    @Override
+    public void configureFontStyle(String fontStyle) {
+        CSS.setFontStyle(estimatorElement, fontStyle);
+    }
+
+    @Override
+    public void configureFontWeight(String fontWeight) {
+        CSS.setFontWeight(estimatorElement, fontWeight);
+    }
+
+    @Override
+    public int getHeight(String text) {
+        setText(text);
+        return getHeight();
+    }
+
+    @Override
+    public SizeInt getSize(String text) {
+        setText(text);
+        return getSize();
+    }
+
+    @Override
     public int getWidth(String text) {
         setText(text);
         return getWidth();
     }
 
     public int getWidth(String text, Element prototype) {
-        applyFontSettings(prototype);
+        configureFontSettings(prototype);
         return getWidth(text);
     }
 
@@ -79,7 +104,7 @@ public class TextBoundsEstimator extends BoundsEstimator {
         return result;
     }
 
-    public void setText(String text) {
+    private void setText(String text) {
         estimatorElement.setInnerText(text);
     }
 

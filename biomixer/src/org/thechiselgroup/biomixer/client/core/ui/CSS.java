@@ -19,7 +19,7 @@ import static com.google.gwt.user.client.DOM.getElementById;
 import static com.google.gwt.user.client.DOM.getIntStyleAttribute;
 import static com.google.gwt.user.client.DOM.setStyleAttribute;
 
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 
 import com.google.gwt.user.client.DOM;
@@ -137,7 +137,7 @@ public final class CSS {
      */
     public static SizeInt getBoundingClientSize(Element element) {
         JsRect rect = jsGetBoundingClientRect(element);
-        return new DefaultSize(rect.getRight() - rect.getLeft(),
+        return new DefaultSizeInt(rect.getRight() - rect.getLeft(),
                 rect.getBottom() - rect.getTop());
     }
 

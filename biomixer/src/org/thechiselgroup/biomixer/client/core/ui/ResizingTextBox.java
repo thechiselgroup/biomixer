@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.core.ui;
 
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.core.util.text.HtmlTextBoundsEstimator;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -90,7 +91,7 @@ public class ResizingTextBox extends TextBox {
     }
 
     private void updateWidth(String text) {
-        int width = new TextBoundsEstimator().getWidth(text, getElement());
+        int width = new HtmlTextBoundsEstimator().getWidth(text, getElement());
 
         // we add some extra width for the focus indicator etc
         width += EXTRA_WIDTH;

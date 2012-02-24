@@ -16,7 +16,7 @@
 package org.thechiselgroup.biomixer.client.core.ui.popup;
 
 import org.thechiselgroup.biomixer.client.core.fx.Opacity;
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 
 import com.google.gwt.event.dom.client.DomEvent;
@@ -57,7 +57,7 @@ public interface Popup {
     /**
      * @return Size in pixels.
      */
-    DefaultSize getSize();
+    DefaultSizeInt getSize();
 
     void hide();
 

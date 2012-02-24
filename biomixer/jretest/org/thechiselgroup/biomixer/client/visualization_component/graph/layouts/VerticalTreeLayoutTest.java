@@ -27,7 +27,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
@@ -44,7 +44,7 @@ public class VerticalTreeLayoutTest {
             int height) {
         GraphLayoutCallback callback = mock(Graph.class);
         when(callback.getDisplayArea()).thenReturn(
-                new DefaultSize(width, height));
+                new DefaultSizeInt(width, height));
 
         doAnswer(new Answer() {
 
