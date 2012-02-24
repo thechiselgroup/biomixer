@@ -32,7 +32,9 @@ public class ExpanderPopupManager {
     }
 
     public void onMenuItemClick() {
+        assert expanderPopup != null;
         graphDisplay.removeSvgElement(expanderPopup.getContainer());
+        expanderPopup = null;
     }
 
     public void onMouseDown() {

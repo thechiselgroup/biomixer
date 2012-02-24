@@ -38,6 +38,8 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected static final String ARC_ID1 = "aid1";
 
+    protected static final String MENU_ITEM_ID_0 = "menuItemId-0";
+
     @Mock
     protected NodeMenuItemClickedHandler menuItemHandler0;
 
@@ -57,6 +59,10 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
         Node node = new Node(id, label, type);
         underTest.addNode(node);
         return node;
+    }
+
+    public void assertUnderTestAsSvgEqualsFile(String fileIdentifier) {
+        assertSvgRootElementEqualsFile(fileIdentifier, underTest.asSvg());
     }
 
     @Before
