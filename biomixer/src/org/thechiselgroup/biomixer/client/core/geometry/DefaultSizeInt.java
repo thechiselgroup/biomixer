@@ -15,13 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.geometry;
 
-public class DefaultSize implements SizeInt {
+public class DefaultSizeInt implements SizeInt {
 
     private int width;
 
     private int height;
 
-    public DefaultSize(int width, int height) {
+    public DefaultSizeInt(int width, int height) {
         assert width >= 0;
         assert height >= 0;
 
@@ -40,7 +40,7 @@ public class DefaultSize implements SizeInt {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        DefaultSize other = (DefaultSize) obj;
+        DefaultSizeInt other = (DefaultSizeInt) obj;
         if (width != other.width) {
             return false;
         }

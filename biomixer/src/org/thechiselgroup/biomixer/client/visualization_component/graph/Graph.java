@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
@@ -440,7 +440,7 @@ public class Graph extends AbstractViewContentDisplay implements
         Widget displayWidget = graphDisplay.asWidget();
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();
-        return new DefaultSize(width, height);
+        return new DefaultSizeInt(width, height);
     }
 
     @Override

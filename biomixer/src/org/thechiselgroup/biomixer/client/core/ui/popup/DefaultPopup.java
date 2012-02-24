@@ -21,7 +21,7 @@ import org.adamtacy.client.ui.effects.events.EffectCompletedEvent;
 import org.adamtacy.client.ui.effects.events.EffectCompletedHandler;
 import org.thechiselgroup.biomixer.client.core.fx.FXUtil;
 import org.thechiselgroup.biomixer.client.core.fx.Opacity;
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.ui.CSS;
 
@@ -209,7 +209,7 @@ public class DefaultPopup implements Popup {
     }
 
     @Override
-    public DefaultSize getSize() {
+    public DefaultSizeInt getSize() {
         /*
          * If the popup panel is not attached --> attach in background, get
          * size, remove panel. Otherwise just report size.
@@ -224,7 +224,7 @@ public class DefaultPopup implements Popup {
             rootPanel.add(effectPanel);
         }
 
-        DefaultSize size = new DefaultSize(containerPanel.getOffsetWidth(),
+        DefaultSizeInt size = new DefaultSizeInt(containerPanel.getOffsetWidth(),
                 containerPanel.getOffsetHeight());
 
         if (!attached) {

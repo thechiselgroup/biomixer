@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.ui;
+package org.thechiselgroup.biomixer.client.core.util.text;
 
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
+import org.thechiselgroup.biomixer.client.core.ui.CSS;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.RootPanel;
 
+// TODO fix usage
+// TODO add documentation -- setup, teardown
 public class BoundsEstimator {
 
     protected final Element estimatorElement;
@@ -40,8 +44,8 @@ public class BoundsEstimator {
         Element estimatorElement = DOM.createSpan();
 
         CSS.setPosition(estimatorElement, CSS.ABSOLUTE);
-        CSS.setLeft(estimatorElement, 0);
-        CSS.setTop(estimatorElement, 0);
+        CSS.setLeft(estimatorElement, -100);
+        CSS.setTop(estimatorElement, -100);
         CSS.setZIndex(estimatorElement, -1000);
         CSS.setBorder(estimatorElement, "0px none");
         CSS.setPadding(estimatorElement, 0);
@@ -51,25 +55,25 @@ public class BoundsEstimator {
     }
 
     public int getHeight() {
-        rootElement.appendChild(estimatorElement);
-        int height = estimatorElement.getOffsetHeight();
-        rootElement.removeChild(estimatorElement);
-        return height;
+        return estimatorElement.getOffsetHeight();
     }
 
-    public DefaultSize getSize() {
-        rootElement.appendChild(estimatorElement);
+    public SizeInt getSize() {
         int width = estimatorElement.getOffsetWidth();
         int height = estimatorElement.getOffsetHeight();
-        rootElement.removeChild(estimatorElement);
-        return new DefaultSize(width, height);
+        return new DefaultSizeInt(width, height);
     }
 
     public int getWidth() {
+        return estimatorElement.getOffsetWidth();
+    }
+
+    public void setUp() {
         rootElement.appendChild(estimatorElement);
-        int width = estimatorElement.getOffsetWidth();
+    }
+
+    public void tearDown() {
         rootElement.removeChild(estimatorElement);
-        return width;
     }
 
 }
