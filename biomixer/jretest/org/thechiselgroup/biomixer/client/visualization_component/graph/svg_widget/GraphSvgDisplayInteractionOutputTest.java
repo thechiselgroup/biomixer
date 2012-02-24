@@ -38,14 +38,14 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void expandTab() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         assertUnderTestAsSvgEqualsFile("tabExpanded");
     }
 
     @Test
     public void expandTabClickMenuItem() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
@@ -57,7 +57,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void expandTabMoveMouseOffNode() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(300, 200));
         assertUnderTestAsSvgEqualsFile("tabExpanded");
@@ -65,7 +65,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void expandTabMoveMouseOffNodeMouseDown() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node,
                 TestEventFactory.createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(300, 200));
@@ -75,7 +75,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void expandTabMoveMouseOverMenuItem() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
@@ -85,7 +85,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void expandTabMoveMouseOverMenuItemMouseOut() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
@@ -97,7 +97,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void mouseDownMouseMoveCausesNodeToMove() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTestEvent(node, createMouseDownEvent(5, 5));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(20, 20));
         assertUnderTestAsSvgEqualsFile("nodeDrag");
@@ -105,7 +105,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     @Test
     public void mouseDownMouseMoveTwiceCausesNodeToMoveToFinalDestination() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTestEvent(node, createMouseDownEvent(5, 5));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(20, 20));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(10, 10));

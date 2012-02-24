@@ -1,10 +1,12 @@
 <svg>
-  <svg id="n1">
-    <rect x="1" y="1" height="2" width="3" fill="blue"></rect>
-    <text x="1" y="1">Test</text>
-  </svg>
-  <svg id="n2">
-    <rect x="1" y="1" height="2" width="3" fill="red"></rect>
-    <text x="1" y="1">Test2</text>
+  <svg>
+    <svg id="n1">
+      <rect x="1" y="1" height="20" width="30" fill="blue"></rect>
+      <text x="1" y="10">Test</text>
+    </svg>
+    <svg id="n2">
+      <rect x="1" y="1" height="20" width="30" fill="red"></rect>
+      <text x="1" y="10">Test2</text>
+    </svg>
   </svg>
 </svg>

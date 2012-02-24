@@ -36,11 +36,11 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected static final String LABEL2 = "Concept2";
 
-    protected static final String ID1 = "n1";
+    protected static final String N1 = "n1";
 
-    protected static final String ID2 = "n2";
+    protected static final String N2 = "n2";
 
-    protected static final String ARC_ID1 = "aid1";
+    protected static final String A1 = "a1";
 
     protected static final String MENU_ITEM_ID_0 = "menuItemId-0";
 
@@ -67,17 +67,27 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
         return node;
     }
 
-    public void assertUnderTestAsSvgEqualsFile(String fileIdentifier) {
+    /**
+     * 
+     * @param id
+     *            the id of the element to match
+     * @param fileIdentifier
+     *            the file to look in for the element with specified id
+     * @throws Exception
+     */
+    protected void assertComponentWithIdEqualsFile(String id,
+            String fileIdentifier) throws Exception {
+        assertUnderTestComponentEqualsFile("//*[@id='" + id + "']",
+                fileIdentifier);
+    }
+
+    protected void assertUnderTestAsSvgEqualsFile(String fileIdentifier) {
         assertSvgRootElementEqualsFile(fileIdentifier, underTest.asSvg());
     }
 
-    @Before
-    public void setUpGraphDisplay() {
-        MockitoAnnotations.initMocks(this);
-        underTest = new TestGraphSvgDisplay(400, 300,
-                new TextSvgElementFactory());
-        underTest.addNodeMenuItemHandler("MenuItem1", menuItemHandler0, TYPE);
-        underTest.addNodeMenuItemHandler("MenuItem2", menuItemHandler1, TYPE);
+    protected void assertUnderTestComponentEqualsFile(String xpath,
+            String fileIdentifier) throws Exception {
+        assertElementEqualsFile(fileIdentifier, extractElementAsString(xpath));
     }
 
     protected String extractElementAsString(String xpath) throws Exception {
@@ -87,6 +97,15 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     @Before
     public void initParser() throws ParserConfigurationException {
         parser = new SvgResultParser(new StandardJavaXMLDocumentProcessor());
+    }
+
+    @Before
+    public void setUpGraphDisplay() {
+        MockitoAnnotations.initMocks(this);
+        underTest = new TestGraphSvgDisplay(400, 300,
+                new TextSvgElementFactory());
+        underTest.addNodeMenuItemHandler("MenuItem1", menuItemHandler0, TYPE);
+        underTest.addNodeMenuItemHandler("MenuItem2", menuItemHandler1, TYPE);
     }
 
 }

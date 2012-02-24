@@ -32,7 +32,7 @@ public class SvgResultParserTest {
     /**
      * 
      * @param expectedFileName
-     *            name of the XML file containing the expected output
+     *            name of the SVG file containing the expected output
      * @param inputFileName
      *            name of the SVG file containing the input for the parser
      * @param xpath
@@ -41,7 +41,7 @@ public class SvgResultParserTest {
      * @throws IOException
      * @throws Exception
      */
-    private void assertXmlEqualsSelection(String expectedFileName,
+    private void assertSvgEqualsSelection(String expectedFileName,
             String inputFileName, String xpath) throws IOException, Exception {
         XmlTestUtils.assertXmlEquals(getXMLFromFile(expectedFileName),
                 underTest.extractElementAsString(getXMLFromFile(inputFileName),
@@ -50,24 +50,24 @@ public class SvgResultParserTest {
 
     @Test
     public void basicNoChildrenRootElementHasNamespace() throws Exception {
-        assertXmlEqualsSelection("expected_basic.xml", "basic_namespace.svg",
+        assertSvgEqualsSelection("expected_basic.svg", "basic_namespace.svg",
                 "/svg/text");
     }
 
     @Test
     public void elementHasChildren() throws Exception {
-        assertXmlEqualsSelection("expected_childNodes.xml", "childNodes.svg",
-                "/svg/svg");
+        assertSvgEqualsSelection("expected_childNodes.svg", "childNodes.svg",
+                "/svg/svg/*");
     }
 
     @Test
     public void elementHasNoChildren() throws Exception {
-        assertXmlEqualsSelection("expected_basic.xml", "basic.svg", "/svg/text");
+        assertSvgEqualsSelection("expected_basic.svg", "basic.svg", "/svg/text");
     }
 
     @Test
     public void extractElementWithSpecifiedAttribute() throws Exception {
-        assertXmlEqualsSelection("expected_namedNode.xml", "namedNode.svg",
+        assertSvgEqualsSelection("expected_namedNode.svg", "namedNode.svg",
                 "//svg[@id='n2']");
     }
 

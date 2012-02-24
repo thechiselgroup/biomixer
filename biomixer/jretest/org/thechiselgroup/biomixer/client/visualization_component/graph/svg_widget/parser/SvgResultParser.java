@@ -16,14 +16,19 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.parser;
 
 import org.thechiselgroup.biomixer.client.services.AbstractXMLResultParser;
+import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 import org.w3c.dom.Node;
 
 /**
- * Returns the portion of an xml string specified by an xpath expression. This
+ * Returns the portion of an SVG string specified by an xpath expression. This
  * includes any child elements.
+ * 
+ * The string returned is a complete SVG file (has an outer SVG element wrapped
+ * around it with the xmlns). This allows the selection to be rendered properly
+ * in a web browser, which in turn allows it to be inspected visually.
  * 
  * @author drusk
  * 
@@ -34,18 +39,28 @@ public class SvgResultParser extends AbstractXMLResultParser {
         super(documentProcessor);
     }
 
-    public String extractElementAsString(String xml, String path)
+    public String extractElementAsString(String svg, String path)
             throws Exception {
-        Object root = parseDocument(xml);
-        Object[] nodes = getNodes(root, path);
-        Node node = (Node) nodes[0];
+        Object root = parseDocument(svg);
 
-        return new DomNodeToStringTransformer().transform(node);
+        StringBuilder selection = new StringBuilder();
+        DomNodeToStringTransformer domNodeToStringTransformer = new DomNodeToStringTransformer();
+
+        for (Object node : getNodes(root, path)) {
+            selection.append(domNodeToStringTransformer.transform((Node) node));
+        }
+
+        return wrapWithSvgNamespaceContainerElement(selection.toString());
     }
 
     public String extractElementAsString(SvgElement svgElement, String xpath)
             throws Exception {
         return extractElementAsString(((TextSvgElement) svgElement).toXML(),
                 xpath);
+    }
+
+    private String wrapWithSvgNamespaceContainerElement(String svgSelection) {
+        return "<svg xmlns=\"" + Svg.NAMESPACE + "\" version=\"1.1\">"
+                + svgSelection + "</svg>";
     }
 }

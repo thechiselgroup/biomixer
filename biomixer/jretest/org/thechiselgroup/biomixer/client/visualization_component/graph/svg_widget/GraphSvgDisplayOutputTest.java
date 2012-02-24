@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
@@ -34,68 +33,66 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
-    public void addNodePutsRectangleInSvg() {
-        addNode(ID1, LABEL1, TYPE);
-        assertUnderTestAsSvgEqualsFile("addSingleNode");
-        /*
-         * TODO only specify certain elements to test. For example:
-         * assertElementEqualsFile("addSingleNode",
-         * extractElementAsString("//svg/svg"));
-         */
+    public void addNodePutsRectangleInSvg() throws Exception {
+        addNode(N1, LABEL1, TYPE);
+        assertComponentWithIdEqualsFile(N1, "basicNode1");
     }
 
     @Test
-    public void addTwoNodes() {
-        addNode(ID1, LABEL1, TYPE);
-        addNode(ID2, LABEL2, TYPE);
-        assertUnderTestAsSvgEqualsFile("addTwoNodes");
+    public void addTwoNodes() throws Exception {
+        addNode(N1, LABEL1, TYPE);
+        addNode(N2, LABEL2, TYPE);
+        assertComponentWithIdEqualsFile(N1, "basicNode1");
+        assertComponentWithIdEqualsFile(N2, "basicNode2");
     }
 
     @Test
-    public void addTwoNodesAddArcSetLocationShouldCauseArcToReposition() {
-        addNode(ID1, LABEL1, TYPE);
-        Node node2 = addNode(ID2, LABEL2, TYPE);
-        addArc(ARC_ID1, ID1, ID2, TYPE, true);
+    public void addTwoNodesAddArcSetLocationShouldCauseArcToReposition()
+            throws Exception {
+        addNode(N1, LABEL1, TYPE);
+        Node node2 = addNode(N2, LABEL2, TYPE);
+        addArc(A1, N1, N2, TYPE, true);
         underTest.setLocation(node2, new Point(130, 0));
-        assertUnderTestAsSvgEqualsFile("twoNodesOneArc");
+        assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
     @Test
-    public void addTwoNodesAndSetNewLocation() {
-        addNode(ID1, LABEL1, TYPE);
-        Node node2 = addNode(ID2, LABEL2, TYPE);
+    public void addTwoNodesAndSetNewLocation() throws Exception {
+        addNode(N1, LABEL1, TYPE);
+        Node node2 = addNode(N2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
-        assertUnderTestAsSvgEqualsFile("addTwoNodesSetLocation");
+        assertComponentWithIdEqualsFile(N1, "basicNode1");
+        assertComponentWithIdEqualsFile(N2, "node2Moved");
     }
 
     @Test
     public void addTwoNodesRemoveOne() {
-        Node node1 = addNode(ID1, LABEL1, TYPE);
-        addNode(ID2, LABEL2, TYPE);
+        Node node1 = addNode(N1, LABEL1, TYPE);
+        addNode(N2, LABEL2, TYPE);
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoNodesRemoveOne");
     }
 
     @Test
-    public void addTwoNodesSetLocationAddArc() {
-        addNode(ID1, LABEL1, TYPE);
-        Node node2 = addNode(ID2, LABEL2, TYPE);
+    public void addTwoNodesSetLocationAddArc() throws Exception {
+        addNode(N1, LABEL1, TYPE);
+        Node node2 = addNode(N2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
-        addArc(ARC_ID1, ID1, ID2, TYPE, true);
-        assertUnderTestAsSvgEqualsFile("twoNodesOneArc");
+        addArc(A1, N1, N2, TYPE, true);
+        assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
     private Arc addTwoSeparatedNodesWithArc() {
-        addNode(ID1, LABEL1, TYPE);
-        Node node2 = addNode(ID2, LABEL2, TYPE);
+        addNode(N1, LABEL1, TYPE);
+        Node node2 = addNode(N2, LABEL2, TYPE);
         underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = addArc(ARC_ID1, ID1, ID2, TYPE, true);
+        Arc arc = addArc(A1, N1, N2, TYPE, true);
         return arc;
     }
 
     @Test
     public void animateToMovesOneNodeFinalDesinationShouldBeNewPoint() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.animateMoveTo(node, new Point(100, 100));
         assertUnderTestAsSvgEqualsFile("animateMoveOneNode");
     }
@@ -109,93 +106,93 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void removingNodeShouldRemoveArc() {
-        Node node1 = addNode(ID1, LABEL1, TYPE);
-        Node node2 = addNode(ID2, LABEL2, TYPE);
-        addArc(ARC_ID1, ID1, ID2, TYPE, true);
+        Node node1 = addNode(N1, LABEL1, TYPE);
+        Node node2 = addNode(N2, LABEL2, TYPE);
+        addArc(A1, N1, N2, TYPE, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1");
     }
 
     @Test
-    public void setArcColor() {
+    public void setArcColor() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_COLOR, "#AFC6E5");
-        assertUnderTestAsSvgEqualsFile("setArcColor");
+        assertComponentWithIdEqualsFile(A1, "arc1Colored");
     }
 
     @Test
-    public void setArcStyleDashed() {
+    public void setArcStyleDashed() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_DASHED);
-        assertUnderTestAsSvgEqualsFile("setArcStyleDashed");
+        assertComponentWithIdEqualsFile(A1, "arc1Dashed");
     }
 
     @Test
-    public void setArcStyleDashedThenSolid() {
+    public void setArcStyleDashedThenSolid() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_DASHED);
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
-        assertUnderTestAsSvgEqualsFile("setArcStyleSolid");
+        assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
     @Test
-    public void setArcStyleSolid() {
+    public void setArcStyleSolid() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
-        assertUnderTestAsSvgEqualsFile("setArcStyleSolid");
+        assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
     @Test
-    public void setArcThickness() {
+    public void setArcThickness() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_THICKNESS, "3");
-        assertUnderTestAsSvgEqualsFile("setArcThickness");
+        assertComponentWithIdEqualsFile(A1, "arc1Thick");
     }
 
     @Test
-    public void setNodeBackgroundColor() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+    public void setNodeBackgroundColor() throws Exception {
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BACKGROUND_COLOR,
                 Colors.YELLOW_1);
-        assertUnderTestAsSvgEqualsFile("setNodeBackgroundColor");
+        assertComponentWithIdEqualsFile(N1, "node1BackgroundColored");
     }
 
     @Test
-    public void setNodeBorderColor() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+    public void setNodeBorderColor() throws Exception {
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BORDER_COLOR,
                 Colors.YELLOW_2);
-        assertUnderTestAsSvgEqualsFile("setNodeBorderColor");
+        assertComponentWithIdEqualsFile(N1, "node1BorderColored");
     }
 
     @Test
-    public void setNodeFontColor() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+    public void setNodeFontColor() throws Exception {
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_COLOR,
                 Colors.ORANGE);
-        assertUnderTestAsSvgEqualsFile("setNodeFontColor");
+        assertComponentWithIdEqualsFile(N1, "node1FontColored");
     }
 
     @Test
-    public void setNodeFontWeightBold() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+    public void setNodeFontWeightBold() throws Exception {
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
-        assertUnderTestAsSvgEqualsFile("setNodeFontWeightBold");
+        assertComponentWithIdEqualsFile(N1, "node1BoldFont");
     }
 
     @Test
-    public void setNodeFontWeightBoldThenNormal() {
-        Node node = addNode(ID1, LABEL1, TYPE);
+    public void setNodeFontWeightBoldThenNormal() throws Exception {
+        Node node = addNode(N1, LABEL1, TYPE);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_NORMAL);
-        assertUnderTestAsSvgEqualsFile("setNodeFontWeightBoldThenNormal");
+        assertComponentWithIdEqualsFile(N1, "node1NormalFont");
     }
 }

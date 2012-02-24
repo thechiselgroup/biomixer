@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -33,8 +34,8 @@ public class ArcElementFactory {
             NodeElement targetNode) {
 
         SvgElement line = svgElementFactory.createElement(Svg.LINE);
-        // TODO proper colour
-        line.setAttribute(Svg.STROKE, "black");
+        line.setAttribute(Svg.ID, arc.getId());
+        line.setAttribute(Svg.STROKE, Colors.BLACK);
         SvgUtils.setX1Y1(line, sourceNode.getMidPoint());
         SvgUtils.setX2Y2(line, targetNode.getMidPoint());
 

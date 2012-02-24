@@ -232,6 +232,7 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public SvgElement asSvg() {
+        rootSvgElement.removeAllChildren();
         for (ArcElement arcElement : arcs) {
             rootSvgElement.appendChild(arcElement.getSvgElement());
         }
