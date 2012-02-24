@@ -69,7 +69,7 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private SvgWidget asWidget = null;
 
-    private SvgElement rootSvgElement = null;
+    protected SvgElement rootSvgElement = null;
 
     private EventBus eventBus = new SimpleEventBus();
 
@@ -86,7 +86,7 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private SvgExpanderPopupFactory expanderPopupFactory;
 
-    private ExpanderPopupManager expanderPopupManager;
+    protected ExpanderPopupManager expanderPopupManager;
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
@@ -232,19 +232,22 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public SvgElement asSvg() {
-        SvgElement rootElement = svgElementFactory.createElement(Svg.SVG);
-        rootElement.setAttribute("xmlns", Svg.NAMESPACE);
-        rootElement.setAttribute("version", "1.1");
-
         for (ArcElement arcElement : arcs) {
-            rootElement.appendChild(arcElement.getSvgElement());
+            rootSvgElement.appendChild(arcElement.getSvgElement());
         }
 
         // Nodes should be added after arcs so that they are drawn on top
         for (NodeElement nodeElement : nodes) {
-            rootElement.appendChild(nodeElement.getBaseContainer());
+            rootSvgElement.appendChild(nodeElement.getBaseContainer());
         }
-        return rootElement;
+
+        SvgPopupExpanders popupExpander = expanderPopupManager
+                .getPopupExpander();
+        if (popupExpander != null) {
+            rootSvgElement.appendChild(popupExpander.getContainer());
+        }
+
+        return rootSvgElement;
     }
 
     @Override
@@ -297,6 +300,14 @@ public class GraphSvgDisplay implements GraphDisplay {
         return nodes.get(nodeId).getNode();
     }
 
+    public NodeElement getNodeElement(Node node) {
+        return nodes.get(node.getId());
+    }
+
+    public SvgElement getRootSvgElement() {
+        return rootSvgElement;
+    }
+
     private void initBackground(int width, int height) {
         background = svgElementFactory.createElement(Svg.RECT);
         background.setAttribute(Svg.WIDTH, width);
@@ -304,7 +315,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         background.setAttribute(Svg.FILL, "white");
     }
 
-    private void initViewInteractionListener() {
+    protected void initViewInteractionListener() {
         rootSvgElement.setEventListener(new ViewWideInteractionListener(
                 nodeInteractionManager, expanderPopupManager));
     }

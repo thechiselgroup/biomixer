@@ -79,6 +79,15 @@ public class TextSvgElement implements SvgElement, SvgStyle {
         return children.size();
     }
 
+    /**
+     * 
+     * @return returns the registered event handler. Should only be used for
+     *         testing purposes.
+     */
+    public ChooselEventHandler getEventListener() {
+        return handler;
+    }
+
     @Override
     public SvgStyle getStyle() {
         return this;

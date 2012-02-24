@@ -27,6 +27,10 @@ public class ExpanderPopupManager {
         this.graphDisplay = graphDisplay;
     }
 
+    public SvgPopupExpanders getPopupExpander() {
+        return expanderPopup;
+    }
+
     public void onMenuItemClick() {
         graphDisplay.removeSvgElement(expanderPopup.getContainer());
     }

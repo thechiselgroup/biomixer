@@ -16,9 +16,12 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.junit.Before;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMenuItemClickedHandler;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
 public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
@@ -34,6 +37,12 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     protected static final String ID2 = "n2";
 
     protected static final String ARC_ID1 = "aid1";
+
+    @Mock
+    protected NodeMenuItemClickedHandler menuItemHandler0;
+
+    @Mock
+    protected NodeMenuItemClickedHandler menuItemHandler1;
 
     protected TestGraphSvgDisplay underTest;
 
@@ -52,8 +61,11 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     @Before
     public void setUpGraphDisplay() {
+        MockitoAnnotations.initMocks(this);
         underTest = new TestGraphSvgDisplay(400, 300,
                 new TextSvgElementFactory());
+        underTest.addNodeMenuItemHandler("MenuItem1", menuItemHandler0, TYPE);
+        underTest.addNodeMenuItemHandler("MenuItem2", menuItemHandler1, TYPE);
     }
 
 }

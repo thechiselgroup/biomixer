@@ -42,9 +42,11 @@ public class NodeInteractionManager {
         this.graphDisplay = graphDisplay;
     }
 
-    public void onMouseDown(String nodeId) {
+    public void onMouseDown(String nodeId, int currentX, int currentY) {
         mouseDownNodeId = nodeId;
         movedSinceMouseDown = false;
+        lastMouseX = currentX;
+        lastMouseY = currentY;
     }
 
     public void onMouseMove(int currentX, int currentY) {

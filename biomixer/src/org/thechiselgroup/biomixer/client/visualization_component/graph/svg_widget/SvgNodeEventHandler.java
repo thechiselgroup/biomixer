@@ -54,7 +54,8 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
             break;
 
         case MOUSE_DOWN:
-            nodeInteractionManager.onMouseDown(nodeElement.getId());
+            nodeInteractionManager.onMouseDown(nodeElement.getId(), clientX,
+                    clientY);
             break;
 
         default:
