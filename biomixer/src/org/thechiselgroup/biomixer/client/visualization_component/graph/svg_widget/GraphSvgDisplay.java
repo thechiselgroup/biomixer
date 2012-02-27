@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
+import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -88,6 +90,8 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     protected ExpanderPopupManager expanderPopupManager;
 
+    protected TextBoundsEstimator textBoundsEstimator;
+
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
         // TODO: set up some sort of forwarding system so that things can be
@@ -105,9 +109,11 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
-        this.nodeElementFactory = new NodeElementFactory(svgElementFactory);
+        initTextBoundsEstimator();
+        this.nodeElementFactory = new NodeElementFactory(svgElementFactory,
+                textBoundsEstimator);
         this.expanderPopupFactory = new SvgExpanderPopupFactory(
-                svgElementFactory);
+                svgElementFactory, textBoundsEstimator);
         initBackground(width, height);
         nodeInteractionManager = new NodeInteractionManager(this);
         expanderPopupManager = new ExpanderPopupManager(this);
@@ -314,6 +320,11 @@ public class GraphSvgDisplay implements GraphDisplay {
         background.setAttribute(Svg.WIDTH, width);
         background.setAttribute(Svg.HEIGHT, height);
         background.setAttribute(Svg.FILL, "white");
+    }
+
+    protected void initTextBoundsEstimator() {
+        this.textBoundsEstimator = new SvgBBoxTextBoundsEstimator(
+                svgElementFactory);
     }
 
     protected void initViewInteractionListener() {

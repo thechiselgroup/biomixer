@@ -22,6 +22,7 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -33,9 +34,13 @@ public class SvgExpanderPopupFactory {
 
     private BoxedTextSvgFactory boxedTextFactory;
 
-    public SvgExpanderPopupFactory(SvgElementFactory svgElementFactory) {
+    public SvgExpanderPopupFactory(SvgElementFactory svgElementFactory,
+            TextBoundsEstimator textBoundsEstimator) {
+        assert svgElementFactory != null;
+        assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory);
+        this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory,
+                textBoundsEstimator);
     }
 
     public SvgPopupExpanders createExpanderPopupList(

@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.junit.Before;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 
 public class BoxedTextSvgFactoryTest extends AbstractSvgTest {
@@ -25,7 +26,8 @@ public class BoxedTextSvgFactoryTest extends AbstractSvgTest {
 
     @Before
     public void setUpBoxedTextFactory() {
-        underTest = new BoxedTextSvgFactory(svgElementFactory);
+        underTest = new BoxedTextSvgFactory(svgElementFactory,
+                new TestTextBoundsEstimator(10, 20));
     }
 
     @Test

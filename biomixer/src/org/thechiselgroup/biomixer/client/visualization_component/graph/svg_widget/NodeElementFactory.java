@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -32,9 +33,13 @@ public class NodeElementFactory {
 
     private ExpanderTabFactory expanderTabFactory;
 
-    public NodeElementFactory(SvgElementFactory svgElementFactory) {
+    public NodeElementFactory(SvgElementFactory svgElementFactory,
+            TextBoundsEstimator textBoundsEstimator) {
+        assert svgElementFactory != null;
+        assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory);
+        this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory,
+                textBoundsEstimator);
         this.expanderTabFactory = new ExpanderTabFactory(svgElementFactory);
     }
 

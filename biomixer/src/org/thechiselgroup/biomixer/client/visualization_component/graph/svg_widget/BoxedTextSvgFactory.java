@@ -17,14 +17,10 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
-import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
 public class BoxedTextSvgFactory {
 
@@ -34,10 +30,12 @@ public class BoxedTextSvgFactory {
 
     private TextBoundsEstimator textBoundsEstimator;
 
-    public BoxedTextSvgFactory(SvgElementFactory svgElementFactory) {
+    public BoxedTextSvgFactory(SvgElementFactory svgElementFactory,
+            TextBoundsEstimator textBoundsEstimator) {
+        assert svgElementFactory != null;
+        assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        initTextBoundsEstimator(svgElementFactory);
-        assert this.textBoundsEstimator != null;
+        this.textBoundsEstimator = textBoundsEstimator;
     }
 
     public BoxedTextSvgElement createBoxedText(String text) {
@@ -67,15 +65,6 @@ public class BoxedTextSvgFactory {
 
         return new BoxedTextSvgElement(containerElement, textElement,
                 boxElement);
-    }
-
-    private void initTextBoundsEstimator(SvgElementFactory svgElementFactory) {
-        if (svgElementFactory instanceof JsDomSvgElementFactory) {
-            this.textBoundsEstimator = new SvgBBoxTextBoundsEstimator(
-                    svgElementFactory);
-        } else if (svgElementFactory instanceof TextSvgElementFactory) {
-            this.textBoundsEstimator = new TestTextBoundsEstimator(10, 20);
-        }
     }
 
     private void setDefaultAttributeValues(SvgElement boxElement) {
