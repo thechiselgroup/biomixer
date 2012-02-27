@@ -53,11 +53,9 @@ public class NodeElementFactory {
 
         ExpanderTabSvgElement expanderTab = expanderTabFactory
                 .createExpanderTabSvgElement();
-        // XXX find bounds of nodeBox (getBBox? not working) and use them
-        expanderTab
-                .setLocation(
-                        (BoxedTextSvgFactory.DEFAULT_BOX_WIDTH - ExpanderTabFactory.TAB_WIDTH) / 2,
-                        BoxedTextSvgFactory.DEFAULT_BOX_HEIGHT);
+        expanderTab.setLocation(
+                (boxedText.getTotalWidth() - ExpanderTabFactory.TAB_WIDTH) / 2,
+                boxedText.getTotalHeight());
 
         baseContainer.appendChild(boxedText.getContainer());
         baseContainer.appendChild(expanderTab.getContainer());

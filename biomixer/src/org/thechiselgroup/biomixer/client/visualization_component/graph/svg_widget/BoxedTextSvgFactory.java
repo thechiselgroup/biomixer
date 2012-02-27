@@ -15,23 +15,29 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
+import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
 public class BoxedTextSvgFactory {
-
-    public static final double DEFAULT_BOX_WIDTH = 100.0;
-
-    public static final double DEFAULT_BOX_HEIGHT = 40.0;
 
     public static final double TEXT_BUFFER = 10.0;
 
     private final SvgElementFactory svgElementFactory;
 
+    private TextBoundsEstimator textBoundsEstimator;
+
     public BoxedTextSvgFactory(SvgElementFactory svgElementFactory) {
         this.svgElementFactory = svgElementFactory;
+        initTextBoundsEstimator(svgElementFactory);
+        assert this.textBoundsEstimator != null;
     }
 
     public BoxedTextSvgElement createBoxedText(String text) {
@@ -40,26 +46,43 @@ public class BoxedTextSvgFactory {
         SvgElement textElement = svgElementFactory.createElement(Svg.TEXT);
         textElement.setTextContent(text);
 
-        // TODO set box width and height based on text size
         SvgElement boxElement = svgElementFactory.createElement(Svg.RECT);
-        // set default colors
-        boxElement.setAttribute(Svg.FILL, Colors.WHITE);
-        boxElement.setAttribute(Svg.STROKE, Colors.BLACK);
-        boxElement.setAttribute(Svg.WIDTH, DEFAULT_BOX_WIDTH);
-        boxElement.setAttribute(Svg.HEIGHT, DEFAULT_BOX_HEIGHT);
-        boxElement.setAttribute(Svg.X, 0.0);
-        boxElement.setAttribute(Svg.Y, 0.0);
+        setDefaultAttributeValues(boxElement);
 
-        // textElement.setAttribute(Svg.X, TEXT_BUFFER);
-        // textElement.setAttribute(Svg.Y, TEXT_BUFFER);
-        textElement.setAttribute(Svg.X, 10.0);
-        textElement.setAttribute(Svg.Y, 20.0);
+        textBoundsEstimator.setUp();
+        SizeInt textSize = textBoundsEstimator.getSize(text);
+        textBoundsEstimator.tearDown();
+
+        boxElement.setAttribute(Svg.WIDTH, textSize.getWidth() + 2
+                * TEXT_BUFFER);
+        boxElement.setAttribute(Svg.HEIGHT, textSize.getHeight() + 2
+                * TEXT_BUFFER);
+
+        textElement.setAttribute(Svg.X, TEXT_BUFFER);
+        // the y-position of the text refers to the bottom of the text
+        textElement.setAttribute(Svg.Y, TEXT_BUFFER + textSize.getHeight());
 
         containerElement.appendChild(boxElement);
         containerElement.appendChild(textElement);
 
         return new BoxedTextSvgElement(containerElement, textElement,
                 boxElement);
+    }
+
+    private void initTextBoundsEstimator(SvgElementFactory svgElementFactory) {
+        if (svgElementFactory instanceof JsDomSvgElementFactory) {
+            this.textBoundsEstimator = new SvgBBoxTextBoundsEstimator(
+                    svgElementFactory);
+        } else if (svgElementFactory instanceof TextSvgElementFactory) {
+            this.textBoundsEstimator = new TestTextBoundsEstimator(10, 20);
+        }
+    }
+
+    private void setDefaultAttributeValues(SvgElement boxElement) {
+        boxElement.setAttribute(Svg.FILL, Colors.WHITE);
+        boxElement.setAttribute(Svg.STROKE, Colors.BLACK);
+        boxElement.setAttribute(Svg.X, 0.0);
+        boxElement.setAttribute(Svg.Y, 0.0);
     }
 
 }

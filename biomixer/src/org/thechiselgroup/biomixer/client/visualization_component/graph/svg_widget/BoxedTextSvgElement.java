@@ -45,6 +45,14 @@ public class BoxedTextSvgElement {
         return text;
     }
 
+    public double getTextHeight() {
+        return Double.parseDouble(text.getAttributeAsString(Svg.HEIGHT));
+    }
+
+    public double getTextWidth() {
+        return Double.parseDouble(text.getAttributeAsString(Svg.WIDTH));
+    }
+
     public double getTotalHeight() {
         // TODO use BBox on container?
         return Double.parseDouble(box.getAttributeAsString(Svg.HEIGHT));
