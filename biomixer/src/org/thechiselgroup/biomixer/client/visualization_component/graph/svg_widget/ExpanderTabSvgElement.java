@@ -19,7 +19,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class ExpanderTabSvgElement {
+public class ExpanderTabSvgElement extends ContainedSvgComponent {
 
     private SvgElement rectangle;
 
@@ -29,6 +29,9 @@ public class ExpanderTabSvgElement {
 
     public ExpanderTabSvgElement(SvgElement container, SvgElement rectangle,
             SvgElement arrow) {
+        super(container);
+        appendChild(rectangle);
+        appendChild(arrow);
         this.container = container;
         this.rectangle = rectangle;
         this.arrow = arrow;

@@ -18,7 +18,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
@@ -35,10 +34,6 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
     public TestGraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {
         super(width, height, svgElementFactory);
-        rootSvgElement = svgElementFactory.createElement(Svg.SVG);
-        rootSvgElement.setAttribute("xmlns", Svg.NAMESPACE);
-        rootSvgElement.setAttribute("version", "1.1");
-        initViewInteractionListener();
     }
 
     public void fireNodeTabTestEvent(Node node, ChooselEvent event) {
@@ -75,7 +70,7 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
     }
 
     private TextSvgElement getTextRootSvgElement() {
-        return (TextSvgElement) rootSvgElement;
+        return (TextSvgElement) rootSvgElement.getContainer();
     }
 
     @Override

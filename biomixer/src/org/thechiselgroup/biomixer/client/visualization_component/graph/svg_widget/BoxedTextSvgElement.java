@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class BoxedTextSvgElement {
+public class BoxedTextSvgElement extends ContainedSvgComponent {
 
     private SvgElement container;
 
@@ -28,21 +28,16 @@ public class BoxedTextSvgElement {
 
     public BoxedTextSvgElement(SvgElement container, SvgElement text,
             SvgElement box) {
+        super(container);
+        appendChild(box);
+        appendChild(text);
         this.container = container;
         this.text = text;
         this.box = box;
     }
 
-    public SvgElement getBox() {
-        return box;
-    }
-
     public SvgElement getContainer() {
         return container;
-    }
-
-    public SvgElement getText() {
-        return text;
     }
 
     public double getTextHeight() {
@@ -71,12 +66,28 @@ public class BoxedTextSvgElement {
         box.setAttribute(Svg.STROKE, color);
     }
 
+    public void setBoxWidth(double width) {
+        box.setAttribute(Svg.WIDTH, width);
+    }
+
+    public void setCornerCurveHeight(double cornerCurveHeight) {
+        box.setAttribute(Svg.RY, cornerCurveHeight);
+    }
+
+    public void setCornerCurveWidth(double cornerCurveWidth) {
+        box.setAttribute(Svg.RX, cornerCurveWidth);
+    }
+
     public void setFontColor(String color) {
         text.setAttribute(Svg.FILL, color);
     }
 
     public void setFontWeight(String fontWeight) {
         text.setAttribute(Svg.FONT_WEIGHT, fontWeight);
+    }
+
+    public void setY(double y) {
+        container.setAttribute(Svg.Y, y);
     }
 
 }

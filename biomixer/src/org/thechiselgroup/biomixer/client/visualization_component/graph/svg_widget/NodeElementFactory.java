@@ -53,17 +53,14 @@ public class NodeElementFactory {
 
         BoxedTextSvgElement boxedText = boxedTextFactory.createBoxedText(node
                 .getLabel());
-        boxedText.getBox().setAttribute(Svg.RX, RX_DEFAULT);
-        boxedText.getBox().setAttribute(Svg.RY, RY_DEFAULT);
+        boxedText.setCornerCurveWidth(RX_DEFAULT);
+        boxedText.setCornerCurveHeight(RY_DEFAULT);
 
         ExpanderTabSvgElement expanderTab = expanderTabFactory
                 .createExpanderTabSvgElement();
         expanderTab.setLocation(
                 (boxedText.getTotalWidth() - ExpanderTabFactory.TAB_WIDTH) / 2,
                 boxedText.getTotalHeight());
-
-        baseContainer.appendChild(boxedText.getContainer());
-        baseContainer.appendChild(expanderTab.getContainer());
 
         return new NodeElement(node, baseContainer, boxedText, expanderTab);
     }

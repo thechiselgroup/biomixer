@@ -21,6 +21,7 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -32,7 +33,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
-public class NodeElement implements Identifiable {
+public class NodeElement extends ContainedSvgComponent implements Identifiable {
 
     private Node node;
 
@@ -46,6 +47,9 @@ public class NodeElement implements Identifiable {
 
     public NodeElement(Node node, SvgElement baseContainer,
             BoxedTextSvgElement boxedText, ExpanderTabSvgElement expanderTab) {
+        super(baseContainer);
+        appendChild(boxedText);
+        appendChild(expanderTab);
         this.node = node;
         this.baseContainer = baseContainer;
         this.boxedText = boxedText;
@@ -66,6 +70,10 @@ public class NodeElement implements Identifiable {
 
     public ExpanderTabSvgElement getExpanderTab() {
         return expanderTab;
+    }
+
+    public PointDouble getExpanderTabLocation() {
+        return expanderTab.getLocation();
     }
 
     @Override
@@ -98,10 +106,6 @@ public class NodeElement implements Identifiable {
         return boxedText.getContainer();
     }
 
-    public PointDouble getTabTopLeftLocation() {
-        return getLocation().plus(expanderTab.getLocation());
-    }
-
     public void removeConnectedArc(ArcElement arc) {
         arcsConnectedToThisNode.remove(arc);
     }
@@ -114,6 +118,10 @@ public class NodeElement implements Identifiable {
     public void setBorderColor(String color) {
         boxedText.setBorderColor(color);
         expanderTab.setBorderColor(color);
+    }
+
+    public void setExpanderTabEventListener(ChooselEventHandler handler) {
+        expanderTab.setEventListener(handler);
     }
 
     public void setFontColor(String color) {
@@ -132,6 +140,10 @@ public class NodeElement implements Identifiable {
         baseContainer.setAttribute(Svg.X, location.getX());
         baseContainer.setAttribute(Svg.Y, location.getY());
         updateConnectedArcs(location);
+    }
+
+    public void setNodeEventListener(ChooselEventHandler handler) {
+        boxedText.setEventListener(handler);
     }
 
     private void updateConnectedArcs(Point location) {

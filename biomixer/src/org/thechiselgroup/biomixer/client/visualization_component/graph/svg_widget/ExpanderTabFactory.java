@@ -66,9 +66,6 @@ public class ExpanderTabFactory {
         arrow.setAttribute(Svg.POINTS, pointsBuilder.toPointsString());
         arrow.setAttribute(Svg.FILL, Colors.BLACK);
 
-        tab.appendChild(rectangle);
-        tab.appendChild(arrow);
-
         return new ExpanderTabSvgElement(tab, rectangle, arrow);
     }
 

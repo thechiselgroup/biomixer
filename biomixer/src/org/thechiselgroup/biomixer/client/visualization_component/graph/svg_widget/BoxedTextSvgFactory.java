@@ -60,9 +60,6 @@ public class BoxedTextSvgFactory {
         // the y-position of the text refers to the bottom of the text
         textElement.setAttribute(Svg.Y, TEXT_BUFFER + textSize.getHeight());
 
-        containerElement.appendChild(boxElement);
-        containerElement.appendChild(textElement);
-
         return new BoxedTextSvgElement(containerElement, textElement,
                 boxElement);
     }

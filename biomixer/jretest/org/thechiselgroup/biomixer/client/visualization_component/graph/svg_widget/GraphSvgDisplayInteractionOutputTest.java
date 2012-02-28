@@ -37,14 +37,14 @@ public class GraphSvgDisplayInteractionOutputTest extends
         AbstractGraphSvgDisplayTest {
 
     @Test
-    public void expandTab() {
+    public void expandTab() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
-        assertUnderTestAsSvgEqualsFile("tabExpanded");
+        assertComponentWithIdEqualsFile(N1, "tabExpanded");
     }
 
     @Test
-    public void expandTabClickMenuItem() {
+    public void expandTabClickMenuItem() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
@@ -52,39 +52,39 @@ public class GraphSvgDisplayInteractionOutputTest extends
                 TestEventFactory.createMouseclickEvent());
         verify(menuItemHandler0, times(1)).onNodeMenuItemClicked(node);
         // mock handler will not add nodes, but tab menu should still disappear
-        assertUnderTestAsSvgEqualsFile("basicNode");
+        assertComponentWithIdEqualsFile(N1, "basicNode");
     }
 
     @Test
-    public void expandTabMoveMouseOffNode() {
+    public void expandTabMoveMouseOffNode() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(300, 200));
-        assertUnderTestAsSvgEqualsFile("tabExpanded");
+        assertComponentWithIdEqualsFile(N1, "tabExpanded");
     }
 
     @Test
-    public void expandTabMoveMouseOffNodeMouseDown() {
+    public void expandTabMoveMouseOffNodeMouseDown() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node,
                 TestEventFactory.createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(300, 200));
         underTest.fireViewWideTestEvent(createMouseDownEvent(300, 200));
-        assertUnderTestAsSvgEqualsFile("basicNode");
+        assertComponentWithIdEqualsFile(N1, "basicNode");
     }
 
     @Test
-    public void expandTabMoveMouseOverMenuItem() {
+    public void expandTabMoveMouseOverMenuItem() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
                 createMouseOverEvent());
-        assertUnderTestAsSvgEqualsFile("tabExpandedMouseOverFirstOption");
+        assertComponentWithIdEqualsFile(N1, "tabExpandedMouseOverFirstOption");
     }
 
     @Test
-    public void expandTabMoveMouseOverMenuItemMouseOut() {
+    public void expandTabMoveMouseOverMenuItemMouseOut() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
@@ -92,24 +92,25 @@ public class GraphSvgDisplayInteractionOutputTest extends
                 createMouseOverEvent());
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
                 createMouseOutEvent());
-        assertUnderTestAsSvgEqualsFile("tabExpanded");
+        assertComponentWithIdEqualsFile(N1, "tabExpanded");
     }
 
     @Test
-    public void mouseDownMouseMoveCausesNodeToMove() {
+    public void mouseDownMouseMoveCausesNodeToMove() throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTestEvent(node, createMouseDownEvent(5, 5));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(20, 20));
-        assertUnderTestAsSvgEqualsFile("nodeDrag");
+        assertComponentWithIdEqualsFile(N1, "nodeDrag");
     }
 
     @Test
-    public void mouseDownMouseMoveTwiceCausesNodeToMoveToFinalDestination() {
+    public void mouseDownMouseMoveTwiceCausesNodeToMoveToFinalDestination()
+            throws Exception {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTestEvent(node, createMouseDownEvent(5, 5));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(20, 20));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(10, 10));
-        assertUnderTestAsSvgEqualsFile("nodeDragForwardBack");
+        assertComponentWithIdEqualsFile(N1, "nodeDragForwardBack");
     }
 
 }

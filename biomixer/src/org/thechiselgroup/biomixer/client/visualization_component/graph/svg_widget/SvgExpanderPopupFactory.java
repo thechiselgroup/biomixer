@@ -68,8 +68,8 @@ public class SvgExpanderPopupFactory {
         double currentOffsetY = 0;
         for (String expanderId : sortedExpanderIds) {
             BoxedTextSvgElement boxedText = boxedTextEntries.get(expanderId);
-            boxedText.getBox().setAttribute(Svg.WIDTH, maxWidth);
-            boxedText.getContainer().setAttribute(Svg.Y, currentOffsetY);
+            boxedText.setBoxWidth(maxWidth);
+            boxedText.setY(currentOffsetY);
             popUpContainer.appendChild(boxedText.getContainer());
             currentOffsetY += boxedText.getTotalHeight();
         }

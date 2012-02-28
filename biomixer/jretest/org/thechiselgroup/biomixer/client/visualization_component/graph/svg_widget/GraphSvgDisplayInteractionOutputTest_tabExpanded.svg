@@ -8,15 +8,15 @@
       <rect fill="#FFFFFF" stroke="#000000" width="30.0" height="8.0" x="0.0" y="0.0" />
       <polygon points="11.25,2.0 18.75,2.0 15.0,6.0 " fill="#000000" />
     </svg>
-  </svg>
-  <svg x="35.0" y="40.0">
-    <svg y="0.0">
-      <rect fill="#FFFFFF" stroke="#000000" width="140.0" height="40.0" x="0.0" y="0.0"/>
-      <text x="10.0" y="30.0">menuItemId-0</text>
-    </svg>
-    <svg y="40.0">
-      <rect fill="#FFFFFF" stroke="#000000" width="140.0" height="40.0" x="0.0" y="0.0"/>
-      <text x="10.0" y="30.0">menuItemId-1</text>
+    <svg x="35.0" y="40.0">
+      <svg y="0.0">
+        <rect fill="#FFFFFF" stroke="#000000" width="140.0" height="40.0" x="0.0" y="0.0"/>
+        <text x="10.0" y="30.0">menuItemId-0</text>
+      </svg>
+      <svg y="40.0">
+        <rect fill="#FFFFFF" stroke="#000000" width="140.0" height="40.0" x="0.0" y="0.0"/>
+        <text x="10.0" y="30.0">menuItemId-1</text>
+      </svg>
     </svg>
   </svg>
 </svg>

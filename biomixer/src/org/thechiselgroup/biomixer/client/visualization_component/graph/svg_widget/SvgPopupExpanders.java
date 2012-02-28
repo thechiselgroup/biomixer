@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class SvgPopupExpanders {
+public class SvgPopupExpanders extends ContainedSvgComponent {
 
     private SvgElement container;
 
@@ -27,6 +27,7 @@ public class SvgPopupExpanders {
 
     public SvgPopupExpanders(SvgElement container,
             Map<String, BoxedTextSvgElement> expanders) {
+        super(container);
         this.container = container;
         this.expanders = expanders;
     }

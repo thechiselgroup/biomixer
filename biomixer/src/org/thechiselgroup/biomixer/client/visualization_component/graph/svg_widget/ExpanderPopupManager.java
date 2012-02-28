@@ -19,13 +19,9 @@ public class ExpanderPopupManager {
 
     private SvgPopupExpanders expanderPopup = null;
 
-    private final GraphSvgDisplay graphDisplay;
+    private NodeElement nodeExpanded = null;
 
     private boolean mousedOver = false;
-
-    public ExpanderPopupManager(GraphSvgDisplay graphDisplay) {
-        this.graphDisplay = graphDisplay;
-    }
 
     public SvgPopupExpanders getPopupExpander() {
         return expanderPopup;
@@ -33,14 +29,12 @@ public class ExpanderPopupManager {
 
     public void onMenuItemClick() {
         assert expanderPopup != null;
-        graphDisplay.removeSvgElement(expanderPopup.getContainer());
-        expanderPopup = null;
+        removePopup();
     }
 
     public void onMouseDown() {
         if (expanderPopup != null && !mousedOver) {
-            graphDisplay.removeSvgElement(expanderPopup.getContainer());
-            expanderPopup = null;
+            removePopup();
         }
     }
 
@@ -52,9 +46,17 @@ public class ExpanderPopupManager {
         mousedOver = true;
     }
 
-    public void setPopupExpander(SvgPopupExpanders expanderPopup) {
+    private void removePopup() {
+        nodeExpanded.removeChild(expanderPopup);
+        expanderPopup = null;
+        nodeExpanded = null;
+    }
+
+    public void setNodeExpanded(NodeElement nodeElement,
+            SvgPopupExpanders expanderPopup) {
+        nodeElement.appendChild(expanderPopup);
+        this.nodeExpanded = nodeElement;
         this.expanderPopup = expanderPopup;
-        mousedOver = false;
     }
 
 }
