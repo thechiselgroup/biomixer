@@ -19,20 +19,17 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class ExpanderTabSvgElement extends ContainedSvgComponent {
+public class ExpanderTabSvgComponent extends CompositeSvgComponent {
 
     private SvgElement rectangle;
 
     private SvgElement arrow;
 
-    private SvgElement container;
-
-    public ExpanderTabSvgElement(SvgElement container, SvgElement rectangle,
+    public ExpanderTabSvgComponent(SvgElement container, SvgElement rectangle,
             SvgElement arrow) {
         super(container);
         appendChild(rectangle);
         appendChild(arrow);
-        this.container = container;
         this.rectangle = rectangle;
         this.arrow = arrow;
     }
@@ -41,14 +38,10 @@ public class ExpanderTabSvgElement extends ContainedSvgComponent {
         return arrow;
     }
 
-    public SvgElement getContainer() {
-        return container;
-    }
-
     public PointDouble getLocation() {
-        return new PointDouble(Double.parseDouble(container
-                .getAttributeAsString(Svg.X)), Double.parseDouble(container
-                .getAttributeAsString(Svg.Y)));
+        return new PointDouble(
+                Double.parseDouble(compositeElement.getAttributeAsString(Svg.X)),
+                Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y)));
     }
 
     public SvgElement getRectangle() {
@@ -64,8 +57,8 @@ public class ExpanderTabSvgElement extends ContainedSvgComponent {
     }
 
     public void setLocation(double x, double y) {
-        container.setAttribute(Svg.X, x);
-        container.setAttribute(Svg.Y, y);
+        compositeElement.setAttribute(Svg.X, x);
+        compositeElement.setAttribute(Svg.Y, y);
     }
 
 }

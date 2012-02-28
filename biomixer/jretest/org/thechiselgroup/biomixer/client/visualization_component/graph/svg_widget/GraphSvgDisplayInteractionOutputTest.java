@@ -37,10 +37,10 @@ public class GraphSvgDisplayInteractionOutputTest extends
         AbstractGraphSvgDisplayTest {
 
     @Test
-    public void expandTab() throws Exception {
+    public void expandTab() {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
-        assertComponentWithIdEqualsFile(N1, "tabExpanded");
+        assertUnderTestAsSvgEqualsFile("tabExpanded");
     }
 
     @Test
@@ -56,11 +56,11 @@ public class GraphSvgDisplayInteractionOutputTest extends
     }
 
     @Test
-    public void expandTabMoveMouseOffNode() throws Exception {
+    public void expandTabMoveMouseOffNode() {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(300, 200));
-        assertComponentWithIdEqualsFile(N1, "tabExpanded");
+        assertUnderTestAsSvgEqualsFile("tabExpanded");
     }
 
     @Test
@@ -74,17 +74,17 @@ public class GraphSvgDisplayInteractionOutputTest extends
     }
 
     @Test
-    public void expandTabMoveMouseOverMenuItem() throws Exception {
+    public void expandTabMoveMouseOverMenuItem() {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
                 createMouseOverEvent());
-        assertComponentWithIdEqualsFile(N1, "tabExpandedMouseOverFirstOption");
+        assertUnderTestAsSvgEqualsFile("tabExpandedMouseOverFirstOption");
     }
 
     @Test
-    public void expandTabMoveMouseOverMenuItemMouseOut() throws Exception {
+    public void expandTabMoveMouseOverMenuItemMouseOut() {
         Node node = addNode(N1, LABEL1, TYPE);
         underTest.fireNodeTabTestEvent(node, createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(50, 50));
@@ -92,7 +92,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
                 createMouseOverEvent());
         underTest.fireTabMenuItemTestEvent(MENU_ITEM_ID_0,
                 createMouseOutEvent());
-        assertComponentWithIdEqualsFile(N1, "tabExpanded");
+        assertUnderTestAsSvgEqualsFile("tabExpanded");
     }
 
     @Test

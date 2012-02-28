@@ -38,7 +38,7 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
 
     public void fireNodeTabTestEvent(Node node, ChooselEvent event) {
         TextSvgElement tabContainer = (TextSvgElement) getNodeElement(node)
-                .getExpanderTab().getContainer();
+                .getExpanderTab().getSvgElement();
         tabContainer.getEventListener().onEvent(event);
     }
 
@@ -49,9 +49,11 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
     }
 
     public void fireTabMenuItemTestEvent(String expanderId, ChooselEvent event) {
-        TextSvgElement menuItemContainer = (TextSvgElement) expanderPopupManager
-                .getPopupExpander().getEntryByExpanderId(expanderId)
-                .getContainer();
+        // XXX better way of firing these events?
+        PopupExpanderSvgComponent popupExpanderList = (PopupExpanderSvgComponent) popupGroup
+                .getCompositeSubComponents().get(0);
+        TextSvgElement menuItemContainer = (TextSvgElement) popupExpanderList
+                .getEntryByExpanderId(expanderId).getSvgElement();
         menuItemContainer.getEventListener().onEvent(event);
     }
 
@@ -70,7 +72,7 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
     }
 
     private TextSvgElement getTextRootSvgElement() {
-        return (TextSvgElement) rootSvgElement.getContainer();
+        return (TextSvgElement) rootSvgComponent.getSvgElement();
     }
 
     @Override

@@ -32,8 +32,8 @@ public class BoxedTextSvgFactoryTest extends AbstractSvgTest {
 
     @Test
     public void shortTextSurroundedByBox() {
-        BoxedTextSvgElement boxedText = underTest.createBoxedText("testing");
-        assertElementEqualsFile("shortBoxedText", boxedText.getContainer());
+        BoxedTextSvgComponent boxedText = underTest.createBoxedText("testing");
+        assertElementEqualsFile("shortBoxedText", boxedText.getSvgElement());
     }
 
 }

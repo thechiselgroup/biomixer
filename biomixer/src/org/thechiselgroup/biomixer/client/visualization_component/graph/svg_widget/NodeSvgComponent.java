@@ -33,25 +33,23 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
-public class NodeElement extends ContainedSvgComponent implements Identifiable {
+public class NodeSvgComponent extends CompositeSvgComponent implements
+        Identifiable {
 
     private Node node;
 
-    private SvgElement baseContainer;
-
     private List<ArcElement> arcsConnectedToThisNode = new ArrayList<ArcElement>();
 
-    private final ExpanderTabSvgElement expanderTab;
+    private final ExpanderTabSvgComponent expanderTab;
 
-    private final BoxedTextSvgElement boxedText;
+    private final BoxedTextSvgComponent boxedText;
 
-    public NodeElement(Node node, SvgElement baseContainer,
-            BoxedTextSvgElement boxedText, ExpanderTabSvgElement expanderTab) {
+    public NodeSvgComponent(Node node, SvgElement baseContainer,
+            BoxedTextSvgComponent boxedText, ExpanderTabSvgComponent expanderTab) {
         super(baseContainer);
         appendChild(boxedText);
         appendChild(expanderTab);
         this.node = node;
-        this.baseContainer = baseContainer;
         this.boxedText = boxedText;
         this.expanderTab = expanderTab;
     }
@@ -60,20 +58,16 @@ public class NodeElement extends ContainedSvgComponent implements Identifiable {
         arcsConnectedToThisNode.add(arc);
     }
 
-    public SvgElement getBaseContainer() {
-        return baseContainer;
-    }
-
     public List<ArcElement> getConnectedArcElements() {
         return arcsConnectedToThisNode;
     }
 
-    public ExpanderTabSvgElement getExpanderTab() {
+    public ExpanderTabSvgComponent getExpanderTab() {
         return expanderTab;
     }
 
-    public PointDouble getExpanderTabLocation() {
-        return expanderTab.getLocation();
+    public PointDouble getExpanderTabAbsoluteLocation() {
+        return getLocation().plus(expanderTab.getLocation());
     }
 
     @Override
@@ -87,9 +81,9 @@ public class NodeElement extends ContainedSvgComponent implements Identifiable {
      *         base svg element's coordinate system
      */
     public PointDouble getLocation() {
-        return new PointDouble(Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.Y)));
+        return new PointDouble(
+                Double.parseDouble(compositeElement.getAttributeAsString(Svg.X)),
+                Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y)));
     }
 
     public PointDouble getMidPoint() {
@@ -103,7 +97,7 @@ public class NodeElement extends ContainedSvgComponent implements Identifiable {
     }
 
     public SvgElement getNodeContainer() {
-        return boxedText.getContainer();
+        return boxedText.getSvgElement();
     }
 
     public void removeConnectedArc(ArcElement arc) {
@@ -137,8 +131,8 @@ public class NodeElement extends ContainedSvgComponent implements Identifiable {
     }
 
     public void setLocation(Point location) {
-        baseContainer.setAttribute(Svg.X, location.getX());
-        baseContainer.setAttribute(Svg.Y, location.getY());
+        compositeElement.setAttribute(Svg.X, location.getX());
+        compositeElement.setAttribute(Svg.Y, location.getY());
         updateConnectedArcs(location);
     }
 

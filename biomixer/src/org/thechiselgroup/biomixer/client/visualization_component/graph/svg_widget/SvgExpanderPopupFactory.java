@@ -43,20 +43,20 @@ public class SvgExpanderPopupFactory {
                 textBoundsEstimator);
     }
 
-    public SvgPopupExpanders createExpanderPopupList(
+    public PopupExpanderSvgComponent createExpanderPopupList(
             PointDouble topLeftLocation, Set<String> expanderIds) {
 
         SvgElement popUpContainer = svgElementFactory.createElement(Svg.SVG);
         SvgUtils.setXY(popUpContainer, topLeftLocation);
 
-        Map<String, BoxedTextSvgElement> boxedTextEntries = CollectionFactory
+        Map<String, BoxedTextSvgComponent> boxedTextEntries = CollectionFactory
                 .createStringMap();
 
         double maxWidth = 0.0;
         List<String> sortedExpanderIds = CollectionUtils
                 .asSortedList(expanderIds);
         for (String expanderId : sortedExpanderIds) {
-            BoxedTextSvgElement boxedText = boxedTextFactory
+            BoxedTextSvgComponent boxedText = boxedTextFactory
                     .createBoxedText(expanderId);
             boxedTextEntries.put(expanderId, boxedText);
             double boxWidth = boxedText.getTotalWidth();
@@ -67,13 +67,13 @@ public class SvgExpanderPopupFactory {
 
         double currentOffsetY = 0;
         for (String expanderId : sortedExpanderIds) {
-            BoxedTextSvgElement boxedText = boxedTextEntries.get(expanderId);
+            BoxedTextSvgComponent boxedText = boxedTextEntries.get(expanderId);
             boxedText.setBoxWidth(maxWidth);
             boxedText.setY(currentOffsetY);
-            popUpContainer.appendChild(boxedText.getContainer());
+            popUpContainer.appendChild(boxedText.getSvgElement());
             currentOffsetY += boxedText.getTotalHeight();
         }
 
-        return new SvgPopupExpanders(popUpContainer, boxedTextEntries);
+        return new PopupExpanderSvgComponent(popUpContainer, boxedTextEntries);
     }
 }

@@ -15,34 +15,22 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import java.util.Map;
 
-public class SvgNodeTabEventHandler implements ChooselEventHandler {
+import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-    private final NodeElement node;
+public class PopupExpanderSvgComponent extends CompositeSvgComponent {
 
-    private final GraphSvgDisplay graphDisplay;
+    private Map<String, BoxedTextSvgComponent> expanders;
 
-    public SvgNodeTabEventHandler(NodeElement node, GraphSvgDisplay graphDisplay) {
-        this.node = node;
-        this.graphDisplay = graphDisplay;
+    public PopupExpanderSvgComponent(SvgElement container,
+            Map<String, BoxedTextSvgComponent> expanders) {
+        super(container);
+        this.expanders = expanders;
     }
 
-    @Override
-    public void onEvent(ChooselEvent event) {
-
-        switch (event.getEventType()) {
-
-        case CLICK:
-            graphDisplay.onNodeTabClick(node);
-            break;
-
-        default:
-            break;
-
-        }
-
+    public BoxedTextSvgComponent getEntryByExpanderId(String expanderId) {
+        return expanders.get(expanderId);
     }
 
 }

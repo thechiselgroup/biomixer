@@ -20,13 +20,13 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 
 public class SvgNodeEventHandler implements ChooselEventHandler {
 
-    private NodeElement nodeElement;
+    private NodeSvgComponent nodeElement;
 
     private GraphSvgDisplay graphDisplay;
 
     private final NodeInteractionManager nodeInteractionManager;
 
-    public SvgNodeEventHandler(NodeElement nodeElement,
+    public SvgNodeEventHandler(NodeSvgComponent nodeElement,
             GraphSvgDisplay graphDisplay,
             NodeInteractionManager nodeInteractionManager) {
         this.nodeElement = nodeElement;

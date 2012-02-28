@@ -25,6 +25,9 @@ import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
@@ -64,13 +67,19 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private NodeElementFactory nodeElementFactory;
 
-    private IdentifiablesSet<NodeElement> nodes = new IdentifiablesSet<NodeElement>();
+    private IdentifiablesSet<NodeSvgComponent> nodes = new IdentifiablesSet<NodeSvgComponent>();
 
     private IdentifiablesSet<ArcElement> arcs = new IdentifiablesSet<ArcElement>();
 
     private SvgWidget asWidget = null;
 
-    protected ContainedSvgComponent rootSvgElement = null;
+    protected CompositeSvgComponent rootSvgComponent = null;
+
+    private CompositeSvgComponent arcGroup;
+
+    private CompositeSvgComponent nodeGroup;
+
+    protected CompositeSvgComponent popupGroup;
 
     private EventBus eventBus = new SimpleEventBus();
 
@@ -87,11 +96,9 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private SvgExpanderPopupFactory expanderPopupFactory;
 
-    protected ExpanderPopupManager expanderPopupManager = new ExpanderPopupManager();
-
     protected TextBoundsEstimator textBoundsEstimator;
 
-    private ViewWideInteractionListener viewWideInteractionListener;
+    private ChooselEventHandler viewWideInteractionListener;
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
@@ -103,14 +110,18 @@ public class GraphSvgDisplay implements GraphDisplay {
         this.height = height;
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
-        initRootSvgElement(svgElementFactory);
+
+        initRootSvgComponent();
+        initBackground(width, height);
+        initCompositeGroupingComponents();
+
         this.arcElementFactory = new ArcElementFactory(svgElementFactory);
         initTextBoundsEstimator();
         this.nodeElementFactory = new NodeElementFactory(svgElementFactory,
                 textBoundsEstimator);
         this.expanderPopupFactory = new SvgExpanderPopupFactory(
                 svgElementFactory, textBoundsEstimator);
-        initBackground(width, height);
+
         nodeInteractionManager = new NodeInteractionManager(this);
         initViewWideInteractionHandler();
     }
@@ -129,21 +140,15 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert nodes.contains(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        NodeElement sourceNode = nodes.get(sourceNodeId);
-        NodeElement targetNode = nodes.get(targetNodeId);
+        NodeSvgComponent sourceNode = nodes.get(sourceNodeId);
+        NodeSvgComponent targetNode = nodes.get(targetNodeId);
         ArcElement arcElement = arcElementFactory.createArcElement(arc,
                 sourceNode, targetNode);
         arcs.put(arcElement);
         sourceNode.addConnectedArc(arcElement);
         targetNode.addConnectedArc(arcElement);
 
-        // put arc right after background element so that nodes will be
-        // drawn on top
-        if (rootSvgElement.getChildCount() == 1) {
-            rootSvgElement.appendChild(arcElement.getSvgElement());
-        } else {
-            rootSvgElement.insertAtIndex(1, arcElement.getSvgElement());
-        }
+        arcGroup.appendChild(arcElement.getSvgElement());
     }
 
     @Override
@@ -188,21 +193,31 @@ public class GraphSvgDisplay implements GraphDisplay {
     public void addNode(Node node) {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
-        NodeElement nodeElement = nodeElementFactory.createNodeElement(node);
+        final NodeSvgComponent nodeElement = nodeElementFactory
+                .createNodeElement(node);
 
         nodeElement.setNodeEventListener(new SvgNodeEventHandler(nodeElement,
                 this, nodeInteractionManager));
-        nodeElement.setExpanderTabEventListener(new SvgNodeTabEventHandler(
-                nodeElement, this));
+        nodeElement.setExpanderTabEventListener(new ChooselEventHandler() {
+
+            @Override
+            public void onEvent(ChooselEvent event) {
+                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
+                    onNodeTabClick(nodeElement);
+                }
+            }
+
+        });
 
         nodes.put(nodeElement);
+
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
         if (isWidgetInitialized() && nodes.size() > 1) {
             setLocation(node, new Point(width / 2, height / 2));
         }
 
-        rootSvgElement.appendChild(nodeElement);
+        nodeGroup.appendChild(nodeElement);
     }
 
     @Override
@@ -225,19 +240,23 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public SvgElement asSvg() {
-        return rootSvgElement.asSvg();
+        return rootSvgComponent.getSvgElement();
     }
 
     @Override
     public Widget asWidget() {
         if (!isWidgetInitialized()) {
             asWidget = new SvgWidget();
-            rootSvgElement = new ContainedSvgComponent(
-                    asWidget.getSvgElement(), rootSvgElement,
+            rootSvgComponent = new CompositeSvgComponent(
+                    asWidget.getSvgElement(), rootSvgComponent,
                     viewWideInteractionListener);
             asWidget.setPixelSize(width, height);
         }
         return asWidget;
+    }
+
+    public void clearPopups() {
+        popupGroup.removeAllChildren();
     }
 
     @Override
@@ -250,6 +269,12 @@ public class GraphSvgDisplay implements GraphDisplay {
     public boolean containsNode(String nodeId) {
         assert nodeId != null;
         return nodes.contains(nodeId);
+    }
+
+    private CompositeSvgComponent createCompositeGroupingComponent(String id) {
+        SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
+        groupingElement.setAttribute(Svg.ID, id);
+        return new CompositeSvgComponent(groupingElement);
     }
 
     @Override
@@ -281,7 +306,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         return nodes.get(nodeId).getNode();
     }
 
-    public NodeElement getNodeElement(Node node) {
+    public NodeSvgComponent getNodeElement(Node node) {
         return nodes.get(node.getId());
     }
 
@@ -290,29 +315,62 @@ public class GraphSvgDisplay implements GraphDisplay {
         background.setAttribute(Svg.WIDTH, width);
         background.setAttribute(Svg.HEIGHT, height);
         background.setAttribute(Svg.FILL, Colors.WHITE);
-        rootSvgElement.appendChild(background);
+        background.setEventListener(new ChooselEventHandler() {
+
+            @Override
+            public void onEvent(ChooselEvent event) {
+                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
+                    onBackgroundClick(event.getClientX(), event.getClientY());
+                }
+
+            }
+
+        });
+        rootSvgComponent.appendChild(background);
     }
 
-    private void initRootSvgElement(SvgElementFactory svgElementFactory) {
+    private void initCompositeGroupingComponents() {
+        arcGroup = createCompositeGroupingComponent("arcGroup");
+        nodeGroup = createCompositeGroupingComponent("nodeGroup");
+        popupGroup = createCompositeGroupingComponent("popupGroup");
+        // order is important here - want arcs behind nodes and popups
+        rootSvgComponent.appendChild(arcGroup);
+        rootSvgComponent.appendChild(nodeGroup);
+        rootSvgComponent.appendChild(popupGroup);
+    }
+
+    private void initRootSvgComponent() {
         SvgElement root = svgElementFactory.createElement(Svg.SVG);
         root.setAttribute("xmlns", Svg.NAMESPACE);
         root.setAttribute("version", "1.1");
-        this.rootSvgElement = new ContainedSvgComponent(root);
+        rootSvgComponent = new CompositeSvgComponent(root);
     }
 
     protected void initTextBoundsEstimator() {
-        this.textBoundsEstimator = new SvgBBoxTextBoundsEstimator(
-                svgElementFactory);
+        this.textBoundsEstimator = new CanvasTextBoundsEstimator(
+                new SvgBBoxTextBoundsEstimator(svgElementFactory));
     }
 
     private void initViewWideInteractionHandler() {
-        viewWideInteractionListener = new ViewWideInteractionListener(
-                nodeInteractionManager, expanderPopupManager);
-        rootSvgElement.setEventListener(viewWideInteractionListener);
+        viewWideInteractionListener = new ChooselEventHandler() {
+
+            @Override
+            public void onEvent(ChooselEvent event) {
+                if (event.getEventType().equals(ChooselEvent.Type.MOUSE_MOVE)) {
+                    onViewMouseMove(event.getClientX(), event.getClientY());
+                }
+
+            }
+        };
+        rootSvgComponent.setEventListener(viewWideInteractionListener);
     }
 
     private boolean isWidgetInitialized() {
         return asWidget != null;
+    }
+
+    public void onBackgroundClick(int mouseX, int mouseY) {
+        clearPopups();
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
@@ -325,6 +383,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         animateMoveTo(nodes.get(nodeId).getNode(), new Point(endX, endY));
         eventBus.fireEvent(new NodeDragEvent(nodes.get(nodeId).getNode(),
                 startX, startY, endX, endY));
+        clearPopups();
     }
 
     public void onNodeDragHandleMouseMove(String nodeID, int mouseX, int mouseY) {
@@ -337,6 +396,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         int y = mouseY - getGraphAbsoluteTop();
 
         eventBus.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
+        clearPopups();
     }
 
     public void onNodeMouseDoubleClick(String nodeId, int mouseX, int mouseY) {
@@ -361,23 +421,51 @@ public class GraphSvgDisplay implements GraphDisplay {
                 x, y));
     }
 
-    public void onNodeTabClick(final NodeElement nodeElement) {
-        SvgPopupExpanders popupExpanderList = expanderPopupFactory
-                .createExpanderPopupList(nodeElement.getExpanderTabLocation(),
+    public void onNodeTabClick(final NodeSvgComponent nodeElement) {
+        PopupExpanderSvgComponent popupExpanderList = expanderPopupFactory
+                .createExpanderPopupList(
+                        nodeElement.getExpanderTabAbsoluteLocation(),
                         nodeMenuItemClickHandlers.keySet());
 
         for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
                 .entrySet()) {
             String expanderId = entry.getKey();
             final NodeMenuItemClickedHandler handler = entry.getValue();
-            final BoxedTextSvgElement expanderEntry = popupExpanderList
+            final BoxedTextSvgComponent expanderEntry = popupExpanderList
                     .getEntryByExpanderId(expanderId);
-            expanderEntry.setEventListener(new NodeMenuItemSvgEventHandler(
-                    nodeElement.getNode(), expanderEntry, handler,
-                    expanderPopupManager));
+            expanderEntry.setEventListener(new ChooselEventHandler() {
+
+                @Override
+                public void onEvent(ChooselEvent event) {
+                    switch (event.getEventType()) {
+                    case MOUSE_OVER:
+                        // give rect highlight color
+                        expanderEntry.setBackgroundColor(Colors.BLUE_1);
+                        break;
+
+                    case MOUSE_OUT:
+                        // give rect default color
+                        expanderEntry.setBackgroundColor(Colors.WHITE);
+                        break;
+
+                    case CLICK:
+                        handler.onNodeMenuItemClicked(nodeElement.getNode());
+                        clearPopups();
+                        break;
+
+                    default:
+                        break;
+                    }
+                }
+            });
         }
 
-        expanderPopupManager.setNodeExpanded(nodeElement, popupExpanderList);
+        clearPopups();
+        popupGroup.appendChild(popupExpanderList);
+    }
+
+    public void onViewMouseMove(int mouseX, int mouseY) {
+        nodeInteractionManager.onMouseMove(mouseX, mouseY);
     }
 
     private void onWidgetReady() {
@@ -391,7 +479,7 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert arcs.contains(id);
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
-        rootSvgElement.removeChild(arc.getId());
+        arcGroup.removeChild(arc.getId());
     }
 
     @Override
@@ -407,11 +495,7 @@ public class GraphSvgDisplay implements GraphDisplay {
             removeArc(arcElement.getArc());
         }
         nodes.remove(node.getId());
-        rootSvgElement.removeChild(node.getId());
-    }
-
-    public void removeSvgElement(SvgElement svgElement) {
-        rootSvgElement.removeChild(svgElement);
+        nodeGroup.removeChild(node.getId());
     }
 
     @Override
@@ -454,7 +538,7 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     @Override
     public void setNodeStyle(Node node, String styleProperty, String styleValue) {
-        NodeElement nodeElement = nodes.get(node.getId());
+        NodeSvgComponent nodeElement = nodes.get(node.getId());
 
         if (styleProperty.equals(NODE_BACKGROUND_COLOR)) {
             nodeElement.setBackgroundColor(styleValue);

@@ -18,26 +18,19 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class BoxedTextSvgElement extends ContainedSvgComponent {
-
-    private SvgElement container;
+public class BoxedTextSvgComponent extends CompositeSvgComponent {
 
     private SvgElement text;
 
     private SvgElement box;
 
-    public BoxedTextSvgElement(SvgElement container, SvgElement text,
+    public BoxedTextSvgComponent(SvgElement container, SvgElement text,
             SvgElement box) {
         super(container);
         appendChild(box);
         appendChild(text);
-        this.container = container;
         this.text = text;
         this.box = box;
-    }
-
-    public SvgElement getContainer() {
-        return container;
     }
 
     public double getTextHeight() {
@@ -87,7 +80,7 @@ public class BoxedTextSvgElement extends ContainedSvgComponent {
     }
 
     public void setY(double y) {
-        container.setAttribute(Svg.Y, y);
+        compositeElement.setAttribute(Svg.Y, y);
     }
 
 }

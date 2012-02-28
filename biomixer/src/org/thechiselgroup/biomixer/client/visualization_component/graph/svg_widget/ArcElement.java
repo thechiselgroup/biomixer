@@ -31,12 +31,12 @@ public class ArcElement implements Identifiable {
      */
     private SvgElement arcSvgElement;
 
-    private NodeElement source;
+    private NodeSvgComponent source;
 
-    private NodeElement target;
+    private NodeSvgComponent target;
 
-    public ArcElement(Arc arc, SvgElement arcSvgElement, NodeElement source,
-            NodeElement target) {
+    public ArcElement(Arc arc, SvgElement arcSvgElement, NodeSvgComponent source,
+            NodeSvgComponent target) {
         this.arc = arc;
         this.arcSvgElement = arcSvgElement;
         this.source = source;
@@ -52,7 +52,7 @@ public class ArcElement implements Identifiable {
         return getArc().getId();
     }
 
-    public NodeElement getSource() {
+    public NodeSvgComponent getSource() {
         return source;
     }
 
@@ -60,7 +60,7 @@ public class ArcElement implements Identifiable {
         return arcSvgElement;
     }
 
-    public NodeElement getTarget() {
+    public NodeSvgComponent getTarget() {
         return target;
     }
 

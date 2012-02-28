@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
@@ -27,12 +30,15 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
-public class ContainedSvgComponent {
+public class CompositeSvgComponent {
 
-    private SvgElement container;
+    protected final SvgElement compositeElement;
 
-    public ContainedSvgComponent(SvgElement container) {
-        this.container = container;
+    // XXX remove once better way of firing test events is found
+    protected List<CompositeSvgComponent> compositeSubComponents = new ArrayList<CompositeSvgComponent>();
+
+    public CompositeSvgComponent(SvgElement container) {
+        this.compositeElement = container;
     }
 
     /**
@@ -47,56 +53,54 @@ public class ContainedSvgComponent {
      * @param newContainerHandler
      *            The event handler to be set on the new container
      */
-    public ContainedSvgComponent(SvgElement newContainer,
-            ContainedSvgComponent other, ChooselEventHandler newContainerHandler) {
-        this.container = newContainer;
-        container.setEventListener(newContainerHandler);
-        for (int i = 0; i < other.getChildCount(); i++) {
-            appendChild(other.getChild(i));
+    public CompositeSvgComponent(SvgElement newContainer,
+            CompositeSvgComponent other, ChooselEventHandler newContainerHandler) {
+        this.compositeElement = newContainer;
+        compositeElement.setEventListener(newContainerHandler);
+        while (other.getSvgElement().getChildCount() > 0) {
+            // appendChild to newContainer seems to remove it from the old
+            // container, therefore ordinary for loop doesn't work because
+            // other.childCount() is changing
+            appendChild(other.getSvgElement().getChild(0));
         }
     }
 
-    public void appendChild(ContainedSvgComponent containedSvgComponent) {
-        appendChild(containedSvgComponent.asSvg());
+    public void appendChild(CompositeSvgComponent compositedSvgComponent) {
+        // XXX remove once better way of firing test events is found
+        compositeSubComponents.add(compositedSvgComponent);
+        appendChild(compositedSvgComponent.getSvgElement());
     }
 
     public void appendChild(SvgElement svgElement) {
-        container.appendChild(svgElement);
+        compositeElement.appendChild(svgElement);
     }
 
-    public SvgElement asSvg() {
-        return container;
+    // XXX remove this method once a better way of firing test events is found
+    public List<CompositeSvgComponent> getCompositeSubComponents() {
+        return compositeSubComponents;
     }
 
-    public SvgElement getChild(int index) {
-        return container.getChild(index);
+    public SvgElement getSvgElement() {
+        return compositeElement;
     }
 
-    public int getChildCount() {
-        return container.getChildCount();
+    public void removeAllChildren() {
+        compositeElement.removeAllChildren();
     }
 
-    public SvgElement getContainer() {
-        return container;
-    }
-
-    public void insertAtIndex(int index, SvgElement svgElement) {
-        container.insertBefore(svgElement, container.getChild(index));
-    }
-
-    public void removeChild(ContainedSvgComponent containedSvgComponent) {
-        removeChild(containedSvgComponent.asSvg());
+    public void removeChild(CompositeSvgComponent compositeSvgComponent) {
+        removeChild(compositeSvgComponent.getSvgElement());
     }
 
     public void removeChild(String id) {
-        container.removeChild(id);
+        compositeElement.removeChild(id);
     }
 
     public void removeChild(SvgElement svgElement) {
-        container.removeChild(svgElement);
+        compositeElement.removeChild(svgElement);
     }
 
     public void setEventListener(ChooselEventHandler handler) {
-        container.setEventListener(handler);
+        compositeElement.setEventListener(handler);
     }
 }

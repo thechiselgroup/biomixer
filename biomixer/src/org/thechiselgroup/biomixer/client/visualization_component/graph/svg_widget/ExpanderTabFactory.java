@@ -37,7 +37,7 @@ public class ExpanderTabFactory {
         this.svgElementFactory = svgElementFactory;
     }
 
-    public ExpanderTabSvgElement createExpanderTabSvgElement() {
+    public ExpanderTabSvgComponent createExpanderTabSvgElement() {
         // container for tab-related elements
         SvgElement tab = svgElementFactory.createElement(Svg.SVG);
 
@@ -66,7 +66,7 @@ public class ExpanderTabFactory {
         arrow.setAttribute(Svg.POINTS, pointsBuilder.toPointsString());
         arrow.setAttribute(Svg.FILL, Colors.BLACK);
 
-        return new ExpanderTabSvgElement(tab, rectangle, arrow);
+        return new ExpanderTabSvgComponent(tab, rectangle, arrow);
     }
 
     private double getHorizontalTabMargin() {

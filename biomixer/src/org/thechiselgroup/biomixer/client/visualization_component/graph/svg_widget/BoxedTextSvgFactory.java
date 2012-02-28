@@ -38,7 +38,7 @@ public class BoxedTextSvgFactory {
         this.textBoundsEstimator = textBoundsEstimator;
     }
 
-    public BoxedTextSvgElement createBoxedText(String text) {
+    public BoxedTextSvgComponent createBoxedText(String text) {
         SvgElement containerElement = svgElementFactory.createElement(Svg.SVG);
 
         SvgElement textElement = svgElementFactory.createElement(Svg.TEXT);
@@ -60,7 +60,7 @@ public class BoxedTextSvgFactory {
         // the y-position of the text refers to the bottom of the text
         textElement.setAttribute(Svg.Y, TEXT_BUFFER + textSize.getHeight());
 
-        return new BoxedTextSvgElement(containerElement, textElement,
+        return new BoxedTextSvgComponent(containerElement, textElement,
                 boxElement);
     }
 

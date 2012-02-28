@@ -30,8 +30,8 @@ public class ArcElementFactory {
         this.svgElementFactory = svgElementFactory;
     }
 
-    public ArcElement createArcElement(Arc arc, NodeElement sourceNode,
-            NodeElement targetNode) {
+    public ArcElement createArcElement(Arc arc, NodeSvgComponent sourceNode,
+            NodeSvgComponent targetNode) {
 
         SvgElement line = svgElementFactory.createElement(Svg.LINE);
         line.setAttribute(Svg.ID, arc.getId());

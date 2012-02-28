@@ -43,7 +43,7 @@ public class NodeElementFactory {
         this.expanderTabFactory = new ExpanderTabFactory(svgElementFactory);
     }
 
-    public NodeElement createNodeElement(final Node node) {
+    public NodeSvgComponent createNodeElement(final Node node) {
         assert node != null;
 
         SvgElement baseContainer = svgElementFactory.createElement(Svg.SVG);
@@ -51,18 +51,18 @@ public class NodeElementFactory {
         baseContainer.setAttribute(Svg.X, 0.0);
         baseContainer.setAttribute(Svg.Y, 0.0);
 
-        BoxedTextSvgElement boxedText = boxedTextFactory.createBoxedText(node
+        BoxedTextSvgComponent boxedText = boxedTextFactory.createBoxedText(node
                 .getLabel());
         boxedText.setCornerCurveWidth(RX_DEFAULT);
         boxedText.setCornerCurveHeight(RY_DEFAULT);
 
-        ExpanderTabSvgElement expanderTab = expanderTabFactory
+        ExpanderTabSvgComponent expanderTab = expanderTabFactory
                 .createExpanderTabSvgElement();
         expanderTab.setLocation(
                 (boxedText.getTotalWidth() - ExpanderTabFactory.TAB_WIDTH) / 2,
                 boxedText.getTotalHeight());
 
-        return new NodeElement(node, baseContainer, boxedText, expanderTab);
+        return new NodeSvgComponent(node, baseContainer, boxedText, expanderTab);
     }
 
 }
