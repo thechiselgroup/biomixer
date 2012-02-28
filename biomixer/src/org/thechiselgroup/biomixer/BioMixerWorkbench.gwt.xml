@@ -24,7 +24,6 @@
   <stylesheet src="css/choosel-dnd.css" />
   <stylesheet src="css/choosel-window.css" />
   <stylesheet src="css/choosel-actionbar.css" />
-  <stylesheet src="css/date-picker.css" />
   <stylesheet src="css/choosel-dnd.css" />
 
   <!-- GWT basics --> 
