@@ -24,6 +24,14 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 public class BoxedTextSvgFactory {
 
+    public static final String DEFAULT_FONT_FAMILY = "Arial, sans-serif";
+
+    public static final String DEFAULT_FONT_SIZE_PIXELS = "16px";
+
+    public static final String DEFAULT_FONT_STYLE = "normal";
+
+    public static final String DEFAULT_FONT_WEIGHT = "normal";
+
     public static final double TEXT_BUFFER = 10.0;
 
     private final SvgElementFactory svgElementFactory;
@@ -43,13 +51,12 @@ public class BoxedTextSvgFactory {
 
         SvgElement textElement = svgElementFactory.createElement(Svg.TEXT);
         textElement.setTextContent(text);
+        setDefaultFontValues(textElement);
 
         SvgElement boxElement = svgElementFactory.createElement(Svg.RECT);
         setDefaultAttributeValues(boxElement);
 
-        textBoundsEstimator.setUp();
-        SizeInt textSize = textBoundsEstimator.getSize(text);
-        textBoundsEstimator.tearDown();
+        SizeInt textSize = getTextSize(text);
 
         boxElement.setAttribute(Svg.WIDTH, textSize.getWidth() + 2
                 * TEXT_BUFFER);
@@ -64,11 +71,28 @@ public class BoxedTextSvgFactory {
                 boxElement);
     }
 
+    private SizeInt getTextSize(String text) {
+        SizeInt textSize;
+        textBoundsEstimator.setUp();
+        textBoundsEstimator.configureFontStyle(DEFAULT_FONT_STYLE);
+        textBoundsEstimator.configureFontWeight(DEFAULT_FONT_WEIGHT);
+        textBoundsEstimator.configureFontSize(DEFAULT_FONT_SIZE_PIXELS);
+        textBoundsEstimator.configureFontFamily(DEFAULT_FONT_FAMILY);
+        textSize = textBoundsEstimator.getSize(text);
+        textBoundsEstimator.tearDown();
+        return textSize;
+    }
+
     private void setDefaultAttributeValues(SvgElement boxElement) {
         boxElement.setAttribute(Svg.FILL, Colors.WHITE);
         boxElement.setAttribute(Svg.STROKE, Colors.BLACK);
         boxElement.setAttribute(Svg.X, 0.0);
         boxElement.setAttribute(Svg.Y, 0.0);
+    }
+
+    private void setDefaultFontValues(SvgElement textElement) {
+        textElement.setAttribute(Svg.FONT_FAMILY, DEFAULT_FONT_FAMILY);
+        textElement.setAttribute(Svg.FONT_SIZE, DEFAULT_FONT_SIZE_PIXELS);
     }
 
 }

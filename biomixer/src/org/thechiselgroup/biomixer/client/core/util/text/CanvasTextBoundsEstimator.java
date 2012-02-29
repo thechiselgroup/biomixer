@@ -57,7 +57,16 @@ public class CanvasTextBoundsEstimator implements TextBoundsEstimator {
         }
 
         if (fontFamily != null) {
-            sb.append("'").append(fontFamily).append("'");
+            // need to wrap each font family in its own pair of quotes.
+            // ex: fontFamily="Arial, sans-serif"
+            // -> "'Arial', 'sans-serif'" added to sb
+            String[] fontFamilies = fontFamily.split(",");
+            for (int i = 0; i < fontFamilies.length; i++) {
+                if (i > 0) {
+                    sb.append(",");
+                }
+                sb.append("'").append(fontFamilies[i]).append("'");
+            }
         }
 
         context.setFont(sb.toString());
