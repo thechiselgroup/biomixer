@@ -29,8 +29,8 @@ public class PopupExpanderSvgComponent extends CompositeSvgComponent {
         this.expanders = expanders;
     }
 
-    public BoxedTextSvgComponent getEntryByExpanderId(String expanderId) {
-        return expanders.get(expanderId);
+    public BoxedTextSvgComponent getEntryByExpanderLabel(String expanderLabel) {
+        return expanders.get(expanderLabel);
     }
 
 }

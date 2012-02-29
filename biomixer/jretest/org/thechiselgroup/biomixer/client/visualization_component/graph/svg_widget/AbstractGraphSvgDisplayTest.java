@@ -30,7 +30,9 @@ import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactor
 
 public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
-    protected static final String TYPE = "type";
+    protected static final String TYPE1 = "type1";
+
+    protected static final String TYPE2 = "type2";
 
     protected static final String LABEL1 = "Concept1";
 
@@ -42,13 +44,20 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected static final String A1 = "a1";
 
-    protected static final String MENU_ITEM_ID_0 = "menuItemId-0";
+    protected static final String MENU_ITEM_0_LABEL = "MenuItem0";
+
+    protected static final String MENU_ITEM_1_LABEL = "MenuItem1";
+
+    protected static final String MENU_ITEM_2_LABEL = "MenuItem2";
 
     @Mock
     protected NodeMenuItemClickedHandler menuItemHandler0;
 
     @Mock
     protected NodeMenuItemClickedHandler menuItemHandler1;
+
+    @Mock
+    protected NodeMenuItemClickedHandler menuItemHandler2;
 
     protected TestGraphSvgDisplay underTest;
 
@@ -104,8 +113,12 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
         MockitoAnnotations.initMocks(this);
         underTest = new TestGraphSvgDisplay(400, 300,
                 new TextSvgElementFactory());
-        underTest.addNodeMenuItemHandler("MenuItem1", menuItemHandler0, TYPE);
-        underTest.addNodeMenuItemHandler("MenuItem2", menuItemHandler1, TYPE);
+        underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,
+                TYPE1);
+        underTest.addNodeMenuItemHandler(MENU_ITEM_1_LABEL, menuItemHandler1,
+                TYPE1);
+        underTest.addNodeMenuItemHandler(MENU_ITEM_2_LABEL, menuItemHandler2,
+                TYPE2);
     }
 
 }

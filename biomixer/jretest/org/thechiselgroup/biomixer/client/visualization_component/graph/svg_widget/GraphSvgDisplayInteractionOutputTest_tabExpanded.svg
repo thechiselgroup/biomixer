@@ -16,12 +16,12 @@
   <g id="popupGroup">      
     <svg x="35.0" y="40.0">
       <svg y="0.0">
-        <rect fill="#FFFFFF" stroke="#000000" width="140.0" height="40.0" x="0.0" y="0.0"/>
-        <text x="10.0" y="30.0">menuItemId-0</text>
+        <rect fill="#FFFFFF" stroke="#000000" width="110.0" height="40.0" x="0.0" y="0.0"/>
+        <text x="10.0" y="30.0">MenuItem0</text>
       </svg>
       <svg y="40.0">
-        <rect fill="#FFFFFF" stroke="#000000" width="140.0" height="40.0" x="0.0" y="0.0"/>
-        <text x="10.0" y="30.0">menuItemId-1</text>
+        <rect fill="#FFFFFF" stroke="#000000" width="110.0" height="40.0" x="0.0" y="0.0"/>
+        <text x="10.0" y="30.0">MenuItem1</text>
       </svg>
     </svg>
   </g>

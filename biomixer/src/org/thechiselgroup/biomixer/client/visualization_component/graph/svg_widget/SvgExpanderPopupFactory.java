@@ -44,7 +44,7 @@ public class SvgExpanderPopupFactory {
     }
 
     public PopupExpanderSvgComponent createExpanderPopupList(
-            PointDouble topLeftLocation, Set<String> expanderIds) {
+            PointDouble topLeftLocation, Set<String> expanderLabels) {
 
         SvgElement popUpContainer = svgElementFactory.createElement(Svg.SVG);
         SvgUtils.setXY(popUpContainer, topLeftLocation);
@@ -53,9 +53,10 @@ public class SvgExpanderPopupFactory {
                 .createStringMap();
 
         double maxWidth = 0.0;
-        List<String> sortedExpanderIds = CollectionUtils
-                .asSortedList(expanderIds);
-        for (String expanderId : sortedExpanderIds) {
+        // sort by label so that expanders always show up in a consistent order
+        List<String> sortedExpanderLabels = CollectionUtils
+                .asSortedList(expanderLabels);
+        for (String expanderId : sortedExpanderLabels) {
             BoxedTextSvgComponent boxedText = boxedTextFactory
                     .createBoxedText(expanderId);
             boxedTextEntries.put(expanderId, boxedText);
@@ -66,7 +67,7 @@ public class SvgExpanderPopupFactory {
         }
 
         double currentOffsetY = 0;
-        for (String expanderId : sortedExpanderIds) {
+        for (String expanderId : sortedExpanderLabels) {
             BoxedTextSvgComponent boxedText = boxedTextEntries.get(expanderId);
             boxedText.setBoxWidth(maxWidth);
             boxedText.setY(currentOffsetY);

@@ -34,14 +34,14 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void addNodePutsRectangleInSvg() throws Exception {
-        addNode(N1, LABEL1, TYPE);
+        addNode(N1, LABEL1, TYPE1);
         assertComponentWithIdEqualsFile(N1, "basicNode1");
     }
 
     @Test
     public void addTwoNodes() throws Exception {
-        addNode(N1, LABEL1, TYPE);
-        addNode(N2, LABEL2, TYPE);
+        addNode(N1, LABEL1, TYPE1);
+        addNode(N2, LABEL2, TYPE1);
         assertComponentWithIdEqualsFile(N1, "basicNode1");
         assertComponentWithIdEqualsFile(N2, "basicNode2");
     }
@@ -49,17 +49,17 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     @Test
     public void addTwoNodesAddArcSetLocationShouldCauseArcToReposition()
             throws Exception {
-        addNode(N1, LABEL1, TYPE);
-        Node node2 = addNode(N2, LABEL2, TYPE);
-        addArc(A1, N1, N2, TYPE, true);
+        addNode(N1, LABEL1, TYPE1);
+        Node node2 = addNode(N2, LABEL2, TYPE1);
+        addArc(A1, N1, N2, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
     @Test
     public void addTwoNodesAndSetNewLocation() throws Exception {
-        addNode(N1, LABEL1, TYPE);
-        Node node2 = addNode(N2, LABEL2, TYPE);
+        addNode(N1, LABEL1, TYPE1);
+        Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
         assertComponentWithIdEqualsFile(N1, "basicNode1");
         assertComponentWithIdEqualsFile(N2, "node2Moved");
@@ -67,32 +67,32 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void addTwoNodesRemoveOne() {
-        Node node1 = addNode(N1, LABEL1, TYPE);
-        addNode(N2, LABEL2, TYPE);
+        Node node1 = addNode(N1, LABEL1, TYPE1);
+        addNode(N2, LABEL2, TYPE1);
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoNodesRemoveOne");
     }
 
     @Test
     public void addTwoNodesSetLocationAddArc() throws Exception {
-        addNode(N1, LABEL1, TYPE);
-        Node node2 = addNode(N2, LABEL2, TYPE);
+        addNode(N1, LABEL1, TYPE1);
+        Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        addArc(A1, N1, N2, TYPE, true);
+        addArc(A1, N1, N2, TYPE1, true);
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
     private Arc addTwoSeparatedNodesWithArc() {
-        addNode(N1, LABEL1, TYPE);
-        Node node2 = addNode(N2, LABEL2, TYPE);
+        addNode(N1, LABEL1, TYPE1);
+        Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = addArc(A1, N1, N2, TYPE, true);
+        Arc arc = addArc(A1, N1, N2, TYPE1, true);
         return arc;
     }
 
     @Test
     public void animateToMovesOneNodeFinalDesinationShouldBeNewPoint() {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         underTest.animateMoveTo(node, new Point(100, 100));
         assertUnderTestAsSvgEqualsFile("animateMoveOneNode");
     }
@@ -106,9 +106,9 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void removingNodeShouldRemoveArc() {
-        Node node1 = addNode(N1, LABEL1, TYPE);
-        Node node2 = addNode(N2, LABEL2, TYPE);
-        addArc(A1, N1, N2, TYPE, true);
+        Node node1 = addNode(N1, LABEL1, TYPE1);
+        Node node2 = addNode(N2, LABEL2, TYPE1);
+        addArc(A1, N1, N2, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1");
@@ -156,7 +156,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void setNodeBackgroundColor() throws Exception {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BACKGROUND_COLOR,
                 Colors.YELLOW_1);
         assertComponentWithIdEqualsFile(N1, "node1BackgroundColored");
@@ -164,7 +164,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void setNodeBorderColor() throws Exception {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BORDER_COLOR,
                 Colors.YELLOW_2);
         assertComponentWithIdEqualsFile(N1, "node1BorderColored");
@@ -172,7 +172,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void setNodeFontColor() throws Exception {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_COLOR,
                 Colors.ORANGE);
         assertComponentWithIdEqualsFile(N1, "node1FontColored");
@@ -180,7 +180,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void setNodeFontWeightBold() throws Exception {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
         assertComponentWithIdEqualsFile(N1, "node1BoldFont");
@@ -188,7 +188,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void setNodeFontWeightBoldThenNormal() throws Exception {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,

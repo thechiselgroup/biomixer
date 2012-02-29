@@ -48,12 +48,12 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
         nodeContainer.getEventListener().onEvent(event);
     }
 
-    public void fireTabMenuItemTestEvent(String expanderId, ChooselEvent event) {
+    public void fireTabMenuItemTestEvent(String expanderLabel, ChooselEvent event) {
         // XXX better way of firing these events?
         PopupExpanderSvgComponent popupExpanderList = (PopupExpanderSvgComponent) popupGroup
                 .getCompositeSubComponents().get(0);
         TextSvgElement menuItemContainer = (TextSvgElement) popupExpanderList
-                .getEntryByExpanderId(expanderId).getSvgElement();
+                .getEntryByExpanderLabel(expanderLabel).getSvgElement();
         menuItemContainer.getEventListener().onEvent(event);
     }
 

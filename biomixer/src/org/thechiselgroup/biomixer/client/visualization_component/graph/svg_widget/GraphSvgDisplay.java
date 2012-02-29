@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -87,11 +88,6 @@ public class GraphSvgDisplay implements GraphDisplay {
 
     private int height;
 
-    private int nodeMenuItemIdCounter = 0;
-
-    private final Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = CollectionFactory
-            .createStringMap();
-
     private NodeInteractionManager nodeInteractionManager;
 
     private SvgExpanderPopupFactory expanderPopupFactory;
@@ -99,6 +95,11 @@ public class GraphSvgDisplay implements GraphDisplay {
     protected TextBoundsEstimator textBoundsEstimator;
 
     private ChooselEventHandler viewWideInteractionListener;
+
+    // maps node types to their available menu item click handlers and those
+    // handlers' associated labels
+    private Map<String, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = CollectionFactory
+            .createStringMap();
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
@@ -228,8 +229,11 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert handler != null;
         assert nodeType != null;
 
-        String id = "menuItemId-" + (nodeMenuItemIdCounter++);
-        nodeMenuItemClickHandlers.put(id, handler);
+        if (!nodeMenuItemClickHandlersByType.containsKey(nodeType)) {
+            nodeMenuItemClickHandlersByType.put(nodeType,
+                    new HashMap<String, NodeMenuItemClickedHandler>());
+        }
+        nodeMenuItemClickHandlersByType.get(nodeType).put(menuLabel, handler);
     }
 
     @Override
@@ -423,6 +427,8 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     public void onNodeTabClick(final NodeSvgComponent nodeElement) {
+        Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
+                .get(nodeElement.getNodeType());
         PopupExpanderSvgComponent popupExpanderList = expanderPopupFactory
                 .createExpanderPopupList(
                         nodeElement.getExpanderTabAbsoluteLocation(),
@@ -433,7 +439,7 @@ public class GraphSvgDisplay implements GraphDisplay {
             String expanderId = entry.getKey();
             final NodeMenuItemClickedHandler handler = entry.getValue();
             final BoxedTextSvgComponent expanderEntry = popupExpanderList
-                    .getEntryByExpanderId(expanderId);
+                    .getEntryByExpanderLabel(expanderId);
             expanderEntry.setEventListener(new ChooselEventHandler() {
 
                 @Override

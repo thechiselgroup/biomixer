@@ -100,6 +100,10 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return boxedText.getSvgElement();
     }
 
+    public String getNodeType() {
+        return node.getType();
+    }
+
     public void removeConnectedArc(ArcElement arc) {
         arcsConnectedToThisNode.remove(arc);
     }

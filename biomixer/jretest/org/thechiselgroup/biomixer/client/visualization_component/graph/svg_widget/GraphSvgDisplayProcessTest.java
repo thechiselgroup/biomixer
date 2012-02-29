@@ -35,21 +35,21 @@ public class GraphSvgDisplayProcessTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void addArcShouldContainArc() {
-        addNode(N1, LABEL1, TYPE);
-        addNode(N2, LABEL2, TYPE);
-        addArc(A1, N1, N2, TYPE, true);
+        addNode(N1, LABEL1, TYPE1);
+        addNode(N2, LABEL2, TYPE1);
+        addArc(A1, N1, N2, TYPE1, true);
         assertTrue(underTest.containsArc(A1));
     }
 
     @Test
     public void addNodeShouldContainNode() {
-        addNode(N1, LABEL1, TYPE);
+        addNode(N1, LABEL1, TYPE1);
         assertTrue(underTest.containsNode(N1));
     }
 
     @Test
     public void nodeHasExpectedLocation() {
-        Node node = addNode(N1, LABEL1, TYPE);
+        Node node = addNode(N1, LABEL1, TYPE1);
         Point newLocation = new Point(100, 100);
         underTest.setLocation(node, newLocation);
         assertThat(underTest.getLocation(node), equalTo(newLocation));
