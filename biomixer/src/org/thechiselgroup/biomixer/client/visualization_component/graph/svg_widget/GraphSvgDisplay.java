@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -230,8 +229,8 @@ public class GraphSvgDisplay implements GraphDisplay {
         assert nodeType != null;
 
         if (!nodeMenuItemClickHandlersByType.containsKey(nodeType)) {
-            nodeMenuItemClickHandlersByType.put(nodeType,
-                    new HashMap<String, NodeMenuItemClickedHandler>());
+            nodeMenuItemClickHandlersByType.put(nodeType, CollectionFactory
+                    .<NodeMenuItemClickedHandler> createStringMap());
         }
         nodeMenuItemClickHandlersByType.get(nodeType).put(menuLabel, handler);
     }
