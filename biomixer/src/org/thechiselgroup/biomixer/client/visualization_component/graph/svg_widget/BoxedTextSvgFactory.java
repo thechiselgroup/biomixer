@@ -26,7 +26,7 @@ public class BoxedTextSvgFactory {
 
     public static final String DEFAULT_FONT_FAMILY = "Arial, sans-serif";
 
-    public static final String DEFAULT_FONT_SIZE_PIXELS = "16px";
+    public static final String DEFAULT_FONT_SIZE_PIXELS = "12px";
 
     public static final String DEFAULT_FONT_STYLE = "normal";
 
