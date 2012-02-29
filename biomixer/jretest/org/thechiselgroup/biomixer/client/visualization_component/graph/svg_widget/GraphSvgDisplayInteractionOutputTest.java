@@ -24,6 +24,7 @@ import static org.thechiselgroup.biomixer.client.visualization_component.graph.s
 import static org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.TestEventFactory.createMouseclickEvent;
 
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
@@ -111,6 +112,17 @@ public class GraphSvgDisplayInteractionOutputTest extends
         underTest.fireViewWideTestEvent(createMouseMoveEvent(20, 20));
         underTest.fireViewWideTestEvent(createMouseMoveEvent(10, 10));
         assertComponentWithIdEqualsFile(N1, "nodeDragForwardBack");
+    }
+
+    @Test
+    public void mousingOverPartiallyCoveredNodeBringsItToTop() {
+        Node node1 = addNode(N1, LABEL1, TYPE);
+        Node node2 = addNode(N2, LABEL2, TYPE);
+        // test nodes have height of 40
+        underTest.setLocation(node2, new Point(0, 20));
+        assertUnderTestAsSvgEqualsFile("overlappingNodesN2OnTop");
+        underTest.fireNodeTestEvent(node1, createMouseOverEvent());
+        assertUnderTestAsSvgEqualsFile("overlappingNodesN1OnTop");
     }
 
 }

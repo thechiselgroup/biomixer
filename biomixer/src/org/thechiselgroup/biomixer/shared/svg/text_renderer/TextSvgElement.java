@@ -50,6 +50,9 @@ public class TextSvgElement implements SvgElement, SvgStyle {
     @Override
     public SvgElement appendChild(SvgElement element) {
         assert element != null;
+        if (children.contains(element)) {
+            children.remove(element);
+        }
         children.add(element);
         return element;
     }

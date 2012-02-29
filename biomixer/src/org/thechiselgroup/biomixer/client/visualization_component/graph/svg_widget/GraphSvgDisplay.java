@@ -419,6 +419,7 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         eventBus.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
                 x, y));
+        nodeGroup.appendChild(nodes.get(nodeId));
     }
 
     public void onNodeTabClick(final NodeSvgComponent nodeElement) {
