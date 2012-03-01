@@ -146,13 +146,23 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         NodeSvgComponent sourceNode = nodes.get(sourceNodeId);
         NodeSvgComponent targetNode = nodes.get(targetNodeId);
-        ArcElement arcElement = arcElementFactory.createArcElement(arc,
+        final ArcElement arcElement = arcElementFactory.createArcElement(arc,
                 sourceNode, targetNode);
+        arcElement.setEventListener(new ChooselEventHandler() {
+
+            @Override
+            public void onEvent(ChooselEvent event) {
+                if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)) {
+                    onArcMouseOver(arcElement);
+                }
+            }
+        });
+
         arcs.put(arcElement);
         sourceNode.addConnectedArc(arcElement);
         targetNode.addConnectedArc(arcElement);
 
-        arcGroup.appendChild(arcElement.getSvgElement());
+        arcGroup.appendChild(arcElement);
     }
 
     @Override
@@ -374,6 +384,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private boolean isWidgetInitialized() {
         return asWidget != null;
+    }
+
+    public void onArcMouseOver(ArcElement arcElement) {
+        // bring connected nodes to front
+        nodeGroup.appendChild(arcElement.getSource());
+        nodeGroup.appendChild(arcElement.getTarget());
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {

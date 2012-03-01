@@ -99,6 +99,30 @@ public final class Svg {
 
     public static final String STROKE_DASHARRAY = "stroke-dasharray";
 
+    public static final String REF_X = "refX";
+
+    public static final String REF_Y = "refY";
+
+    public static final String MARKER = "marker";
+
+    public static final String MARKER_START = "marker-start";
+
+    public static final String MARKER_MID = "marker-mid";
+
+    public static final String MARKER_END = "marker-end";
+
+    public static final String MARKER_UNITS = "markerUnits";
+
+    public static final String MARKER_WIDTH = "markerWidth";
+
+    public static final String MARKER_HEIGHT = "markerHeight";
+
+    public static final String ORIENT = "orient";
+
+    public static final String AUTO = "auto";
+
+    public static final String VIEW_BOX = "viewBox";
+
     public static final String FONT_SIZE = "font-size";
 
     public static final String FONT_FAMILY = "font-family";

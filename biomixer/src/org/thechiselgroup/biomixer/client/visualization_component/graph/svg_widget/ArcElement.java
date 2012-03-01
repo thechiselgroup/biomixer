@@ -16,29 +16,31 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
-public class ArcElement implements Identifiable {
+public class ArcElement extends CompositeSvgComponent implements Identifiable {
 
     private Arc arc;
-
-    /*
-     * The SVG representation of the arc
-     */
-    private SvgElement arcSvgElement;
 
     private NodeSvgComponent source;
 
     private NodeSvgComponent target;
 
-    public ArcElement(Arc arc, SvgElement arcSvgElement, NodeSvgComponent source,
-            NodeSvgComponent target) {
+    private final SvgElement arcLine;
+
+    private final SvgArrowHead arrow;
+
+    public ArcElement(Arc arc, SvgElement container, SvgElement arcLine,
+            SvgArrowHead arrow, NodeSvgComponent source, NodeSvgComponent target) {
+        super(container);
         this.arc = arc;
-        this.arcSvgElement = arcSvgElement;
+        this.arcLine = arcLine;
+        this.arrow = arrow;
         this.source = source;
         this.target = target;
     }
@@ -54,10 +56,6 @@ public class ArcElement implements Identifiable {
 
     public NodeSvgComponent getSource() {
         return source;
-    }
-
-    public SvgElement getSvgElement() {
-        return arcSvgElement;
     }
 
     public NodeSvgComponent getTarget() {
@@ -79,28 +77,46 @@ public class ArcElement implements Identifiable {
      */
     public void setArcStyle(String arcStyle) {
         if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)
-                && arcSvgElement.hasAttribute(Svg.STROKE_DASHARRAY)) {
-            arcSvgElement.removeAttribute(Svg.STROKE_DASHARRAY);
+                && arcLine.hasAttribute(Svg.STROKE_DASHARRAY)) {
+            arcLine.removeAttribute(Svg.STROKE_DASHARRAY);
         } else if (arcStyle.equals(ArcSettings.ARC_STYLE_DASHED)) {
             // 10px dash, 5px gap
-            arcSvgElement.setAttribute(Svg.STROKE_DASHARRAY, "10, 5");
+            arcLine.setAttribute(Svg.STROKE_DASHARRAY, "10, 5");
         }
     }
 
     public void setArcThickness(String thickness) {
-        arcSvgElement.setAttribute(Svg.STROKE_WIDTH, thickness);
+        arcLine.setAttribute(Svg.STROKE_WIDTH, thickness);
     }
 
     public void setColor(String color) {
-        arcSvgElement.setAttribute(Svg.STROKE, color);
+        arcLine.setAttribute(Svg.STROKE, color);
+        if (arc.isDirected()) {
+            arrow.asSvgElement().setAttribute(Svg.STROKE, color);
+            arrow.asSvgElement().setAttribute(Svg.FILL, color);
+        }
+    }
+
+    @Override
+    public void setEventListener(ChooselEventHandler handler) {
+        arcLine.setEventListener(handler);
+    }
+
+    private void updateArrow() {
+        if (arc.isDirected()) {
+            assert arrow != null;
+            arrow.alignWithPoints(source.getMidPoint(), target.getMidPoint());
+        }
     }
 
     public void updateSourcePoint() {
-        SvgUtils.setX1Y1(arcSvgElement, source.getMidPoint());
+        SvgUtils.setX1Y1(arcLine, source.getMidPoint());
+        updateArrow();
     }
 
     public void updateTargetPoint() {
-        SvgUtils.setX2Y2(arcSvgElement, target.getMidPoint());
+        SvgUtils.setX2Y2(arcLine, target.getMidPoint());
+        updateArrow();
     }
 
 }

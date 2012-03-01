@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
-import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 public class ArcElementFactory {
 
@@ -33,13 +33,28 @@ public class ArcElementFactory {
     public ArcElement createArcElement(Arc arc, NodeSvgComponent sourceNode,
             NodeSvgComponent targetNode) {
 
-        SvgElement line = svgElementFactory.createElement(Svg.LINE);
-        line.setAttribute(Svg.ID, arc.getId());
-        line.setAttribute(Svg.STROKE, Colors.BLACK);
-        SvgUtils.setX1Y1(line, sourceNode.getMidPoint());
-        SvgUtils.setX2Y2(line, targetNode.getMidPoint());
+        SvgElement container = svgElementFactory.createElement(Svg.G);
+        container.setAttribute(Svg.ID, arc.getId());
 
-        return new ArcElement(arc, line, sourceNode, targetNode);
+        PointDouble sourceNodeLocation = sourceNode.getMidPoint();
+        PointDouble targetNodeLocation = targetNode.getMidPoint();
+
+        SvgElement arcLine = svgElementFactory.createElement(Svg.LINE);
+        arcLine.setAttribute(Svg.X1, sourceNodeLocation.getX());
+        arcLine.setAttribute(Svg.Y1, sourceNodeLocation.getY());
+        arcLine.setAttribute(Svg.X2, targetNodeLocation.getX());
+        arcLine.setAttribute(Svg.Y2, targetNodeLocation.getY());
+        arcLine.setAttribute(Svg.STROKE, Colors.BLACK);
+        container.appendChild(arcLine);
+
+        SvgArrowHead arrowHead = null;
+        if (arc.isDirected()) {
+            arrowHead = new SvgArrowHead(svgElementFactory, sourceNodeLocation,
+                    targetNodeLocation);
+            container.appendChild(arrowHead.asSvgElement());
+        }
+
+        return new ArcElement(arc, container, arcLine, arrowHead, sourceNode,
+                targetNode);
     }
-
 }
