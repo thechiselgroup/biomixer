@@ -18,6 +18,8 @@ package org.thechiselgroup.biomixer.client.core.visualization.model;
 import static org.thechiselgroup.biomixer.client.core.util.collections.Delta.createAddedDelta;
 import static org.thechiselgroup.biomixer.client.core.util.collections.Delta.createRemovedDelta;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -55,6 +57,8 @@ public abstract class AbstractViewContentDisplay implements ViewContentDisplay,
 
     private State state = State.CREATED;
 
+    private List<ViewResizeEventListener> resizeListeners = new ArrayList<ViewResizeEventListener>();
+
     @Override
     public <T> T adaptTo(Class<T> clazz) throws NoSuchAdapterException {
         throw new NoSuchAdapterException(this, clazz);
@@ -64,6 +68,10 @@ public abstract class AbstractViewContentDisplay implements ViewContentDisplay,
     public HandlerRegistration addHandler(
             VisualItemContainerChangeEventHandler handler) {
         return container.addHandler(handler);
+    }
+
+    public void addResizeListener(ViewResizeEventListener resizeListener) {
+        resizeListeners.add(resizeListener);
     }
 
     private void assertInState(State expectedState) {
@@ -114,6 +122,12 @@ public abstract class AbstractViewContentDisplay implements ViewContentDisplay,
     @Override
     public void endRestore() {
         restoring = false;
+    }
+
+    private void fireResizeEvent(ViewResizeEvent resizeEvent) {
+        for (ViewResizeEventListener resizeListener : resizeListeners) {
+            resizeListener.onResize(resizeEvent);
+        }
     }
 
     public ViewContentDisplayCallback getCallback() {
@@ -276,6 +290,7 @@ public abstract class AbstractViewContentDisplay implements ViewContentDisplay,
 
     @Override
     public void setSize(int width, int height) {
+        fireResizeEvent(new ViewResizeEvent(width, height, this));
         widget.setSize(width + CSS.PX, height + CSS.PX);
     }
 

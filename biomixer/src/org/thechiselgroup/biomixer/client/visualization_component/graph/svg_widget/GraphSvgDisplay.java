@@ -30,6 +30,8 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -59,7 +61,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgDisplay implements GraphDisplay {
+public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
@@ -94,6 +96,8 @@ public class GraphSvgDisplay implements GraphDisplay {
     protected TextBoundsEstimator textBoundsEstimator;
 
     private ChooselEventHandler viewWideInteractionListener;
+
+    private SvgElement background;
 
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
@@ -314,7 +318,7 @@ public class GraphSvgDisplay implements GraphDisplay {
     }
 
     private void initBackground(int width, int height) {
-        SvgElement background = svgElementFactory.createElement(Svg.RECT);
+        background = svgElementFactory.createElement(Svg.RECT);
         background.setAttribute(Svg.WIDTH, width);
         background.setAttribute(Svg.HEIGHT, height);
         background.setAttribute(Svg.FILL, Colors.WHITE);
@@ -468,6 +472,14 @@ public class GraphSvgDisplay implements GraphDisplay {
 
         clearPopups();
         popupGroup.appendChild(popupExpanderList);
+    }
+
+    @Override
+    public void onResize(ViewResizeEvent resizeEvent) {
+        width = resizeEvent.getWidth();
+        height = resizeEvent.getHeight();
+        background.setAttribute(Svg.WIDTH, width);
+        background.setAttribute(Svg.HEIGHT, height);
     }
 
     public void onViewMouseMove(int mouseX, int mouseY) {
