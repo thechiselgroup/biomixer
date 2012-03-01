@@ -72,14 +72,17 @@ public class BoxedTextSvgFactory {
     }
 
     private SizeInt getTextSize(String text) {
-        SizeInt textSize;
-        textBoundsEstimator.setUp();
-        textBoundsEstimator.configureFontStyle(DEFAULT_FONT_STYLE);
-        textBoundsEstimator.configureFontWeight(DEFAULT_FONT_WEIGHT);
-        textBoundsEstimator.configureFontSize(DEFAULT_FONT_SIZE_PIXELS);
-        textBoundsEstimator.configureFontFamily(DEFAULT_FONT_FAMILY);
-        textSize = textBoundsEstimator.getSize(text);
-        textBoundsEstimator.tearDown();
+        SizeInt textSize = null;
+        try {
+            textBoundsEstimator.setUp();
+            textBoundsEstimator.configureFontStyle(DEFAULT_FONT_STYLE);
+            textBoundsEstimator.configureFontWeight(DEFAULT_FONT_WEIGHT);
+            textBoundsEstimator.configureFontSize(DEFAULT_FONT_SIZE_PIXELS);
+            textBoundsEstimator.configureFontFamily(DEFAULT_FONT_FAMILY);
+            textSize = textBoundsEstimator.getSize(text);
+        } finally {
+            textBoundsEstimator.tearDown();
+        }
         return textSize;
     }
 
