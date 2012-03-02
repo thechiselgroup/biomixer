@@ -29,17 +29,16 @@ public class NodeElementFactory {
 
     private SvgElementFactory svgElementFactory;
 
-    private BoxedTextSvgFactory boxedTextFactory;
-
     private ExpanderTabFactory expanderTabFactory;
+
+    private TextBoundsEstimator textBoundsEstimator;
 
     public NodeElementFactory(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
+        this.textBoundsEstimator = textBoundsEstimator;
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory,
-                textBoundsEstimator);
         this.expanderTabFactory = new ExpanderTabFactory(svgElementFactory);
     }
 
@@ -51,8 +50,8 @@ public class NodeElementFactory {
         baseContainer.setAttribute(Svg.X, 0.0);
         baseContainer.setAttribute(Svg.Y, 0.0);
 
-        BoxedTextSvgComponent boxedText = boxedTextFactory.createBoxedText(node
-                .getLabel());
+        BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent(
+                node.getLabel(), textBoundsEstimator, svgElementFactory);
         boxedText.setCornerCurveWidth(RX_DEFAULT);
         boxedText.setCornerCurveHeight(RY_DEFAULT);
 

@@ -15,24 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 
-public class BoxedTextSvgFactoryTest extends AbstractSvgTest {
+public class BoxedTextSvgComponentTest extends AbstractSvgTest {
 
-    private BoxedTextSvgFactory underTest;
-
-    @Before
-    public void setUpBoxedTextFactory() {
-        underTest = new BoxedTextSvgFactory(svgElementFactory,
-                new TestTextBoundsEstimator(10, 20));
-    }
+    private TestTextBoundsEstimator textBoundsEstimator = new TestTextBoundsEstimator(
+            10, 20);
 
     @Test
     public void shortTextSurroundedByBox() {
-        BoxedTextSvgComponent boxedText = underTest.createBoxedText("testing");
+        BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent("testing",
+                textBoundsEstimator, svgElementFactory);
         assertElementEqualsFile("shortBoxedText", boxedText.getSvgElement());
     }
 

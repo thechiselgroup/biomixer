@@ -32,7 +32,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  */
 public class CompositeSvgComponent {
 
-    protected final SvgElement compositeElement;
+    protected SvgElement compositeElement;
 
     // XXX remove once better way of firing test events is found
     protected List<CompositeSvgComponent> compositeSubComponents = new ArrayList<CompositeSvgComponent>();
@@ -98,6 +98,10 @@ public class CompositeSvgComponent {
 
     public void removeChild(SvgElement svgElement) {
         compositeElement.removeChild(svgElement);
+    }
+
+    protected void setContainerElement(SvgElement container) {
+        compositeElement = container;
     }
 
     public void setEventListener(ChooselEventHandler handler) {

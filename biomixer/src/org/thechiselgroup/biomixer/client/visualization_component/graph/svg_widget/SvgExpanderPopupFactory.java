@@ -32,15 +32,14 @@ public class SvgExpanderPopupFactory {
 
     private final SvgElementFactory svgElementFactory;
 
-    private BoxedTextSvgFactory boxedTextFactory;
+    private TextBoundsEstimator textBoundsEstimator;
 
     public SvgExpanderPopupFactory(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
+        this.textBoundsEstimator = textBoundsEstimator;
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.boxedTextFactory = new BoxedTextSvgFactory(svgElementFactory,
-                textBoundsEstimator);
     }
 
     public PopupExpanderSvgComponent createExpanderPopupList(
@@ -57,8 +56,8 @@ public class SvgExpanderPopupFactory {
         List<String> sortedExpanderLabels = CollectionUtils
                 .asSortedList(expanderLabels);
         for (String expanderId : sortedExpanderLabels) {
-            BoxedTextSvgComponent boxedText = boxedTextFactory
-                    .createBoxedText(expanderId);
+            BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent(
+                    expanderId, textBoundsEstimator, svgElementFactory);
             boxedTextEntries.put(expanderId, boxedText);
             double boxWidth = boxedText.getTotalWidth();
             if (boxWidth > maxWidth) {
