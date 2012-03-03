@@ -73,6 +73,12 @@ public final class Svg {
 
     public static final String TEXT = "text";
 
+    public static final String TSPAN = "tspan";
+
+    public static final String DY = "dy";
+
+    public static final String DX = "dx";
+
     public static final String FONT_WEIGHT = "font-weight";
 
     public static final String DEFS = "defs";

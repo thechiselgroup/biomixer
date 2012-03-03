@@ -15,14 +15,20 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 public class BoxedTextSvgComponent extends CompositeSvgComponent {
+
+    private static final double THRESHOLD_TEXT_LENGTH = 150.0;
 
     public static final String DEFAULT_FONT_FAMILY = "Arial, sans-serif";
 
@@ -52,6 +58,17 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
 
     private final String text;
 
+    private int numberOfLines = 0;
+
+    /*
+     * Stores the tspan elements for multiple lines of text. Will be empty if
+     * the text fits on one line and therefore doesn't need any tspans.
+     */
+    private Map<String, SvgElement> tspanElements = CollectionFactory
+            .createStringMap();
+
+    private String longestTextLine;
+
     public BoxedTextSvgComponent(String text,
             TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
@@ -65,7 +82,7 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
 
     private void createBoxedText() {
         textElement = svgElementFactory.createElement(Svg.TEXT);
-        textElement.setTextContent(text);
+        setTextContent();
         setDefaultFontValues(textElement);
 
         boxElement = svgElementFactory.createElement(Svg.RECT);
@@ -75,6 +92,27 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
 
         appendChild(boxElement);
         appendChild(textElement);
+    }
+
+    private void finishLine(StringBuilder currentLine, int textHeight,
+            int currentLineWidth) {
+        SvgElement tspan = svgElementFactory.createElement(Svg.TSPAN);
+
+        String line = currentLine.toString().trim();
+        tspan.setTextContent(line);
+
+        tspan.setAttribute(Svg.X, TEXT_BUFFER);
+        int dy = numberOfLines == 0 ? 0 : textHeight;
+        tspan.setAttribute(Svg.DY, dy);
+
+        textElement.appendChild(tspan);
+        tspanElements.put(line, tspan);
+
+        if (currentLineWidth > getWidthOfLongestTextLine()) {
+            longestTextLine = line;
+        }
+
+        numberOfLines++;
     }
 
     private double getBoxHeight() {
@@ -112,6 +150,14 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
         return getBoxWidth();
     }
 
+    private double getWidthOfLongestTextLine() {
+        if (longestTextLine == null) {
+            return 0.0;
+        } else {
+            return getTextSize(longestTextLine).getWidth();
+        }
+    }
+
     public void setBackgroundColor(String color) {
         boxElement.setAttribute(Svg.FILL, color);
     }
@@ -121,16 +167,29 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
     }
 
     private void setBoxAroundText() {
-        SizeInt textSize = getTextSize(text);
+        double widthOfLongestTextLine = getWidthOfLongestTextLine();
+        int lineHeight = getTextSize(text).getHeight();
 
-        boxElement.setAttribute(Svg.WIDTH, textSize.getWidth() + 2
+        boxElement.setAttribute(Svg.WIDTH, widthOfLongestTextLine + 2
                 * TEXT_BUFFER);
-        boxElement.setAttribute(Svg.HEIGHT, textSize.getHeight() + 2
-                * TEXT_BUFFER);
+        boxElement.setAttribute(Svg.HEIGHT, (double) lineHeight * numberOfLines
+                + 2 * TEXT_BUFFER);
 
-        textElement.setAttribute(Svg.X, TEXT_BUFFER);
-        // the y-position of the text refers to the bottom of the text
-        textElement.setAttribute(Svg.Y, TEXT_BUFFER + textSize.getHeight());
+        if (numberOfLines == 1) {
+            textElement.setAttribute(Svg.X, TEXT_BUFFER);
+        } else {
+            // need to centre each line of text
+            for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
+                double x = TEXT_BUFFER
+                        + (widthOfLongestTextLine - getTextSize(entry.getKey())
+                                .getWidth()) / 2;
+                entry.getValue().setAttribute(Svg.X, x);
+            }
+        }
+
+        // the y-position of the text refers to the bottom of the FIRST LINE of
+        // text
+        textElement.setAttribute(Svg.Y, TEXT_BUFFER + lineHeight);
     }
 
     public void setBoxWidth(double width) {
@@ -169,6 +228,50 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
         this.fontWeight = fontWeight;
         textElement.setAttribute(Svg.FONT_WEIGHT, fontWeight);
         updateBoxWidthAndPositionAroundText();
+    }
+
+    private void setTextContent() {
+        SizeInt textSize = getTextSize(text);
+        if (textSize.getWidth() < THRESHOLD_TEXT_LENGTH) {
+            textElement.setTextContent(text);
+            longestTextLine = text;
+            numberOfLines = 1;
+        } else {
+            // Need to wrap text
+            String[] words = text.split(" ");
+
+            int spaceWidth = getTextSize(" ").getWidth();
+            int textHeight = textSize.getHeight();
+
+            StringBuilder currentLine = new StringBuilder();
+            int currentLineWidth = 0;
+            for (String word : words) {
+                int wordWidth = getTextSize(word).getWidth();
+                if (currentLineWidth > 0) {
+                    currentLine.append(" ");
+                    currentLineWidth += spaceWidth;
+                }
+
+                if (currentLineWidth + wordWidth < THRESHOLD_TEXT_LENGTH) {
+                    // the word can fit on current line
+                    currentLine.append(word);
+                    currentLineWidth += wordWidth;
+                } else {
+                    // end current line with previous word
+                    finishLine(currentLine, textHeight, currentLineWidth);
+
+                    // start new line with current word
+                    currentLine = new StringBuilder();
+                    currentLine.append(word);
+                    currentLineWidth = wordWidth;
+                }
+            }
+
+            // finish off the last line
+            if (currentLineWidth > 0) {
+                finishLine(currentLine, textHeight, currentLineWidth);
+            }
+        }
     }
 
     public void setY(double y) {

@@ -100,10 +100,6 @@ public class CompositeSvgComponent {
         compositeElement.removeChild(svgElement);
     }
 
-    protected void setContainerElement(SvgElement container) {
-        compositeElement = container;
-    }
-
     public void setEventListener(ChooselEventHandler handler) {
         compositeElement.setEventListener(handler);
     }

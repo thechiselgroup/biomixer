@@ -25,7 +25,16 @@ public class BoxedTextSvgComponentTest extends AbstractSvgTest {
             10, 20);
 
     @Test
-    public void shortTextSurroundedByBox() {
+    public void longTextMultipleWordsWrapToSecondLine() {
+        BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent(
+                "testing a very long label", textBoundsEstimator,
+                svgElementFactory);
+        assertElementEqualsFile("longTextMultipleWordsWrapped",
+                boxedText.getSvgElement());
+    }
+
+    @Test
+    public void shortTextNoWrapping() {
         BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent("testing",
                 textBoundsEstimator, svgElementFactory);
         assertElementEqualsFile("shortBoxedText", boxedText.getSvgElement());
