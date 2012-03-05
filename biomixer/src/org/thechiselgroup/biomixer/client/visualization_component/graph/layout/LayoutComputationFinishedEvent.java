@@ -23,23 +23,35 @@ public class LayoutComputationFinishedEvent extends EventObject {
 
     private final boolean aborted;
 
+    private final RuntimeException exception;
+
     public LayoutComputationFinishedEvent(LayoutComputation computation,
-            boolean aborted) {
+            boolean aborted, RuntimeException exception) {
 
         super(computation);
+
         this.aborted = aborted;
+        this.exception = exception;
     }
 
     public LayoutComputation getComputation() {
         return (LayoutComputation) source;
     }
 
+    public RuntimeException getException() {
+        return exception;
+    }
+
     public LayoutGraph getGraph() {
         return getComputation().getGraph();
     }
 
+    public boolean hasException() {
+        return exception != null;
+    }
+
     public boolean wasAborted() {
-        return aborted;
+        return aborted || hasException();
     }
 
 }

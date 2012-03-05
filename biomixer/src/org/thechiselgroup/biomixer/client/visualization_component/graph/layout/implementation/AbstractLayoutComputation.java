@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
@@ -53,10 +54,16 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
 
     private final Executor executor;
 
-    public AbstractLayoutComputation(LayoutGraph graph, Executor executor) {
+    private final ErrorHandler errorHandler;
+
+    public AbstractLayoutComputation(LayoutGraph graph, Executor executor,
+            ErrorHandler errorHandler) {
+
         assert graph != null;
         assert executor != null;
+        assert errorHandler != null;
 
+        this.errorHandler = errorHandler;
         this.executor = executor;
         this.graph = graph;
     }
@@ -88,12 +95,15 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
      * 
      * @return true, if the algorithm will need more iterations to complete,
      *         false otherwise.
+     * 
+     * @throws RuntimeException
+     *             Something went wrong while calculating the layout.
      */
-    protected abstract boolean computeIteration();
+    protected abstract boolean computeIteration() throws RuntimeException;
 
-    private void fireFinishedEvent() {
+    private void fireFinishedEvent(RuntimeException ex) {
         LayoutComputationFinishedEvent event = new LayoutComputationFinishedEvent(
-                this, shouldStop);
+                this, shouldStop, ex);
 
         for (LayoutComputationFinishedHandler handler : eventHandlers) {
             handler.onLayoutComputationFinished(event);
@@ -117,10 +127,16 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
      */
     @Override
     public void run() {
-        if (running && !shouldStop && computeIteration()) {
-            executor.execute(this);
-        } else {
-            fireFinishedEvent();
+        try {
+            if (running && !shouldStop && computeIteration()) {
+                executor.execute(this);
+            } else {
+                fireFinishedEvent(null);
+                running = false;
+            }
+        } catch (RuntimeException ex) {
+            errorHandler.handleError(ex);
+            fireFinishedEvent(ex);
             running = false;
         }
     }
