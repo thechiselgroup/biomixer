@@ -45,9 +45,15 @@ public interface LayoutComputation {
     boolean isRunning();
 
     /**
-     * Stops the layout algorithm. It will not return any further results
-     * through the callback interface (TODO link). Before calling the callback
-     * interface, the layout algorithm should check if it was stopped.
+     * <p>
+     * Stops the layout algorithm. Stopping the layout does not immediately stop
+     * it, but it will be stopped as soon as possible. An event will be fired
+     * once its stopped.
+     * </p>
+     * <p>
+     * The algorithms are not required to stop immediately, as this would
+     * require too many checks within the algorithm.
+     * </p>
      */
     void stop();
 
