@@ -65,13 +65,13 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
-    private ArcElementFactory arcElementFactory;
+    private ArcComponentFactory arcComponentFactory;
 
-    private NodeElementFactory nodeElementFactory;
+    private NodeComponentFactory nodeComponentFactory;
 
     private IdentifiablesSet<NodeSvgComponent> nodes = new IdentifiablesSet<NodeSvgComponent>();
 
-    private IdentifiablesSet<ArcElement> arcs = new IdentifiablesSet<ArcElement>();
+    private IdentifiablesSet<ArcSvgComponent> arcs = new IdentifiablesSet<ArcSvgComponent>();
 
     private SvgWidget asWidget = null;
 
@@ -119,9 +119,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         initBackground(width, height);
         initCompositeGroupingComponents();
 
-        this.arcElementFactory = new ArcElementFactory(svgElementFactory);
+        this.arcComponentFactory = new ArcComponentFactory(svgElementFactory);
         initTextBoundsEstimator();
-        this.nodeElementFactory = new NodeElementFactory(svgElementFactory,
+        this.nodeComponentFactory = new NodeComponentFactory(svgElementFactory,
                 textBoundsEstimator);
         this.expanderPopupFactory = new SvgExpanderPopupFactory(
                 svgElementFactory, textBoundsEstimator);
@@ -146,23 +146,23 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         NodeSvgComponent sourceNode = nodes.get(sourceNodeId);
         NodeSvgComponent targetNode = nodes.get(targetNodeId);
-        final ArcElement arcElement = arcElementFactory.createArcElement(arc,
-                sourceNode, targetNode);
-        arcElement.setEventListener(new ChooselEventHandler() {
+        final ArcSvgComponent arcComponent = arcComponentFactory
+                .createArcComponent(arc, sourceNode, targetNode);
+        arcComponent.setEventListener(new ChooselEventHandler() {
 
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)) {
-                    onArcMouseOver(arcElement);
+                    onArcMouseOver(arcComponent);
                 }
             }
         });
 
-        arcs.put(arcElement);
-        sourceNode.addConnectedArc(arcElement);
-        targetNode.addConnectedArc(arcElement);
+        arcs.put(arcComponent);
+        sourceNode.addConnectedArc(arcComponent);
+        targetNode.addConnectedArc(arcComponent);
 
-        arcGroup.appendChild(arcElement);
+        arcGroup.appendChild(arcComponent);
     }
 
     @Override
@@ -207,23 +207,23 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public void addNode(Node node) {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
-        final NodeSvgComponent nodeElement = nodeElementFactory
-                .createNodeElement(node);
+        final NodeSvgComponent nodeComponent = nodeComponentFactory
+                .createNodeComponent(node);
 
-        nodeElement.setNodeEventListener(new SvgNodeEventHandler(nodeElement,
-                this, nodeInteractionManager));
-        nodeElement.setExpanderTabEventListener(new ChooselEventHandler() {
+        nodeComponent.setNodeEventListener(new SvgNodeEventHandler(
+                nodeComponent, this, nodeInteractionManager));
+        nodeComponent.setExpanderTabEventListener(new ChooselEventHandler() {
 
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
-                    onNodeTabClick(nodeElement);
+                    onNodeTabClick(nodeComponent);
                 }
             }
 
         });
 
-        nodes.put(nodeElement);
+        nodes.put(nodeComponent);
 
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -231,7 +231,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             setLocation(node, new Point(width / 2, height / 2));
         }
 
-        nodeGroup.appendChild(nodeElement);
+        nodeGroup.appendChild(nodeComponent);
     }
 
     @Override
@@ -323,7 +323,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return nodes.get(nodeId).getNode();
     }
 
-    public NodeSvgComponent getNodeElement(Node node) {
+    protected NodeSvgComponent getNodeComponent(Node node) {
         return nodes.get(node.getId());
     }
 
@@ -386,10 +386,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return asWidget != null;
     }
 
-    public void onArcMouseOver(ArcElement arcElement) {
+    public void onArcMouseOver(ArcSvgComponent arcComponent) {
         // bring connected nodes to front
-        nodeGroup.appendChild(arcElement.getSource());
-        nodeGroup.appendChild(arcElement.getTarget());
+        nodeGroup.appendChild(arcComponent.getSource());
+        nodeGroup.appendChild(arcComponent.getTarget());
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {
@@ -445,12 +445,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         nodeGroup.appendChild(nodes.get(nodeId));
     }
 
-    public void onNodeTabClick(final NodeSvgComponent nodeElement) {
+    public void onNodeTabClick(final NodeSvgComponent nodeComponent) {
         Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
-                .get(nodeElement.getNodeType());
+                .get(nodeComponent.getNodeType());
         PopupExpanderSvgComponent popupExpanderList = expanderPopupFactory
                 .createExpanderPopupList(
-                        nodeElement.getExpanderTabAbsoluteLocation(),
+                        nodeComponent.getExpanderTabAbsoluteLocation(),
                         nodeMenuItemClickHandlers.keySet());
 
         for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
@@ -475,7 +475,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                         break;
 
                     case CLICK:
-                        handler.onNodeMenuItemClicked(nodeElement.getNode());
+                        handler.onNodeMenuItemClicked(nodeComponent.getNode());
                         clearPopups();
                         break;
 
@@ -521,12 +521,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert node != null;
         assert nodes.contains(node.getId());
 
-        List<ArcElement> connectedArcElements = new ArrayList<ArcElement>();
-        connectedArcElements.addAll(nodes.get(node.getId())
-                .getConnectedArcElements());
+        List<ArcSvgComponent> connectedArcComponents = new ArrayList<ArcSvgComponent>();
+        connectedArcComponents.addAll(nodes.get(node.getId())
+                .getConnectedArcComponents());
 
-        for (ArcElement arcElement : connectedArcElements) {
-            removeArc(arcElement.getArc());
+        for (ArcSvgComponent arcComponent : connectedArcComponents) {
+            removeArc(arcComponent.getArc());
         }
         nodes.remove(node.getId());
         nodeGroup.removeChild(node.getId());
@@ -549,18 +549,18 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void setArcStyle(Arc arc, String styleProperty, String styleValue) {
-        ArcElement arcElement = arcs.get(arc.getId());
+        ArcSvgComponent arcComponent = arcs.get(arc.getId());
 
         if (styleProperty.equals(ArcSettings.ARC_COLOR)) {
-            arcElement.setColor(styleValue);
+            arcComponent.setColor(styleValue);
         }
 
         else if (styleProperty.equals(ArcSettings.ARC_STYLE)) {
-            arcElement.setArcStyle(styleValue);
+            arcComponent.setArcStyle(styleValue);
         }
 
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
-            arcElement.setArcThickness(styleValue);
+            arcComponent.setArcThickness(styleValue);
         }
     }
 
@@ -572,22 +572,22 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void setNodeStyle(Node node, String styleProperty, String styleValue) {
-        NodeSvgComponent nodeElement = nodes.get(node.getId());
+        NodeSvgComponent nodeComponent = nodes.get(node.getId());
 
         if (styleProperty.equals(NODE_BACKGROUND_COLOR)) {
-            nodeElement.setBackgroundColor(styleValue);
+            nodeComponent.setBackgroundColor(styleValue);
         }
 
         else if (styleProperty.equals(NODE_FONT_COLOR)) {
-            nodeElement.setFontColor(styleValue);
+            nodeComponent.setFontColor(styleValue);
         }
 
         else if (styleProperty.equals(NODE_FONT_WEIGHT)) {
-            nodeElement.setFontWeight(styleValue);
+            nodeComponent.setFontWeight(styleValue);
         }
 
         else if (styleProperty.equals(NODE_BORDER_COLOR)) {
-            nodeElement.setBorderColor(styleValue);
+            nodeComponent.setBorderColor(styleValue);
         }
 
     }

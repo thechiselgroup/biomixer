@@ -38,7 +38,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     private Node node;
 
-    private List<ArcElement> arcsConnectedToThisNode = new ArrayList<ArcElement>();
+    private List<ArcSvgComponent> arcsConnectedToThisNode = new ArrayList<ArcSvgComponent>();
 
     private final ExpanderTabSvgComponent expanderTab;
 
@@ -54,11 +54,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         this.expanderTab = expanderTab;
     }
 
-    public void addConnectedArc(ArcElement arc) {
+    public void addConnectedArc(ArcSvgComponent arc) {
         arcsConnectedToThisNode.add(arc);
     }
 
-    public List<ArcElement> getConnectedArcElements() {
+    public List<ArcSvgComponent> getConnectedArcComponents() {
         return arcsConnectedToThisNode;
     }
 
@@ -104,7 +104,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return node.getType();
     }
 
-    public void removeConnectedArc(ArcElement arc) {
+    public void removeConnectedArc(ArcSvgComponent arc) {
         arcsConnectedToThisNode.remove(arc);
     }
 
@@ -145,11 +145,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     private void updateConnectedArcs(Point location) {
-        for (ArcElement arcElement : arcsConnectedToThisNode) {
-            if (arcElement.getArc().getSourceNodeId().equals(node.getId())) {
-                arcElement.updateSourcePoint();
+        for (ArcSvgComponent arcComponent : arcsConnectedToThisNode) {
+            if (arcComponent.getArc().getSourceNodeId().equals(node.getId())) {
+                arcComponent.updateSourcePoint();
             } else {
-                arcElement.updateTargetPoint();
+                arcComponent.updateTargetPoint();
             }
         }
     }

@@ -23,7 +23,7 @@ import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
-public class ArcElement extends CompositeSvgComponent implements Identifiable {
+public class ArcSvgComponent extends CompositeSvgComponent implements Identifiable {
 
     private Arc arc;
 
@@ -35,7 +35,7 @@ public class ArcElement extends CompositeSvgComponent implements Identifiable {
 
     private final SvgArrowHead arrow;
 
-    public ArcElement(Arc arc, SvgElement container, SvgElement arcLine,
+    public ArcSvgComponent(Arc arc, SvgElement container, SvgElement arcLine,
             SvgArrowHead arrow, NodeSvgComponent source, NodeSvgComponent target) {
         super(container);
         this.arc = arc;

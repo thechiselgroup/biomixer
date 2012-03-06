@@ -21,7 +21,7 @@ import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
-public class NodeElementFactory {
+public class NodeComponentFactory {
 
     public static final double RX_DEFAULT = 10.0;
 
@@ -33,7 +33,7 @@ public class NodeElementFactory {
 
     private TextBoundsEstimator textBoundsEstimator;
 
-    public NodeElementFactory(SvgElementFactory svgElementFactory,
+    public NodeComponentFactory(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         this.textBoundsEstimator = textBoundsEstimator;
         assert svgElementFactory != null;
@@ -42,7 +42,7 @@ public class NodeElementFactory {
         this.expanderTabFactory = new ExpanderTabFactory(svgElementFactory);
     }
 
-    public NodeSvgComponent createNodeElement(final Node node) {
+    public NodeSvgComponent createNodeComponent(final Node node) {
         assert node != null;
 
         SvgElement baseContainer = svgElementFactory.createElement(Svg.SVG);

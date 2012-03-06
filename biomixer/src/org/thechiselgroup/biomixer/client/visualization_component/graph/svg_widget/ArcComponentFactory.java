@@ -22,15 +22,15 @@ import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
-public class ArcElementFactory {
+public class ArcComponentFactory {
 
     private SvgElementFactory svgElementFactory;
 
-    public ArcElementFactory(SvgElementFactory svgElementFactory) {
+    public ArcComponentFactory(SvgElementFactory svgElementFactory) {
         this.svgElementFactory = svgElementFactory;
     }
 
-    public ArcElement createArcElement(Arc arc, NodeSvgComponent sourceNode,
+    public ArcSvgComponent createArcComponent(Arc arc, NodeSvgComponent sourceNode,
             NodeSvgComponent targetNode) {
 
         SvgElement container = svgElementFactory.createElement(Svg.G);
@@ -54,7 +54,7 @@ public class ArcElementFactory {
             container.appendChild(arrowHead.asSvgElement());
         }
 
-        return new ArcElement(arc, container, arcLine, arrowHead, sourceNode,
+        return new ArcSvgComponent(arc, container, arcLine, arrowHead, sourceNode,
                 targetNode);
     }
 }

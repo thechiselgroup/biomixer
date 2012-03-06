@@ -37,13 +37,13 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
     }
 
     public void fireNodeTabTestEvent(Node node, ChooselEvent event) {
-        TextSvgElement tabContainer = (TextSvgElement) getNodeElement(node)
+        TextSvgElement tabContainer = (TextSvgElement) getNodeComponent(node)
                 .getExpanderTab().getSvgElement();
         tabContainer.getEventListener().onEvent(event);
     }
 
     public void fireNodeTestEvent(Node node, ChooselEvent event) {
-        TextSvgElement nodeContainer = (TextSvgElement) getNodeElement(node)
+        TextSvgElement nodeContainer = (TextSvgElement) getNodeComponent(node)
                 .getNodeContainer();
         nodeContainer.getEventListener().onEvent(event);
     }
