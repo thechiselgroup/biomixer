@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -30,8 +31,8 @@ public class ArcComponentFactory {
         this.svgElementFactory = svgElementFactory;
     }
 
-    public ArcSvgComponent createArcComponent(Arc arc, NodeSvgComponent sourceNode,
-            NodeSvgComponent targetNode) {
+    public ArcSvgComponent createArcComponent(Arc arc, LayoutArcType arcType,
+            NodeSvgComponent sourceNode, NodeSvgComponent targetNode) {
 
         SvgElement container = svgElementFactory.createElement(Svg.G);
         container.setAttribute(Svg.ID, arc.getId());
@@ -54,7 +55,7 @@ public class ArcComponentFactory {
             container.appendChild(arrowHead.asSvgElement());
         }
 
-        return new ArcSvgComponent(arc, container, arcLine, arrowHead, sourceNode,
-                targetNode);
+        return new ArcSvgComponent(arc, arcType, container, arcLine, arrowHead,
+                sourceNode, targetNode);
     }
 }

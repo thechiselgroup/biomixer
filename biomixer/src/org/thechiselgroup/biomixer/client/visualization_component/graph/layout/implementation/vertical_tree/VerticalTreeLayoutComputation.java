@@ -16,9 +16,9 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;

@@ -33,7 +33,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layouts.VerticalTreeLayout;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.VerticalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
@@ -134,7 +134,7 @@ public class RootPathsLoader implements EmbeddedViewLoader {
             @Override
             public void run() {
                 view.adaptTo(GraphLayoutSupport.class).runLayout(
-                        new VerticalTreeLayout());
+                        new VerticalTreeLayoutAlgorithm(errorHandler));
             }
         }, 50);
     }

@@ -17,13 +17,17 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
-public class ArcSvgComponent extends CompositeSvgComponent implements Identifiable {
+public class ArcSvgComponent extends CompositeSvgComponent implements
+        LayoutArc, Identifiable {
 
     private Arc arc;
 
@@ -35,10 +39,14 @@ public class ArcSvgComponent extends CompositeSvgComponent implements Identifiab
 
     private final SvgArrowHead arrow;
 
-    public ArcSvgComponent(Arc arc, SvgElement container, SvgElement arcLine,
-            SvgArrowHead arrow, NodeSvgComponent source, NodeSvgComponent target) {
+    private LayoutArcType arcType;
+
+    public ArcSvgComponent(Arc arc, LayoutArcType arcType,
+            SvgElement container, SvgElement arcLine, SvgArrowHead arrow,
+            NodeSvgComponent source, NodeSvgComponent target) {
         super(container);
         this.arc = arc;
+        this.arcType = arcType;
         this.arcLine = arcLine;
         this.arrow = arrow;
         this.source = source;
@@ -58,8 +66,34 @@ public class ArcSvgComponent extends CompositeSvgComponent implements Identifiab
         return source;
     }
 
+    @Override
+    public LayoutNode getSourceNode() {
+        return source;
+    }
+
     public NodeSvgComponent getTarget() {
         return target;
+    }
+
+    @Override
+    public LayoutNode getTargetNode() {
+        return target;
+    }
+
+    @Override
+    public double getThickness() {
+        return Double.parseDouble(arcLine
+                .getAttributeAsString(Svg.STROKE_WIDTH));
+    }
+
+    @Override
+    public LayoutArcType getType() {
+        return arcType;
+    }
+
+    @Override
+    public boolean isDirected() {
+        return arc.isDirected();
     }
 
     public void removeNodeConnections() {
@@ -91,7 +125,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements Identifiab
 
     public void setColor(String color) {
         arcLine.setAttribute(Svg.STROKE, color);
-        if (arc.isDirected()) {
+        if (isDirected()) {
             arrow.asSvgElement().setAttribute(Svg.STROKE, color);
             arrow.asSvgElement().setAttribute(Svg.FILL, color);
         }
@@ -103,7 +137,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements Identifiab
     }
 
     private void updateArrow() {
-        if (arc.isDirected()) {
+        if (isDirected()) {
             assert arrow != null;
             arrow.alignWithPoints(source.getMidPoint(), target.getMidPoint());
         }

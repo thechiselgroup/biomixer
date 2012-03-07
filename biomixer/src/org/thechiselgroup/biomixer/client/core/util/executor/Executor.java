@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 David Rusk, Lars Grammel 
+ * Copyright 2012 David Rusk 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,15 +13,23 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
+package org.thechiselgroup.biomixer.client.core.util.executor;
 
-import java.util.concurrent.Executor;
+/**
+ * Executes {@link Runnable} tasks.
+ * 
+ * @see {@link java.util.concurrent.Executor}
+ * 
+ * @author drusk
+ * 
+ */
+public interface Executor {
 
-public class DirectExecutor implements Executor {
-
-    @Override
-    public void execute(Runnable command) {
-        command.run();
-    }
+    /**
+     * 
+     * @param command
+     *            the runnable task
+     */
+    void execute(Runnable command);
 
 }

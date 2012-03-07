@@ -48,6 +48,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemCon
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -695,6 +696,11 @@ public class Graph extends AbstractViewContentDisplay implements
         }
         updateArcsForVisuaItems(getVisualItems());
         layout.run(getNodeItems(), getArcItems(), this);
+    }
+
+    @Override
+    public void runLayout(LayoutAlgorithm layoutAlgorithm) {
+        graphDisplay.runLayout(layoutAlgorithm);
     }
 
     @Override

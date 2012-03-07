@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 
 public interface GraphLayoutSupport {
@@ -23,6 +24,13 @@ public interface GraphLayoutSupport {
      * Runs a customized graph layout.
      */
     void runLayout(GraphLayout layout);
+
+    /**
+     * 
+     * @param layoutAlgorithm
+     *            the layout algorithm to be run
+     */
+    void runLayout(LayoutAlgorithm layoutAlgorithm);
 
     /**
      * Runs a graph layout that is defined in the graph widget. The constants

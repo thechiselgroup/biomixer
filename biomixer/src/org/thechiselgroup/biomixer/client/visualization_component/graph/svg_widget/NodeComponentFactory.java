@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -42,8 +43,10 @@ public class NodeComponentFactory {
         this.expanderTabFactory = new ExpanderTabFactory(svgElementFactory);
     }
 
-    public NodeSvgComponent createNodeComponent(final Node node) {
+    public NodeSvgComponent createNodeComponent(final Node node,
+            LayoutNodeType nodeType) {
         assert node != null;
+        assert nodeType != null;
 
         SvgElement baseContainer = svgElementFactory.createElement(Svg.SVG);
         baseContainer.setAttribute(Svg.ID, node.getId());
@@ -61,7 +64,8 @@ public class NodeComponentFactory {
                 (boxedText.getTotalWidth() - ExpanderTabFactory.TAB_WIDTH) / 2,
                 boxedText.getTotalHeight());
 
-        return new NodeSvgComponent(node, baseContainer, boxedText, expanderTab);
+        return new NodeSvgComponent(node, nodeType, baseContainer, boxedText,
+                expanderTab);
     }
 
 }

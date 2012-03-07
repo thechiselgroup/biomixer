@@ -18,6 +18,8 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 import java.util.Collection;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;
@@ -80,6 +82,8 @@ public interface GraphDisplay extends IsWidget {
     void removeNode(Node node);
 
     void runLayout() throws LayoutException;
+
+    LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm);
 
     void runLayout(String layout) throws LayoutException;
 

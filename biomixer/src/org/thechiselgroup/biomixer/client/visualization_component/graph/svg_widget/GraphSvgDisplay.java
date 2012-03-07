@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,7 +25,7 @@ import java.util.Map.Entry;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
-import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
+import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
@@ -34,6 +35,17 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEve
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -61,7 +73,8 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
+public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
+        ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
@@ -69,9 +82,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private NodeComponentFactory nodeComponentFactory;
 
-    private IdentifiablesSet<NodeSvgComponent> nodes = new IdentifiablesSet<NodeSvgComponent>();
+    private IdentifiablesList<NodeSvgComponent> nodes = new IdentifiablesList<NodeSvgComponent>();
 
-    private IdentifiablesSet<ArcSvgComponent> arcs = new IdentifiablesSet<ArcSvgComponent>();
+    private IdentifiablesList<ArcSvgComponent> arcs = new IdentifiablesList<ArcSvgComponent>();
 
     private SvgWidget asWidget = null;
 
@@ -99,10 +112,13 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private SvgElement background;
 
+    private IdentifiablesList<DefaultLayoutNodeType> nodeTypes = new IdentifiablesList<DefaultLayoutNodeType>();
+
+    private IdentifiablesList<DefaultLayoutArcType> arcTypes = new IdentifiablesList<DefaultLayoutArcType>();
+
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
-    private Map<String, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = CollectionFactory
-            .createStringMap();
+    private Map<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = new HashMap<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>>();
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
@@ -136,6 +152,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert !arcs.contains(arc.getId()) : "arc '" + arc.getId()
                 + "'must not be already contained";
 
+        DefaultLayoutArcType layoutArcType = getArcType(arc.getType());
+
         String sourceNodeId = arc.getSourceNodeId();
         String targetNodeId = arc.getTargetNodeId();
 
@@ -147,7 +165,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         NodeSvgComponent sourceNode = nodes.get(sourceNodeId);
         NodeSvgComponent targetNode = nodes.get(targetNodeId);
         final ArcSvgComponent arcComponent = arcComponentFactory
-                .createArcComponent(arc, sourceNode, targetNode);
+                .createArcComponent(arc, layoutArcType, sourceNode, targetNode);
+        layoutArcType.add(arcComponent);
+
         arcComponent.setEventListener(new ChooselEventHandler() {
 
             @Override
@@ -158,7 +178,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             }
         });
 
-        arcs.put(arcComponent);
+        arcs.add(arcComponent);
+
         sourceNode.addConnectedArc(arcComponent);
         targetNode.addConnectedArc(arcComponent);
 
@@ -207,8 +228,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public void addNode(Node node) {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
+
+        DefaultLayoutNodeType layoutNodeType = getNodeType(node.getType());
+
         final NodeSvgComponent nodeComponent = nodeComponentFactory
-                .createNodeComponent(node);
+                .createNodeComponent(node, layoutNodeType);
+        layoutNodeType.add(nodeComponent);
 
         nodeComponent.setNodeEventListener(new SvgNodeEventHandler(
                 nodeComponent, this, nodeInteractionManager));
@@ -223,7 +248,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         });
 
-        nodes.put(nodeComponent);
+        nodes.add(nodeComponent);
 
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -242,11 +267,15 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert handler != null;
         assert nodeType != null;
 
-        if (!nodeMenuItemClickHandlersByType.containsKey(nodeType)) {
-            nodeMenuItemClickHandlersByType.put(nodeType, CollectionFactory
-                    .<NodeMenuItemClickedHandler> createStringMap());
+        DefaultLayoutNodeType layoutNodeType = getNodeType(nodeType);
+
+        if (!nodeMenuItemClickHandlersByType.containsKey(layoutNodeType)) {
+            nodeMenuItemClickHandlersByType.put(layoutNodeType,
+                    CollectionFactory
+                            .<NodeMenuItemClickedHandler> createStringMap());
         }
-        nodeMenuItemClickHandlersByType.get(nodeType).put(menuLabel, handler);
+        nodeMenuItemClickHandlersByType.get(layoutNodeType).put(menuLabel,
+                handler);
     }
 
     @Override
@@ -295,10 +324,72 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     @Override
+    public List<LayoutArc> getAllArcs() {
+        // TODO is there a way to cast an existing List<ArcSvgComponent> down
+        // to List<LayoutArc> ? Because then arcs.asList() could be used
+        // instead of making new list
+        List<LayoutArc> layoutArcs = new ArrayList<LayoutArc>();
+        for (ArcSvgComponent layoutArc : arcs) {
+            layoutArcs.add(layoutArc);
+        }
+        return layoutArcs;
+    }
+
+    @Override
+    public List<LayoutNode> getAllNodes() {
+        // TODO is there a way to cast an existing List<NodeSvgComponent> down
+        // to List<LayoutNode> ? Because then nodes.asList() could be used
+        // instead of making new list
+        List<LayoutNode> layoutNodes = new ArrayList<LayoutNode>();
+        for (LayoutNode layoutNode : nodes) {
+            layoutNodes.add(layoutNode);
+        }
+        return layoutNodes;
+    }
+
+    @Override
     public Arc getArc(String arcId) {
         assert arcId != null;
         assert arcs.contains(arcId);
         return arcs.get(arcId).getArc();
+    }
+
+    /**
+     * Retrieves the <code>LayoutArcType</code> for an arc. Creates the arc type
+     * if it doesn't already exist.
+     * 
+     * @param node
+     *            the node whose type is to be determined
+     * @return the type of the node
+     */
+    private DefaultLayoutArcType getArcType(String arcType) {
+        DefaultLayoutArcType layoutArcType = null;
+        if (!arcTypes.contains(arcType)) {
+            layoutArcType = new DefaultLayoutArcType(arcType);
+            arcTypes.add(layoutArcType);
+        } else {
+            layoutArcType = arcTypes.get(arcType);
+        }
+        return layoutArcType;
+    }
+
+    @Override
+    public List<LayoutArcType> getArcTypes() {
+        // TODO is there a way to cast an existing List<DefaultLayoutArcType>
+        // down
+        // to List<LayoutArcType> ? Because then arcTypes.asList() could be used
+        // instead of making new list
+        List<LayoutArcType> layoutArcTypes = new ArrayList<LayoutArcType>();
+        for (DefaultLayoutArcType layoutArcType : arcTypes) {
+            layoutArcTypes.add(layoutArcType);
+        }
+        return layoutArcTypes;
+    }
+
+    @Override
+    public BoundsDouble getBounds() {
+        // TODO x and y always 0?
+        return new DefaultBoundsDouble(0, 0, width, height);
     }
 
     protected int getGraphAbsoluteLeft() {
@@ -325,6 +416,37 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     protected NodeSvgComponent getNodeComponent(Node node) {
         return nodes.get(node.getId());
+    }
+
+    /**
+     * Retrieves the <code>LayoutNodeType</code> for a node. Creates the node
+     * type if it doesn't already exist.
+     * 
+     * @param node
+     *            the node whose type is to be determined
+     * @return the type of the node
+     */
+    private DefaultLayoutNodeType getNodeType(String nodeType) {
+        DefaultLayoutNodeType layoutNodeType = null;
+        if (!nodeTypes.contains(nodeType)) {
+            layoutNodeType = new DefaultLayoutNodeType(nodeType);
+            nodeTypes.add(layoutNodeType);
+        } else {
+            layoutNodeType = nodeTypes.get(nodeType);
+        }
+        return layoutNodeType;
+    }
+
+    @Override
+    public List<LayoutNodeType> getNodeTypes() {
+        // TODO is there a way to cast an existing List<DefaultLayoutNodeType>
+        // down to List<LayoutNodeType> ? Because then nodeTypes.asList() could
+        // be used instead of making new list
+        List<LayoutNodeType> layoutNodeTypes = new ArrayList<LayoutNodeType>();
+        for (DefaultLayoutNodeType layoutNodeType : nodeTypes) {
+            layoutNodeTypes.add(layoutNodeType);
+        }
+        return layoutNodeTypes;
     }
 
     private void initBackground(int width, int height) {
@@ -447,7 +569,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     public void onNodeTabClick(final NodeSvgComponent nodeComponent) {
         Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
-                .get(nodeComponent.getNodeType());
+                .get(nodeComponent.getType());
         PopupExpanderSvgComponent popupExpanderList = expanderPopupFactory
                 .createExpanderPopupList(
                         nodeComponent.getExpanderTabAbsoluteLocation(),
@@ -534,17 +656,23 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void runLayout() throws LayoutException {
-        // TODO
+        // TODO remove? or choose some default layout?
+    }
+
+    @Override
+    public LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm) {
+        return layoutAlgorithm.computeLayout(this);
     }
 
     @Override
     public void runLayout(String layout) throws LayoutException {
-        // TODO
+        // TODO remove? Was used for Flash layouts
     }
 
     @Override
     public void runLayoutOnNodes(Collection<Node> nodes) throws LayoutException {
-        // TODO
+        // TODO remove? New layout interfaces have a LayoutGraph passed in.
+        // Nodes can be anchored if they should not get moved.
     }
 
     @Override
@@ -567,7 +695,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public void setLocation(Node node, Point location) {
         assert nodes.contains(node.getId());
-        nodes.get(node.getId()).setLocation(location);
+        nodes.get(node.getId()).setPosition(location);
     }
 
     @Override

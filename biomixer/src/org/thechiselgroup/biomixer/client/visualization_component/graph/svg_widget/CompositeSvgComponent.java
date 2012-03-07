@@ -103,4 +103,5 @@ public class CompositeSvgComponent {
     public void setEventListener(ChooselEventHandler handler) {
         compositeElement.setEventListener(handler);
     }
+
 }
