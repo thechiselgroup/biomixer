@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Class of arcs.
@@ -25,8 +25,11 @@ import java.util.Set;
 public interface LayoutArcType {
 
     /**
-     * @return all arc of this arc type
+     * NOTE: we return a list to guarantee arc order for testing purposes. There
+     * must be no duplicate arcs in this list.
+     * 
+     * @return List all arc of this arc type
      */
-    Set<LayoutArc> getArcs();
+    List<LayoutArc> getArcs();
 
 }

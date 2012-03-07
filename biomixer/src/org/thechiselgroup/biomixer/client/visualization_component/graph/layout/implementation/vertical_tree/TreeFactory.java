@@ -13,12 +13,12 @@ public class TreeFactory {
 
     public List<Tree> getTrees(LayoutGraph graph) {
         Map<LayoutNode, TreeNode> treeNodes = new HashMap<LayoutNode, TreeNode>();
-        for (LayoutNode node : graph.getAllNodes()) {
-            treeNodes.put(node, new TreeNode(node));
-        }
-
         List<TreeNode> potentialRoots = new ArrayList<TreeNode>();
-        potentialRoots.addAll(treeNodes.values());
+        for (LayoutNode node : graph.getAllNodes()) {
+            TreeNode root = new TreeNode(node);
+            treeNodes.put(node, root);
+            potentialRoots.add(root);
+        }
 
         for (LayoutArc arc : graph.getAllArcs()) {
             // XXX arcs point from child to parent. Therefore sourceNode is a

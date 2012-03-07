@@ -17,14 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 public class TestLayoutArc implements LayoutArc {
 
-    private double x1;
-
-    private double y1;
-
-    private double x2;
-
-    private double y2;
-
     private LayoutNode sourceNode;
 
     private LayoutNode targetNode;
@@ -67,15 +59,6 @@ public class TestLayoutArc implements LayoutArc {
     @Override
     public boolean isDirected() {
         return isDirected;
-    }
-
-    @Override
-    public void setStraightArcEndPoints(double x1, double y1, double x2,
-            double y2) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
     }
 
 }

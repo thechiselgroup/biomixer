@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * Class of nodes.
@@ -25,8 +25,11 @@ import java.util.Set;
 public interface LayoutNodeType {
 
     /**
+     * NOTE: we return a list to guarantee node order for testing purposes.
+     * There must be no duplicate nodes in this list.
+     * 
      * @return all nodes of this node type
      */
-    Set<LayoutNode> getNodes();
+    List<LayoutNode> getNodes();
 
 }

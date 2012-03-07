@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * 
@@ -24,19 +24,28 @@ import java.util.Set;
 public interface LayoutGraph {
 
     /**
+     * NOTE: we return a list to guarantee arc order for testing purposes. There
+     * must be no duplicate arcs in this list.
+     * 
      * @return all arcs (from all arc types) in this graph
      */
-    Set<LayoutArc> getAllArcs();
+    List<LayoutArc> getAllArcs();
 
     /**
+     * NOTE: we return a list to guarantee node order for testing purposes.
+     * There must be no duplicate nodes in this list.
+     * 
      * @return all nodes (from all node types) in this graph
      */
-    Set<LayoutNode> getAllNodes();
+    List<LayoutNode> getAllNodes();
 
     /**
+     * NOTE: we return a list to guarantee arc order for testing purposes. There
+     * must be no duplicate arcs in this list.
+     * 
      * @return all arc types in this graph
      */
-    Set<LayoutArcType> getArcTypes();
+    List<LayoutArcType> getArcTypes();
 
     /**
      * @return bounds of the canvas rectangle
@@ -44,8 +53,11 @@ public interface LayoutGraph {
     BoundsDouble getBounds();
 
     /**
+     * NOTE: we return a list to guarantee node order for testing purposes.
+     * There must be no duplicate nodes in this list.
+     * 
      * @return all node types in this graph
      */
-    Set<LayoutNodeType> getNodeTypes();
+    List<LayoutNodeType> getNodeTypes();
 
 }

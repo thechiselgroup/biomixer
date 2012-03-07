@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.vertical_tree;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -23,28 +23,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutArcType;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
 
-public class AbstractLayoutAlgorithmTest {
+public abstract class AbstractLayoutAlgorithmTest {
 
     @Mock
     protected ErrorHandler errorHandler;
 
-    protected BoundsDouble graphBounds;
-
-    protected TestLayoutNodeType nodeType1 = new TestLayoutNodeType();
-
-    protected TestLayoutArcType arcType1 = new TestLayoutArcType();
-
-    public AbstractLayoutAlgorithmTest() {
-        super();
-    }
+    protected TestLayoutGraph graph;
 
     protected void assertNodeHasCentre(double x, double y, LayoutNode node) {
         SizeDouble nodeSize = node.getSize();
@@ -64,21 +50,40 @@ public class AbstractLayoutAlgorithmTest {
         }
     }
 
-    protected LayoutArc createDefaultArc(TestLayoutGraph graph,
-            LayoutNode sourceNode, LayoutNode targetNode) {
-        return graph.createArc(sourceNode, targetNode, 2, true, arcType1);
+    protected LayoutArc createArc(int arcType, LayoutNode sourceNode,
+            LayoutNode targetNode) {
+        return graph.createArc(sourceNode, targetNode, 2, true,
+                graph.getTestLayoutArcTypes()[arcType]);
     }
 
-    protected LayoutNode createDefaultNode(TestLayoutGraph graph) {
-        return graph.createNode(10, 10, false, nodeType1);
+    protected LayoutArc createArc(LayoutNode sourceNode, LayoutNode targetNode) {
+        return createArc(0, sourceNode, targetNode);
     }
 
-    protected TestLayoutGraph createGraph(double leftX, double topY,
-            double width, double height) {
-        setBounds(leftX, topY, width, height);
+    protected void createGraph(double leftX, double topY, double width,
+            double height) {
 
-        TestLayoutGraph graph = new TestLayoutGraph(graphBounds);
-        return graph;
+        createGraph(leftX, topY, width, height, 1, 1);
+    }
+
+    protected void createGraph(double leftX, double topY, double width,
+            double height, int numberOfNodeTypes, int numberOfArcTypes) {
+
+        graph = new TestLayoutGraph(new DefaultBoundsDouble(leftX, topY, width,
+                height), numberOfNodeTypes, numberOfArcTypes);
+    }
+
+    protected TestLayoutNode[] createNodes(int numberOfNodes) {
+        return createNodes(0, numberOfNodes);
+    }
+
+    protected TestLayoutNode[] createNodes(int nodeType, int numberOfNodes) {
+        TestLayoutNodeType testNodeType = graph.getTestLayoutNodeTypes()[nodeType];
+        TestLayoutNode[] result = new TestLayoutNode[numberOfNodes];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = graph.createNode(10, 10, false, testNodeType);
+        }
+        return result;
     }
 
     protected double getCentreX(LayoutNode layoutNode) {
@@ -92,11 +97,6 @@ public class AbstractLayoutAlgorithmTest {
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
-    }
-
-    protected void setBounds(double leftX, double topY, double width,
-            double height) {
-        graphBounds = new DefaultBoundsDouble(leftX, topY, width, height);
     }
 
 }

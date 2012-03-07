@@ -15,48 +15,62 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
 public class TestLayoutNode implements LayoutNode {
 
-    private class NodeSize implements SizeDouble {
+    private double x = Double.NaN;
 
-        private final double width;
+    private double y = Double.NaN;
 
-        private final double height;
+    private double labelX = Double.NaN;
 
-        public NodeSize(double width, double height) {
-            this.width = width;
-            this.height = height;
-        }
+    private double labelY = Double.NaN;
 
-        @Override
-        public double getHeight() {
-            return height;
-        }
-
-        @Override
-        public double getWidth() {
-            return width;
-        }
-
-    }
-
-    private double x;
-
-    private double y;
+    private boolean hasLabel;
 
     private boolean isAnchored;
 
     private LayoutNodeType type;
 
-    private NodeSize nodeSize;
+    private DefaultSizeDouble nodeSize;
+
+    private DefaultSizeDouble labelSize;
+
+    public TestLayoutNode(double width, double height, boolean isAnchored,
+            double labelWidth, double LabelHeight, LayoutNodeType type) {
+
+        this.nodeSize = new DefaultSizeDouble(width, height);
+        this.isAnchored = isAnchored;
+        this.type = type;
+        this.hasLabel = true;
+        this.labelSize = new DefaultSizeDouble(labelWidth, LabelHeight);
+    }
 
     public TestLayoutNode(double width, double height, boolean isAnchored,
             LayoutNodeType type) {
-        this.nodeSize = new NodeSize(width, height);
+
+        this.nodeSize = new DefaultSizeDouble(width, height);
         this.isAnchored = isAnchored;
         this.type = type;
+        this.hasLabel = false;
+        this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
+    @Override
+    public SizeDouble getLabelSize() {
+        return labelSize;
+    }
+
+    @Override
+    public double getLabelX() {
+        return labelX;
+    }
+
+    @Override
+    public double getLabelY() {
+        return labelY;
     }
 
     @Override
@@ -80,14 +94,35 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
+    public boolean hasLabel() {
+        return hasLabel;
+    }
+
+    @Override
     public boolean isAnchored() {
         return isAnchored;
     }
 
     @Override
+    public void setLabelPosition(double x, double y) {
+        setLabelX(x);
+        setLabelY(y);
+    }
+
+    @Override
+    public void setLabelX(double x) {
+        this.labelX = x;
+    }
+
+    @Override
+    public void setLabelY(double y) {
+        this.labelY = y;
+    }
+
+    @Override
     public void setPosition(double x, double y) {
-        this.x = x;
-        this.y = y;
+        setX(x);
+        setY(y);
     }
 
     @Override

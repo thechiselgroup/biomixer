@@ -15,24 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestLayoutNodeType implements LayoutNodeType {
 
-    Set<LayoutNode> nodes = new HashSet<LayoutNode>();
+    private List<LayoutNode> nodes = new ArrayList<LayoutNode>();
 
     public void add(LayoutNode node) {
         nodes.add(node);
     }
 
-    public void addAll(Collection<LayoutNode> nodeCollection) {
-        nodes.addAll(nodeCollection);
-    }
-
     @Override
-    public Set<LayoutNode> getNodes() {
+    public List<LayoutNode> getNodes() {
         return nodes;
     }
 

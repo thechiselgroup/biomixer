@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
@@ -29,6 +30,11 @@ public class VerticalTreeLayoutAlgorithmTest extends
 
     private VerticalTreeLayoutAlgorithm underTest;
 
+    private void computeLayout(TestLayoutGraph graph) {
+        LayoutComputation layoutComputation = underTest.computeLayout(graph);
+        assertFalse(layoutComputation.isRunning());
+    }
+
     @Before
     public void setUp() {
         underTest = new VerticalTreeLayoutAlgorithm(errorHandler);
@@ -36,79 +42,75 @@ public class VerticalTreeLayoutAlgorithmTest extends
 
     @Test
     public void singleNode() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node = createDefaultNode(graph);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(1);
 
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
+        computeLayout(graph);
 
-        assertFalse(layoutComputation.isRunning());
-        assertNodeHasCentre(200, 200, node);
+        assertNodeHasCentre(200, 200, nodes[0]);
     }
 
     @Test
     public void threeNodesInTwoTrees() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        createDefaultArc(graph, node2, node1);
+        createGraph(0, 0, 400, 400, 1, 1);
+        LayoutNode[] nodes = createNodes(0, 3);
+        createArc(0, nodes[1], nodes[0]);
 
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
+        computeLayout(graph);
 
-        assertFalse(layoutComputation.isRunning());
-
-        // TODO generic way of specifying this kind of situation
-        if (getCentreX(node1) == 100) {
-            assertNodeHasCentre(100, 400.0 / 3, node1);
-            assertNodeHasCentre(100, 800.0 / 3, node2);
-            assertNodeHasCentre(300, 200, node3);
+        /*
+         * TODO generic way of specifying this kind of situation (i.e. when the
+         * horizontal order of the nodes is not guaranteed, since the input is
+         * based on sets)
+         */
+        if (getCentreX(nodes[0]) == 100) {
+            assertNodeHasCentre(100, 400.0 / 3, nodes[0]);
+            assertNodeHasCentre(100, 800.0 / 3, nodes[1]);
+            assertNodeHasCentre(300, 200, nodes[2]);
         } else {
-            assertNodeHasCentre(300, 400.0 / 3, node1);
-            assertNodeHasCentre(300, 800.0 / 3, node2);
-            assertNodeHasCentre(100, 200, node3);
+            assertNodeHasCentre(300, 400.0 / 3, nodes[0]);
+            assertNodeHasCentre(300, 800.0 / 3, nodes[1]);
+            assertNodeHasCentre(100, 200, nodes[2]);
         }
     }
 
     @Test
     public void twoNodesConnectedByArc() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode sourceNode = createDefaultNode(graph);
-        LayoutNode targetNode = createDefaultNode(graph);
-        createDefaultArc(graph, sourceNode, targetNode);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(2);
 
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
+        createArc(nodes[0], nodes[1]);
 
-        assertFalse(layoutComputation.isRunning());
-        assertNodesHaveCentreX(200.0, sourceNode, targetNode);
-        assertNodesHaveCentreY(400.0 / 3, targetNode);
-        assertNodesHaveCentreY(800.0 / 3, sourceNode);
+        computeLayout(graph);
+        assertNodesHaveCentreX(200.0, nodes[0], nodes[1]);
+        assertNodesHaveCentreY(400.0 / 3, nodes[1]);
+        assertNodesHaveCentreY(800.0 / 3, nodes[0]);
     }
 
     @Test
     public void twoPathsSameTree() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        createDefaultArc(graph, node2, node1);
-        createDefaultArc(graph, node3, node1);
-        createDefaultArc(graph, node4, node2);
-        createDefaultArc(graph, node4, node3);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(4);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[2], nodes[0]);
+        createArc(nodes[3], nodes[1]);
+        createArc(nodes[3], nodes[2]);
 
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
-
-        assertFalse(layoutComputation.isRunning());
-        assertNodeHasCentre(200, 100, node1);
-        // TODO generic way of specifying this kind of situation
-        if (getCentreX(node2) == 400.0 / 3) {
-            assertNodeHasCentre(400.0 / 3, 200, node2);
-            assertNodeHasCentre(800.0 / 3, 200, node3);
+        computeLayout(graph);
+        assertNodeHasCentre(200, 100, nodes[0]);
+        /*
+         * TODO generic way of specifying this kind of situation (i.e. when the
+         * horizontal order of the nodes is not guaranteed, since the input is
+         * based on sets)
+         */
+        if (getCentreX(nodes[1]) == 400.0 / 3) {
+            assertNodeHasCentre(400.0 / 3, 200, nodes[1]);
+            assertNodeHasCentre(800.0 / 3, 200, nodes[2]);
         } else {
-            assertNodeHasCentre(800.0 / 3, 200, node2);
-            assertNodeHasCentre(400.0 / 3, 200, node3);
+            assertNodeHasCentre(800.0 / 3, 200, nodes[1]);
+            assertNodeHasCentre(400.0 / 3, 200, nodes[2]);
         }
-        assertNodeHasCentre(200, 300, node4);
+        assertNodeHasCentre(200, 300, nodes[3]);
     }
 
 }

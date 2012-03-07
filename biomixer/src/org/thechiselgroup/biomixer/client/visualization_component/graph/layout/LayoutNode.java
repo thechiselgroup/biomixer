@@ -18,16 +18,29 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
 /**
- * Node that is part of the graph that should be laid out.
- * 
- * TODO the label issue (representing labels as being separate from graph nodes
- * and arcs) is not considered in this interface specification. Once we have a
- * need for considering separate labels for arcs and nodes, the specification
- * should be extended.
+ * Node that is part of the graph that should be laid out. Each node can have an
+ * optional separate label (which has its own size and can be positioned as
+ * well).
  * 
  * @author Lars Grammel
  */
 public interface LayoutNode {
+
+    /**
+     * @return size of the separate node label. Returns a SizeDouble(0,0) if
+     *         there is no label.
+     */
+    SizeDouble getLabelSize();
+
+    /**
+     * @return current x position of the node label
+     */
+    double getLabelX();
+
+    /**
+     * @return current y position of the node label
+     */
+    double getLabelY();
 
     /**
      * @return size of this node
@@ -50,9 +63,41 @@ public interface LayoutNode {
     double getY();
 
     /**
+     * @return <code>true</code> if the node has a separate label (if the label
+     *         is part of the node, this method returns false).
+     */
+    boolean hasLabel();
+
+    /**
      * @return <code>true</code> when the node should not be moved.
      */
     boolean isAnchored();
+
+    /**
+     * Sets the position of the node label.
+     * 
+     * @param x
+     *            left starting point of the label
+     * @param y
+     *            top starting point of the label
+     */
+    void setLabelPosition(double x, double y);
+
+    /**
+     * Sets the x-position of the node label.
+     * 
+     * @param x
+     *            left starting point of the label
+     */
+    void setLabelX(double x);
+
+    /**
+     * Sets the y-position of the node label.
+     * 
+     * @param y
+     *            top starting point of the label
+     */
+    void setLabelY(double y);
 
     /**
      * Sets the position of this node. Only nodes that are not anchored can be

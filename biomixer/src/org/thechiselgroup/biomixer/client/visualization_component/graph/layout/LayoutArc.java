@@ -16,10 +16,9 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 /**
- * Arc that is part of the graph that should be laid out.
- * 
- * TODO we only allow for the construction of straight arcs right now. We should
- * extend this once there is a use case for curved arcs.
+ * Arc that is part of the graph that should be laid out. The arcs will be
+ * automatically drawn as straight lines between the source and the target
+ * nodes.
  * 
  * @author Lars Grammel
  */
@@ -52,12 +51,5 @@ public interface LayoutArc {
      *         {@link #getTargetNode()}.
      */
     boolean isDirected();
-
-    /**
-     * Sets the end points of a straight arc. The positions (x1,y1) and (x2,y2)
-     * are the middle positions in terms of thickness at the source and target
-     * end of this arc, respectively.
-     */
-    void setStraightArcEndPoints(double x1, double y1, double x2, double y2);
 
 }

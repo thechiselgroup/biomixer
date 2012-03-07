@@ -15,24 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestLayoutArcType implements LayoutArcType {
 
-    private Set<LayoutArc> arcs = new HashSet<LayoutArc>();
+    private List<LayoutArc> arcs = new ArrayList<LayoutArc>();
 
     public void add(LayoutArc arc) {
         arcs.add(arc);
     }
 
-    public void addAll(Collection<LayoutArc> arcCollection) {
-        arcs.addAll(arcCollection);
-    }
-
     @Override
-    public Set<LayoutArc> getArcs() {
+    public List<LayoutArc> getArcs() {
         return arcs;
     }
 

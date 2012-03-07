@@ -23,9 +23,9 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.Tree;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeNode;
@@ -36,48 +36,43 @@ public class TreeNodeTest extends AbstractLayoutAlgorithmTest {
 
     @Test
     public void getMaxDistanceToChild() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        createDefaultArc(graph, node2, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(2);
+        createArc(nodes[1], nodes[0]);
 
         Tree tree = getTree(graph);
-        TreeNode treeNode1 = getTreeNode(node1, tree);
-        TreeNode treeNode2 = getTreeNode(node2, tree);
+        TreeNode treenodes0 = getTreeNode(nodes[0], tree);
+        TreeNode treenodes1 = getTreeNode(nodes[1], tree);
 
-        assertThat(treeNode1.getMaxDistance(treeNode2), equalTo(1));
+        assertThat(treenodes0.getMaxDistance(treenodes1), equalTo(1));
     }
 
     @Test
     public void getMaxDistanceToCurrentNode() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(1);
 
         Tree tree = getTree(graph);
-        TreeNode treeNode1 = getTreeNode(node1, tree);
+        TreeNode treenodes0 = getTreeNode(nodes[0], tree);
 
-        assertThat(treeNode1.getMaxDistance(treeNode1), equalTo(0));
+        assertThat(treenodes0.getMaxDistance(treenodes0), equalTo(0));
     }
 
     @Test
     public void getMaxDistanceToNodeWithTwoPaths() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        LayoutNode node5 = createDefaultNode(graph);
-        createDefaultArc(graph, node5, node3);
-        createDefaultArc(graph, node5, node4);
-        createDefaultArc(graph, node3, node2);
-        createDefaultArc(graph, node2, node1);
-        createDefaultArc(graph, node4, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(5);
+        createArc(nodes[4], nodes[2]);
+        createArc(nodes[4], nodes[3]);
+        createArc(nodes[2], nodes[1]);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[3], nodes[0]);
 
         Tree tree = getTree(graph);
-        TreeNode treeNode1 = getTreeNode(node1, tree);
-        TreeNode treeNode5 = getTreeNode(node5, tree);
+        TreeNode treenodes0 = getTreeNode(nodes[0], tree);
+        TreeNode treenodes4 = getTreeNode(nodes[4], tree);
 
-        assertThat(treeNode1.getMaxDistance(treeNode5), equalTo(3));
+        assertThat(treenodes0.getMaxDistance(treenodes4), equalTo(3));
     }
 
     private Tree getTree(LayoutGraph graph) {

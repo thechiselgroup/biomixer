@@ -26,8 +26,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.Tree;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeNode;
@@ -36,9 +36,9 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
 
     private TreeFactory underTest;
 
-    private List<LayoutNode> getLayoutNodes(List<TreeNode> treeNodes) {
+    private List<LayoutNode> getNodesAtDepth(Tree tree, int depth) {
         List<LayoutNode> layoutNodes = new ArrayList<LayoutNode>();
-        for (TreeNode treeNode : treeNodes) {
+        for (TreeNode treeNode : tree.getNodesAtDepth(depth)) {
             layoutNodes.add(treeNode.getLayoutNode());
         }
         return layoutNodes;
@@ -46,35 +46,24 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
 
     @Test
     public void getNodesAtDepthTest() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        LayoutNode node5 = createDefaultNode(graph);
-        LayoutNode node6 = createDefaultNode(graph);
-        createDefaultArc(graph, node6, node2);
-        createDefaultArc(graph, node5, node2);
-        createDefaultArc(graph, node4, node2);
-        createDefaultArc(graph, node2, node1);
-        createDefaultArc(graph, node3, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(6);
+        createArc(nodes[5], nodes[1]);
+        createArc(nodes[4], nodes[1]);
+        createArc(nodes[3], nodes[1]);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[2], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
 
-        // TODO find a more declarative way to do this.
-        List<LayoutNode> nodesAtDepth0 = getLayoutNodes(tree.getNodesAtDepth(0));
-        assertThat(nodesAtDepth0, containsExactly(node1));
-
-        // TODO find a more declarative way to do this.
-        List<LayoutNode> nodesAtDepth1 = getLayoutNodes(tree.getNodesAtDepth(1));
-        assertThat(nodesAtDepth1, containsExactly(node2, node3));
-
-        // TODO find a more declarative way to do this.
-        List<LayoutNode> nodesAtDepth2 = getLayoutNodes(tree.getNodesAtDepth(2));
-        assertThat(nodesAtDepth2, containsExactly(node4, node5, node6));
+        assertThat(getNodesAtDepth(tree, 0), containsExactly(nodes[0]));
+        assertThat(getNodesAtDepth(tree, 1),
+                containsExactly(nodes[1], nodes[2]));
+        assertThat(getNodesAtDepth(tree, 2),
+                containsExactly(nodes[3], nodes[4], nodes[5]));
     }
 
     private Tree getTreeWithRootNode(List<Tree> trees, LayoutNode node) {
@@ -90,28 +79,26 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
     @SuppressWarnings("unchecked")
     @Test
     public void oneRootOneChild() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        createDefaultArc(graph, node2, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(2);
+        createArc(nodes[1], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
         assertThat(tree.getHeight(), equalTo(2));
-        assertThat(tree.getRoot(), equalsTree(node1, 1, equalsTree(node2, 0)));
+        assertThat(tree.getRoot(),
+                equalsTree(nodes[0], 1, equalsTree(nodes[1], 0)));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void oneRootOneChildOneGrandchild() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        createDefaultArc(graph, node3, node2);
-        createDefaultArc(graph, node2, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(3);
+        createArc(nodes[2], nodes[1]);
+        createArc(nodes[1], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
@@ -120,20 +107,18 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
         assertThat(tree.getHeight(), equalTo(3));
         assertThat(
                 tree.getRoot(),
-                equalsTree(node1, 2, equalsTree(node2, 1, equalsTree(node3, 0))));
+                equalsTree(nodes[0], 2,
+                        equalsTree(nodes[1], 1, equalsTree(nodes[2], 0))));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void oneRootThreeChildren() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        createDefaultArc(graph, node4, node1);
-        createDefaultArc(graph, node3, node1);
-        createDefaultArc(graph, node2, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(4);
+        createArc(nodes[3], nodes[0]);
+        createArc(nodes[2], nodes[0]);
+        createArc(nodes[1], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
@@ -142,25 +127,20 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
         assertThat(tree.getHeight(), equalTo(2));
         assertThat(
                 tree.getRoot(),
-                equalsTree(node1, 3, equalsTree(node2, 0),
-                        equalsTree(node3, 0), equalsTree(node4, 0)));
+                equalsTree(nodes[0], 3, equalsTree(nodes[1], 0),
+                        equalsTree(nodes[2], 0), equalsTree(nodes[3], 0)));
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void oneRootTwoChildrenOneHasThreeChildrenOtherHasNone() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        LayoutNode node5 = createDefaultNode(graph);
-        LayoutNode node6 = createDefaultNode(graph);
-        createDefaultArc(graph, node4, node2);
-        createDefaultArc(graph, node5, node2);
-        createDefaultArc(graph, node6, node2);
-        createDefaultArc(graph, node2, node1);
-        createDefaultArc(graph, node3, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(6);
+        createArc(nodes[3], nodes[1]);
+        createArc(nodes[4], nodes[1]);
+        createArc(nodes[5], nodes[1]);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[2], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
@@ -170,11 +150,12 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
         assertThat(
                 tree.getRoot(),
                 equalsTree(
-                        node1,
+                        nodes[0],
                         5,
-                        equalsTree(node2, 3, equalsTree(node4, 0),
-                                equalsTree(node5, 0), equalsTree(node6, 0)),
-                        equalsTree(node3, 0)));
+                        equalsTree(nodes[1], 3, equalsTree(nodes[3], 0),
+                                equalsTree(nodes[4], 0),
+                                equalsTree(nodes[5], 0)),
+                        equalsTree(nodes[2], 0)));
     }
 
     @Before
@@ -184,8 +165,8 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
 
     @Test
     public void singleNode() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        createDefaultNode(graph);
+        createGraph(0, 0, 400, 400);
+        createNodes(1);
 
         List<Tree> trees = underTest.getTrees(graph);
 
@@ -198,17 +179,13 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
     @SuppressWarnings("unchecked")
     @Test
     public void treeContainingNodeWithTwoParents() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        LayoutNode node5 = createDefaultNode(graph);
-        createDefaultArc(graph, node5, node3);
-        createDefaultArc(graph, node5, node4);
-        createDefaultArc(graph, node3, node2);
-        createDefaultArc(graph, node2, node1);
-        createDefaultArc(graph, node4, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(5);
+        createArc(nodes[4], nodes[2]);
+        createArc(nodes[4], nodes[3]);
+        createArc(nodes[2], nodes[1]);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[3], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
@@ -216,49 +193,42 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
         assertThat(
                 tree.getRoot(),
                 equalsTree(
-                        node1,
+                        nodes[0],
                         4,
-                        equalsTree(node2, 2,
-                                equalsTree(node3, 1, equalsTree(node5, 0))),
-                        equalsTree(node4, 1, equalsTree(node5, 0))));
+                        equalsTree(
+                                nodes[1],
+                                2,
+                                equalsTree(nodes[2], 1, equalsTree(nodes[4], 0))),
+                        equalsTree(nodes[3], 1, equalsTree(nodes[4], 0))));
     }
 
     @Test
     public void twoParentsDifferentLengthPathsDepthTest() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        LayoutNode node5 = createDefaultNode(graph);
-        createDefaultArc(graph, node5, node3);
-        createDefaultArc(graph, node5, node4);
-        createDefaultArc(graph, node3, node2);
-        createDefaultArc(graph, node2, node1);
-        createDefaultArc(graph, node4, node1);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(5);
+
+        createArc(nodes[4], nodes[2]);
+        createArc(nodes[4], nodes[3]);
+        createArc(nodes[2], nodes[1]);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[3], nodes[0]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(1));
 
         Tree tree = trees.get(0);
-        List<LayoutNode> nodesAtDepth0 = getLayoutNodes(tree.getNodesAtDepth(0));
-        assertThat(nodesAtDepth0, containsExactly(node1));
 
-        List<LayoutNode> nodesAtDepth1 = getLayoutNodes(tree.getNodesAtDepth(1));
-        assertThat(nodesAtDepth1, containsExactly(node2, node4));
-
-        List<LayoutNode> nodesAtDepth2 = getLayoutNodes(tree.getNodesAtDepth(2));
-        assertThat(nodesAtDepth2, containsExactly(node3));
-
-        List<LayoutNode> nodesAtDepth3 = getLayoutNodes(tree.getNodesAtDepth(3));
-        assertThat(nodesAtDepth3, containsExactly(node5));
+        assertThat(getNodesAtDepth(tree, 0), containsExactly(nodes[0]));
+        assertThat(getNodesAtDepth(tree, 1),
+                containsExactly(nodes[1], nodes[3]));
+        assertThat(getNodesAtDepth(tree, 2), containsExactly(nodes[2]));
+        assertThat(getNodesAtDepth(tree, 3), containsExactly(nodes[4]));
     }
 
     @Test
     public void twoRootsNoChildren() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        createDefaultNode(graph);
-        createDefaultNode(graph);
+        createGraph(0, 0, 400, 400);
+        createNodes(2);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(2));
@@ -269,28 +239,26 @@ public class TreeFactoryTest extends AbstractLayoutAlgorithmTest {
     @SuppressWarnings("unchecked")
     @Test
     public void twoRootsOneWithTwoChildrenOneWithOne() {
-        TestLayoutGraph graph = createGraph(0, 0, 400, 400);
-        LayoutNode node1 = createDefaultNode(graph);
-        LayoutNode node2 = createDefaultNode(graph);
-        LayoutNode node3 = createDefaultNode(graph);
-        LayoutNode node4 = createDefaultNode(graph);
-        LayoutNode node5 = createDefaultNode(graph);
-        createDefaultArc(graph, node3, node1);
-        createDefaultArc(graph, node4, node1);
-        createDefaultArc(graph, node5, node2);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(5);
+        createArc(nodes[2], nodes[0]);
+        createArc(nodes[3], nodes[0]);
+        createArc(nodes[4], nodes[1]);
 
         List<Tree> trees = underTest.getTrees(graph);
         assertThat(trees.size(), equalTo(2));
 
-        Tree tree1 = getTreeWithRootNode(trees, node1);
+        Tree tree1 = getTreeWithRootNode(trees, nodes[0]);
         assertThat(tree1.getHeight(), equalTo(2));
         assertThat(
                 tree1.getRoot(),
-                equalsTree(node1, 2, equalsTree(node3, 0), equalsTree(node4, 0)));
+                equalsTree(nodes[0], 2, equalsTree(nodes[2], 0),
+                        equalsTree(nodes[3], 0)));
 
-        Tree tree2 = getTreeWithRootNode(trees, node2);
+        Tree tree2 = getTreeWithRootNode(trees, nodes[1]);
         assertThat(tree2.getHeight(), equalTo(2));
-        assertThat(tree2.getRoot(), equalsTree(node2, 1, equalsTree(node5, 0)));
+        assertThat(tree2.getRoot(),
+                equalsTree(nodes[1], 1, equalsTree(nodes[4], 0)));
     }
 
 }
