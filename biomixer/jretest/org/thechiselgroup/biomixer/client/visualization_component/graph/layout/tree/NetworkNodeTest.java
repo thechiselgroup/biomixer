@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.vertical_tree;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.tree;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -26,13 +26,13 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.Tree;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeFactory;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedNodeNetwork;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.NetworkBuilder;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.NetworkNode;
 
-public class TreeNodeTest extends AbstractLayoutAlgorithmTest {
+public class NetworkNodeTest extends AbstractLayoutAlgorithmTest {
 
-    private TreeFactory treeFactory = new TreeFactory();
+    private NetworkBuilder treeFactory = new NetworkBuilder();
 
     @Test
     public void getMaxDistanceToChild() {
@@ -40,11 +40,11 @@ public class TreeNodeTest extends AbstractLayoutAlgorithmTest {
         LayoutNode[] nodes = createNodes(2);
         createArc(nodes[1], nodes[0]);
 
-        Tree tree = getTree(graph);
-        TreeNode treenodes0 = getTreeNode(nodes[0], tree);
-        TreeNode treenodes1 = getTreeNode(nodes[1], tree);
+        DirectedNodeNetwork network = getNetwork(graph);
+        NetworkNode networkNodes0 = getNetworkNode(nodes[0], network);
+        NetworkNode networkNodes1 = getNetworkNode(nodes[1], network);
 
-        assertThat(treenodes0.getMaxDistance(treenodes1), equalTo(1));
+        assertThat(networkNodes0.getMaxDistance(networkNodes1), equalTo(1));
     }
 
     @Test
@@ -52,10 +52,10 @@ public class TreeNodeTest extends AbstractLayoutAlgorithmTest {
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(1);
 
-        Tree tree = getTree(graph);
-        TreeNode treenodes0 = getTreeNode(nodes[0], tree);
+        DirectedNodeNetwork network = getNetwork(graph);
+        NetworkNode networkNode0 = getNetworkNode(nodes[0], network);
 
-        assertThat(treenodes0.getMaxDistance(treenodes0), equalTo(0));
+        assertThat(networkNode0.getMaxDistance(networkNode0), equalTo(0));
     }
 
     @Test
@@ -68,24 +68,24 @@ public class TreeNodeTest extends AbstractLayoutAlgorithmTest {
         createArc(nodes[1], nodes[0]);
         createArc(nodes[3], nodes[0]);
 
-        Tree tree = getTree(graph);
-        TreeNode treenodes0 = getTreeNode(nodes[0], tree);
-        TreeNode treenodes4 = getTreeNode(nodes[4], tree);
+        DirectedNodeNetwork network = getNetwork(graph);
+        NetworkNode networkNode0 = getNetworkNode(nodes[0], network);
+        NetworkNode networkNode4 = getNetworkNode(nodes[4], network);
 
-        assertThat(treenodes0.getMaxDistance(treenodes4), equalTo(3));
+        assertThat(networkNode0.getMaxDistance(networkNode4), equalTo(3));
     }
 
-    private Tree getTree(LayoutGraph graph) {
-        List<Tree> trees = treeFactory.getTrees(graph);
-        assert trees.size() == 1;
-        return trees.get(0);
+    private DirectedNodeNetwork getNetwork(LayoutGraph graph) {
+        List<DirectedNodeNetwork> networks = treeFactory.getNetworks(graph);
+        assert networks.size() == 1;
+        return networks.get(0);
     }
 
-    private TreeNode getTreeNode(LayoutNode node, Tree tree) {
-        Set<TreeNode> allNodes = tree.getAllNodes();
-        for (TreeNode treeNode : allNodes) {
-            if (treeNode.getLayoutNode().equals(node)) {
-                return treeNode;
+    private NetworkNode getNetworkNode(LayoutNode node, DirectedNodeNetwork network) {
+        Set<NetworkNode> allNodes = network.getAllNodes();
+        for (NetworkNode networkNode : allNodes) {
+            if (networkNode.getLayoutNode().equals(node)) {
+                return networkNode;
             }
         }
         Assert.fail();

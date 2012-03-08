@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class VerticalTreeLayoutComputation extends AbstractLayoutComputation {
+public class HorizontalTreeLayoutComputation extends AbstractLayoutComputation {
 
-    public VerticalTreeLayoutComputation(LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler) {
+    public HorizontalTreeLayoutComputation(LayoutGraph graph,
+            Executor executor, ErrorHandler errorHandler) {
         super(graph, executor, errorHandler);
     }
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
-        List<Tree> treesOnGraph = new TreeFactory().getTrees(graph);
+        List<DirectedNodeNetwork> treesOnGraph = new NetworkBuilder().getNetworks(graph);
         assert treesOnGraph.size() >= 1;
 
         BoundsDouble graphBounds = graph.getBounds();
@@ -41,48 +42,39 @@ public class VerticalTreeLayoutComputation extends AbstractLayoutComputation {
         // XXX if there is more than one tree this will give them each the same
         // width to work with. It might be better to take into account the
         // widths of the trees as well.
-        double availableWidthForEachTree = graphBounds.getWidth()
+        double availableHeightForEachTree = graphBounds.getHeight()
                 / treesOnGraph.size();
 
         for (int i = 0; i < treesOnGraph.size(); i++) {
-            Tree tree = treesOnGraph.get(i);
+            DirectedNodeNetwork tree = treesOnGraph.get(i);
 
-            double verticalSpacing = graphBounds.getHeight()
-                    / (tree.getHeight() + 1);
-            double currentY = verticalSpacing;
+            double horizontalSpacing = graphBounds.getWidth()
+                    / (tree.getNumberOfNodesOnLongestPath() + 1);
+            double currentX = horizontalSpacing;
 
-            for (int j = 0; j < tree.getHeight(); j++) {
-                List<TreeNode> nodesAtDepth = tree.getNodesAtDepth(j);
+            for (int j = tree.getNumberOfNodesOnLongestPath() - 1; j >= 0; j--) {
+                List<NetworkNode> nodesAtDepth = tree.getNodesAtDistanceFromRoot(j);
 
-                double horizontalSpacing = availableWidthForEachTree
+                double verticalSpacing = availableHeightForEachTree
                         / (nodesAtDepth.size() + 1);
 
-                double currentX = i * availableWidthForEachTree
-                        + horizontalSpacing;
-                for (TreeNode treeNode : nodesAtDepth) {
+                double currentY = i * availableHeightForEachTree
+                        + verticalSpacing;
+                for (NetworkNode treeNode : nodesAtDepth) {
                     LayoutNode layoutNode = treeNode.getLayoutNode();
-                    layoutNode.setX(getLeftXForCentreAt(currentX, layoutNode));
-                    layoutNode.setY(getTopYForCentreAt(currentY, layoutNode));
-                    currentX += horizontalSpacing;
+                    PointDouble topLeft = getTopLeftForCentreAt(currentX,
+                            currentY, layoutNode);
+                    layoutNode.setPosition(topLeft.getX(), topLeft.getY());
+                    currentY += verticalSpacing;
                 }
 
-                currentY += verticalSpacing;
+                currentX += horizontalSpacing;
             }
 
         }
 
         // this is not a continuous layout, it only needs the one iteration
         return false;
-    }
-
-    // Might be useful for other layouts such as horizontal tree
-    private double getLeftXForCentreAt(double x, LayoutNode node) {
-        return x - node.getSize().getWidth() / 2;
-    }
-
-    // Might be useful for other layouts such as horizontal tree
-    private double getTopYForCentreAt(double y, LayoutNode node) {
-        return y - node.getSize().getHeight() / 2;
     }
 
 }

@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.vertical_tree;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.tree;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.internal.matchers.TypeSafeMatcher;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.TreeNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.NetworkNode;
 
-public class TreeNodeMatcher extends TypeSafeMatcher<TreeNode> {
+public class NetworkNodeMatcher extends TypeSafeMatcher<NetworkNode> {
 
-    public static <T> Matcher<TreeNode> equalsTree(LayoutNode node,
-            int numberOfDescendants, Matcher<TreeNode>... matchers) {
-        return new TreeNodeMatcher(node, numberOfDescendants, matchers);
+    public static <T> Matcher<NetworkNode> equalsNetwork(LayoutNode node,
+            int numberOfDescendants, Matcher<NetworkNode>... matchers) {
+        return new NetworkNodeMatcher(node, numberOfDescendants, matchers);
     }
 
     private final LayoutNode node;
 
     private final int numberOfDescendants;
 
-    private final Matcher<TreeNode>[] treeNodeMatchers;
+    private final Matcher<NetworkNode>[] networkNodeMatchers;
 
-    public TreeNodeMatcher(LayoutNode node, int numberOfDescendants,
-            Matcher<TreeNode>... matchers) {
+    public NetworkNodeMatcher(LayoutNode node, int numberOfDescendants,
+            Matcher<NetworkNode>... matchers) {
         this.node = node;
         this.numberOfDescendants = numberOfDescendants;
-        this.treeNodeMatchers = matchers;
+        this.networkNodeMatchers = matchers;
     }
 
     /**
@@ -49,11 +49,11 @@ public class TreeNodeMatcher extends TypeSafeMatcher<TreeNode> {
      *         cannot be any extra matchers left over. The order of the children
      *         and matchers is not important.
      */
-    private boolean allChildrenExactlyMatch(TreeNode treeNode) {
-        if (treeNode.getChildren().size() != treeNodeMatchers.length) {
+    private boolean allChildrenExactlyMatch(NetworkNode treeNode) {
+        if (treeNode.getChildren().size() != networkNodeMatchers.length) {
             return false;
         }
-        for (TreeNode childTreeNode : treeNode.getChildren()) {
+        for (NetworkNode childTreeNode : treeNode.getChildren()) {
             // one of the matchers must match it
             if (!childHasMatch(childTreeNode)) {
                 return false;
@@ -62,8 +62,8 @@ public class TreeNodeMatcher extends TypeSafeMatcher<TreeNode> {
         return true;
     }
 
-    private boolean childHasMatch(TreeNode childTreeNode) {
-        for (Matcher<TreeNode> matcher : treeNodeMatchers) {
+    private boolean childHasMatch(NetworkNode childTreeNode) {
+        for (Matcher<NetworkNode> matcher : networkNodeMatchers) {
             if (matcher.matches(childTreeNode)) {
                 return true;
             }
@@ -79,9 +79,9 @@ public class TreeNodeMatcher extends TypeSafeMatcher<TreeNode> {
     }
 
     @Override
-    public boolean matchesSafely(TreeNode treeNode) {
-        return (node.equals(treeNode.getLayoutNode())
-                && treeNode.getNumberOfDescendants() == numberOfDescendants && allChildrenExactlyMatch(treeNode));
+    public boolean matchesSafely(NetworkNode networkNode) {
+        return (node.equals(networkNode.getLayoutNode())
+                && networkNode.getNumberOfDescendants() == numberOfDescendants && allChildrenExactlyMatch(networkNode));
 
     }
 }

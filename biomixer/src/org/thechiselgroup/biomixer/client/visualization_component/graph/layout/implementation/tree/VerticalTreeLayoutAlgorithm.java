@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
 public class VerticalTreeLayoutAlgorithm implements LayoutAlgorithm {
 
@@ -34,7 +35,7 @@ public class VerticalTreeLayoutAlgorithm implements LayoutAlgorithm {
 
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
-        VerticalTreeLayoutComputation computation = new VerticalTreeLayoutComputation(
+        AbstractLayoutComputation computation = new VerticalTreeLayoutComputation(
                 graph, executor, errorHandler);
         computation.run();
         return computation;

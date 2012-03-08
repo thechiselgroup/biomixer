@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.vertical_tree;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.tree;
 
 import static org.junit.Assert.assertFalse;
 
@@ -23,7 +23,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.A
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.vertical_tree.VerticalTreeLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
 public class VerticalTreeLayoutAlgorithmTest extends
         AbstractLayoutAlgorithmTest {
