@@ -31,6 +31,7 @@ import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
@@ -53,10 +54,12 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
     private WindowContentProducer windowContentProducer;
 
     @Inject
-    private ErrorHandler errorHandler;
+    protected ErrorHandler errorHandler;
 
     @Inject
     private DelayedExecutor executor;
+
+    protected LayoutAlgorithm layoutAlgorithm;
 
     private void doLoadData(final DefaultView view, final String ontologyId,
             final String conceptFullId) {
@@ -122,7 +125,7 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
             @Override
             public void run() {
                 view.adaptTo(GraphLayoutSupport.class).runLayout(
-                        new HorizontalTreeLayoutAlgorithm(errorHandler));
+                        layoutAlgorithm);
             }
         }, 50);
     }
@@ -152,7 +155,12 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
         conceptFullId = UriUtils.decodeURIComponent(conceptFullId);
         String ontologyId = windowLocation.getParameter("virtual_ontology_id");
 
+        setLayoutAlgorithm();
         loadData((DefaultView) graphView, ontologyId, conceptFullId);
 
+    }
+
+    protected void setLayoutAlgorithm() {
+        this.layoutAlgorithm = new HorizontalTreeLayoutAlgorithm(errorHandler);
     }
 }

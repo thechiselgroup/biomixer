@@ -31,4 +31,9 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
         registerLoader(loader);
     }
 
+    @Inject
+    private void setTestLayoutLoader(TestLayoutLoader loader) {
+        registerLoader(loader);
+    }
+
 }
