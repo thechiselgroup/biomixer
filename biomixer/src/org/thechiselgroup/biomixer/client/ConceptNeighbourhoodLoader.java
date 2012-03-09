@@ -15,31 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.util.UriUtils;
-import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
-import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
-import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
-import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
-import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
-import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
+public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
 
     public static final String EMBED_MODE = "concept_neighbourhood";
 
@@ -49,19 +37,8 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
     @Inject
     private ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService;
 
-    @Inject
-    private WindowContentProducer windowContentProducer;
-
-    @Inject
-    private ErrorHandler errorHandler;
-
-    @Inject
-    private DelayedExecutor executor;
-
-    private void doLoadData(final DefaultView view, final String ontologyId,
-            final String conceptFullId) {
-
-        termService.getBasicInformation(ontologyId, conceptFullId,
+    private void doLoadData() {
+        termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
                     @Override
                     protected void runOnSuccess(final Resource targetResource)
@@ -70,8 +47,8 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                         resourceSet.add(targetResource);
                         conceptNeighbourhoodService
                                 .getNeighbourhood(
-                                        ontologyId,
-                                        conceptFullId,
+                                        virtualOntologyId,
+                                        fullConceptId,
                                         new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                                                 errorHandler) {
 
@@ -85,10 +62,10 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                                                 resourceSet
                                                         .addAll(targetNeighbourhood
                                                                 .getResources());
-                                                view.getResourceModel()
+                                                graphView.getResourceModel()
                                                         .addResourceSet(
                                                                 resourceSet);
-                                                layout(view);
+                                                layout(graphView);
                                             }
 
                                             @Override
@@ -96,7 +73,7 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                                                     Throwable caught) {
                                                 return new Exception(
                                                         "Could not expand neighbourhood for "
-                                                                + conceptFullId,
+                                                                + fullConceptId,
                                                         caught);
                                             }
                                         });
@@ -106,7 +83,7 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
                     protected Throwable wrapException(Throwable caught) {
                         return new Exception(
                                 "Could not retrieve basic information for "
-                                        + conceptFullId, caught);
+                                        + fullConceptId, caught);
                     }
                 });
 
@@ -117,42 +94,21 @@ public class ConceptNeighbourhoodLoader implements EmbeddedViewLoader {
         return EMBED_MODE;
     }
 
-    private void layout(final DefaultView view) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                view.adaptTo(GraphLayoutSupport.class).runLayout(
-                        new CircleLayoutAlgorithm(errorHandler));
-            }
-        }, 50);
-    }
-
-    private void loadData(final DefaultView view, final String ontologyId,
-            final String conceptFullId) {
-
+    @Override
+    protected void loadData() {
         // XXX remove once proper view content display lifecycle is available
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(view, ontologyId, conceptFullId);
+                doLoadData();
             }
-        }, new ViewIsReadyCondition(view), 200);
+        }, new ViewIsReadyCondition(graphView), 200);
     }
 
     @Override
-    public void loadView(WindowLocation windowLocation,
-            AsyncCallback<View> callback) {
-
-        final View graphView = ((ViewWindowContent) windowContentProducer
-                .createWindowContent(Graph.ID)).getView();
-        graphView.init();
-        callback.onSuccess(graphView);
-
-        String conceptFullId = windowLocation.getParameter("full_concept_id");
-        conceptFullId = UriUtils.decodeURIComponent(conceptFullId);
-        String ontologyId = windowLocation.getParameter("virtual_ontology_id");
-
-        loadData((DefaultView) graphView, ontologyId, conceptFullId);
+    protected void setLayoutAlgorithm() {
+        this.layoutAlgorithm = new HorizontalTreeLayoutAlgorithm(errorHandler);
 
     }
+
 }
