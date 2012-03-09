@@ -22,6 +22,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
@@ -116,6 +117,17 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
     @Override
     public LayoutGraph getGraph() {
         return graph;
+    }
+
+    /**
+     * 
+     * @return the centre point of the graph
+     */
+    protected PointDouble getGraphCentre() {
+        BoundsDouble graphBounds = graph.getBounds();
+        double centreX = graphBounds.getLeftX() + graphBounds.getWidth() / 2;
+        double centreY = graphBounds.getTopY() + graphBounds.getHeight() / 2;
+        return new PointDouble(centreX, centreY);
     }
 
     /**

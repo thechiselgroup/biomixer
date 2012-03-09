@@ -15,8 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.mockito.Mock;
@@ -27,6 +26,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public abstract class AbstractLayoutAlgorithmTest {
 
+    private double delta = 0.1;
+
     @Mock
     protected ErrorHandler errorHandler;
 
@@ -34,19 +35,19 @@ public abstract class AbstractLayoutAlgorithmTest {
 
     protected void assertNodeHasCentre(double x, double y, LayoutNode node) {
         SizeDouble nodeSize = node.getSize();
-        assertThat(node.getX() + nodeSize.getWidth() / 2, equalTo(x));
-        assertThat(node.getY() + nodeSize.getHeight() / 2, equalTo(y));
+        assertEquals(node.getX() + nodeSize.getWidth() / 2, x, delta);
+        assertEquals(node.getY() + nodeSize.getHeight() / 2, y, delta);
     }
 
     protected void assertNodesHaveCentreX(double x, LayoutNode... nodes) {
         for (LayoutNode layoutNode : nodes) {
-            assertThat(getCentreX(layoutNode), equalTo(x));
+            assertEquals(getCentreX(layoutNode), x, delta);
         }
     }
 
     protected void assertNodesHaveCentreY(double y, LayoutNode... nodes) {
         for (LayoutNode layoutNode : nodes) {
-            assertThat(getCentreY(layoutNode), equalTo(y));
+            assertEquals(getCentreY(layoutNode), y, delta);
         }
     }
 
