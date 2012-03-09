@@ -15,23 +15,141 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
+import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+
+import com.google.inject.Inject;
+
 public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
+
+    public static final String EMBED_MODE = "mapping_neighbourhood";
+
+    @Inject
+    private TermServiceAsync termService;
+
+    @Inject
+    private MappingServiceAsync mappingService;
+
+    private void doLoadData() {
+        termService.getBasicInformation(virtualOntologyId, fullConceptId,
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
+                    @Override
+                    protected void runOnSuccess(final Resource targetResource)
+                            throws Exception {
+                        final ResourceSet resourceSet = new DefaultResourceSet();
+                        resourceSet.add(targetResource);
+                        mappingService
+                                .getMappings(
+                                        virtualOntologyId,
+                                        fullConceptId,
+                                        new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
+                                                errorHandler) {
+
+                                            @Override
+                                            protected void runOnSuccess(
+                                                    ResourceNeighbourhood mappingNeighbourhood)
+                                                    throws Exception {
+
+                                                targetResource
+                                                        .applyPartialProperties(mappingNeighbourhood
+                                                                .getPartialProperties());
+
+                                                for (Resource mappingResource : mappingNeighbourhood
+                                                        .getResources()) {
+                                                    String sourceUri = Mapping
+                                                            .getSource(mappingResource);
+                                                    String targetUri = Mapping
+                                                            .getTarget(mappingResource);
+
+                                                    final String otherUri = targetResource
+                                                            .getUri().equals(
+                                                                    sourceUri) ? targetUri
+                                                            : sourceUri;
+
+                                                    final String otherOntologyId = Concept
+                                                            .getOntologyId(otherUri);
+                                                    final String otherConceptId = Concept
+                                                            .getConceptId(otherUri);
+                                                    termService
+                                                            .getBasicInformation(
+                                                                    otherOntologyId,
+                                                                    otherConceptId,
+                                                                    new ErrorHandlingAsyncCallback<Resource>(
+                                                                            errorHandler) {
+                                                                        @Override
+                                                                        protected void runOnSuccess(
+                                                                                Resource result)
+                                                                                throws Exception {
+
+                                                                            resourceSet
+                                                                                    .add(result);
+                                                                            graphView
+                                                                                    .getResourceModel()
+                                                                                    .addResourceSet(
+                                                                                            resourceSet);
+                                                                            layout(graphView);
+                                                                        }
+
+                                                                        @Override
+                                                                        protected Throwable wrapException(
+                                                                                Throwable caught) {
+                                                                            return new Exception(
+                                                                                    "Could not get basic information for "
+                                                                                            + otherConceptId,
+                                                                                    caught);
+                                                                        }
+                                                                    });
+
+                                                }
+
+                                            }
+
+                                            @Override
+                                            protected Throwable wrapException(
+                                                    Throwable caught) {
+                                                return new Exception(
+                                                        "Could not expand mapping neighbourhood for "
+                                                                + fullConceptId,
+                                                        caught);
+                                            }
+
+                                        });
+                    }
+
+                    @Override
+                    protected Throwable wrapException(Throwable caught) {
+                        return new Exception(
+                                "Could not retrieve basic information for "
+                                        + fullConceptId, caught);
+                    }
+                });
+    }
 
     @Override
     public String getEmbedMode() {
-        return null;
+        return EMBED_MODE;
     }
 
     @Override
     protected void loadData() {
-        // TODO Auto-generated method stub
-
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                doLoadData();
+            }
+        }, new ViewIsReadyCondition(graphView), 200);
     }
 
     @Override
     protected void setLayoutAlgorithm() {
-        // TODO Auto-generated method stub
-
+        this.layoutAlgorithm = new CircleLayoutAlgorithm(errorHandler);
     }
 
 }

@@ -72,7 +72,7 @@ public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
                                             protected Throwable wrapException(
                                                     Throwable caught) {
                                                 return new Exception(
-                                                        "Could not expand neighbourhood for "
+                                                        "Could not expand concept neighbourhood for "
                                                                 + fullConceptId,
                                                         caught);
                                             }
