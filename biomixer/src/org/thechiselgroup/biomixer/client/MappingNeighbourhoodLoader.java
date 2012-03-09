@@ -45,6 +45,8 @@ public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
                             throws Exception {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
+
+                        // TODO move to MappedConceptsServiceAsyncImpl
                         mappingService
                                 .getMappings(
                                         virtualOntologyId,
