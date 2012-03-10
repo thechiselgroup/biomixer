@@ -31,16 +31,22 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     private static double horizontalPaddingPercent = 0.05;
 
-    public CircleLayoutComputation(LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler) {
+    private final double minAngle;
+
+    private final double maxAngle;
+
+    public CircleLayoutComputation(double minAngle, double maxAngle,
+            LayoutGraph graph, Executor executor, ErrorHandler errorHandler) {
         super(graph, executor, errorHandler);
+        this.minAngle = minAngle;
+        this.maxAngle = maxAngle;
     }
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
 
         List<LayoutNode> allNodes = graph.getAllNodes();
-        double angleBetweenNodes = 360.0 / allNodes.size();
+        double angleBetweenNodes = getAngleBetweenNodes(allNodes);
 
         // get radius
         BoundsDouble graphBounds = graph.getBounds();
@@ -59,7 +65,8 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
         for (int i = 0; i < allNodes.size(); i++) {
             LayoutNode layoutNode = allNodes.get(i);
 
-            double nodeAngleRadians = Math.toRadians(i * angleBetweenNodes);
+            double nodeAngleRadians = Math.toRadians(minAngle + i
+                    * angleBetweenNodes);
             double deltaXFromGraphCentre = radius * Math.sin(nodeAngleRadians);
             double deltaYFromGraphCentre = -radius * Math.cos(nodeAngleRadians);
 
@@ -73,6 +80,23 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
         // this is not a continuous layout
         return false;
+    }
+
+    private double getAngleBetweenNodes(List<LayoutNode> allNodes) {
+        double angleSpread = maxAngle - minAngle;
+        if (angleSpread < 360.0) {
+            /*
+             * place a node at both maxAngle and minAngle because they normally
+             * won't overlap
+             */
+            return angleSpread / (allNodes.size() - 1);
+        } else {
+            /*
+             * do not place a node at both maxAngle and minAngle becaues they
+             * definately will overlap
+             */
+            return angleSpread / allNodes.size();
+        }
     }
 
     private double getMaxNodeHeight(List<LayoutNode> nodes) {

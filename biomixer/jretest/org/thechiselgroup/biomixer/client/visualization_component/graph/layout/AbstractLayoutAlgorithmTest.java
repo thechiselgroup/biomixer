@@ -35,19 +35,19 @@ public abstract class AbstractLayoutAlgorithmTest {
 
     protected void assertNodeHasCentre(double x, double y, LayoutNode node) {
         SizeDouble nodeSize = node.getSize();
-        assertEquals(node.getX() + nodeSize.getWidth() / 2, x, delta);
-        assertEquals(node.getY() + nodeSize.getHeight() / 2, y, delta);
+        assertEquals(x, node.getX() + nodeSize.getWidth() / 2, delta);
+        assertEquals(y, node.getY() + nodeSize.getHeight() / 2, delta);
     }
 
     protected void assertNodesHaveCentreX(double x, LayoutNode... nodes) {
         for (LayoutNode layoutNode : nodes) {
-            assertEquals(getCentreX(layoutNode), x, delta);
+            assertEquals(x, getCentreX(layoutNode), delta);
         }
     }
 
     protected void assertNodesHaveCentreY(double y, LayoutNode... nodes) {
         for (LayoutNode layoutNode : nodes) {
-            assertEquals(getCentreY(layoutNode), y, delta);
+            assertEquals(y, getCentreY(layoutNode), delta);
         }
     }
 

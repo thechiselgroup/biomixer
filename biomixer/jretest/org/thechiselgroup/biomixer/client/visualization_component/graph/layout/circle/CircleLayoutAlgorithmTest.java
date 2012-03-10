@@ -53,4 +53,30 @@ public class CircleLayoutAlgorithmTest extends AbstractLayoutAlgorithmTest {
         underTest = new CircleLayoutAlgorithm(errorHandler);
     }
 
+    @Test
+    public void threeNodesEqualSizeInLeft180() {
+        underTest.setAngleRange(180.0, 360.0);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(3);
+
+        computeLayout(graph);
+
+        assertNodeHasCentre(200, 375, nodes[0]);
+        assertNodeHasCentre(25, 200, nodes[1]);
+        assertNodeHasCentre(200, 25, nodes[2]);
+    }
+
+    @Test
+    public void threeNodesEqualSizeInRight180() {
+        underTest.setAngleRange(0.0, 180.0);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(3);
+
+        computeLayout(graph);
+
+        assertNodeHasCentre(200, 25, nodes[0]);
+        assertNodeHasCentre(375, 200, nodes[1]);
+        assertNodeHasCentre(200, 375, nodes[2]);
+    }
+
 }

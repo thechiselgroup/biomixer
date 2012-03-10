@@ -29,6 +29,10 @@ import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
 
+    private static final double MIN_ANGLE = 0.0;
+
+    private static final double MAX_ANGLE = 180.0;
+
     public static final String EMBED_MODE = "mapping_neighbourhood";
 
     @Inject
@@ -96,7 +100,7 @@ public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
                                                                                     .getResourceModel()
                                                                                     .addResourceSet(
                                                                                             resourceSet);
-                                                                            layout(graphView);
+                                                                            layout();
                                                                         }
 
                                                                         @Override
@@ -151,7 +155,9 @@ public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
 
     @Override
     protected void setLayoutAlgorithm() {
-        this.layoutAlgorithm = new CircleLayoutAlgorithm(errorHandler);
+        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler);
+        layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
+        this.layoutAlgorithm = layout;
     }
 
 }

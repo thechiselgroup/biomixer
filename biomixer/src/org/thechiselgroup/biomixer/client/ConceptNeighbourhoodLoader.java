@@ -65,7 +65,7 @@ public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
                                                 graphView.getResourceModel()
                                                         .addResourceSet(
                                                                 resourceSet);
-                                                layout(graphView);
+                                                layout();
                                             }
 
                                             @Override

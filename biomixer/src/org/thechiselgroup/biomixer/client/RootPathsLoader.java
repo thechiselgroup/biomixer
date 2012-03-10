@@ -85,7 +85,7 @@ public class RootPathsLoader extends AbstractEmbedLoader {
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
                         // TODO automatic layout re-execution on add?
-                        layout(graphView);
+                        layout();
                     }
 
                     @Override
@@ -161,7 +161,7 @@ public class RootPathsLoader extends AbstractEmbedLoader {
 
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
-                        layout(graphView);
+                        layout();
 
                         for (String parentUri : resource
                                 .getUriListValue(Concept.PARENT_CONCEPTS)) {

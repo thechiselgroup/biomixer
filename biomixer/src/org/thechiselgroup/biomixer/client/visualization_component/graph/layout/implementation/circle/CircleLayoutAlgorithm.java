@@ -29,6 +29,10 @@ public class CircleLayoutAlgorithm implements LayoutAlgorithm {
 
     private final ErrorHandler errorHandler;
 
+    private double minAngle = 0.0;
+
+    private double maxAngle = 360.0;
+
     public CircleLayoutAlgorithm(ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
     }
@@ -36,9 +40,20 @@ public class CircleLayoutAlgorithm implements LayoutAlgorithm {
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         AbstractLayoutComputation computation = new CircleLayoutComputation(
-                graph, executor, errorHandler);
+                minAngle, maxAngle, graph, executor, errorHandler);
         computation.run();
         return computation;
+    }
+
+    public void setAngleRange(double angle1, double angle2) {
+        if (angle1 < angle2) {
+            minAngle = angle1;
+            maxAngle = angle2;
+        } else {
+            maxAngle = angle1;
+            minAngle = angle2;
+        }
+        assert maxAngle - minAngle <= 360.0;
     }
 
 }

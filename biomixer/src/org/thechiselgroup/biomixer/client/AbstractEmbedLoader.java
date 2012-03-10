@@ -58,12 +58,12 @@ public abstract class AbstractEmbedLoader implements EmbeddedViewLoader {
         this.graphView = (DefaultView) graphView;
     }
 
-    protected void layout(final DefaultView view) {
+    protected void layout() {
         assert layoutAlgorithm != null;
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                view.adaptTo(GraphLayoutSupport.class).runLayout(
+                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
                         layoutAlgorithm);
             }
         }, 50);
