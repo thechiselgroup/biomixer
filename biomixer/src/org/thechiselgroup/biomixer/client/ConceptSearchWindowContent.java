@@ -188,6 +188,15 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
                                 resourceSet);
 
                         deckPanel.showWidget(0);
+
+                        /*
+                         * Resizing the deck panel to minimum height of 400px to
+                         * ensure that results are visible.
+                         */
+                        int offsetHeight = deckPanel.getOffsetHeight();
+                        int offsetWidth = deckPanel.getOffsetWidth();
+                        deckPanel.setPixelSize(offsetWidth,
+                                offsetHeight > 400 ? offsetWidth : 400);
                         deckPanel.updateWindowSize();
 
                         resultView.getModel().setResolver(
