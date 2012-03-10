@@ -1,3 +1,10 @@
+/**
+ * No scrollbars on body.
+ */
+body, html {
+	overflow: hidden;
+}
+
 /*
  * Focus reset: no outlines around focused elements anymore - these
  * need to be defined manually.
