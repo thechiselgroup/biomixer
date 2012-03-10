@@ -45,6 +45,8 @@ public class ListBoxControl<T> implements IsWidget {
     // class invariant - must never be null.
     private List<T> values = new ArrayList<T>();
 
+    private List<VisibilityChangeHandler> visibilityChangeHandlers = new ArrayList<VisibilityChangeHandler>();
+
     private final Transformer<T, String> formatter;
 
     // TODO refactor: use handler registration / deregistration for
@@ -85,6 +87,14 @@ public class ListBoxControl<T> implements IsWidget {
         return presenter.asWidget();
     }
 
+    private void fireVisibilityChangeEvent(
+            VisibilityChangeEvent visibilityChangeEvent) {
+        for (VisibilityChangeHandler handler : visibilityChangeHandlers) {
+            handler.onVisibilityChange(visibilityChangeEvent);
+        }
+
+    }
+
     public int getLabelIndex(String label) {
         for (int i = 0; i < presenter.getItemCount(); i++) {
             if (presenter.getValue(i).equals(label)) {
@@ -114,6 +124,10 @@ public class ListBoxControl<T> implements IsWidget {
 
     public boolean isVisible() {
         return presenter.isVisible();
+    }
+
+    public void registerVisibilityChangeHandler(VisibilityChangeHandler handler) {
+        visibilityChangeHandlers.add(handler);
     }
 
     public void removeItem(T item) {
@@ -170,6 +184,6 @@ public class ListBoxControl<T> implements IsWidget {
 
     public void setVisible(boolean visible) {
         presenter.setVisible(visible);
+        fireVisibilityChangeEvent(new VisibilityChangeEvent(visible, this));
     }
-
 }

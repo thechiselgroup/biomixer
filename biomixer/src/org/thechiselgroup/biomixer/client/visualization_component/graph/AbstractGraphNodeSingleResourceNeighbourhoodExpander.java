@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -73,6 +74,18 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
 
     protected abstract String getErrorMessageWhenNeighbourhoodloadingFails(
             Resource resource);
+
+    protected String getOntologyInfoForErrorMessage(Resource resource) {
+        String ontologyName = (String) resource
+                .getValue(Concept.CONCEPT_ONTOLOGY_NAME);
+        if (ontologyName != null) {
+            return "(" + ontologyName + ")";
+        } else {
+            String virtualOntologyId = (String) resource
+                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+            return "(virtual ontology id: " + virtualOntologyId + ")";
+        }
+    }
 
     protected final Resource getSingleResource(VisualItem visualItem) {
         assert visualItem.getResources().size() == 1;

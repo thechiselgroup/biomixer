@@ -29,6 +29,8 @@ import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
 import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.VisibilityChangeEvent;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.VisibilityChangeHandler;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -178,6 +180,8 @@ public class DefaultView implements View {
         assert managedSlotMappingConfiguration != null;
         assert managedSlotMappingConfigurationPersistence != null;
         assert errorHandler != null;
+        assert disposeUtil != null;
+        assert errorListBoxControl != null;
 
         this.label = label;
         this.contentType = contentType;
@@ -193,6 +197,7 @@ public class DefaultView implements View {
         this.errorHandler = errorHandler;
         this.disposeUtil = disposeUtil;
         this.errorListBoxControl = errorListBoxControl;
+        registerErrorListBoxVisibilityChangeHandler();
     }
 
     @Override
@@ -374,6 +379,16 @@ public class DefaultView implements View {
     // XXX remove once content display lifecycle working
     public boolean isReady() {
         return contentDisplay.isReady();
+    }
+
+    private void registerErrorListBoxVisibilityChangeHandler() {
+        errorListBoxControl
+                .registerVisibilityChangeHandler(new VisibilityChangeHandler() {
+                    @Override
+                    public void onVisibilityChange(VisibilityChangeEvent event) {
+                        updateContentDisplaySize();
+                    }
+                });
     }
 
     @Override

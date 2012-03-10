@@ -161,11 +161,10 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
 
         searchService.searchConcepts(searchTerm,
                 new AsyncCallback<Set<Resource>>() {
-                    // TODO better failure handling
                     @Override
                     public void onFailure(Throwable caught) {
-                        infoLabel.setText("Search failed: "
-                                + caught.getMessage());
+                        infoLabel.setText("Search failed for '" + searchTerm
+                                + "'");
                         deckPanel.updateWindowSize();
                     }
 
