@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.embed;
 
+import org.thechiselgroup.biomixer.client.core.util.collections.SingleItemIterable;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
@@ -32,12 +33,12 @@ public class StoredViewEmbedLoader implements EmbeddedViewLoader {
     private ViewLoader viewLoader;
 
     @Override
-    public String getEmbedMode() {
-        return EMBED_MODE;
+    public Iterable<String> getEmbedModes() {
+        return new SingleItemIterable<String>(EMBED_MODE);
     }
 
     @Override
-    public void loadView(WindowLocation windowLocation,
+    public void loadView(WindowLocation windowLocation, String embedMode,
             final AsyncCallback<View> callback) {
 
         String viewIdString = windowLocation

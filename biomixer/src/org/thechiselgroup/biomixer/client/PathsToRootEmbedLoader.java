@@ -20,16 +20,19 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
 import com.google.inject.Inject;
 
-public class RootPathsLoader extends AbstractEmbedLoader {
+public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
     public static final String EMBED_MODE = "paths_to_root";
 
@@ -45,7 +48,13 @@ public class RootPathsLoader extends AbstractEmbedLoader {
     @Inject
     private OntologyStatusServiceAsync ontologyStatusService;
 
-    private void doLoadHierarchyData(final String shortConceptId) {
+    @Inject
+    public PathsToRootEmbedLoader() {
+        super("path to root", EMBED_MODE);
+    }
+
+    private void doLoadHierarchyData(final String virtualOntologyId,
+            final String shortConceptId, final View graphView) {
 
         hierarchyPathService.findHierarchyToRoot(virtualOntologyId,
                 shortConceptId, new ErrorHandlingAsyncCallback<Set<String>>(
@@ -56,7 +65,7 @@ public class RootPathsLoader extends AbstractEmbedLoader {
                             throws Exception {
 
                         for (String shortId : shortIdsInHierarchy) {
-                            loadConcept(shortId);
+                            loadConcept(virtualOntologyId, shortId, graphView);
                         }
                     }
 
@@ -69,12 +78,22 @@ public class RootPathsLoader extends AbstractEmbedLoader {
                 });
     }
 
-    @Override
-    public String getEmbedMode() {
-        return EMBED_MODE;
+    protected LayoutAlgorithm getLayoutAlgorithm() {
+        return new VerticalTreeLayoutAlgorithm(errorHandler);
     }
 
-    private void loadConcept(final String conceptShortId) {
+    protected void layout(final View graphView) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
+                        getLayoutAlgorithm());
+            }
+        }, 50);
+    }
+
+    private void loadConcept(final String virtualOntologyId,
+            final String conceptShortId, final View graphView) {
 
         conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
                 conceptShortId, new ErrorHandlingAsyncCallback<Resource>(
@@ -85,7 +104,7 @@ public class RootPathsLoader extends AbstractEmbedLoader {
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
                         // TODO automatic layout re-execution on add?
-                        layout();
+                        layout(graphView);
                     }
 
                     @Override
@@ -99,7 +118,9 @@ public class RootPathsLoader extends AbstractEmbedLoader {
     }
 
     @Override
-    protected void loadData() {
+    protected void loadData(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
+
         ontologyStatusService
                 .getAvailableOntologies(new ErrorHandlingAsyncCallback<List<String>>(
                         errorHandler) {
@@ -111,9 +132,11 @@ public class RootPathsLoader extends AbstractEmbedLoader {
 
                         if (availableVirtualOntologyIds
                                 .contains(virtualOntologyId)) {
-                            loadUsingHierarchyService();
+                            loadUsingHierarchyService(virtualOntologyId,
+                                    fullConceptId, graphView);
                         } else {
-                            loadUsingRecursiveTermService();
+                            loadUsingRecursiveTermService(virtualOntologyId,
+                                    fullConceptId, graphView);
                         }
 
                     }
@@ -129,17 +152,20 @@ public class RootPathsLoader extends AbstractEmbedLoader {
 
     }
 
-    private void loadHierarchyData(final String shortConceptId) {
+    private void loadHierarchyData(final String virtualOntologyId,
+            final String shortConceptId, final View graphView) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadHierarchyData(shortConceptId);
+                doLoadHierarchyData(virtualOntologyId, shortConceptId,
+                        graphView);
             }
         }, new ViewIsReadyCondition(graphView), 50);
     }
 
-    private void loadTerm(final String fullConceptId) {
+    private void loadTerm(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
 
         final String conceptUri = Concept.toConceptURI(virtualOntologyId,
                 fullConceptId);
@@ -161,14 +187,15 @@ public class RootPathsLoader extends AbstractEmbedLoader {
 
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
-                        layout();
+                        layout(graphView);
 
                         for (String parentUri : resource
                                 .getUriListValue(Concept.PARENT_CONCEPTS)) {
 
                             String parentFullConceptId = Concept
                                     .getConceptId(parentUri);
-                            loadTerm(parentFullConceptId);
+                            loadTerm(virtualOntologyId, parentFullConceptId,
+                                    graphView);
                         }
                     }
 
@@ -181,7 +208,8 @@ public class RootPathsLoader extends AbstractEmbedLoader {
                 });
     }
 
-    private void loadUsingHierarchyService() {
+    private void loadUsingHierarchyService(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
 
         // need to look up short id since that is what the hierarchy service
         // requires as a parameter
@@ -194,7 +222,7 @@ public class RootPathsLoader extends AbstractEmbedLoader {
 
                         String shortId = (String) result
                                 .getValue(Concept.SHORT_ID);
-                        loadHierarchyData(shortId);
+                        loadHierarchyData(virtualOntologyId, shortId, graphView);
                     }
 
                     @Override
@@ -207,19 +235,15 @@ public class RootPathsLoader extends AbstractEmbedLoader {
                 });
     }
 
-    private void loadUsingRecursiveTermService() {
+    private void loadUsingRecursiveTermService(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                loadTerm(fullConceptId);
+                loadTerm(virtualOntologyId, fullConceptId, graphView);
             }
         }, new ViewIsReadyCondition(graphView), 50);
-    }
-
-    @Override
-    protected void setLayoutAlgorithm() {
-        this.layoutAlgorithm = new VerticalTreeLayoutAlgorithm(errorHandler);
     }
 
 }

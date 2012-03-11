@@ -60,35 +60,39 @@ public class EmbedInitializer implements ApplicationInitializer {
         // if there is good error handling in choosel entry point we dont need
         // this
 
-        String embedMode = windowLocation.getParameter(EMBED_MODE_PARAMETER);
+        loadEmbed(windowLocation.getParameter(EMBED_MODE_PARAMETER));
+    }
+
+    protected void loadEmbed(String embedMode) {
         if (!embedLoaders.containsKey(embedMode)) {
             embedContainer.setInfoText("Embed mode '" + embedMode
                     + "' is invalid.");
             return;
         }
 
-        load(embedLoaders.get(embedMode));
-    }
+        EmbeddedViewLoader embeddedViewLoader = embedLoaders.get(embedMode);
 
-    private void load(EmbeddedViewLoader embeddedViewLoader) {
         embedContainer.setInfoText("Loading...");
-        embeddedViewLoader.loadView(windowLocation, new AsyncCallback<View>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                loggingErrorHandler.handleError(caught);
-                embedContainer.setInfoText(caught.getMessage());
-            }
+        embeddedViewLoader.loadView(windowLocation, embedMode,
+                new AsyncCallback<View>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        loggingErrorHandler.handleError(caught);
+                        embedContainer.setInfoText(caught.getMessage());
+                    }
 
-            @Override
-            public void onSuccess(View result) {
-                embedContainer.setWidget(result.asWidget());
-            }
-        });
+                    @Override
+                    public void onSuccess(View result) {
+                        embedContainer.setWidget(result.asWidget());
+                    }
+                });
     }
 
     protected void registerLoader(EmbeddedViewLoader loader) {
         assert loader != null;
-        embedLoaders.put(loader.getEmbedMode(), loader);
+        for (String embedMode : loader.getEmbedModes()) {
+            embedLoaders.put(embedMode, loader);
+        }
     }
 
     @SuppressWarnings("unused")

@@ -23,11 +23,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface EmbeddedViewLoader {
 
     /**
-     * @return value that needs to be set as
+     * @return values that needs to be set as
      *         {@link EmbedInitializer#EMBED_MODE_PARAMETER} to use this loader.
      */
-    String getEmbedMode();
+    Iterable<String> getEmbedModes();
 
-    void loadView(WindowLocation windowLocation, AsyncCallback<View> callback);
+    void loadView(WindowLocation windowLocation, String embedMode,
+            AsyncCallback<View> callback);
 
 }

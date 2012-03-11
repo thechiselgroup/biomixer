@@ -19,15 +19,18 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsync
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
 import com.google.inject.Inject;
 
-public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
+public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     private static final double MIN_ANGLE = 0.0;
 
@@ -41,7 +44,14 @@ public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
     @Inject
     private MappingServiceAsync mappingService;
 
-    private void doLoadData() {
+    @Inject
+    public MappingNeighbourhoodLoader() {
+        super("mappings neighbourhood", EMBED_MODE);
+    }
+
+    private void doLoadData(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
+
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
                     @Override
@@ -100,7 +110,7 @@ public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
                                                                                     .getResourceModel()
                                                                                     .addResourceSet(
                                                                                             resourceSet);
-                                                                            layout();
+                                                                            layout(graphView);
                                                                         }
 
                                                                         @Override
@@ -138,26 +148,32 @@ public class MappingNeighbourhoodLoader extends AbstractEmbedLoader {
                 });
     }
 
-    @Override
-    public String getEmbedMode() {
-        return EMBED_MODE;
+    protected LayoutAlgorithm getLayoutAlgorithm() {
+        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler);
+        layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
+        return layout;
     }
 
-    @Override
-    protected void loadData() {
+    protected void layout(final View graphView) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData();
+                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
+                        getLayoutAlgorithm());
             }
-        }, new ViewIsReadyCondition(graphView), 200);
+        }, 50);
     }
 
     @Override
-    protected void setLayoutAlgorithm() {
-        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler);
-        layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
-        this.layoutAlgorithm = layout;
+    protected void loadData(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                doLoadData(virtualOntologyId, fullConceptId, graphView);
+            }
+        }, new ViewIsReadyCondition(graphView), 200);
     }
 
 }

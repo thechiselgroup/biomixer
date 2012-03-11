@@ -47,6 +47,8 @@ public interface View extends Adaptable, IsWidget, Initializable, Disposable,
 
     SelectionModel getSelectionModel();
 
+    boolean isReady();
+
     void setLabel(String label);
 
 }

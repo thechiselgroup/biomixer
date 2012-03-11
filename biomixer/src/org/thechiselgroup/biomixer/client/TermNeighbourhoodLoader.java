@@ -19,15 +19,18 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsync
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
 import com.google.inject.Inject;
 
-public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
+public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     public static final String EMBED_MODE = "concept_neighbourhood";
 
@@ -37,7 +40,13 @@ public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
     @Inject
     private ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService;
 
-    private void doLoadData() {
+    @Inject
+    public TermNeighbourhoodLoader() {
+        super("term neighbourhood", EMBED_MODE);
+    }
+
+    private void doLoadData(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
                     @Override
@@ -65,7 +74,7 @@ public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
                                                 graphView.getResourceModel()
                                                         .addResourceSet(
                                                                 resourceSet);
-                                                layout();
+                                                layout(graphView);
                                             }
 
                                             @Override
@@ -89,26 +98,30 @@ public class ConceptNeighbourhoodLoader extends AbstractEmbedLoader {
 
     }
 
-    @Override
-    public String getEmbedMode() {
-        return EMBED_MODE;
+    protected LayoutAlgorithm getLayoutAlgorithm() {
+        return new HorizontalTreeLayoutAlgorithm(errorHandler);
+    }
+
+    protected void layout(final View graphView) {
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
+                        getLayoutAlgorithm());
+            }
+        }, 50);
     }
 
     @Override
-    protected void loadData() {
+    protected void loadData(final String virtualOntologyId,
+            final String fullConceptId, final View graphView) {
         // XXX remove once proper view content display lifecycle is available
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData();
+                doLoadData(virtualOntologyId, fullConceptId, graphView);
             }
         }, new ViewIsReadyCondition(graphView), 200);
-    }
-
-    @Override
-    protected void setLayoutAlgorithm() {
-        this.layoutAlgorithm = new HorizontalTreeLayoutAlgorithm(errorHandler);
-
     }
 
 }
