@@ -152,7 +152,6 @@ public class DefaultView implements View {
             ViewContentDisplay contentDisplay,
             String label,
             String contentType,
-            List<ConfigurationBarExtension> configurationBarExtensions,
             VisualMappingsControl visualMappingsControl,
             LightweightCollection<SidePanelSection> sidePanelSections,
             VisualizationModel visualizationModel,

@@ -260,9 +260,6 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         DefaultSelectionModel selectionModel = new DefaultSelectionModel(
                 selectionModelLabelFactory, resourceSetFactory);
 
-        List<ConfigurationBarExtension> configurationBarExtensions = createConfigurationBarExtensions(
-                resourceModel, selectionModel);
-
         Map<Slot, VisualItemValueResolver> fixedSlotResolvers = viewContentDisplayConfiguration
                 .getFixedSlotResolvers(contentType);
 
@@ -335,11 +332,15 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                         new GwtDateTimeFormatFactory(), errorHandler);
 
         DefaultView view = new DefaultView(contentDisplay, label, contentType,
-                configurationBarExtensions, visualMappingsControl,
-                sidePanelSections, visualizationModel, resourceModel,
-                selectionModel, managedConfiguration,
+                visualMappingsControl, sidePanelSections, visualizationModel,
+                resourceModel, selectionModel, managedConfiguration,
                 slotMappingConfigurationPersistence, disposeUtil,
                 listBoxControl);
+
+        for (ConfigurationBarExtension extension : createConfigurationBarExtensions(
+                resourceModel, selectionModel)) {
+            view.addConfigurationBarExtension(extension);
+        }
 
         for (ViewPart viewPart : viewParts) {
             viewPart.afterViewCreation(view);
