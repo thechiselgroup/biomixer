@@ -51,8 +51,8 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
-import org.thechiselgroup.biomixer.client.core.visualization.PresenterInCenterRightViewTopBarExtension;
-import org.thechiselgroup.biomixer.client.core.visualization.PresenterLeftViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.CenterRightViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.HighlightingVisualItemBehavior;
@@ -179,7 +179,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private ViewTopBarExtension createResourceModelPresenterExtension(
             ResourceModel resourceModel) {
 
-        return new PresenterLeftViewTopBarExtension(
+        return new LeftViewTopBarExtension(
                 new DefaultResourceModelPresenter(
                         new ResourceSetAvatarResourceSetsPresenter(
                                 allResourcesDragAvatarFactory),
@@ -190,7 +190,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private ViewTopBarExtension createSelectionModelPresenterExtension(
             DefaultSelectionModel selectionModel) {
 
-        return new PresenterInCenterRightViewTopBarExtension(
+        return new CenterRightViewTopBarExtension(
                 new DefaultSelectionModelPresenter(
                         new ResourceSetAvatarResourceSetsPresenter(
                                 dropTargetFactory),

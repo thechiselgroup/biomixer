@@ -91,10 +91,10 @@ public class DefaultViewTest {
                 mock(ListBoxControl.class));
 
         underTest
-                .addTopBarExtension(new PresenterLeftViewTopBarExtension(
+                .addTopBarExtension(new LeftViewTopBarExtension(
                         resourceModelPresenter));
         underTest
-                .addTopBarExtension(new PresenterInCenterRightViewTopBarExtension(
+                .addTopBarExtension(new CenterRightViewTopBarExtension(
                         selectionModelPresenter));
     }
 }

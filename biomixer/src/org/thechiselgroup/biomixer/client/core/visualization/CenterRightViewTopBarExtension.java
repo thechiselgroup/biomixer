@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2011 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -15,12 +15,22 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization;
 
-import org.thechiselgroup.biomixer.client.core.util.Disposable;
-
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Widget;
 
-public interface ViewTopBarExtension extends Disposable {
+public class CenterRightViewTopBarExtension extends
+        AbstractIsWidgetTopBarExtension {
 
-    void init(DockPanel topBar);
+    public CenterRightViewTopBarExtension(IsWidget widget) {
+        super(widget);
+    }
 
+    @Override
+    protected void addWidgetToTopBar(Widget realWidget, DockPanel topBar) {
+        topBar.add(realWidget, DockPanel.CENTER);
+        topBar.setCellHorizontalAlignment(realWidget, HasAlignment.ALIGN_RIGHT);
+        topBar.setCellWidth(realWidget, "100%"); // eats up all
+    }
 }

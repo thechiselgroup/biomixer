@@ -15,34 +15,40 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization;
 
-import org.thechiselgroup.biomixer.client.core.ui.Presenter;
+import org.thechiselgroup.biomixer.client.core.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.util.Initializable;
 
 import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
-public class PresenterInCenterRightViewTopBarExtension implements
+public abstract class AbstractIsWidgetTopBarExtension implements
         ViewTopBarExtension {
 
-    private final Presenter presenter;
+    protected final IsWidget widget;
 
-    public PresenterInCenterRightViewTopBarExtension(Presenter presenter) {
-        this.presenter = presenter;
+    public AbstractIsWidgetTopBarExtension(IsWidget widget) {
+        assert widget != null;
+        this.widget = widget;
     }
+
+    protected abstract void addWidgetToTopBar(Widget realWidget,
+            DockPanel topBar);
 
     @Override
     public void dispose() {
-        presenter.dispose();
+        if (widget instanceof Disposable) {
+            ((Disposable) widget).dispose();
+        }
     }
 
     @Override
-    public void init(DockPanel configurationBar) {
-        presenter.init();
+    public void init(DockPanel topBar) {
+        if (widget instanceof Initializable) {
+            ((Initializable) widget).init();
+        }
 
-        Widget widget = presenter.asWidget();
-        configurationBar.add(widget, DockPanel.CENTER);
-        configurationBar.setCellHorizontalAlignment(widget,
-                HasAlignment.ALIGN_RIGHT);
-        configurationBar.setCellWidth(widget, "100%"); // eats up all
+        addWidgetToTopBar(widget.asWidget(), topBar);
     }
+
 }
