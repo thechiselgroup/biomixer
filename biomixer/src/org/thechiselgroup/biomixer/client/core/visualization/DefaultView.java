@@ -92,10 +92,9 @@ public class DefaultView implements View {
 
     private static final String CSS_VIEW_ERROR_LIST_BOX = "view-errorListBox";
 
-    // TODO rename
-    private DockPanel configurationBar;
+    private DockPanel topBar;
 
-    private List<ConfigurationBarExtension> configurationBarExtensions = new ArrayList<ConfigurationBarExtension>();
+    private List<ViewTopBarExtension> topBarExtensions = new ArrayList<ViewTopBarExtension>();
 
     private StackPanel sidePanel;
 
@@ -165,7 +164,6 @@ public class DefaultView implements View {
         assert label != null;
         assert contentType != null;
         assert contentDisplay != null;
-        assert configurationBarExtensions != null;
         assert sidePanelSections != null;
         assert visualizationModel != null;
         assert resourceModel != null;
@@ -181,7 +179,6 @@ public class DefaultView implements View {
         this.sidePanelSections = sidePanelSections;
         this.visualizationModel = visualizationModel;
         this.selectionModel = selectionModel;
-        this.configurationBarExtensions = configurationBarExtensions;
         this.resourceModel = resourceModel;
         this.managedSlotMappingConfiguration = managedSlotMappingConfiguration;
         this.managedSlotMappingConfigurationPersistence = managedSlotMappingConfigurationPersistence;
@@ -196,11 +193,11 @@ public class DefaultView implements View {
     }
 
     @Override
-    public void addConfigurationBarExtension(ConfigurationBarExtension extension) {
+    public void addTopBarExtension(ViewTopBarExtension extension) {
         assert extension != null;
         assert !isInitialized;
 
-        this.configurationBarExtensions.add(extension);
+        this.topBarExtensions.add(extension);
     }
 
     @Override
@@ -210,10 +207,10 @@ public class DefaultView implements View {
 
     @Override
     public void dispose() {
-        for (ConfigurationBarExtension extension : configurationBarExtensions) {
+        for (ViewTopBarExtension extension : topBarExtensions) {
             disposeUtil.safelyDispose(extension);
         }
-        configurationBarExtensions = null;
+        topBarExtensions = null;
 
         visualizationModel = disposeUtil.safelyDispose(visualizationModel);
     }
@@ -285,12 +282,12 @@ public class DefaultView implements View {
     }
 
     private void initConfigurationPanelUI() {
-        configurationBar = new DockPanel();
-        configurationBar.setSize("100%", "");
-        configurationBar.setStyleName(CSS_VIEW_CONFIGURATION_PANEL);
+        topBar = new DockPanel();
+        topBar.setSize("100%", "");
+        topBar.setStyleName(CSS_VIEW_CONFIGURATION_PANEL);
 
-        for (ConfigurationBarExtension extension : configurationBarExtensions) {
-            extension.init(configurationBar);
+        for (ViewTopBarExtension extension : topBarExtensions) {
+            extension.init(topBar);
         }
         initSideBarExpander();
     }
@@ -323,9 +320,8 @@ public class DefaultView implements View {
             }
         });
 
-        configurationBar.add(expander, DockPanel.EAST);
-        configurationBar.setCellHorizontalAlignment(expander,
-                HasAlignment.ALIGN_RIGHT);
+        topBar.add(expander, DockPanel.EAST);
+        topBar.setCellHorizontalAlignment(expander, HasAlignment.ALIGN_RIGHT);
     }
 
     protected void initUI() {
@@ -339,7 +335,7 @@ public class DefaultView implements View {
 
         viewPanel.setSize("500px", "300px");
 
-        viewPanel.add(configurationBar, DockPanel.NORTH);
+        viewPanel.add(topBar, DockPanel.NORTH);
         viewPanel.add(contentDisplay.asWidget(), DockPanel.CENTER);
         viewPanel.add(sidePanel, DockPanel.EAST);
 
@@ -505,9 +501,9 @@ public class DefaultView implements View {
          */
 
         int targetHeight = errorListBoxControl.isVisible() ? height
-                - configurationBar.getOffsetHeight()
+                - topBar.getOffsetHeight()
                 - errorListBoxControl.asWidget().getOffsetHeight() : height
-                - configurationBar.getOffsetHeight();
+                - topBar.getOffsetHeight();
         int targetWidth = sidePanel.isVisible() ? width
                 - sidePanel.getOffsetWidth() : width;
 

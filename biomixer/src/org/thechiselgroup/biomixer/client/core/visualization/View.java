@@ -32,7 +32,7 @@ public interface View extends Adaptable, IsWidget, Initializable, Disposable,
      * Adds a configuration bar extension to the view. Must be called before the
      * view has been initialized.
      */
-    void addConfigurationBarExtension(ConfigurationBarExtension extension);
+    void addTopBarExtension(ViewTopBarExtension extension);
 
     String getContentType();
 

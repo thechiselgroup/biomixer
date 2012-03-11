@@ -19,7 +19,7 @@ import org.thechiselgroup.biomixer.client.core.util.Disposable;
 
 import com.google.gwt.user.client.ui.DockPanel;
 
-public interface ConfigurationBarExtension extends Disposable {
+public interface ViewTopBarExtension extends Disposable {
 
     void init(DockPanel configurationBar);
 

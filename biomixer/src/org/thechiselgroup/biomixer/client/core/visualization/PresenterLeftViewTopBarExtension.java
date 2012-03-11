@@ -6,11 +6,11 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasAlignment;
 import com.google.gwt.user.client.ui.Widget;
 
-public class PresenterLeftConfigurationBarExtension implements ConfigurationBarExtension {
+public class PresenterLeftViewTopBarExtension implements ViewTopBarExtension {
 
     private final Presenter presenter;
 
-    public PresenterLeftConfigurationBarExtension(Presenter presenter) {
+    public PresenterLeftViewTopBarExtension(Presenter presenter) {
         this.presenter = presenter;
     }
 

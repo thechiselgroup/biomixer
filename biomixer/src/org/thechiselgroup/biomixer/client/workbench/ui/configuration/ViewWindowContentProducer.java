@@ -49,10 +49,10 @@ import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
-import org.thechiselgroup.biomixer.client.core.visualization.ConfigurationBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
-import org.thechiselgroup.biomixer.client.core.visualization.PresenterInCenterRightConfigurationBarExtension;
-import org.thechiselgroup.biomixer.client.core.visualization.PresenterLeftConfigurationBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.PresenterInCenterRightViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.PresenterLeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.HighlightingVisualItemBehavior;
@@ -160,10 +160,10 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     /**
      * Hook for overriding.
      */
-    protected List<ConfigurationBarExtension> createConfigurationBarExtensions(
+    protected List<ViewTopBarExtension> createViewTopBarExtensions(
             ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
 
-        List<ConfigurationBarExtension> extensions = new ArrayList<ConfigurationBarExtension>();
+        List<ViewTopBarExtension> extensions = new ArrayList<ViewTopBarExtension>();
 
         extensions.add(createResourceModelPresenterExtension(resourceModel));
         extensions.add(createSelectionModelPresenterExtension(selectionModel));
@@ -176,10 +176,10 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         return new ResourceByUriMultiCategorizer();
     }
 
-    private ConfigurationBarExtension createResourceModelPresenterExtension(
+    private ViewTopBarExtension createResourceModelPresenterExtension(
             ResourceModel resourceModel) {
 
-        return new PresenterLeftConfigurationBarExtension(
+        return new PresenterLeftViewTopBarExtension(
                 new DefaultResourceModelPresenter(
                         new ResourceSetAvatarResourceSetsPresenter(
                                 allResourcesDragAvatarFactory),
@@ -187,10 +187,10 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                                 userSetsDragAvatarFactory), resourceModel));
     }
 
-    private ConfigurationBarExtension createSelectionModelPresenterExtension(
+    private ViewTopBarExtension createSelectionModelPresenterExtension(
             DefaultSelectionModel selectionModel) {
 
-        return new PresenterInCenterRightConfigurationBarExtension(
+        return new PresenterInCenterRightViewTopBarExtension(
                 new DefaultSelectionModelPresenter(
                         new ResourceSetAvatarResourceSetsPresenter(
                                 dropTargetFactory),
@@ -337,9 +337,9 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                 slotMappingConfigurationPersistence, disposeUtil,
                 listBoxControl);
 
-        for (ConfigurationBarExtension extension : createConfigurationBarExtensions(
+        for (ViewTopBarExtension extension : createViewTopBarExtensions(
                 resourceModel, selectionModel)) {
-            view.addConfigurationBarExtension(extension);
+            view.addTopBarExtension(extension);
         }
 
         for (ViewPart viewPart : viewParts) {
