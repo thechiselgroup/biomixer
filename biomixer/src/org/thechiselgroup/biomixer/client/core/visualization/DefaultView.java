@@ -15,7 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization;
 
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
@@ -26,7 +27,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceMultiCategorize
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
-import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.VisibilityChangeEvent;
@@ -102,10 +102,6 @@ public class DefaultView implements View {
      */
     private ViewPanel viewPanel;
 
-    private Presenter resourceModelPresenter;
-
-    private Presenter selectionModelPresenter;
-
     private int width;
 
     private int height;
@@ -128,8 +124,6 @@ public class DefaultView implements View {
 
     private final String contentType;
 
-    private final ErrorHandler errorHandler;
-
     private final ListBoxControl<ThrowableCaught> errorListBoxControl;
 
     private String label;
@@ -150,14 +144,15 @@ public class DefaultView implements View {
 
     private static final String MEMENTO_GROUPING = "grouping";
 
+    private List<ConfigurationBarExtension> configurationBarExtensions;
+
     // TODO change parameter order in constructor
     // TODO change contentDisplay to more restricted interface
     public DefaultView(
             ViewContentDisplay contentDisplay,
             String label,
             String contentType,
-            Presenter selectionModelPresenter,
-            Presenter resourceModelPresenter,
+            List<ConfigurationBarExtension> configurationBarExtensions,
             VisualMappingsControl visualMappingsControl,
             LightweightCollection<SidePanelSection> sidePanelSections,
             VisualizationModel visualizationModel,
@@ -165,36 +160,32 @@ public class DefaultView implements View {
             SelectionModel selectionModel,
             ManagedSlotMappingConfiguration managedSlotMappingConfiguration,
             ManagedSlotMappingConfigurationPersistence managedSlotMappingConfigurationPersistence,
-            ErrorHandler errorHandler, DisposeUtil disposeUtil,
+            DisposeUtil disposeUtil,
             ListBoxControl<ThrowableCaught> errorListBoxControl) {
 
         assert label != null;
         assert contentType != null;
         assert contentDisplay != null;
-        assert selectionModelPresenter != null;
-        assert resourceModelPresenter != null;
+        assert configurationBarExtensions != null;
         assert sidePanelSections != null;
         assert visualizationModel != null;
         assert resourceModel != null;
         assert selectionModel != null;
         assert managedSlotMappingConfiguration != null;
         assert managedSlotMappingConfigurationPersistence != null;
-        assert errorHandler != null;
         assert disposeUtil != null;
         assert errorListBoxControl != null;
 
         this.label = label;
         this.contentType = contentType;
         this.contentDisplay = contentDisplay;
-        this.selectionModelPresenter = selectionModelPresenter;
-        this.resourceModelPresenter = resourceModelPresenter;
         this.sidePanelSections = sidePanelSections;
         this.visualizationModel = visualizationModel;
         this.selectionModel = selectionModel;
+        this.configurationBarExtensions = configurationBarExtensions;
         this.resourceModel = resourceModel;
         this.managedSlotMappingConfiguration = managedSlotMappingConfiguration;
         this.managedSlotMappingConfigurationPersistence = managedSlotMappingConfigurationPersistence;
-        this.errorHandler = errorHandler;
         this.disposeUtil = disposeUtil;
         this.errorListBoxControl = errorListBoxControl;
         registerErrorListBoxVisibilityChangeHandler();
@@ -212,10 +203,11 @@ public class DefaultView implements View {
 
     @Override
     public void dispose() {
-        resourceModelPresenter = disposeUtil
-                .safelyDispose(resourceModelPresenter);
-        selectionModelPresenter = disposeUtil
-                .safelyDispose(selectionModelPresenter);
+        for (ConfigurationBarExtension extension : configurationBarExtensions) {
+            disposeUtil.safelyDispose(extension);
+        }
+        configurationBarExtensions = null;
+
         visualizationModel = disposeUtil.safelyDispose(visualizationModel);
     }
 
@@ -280,7 +272,6 @@ public class DefaultView implements View {
     public void init() {
         assert !isInitialized : "view has already been initialized";
 
-        resourceModelPresenter.init();
         initUI();
 
         isInitialized = true;
@@ -291,27 +282,10 @@ public class DefaultView implements View {
         configurationBar.setSize("100%", "");
         configurationBar.setStyleName(CSS_VIEW_CONFIGURATION_PANEL);
 
-        initResourceModelPresenter();
-        initSelectionModelPresenter();
+        for (ConfigurationBarExtension extension : configurationBarExtensions) {
+            extension.init(configurationBar);
+        }
         initSideBarExpander();
-    }
-
-    private void initResourceModelPresenter() {
-        Widget widget = resourceModelPresenter.asWidget();
-
-        configurationBar.add(widget, DockPanel.WEST);
-        configurationBar.setCellHorizontalAlignment(widget,
-                HasAlignment.ALIGN_LEFT);
-    }
-
-    private void initSelectionModelPresenter() {
-        selectionModelPresenter.init();
-
-        Widget widget = selectionModelPresenter.asWidget();
-        configurationBar.add(widget, DockPanel.CENTER);
-        configurationBar.setCellHorizontalAlignment(widget,
-                HasAlignment.ALIGN_RIGHT);
-        configurationBar.setCellWidth(widget, "100%"); // eats up all space
     }
 
     private void initSideBar() {

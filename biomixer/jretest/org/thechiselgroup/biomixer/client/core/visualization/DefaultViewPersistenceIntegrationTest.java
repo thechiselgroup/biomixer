@@ -21,13 +21,13 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils.toResourceSet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.label.LabelProvider;
 import org.thechiselgroup.biomixer.client.core.persistence.IdentifiableCreatingPersistence;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
@@ -41,7 +41,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.DefaultResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.test.IntegrationTest;
-import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
@@ -143,13 +142,14 @@ public class DefaultViewPersistenceIntegrationTest {
             ManagedSlotMappingConfiguration managedSlotMappingConfiguration) {
 
         DefaultView view = new DefaultView(mock(ViewContentDisplay.class),
-                "label", "contentType", mock(Presenter.class),
-                mock(Presenter.class), mock(VisualMappingsControl.class),
+                "label", "contentType",
+                new ArrayList<ConfigurationBarExtension>(),
+                mock(VisualMappingsControl.class),
                 LightweightCollections.<SidePanelSection> emptyCollection(),
                 viewModel, resourceModel, selectionModel,
                 managedSlotMappingConfiguration,
-                slotMappingConfigurationPersistence, mock(ErrorHandler.class),
-                mock(DisposeUtil.class), mock(ListBoxControl.class)) {
+                slotMappingConfigurationPersistence, mock(DisposeUtil.class),
+                mock(ListBoxControl.class)) {
             @Override
             protected void initUI() {
             };
