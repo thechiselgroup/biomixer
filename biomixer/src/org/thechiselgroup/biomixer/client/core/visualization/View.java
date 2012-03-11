@@ -28,6 +28,12 @@ import com.google.gwt.user.client.ui.IsWidget;
 public interface View extends Adaptable, IsWidget, Initializable, Disposable,
         Persistable {
 
+    /**
+     * Adds a configuration bar extension to the view. Must be called before the
+     * view has been initialized.
+     */
+    void addConfigurationBarExtension(ConfigurationBarExtension extension);
+
     String getContentType();
 
     String getLabel();

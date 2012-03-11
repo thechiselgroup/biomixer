@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
@@ -94,8 +95,16 @@ public class DefaultView implements View {
     // TODO rename
     private DockPanel configurationBar;
 
+    private List<ConfigurationBarExtension> configurationBarExtensions = new ArrayList<ConfigurationBarExtension>();
+
     // TODO rename
     private StackPanel sideBar;
+
+    /**
+     * Sections that will be displayed in the side panel. This is a lightweight
+     * collections so we can check whether it is empty or not.
+     */
+    private final LightweightCollection<SidePanelSection> sidePanelSections;
 
     /**
      * The main panel of this view. It contains all other widgets of this view.
@@ -105,12 +114,6 @@ public class DefaultView implements View {
     private int width;
 
     private int height;
-
-    /**
-     * Sections that will be displayed in the side panel. This is a lightweight
-     * collections so we can check whether it is empty or not.
-     */
-    private final LightweightCollection<SidePanelSection> sidePanelSections;
 
     private final ViewContentDisplay contentDisplay;
 
@@ -143,8 +146,6 @@ public class DefaultView implements View {
     private static final String MEMENTO_SLOT_MAPPINGS = "slot-mappings";
 
     private static final String MEMENTO_GROUPING = "grouping";
-
-    private List<ConfigurationBarExtension> configurationBarExtensions;
 
     // TODO change parameter order in constructor
     // TODO change contentDisplay to more restricted interface
@@ -194,6 +195,14 @@ public class DefaultView implements View {
     @Override
     public <T> T adaptTo(Class<T> clazz) throws NoSuchAdapterException {
         return contentDisplay.adaptTo(clazz);
+    }
+
+    @Override
+    public void addConfigurationBarExtension(ConfigurationBarExtension extension) {
+        assert extension != null;
+        assert !isInitialized;
+
+        this.configurationBarExtensions.add(extension);
     }
 
     @Override

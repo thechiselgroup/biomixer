@@ -7,6 +7,8 @@ import org.thechiselgroup.biomixer.client.core.visualization.ConfigurationBarExt
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.DefaultSelectionModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceModel;
 
+import com.google.gwt.user.client.ui.DockPanel;
+
 public class BioMixerEmbedViewWindowContentProducer extends
         BioMixerViewWindowContentProducer {
 
@@ -14,7 +16,21 @@ public class BioMixerEmbedViewWindowContentProducer extends
     protected List<ConfigurationBarExtension> createConfigurationBarExtensions(
             ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
 
-        return new ArrayList<ConfigurationBarExtension>();
-    }
+        ArrayList<ConfigurationBarExtension> extensions = new ArrayList<ConfigurationBarExtension>();
 
+        extensions.add(new ConfigurationBarExtension() {
+            @Override
+            public void dispose() {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void init(DockPanel configurationBar) {
+                // TODO Auto-generated method stub
+            }
+        });
+
+        return extensions;
+    }
 }
