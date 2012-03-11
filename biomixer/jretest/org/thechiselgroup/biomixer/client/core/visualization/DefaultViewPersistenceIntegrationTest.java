@@ -21,7 +21,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils.toResourceSet;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -143,13 +142,12 @@ public class DefaultViewPersistenceIntegrationTest {
 
         DefaultView view = new DefaultView(mock(ViewContentDisplay.class),
                 "label", "contentType",
-                new ArrayList<ConfigurationBarExtension>(),
                 mock(VisualMappingsControl.class),
                 LightweightCollections.<SidePanelSection> emptyCollection(),
-                viewModel, resourceModel, selectionModel,
-                managedSlotMappingConfiguration,
-                slotMappingConfigurationPersistence, mock(DisposeUtil.class),
-                mock(ListBoxControl.class)) {
+                viewModel,
+                resourceModel, selectionModel, managedSlotMappingConfiguration,
+                slotMappingConfigurationPersistence,
+                mock(DisposeUtil.class), mock(ListBoxControl.class)) {
             @Override
             protected void initUI() {
             };

@@ -19,8 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -82,14 +80,8 @@ public class DefaultViewTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        ArrayList<ConfigurationBarExtension> extensions = new ArrayList<ConfigurationBarExtension>();
-        extensions.add(new PresenterLeftConfigurationBarExtension(
-                resourceModelPresenter));
-        extensions.add(new PresenterInCenterRightConfigurationBarExtension(
-                selectionModelPresenter));
-
         underTest = new DefaultView(mock(ViewContentDisplay.class), "label",
-                "contentType", extensions, mock(VisualMappingsControl.class),
+                "contentType", mock(VisualMappingsControl.class),
                 LightweightCollections.<SidePanelSection> emptyCollection(),
                 viewModel, mock(ResourceModel.class),
                 mock(SelectionModel.class),
@@ -97,5 +89,12 @@ public class DefaultViewTest {
                 mock(ManagedSlotMappingConfigurationPersistence.class),
                 new DisposeUtil(mock(ErrorHandler.class)),
                 mock(ListBoxControl.class));
+
+        underTest
+                .addTopBarExtension(new PresenterLeftViewTopBarExtension(
+                        resourceModelPresenter));
+        underTest
+                .addTopBarExtension(new PresenterInCenterRightViewTopBarExtension(
+                        selectionModelPresenter));
     }
 }
