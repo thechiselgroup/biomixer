@@ -67,21 +67,23 @@ public class EmbedInitializer implements ApplicationInitializer {
             return;
         }
 
+        load(embedLoaders.get(embedMode));
+    }
+
+    private void load(EmbeddedViewLoader embeddedViewLoader) {
         embedContainer.setInfoText("Loading...");
+        embeddedViewLoader.loadView(windowLocation, new AsyncCallback<View>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                loggingErrorHandler.handleError(caught);
+                embedContainer.setInfoText(caught.getMessage());
+            }
 
-        embedLoaders.get(embedMode).loadView(windowLocation,
-                new AsyncCallback<View>() {
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        loggingErrorHandler.handleError(caught);
-                        embedContainer.setInfoText(caught.getMessage());
-                    }
-
-                    @Override
-                    public void onSuccess(View result) {
-                        embedContainer.setWidget(result.asWidget());
-                    }
-                });
+            @Override
+            public void onSuccess(View result) {
+                embedContainer.setWidget(result.asWidget());
+            }
+        });
     }
 
     protected void registerLoader(EmbeddedViewLoader loader) {
