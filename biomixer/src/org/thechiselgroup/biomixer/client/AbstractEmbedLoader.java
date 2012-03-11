@@ -20,21 +20,23 @@ import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
-import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 public abstract class AbstractEmbedLoader implements EmbeddedViewLoader {
 
+    @Named("embed")
     @Inject
-    protected WindowContentProducer windowContentProducer;
+    protected ViewWindowContentProducer viewContentProducer;
 
     @Inject
     protected DelayedExecutor executor;
@@ -51,7 +53,7 @@ public abstract class AbstractEmbedLoader implements EmbeddedViewLoader {
     protected LayoutAlgorithm layoutAlgorithm;
 
     protected void getDefaultView(AsyncCallback<View> callback) {
-        final View graphView = ((ViewWindowContent) windowContentProducer
+        final View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(Graph.ID)).getView();
         graphView.init();
         callback.onSuccess(graphView);

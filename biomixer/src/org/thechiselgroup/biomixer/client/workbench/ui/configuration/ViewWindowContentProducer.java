@@ -93,6 +93,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+// TODO how can we make the whole build process configuration more flexible? patterns?
 public class ViewWindowContentProducer implements WindowContentProducer {
 
     @Inject
@@ -156,6 +157,20 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     @Inject
     private ManagedSlotMappingConfigurationPersistence slotMappingConfigurationPersistence;
 
+    /**
+     * Hook for overriding.
+     */
+    protected List<ConfigurationBarExtension> createConfigurationBarExtensions(
+            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
+
+        List<ConfigurationBarExtension> extensions = new ArrayList<ConfigurationBarExtension>();
+
+        extensions.add(createResourceModelPresenterExtension(resourceModel));
+        extensions.add(createSelectionModelPresenterExtension(selectionModel));
+
+        return extensions;
+    }
+
     protected ResourceMultiCategorizer createDefaultCategorizer(
             String contentType) {
         return new ResourceByUriMultiCategorizer();
@@ -164,11 +179,12 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private ConfigurationBarExtension createResourceModelPresenterExtension(
             ResourceModel resourceModel) {
 
-        return new PresenterLeftConfigurationBarExtension(new DefaultResourceModelPresenter(
-                new ResourceSetAvatarResourceSetsPresenter(
-                        allResourcesDragAvatarFactory),
-                new ResourceSetAvatarResourceSetsPresenter(
-                        userSetsDragAvatarFactory), resourceModel));
+        return new PresenterLeftConfigurationBarExtension(
+                new DefaultResourceModelPresenter(
+                        new ResourceSetAvatarResourceSetsPresenter(
+                                allResourcesDragAvatarFactory),
+                        new ResourceSetAvatarResourceSetsPresenter(
+                                userSetsDragAvatarFactory), resourceModel));
     }
 
     private ConfigurationBarExtension createSelectionModelPresenterExtension(
@@ -244,11 +260,8 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         DefaultSelectionModel selectionModel = new DefaultSelectionModel(
                 selectionModelLabelFactory, resourceSetFactory);
 
-        List<ConfigurationBarExtension> configurationBarExtensions = new ArrayList<ConfigurationBarExtension>();
-        configurationBarExtensions
-                .add(createResourceModelPresenterExtension(resourceModel));
-        configurationBarExtensions
-                .add(createSelectionModelPresenterExtension(selectionModel));
+        List<ConfigurationBarExtension> configurationBarExtensions = createConfigurationBarExtensions(
+                resourceModel, selectionModel);
 
         Map<Slot, VisualItemValueResolver> fixedSlotResolvers = viewContentDisplayConfiguration
                 .getFixedSlotResolvers(contentType);

@@ -63,7 +63,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class BioMixerViewWindowContentProducerProvider extends
+public class BioMixerViewWindowContentProducer extends
         ChooselWorkbenchViewWindowContentProducer {
 
     public static class IsNotAMappingPredicate implements Predicate<Resource> {
