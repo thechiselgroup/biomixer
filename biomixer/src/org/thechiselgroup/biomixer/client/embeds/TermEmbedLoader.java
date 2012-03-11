@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
+import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
+import org.thechiselgroup.biomixer.client.core.visualization.View;
 
-import com.google.inject.Inject;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 
-public class BioMixerEmbedInitializer extends EmbedInitializer {
+/**
+ * ID = embed mode
+ * 
+ * @author Lars Grammel
+ */
+public interface TermEmbedLoader extends Identifiable {
 
-    @SuppressWarnings("unused")
-    @Inject
-    private void setConceptNeighbourhoodLoader(TermCentricEmbedLoader loader) {
-        registerLoader(loader);
-    }
+    String getLabel();
+
+    void loadView(String virtualOntologyId, String fullConceptId,
+            IsWidget topBarWidget, AsyncCallback<View> callback);
 
 }

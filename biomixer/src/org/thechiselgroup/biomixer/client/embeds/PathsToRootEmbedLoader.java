@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.embeds;
 
 import java.util.List;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
