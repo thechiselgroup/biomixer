@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.dnd.windows;
 
+import static org.thechiselgroup.biomixer.client.core.development.DevelopmentSettings.isInDevelopmentMode;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,7 +27,6 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.ui.ZIndex;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -134,11 +135,8 @@ public class DefaultDesktop extends AbsolutePanel implements Desktop, SizeInt {
 
     // TODO extract
     private void disableContextMenu() {
-        /*
-         * only disable the context menu in compiled code (not in development
-         * environment)
-         */
-        if (GWT.isScript()) {
+        // disable the context menu if not in dev mode
+        if (!isInDevelopmentMode()) {
             sinkEvents(Event.ONCONTEXTMENU);
         }
     }
