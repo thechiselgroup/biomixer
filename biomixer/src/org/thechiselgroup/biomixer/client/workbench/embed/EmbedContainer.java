@@ -32,6 +32,8 @@ public class EmbedContainer {
 
     private final AbsolutePanel rootPanel;
 
+    private Widget widget;
+
     @Inject
     public EmbedContainer(
             @Named(ChooselInjectionConstants.ROOT_PANEL) AbsolutePanel rootPanel) {
@@ -43,32 +45,34 @@ public class EmbedContainer {
 
     public void init() {
         Window.enableScrolling(false);
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                if (widget != null) {
+                    updateWidgetSize(widget);
+                }
+            }
+        });
 
         informationLabel = new Label();
-        rootPanel.add(informationLabel);
     }
 
     public void setInfoText(String text) {
-        // TODO make visible
-        // XXX should be usable after setWidget got called
         informationLabel.setText(text);
+        setWidget(informationLabel);
     }
 
     public void setWidget(final Widget widget) {
         assert widget != null;
 
-        // XXX allow for multiple calls
+        if (this.widget != null) {
+            rootPanel.remove(this.widget);
+        }
 
-        rootPanel.remove(informationLabel);
+        this.widget = widget;
+
         rootPanel.add(widget);
-
         updateWidgetSize(widget);
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-                updateWidgetSize(widget);
-            }
-        });
     }
 
     private void updateWidgetSize(Widget widget) {

@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
@@ -23,6 +24,7 @@ import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowC
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -65,10 +67,11 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
     @Override
     public final void loadView(String virtualOntologyId, String fullConceptId,
-            AsyncCallback<View> callback) {
+            IsWidget topBarWidget, AsyncCallback<View> callback) {
 
         View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(Graph.ID)).getView();
+        graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
         graphView.init();
         callback.onSuccess(graphView);
 

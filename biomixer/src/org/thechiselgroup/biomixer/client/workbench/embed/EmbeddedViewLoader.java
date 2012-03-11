@@ -29,6 +29,6 @@ public interface EmbeddedViewLoader {
     Iterable<String> getEmbedModes();
 
     void loadView(WindowLocation windowLocation, String embedMode,
-            AsyncCallback<View> callback);
+            AsyncCallback<View> callback, EmbedLoader loader);
 
 }

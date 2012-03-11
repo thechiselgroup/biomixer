@@ -39,7 +39,7 @@ public class StoredViewEmbedLoader implements EmbeddedViewLoader {
 
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
-            final AsyncCallback<View> callback) {
+            final AsyncCallback<View> callback, EmbedLoader embedLoader) {
 
         String viewIdString = windowLocation
                 .getParameter(WorkbenchInitializer.VIEW_ID);

@@ -63,7 +63,7 @@ public class EmbedInitializer implements ApplicationInitializer {
         loadEmbed(windowLocation.getParameter(EMBED_MODE_PARAMETER));
     }
 
-    protected void loadEmbed(String embedMode) {
+    private void loadEmbed(String embedMode) {
         if (!embedLoaders.containsKey(embedMode)) {
             embedContainer.setInfoText("Embed mode '" + embedMode
                     + "' is invalid.");
@@ -84,6 +84,11 @@ public class EmbedInitializer implements ApplicationInitializer {
                     @Override
                     public void onSuccess(View result) {
                         embedContainer.setWidget(result.asWidget());
+                    }
+                }, new EmbedLoader() {
+                    @Override
+                    public void switchMode(String embedMode) {
+                        loadEmbed(embedMode);
                     }
                 });
     }

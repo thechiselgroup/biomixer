@@ -15,12 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
+import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -28,6 +35,9 @@ import com.google.inject.Inject;
 public class TermCentricEmbedLoader implements EmbeddedViewLoader {
 
     private IdentifiablesList<TermEmbedLoader> embedLoaders = new IdentifiablesList<TermEmbedLoader>();
+
+    @Inject
+    private ErrorHandler errorHandler;
 
     /*
      * order is important, therefore we set all at once (alternative: producer)
@@ -49,7 +59,7 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
 
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
-            AsyncCallback<View> callback) {
+            AsyncCallback<View> callback, final EmbedLoader embedLoader) {
 
         assert embedLoaders.contains(embedMode);
 
@@ -60,7 +70,28 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
         String virtualOntologyId = windowLocation
                 .getParameter("virtual_ontology_id");
 
-        termEmbedLoader.loadView(virtualOntologyId, fullConceptId, callback);
+        // TODO pass in switch
+        final ListBoxControl<TermEmbedLoader> selector = new ListBoxControl<TermEmbedLoader>(
+                new ExtendedListBox(),
+                new Transformer<TermEmbedLoader, String>() {
+                    @Override
+                    public String transform(TermEmbedLoader loader) {
+                        return loader.getLabel();
+                    }
+                }, errorHandler);
+        for (TermEmbedLoader termLoader : embedLoaders) {
+            selector.addItem(termLoader);
+        }
+        selector.setSelectedValue(termEmbedLoader);
+        selector.setChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                embedLoader.switchMode(selector.getSelectedValue().getId());
+            }
+        });
+
+        termEmbedLoader.loadView(virtualOntologyId, fullConceptId, selector,
+                callback);
     }
 
     protected void registerLoader(TermEmbedLoader loader) {

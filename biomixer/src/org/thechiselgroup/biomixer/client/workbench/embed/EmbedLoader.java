@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Lars Grammel 
+ * Copyright (C) 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,24 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.workbench.embed;
 
-import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
-import org.thechiselgroup.biomixer.client.core.visualization.View;
+public interface EmbedLoader {
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.IsWidget;
-
-/**
- * ID = embed mode
- * 
- * @author Lars Grammel
- */
-public interface TermEmbedLoader extends Identifiable {
-
-    String getLabel();
-
-    void loadView(String virtualOntologyId, String fullConceptId,
-            IsWidget topBarWidget, AsyncCallback<View> callback);
+    void switchMode(String embedMode);
 
 }
