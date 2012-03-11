@@ -97,8 +97,7 @@ public class DefaultView implements View {
 
     private List<ConfigurationBarExtension> configurationBarExtensions = new ArrayList<ConfigurationBarExtension>();
 
-    // TODO rename
-    private StackPanel sideBar;
+    private StackPanel sidePanel;
 
     /**
      * Sections that will be displayed in the side panel. This is a lightweight
@@ -298,15 +297,15 @@ public class DefaultView implements View {
     }
 
     private void initSideBar() {
-        assert sideBar == null;
+        assert sidePanel == null;
         assert sidePanelSections != null;
 
-        sideBar = new StackPanel();
-        sideBar.setStyleName(CSS_CONFIGURATION_PANEL);
-        sideBar.setVisible(false);
+        sidePanel = new StackPanel();
+        sidePanel.setStyleName(CSS_CONFIGURATION_PANEL);
+        sidePanel.setVisible(false);
 
         for (SidePanelSection sidePanelSection : sidePanelSections) {
-            sideBar.add(sidePanelSection.getWidget(),
+            sidePanel.add(sidePanelSection.getWidget(),
                     sidePanelSection.getSectionTitle());
         }
     }
@@ -320,7 +319,7 @@ public class DefaultView implements View {
 
             @Override
             public void onClick(ClickEvent event) {
-                sideBar.setVisible(!sideBar.isVisible());
+                sidePanel.setVisible(!sidePanel.isVisible());
                 updateContentDisplaySize();
             }
         });
@@ -343,7 +342,7 @@ public class DefaultView implements View {
 
         viewPanel.add(configurationBar, DockPanel.NORTH);
         viewPanel.add(contentDisplay.asWidget(), DockPanel.CENTER);
-        viewPanel.add(sideBar, DockPanel.EAST);
+        viewPanel.add(sidePanel, DockPanel.EAST);
 
         Widget errorListBox = errorListBoxControl.asWidget();
         errorListBox.setSize("100%", "");
@@ -510,8 +509,8 @@ public class DefaultView implements View {
                 - configurationBar.getOffsetHeight()
                 - errorListBoxControl.asWidget().getOffsetHeight() : height
                 - configurationBar.getOffsetHeight();
-        int targetWidth = sideBar.isVisible() ? width
-                - sideBar.getOffsetWidth() : width;
+        int targetWidth = sidePanel.isVisible() ? width
+                - sidePanel.getOffsetWidth() : width;
 
         contentDisplay.setSize(targetWidth, targetHeight);
     }
