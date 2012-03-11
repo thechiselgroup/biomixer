@@ -19,7 +19,6 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
-import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
@@ -30,7 +29,6 @@ import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowC
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DockPanel;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -57,20 +55,6 @@ public abstract class AbstractEmbedLoader implements EmbeddedViewLoader {
     protected void getDefaultView(AsyncCallback<View> callback) {
         final View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(Graph.ID)).getView();
-
-        graphView.addTopBarExtension(new ViewTopBarExtension() {
-            @Override
-            public void dispose() {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public void init(DockPanel configurationBar) {
-                // TODO Auto-generated method stub
-            }
-        });
-
         graphView.init();
         callback.onSuccess(graphView);
         this.graphView = (DefaultView) graphView;
