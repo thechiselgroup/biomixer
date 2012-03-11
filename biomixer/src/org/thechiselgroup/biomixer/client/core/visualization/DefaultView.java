@@ -292,8 +292,8 @@ public class DefaultView implements View {
         configurationBar.setStyleName(CSS_VIEW_CONFIGURATION_PANEL);
 
         initResourceModelPresenter();
-        initSideBarExpander();
         initSelectionModelPresenter();
+        initSideBarExpander();
     }
 
     private void initResourceModelPresenter() {
@@ -308,7 +308,7 @@ public class DefaultView implements View {
         selectionModelPresenter.init();
 
         Widget widget = selectionModelPresenter.asWidget();
-        configurationBar.add(widget, DockPanel.EAST);
+        configurationBar.add(widget, DockPanel.CENTER);
         configurationBar.setCellHorizontalAlignment(widget,
                 HasAlignment.ALIGN_RIGHT);
         configurationBar.setCellWidth(widget, "100%"); // eats up all space
