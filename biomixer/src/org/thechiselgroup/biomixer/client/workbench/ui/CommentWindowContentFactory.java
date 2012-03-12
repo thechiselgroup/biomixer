@@ -18,10 +18,10 @@ package org.thechiselgroup.biomixer.client.workbench.ui;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentFactory;
 
-public class NoteWindowContentFactory implements WindowContentFactory {
+public class CommentWindowContentFactory implements WindowContentFactory {
 
     @Override
     public WindowContent createWindowContent() {
-        return new NoteWindowContent();
+        return new CommentWindowContent();
     }
 }

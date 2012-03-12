@@ -291,7 +291,8 @@ public class BioMixerViewWindowContentProducerProvider extends
                 textArea.setWidth("100%");
                 textArea.setHeight("100%");
 
-                sidePanelSections.add(new SidePanelSection("Notes", textArea));
+                sidePanelSections
+                        .add(new SidePanelSection("Comments", textArea));
             }
 
             return sidePanelSections;
