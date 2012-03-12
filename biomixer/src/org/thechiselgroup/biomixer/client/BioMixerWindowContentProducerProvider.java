@@ -21,7 +21,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentFactory;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 import org.thechiselgroup.biomixer.client.workbench.ui.HelpWindowContentFactory;
-import org.thechiselgroup.biomixer.client.workbench.ui.NoteWindowContentFactory;
+import org.thechiselgroup.biomixer.client.workbench.ui.CommentWindowContentFactory;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.inject.Inject;
@@ -43,8 +43,8 @@ public class BioMixerWindowContentProducerProvider implements
 
         contentProducer.register(WorkbenchInitializer.WINDOW_CONTENT_HELP,
                 new HelpWindowContentFactory());
-        contentProducer.register(WorkbenchInitializer.WINDOW_CONTENT_NOTE,
-                new NoteWindowContentFactory());
+        contentProducer.register(WorkbenchInitializer.WINDOW_CONTENT_COMMENT,
+                new CommentWindowContentFactory());
 
         contentProducer.register(ConceptSearchWindowContent.ID,
                 new WindowContentFactory() {
