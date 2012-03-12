@@ -285,13 +285,14 @@ public class BioMixerViewWindowContentProducer extends
             sidePanelSections.add(createNodesSidePanelSection(resourceModel,
                     visualizationModel));
             sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
-            sidePanelSections.addAll(contentDisplay.getSidePanelSections());
+            // sidePanelSections.addAll(contentDisplay.getSidePanelSections());
             {
                 TextArea textArea = new TextArea();
                 textArea.setWidth("100%");
                 textArea.setHeight("100%");
 
-                sidePanelSections.add(new SidePanelSection("Notes", textArea));
+                sidePanelSections
+                        .add(new SidePanelSection("Comments", textArea));
             }
 
             return sidePanelSections;
