@@ -21,7 +21,6 @@ import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
-import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
@@ -29,6 +28,7 @@ import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 // TODO callback to change embeds...
@@ -59,7 +59,7 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
 
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
-            AsyncCallback<View> callback, final EmbedLoader embedLoader) {
+            AsyncCallback<IsWidget> callback, final EmbedLoader embedLoader) {
 
         assert embedLoaders.contains(embedMode);
 

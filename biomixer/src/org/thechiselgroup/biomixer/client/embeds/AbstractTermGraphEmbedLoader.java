@@ -67,7 +67,7 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
     @Override
     public final void loadView(String virtualOntologyId, String fullConceptId,
-            IsWidget topBarWidget, AsyncCallback<View> callback) {
+            IsWidget topBarWidget, AsyncCallback<IsWidget> callback) {
 
         View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(Graph.ID)).getView();
