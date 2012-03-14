@@ -1,6 +1,5 @@
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.client.embeds.TermNeighbourhoodLoader;
 
 /**
  * This embed is just for testing layouts through visual inspection.
