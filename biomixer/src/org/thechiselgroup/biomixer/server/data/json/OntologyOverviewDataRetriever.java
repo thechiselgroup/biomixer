@@ -184,7 +184,8 @@ public class OntologyOverviewDataRetriever {
             // to write results. Does not work with GAE
             // Write the string into a file
             // Create file
-            // FileWriter fstream = new FileWriter("data.json");
+            // FileWriter fstream = new
+            // FileWriter("ontology_overview_data.json");
             // BufferedWriter out = new BufferedWriter(fstream);
             // out.write(json);
 
