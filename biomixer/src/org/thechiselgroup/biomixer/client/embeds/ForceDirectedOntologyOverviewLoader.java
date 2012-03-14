@@ -15,13 +15,17 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.util.collections.SingleItemIterable;
+import org.thechiselgroup.biomixer.client.services.ontology.overview.OntologyOverviewServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.inject.Inject;
 
 /**
  * Calls the javascript implementation of the force directed ontologies overview
@@ -32,7 +36,13 @@ import com.google.gwt.user.client.ui.IsWidget;
  */
 public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
+    @Inject
+    private ErrorHandler errorHandler;
+
     public static final String EMBED_MODE = "fd_oo";
+
+    @Inject
+    private OntologyOverviewServiceAsync ontologyOverviewService;
 
     @Override
     public Iterable<String> getEmbedModes() {
@@ -47,11 +57,19 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
         // from a file on server
 
         // 1. get ontology data from file on server
+        ontologyOverviewService
+                .getOntologyOverviewAsJson(new ErrorHandlingAsyncCallback<String>(
+                        errorHandler) {
 
-        // 2. on success -> call javascript code, passing in data
+                    @Override
+                    protected void runOnSuccess(String json) {
+                        // 2. on success -> call javascript code, passing in
+                        // data
+                        System.out.println("Got json from server");
+                        System.out.println(json);
+                    }
 
-        System.out.println("Test");
+                });
 
     }
-
 }
