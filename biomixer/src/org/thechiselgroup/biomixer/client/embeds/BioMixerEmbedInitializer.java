@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.visualization;
+package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.shared.core.util.Condition;
+import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 
-public class ViewIsReadyCondition implements Condition {
+import com.google.inject.Inject;
 
-    private final View view;
+public class BioMixerEmbedInitializer extends EmbedInitializer {
 
-    public ViewIsReadyCondition(View view) {
-        this.view = view;
-    }
-
-    @Override
-    public boolean isMet() {
-        return view.isReady();
+    @SuppressWarnings("unused")
+    @Inject
+    private void setConceptNeighbourhoodLoader(TermCentricEmbedLoader loader) {
+        registerLoader(loader);
     }
 
 }

@@ -33,6 +33,13 @@ public final class DevelopmentSettings {
     private final static boolean BENCHMARKING = false;
 
     /**
+     * Flag that activates development mode. In development mode, certain
+     * debugging features (e.g. having the browser's context menu available) are
+     * active.
+     */
+    private final static boolean DEVELOPMENT = true;
+
+    /**
      * Returns if benchmarking is active or not. The benchmarking is only active
      * in GWT clients (i.e. not in test environments and if the
      * {@link #BENCHMARKING} flag is set). To enable automatic removal in the
@@ -59,9 +66,13 @@ public final class DevelopmentSettings {
         return BENCHMARKING && GWT.isClient();
     }
 
+    public static boolean isInDevelopmentMode() {
+        return DEVELOPMENT || !GWT.isScript();
+    }
+
     /**
-     * We do not use JavaScript code in OOMPH client mode for performance
-     * reasons.
+     * Determines whether JavaScript or Java implementations should be used. We
+     * do not use JavaScript code in OOMPH client mode for performance reasons.
      */
     public static boolean shouldUseJavaScriptImplementation() {
         return GWT.isScript(); // add "|| GWT.isClient()" to test in hosted mode

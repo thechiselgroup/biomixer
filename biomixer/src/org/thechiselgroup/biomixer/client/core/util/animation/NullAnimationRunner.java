@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Lars Grammel 
+ * Copyright (C) 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.visualization;
+package org.thechiselgroup.biomixer.client.core.util.animation;
 
-import org.thechiselgroup.biomixer.shared.core.util.Condition;
-
-public class ViewIsReadyCondition implements Condition {
-
-    private final View view;
-
-    public ViewIsReadyCondition(View view) {
-        this.view = view;
-    }
+public class NullAnimationRunner implements AnimationRunner {
 
     @Override
-    public boolean isMet() {
-        return view.isReady();
+    public void run(Animation animation, int duration) {
+        animation.update(1d);
     }
 
 }

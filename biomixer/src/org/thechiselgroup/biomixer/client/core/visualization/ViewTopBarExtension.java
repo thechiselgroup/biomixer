@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Lars Grammel 
+ * Copyright 2011 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -15,19 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization;
 
-import org.thechiselgroup.biomixer.shared.core.util.Condition;
+import org.thechiselgroup.biomixer.client.core.util.Disposable;
 
-public class ViewIsReadyCondition implements Condition {
+import com.google.gwt.user.client.ui.DockPanel;
 
-    private final View view;
+public interface ViewTopBarExtension extends Disposable {
 
-    public ViewIsReadyCondition(View view) {
-        this.view = view;
-    }
-
-    @Override
-    public boolean isMet() {
-        return view.isReady();
-    }
+    void init(DockPanel topBar);
 
 }

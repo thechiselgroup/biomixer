@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright (C) 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,37 +13,31 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.util;
+package org.thechiselgroup.biomixer.client.core.util.animation;
 
-public final class ObjectUtils {
 
-    /**
-     * Equals method that works if both objects are null.
-     */
-    public static boolean equals(Object o1, Object o2) {
-        if (o1 == o2) {
-            return true;
-        }
+public class TestAnimationRunner implements AnimationRunner {
 
-        if (o1 == null || o2 == null) {
-            return false;
-        }
+    private Animation animation;
 
-        assert o1 != null && o2 != null;
+    private int duration;
 
-        return o1.equals(o2);
+    public Animation getAnimation() {
+        return animation;
     }
 
-    /**
-     * {@link #toString()} static method that can handle <code>null</code> cases
-     * (returns empty String for those).
-     */
-    public static String toString(Object o) {
-        return o == null ? "" : o.toString();
+    public int getDuration() {
+        return duration;
     }
 
-    private ObjectUtils() {
+    public void progressTo(double progress) {
+        animation.update(progress);
+    }
 
+    @Override
+    public void run(Animation animation, int duration) {
+        this.animation = animation;
+        this.duration = duration;
     }
 
 }

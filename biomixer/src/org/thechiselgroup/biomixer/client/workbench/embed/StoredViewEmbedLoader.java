@@ -15,13 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.embed;
 
+import org.thechiselgroup.biomixer.client.core.util.collections.SingleItemIterable;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
-import org.thechiselgroup.biomixer.client.workbench.services.AsyncCallbackDelegate;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ViewLoader;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 public class StoredViewEmbedLoader implements EmbeddedViewLoader {
@@ -32,24 +33,29 @@ public class StoredViewEmbedLoader implements EmbeddedViewLoader {
     private ViewLoader viewLoader;
 
     @Override
-    public String getEmbedMode() {
-        return EMBED_MODE;
+    public Iterable<String> getEmbedModes() {
+        return new SingleItemIterable<String>(EMBED_MODE);
     }
 
     @Override
-    public void loadView(WindowLocation windowLocation,
-            final AsyncCallback<View> callback) {
+    public void loadView(WindowLocation windowLocation, String embedMode,
+            final AsyncCallback<IsWidget> callback, EmbedLoader embedLoader) {
 
         String viewIdString = windowLocation
                 .getParameter(WorkbenchInitializer.VIEW_ID);
         // TODO catch exception, handle in here
         final long viewId = Long.parseLong(viewIdString);
 
-        viewLoader.loadView(viewId, new AsyncCallbackDelegate<View>(callback) {
+        viewLoader.loadView(viewId, new AsyncCallback<View>() {
             @Override
             public void onFailure(Throwable caught) {
                 callback.onFailure(new Exception(
                         "Could not load visualization " + viewId + "."));
+            }
+
+            @Override
+            public void onSuccess(View result) {
+                callback.onSuccess(result);
             }
         });
     }

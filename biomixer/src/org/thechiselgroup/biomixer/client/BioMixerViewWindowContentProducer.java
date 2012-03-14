@@ -63,7 +63,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-public class BioMixerViewWindowContentProducerProvider extends
+public class BioMixerViewWindowContentProducer extends
         ChooselWorkbenchViewWindowContentProducer {
 
     public static class IsNotAMappingPredicate implements Predicate<Resource> {
@@ -285,13 +285,14 @@ public class BioMixerViewWindowContentProducerProvider extends
             sidePanelSections.add(createNodesSidePanelSection(resourceModel,
                     visualizationModel));
             sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
-            sidePanelSections.addAll(contentDisplay.getSidePanelSections());
+            // sidePanelSections.addAll(contentDisplay.getSidePanelSections());
             {
                 TextArea textArea = new TextArea();
                 textArea.setWidth("100%");
                 textArea.setHeight("100%");
 
-                sidePanelSections.add(new SidePanelSection("Notes", textArea));
+                sidePanelSections
+                        .add(new SidePanelSection("Comments", textArea));
             }
 
             return sidePanelSections;

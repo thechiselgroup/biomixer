@@ -1,3 +1,10 @@
+/**
+ * No scrollbars on body.
+ */
+body, html {
+	overflow: hidden;
+}
+
 /*
  * Focus reset: no outlines around focused elements anymore - these
  * need to be defined manually.
@@ -251,11 +258,12 @@ button.popup-content-action:active {
 
 .infoLabel {
     font-size: 13px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
     color: rgb(112, 106, 170);
+    background-color: rgb(255, 255, 255);
 }
 
 .shade {

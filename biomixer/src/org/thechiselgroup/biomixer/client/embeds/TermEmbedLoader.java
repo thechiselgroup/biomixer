@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.visualization;
+package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.shared.core.util.Condition;
+import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 
-public class ViewIsReadyCondition implements Condition {
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 
-    private final View view;
+/**
+ * ID = embed mode
+ * 
+ * @author Lars Grammel
+ */
+public interface TermEmbedLoader extends Identifiable {
 
-    public ViewIsReadyCondition(View view) {
-        this.view = view;
-    }
+    String getLabel();
 
-    @Override
-    public boolean isMet() {
-        return view.isReady();
-    }
+    void loadView(String virtualOntologyId, String fullConceptId,
+            IsWidget topBarWidget, AsyncCallback<IsWidget> callback);
 
 }

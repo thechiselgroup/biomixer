@@ -26,12 +26,12 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
-public class NoteWindowContent extends AbstractWindowContent implements
+public class CommentWindowContent extends AbstractWindowContent implements
         Persistable {
 
     private static final String CSS_NOTE = "note";
 
-    private static final String MEMENTO_NOTE = CSS_NOTE;
+    private static final String MEMENTO_COMMENT = CSS_NOTE;
 
     /**
      * Note padding in PX.
@@ -40,35 +40,35 @@ public class NoteWindowContent extends AbstractWindowContent implements
      */
     private static final int PADDING = 5;
 
-    private TextArea noteArea;
+    private TextArea commentArea;
 
     /**
      * Wrapper panel to deal with resizing issues (the note has a border and
      * padding which interferes with setting the size etc).
      */
-    private SimplePanel notePanel;
+    private SimplePanel commentPanel;
 
-    public NoteWindowContent() {
-        super("Note", MEMENTO_NOTE);
+    public CommentWindowContent() {
+        super("Comment", MEMENTO_COMMENT);
     }
 
     @Override
     public Widget asWidget() {
-        return notePanel;
+        return commentPanel;
     }
 
     @Override
     public void init() {
         super.init();
 
-        noteArea = new TextArea();
-        noteArea.addStyleName(CSS_NOTE);
+        commentArea = new TextArea();
+        commentArea.addStyleName(CSS_NOTE);
 
-        notePanel = new SimplePanel(noteArea) {
+        commentPanel = new SimplePanel(commentArea) {
             @Override
             public void setPixelSize(int width, int height) {
                 super.setPixelSize(width, height);
-                noteArea.setPixelSize(width - 2 * PADDING, height - 2 * PADDING);
+                commentArea.setPixelSize(width - 2 * PADDING, height - 2 * PADDING);
             }
         };
     }
@@ -78,13 +78,13 @@ public class NoteWindowContent extends AbstractWindowContent implements
             PersistableRestorationService restorationService,
             ResourceSetAccessor accessor) {
 
-        noteArea.setText((String) state.getValue(MEMENTO_NOTE));
+        commentArea.setText((String) state.getValue(MEMENTO_COMMENT));
     }
 
     @Override
     public Memento save(ResourceSetCollector resourceSetCollector) {
         Memento state = new Memento();
-        state.setValue(MEMENTO_NOTE, noteArea.getValue());
+        state.setValue(MEMENTO_COMMENT, commentArea.getValue());
         return state;
     }
 }

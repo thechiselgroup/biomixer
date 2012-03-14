@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.core.util.animation;
 
-import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
+public class GwtAnimationRunner implements AnimationRunner {
 
-import com.google.inject.Inject;
-
-public class BioMixerEmbedInitializer extends EmbedInitializer {
-
-    @Inject
-    private void setConceptNeighbourhoodLoader(ConceptNeighbourhoodLoader loader) {
-        registerLoader(loader);
-    }
-
-    @Inject
-    private void setRootPathsLoader(RootPathsLoader loader) {
-        registerLoader(loader);
-    }
-
-    @Inject
-    private void setTestLayoutLoader(TestLayoutLoader loader) {
-        registerLoader(loader);
+    @Override
+    public void run(final Animation animation, int duration) {
+        new com.google.gwt.animation.client.Animation() {
+            @Override
+            protected void onUpdate(double progress) {
+                // JavaScriptObject insertFunction = DocumentFragmentUtil
+                // .removeToInsertLater(domElement);
+                animation.update(progress);
+                // DocumentFragmentUtil.runFunction(insertFunction);
+            }
+        }.run(duration);
     }
 
 }

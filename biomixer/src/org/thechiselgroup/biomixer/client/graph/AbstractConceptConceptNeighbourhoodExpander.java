@@ -46,10 +46,9 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander extends
     @Override
     protected String getErrorMessageWhenNeighbourhoodloadingFails(
             Resource resource) {
-        return "Could not expand all parent and child concepts for \""
-                + resource.getValue(Concept.LABEL)
-                + "\" (virtual ontology id: "
-                + resource.getValue(Concept.VIRTUAL_ONTOLOGY_ID) + ")";
+        return "Could not expand all parent and child concepts for \" "
+                + resource.getValue(Concept.LABEL) + "\""
+                + getOntologyInfoForErrorMessage(resource);
     }
 
     @Override

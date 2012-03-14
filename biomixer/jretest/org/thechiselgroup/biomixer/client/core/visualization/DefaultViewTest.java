@@ -81,14 +81,20 @@ public class DefaultViewTest {
         MockitoAnnotations.initMocks(this);
 
         underTest = new DefaultView(mock(ViewContentDisplay.class), "label",
-                "contentType", selectionModelPresenter, resourceModelPresenter,
-                mock(VisualMappingsControl.class),
+                "contentType", mock(VisualMappingsControl.class),
                 LightweightCollections.<SidePanelSection> emptyCollection(),
                 viewModel, mock(ResourceModel.class),
                 mock(SelectionModel.class),
                 mock(ManagedSlotMappingConfiguration.class),
                 mock(ManagedSlotMappingConfigurationPersistence.class),
-                mock(ErrorHandler.class), new DisposeUtil(
-                        mock(ErrorHandler.class)), mock(ListBoxControl.class));
+                new DisposeUtil(mock(ErrorHandler.class)),
+                mock(ListBoxControl.class));
+
+        underTest
+                .addTopBarExtension(new LeftViewTopBarExtension(
+                        resourceModelPresenter));
+        underTest
+                .addTopBarExtension(new CenterRightViewTopBarExtension(
+                        selectionModelPresenter));
     }
 }

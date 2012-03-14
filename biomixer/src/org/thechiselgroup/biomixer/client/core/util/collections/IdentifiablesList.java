@@ -59,6 +59,32 @@ public class IdentifiablesList<T extends Identifiable> implements Iterable<T> {
         return identifiablesSet.get(id);
     }
 
+    public Iterable<String> getIds() {
+        return new Iterable<String>() {
+            @Override
+            public Iterator<String> iterator() {
+                final Iterator<T> identifiablesIterator = list.iterator();
+
+                return new Iterator<String>() {
+                    @Override
+                    public boolean hasNext() {
+                        return identifiablesIterator.hasNext();
+                    }
+
+                    @Override
+                    public String next() {
+                        return identifiablesIterator.next().getId();
+                    }
+
+                    @Override
+                    public void remove() {
+                        identifiablesIterator.remove();
+                    }
+                };
+            }
+        };
+    }
+
     @Override
     public Iterator<T> iterator() {
         return list.iterator();

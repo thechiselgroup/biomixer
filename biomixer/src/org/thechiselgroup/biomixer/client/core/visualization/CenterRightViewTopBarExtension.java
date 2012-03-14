@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,37 +13,24 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.util;
+package org.thechiselgroup.biomixer.client.core.visualization;
 
-public final class ObjectUtils {
+import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Widget;
 
-    /**
-     * Equals method that works if both objects are null.
-     */
-    public static boolean equals(Object o1, Object o2) {
-        if (o1 == o2) {
-            return true;
-        }
+public class CenterRightViewTopBarExtension extends
+        AbstractIsWidgetTopBarExtension {
 
-        if (o1 == null || o2 == null) {
-            return false;
-        }
-
-        assert o1 != null && o2 != null;
-
-        return o1.equals(o2);
+    public CenterRightViewTopBarExtension(IsWidget widget) {
+        super(widget);
     }
 
-    /**
-     * {@link #toString()} static method that can handle <code>null</code> cases
-     * (returns empty String for those).
-     */
-    public static String toString(Object o) {
-        return o == null ? "" : o.toString();
+    @Override
+    protected void addWidgetToTopBar(Widget realWidget, DockPanel topBar) {
+        topBar.add(realWidget, DockPanel.CENTER);
+        topBar.setCellHorizontalAlignment(realWidget, HasAlignment.ALIGN_RIGHT);
+        topBar.setCellWidth(realWidget, "100%"); // eats up all
     }
-
-    private ObjectUtils() {
-
-    }
-
 }

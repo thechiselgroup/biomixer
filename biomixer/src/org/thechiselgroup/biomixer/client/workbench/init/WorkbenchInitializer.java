@@ -88,7 +88,7 @@ public abstract class WorkbenchInitializer implements ApplicationInitializer {
 
     public static final String WINDOW_CONTENT_HELP = "help";
 
-    public static final String WINDOW_CONTENT_NOTE = "note";
+    public static final String WINDOW_CONTENT_COMMENT = "comment";
 
     public static final String WORKSPACE_ID = "workspaceId";
 

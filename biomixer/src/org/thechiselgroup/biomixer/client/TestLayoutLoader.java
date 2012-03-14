@@ -1,6 +1,6 @@
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.embeds.TermNeighbourhoodLoader;
 
 /**
  * This embed is just for testing layouts through visual inspection.
@@ -8,18 +8,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
  * @author drusk
  * 
  */
-public class TestLayoutLoader extends ConceptNeighbourhoodLoader {
+public class TestLayoutLoader extends TermNeighbourhoodLoader {
 
     public static final String EMBED_MODE = "test";
-
-    @Override
-    public String getEmbedMode() {
-        return EMBED_MODE;
-    }
-
-    @Override
-    protected void setLayoutAlgorithm() {
-        this.layoutAlgorithm = new ForceDirectedLayoutAlgorithm(errorHandler);
-    }
 
 }

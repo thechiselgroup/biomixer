@@ -15,7 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization;
 
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
@@ -26,9 +28,10 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceMultiCategorize
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.ui.ImageButton;
-import org.thechiselgroup.biomixer.client.core.ui.Presenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.VisibilityChangeEvent;
+import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.VisibilityChangeHandler;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -89,30 +92,26 @@ public class DefaultView implements View {
 
     private static final String CSS_VIEW_ERROR_LIST_BOX = "view-errorListBox";
 
-    // TODO rename
-    private DockPanel configurationBar;
+    private DockPanel topBar;
 
-    // TODO rename
-    private StackPanel sideBar;
+    private List<ViewTopBarExtension> topBarExtensions = new ArrayList<ViewTopBarExtension>();
 
-    /**
-     * The main panel of this view. It contains all other widgets of this view.
-     */
-    private ViewPanel viewPanel;
-
-    private Presenter resourceModelPresenter;
-
-    private Presenter selectionModelPresenter;
-
-    private int width;
-
-    private int height;
+    private StackPanel sidePanel;
 
     /**
      * Sections that will be displayed in the side panel. This is a lightweight
      * collections so we can check whether it is empty or not.
      */
     private final LightweightCollection<SidePanelSection> sidePanelSections;
+
+    /**
+     * The main panel of this view. It contains all other widgets of this view.
+     */
+    private ViewPanel viewPanel;
+
+    private int width;
+
+    private int height;
 
     private final ViewContentDisplay contentDisplay;
 
@@ -125,8 +124,6 @@ public class DefaultView implements View {
     private boolean isInitialized;
 
     private final String contentType;
-
-    private final ErrorHandler errorHandler;
 
     private final ListBoxControl<ThrowableCaught> errorListBoxControl;
 
@@ -154,8 +151,6 @@ public class DefaultView implements View {
             ViewContentDisplay contentDisplay,
             String label,
             String contentType,
-            Presenter selectionModelPresenter,
-            Presenter resourceModelPresenter,
             VisualMappingsControl visualMappingsControl,
             LightweightCollection<SidePanelSection> sidePanelSections,
             VisualizationModel visualizationModel,
@@ -163,41 +158,46 @@ public class DefaultView implements View {
             SelectionModel selectionModel,
             ManagedSlotMappingConfiguration managedSlotMappingConfiguration,
             ManagedSlotMappingConfigurationPersistence managedSlotMappingConfigurationPersistence,
-            ErrorHandler errorHandler, DisposeUtil disposeUtil,
+            DisposeUtil disposeUtil,
             ListBoxControl<ThrowableCaught> errorListBoxControl) {
 
         assert label != null;
         assert contentType != null;
         assert contentDisplay != null;
-        assert selectionModelPresenter != null;
-        assert resourceModelPresenter != null;
         assert sidePanelSections != null;
         assert visualizationModel != null;
         assert resourceModel != null;
         assert selectionModel != null;
         assert managedSlotMappingConfiguration != null;
         assert managedSlotMappingConfigurationPersistence != null;
-        assert errorHandler != null;
+        assert disposeUtil != null;
+        assert errorListBoxControl != null;
 
         this.label = label;
         this.contentType = contentType;
         this.contentDisplay = contentDisplay;
-        this.selectionModelPresenter = selectionModelPresenter;
-        this.resourceModelPresenter = resourceModelPresenter;
         this.sidePanelSections = sidePanelSections;
         this.visualizationModel = visualizationModel;
         this.selectionModel = selectionModel;
         this.resourceModel = resourceModel;
         this.managedSlotMappingConfiguration = managedSlotMappingConfiguration;
         this.managedSlotMappingConfigurationPersistence = managedSlotMappingConfigurationPersistence;
-        this.errorHandler = errorHandler;
         this.disposeUtil = disposeUtil;
         this.errorListBoxControl = errorListBoxControl;
+        registerErrorListBoxVisibilityChangeHandler();
     }
 
     @Override
     public <T> T adaptTo(Class<T> clazz) throws NoSuchAdapterException {
         return contentDisplay.adaptTo(clazz);
+    }
+
+    @Override
+    public void addTopBarExtension(ViewTopBarExtension extension) {
+        assert extension != null;
+        assert !isInitialized;
+
+        this.topBarExtensions.add(extension);
     }
 
     @Override
@@ -207,10 +207,11 @@ public class DefaultView implements View {
 
     @Override
     public void dispose() {
-        resourceModelPresenter = disposeUtil
-                .safelyDispose(resourceModelPresenter);
-        selectionModelPresenter = disposeUtil
-                .safelyDispose(selectionModelPresenter);
+        for (ViewTopBarExtension extension : topBarExtensions) {
+            disposeUtil.safelyDispose(extension);
+        }
+        topBarExtensions = null;
+
         visualizationModel = disposeUtil.safelyDispose(visualizationModel);
     }
 
@@ -275,50 +276,32 @@ public class DefaultView implements View {
     public void init() {
         assert !isInitialized : "view has already been initialized";
 
-        resourceModelPresenter.init();
         initUI();
 
         isInitialized = true;
     }
 
     private void initConfigurationPanelUI() {
-        configurationBar = new DockPanel();
-        configurationBar.setSize("100%", "");
-        configurationBar.setStyleName(CSS_VIEW_CONFIGURATION_PANEL);
+        topBar = new DockPanel();
+        topBar.setSize("100%", "");
+        topBar.setStyleName(CSS_VIEW_CONFIGURATION_PANEL);
 
-        initResourceModelPresenter();
+        for (ViewTopBarExtension extension : topBarExtensions) {
+            extension.init(topBar);
+        }
         initSideBarExpander();
-        initSelectionModelPresenter();
-    }
-
-    private void initResourceModelPresenter() {
-        Widget widget = resourceModelPresenter.asWidget();
-
-        configurationBar.add(widget, DockPanel.WEST);
-        configurationBar.setCellHorizontalAlignment(widget,
-                HasAlignment.ALIGN_LEFT);
-    }
-
-    private void initSelectionModelPresenter() {
-        selectionModelPresenter.init();
-
-        Widget widget = selectionModelPresenter.asWidget();
-        configurationBar.add(widget, DockPanel.EAST);
-        configurationBar.setCellHorizontalAlignment(widget,
-                HasAlignment.ALIGN_RIGHT);
-        configurationBar.setCellWidth(widget, "100%"); // eats up all space
     }
 
     private void initSideBar() {
-        assert sideBar == null;
+        assert sidePanel == null;
         assert sidePanelSections != null;
 
-        sideBar = new StackPanel();
-        sideBar.setStyleName(CSS_CONFIGURATION_PANEL);
-        sideBar.setVisible(false);
+        sidePanel = new StackPanel();
+        sidePanel.setStyleName(CSS_CONFIGURATION_PANEL);
+        sidePanel.setVisible(false);
 
         for (SidePanelSection sidePanelSection : sidePanelSections) {
-            sideBar.add(sidePanelSection.getWidget(),
+            sidePanel.add(sidePanelSection.getWidget(),
                     sidePanelSection.getSectionTitle());
         }
     }
@@ -332,14 +315,13 @@ public class DefaultView implements View {
 
             @Override
             public void onClick(ClickEvent event) {
-                sideBar.setVisible(!sideBar.isVisible());
+                sidePanel.setVisible(!sidePanel.isVisible());
                 updateContentDisplaySize();
             }
         });
 
-        configurationBar.add(expander, DockPanel.EAST);
-        configurationBar.setCellHorizontalAlignment(expander,
-                HasAlignment.ALIGN_RIGHT);
+        topBar.add(expander, DockPanel.EAST);
+        topBar.setCellHorizontalAlignment(expander, HasAlignment.ALIGN_RIGHT);
     }
 
     protected void initUI() {
@@ -353,9 +335,9 @@ public class DefaultView implements View {
 
         viewPanel.setSize("500px", "300px");
 
-        viewPanel.add(configurationBar, DockPanel.NORTH);
+        viewPanel.add(topBar, DockPanel.NORTH);
         viewPanel.add(contentDisplay.asWidget(), DockPanel.CENTER);
-        viewPanel.add(sideBar, DockPanel.EAST);
+        viewPanel.add(sidePanel, DockPanel.EAST);
 
         Widget errorListBox = errorListBoxControl.asWidget();
         errorListBox.setSize("100%", "");
@@ -374,6 +356,16 @@ public class DefaultView implements View {
     // XXX remove once content display lifecycle working
     public boolean isReady() {
         return contentDisplay.isReady();
+    }
+
+    private void registerErrorListBoxVisibilityChangeHandler() {
+        errorListBoxControl
+                .registerVisibilityChangeHandler(new VisibilityChangeHandler() {
+                    @Override
+                    public void onVisibilityChange(VisibilityChangeEvent event) {
+                        updateContentDisplaySize();
+                    }
+                });
     }
 
     @Override
@@ -509,11 +501,11 @@ public class DefaultView implements View {
          */
 
         int targetHeight = errorListBoxControl.isVisible() ? height
-                - configurationBar.getOffsetHeight()
+                - topBar.getOffsetHeight()
                 - errorListBoxControl.asWidget().getOffsetHeight() : height
-                - configurationBar.getOffsetHeight();
-        int targetWidth = sideBar.isVisible() ? width
-                - sideBar.getOffsetWidth() : width;
+                - topBar.getOffsetHeight();
+        int targetWidth = sidePanel.isVisible() ? width
+                - sidePanel.getOffsetWidth() : width;
 
         contentDisplay.setSize(targetWidth, targetHeight);
     }

@@ -91,10 +91,9 @@ public class ConceptMappingNeighbourhoodExpander extends
                             return new Exception(
                                     "Could not get basic information for \""
                                             + concept.getValue(Concept.LABEL)
-                                            + "\" (virtual ontology id: "
-                                            + concept
-                                                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID)
-                                            + ")", caught);
+                                            + "\" "
+                                            + getOntologyInfoForErrorMessage(concept),
+                                    caught);
                         }
                     });
         }

@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.visualization;
+package org.thechiselgroup.biomixer.client.core.util.transform;
 
-import org.thechiselgroup.biomixer.shared.core.util.Condition;
+import org.thechiselgroup.biomixer.client.core.util.ObjectUtils;
 
-public class ViewIsReadyCondition implements Condition {
-
-    private final View view;
-
-    public ViewIsReadyCondition(View view) {
-        this.view = view;
-    }
+public class ToStringTransformer<T> implements Transformer<T, String> {
 
     @Override
-    public boolean isMet() {
-        return view.isReady();
+    public String transform(T value) throws Exception {
+        return ObjectUtils.toString(value);
     }
 
 }

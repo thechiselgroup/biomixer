@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2012 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,37 +13,22 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.core.util;
+package org.thechiselgroup.biomixer.client;
 
-public final class ObjectUtils {
+import java.util.ArrayList;
+import java.util.List;
 
-    /**
-     * Equals method that works if both objects are null.
-     */
-    public static boolean equals(Object o1, Object o2) {
-        if (o1 == o2) {
-            return true;
-        }
+import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.DefaultSelectionModel;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.ResourceModel;
 
-        if (o1 == null || o2 == null) {
-            return false;
-        }
+public class BioMixerEmbedViewWindowContentProducer extends
+        BioMixerViewWindowContentProducer {
 
-        assert o1 != null && o2 != null;
+    @Override
+    protected List<ViewTopBarExtension> createViewTopBarExtensions(
+            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
 
-        return o1.equals(o2);
+        return new ArrayList<ViewTopBarExtension>();
     }
-
-    /**
-     * {@link #toString()} static method that can handle <code>null</code> cases
-     * (returns empty String for those).
-     */
-    public static String toString(Object o) {
-        return o == null ? "" : o.toString();
-    }
-
-    private ObjectUtils() {
-
-    }
-
 }

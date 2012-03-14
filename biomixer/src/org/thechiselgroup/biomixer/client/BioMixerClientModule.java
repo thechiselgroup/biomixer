@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.M
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.ui.VisualItemValueResolverUIControllerFactoryProvider;
 import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
 import org.thechiselgroup.biomixer.client.services.NcboRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
@@ -121,10 +122,14 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
     @Override
     protected void bindWindowContentProducer() {
         bind(ViewWindowContentProducer.class).to(
-                BioMixerViewWindowContentProducerProvider.class).in(
-                Singleton.class);
+                BioMixerViewWindowContentProducer.class).in(Singleton.class);
         bind(WindowContentProducer.class).toProvider(
                 BioMixerWindowContentProducerProvider.class)
+                .in(Singleton.class);
+
+        bind(ViewWindowContentProducer.class)
+                .annotatedWith(Names.named("embed"))
+                .to(BioMixerEmbedViewWindowContentProducer.class)
                 .in(Singleton.class);
     }
 

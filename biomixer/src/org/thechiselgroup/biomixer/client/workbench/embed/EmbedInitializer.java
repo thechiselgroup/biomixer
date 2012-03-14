@@ -20,12 +20,12 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.BrowserDetect;
-import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.ApplicationInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 public class EmbedInitializer implements ApplicationInitializer {
@@ -60,17 +60,21 @@ public class EmbedInitializer implements ApplicationInitializer {
         // if there is good error handling in choosel entry point we dont need
         // this
 
-        String embedMode = windowLocation.getParameter(EMBED_MODE_PARAMETER);
+        loadEmbed(windowLocation.getParameter(EMBED_MODE_PARAMETER));
+    }
+
+    private void loadEmbed(String embedMode) {
         if (!embedLoaders.containsKey(embedMode)) {
             embedContainer.setInfoText("Embed mode '" + embedMode
                     + "' is invalid.");
             return;
         }
 
-        embedContainer.setInfoText("Loading...");
+        EmbeddedViewLoader embeddedViewLoader = embedLoaders.get(embedMode);
 
-        embedLoaders.get(embedMode).loadView(windowLocation,
-                new AsyncCallback<View>() {
+        embedContainer.setInfoText("Loading...");
+        embeddedViewLoader.loadView(windowLocation, embedMode,
+                new AsyncCallback<IsWidget>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         loggingErrorHandler.handleError(caught);
@@ -78,15 +82,22 @@ public class EmbedInitializer implements ApplicationInitializer {
                     }
 
                     @Override
-                    public void onSuccess(View result) {
+                    public void onSuccess(IsWidget result) {
                         embedContainer.setWidget(result.asWidget());
+                    }
+                }, new EmbedLoader() {
+                    @Override
+                    public void switchMode(String embedMode) {
+                        loadEmbed(embedMode);
                     }
                 });
     }
 
     protected void registerLoader(EmbeddedViewLoader loader) {
         assert loader != null;
-        embedLoaders.put(loader.getEmbedMode(), loader);
+        for (String embedMode : loader.getEmbedModes()) {
+            embedLoaders.put(embedMode, loader);
+        }
     }
 
     @SuppressWarnings("unused")

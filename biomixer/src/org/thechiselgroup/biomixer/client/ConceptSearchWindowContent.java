@@ -161,11 +161,10 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
 
         searchService.searchConcepts(searchTerm,
                 new AsyncCallback<Set<Resource>>() {
-                    // TODO better failure handling
                     @Override
                     public void onFailure(Throwable caught) {
-                        infoLabel.setText("Search failed: "
-                                + caught.getMessage());
+                        infoLabel.setText("Search failed for '" + searchTerm
+                                + "'");
                         deckPanel.updateWindowSize();
                     }
 
@@ -189,6 +188,15 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
                                 resourceSet);
 
                         deckPanel.showWidget(0);
+
+                        /*
+                         * Resizing the deck panel to minimum height of 400px to
+                         * ensure that results are visible.
+                         */
+                        int offsetHeight = deckPanel.getOffsetHeight();
+                        int offsetWidth = deckPanel.getOffsetWidth();
+                        deckPanel.setPixelSize(offsetWidth,
+                                offsetHeight > 400 ? offsetWidth : 400);
                         deckPanel.updateWindowSize();
 
                         resultView.getModel().setResolver(

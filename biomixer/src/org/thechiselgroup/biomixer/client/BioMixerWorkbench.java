@@ -59,7 +59,8 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
                 TextVisualization.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline", TimeLine.ID);
-        addCreateWindowActionToToolbar(VIEWS_PANEL, "Note", "note");
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Comment",
+                WorkbenchInitializer.WINDOW_CONTENT_COMMENT);
     }
 
     @Override
