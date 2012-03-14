@@ -16,7 +16,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-public class ForceDirectedLayoutLoader {
+// XXX actual file generation is commented out because FileWriter can't be used with GAE
+// TODO some way of periodically running this to refresh the data
+public class OntologyOverviewDataRetriever {
     private static String getTagValue(String sTag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0)
                 .getChildNodes();
@@ -178,6 +180,8 @@ public class ForceDirectedLayoutLoader {
             json += "]}";
             System.out.println("Number of ontologies " + temp);
 
+            // XXX uncomment the file writer and related objects here in order
+            // to write results. Does not work with GAE
             // Write the string into a file
             // Create file
             // FileWriter fstream = new FileWriter("data.json");
