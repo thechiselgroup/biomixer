@@ -27,4 +27,11 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
         registerLoader(loader);
     }
 
+    @SuppressWarnings("unused")
+    @Inject
+    private void setJavascriptBasedVisualizationLoader(
+            ForceDirectedOntologyOverviewLoader loader) {
+        registerLoader(loader);
+    }
+
 }
