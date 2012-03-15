@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 
 public class DefaultBoundsDouble implements BoundsDouble {
@@ -45,6 +46,12 @@ public class DefaultBoundsDouble implements BoundsDouble {
     @Override
     public double getBottomY() {
         return bottomY;
+    }
+
+    @Override
+    public PointDouble getCentre() {
+        return new PointDouble(getLeftX() + getWidth() / 2, getTopY()
+                + getHeight() / 2);
     }
 
     @Override
