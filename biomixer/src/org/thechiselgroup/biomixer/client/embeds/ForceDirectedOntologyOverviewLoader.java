@@ -41,6 +41,15 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
     public static final String EMBED_MODE = "fd_oo";
 
+    public static native void layout()/*-{
+		var svg = $wnd.d3.select("body").append("svg:svg").attr("width", 100)
+				.attr("height", 100);
+
+		svg.append('svg:circle').attr('cx', 50).attr('cy', 50).attr('r', 30)
+				.attr('fill', 'red');
+
+    }-*/;
+
     @Inject
     private OntologyOverviewServiceAsync ontologyOverviewService;
 
@@ -64,7 +73,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
                     @Override
                     protected void runOnSuccess(String json) {
                         // 2. on success -> call javascript code, passing in
-                        // data
+                        layout();
                         System.out.println("Got json from server");
                         System.out.println(json);
                     }
