@@ -42,12 +42,17 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
     public static final String EMBED_MODE = "fd_oo";
 
     public static native void layout()/*-{
-		var svg = $wnd.d3.select("body").append("svg:svg").attr("width", 100)
+		var newDiv = $doc.createElement('div');
+		newDiv.id = "layout";
+		var iframe = $doc
+				.getElementById("org.thechiselgroup.biomixer.BioMixerWorkbench")
+		iframe.contentDocument.body.appendChild(newDiv);
+		//$doc.body.appendChild(newDiv);
+		var svg = $wnd.d3.select(newDiv).append("svg:svg").attr("width", 100)
 				.attr("height", 100);
 
 		svg.append('svg:circle').attr('cx', 50).attr('cy', 50).attr('r', 30)
 				.attr('fill', 'red');
-
     }-*/;
 
     @Inject
@@ -73,6 +78,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
                     @Override
                     protected void runOnSuccess(String json) {
                         // 2. on success -> call javascript code, passing in
+
                         layout();
                         System.out.println("Got json from server");
                         System.out.println(json);
