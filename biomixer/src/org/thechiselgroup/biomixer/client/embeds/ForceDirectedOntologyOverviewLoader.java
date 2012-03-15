@@ -50,8 +50,9 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
 		var jsonObject = eval('(' + json + ')');
 
-		var w = 1400, h = 1000
+		var w = $wnd.innerWidth, h = $wnd.innerHeight
 
+		//initialize the visualization
 		var vis = $wnd.d3.select(div).append("svg:svg").attr("width", w).attr(
 				"height", h).attr("pointer-events", "all").append('svg:g')
 				.call($wnd.d3.behavior.zoom().on("zoom", redraw)).append(
@@ -60,6 +61,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 		vis.append('svg:rect').attr('width', w).attr('height', h).attr('fill',
 				'white');
 
+		//redraw on zoom
 		function redraw() {
 			console.log("here", $wnd.d3.event.translate, $wnd.d3.event.scale);
 			vis.attr("transform", "translate(" + $wnd.d3.event.translate + ")"
@@ -69,10 +71,12 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 		drawLayout(jsonObject);
 
 		function drawLayout(json) {
+			//initialize the force directed layout
 			var force = self.force = $wnd.d3.layout.force().nodes(json.nodes)
 					.links(json.links).gravity(.05).distance(600).charge(-100)
 					.size([ w, h ]).start();
 
+			//initialize links
 			var link = vis.selectAll("line.link").data(json.links).enter()
 					.append("svg:line").attr("class", "link").attr("x1",
 							function(d) {
@@ -94,6 +98,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 			link.on("mouseover", highlightLink()).on("mouseout",
 					changeColourBack("#496BB0", "#999"));
 
+			//initialize nodes
 			var node = vis.selectAll("g.node").data(json.nodes).enter().append(
 					"svg:g").attr("class", "node").call(force.drag);
 
@@ -137,6 +142,8 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 				});
 			});
 		}
+
+		// highlight nodes and link on mouse over the link
 		function highlightLink() {
 			return function(d, i) {
 
@@ -164,6 +171,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 			}
 		}
 
+		//highlight nodes and links on mouse over the node
 		function changeColour(circleFill, lineFill, circlesFill, opacity) {
 			return function(d, i) {
 
@@ -204,6 +212,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 			};
 		}
 
+		// change the colours back to the initial state
 		function changeColourBack(circleFill, lineFill) {
 			return function(d, i) {
 				$wnd.d3.selectAll("circle").style("fill", circleFill).style(
@@ -235,8 +244,8 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
                     @Override
                     protected void runOnSuccess(String json) {
                         // 2. call javascript code passing in json
-
                         // using label to get an empty div
+
                         Label label = new Label();
                         applyD3Layout(label.getElement(), json);
                         callback.onSuccess(label);
