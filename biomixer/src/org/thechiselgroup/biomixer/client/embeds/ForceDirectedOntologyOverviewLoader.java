@@ -23,8 +23,10 @@ import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
 import com.google.inject.Inject;
 
 /**
@@ -41,22 +43,16 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
     public static final String EMBED_MODE = "fd_oo";
 
-    public static native void layout()/*-{
-		var newDiv = $doc.createElement('div');
-		newDiv.id = "layout";
-		var iframe = $doc
-				.getElementById("org.thechiselgroup.biomixer.BioMixerWorkbench")
-		iframe.contentDocument.body.appendChild(newDiv);
-		//$doc.body.appendChild(newDiv);
-		var svg = $wnd.d3.select(newDiv).append("svg:svg").attr("width", 100)
+    @Inject
+    private OntologyOverviewServiceAsync ontologyOverviewService;
+
+    private native void applyD3Layout(Element div)/*-{
+		var svg = $wnd.d3.select(div).append("svg:svg").attr("width", 100)
 				.attr("height", 100);
 
 		svg.append('svg:circle').attr('cx', 50).attr('cy', 50).attr('r', 30)
 				.attr('fill', 'red');
     }-*/;
-
-    @Inject
-    private OntologyOverviewServiceAsync ontologyOverviewService;
 
     @Override
     public Iterable<String> getEmbedModes() {
@@ -65,7 +61,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
-            AsyncCallback<IsWidget> callback, EmbedLoader loader) {
+            final AsyncCallback<IsWidget> callback, EmbedLoader loader) {
 
         // won't need WindowLocation for this embed because it just loads data
         // from a file on server
@@ -77,11 +73,12 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
                     @Override
                     protected void runOnSuccess(String json) {
-                        // 2. on success -> call javascript code, passing in
+                        // 2. call javascript code passing in json
 
-                        layout();
-                        System.out.println("Got json from server");
-                        System.out.println(json);
+                        // using label to get an empty div
+                        Label label = new Label();
+                        applyD3Layout(label.getElement());
+                        callback.onSuccess(label);
                     }
 
                 });
