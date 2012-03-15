@@ -46,12 +46,84 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
     @Inject
     private OntologyOverviewServiceAsync ontologyOverviewService;
 
-    private native void applyD3Layout(Element div)/*-{
-		var svg = $wnd.d3.select(div).append("svg:svg").attr("width", 100)
-				.attr("height", 100);
+    private native void applyD3Layout(Element div, String json)/*-{
 
-		svg.append('svg:circle').attr('cx', 50).attr('cy', 50).attr('r', 30)
-				.attr('fill', 'red');
+		var jsonObject = eval('(' + json + ')');
+
+		var w = 1400, h = 1000
+
+		var vis = $wnd.d3.select(div).append("svg:svg").attr("width", w).attr(
+				"height", h).attr("pointer-events", "all").append('svg:g');
+
+		drawLayout(jsonObject);
+		function drawLayout(json) {
+			var force = self.force = $wnd.d3.layout.force().nodes(json.nodes)
+					.links(json.links).gravity(.05).distance(600).charge(-100)
+					.size([ w, h ]).start();
+
+			var link = vis.selectAll("line.link").data(json.links).enter()
+					.append("svg:line").attr("class", "link").attr("x1",
+							function(d) {
+								return d.source.x;
+							}).attr("y1", function(d) {
+						return d.source.y;
+					}).attr("x2", function(d) {
+						return d.target.x;
+					}).attr("y2", function(d) {
+						return d.target.y;
+					}).style("stroke-width", function(d) {
+						return Math.sqrt(Math.ceil(d.value / 10));
+					});
+
+			link.append("title").text(function(d) {
+				return "Number Of Mappings: " + d.sourceMappings;
+			});
+
+			//link.on("mouseover", highlightLink()).on("mouseout",
+			//		changeColourBack("#496BB0", "#999"));
+
+			var node = vis.selectAll("g.node").data(json.nodes).enter().append(
+					"svg:g").attr("class", "node").call(force.drag);
+
+			node.append("svg:circle").attr("class", "circle").attr("cx", "0px")
+					.attr("cy", "0px").style("fill", "#496BB0").attr("r",
+							function(d) {
+								return Math.sqrt((d.number) / 10);
+							});
+			//.on("mouseover",
+			//changeColour("#FC6854", "#ff1", "#ff1", .1)).on(
+			//"mouseout", changeColourBack("#496BB0", "#999"));
+
+			node.append("title").text(function(d) {
+				return "Number Of Terms: " + d.number;
+			});
+
+			node.append("svg:text").attr("class", "nodetext").attr("dx", 12)
+					.attr("dy", 1).text(function(d) {
+						return d.name;
+					});
+
+			node.append("svg:text").attr("class", "nodetext").attr("x", 12)
+					.attr("y", 1).text(function(d) {
+						return d.name;
+					});
+
+			force.on("tick", function() {
+				link.attr("x1", function(d) {
+					return d.source.x;
+				}).attr("y1", function(d) {
+					return d.source.y;
+				}).attr("x2", function(d) {
+					return d.target.x;
+				}).attr("y2", function(d) {
+					return d.target.y;
+				});
+
+				node.attr("transform", function(d) {
+					return "translate(" + d.x + "," + d.y + ")";
+				});
+			});
+		}
     }-*/;
 
     @Override
@@ -77,11 +149,10 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
                         // using label to get an empty div
                         Label label = new Label();
-                        applyD3Layout(label.getElement());
+                        applyD3Layout(label.getElement(), json);
                         callback.onSuccess(label);
                     }
 
                 });
-
     }
 }
