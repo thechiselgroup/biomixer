@@ -20,7 +20,7 @@ import org.thechiselgroup.biomixer.client.core.util.animation.Interpolations;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
- * Animates movement of a node during application of a layout.
+ * Animates the movement of a node.
  * 
  * @author drusk
  * 
@@ -38,6 +38,8 @@ public class LayoutNodeAnimation implements Animation {
     private final double destinationY;
 
     private Interpolations interpolator = new Interpolations();
+
+    // TODO easing function instead of plain interpolator
 
     public LayoutNodeAnimation(LayoutNode node, double destinationX,
             double destinationY) {

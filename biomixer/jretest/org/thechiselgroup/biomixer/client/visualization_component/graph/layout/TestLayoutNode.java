@@ -17,6 +17,8 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
 
 public class TestLayoutNode implements LayoutNode {
 
@@ -38,6 +40,8 @@ public class TestLayoutNode implements LayoutNode {
 
     private DefaultSizeDouble labelSize;
 
+    private TestAnimationRunner animationRunner = new TestAnimationRunner();
+
     public TestLayoutNode(double width, double height, boolean isAnchored,
             double labelWidth, double LabelHeight, LayoutNodeType type) {
 
@@ -56,6 +60,10 @@ public class TestLayoutNode implements LayoutNode {
         this.type = type;
         this.hasLabel = false;
         this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
+    public void animateTo(double x, double y) {
+        animationRunner.run(new LayoutNodeAnimation(this, x, y), 2);
     }
 
     @Override

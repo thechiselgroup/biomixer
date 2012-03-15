@@ -20,6 +20,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.parser.SvgResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -74,6 +76,11 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
         Node node = new Node(id, label, type);
         underTest.addNode(node);
         return node;
+    }
+
+    protected TestAnimationRunner animate(Node node, Point destination) {
+        underTest.animateMoveTo(node, destination);
+        return underTest.getAnimationRunner();
     }
 
     /**

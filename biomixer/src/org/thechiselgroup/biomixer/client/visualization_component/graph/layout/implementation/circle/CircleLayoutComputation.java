@@ -44,7 +44,6 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
-
         List<LayoutNode> allNodes = graph.getAllNodes();
         double angleBetweenNodes = getAngleBetweenNodes(allNodes);
 
@@ -92,8 +91,8 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             return angleSpread / (allNodes.size() - 1);
         } else {
             /*
-             * do not place a node at both maxAngle and minAngle becaues they
-             * definately will overlap
+             * do not place a node at both maxAngle and minAngle because they
+             * definitely will overlap
              */
             return angleSpread / allNodes.size();
         }

@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.LayoutNodeAnimationWrapper;
 
 /**
  * Takes a graph and finds all the separate {@link DirectedNodeNetwork}s on it.
@@ -46,7 +47,15 @@ public class NetworkBuilder {
         List<NetworkNode> potentialRoots = new ArrayList<NetworkNode>();
         for (LayoutNode node : graph.getAllNodes()) {
             NetworkNode root = new NetworkNode(node);
-            networkNodes.put(node, root);
+            // XXX how can I properly retrieve a source/target node from an arc
+            // if I am wrapping them?
+            if (node instanceof LayoutNodeAnimationWrapper) {
+                networkNodes.put(
+                        ((LayoutNodeAnimationWrapper) node).getWrappedNode(),
+                        root);
+            } else {
+                networkNodes.put(node, root);
+            }
             potentialRoots.add(root);
         }
 

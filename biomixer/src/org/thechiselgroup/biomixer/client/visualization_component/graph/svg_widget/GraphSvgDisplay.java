@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
@@ -43,6 +45,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
@@ -116,6 +119,10 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     private IdentifiablesList<DefaultLayoutArcType> arcTypes = new IdentifiablesList<DefaultLayoutArcType>();
 
+    protected AnimationRunner animationRunner;
+
+    private int animationDuation = 3000;
+
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
     private Map<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = new HashMap<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>>();
@@ -144,6 +151,8 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
         nodeInteractionManager = new NodeInteractionManager(this);
         initViewWideInteractionHandler();
+
+        this.animationRunner = initAnimationRunner();
     }
 
     @Override
@@ -280,9 +289,9 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
-        // TODO animate by finding intermediate positions along path to
-        // targetLocations and using setLocation on each of them in turn?
-        setLocation(node, targetLocation);
+        LayoutNodeAnimation animation = new LayoutNodeAnimation(nodes.get(node
+                .getId()), targetLocation.getX(), targetLocation.getY());
+        animationRunner.run(animation, 2);
     }
 
     public SvgElement asSvg() {
@@ -337,12 +346,10 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     @Override
     public List<LayoutNode> getAllNodes() {
-        // TODO is there a way to cast an existing List<NodeSvgComponent> down
-        // to List<LayoutNode> ? Because then nodes.asList() could be used
-        // instead of making new list
         List<LayoutNode> layoutNodes = new ArrayList<LayoutNode>();
         for (LayoutNode layoutNode : nodes) {
-            layoutNodes.add(layoutNode);
+            layoutNodes.add(new LayoutNodeAnimationWrapper(layoutNode,
+                    animationRunner, animationDuation));
         }
         return layoutNodes;
     }
@@ -449,6 +456,10 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
         return layoutNodeTypes;
     }
 
+    protected AnimationRunner initAnimationRunner() {
+        return new GwtAnimationRunner();
+    }
+
     private void initBackground(int width, int height) {
         background = svgElementFactory.createElement(Svg.RECT);
         background.setAttribute(Svg.WIDTH, width);
@@ -525,7 +536,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
         int endX = startX + deltaX;
         int endY = startY + deltaY;
 
-        animateMoveTo(nodes.get(nodeId).getNode(), new Point(endX, endY));
+        setLocation(nodes.get(nodeId).getNode(), new Point(endX, endY));
         eventBus.fireEvent(new NodeDragEvent(nodes.get(nodeId).getNode(),
                 startX, startY, endX, endY));
         clearPopups();
