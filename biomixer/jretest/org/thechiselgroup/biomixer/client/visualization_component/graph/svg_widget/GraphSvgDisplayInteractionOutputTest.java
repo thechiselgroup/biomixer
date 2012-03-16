@@ -53,7 +53,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
                 TestEventFactory.createMouseclickEvent());
         verify(menuItemHandler0, times(1)).onNodeMenuItemClicked(node);
         // mock handler will not add nodes, but tab menu should still disappear
-        assertComponentWithIdEqualsFile(N1, "basicNode");
+        assertComponentWithIdEqualsFile(N1, "basicNode1");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class GraphSvgDisplayInteractionOutputTest extends
                 TestEventFactory.createMouseclickEvent());
         underTest.fireViewWideTestEvent(createMouseMoveEvent(300, 200));
         underTest.fireViewWideTestEvent(createMouseDownEvent(300, 200));
-        assertComponentWithIdEqualsFile(N1, "basicNode");
+        assertComponentWithIdEqualsFile(N1, "basicNode1");
     }
 
     @Test
