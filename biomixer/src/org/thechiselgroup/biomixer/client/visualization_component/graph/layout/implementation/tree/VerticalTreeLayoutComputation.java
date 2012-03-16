@@ -34,7 +34,7 @@ public class VerticalTreeLayoutComputation extends AbstractLayoutComputation {
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
-        List<DirectedNodeNetwork> treesOnGraph = new NetworkBuilder().getNetworks(graph);
+        List<DirectedAcyclicGraph> treesOnGraph = new DagBuilder().getDags(graph);
         assert treesOnGraph.size() >= 1;
 
         BoundsDouble graphBounds = graph.getBounds();
@@ -46,21 +46,21 @@ public class VerticalTreeLayoutComputation extends AbstractLayoutComputation {
                 / treesOnGraph.size();
 
         for (int i = 0; i < treesOnGraph.size(); i++) {
-            DirectedNodeNetwork tree = treesOnGraph.get(i);
+            DirectedAcyclicGraph tree = treesOnGraph.get(i);
 
             double verticalSpacing = graphBounds.getHeight()
                     / (tree.getNumberOfNodesOnLongestPath() + 1);
             double currentY = verticalSpacing;
 
             for (int j = 0; j < tree.getNumberOfNodesOnLongestPath(); j++) {
-                List<NetworkNode> nodesAtDepth = tree.getNodesAtDistanceFromRoot(j);
+                List<DagNode> nodesAtDepth = tree.getNodesAtDistanceFromRoot(j);
 
                 double horizontalSpacing = availableWidthForEachTree
                         / (nodesAtDepth.size() + 1);
 
                 double currentX = i * availableWidthForEachTree
                         + horizontalSpacing;
-                for (NetworkNode treeNode : nodesAtDepth) {
+                for (DagNode treeNode : nodesAtDepth) {
                     LayoutNode layoutNode = treeNode.getLayoutNode();
                     PointDouble topLeft = getTopLeftForCentreAt(currentX,
                             currentY, layoutNode);

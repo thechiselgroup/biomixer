@@ -23,44 +23,44 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
- * A single node in a {@link DirectedNodeNetwork}. Wraps a {@link LayoutNode} so
- * that it can be placed into the network structure.
+ * A single node in a {@link DirectedAcyclicGraph}. Wraps a {@link LayoutNode}
+ * so that it can be placed into the graph structure.
  * 
  * @author drusk
  * 
  */
-public class NetworkNode {
+public class DagNode {
 
     private final LayoutNode layoutNode;
 
-    private final List<NetworkNode> children = new ArrayList<NetworkNode>();
+    private final List<DagNode> children = new ArrayList<DagNode>();
 
-    public NetworkNode(LayoutNode layoutNode) {
+    public DagNode(LayoutNode layoutNode) {
         this.layoutNode = layoutNode;
     }
 
-    public void addChild(NetworkNode child) {
+    public void addChild(DagNode child) {
         children.add(child);
     }
 
     /**
      * 
      * @return the nodes immediately adjacent to this node further down the
-     *         network path. It may return multiple nodes because the path may
-     *         branch at this node.
+     *         path. It may return multiple nodes because the path may branch at
+     *         this node.
      */
-    public List<NetworkNode> getChildren() {
+    public List<DagNode> getChildren() {
         return children;
     }
 
     /**
      * 
-     * @return the set of all nodes further along the network path which this
-     *         node is on.
+     * @return the set of all nodes further along the path which this node is
+     *         on.
      */
-    public Set<NetworkNode> getDescendants() {
-        Set<NetworkNode> descendants = new HashSet<NetworkNode>();
-        for (NetworkNode childNode : children) {
+    public Set<DagNode> getDescendants() {
+        Set<DagNode> descendants = new HashSet<DagNode>();
+        for (DagNode childNode : children) {
             descendants.add(childNode);
             descendants.addAll(childNode.getDescendants());
         }
@@ -84,7 +84,7 @@ public class NetworkNode {
      *         <code>targetNode</code>. Returns -1 if the
      *         <code>targetNode</code> cannot be reached from the current node.
      */
-    public int getMaxDistance(NetworkNode targetNode) {
+    public int getMaxDistance(DagNode targetNode) {
         if (targetNode.equals(this)) {
             return 0;
         }
@@ -93,7 +93,7 @@ public class NetworkNode {
         if (children.contains(targetNode)) {
             maxDistance = 1;
         }
-        for (NetworkNode child : children) {
+        for (DagNode child : children) {
             if (child.getDescendants().contains(targetNode)
                     && (child.getMaxDistance(targetNode) + 1) > maxDistance) {
                 maxDistance = child.getMaxDistance(targetNode) + 1;
@@ -104,8 +104,8 @@ public class NetworkNode {
 
     /**
      * 
-     * @return the maximum number of hops (network edges) between this node and
-     *         a node which is at the end of a path.
+     * @return the maximum number of hops (edges) between this node and a node
+     *         which is at the end of a path.
      */
     public int getMaxLengthToEndOfPath() {
         int maxLength = 0;
@@ -120,8 +120,7 @@ public class NetworkNode {
 
     /**
      * 
-     * @return the number of nodes further along the network path which this
-     *         node is on.
+     * @return the number of nodes further along the path which this node is on.
      */
     public int getNumberOfDescendants() {
         return getDescendants().size();

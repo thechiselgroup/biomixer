@@ -27,75 +27,77 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
- * Takes a graph and finds all the separate {@link DirectedNodeNetwork}s on it.
+ * Takes a graph and finds all the separate {@link DirectedAcyclicGraph}s on it.
  * 
  * @author drusk
  * 
  */
-public class NetworkBuilder {
+public class DagBuilder {
 
     /**
      * 
      * @param graph
-     *            the graph whose nodes and arcs are to be examined for networks
-     * @return the distinct networks on the graph
+     *            the graph whose nodes and arcs are to be examined for directed
+     *            acyclic graphs
+     * @return the distinct {@link DirectedAcyclicGraphs}s on the
+     *         {@link LayoutGraph}
      */
-    public List<DirectedNodeNetwork> getNetworks(LayoutGraph graph) {
+    public List<DirectedAcyclicGraph> getDags(LayoutGraph graph) {
 
-        Map<LayoutNode, NetworkNode> networkNodes = new HashMap<LayoutNode, NetworkNode>();
-        List<NetworkNode> potentialRoots = new ArrayList<NetworkNode>();
+        Map<LayoutNode, DagNode> dagNodes = new HashMap<LayoutNode, DagNode>();
+        List<DagNode> potentialRoots = new ArrayList<DagNode>();
         for (LayoutNode node : graph.getAllNodes()) {
-            NetworkNode root = new NetworkNode(node);
-            networkNodes.put(node, root);
+            DagNode root = new DagNode(node);
+            dagNodes.put(node, root);
             potentialRoots.add(root);
         }
 
         for (LayoutArc arc : graph.getAllArcs()) {
             // XXX arcs point from child to parent. Therefore sourceNode is a
             // child of targetNode.
-            NetworkNode sourceNode = networkNodes.get(arc.getSourceNode());
-            NetworkNode targetNode = networkNodes.get(arc.getTargetNode());
+            DagNode sourceNode = dagNodes.get(arc.getSourceNode());
+            DagNode targetNode = dagNodes.get(arc.getTargetNode());
 
             targetNode.addChild(sourceNode);
             potentialRoots.remove(sourceNode);
         }
 
-        List<DirectedNodeNetwork> networks = new ArrayList<DirectedNodeNetwork>();
-        List<List<NetworkNode>> networkRootLists = new ArrayList<List<NetworkNode>>();
-        List<NetworkNode> rootsAlreadyInANetwork = new ArrayList<NetworkNode>();
+        List<DirectedAcyclicGraph> dags = new ArrayList<DirectedAcyclicGraph>();
+        List<List<DagNode>> dagRootLists = new ArrayList<List<DagNode>>();
+        List<DagNode> rootsAlreadyInADag = new ArrayList<DagNode>();
 
         for (int i = 0; i < potentialRoots.size(); i++) {
-            NetworkNode root1 = potentialRoots.get(i);
-            if (rootsAlreadyInANetwork.contains(root1)) {
+            DagNode root1 = potentialRoots.get(i);
+            if (rootsAlreadyInADag.contains(root1)) {
                 continue;
             }
-            List<NetworkNode> rootsInSameTree = new ArrayList<NetworkNode>();
-            rootsInSameTree.add(root1);
-            rootsAlreadyInANetwork.add(root1);
+            List<DagNode> rootsInSameDag = new ArrayList<DagNode>();
+            rootsInSameDag.add(root1);
+            rootsAlreadyInADag.add(root1);
 
             for (int j = i + 1; j < potentialRoots.size(); j++) {
-                NetworkNode root2 = potentialRoots.get(j);
-                if (rootsAlreadyInANetwork.contains(root2)) {
+                DagNode root2 = potentialRoots.get(j);
+                if (rootsAlreadyInADag.contains(root2)) {
                     continue;
                 }
-                Collection<NetworkNode> intersection = CollectionUtils
+                Collection<DagNode> intersection = CollectionUtils
                         .getIntersection(root1.getDescendants(),
                                 root2.getDescendants());
                 if (intersection.size() > 0) {
                     // there are common descendants
-                    rootsInSameTree.add(root2);
-                    rootsAlreadyInANetwork.add(root2);
+                    rootsInSameDag.add(root2);
+                    rootsAlreadyInADag.add(root2);
                 }
 
             }
-            networkRootLists.add(rootsInSameTree);
+            dagRootLists.add(rootsInSameDag);
 
         }
 
-        for (List<NetworkNode> roots : networkRootLists) {
-            networks.add(new DirectedNodeNetwork(roots));
+        for (List<DagNode> roots : dagRootLists) {
+            dags.add(new DirectedAcyclicGraph(roots));
         }
 
-        return networks;
+        return dags;
     }
 }

@@ -30,24 +30,24 @@ import java.util.Set;
  * @author drusk
  * 
  */
-public class DirectedNodeNetwork {
+public class DirectedAcyclicGraph {
 
     /**
      * Nodes that have no parents.
      */
-    private final List<NetworkNode> roots;
+    private final List<DagNode> roots;
 
     /**
      * Provides quick lookup of nodes based on their max distance from any root
      */
-    private Map<Integer, List<NetworkNode>> nodesByMaxDistanceFromARoot = new HashMap<Integer, List<NetworkNode>>();
+    private Map<Integer, List<DagNode>> nodesByMaxDistanceFromARoot = new HashMap<Integer, List<DagNode>>();
 
     /**
      * 
      * @param roots
      *            nodes which have no parents. Cannot be an empty list.
      */
-    public DirectedNodeNetwork(List<NetworkNode> roots) {
+    public DirectedAcyclicGraph(List<DagNode> roots) {
         assert roots != null;
         assert !roots.isEmpty();
 
@@ -57,11 +57,11 @@ public class DirectedNodeNetwork {
 
     /**
      * 
-     * @return all nodes in the network
+     * @return all nodes in the directed acycle graph
      */
-    public Set<NetworkNode> getAllNodes() {
-        Set<NetworkNode> allNodes = new HashSet<NetworkNode>();
-        for (NetworkNode root : roots) {
+    public Set<DagNode> getAllNodes() {
+        Set<DagNode> allNodes = new HashSet<DagNode>();
+        for (DagNode root : roots) {
             allNodes.add(root);
             allNodes.addAll(root.getDescendants());
         }
@@ -70,15 +70,15 @@ public class DirectedNodeNetwork {
 
     /**
      * 
-     * @param networkNode
+     * @param dagNode
      *            the node to find the distance for
-     * @return the maximum distance of <code>treeNode</code> from any of the
+     * @return the maximum distance of <code>dagNode</code> from any of the
      *         roots
      */
-    private int getMaxDistanceFromAnyRoot(NetworkNode networkNode) {
+    private int getMaxDistanceFromAnyRoot(DagNode dagNode) {
         int maxDepth = 0;
-        for (NetworkNode root : roots) {
-            int maxDepthFromRoot = root.getMaxDistance(networkNode);
+        for (DagNode root : roots) {
+            int maxDepthFromRoot = root.getMaxDistance(dagNode);
             if (maxDepthFromRoot > maxDepth) {
                 maxDepth = maxDepthFromRoot;
             }
@@ -92,7 +92,7 @@ public class DirectedNodeNetwork {
      *            the max distance from any root
      * @return all nodes at the specified distance from a root
      */
-    public List<NetworkNode> getNodesAtDistanceFromRoot(int distance) {
+    public List<DagNode> getNodesAtDistanceFromRoot(int distance) {
         assert distance >= 0;
         assert nodesByMaxDistanceFromARoot.containsKey(Integer
                 .valueOf(distance)) : "no nodes at distance=" + distance
@@ -102,14 +102,10 @@ public class DirectedNodeNetwork {
 
     /**
      * 
-     * @return the total number of nodes in the network, including roots
+     * @return the total number of nodes in the graph, including roots
      */
     public int getNumberOfNodes() {
-        int size = 0;
-        for (NetworkNode root : roots) {
-            size += root.getNumberOfDescendants() + 1;
-        }
-        return size;
+        return getAllNodes().size();
     }
 
     /**
@@ -118,7 +114,7 @@ public class DirectedNodeNetwork {
      */
     public int getNumberOfNodesOnLongestPath() {
         int longestPath = 0;
-        for (NetworkNode root : roots) {
+        for (DagNode root : roots) {
             int numberOfNodes = root.getMaxLengthToEndOfPath() + 1;
             if (numberOfNodes > longestPath) {
                 longestPath = numberOfNodes;
@@ -131,20 +127,20 @@ public class DirectedNodeNetwork {
      * 
      * @return nodes which have no parents
      */
-    public List<NetworkNode> getRoots() {
+    public List<DagNode> getRoots() {
         return roots;
     }
 
     private void initializeNodeDistanceMapping() {
-        Set<NetworkNode> allNodes = getAllNodes();
-        for (NetworkNode treeNode : allNodes) {
+        Set<DagNode> allNodes = getAllNodes();
+        for (DagNode dagNode : allNodes) {
             Integer maxDepth = Integer
-                    .valueOf(getMaxDistanceFromAnyRoot(treeNode));
+                    .valueOf(getMaxDistanceFromAnyRoot(dagNode));
             if (!nodesByMaxDistanceFromARoot.containsKey(maxDepth)) {
                 nodesByMaxDistanceFromARoot.put(maxDepth,
-                        new ArrayList<NetworkNode>());
+                        new ArrayList<DagNode>());
             }
-            nodesByMaxDistanceFromARoot.get(maxDepth).add(treeNode);
+            nodesByMaxDistanceFromARoot.get(maxDepth).add(dagNode);
         }
     }
 

@@ -26,13 +26,13 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedNodeNetwork;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.NetworkBuilder;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.NetworkNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DagBuilder;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DagNode;
 
-public class NetworkNodeTest extends AbstractLayoutAlgorithmTest {
+public class DagNodeTest extends AbstractLayoutAlgorithmTest {
 
-    private NetworkBuilder treeFactory = new NetworkBuilder();
+    private DagBuilder dagBuilder = new DagBuilder();
 
     @Test
     public void getMaxDistanceToChild() {
@@ -40,11 +40,11 @@ public class NetworkNodeTest extends AbstractLayoutAlgorithmTest {
         LayoutNode[] nodes = createNodes(2);
         createArc(nodes[1], nodes[0]);
 
-        DirectedNodeNetwork network = getNetwork(graph);
-        NetworkNode networkNodes0 = getNetworkNode(nodes[0], network);
-        NetworkNode networkNodes1 = getNetworkNode(nodes[1], network);
+        DirectedAcyclicGraph dag = getDag(graph);
+        DagNode dagNodes0 = getDagNode(nodes[0], dag);
+        DagNode dagNodes1 = getDagNode(nodes[1], dag);
 
-        assertThat(networkNodes0.getMaxDistance(networkNodes1), equalTo(1));
+        assertThat(dagNodes0.getMaxDistance(dagNodes1), equalTo(1));
     }
 
     @Test
@@ -52,10 +52,10 @@ public class NetworkNodeTest extends AbstractLayoutAlgorithmTest {
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(1);
 
-        DirectedNodeNetwork network = getNetwork(graph);
-        NetworkNode networkNode0 = getNetworkNode(nodes[0], network);
+        DirectedAcyclicGraph dag = getDag(graph);
+        DagNode dagNode0 = getDagNode(nodes[0], dag);
 
-        assertThat(networkNode0.getMaxDistance(networkNode0), equalTo(0));
+        assertThat(dagNode0.getMaxDistance(dagNode0), equalTo(0));
     }
 
     @Test
@@ -68,24 +68,24 @@ public class NetworkNodeTest extends AbstractLayoutAlgorithmTest {
         createArc(nodes[1], nodes[0]);
         createArc(nodes[3], nodes[0]);
 
-        DirectedNodeNetwork network = getNetwork(graph);
-        NetworkNode networkNode0 = getNetworkNode(nodes[0], network);
-        NetworkNode networkNode4 = getNetworkNode(nodes[4], network);
+        DirectedAcyclicGraph dag = getDag(graph);
+        DagNode dagNode0 = getDagNode(nodes[0], dag);
+        DagNode dagNode4 = getDagNode(nodes[4], dag);
 
-        assertThat(networkNode0.getMaxDistance(networkNode4), equalTo(3));
+        assertThat(dagNode0.getMaxDistance(dagNode4), equalTo(3));
     }
 
-    private DirectedNodeNetwork getNetwork(LayoutGraph graph) {
-        List<DirectedNodeNetwork> networks = treeFactory.getNetworks(graph);
-        assert networks.size() == 1;
-        return networks.get(0);
+    private DirectedAcyclicGraph getDag(LayoutGraph graph) {
+        List<DirectedAcyclicGraph> dags = dagBuilder.getDags(graph);
+        assert dags.size() == 1;
+        return dags.get(0);
     }
 
-    private NetworkNode getNetworkNode(LayoutNode node, DirectedNodeNetwork network) {
-        Set<NetworkNode> allNodes = network.getAllNodes();
-        for (NetworkNode networkNode : allNodes) {
-            if (networkNode.getLayoutNode().equals(node)) {
-                return networkNode;
+    private DagNode getDagNode(LayoutNode node, DirectedAcyclicGraph dag) {
+        Set<DagNode> allNodes = dag.getAllNodes();
+        for (DagNode dagNode : allNodes) {
+            if (dagNode.getLayoutNode().equals(node)) {
+                return dagNode;
             }
         }
         Assert.fail();
