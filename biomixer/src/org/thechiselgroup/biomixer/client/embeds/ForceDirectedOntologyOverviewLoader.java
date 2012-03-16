@@ -48,6 +48,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
     private native void applyD3Layout(Element div, String json)/*-{
 		$wnd.forceDirectedLayout(div, json);
+		//$wnd.test(div);
     }-*/;
 
     @Override
