@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.inject.Inject;
 
 /**
- * Calls the javascript implementation of the force directed ontologies overview
+ * Calls the Javascript implementation of the force directed ontologies overview
  * layout
  * 
  * @author drusk
@@ -41,14 +41,13 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
     @Inject
     private ErrorHandler errorHandler;
 
-    public static final String EMBED_MODE = "fd_oo";
+    public static final String EMBED_MODE = "force_directed_ontology_overview";
 
     @Inject
     private OntologyOverviewServiceAsync ontologyOverviewService;
 
     private native void applyD3Layout(Element div, String json)/*-{
 		$wnd.forceDirectedLayout(div, json);
-		//$wnd.test(div);
     }-*/;
 
     @Override
@@ -71,8 +70,8 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
                     @Override
                     protected void runOnSuccess(String json) {
                         // 2. call javascript code passing in json
-                        // using label to get an empty div
 
+                        // using label to get an empty div
                         Label label = new Label();
                         applyD3Layout(label.getElement(), json);
                         callback.onSuccess(label);
