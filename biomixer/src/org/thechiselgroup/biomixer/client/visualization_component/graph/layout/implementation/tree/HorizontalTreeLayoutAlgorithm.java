@@ -29,15 +29,25 @@ public class HorizontalTreeLayoutAlgorithm implements LayoutAlgorithm {
 
     private ErrorHandler errorHandler;
 
-    public HorizontalTreeLayoutAlgorithm(ErrorHandler errorHandler) {
-        this.errorHandler = errorHandler;
+    private final boolean pointingRight;
 
+    /**
+     * 
+     * @param pointingRight
+     *            if <code>true</code>, arrows on directed arcs will be pointing
+     *            to the right. If <code>false</code> they will point to the
+     *            left.
+     */
+    public HorizontalTreeLayoutAlgorithm(boolean pointingRight,
+            ErrorHandler errorHandler) {
+        this.errorHandler = errorHandler;
+        this.pointingRight = pointingRight;
     }
 
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         AbstractLayoutComputation computation = new HorizontalTreeLayoutComputation(
-                graph, executor, errorHandler);
+                graph, executor, errorHandler, pointingRight);
         computation.run();
         return computation;
     }

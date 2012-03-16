@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import static org.junit.Assert.assertFalse;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
@@ -35,13 +34,13 @@ public class VerticalTreeLayoutAlgorithmTest extends
         assertFalse(layoutComputation.isRunning());
     }
 
-    @Before
-    public void setUp() {
-        underTest = new VerticalTreeLayoutAlgorithm(errorHandler);
+    private void setTreeDirectionUp(boolean up) {
+        underTest = new VerticalTreeLayoutAlgorithm(up, errorHandler);
     }
 
     @Test
     public void singleNode() {
+        setTreeDirectionUp(true);
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(1);
 
@@ -52,6 +51,7 @@ public class VerticalTreeLayoutAlgorithmTest extends
 
     @Test
     public void threeNodesInTwoTrees() {
+        setTreeDirectionUp(true);
         createGraph(0, 0, 400, 400, 1, 1);
         LayoutNode[] nodes = createNodes(0, 3);
         createArc(0, nodes[1], nodes[0]);
@@ -76,6 +76,7 @@ public class VerticalTreeLayoutAlgorithmTest extends
 
     @Test
     public void twoNodesConnectedByArc() {
+        setTreeDirectionUp(true);
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(2);
 
@@ -88,7 +89,20 @@ public class VerticalTreeLayoutAlgorithmTest extends
     }
 
     @Test
+    public void twoNodesPointingDown() {
+        setTreeDirectionUp(false);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(2);
+        createArc(nodes[0], nodes[1]);
+
+        computeLayout(graph);
+        assertNodeHasCentre(200, 400.0 / 3, nodes[0]);
+        assertNodeHasCentre(200, 800.0 / 3, nodes[1]);
+    }
+
+    @Test
     public void twoPathsSameTree() {
+        setTreeDirectionUp(true);
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(4);
         createArc(nodes[1], nodes[0]);

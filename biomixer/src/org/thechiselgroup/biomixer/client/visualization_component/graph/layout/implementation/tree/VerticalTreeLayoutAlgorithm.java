@@ -29,14 +29,24 @@ public class VerticalTreeLayoutAlgorithm implements LayoutAlgorithm {
 
     private ErrorHandler errorHandler;
 
-    public VerticalTreeLayoutAlgorithm(ErrorHandler errorHandler) {
+    private final boolean pointingUp;
+
+    /**
+     * 
+     * @param pointingUp
+     *            if <code>true</code>, arrows on directed arcs will be pointing
+     *            upwards. If <code>false</code> they will point downwards.
+     */
+    public VerticalTreeLayoutAlgorithm(boolean pointingUp,
+            ErrorHandler errorHandler) {
         this.errorHandler = errorHandler;
+        this.pointingUp = pointingUp;
     }
 
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         AbstractLayoutComputation computation = new VerticalTreeLayoutComputation(
-                graph, executor, errorHandler);
+                graph, executor, errorHandler, pointingUp);
         computation.run();
         return computation;
     }

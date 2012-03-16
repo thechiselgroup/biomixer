@@ -80,7 +80,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm() {
-        return new VerticalTreeLayoutAlgorithm(errorHandler);
+        return new VerticalTreeLayoutAlgorithm(true, errorHandler);
     }
 
     protected void layout(final View graphView) {

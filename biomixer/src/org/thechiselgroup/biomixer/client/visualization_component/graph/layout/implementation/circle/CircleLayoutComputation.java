@@ -75,7 +75,8 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             double x = graphCentre.getX() + deltaXFromGraphCentre;
             double y = graphCentre.getY() + deltaYFromGraphCentre;
 
-            PointDouble topLeft = getTopLeftForCentreAt(x, y, layoutNode);
+            PointDouble topLeft = LayoutUtils.getTopLeftForCentreAt(x, y,
+                    layoutNode);
             layoutNode.setPosition(topLeft.getX(), topLeft.getY());
         }
 
