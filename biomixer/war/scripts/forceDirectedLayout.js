@@ -24,14 +24,13 @@ function forceDirectedLayout(div, json){
 			.attr("width", w)
 			.attr("height", h)
 			.attr("pointer-events", "all")
-		  .append('svg:g')
 			.call(d3.behavior.zoom().on("zoom", redraw))
 		  .append('svg:g');
 
 		vis.append('svg:rect')
 			.attr('width', w)
 			.attr('height', h)
-			.attr('fill','#FFFCC4');
+			.attr('fill','white');
 
 		//redraw on zoom
 		function redraw() {
@@ -41,6 +40,23 @@ function forceDirectedLayout(div, json){
 				+ " scale(" + d3.event.scale + ")");
 		}
 
+		window.onresize = resize;
+
+		function resize()
+		{	
+			d3.select(div)
+			.style("width", "100%")
+			.style("height", "100%");
+			
+			d3.selectAll("svg")
+			.attr('width', window.innerWidth)
+			.attr('height', window.innerHeight);
+			
+			d3.selectAll("rect")
+			.attr('width', window.innerWidth)
+			.attr('height', window.innerHeight);
+		}
+		
 		drawLayout(jsonObject);
 
 		function drawLayout(json) {
@@ -119,28 +135,25 @@ function forceDirectedLayout(div, json){
 
 		// highlight nodes and link on mouse over the link
 		function highlightLink() {
-			return function(d, i) {
-
+			return function(d, i){
+				
 				xSourcePos = d.source.x;
 				ySourcePos = d.source.y;
 				xTargetPos = d.target.x;
 				yTargetPos = d.target.y;
-
-				d3.selectAll("text")
-					.style("opacity", .2)
-					.filter(function(g, i) { return g.x == d.source.x || g.y == d.source.y|| g.x == d.target.x || g.y == d.target.y;})
-					.style("opacity", 1);
-
-				selectAll("line").style("stroke-opacity", .1);
-				d3.selectAll("circle")
-					.style("fill-opacity", .1)
-					.style("stroke-opacity", .2)
-					.filter(function(g, i) {return g.x == d.source.x || g.y == d.source.y|| g.x == d.target.x || g.y == d.target.y})
-					.style("fill-opacity", 1).style("stroke-opacity", 1);
 				
-				d3.select(this)
-					.style("stroke-opacity", 1)
-					.style("stroke","#3d3d3d");
+				d3.selectAll("text").style("opacity", .2)
+					.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y;})
+					.style("opacity", 1);
+					
+				d3.selectAll("line").style("stroke-opacity", .1);
+				d3.selectAll("circle").style("fill-opacity", .1)
+					.style("stroke-opacity", .2)
+					.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y})
+					.style("fill-opacity", 1)
+					.style("stroke-opacity", 1);
+				d3.select(this).style("stroke-opacity", 1)
+					.style("stroke", "#3d3d3d");
 			}
 		}
 
