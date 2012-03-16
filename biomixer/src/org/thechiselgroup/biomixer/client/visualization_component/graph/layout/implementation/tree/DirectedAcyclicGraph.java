@@ -35,19 +35,19 @@ public class DirectedAcyclicGraph {
     /**
      * Nodes that have no parents.
      */
-    private final List<DagNode> roots;
+    private final List<DirectedAcyclicGraphNode> roots;
 
     /**
      * Provides quick lookup of nodes based on their max distance from any root
      */
-    private Map<Integer, List<DagNode>> nodesByMaxDistanceFromARoot = new HashMap<Integer, List<DagNode>>();
+    private Map<Integer, List<DirectedAcyclicGraphNode>> nodesByMaxDistanceFromARoot = new HashMap<Integer, List<DirectedAcyclicGraphNode>>();
 
     /**
      * 
      * @param roots
      *            nodes which have no parents. Cannot be an empty list.
      */
-    public DirectedAcyclicGraph(List<DagNode> roots) {
+    public DirectedAcyclicGraph(List<DirectedAcyclicGraphNode> roots) {
         assert roots != null;
         assert !roots.isEmpty();
 
@@ -59,9 +59,9 @@ public class DirectedAcyclicGraph {
      * 
      * @return all nodes in the directed acycle graph
      */
-    public Set<DagNode> getAllNodes() {
-        Set<DagNode> allNodes = new HashSet<DagNode>();
-        for (DagNode root : roots) {
+    public Set<DirectedAcyclicGraphNode> getAllNodes() {
+        Set<DirectedAcyclicGraphNode> allNodes = new HashSet<DirectedAcyclicGraphNode>();
+        for (DirectedAcyclicGraphNode root : roots) {
             allNodes.add(root);
             allNodes.addAll(root.getDescendants());
         }
@@ -75,9 +75,9 @@ public class DirectedAcyclicGraph {
      * @return the maximum distance of <code>dagNode</code> from any of the
      *         roots
      */
-    private int getMaxDistanceFromAnyRoot(DagNode dagNode) {
+    private int getMaxDistanceFromAnyRoot(DirectedAcyclicGraphNode dagNode) {
         int maxDepth = 0;
-        for (DagNode root : roots) {
+        for (DirectedAcyclicGraphNode root : roots) {
             int maxDepthFromRoot = root.getMaxDistance(dagNode);
             if (maxDepthFromRoot > maxDepth) {
                 maxDepth = maxDepthFromRoot;
@@ -92,7 +92,7 @@ public class DirectedAcyclicGraph {
      *            the max distance from any root
      * @return all nodes at the specified distance from a root
      */
-    public List<DagNode> getNodesAtDistanceFromRoot(int distance) {
+    public List<DirectedAcyclicGraphNode> getNodesAtDistanceFromRoot(int distance) {
         assert distance >= 0;
         assert nodesByMaxDistanceFromARoot.containsKey(Integer
                 .valueOf(distance)) : "no nodes at distance=" + distance
@@ -114,7 +114,7 @@ public class DirectedAcyclicGraph {
      */
     public int getNumberOfNodesOnLongestPath() {
         int longestPath = 0;
-        for (DagNode root : roots) {
+        for (DirectedAcyclicGraphNode root : roots) {
             int numberOfNodes = root.getMaxLengthToEndOfPath() + 1;
             if (numberOfNodes > longestPath) {
                 longestPath = numberOfNodes;
@@ -127,18 +127,18 @@ public class DirectedAcyclicGraph {
      * 
      * @return nodes which have no parents
      */
-    public List<DagNode> getRoots() {
+    public List<DirectedAcyclicGraphNode> getRoots() {
         return roots;
     }
 
     private void initializeNodeDistanceMapping() {
-        Set<DagNode> allNodes = getAllNodes();
-        for (DagNode dagNode : allNodes) {
+        Set<DirectedAcyclicGraphNode> allNodes = getAllNodes();
+        for (DirectedAcyclicGraphNode dagNode : allNodes) {
             Integer maxDepth = Integer
                     .valueOf(getMaxDistanceFromAnyRoot(dagNode));
             if (!nodesByMaxDistanceFromARoot.containsKey(maxDepth)) {
                 nodesByMaxDistanceFromARoot.put(maxDepth,
-                        new ArrayList<DagNode>());
+                        new ArrayList<DirectedAcyclicGraphNode>());
             }
             nodesByMaxDistanceFromARoot.get(maxDepth).add(dagNode);
         }

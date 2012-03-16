@@ -52,8 +52,8 @@ public abstract class AbstractTreeLayoutComputation extends
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
-        List<DirectedAcyclicGraph> dagsOnGraph = new DagBuilder()
-                .getDags(graph);
+        List<DirectedAcyclicGraph> dagsOnGraph = new DirectedAcyclicGraphBuilder()
+                .getDirectedAcyclicGraphs(graph);
         int numDagsOnGraph = dagsOnGraph.size();
         assert numDagsOnGraph >= 1;
 
@@ -108,7 +108,7 @@ public abstract class AbstractTreeLayoutComputation extends
             double availableSecondaryDimensionForEachTree,
             double currentPrimaryDimension) {
 
-        List<DagNode> nodesAtDepth = dag.getNodesAtDistanceFromRoot(j);
+        List<DirectedAcyclicGraphNode> nodesAtDepth = dag.getNodesAtDistanceFromRoot(j);
 
         double secondaryDimensionSpacing = availableSecondaryDimensionForEachTree
                 / (nodesAtDepth.size() + 1);
@@ -117,7 +117,7 @@ public abstract class AbstractTreeLayoutComputation extends
                 * availableSecondaryDimensionForEachTree
                 + secondaryDimensionSpacing;
 
-        for (DagNode dagNode : nodesAtDepth) {
+        for (DirectedAcyclicGraphNode dagNode : nodesAtDepth) {
             LayoutNode layoutNode = dagNode.getLayoutNode();
             PointDouble topLeft = getTopLeftForCentreAt(
                     currentPrimaryDimension, currentSecondaryDimension,

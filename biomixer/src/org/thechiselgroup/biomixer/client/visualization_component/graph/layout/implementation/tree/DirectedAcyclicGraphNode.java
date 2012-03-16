@@ -29,17 +29,17 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
-public class DagNode {
+public class DirectedAcyclicGraphNode {
 
     private final LayoutNode layoutNode;
 
-    private final List<DagNode> children = new ArrayList<DagNode>();
+    private final List<DirectedAcyclicGraphNode> children = new ArrayList<DirectedAcyclicGraphNode>();
 
-    public DagNode(LayoutNode layoutNode) {
+    public DirectedAcyclicGraphNode(LayoutNode layoutNode) {
         this.layoutNode = layoutNode;
     }
 
-    public void addChild(DagNode child) {
+    public void addChild(DirectedAcyclicGraphNode child) {
         children.add(child);
     }
 
@@ -49,7 +49,7 @@ public class DagNode {
      *         path. It may return multiple nodes because the path may branch at
      *         this node.
      */
-    public List<DagNode> getChildren() {
+    public List<DirectedAcyclicGraphNode> getChildren() {
         return children;
     }
 
@@ -58,9 +58,9 @@ public class DagNode {
      * @return the set of all nodes further along the path which this node is
      *         on.
      */
-    public Set<DagNode> getDescendants() {
-        Set<DagNode> descendants = new HashSet<DagNode>();
-        for (DagNode childNode : children) {
+    public Set<DirectedAcyclicGraphNode> getDescendants() {
+        Set<DirectedAcyclicGraphNode> descendants = new HashSet<DirectedAcyclicGraphNode>();
+        for (DirectedAcyclicGraphNode childNode : children) {
             descendants.add(childNode);
             descendants.addAll(childNode.getDescendants());
         }
@@ -84,7 +84,7 @@ public class DagNode {
      *         <code>targetNode</code>. Returns -1 if the
      *         <code>targetNode</code> cannot be reached from the current node.
      */
-    public int getMaxDistance(DagNode targetNode) {
+    public int getMaxDistance(DirectedAcyclicGraphNode targetNode) {
         if (targetNode.equals(this)) {
             return 0;
         }
@@ -93,7 +93,7 @@ public class DagNode {
         if (children.contains(targetNode)) {
             maxDistance = 1;
         }
-        for (DagNode child : children) {
+        for (DirectedAcyclicGraphNode child : children) {
             if (child.getDescendants().contains(targetNode)
                     && (child.getMaxDistance(targetNode) + 1) > maxDistance) {
                 maxDistance = child.getMaxDistance(targetNode) + 1;
