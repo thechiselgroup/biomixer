@@ -30,7 +30,7 @@ public class LayoutNodeAnimationTest {
 
     private TestAnimationRunner animationRunner;
 
-    private static int DURATION = 4;
+    private static final int DURATION = 4;
 
     private void assertNodeLocation(LayoutNode node, double expectedX,
             double expectedY) {
@@ -47,10 +47,7 @@ public class LayoutNodeAnimationTest {
     }
 
     private LayoutNode createNodeAt(double x, double y) {
-        TestLayoutNode node = new TestLayoutNode(10, 10, false,
-                new TestLayoutNodeType());
-        node.setPosition(x, y);
-        return node;
+        return new TestLayoutNode(x, y, 10, 10, false, new TestLayoutNodeType());
     }
 
     private void runAnimation(LayoutNode node, double destinationX,

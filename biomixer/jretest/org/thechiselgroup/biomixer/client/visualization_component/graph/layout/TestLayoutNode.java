@@ -62,6 +62,20 @@ public class TestLayoutNode implements LayoutNode {
         this.labelSize = new DefaultSizeDouble(0, 0);
     }
 
+    /**
+     * Also sets default position.
+     */
+    public TestLayoutNode(double x, double y, double width, double height,
+            boolean isAnchored, LayoutNodeType type) {
+        this.x = x;
+        this.y = y;
+        this.nodeSize = new DefaultSizeDouble(width, height);
+        this.isAnchored = isAnchored;
+        this.type = type;
+        this.hasLabel = false;
+        this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
     public void animateTo(double x, double y) {
         animationRunner.run(new LayoutNodeAnimation(this, x, y), 2);
     }

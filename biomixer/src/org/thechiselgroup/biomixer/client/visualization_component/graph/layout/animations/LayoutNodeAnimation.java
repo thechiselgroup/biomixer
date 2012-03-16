@@ -37,8 +37,6 @@ public class LayoutNodeAnimation implements Animation {
 
     private final double destinationY;
 
-    private Interpolations interpolator = new Interpolations();
-
     // TODO easing function instead of plain interpolator
 
     public LayoutNodeAnimation(LayoutNode node, double destinationX,
@@ -52,9 +50,9 @@ public class LayoutNodeAnimation implements Animation {
 
     @Override
     public void update(double progress) {
-        double currentX = interpolator.interpolate(progress, startX,
+        double currentX = Interpolations.interpolate(progress, startX,
                 destinationX);
-        double currentY = interpolator.interpolate(progress, startY,
+        double currentY = Interpolations.interpolate(progress, startY,
                 destinationY);
         node.setPosition(currentX, currentY);
     }
