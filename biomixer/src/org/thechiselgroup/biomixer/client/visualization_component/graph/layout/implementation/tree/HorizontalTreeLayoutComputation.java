@@ -20,7 +20,6 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.LayoutUtils;
 
 public class HorizontalTreeLayoutComputation extends
         AbstractTreeLayoutComputation {
@@ -44,8 +43,8 @@ public class HorizontalTreeLayoutComputation extends
     @Override
     protected PointDouble getTopLeftForCentreAt(double currentPrimaryDimension,
             double currentSecondaryDimension, LayoutNode node) {
-        return LayoutUtils.getTopLeftForCentreAt(currentPrimaryDimension,
-                currentSecondaryDimension, node);
+        return node.getTopLeftForCentreAt(currentPrimaryDimension,
+                currentSecondaryDimension);
     }
 
 }

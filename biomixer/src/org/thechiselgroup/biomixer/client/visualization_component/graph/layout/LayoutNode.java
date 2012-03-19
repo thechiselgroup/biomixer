@@ -49,6 +49,19 @@ public interface LayoutNode {
     SizeDouble getSize();
 
     /**
+     * Determines the top left corner position necessary for the node's centre
+     * to be at the specified point.
+     * 
+     * @param x
+     *            desired centre point's x value
+     * @param y
+     *            desired centre point's y value
+     * @return position of top left corner in order to have centre at specified
+     *         location
+     */
+    PointDouble getTopLeftForCentreAt(double x, double y);
+
+    /**
      * Returns the type of this node.
      */
     LayoutNodeType getType();

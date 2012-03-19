@@ -80,6 +80,13 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
+    public PointDouble getTopLeftForCentreAt(double x, double y) {
+        SizeDouble size = getSize();
+        return new PointDouble(x - size.getWidth() / 2, y - size.getHeight()
+                / 2);
+    }
+
+    @Override
     public LayoutNodeType getType() {
         return type;
     }

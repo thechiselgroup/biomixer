@@ -17,8 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import java.util.List;
 
-import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -50,25 +48,6 @@ public final class LayoutUtils {
             }
         }
         return maxWidth;
-    }
-
-    /**
-     * Determines the top left corner coordinates necessary for a given node's
-     * centre to be at the specified point.
-     * 
-     * @param x
-     *            desired x coordinate for <code>node</code>'s centre
-     * @param y
-     *            desired y coordinate for <code>node</code>'s centre
-     * @param node
-     *            node to find the top left coordinate for
-     * @return top left corner coordinates
-     */
-    public static PointDouble getTopLeftForCentreAt(double x, double y,
-            LayoutNode node) {
-        SizeDouble size = node.getSize();
-        return new PointDouble(x - size.getWidth() / 2, y - size.getHeight()
-                / 2);
     }
 
 }

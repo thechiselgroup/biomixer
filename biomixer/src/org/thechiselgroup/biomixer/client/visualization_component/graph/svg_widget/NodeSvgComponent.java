@@ -135,6 +135,13 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
+    public PointDouble getTopLeftForCentreAt(double x, double y) {
+        SizeDouble size = getSize();
+        return new PointDouble(x - size.getWidth() / 2, y - size.getHeight()
+                / 2);
+    }
+
+    @Override
     public LayoutNodeType getType() {
         return nodeType;
     }
