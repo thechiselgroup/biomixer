@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
 public class TestLayoutNode implements LayoutNode {
@@ -123,6 +124,11 @@ public class TestLayoutNode implements LayoutNode {
     public void setPosition(double x, double y) {
         setX(x);
         setY(y);
+    }
+
+    @Override
+    public void setPosition(PointDouble position) {
+        setPosition(position.getX(), position.getY());
     }
 
     @Override

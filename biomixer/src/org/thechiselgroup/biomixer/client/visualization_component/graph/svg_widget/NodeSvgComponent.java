@@ -230,6 +230,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
+    public void setPosition(PointDouble position) {
+        setPosition(position.getX(), position.getY());
+    }
+
+    @Override
     public void setX(double x) {
         // XXX should this just be an assertion?
         if (!isAnchored()) {

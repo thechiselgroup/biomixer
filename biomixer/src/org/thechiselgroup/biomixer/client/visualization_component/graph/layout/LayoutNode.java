@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
 /**
@@ -109,6 +110,15 @@ public interface LayoutNode {
      *            top starting point of the node
      */
     void setPosition(double x, double y);
+
+    /**
+     * Sets the position of this node. Only nodes that are not anchored can be
+     * positioned (can lead to assertion error otherwise).
+     * 
+     * @param position
+     *            the top left corner of the node
+     */
+    void setPosition(PointDouble position);
 
     /**
      * Sets the x-position of this node. Only nodes that are not anchored can be

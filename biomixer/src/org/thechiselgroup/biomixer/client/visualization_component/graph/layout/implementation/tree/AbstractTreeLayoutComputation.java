@@ -108,7 +108,8 @@ public abstract class AbstractTreeLayoutComputation extends
             double availableSecondaryDimensionForEachTree,
             double currentPrimaryDimension) {
 
-        List<DirectedAcyclicGraphNode> nodesAtDepth = dag.getNodesAtDistanceFromRoot(j);
+        List<DirectedAcyclicGraphNode> nodesAtDepth = dag
+                .getNodesAtDistanceFromRoot(j);
 
         double secondaryDimensionSpacing = availableSecondaryDimensionForEachTree
                 / (nodesAtDepth.size() + 1);
@@ -122,7 +123,7 @@ public abstract class AbstractTreeLayoutComputation extends
             PointDouble topLeft = getTopLeftForCentreAt(
                     currentPrimaryDimension, currentSecondaryDimension,
                     layoutNode);
-            layoutNode.setPosition(topLeft.getX(), topLeft.getY());
+            layoutNode.setPosition(topLeft);
             currentSecondaryDimension += secondaryDimensionSpacing;
         }
 
