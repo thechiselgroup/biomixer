@@ -85,8 +85,8 @@ function forceDirectedLayout(div, json){
 			link.append("title")
 				.text(function(d) { return "Number Of Mappings: " + d.sourceMappings; });
 
-			link.on("mouseover", highlightLink())
-				.on("mouseout", changeColourBack("#496BB0", "#999"));
+			link.on("mouseover", onMouseOverLink())
+				.on("mouseout", onMouseOut("#496BB0", "#999"));
 
 			//initialize nodes
 			var node = vis.selectAll("g.node")
@@ -104,8 +104,8 @@ function forceDirectedLayout(div, json){
 				.style("fill-opacity", 0.7)
 				.style("stroke","#3d3d3d")
 				.style("stroke-width", "4px")
-				.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
-				.on("mouseout", changeColourBack("#496BB0", "#999"));
+				.on("mouseover", onMouseOverNode("#FC6854", "#ff1", "#ff1", .1))
+				.on("mouseout", onMouseOut("#496BB0", "#999"));
 
 			node.append("title")
 				.text(function(d) { return "Number Of Terms: " + d.number;});
@@ -134,7 +134,7 @@ function forceDirectedLayout(div, json){
 		}
 
 		// highlight nodes and link on mouse over the link
-		function highlightLink() {
+		function onMouseOverLink() {
 			return function(d, i){
 				
 				xSourcePos = d.source.x;
@@ -158,7 +158,7 @@ function forceDirectedLayout(div, json){
 		}
 
 		//highlight nodes and links on mouse over the node
-		function changeColour(circleFill, lineFill, circlesFill, opacity) {
+		function onMouseOverNode(circleFill, lineFill, circlesFill, opacity) {
 			return function(d, i) {
 
 				xPos = d.x;
@@ -192,12 +192,12 @@ function forceDirectedLayout(div, json){
 									.filter(function(g, i) {return g.x == d.x})
 									.style("opacity", 1);
 							});
-					});
+						});
 			};
 		}
 
 		// change the colours back to the initial state
-		function changeColourBack(circleFill, lineFill) {
+		function onMouseOut(circleFill, lineFill) {
 			return function(d, i) {
 				d3.selectAll("circle")
 					.style("fill", circleFill)
