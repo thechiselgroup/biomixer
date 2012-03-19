@@ -100,7 +100,7 @@ function forceDirectedLayout(div, json){
 				.attr("cx", "0px")
 				.attr("cy", "0px")
 				.style("fill", "#496BB0")
-				.attr("r", function(d) { return Math.sqrt((d.number) / 10); })
+				.attr("r", function(d) { return Math.sqrt((d.number/6) / Math.PI); })
 				.style("fill-opacity", 0.7)
 				.style("stroke","#3d3d3d")
 				.style("stroke-width", "4px")
