@@ -53,16 +53,6 @@ public interface LayoutGraph {
     BoundsDouble getBounds();
 
     /**
-     * Returns the arcs connected to the specified node. An assertion error will
-     * occur if the specified node is not on the graph.
-     * 
-     * @param layoutNode
-     *            the node whose connected arcs will be returned
-     * @return layout arcs connected to the node
-     */
-    List<LayoutArc> getConnectedArcs(LayoutNode layoutNode);
-
-    /**
      * NOTE: we return a list to guarantee node order for testing purposes.
      * There must be no duplicate nodes in this list.
      * 

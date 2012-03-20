@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
@@ -39,6 +42,8 @@ public class TestLayoutNode implements LayoutNode {
 
     private DefaultSizeDouble labelSize;
 
+    List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
+
     public TestLayoutNode(double width, double height, boolean isAnchored,
             double labelWidth, double LabelHeight, LayoutNodeType type) {
 
@@ -57,6 +62,15 @@ public class TestLayoutNode implements LayoutNode {
         this.type = type;
         this.hasLabel = false;
         this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
+    public void addConnectedArc(LayoutArc arc) {
+        connectedArcs.add(arc);
+    }
+
+    @Override
+    public List<LayoutArc> getConnectedArcs() {
+        return connectedArcs;
     }
 
     @Override

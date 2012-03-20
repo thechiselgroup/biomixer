@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphBuilder;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphNode;
@@ -34,10 +35,29 @@ public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
 
     private DirectedAcyclicGraphBuilder dagBuilder = new DirectedAcyclicGraphBuilder();
 
+    private DirectedAcyclicGraph getDag(LayoutGraph graph) {
+        List<DirectedAcyclicGraph> dags = dagBuilder
+                .getDirectedAcyclicGraphs(graph);
+        assert dags.size() == 1;
+        return dags.get(0);
+    }
+
+    private DirectedAcyclicGraphNode getDagNode(LayoutNode node,
+            DirectedAcyclicGraph dag) {
+        Set<DirectedAcyclicGraphNode> allNodes = dag.getAllNodes();
+        for (DirectedAcyclicGraphNode dagNode : allNodes) {
+            if (dagNode.getLayoutNode().equals(node)) {
+                return dagNode;
+            }
+        }
+        Assert.fail();
+        return null;
+    }
+
     @Test
     public void getMaxDistanceToChild() {
         createGraph(0, 0, 400, 400);
-        LayoutNode[] nodes = createNodes(2);
+        TestLayoutNode[] nodes = createNodes(2);
         createArc(nodes[1], nodes[0]);
 
         DirectedAcyclicGraph dag = getDag(graph);
@@ -61,7 +81,7 @@ public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
     @Test
     public void getMaxDistanceToNodeWithTwoPaths() {
         createGraph(0, 0, 400, 400);
-        LayoutNode[] nodes = createNodes(5);
+        TestLayoutNode[] nodes = createNodes(5);
         createArc(nodes[4], nodes[2]);
         createArc(nodes[4], nodes[3]);
         createArc(nodes[2], nodes[1]);
@@ -73,23 +93,6 @@ public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
         DirectedAcyclicGraphNode dagNode4 = getDagNode(nodes[4], dag);
 
         assertThat(dagNode0.getMaxDistance(dagNode4), equalTo(3));
-    }
-
-    private DirectedAcyclicGraph getDag(LayoutGraph graph) {
-        List<DirectedAcyclicGraph> dags = dagBuilder.getDirectedAcyclicGraphs(graph);
-        assert dags.size() == 1;
-        return dags.get(0);
-    }
-
-    private DirectedAcyclicGraphNode getDagNode(LayoutNode node, DirectedAcyclicGraph dag) {
-        Set<DirectedAcyclicGraphNode> allNodes = dag.getAllNodes();
-        for (DirectedAcyclicGraphNode dagNode : allNodes) {
-            if (dagNode.getLayoutNode().equals(node)) {
-                return dagNode;
-            }
-        }
-        Assert.fail();
-        return null;
     }
 
 }

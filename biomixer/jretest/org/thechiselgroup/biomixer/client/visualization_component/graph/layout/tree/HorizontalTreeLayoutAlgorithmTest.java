@@ -20,12 +20,11 @@ import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
-public class HorizontalTreeLayoutAlgorithmTest extends
-        AbstractLayoutGraphTest {
+public class HorizontalTreeLayoutAlgorithmTest extends AbstractLayoutGraphTest {
 
     private HorizontalTreeLayoutAlgorithm underTest;
 
@@ -42,7 +41,7 @@ public class HorizontalTreeLayoutAlgorithmTest extends
     public void singleNode() {
         setTreeDirectionRight(true);
         createGraph(0, 0, 400, 400);
-        LayoutNode[] nodes = createNodes(1);
+        TestLayoutNode[] nodes = createNodes(1);
 
         computeLayout(graph);
 
@@ -53,7 +52,7 @@ public class HorizontalTreeLayoutAlgorithmTest extends
     public void threeNodesInTwoTrees() {
         setTreeDirectionRight(true);
         createGraph(0, 0, 400, 400, 1, 1);
-        LayoutNode[] nodes = createNodes(0, 3);
+        TestLayoutNode[] nodes = createNodes(0, 3);
         createArc(0, nodes[1], nodes[0]);
 
         computeLayout(graph);
@@ -78,7 +77,7 @@ public class HorizontalTreeLayoutAlgorithmTest extends
     public void twoNodesConnectedByArc() {
         setTreeDirectionRight(true);
         createGraph(0, 0, 400, 400);
-        LayoutNode[] nodes = createNodes(2);
+        TestLayoutNode[] nodes = createNodes(2);
 
         createArc(nodes[0], nodes[1]);
 
@@ -92,7 +91,7 @@ public class HorizontalTreeLayoutAlgorithmTest extends
     public void twoNodesPointingLeft() {
         setTreeDirectionRight(false);
         createGraph(0, 0, 400, 400, 1, 1);
-        LayoutNode[] nodes = createNodes(2);
+        TestLayoutNode[] nodes = createNodes(2);
         createArc(nodes[1], nodes[0]);
 
         computeLayout(graph);
@@ -104,7 +103,7 @@ public class HorizontalTreeLayoutAlgorithmTest extends
     public void twoPathsSameTree() {
         setTreeDirectionRight(true);
         createGraph(0, 0, 400, 400);
-        LayoutNode[] nodes = createNodes(4);
+        TestLayoutNode[] nodes = createNodes(4);
         createArc(nodes[1], nodes[0]);
         createArc(nodes[2], nodes[0]);
         createArc(nodes[3], nodes[1]);

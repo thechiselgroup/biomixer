@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
@@ -26,6 +28,13 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
  * @author Lars Grammel
  */
 public interface LayoutNode {
+
+    /**
+     * Retrieves arcs whose source or destination is this node.
+     * 
+     * @return the arcs connected to this node
+     */
+    List<LayoutArc> getConnectedArcs();
 
     /**
      * @return size of the separate node label. Returns a SizeDouble(0,0) if

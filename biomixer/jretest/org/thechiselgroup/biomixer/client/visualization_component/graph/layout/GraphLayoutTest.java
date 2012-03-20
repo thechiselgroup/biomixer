@@ -31,7 +31,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
         LayoutArc arc1 = createArc(nodes[0], nodes[1]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
 
-        List<LayoutArc> connectedArcs = graph.getConnectedArcs(nodes[0]);
+        List<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
         assertThat(connectedArcs,
                 CollectionMatchers.containsExactly(arc1, arc2));
     }
@@ -42,7 +42,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
         LayoutArc arc1 = createArc(nodes[1], nodes[0]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
 
-        List<LayoutArc> connectedArcs = graph.getConnectedArcs(nodes[0]);
+        List<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
         assertThat(connectedArcs,
                 CollectionMatchers.containsExactly(arc1, arc2));
     }
@@ -54,7 +54,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
         createArc(nodes[3], nodes[4]);
 
-        List<LayoutArc> connectedArcs = graph.getConnectedArcs(nodes[0]);
+        List<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
         assertThat(connectedArcs,
                 CollectionMatchers.containsExactly(arc1, arc2));
     }

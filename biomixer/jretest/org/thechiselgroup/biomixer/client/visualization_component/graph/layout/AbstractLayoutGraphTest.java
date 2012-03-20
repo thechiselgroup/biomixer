@@ -51,13 +51,14 @@ public abstract class AbstractLayoutGraphTest {
         }
     }
 
-    protected LayoutArc createArc(int arcType, LayoutNode sourceNode,
-            LayoutNode targetNode) {
+    protected LayoutArc createArc(int arcType, TestLayoutNode sourceNode,
+            TestLayoutNode targetNode) {
         return graph.createArc(sourceNode, targetNode, 2, true,
                 graph.getTestLayoutArcTypes()[arcType]);
     }
 
-    protected LayoutArc createArc(LayoutNode sourceNode, LayoutNode targetNode) {
+    protected LayoutArc createArc(TestLayoutNode sourceNode,
+            TestLayoutNode targetNode) {
         return createArc(0, sourceNode, targetNode);
     }
 
