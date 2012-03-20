@@ -51,14 +51,17 @@ public abstract class AbstractLayoutGraphTest {
         }
     }
 
-    protected LayoutArc createArc(int arcType, TestLayoutNode sourceNode,
-            TestLayoutNode targetNode) {
-        return graph.createArc(sourceNode, targetNode, 2, true,
+    protected LayoutArc createArc(int arcType, LayoutNode sourceNode,
+            LayoutNode targetNode) {
+
+        assert sourceNode instanceof TestLayoutNode;
+        assert targetNode instanceof TestLayoutNode;
+        return graph.createArc((TestLayoutNode) sourceNode,
+                (TestLayoutNode) targetNode, 2, true,
                 graph.getTestLayoutArcTypes()[arcType]);
     }
 
-    protected LayoutArc createArc(TestLayoutNode sourceNode,
-            TestLayoutNode targetNode) {
+    protected LayoutArc createArc(LayoutNode sourceNode, LayoutNode targetNode) {
         return createArc(0, sourceNode, targetNode);
     }
 
@@ -75,13 +78,13 @@ public abstract class AbstractLayoutGraphTest {
                 height), numberOfNodeTypes, numberOfArcTypes);
     }
 
-    protected TestLayoutNode[] createNodes(int numberOfNodes) {
+    protected LayoutNode[] createNodes(int numberOfNodes) {
         return createNodes(0, numberOfNodes);
     }
 
-    protected TestLayoutNode[] createNodes(int nodeType, int numberOfNodes) {
+    protected LayoutNode[] createNodes(int nodeType, int numberOfNodes) {
         TestLayoutNodeType testNodeType = graph.getTestLayoutNodeTypes()[nodeType];
-        TestLayoutNode[] result = new TestLayoutNode[numberOfNodes];
+        LayoutNode[] result = new LayoutNode[numberOfNodes];
         for (int i = 0; i < result.length; i++) {
             result[i] = graph.createNode(10, 10, false, testNodeType);
         }

@@ -27,7 +27,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
 
     @Test
     public void allArcsDirectedAwayFromNode() {
-        TestLayoutNode[] nodes = createNodes(3);
+        LayoutNode[] nodes = createNodes(3);
         LayoutArc arc1 = createArc(nodes[0], nodes[1]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
 
@@ -38,7 +38,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
 
     @Test
     public void arcsDirectedToAndFromNode() {
-        TestLayoutNode[] nodes = createNodes(3);
+        LayoutNode[] nodes = createNodes(3);
         LayoutArc arc1 = createArc(nodes[1], nodes[0]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
 
@@ -49,7 +49,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
 
     @Test
     public void extraArcsNotConnected() {
-        TestLayoutNode[] nodes = createNodes(5);
+        LayoutNode[] nodes = createNodes(5);
         LayoutArc arc1 = createArc(nodes[1], nodes[0]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
         createArc(nodes[3], nodes[4]);
