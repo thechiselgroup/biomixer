@@ -30,6 +30,11 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 public interface LayoutNode {
 
     /**
+     * @return the node's centre point
+     */
+    PointDouble getCentre();
+
+    /**
      * Retrieves arcs whose source or destination is this node.
      * 
      * @return the arcs connected to this node
@@ -76,12 +81,14 @@ public interface LayoutNode {
     LayoutNodeType getType();
 
     /**
-     * @return current x position of this node, or Double.NaN if undefined.
+     * @return current x position of this node, or Double.NaN if undefined. This
+     *         is the left starting point of the node.
      */
     double getX();
 
     /**
-     * @return current y position of this node, or Double.NaN if undefined.
+     * @return current y position of this node, or Double.NaN if undefined. This
+     *         is the top starting point of the node.
      */
     double getY();
 

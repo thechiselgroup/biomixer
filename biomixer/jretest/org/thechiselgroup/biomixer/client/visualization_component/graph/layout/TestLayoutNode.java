@@ -69,6 +69,12 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
+    public PointDouble getCentre() {
+        return new PointDouble(getX() + getSize().getWidth() / 2, getY()
+                + getSize().getHeight() / 2);
+    }
+
+    @Override
     public List<LayoutArc> getConnectedArcs() {
         return connectedArcs;
     }
