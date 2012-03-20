@@ -81,7 +81,9 @@ function matrixLayout(div, json){
 	      .each(row);
 	
 	  row.append("line")
-	      .attr("x2", width);
+	      .attr("x2", width)
+	      .style("stroke", "white")
+	      .style("stroke-width", 2);
 		  
 	  row.append("line")
 		  .attr("x1", -3)
@@ -108,7 +110,10 @@ function matrixLayout(div, json){
 	      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 	
 	  column.append("line")
-	      .attr("x1", -width);
+	      .attr("x1", -width)
+	      .style("stroke", "white")
+	      .style("stroke-width", 2);
+
 		  
 	  column.append("line")
 		  .attr("x1", 3)
@@ -182,9 +187,8 @@ function matrixLayout(div, json){
 	  }
 	  
 	  function mouseover(p, i) {
-		d3.select(this).style("stroke", "red").style("stroke-width", 1);
 	    d3.selectAll(".row text").filter( function(d, i) { return i == p.y&&i!=p.x; }).style("fill", "red").style("font-size", "20px");
-	    d3.selectAll(".column text").filter(function(d, i) { return i == p.x&&i!=p.y; }).style("fill",  "red").style("font-weight", "bold");	
+	    d3.selectAll(".column text").filter(function(d, i) { return i == p.x&&i!=p.y; }).style("fill",  "red").style("font-size", "20px");	
 		d3.selectAll(".empty").filter(function(f){return f.x==p.x}).style("fill", "#F4F3D7");	
 		d3.selectAll(".empty").filter(function(f, i){return f.y==p.y}).style("fill", "#F4F3D7");
 	  }
@@ -207,7 +211,6 @@ function matrixLayout(div, json){
 	  function topTextMouseover(g, i){
 	    d3.select(this).style("fill", "red").style("font-size", "20px");
 		d3.selectAll(".cell").filter(function(d){return i==d.x})
-		.style("stroke", "red").style("stroke-width", 2)
 		.each(function(f, i){
 			d3.selectAll(".row text").filter(function(p, i){return i==f.y}).style("fill", "red").style("font-size", "20px");
 			d3.selectAll(".empty").filter(function(d){return d.y==f.y}).style("fill", "#F4F3D7");	
@@ -218,7 +221,6 @@ function matrixLayout(div, json){
 	   function sideTextMouseover(g, i){
 	    d3.select(this).style("fill", "red").style("font-size", "20px");
 		d3.selectAll(".cell").filter(function(d){return i==d.y})
-		.style("stroke", "red").style("stroke-width", 2)
 			.each(function(f, i){
 			d3.selectAll(".column text").filter(function(p, i){return i==f.x}).style("fill", "red").style("font-size","20px");
 			d3.selectAll(".empty").filter(function(d){return d.x==f.x}).style("fill", "#F4F3D7");	
