@@ -34,4 +34,9 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
         registerLoader(loader);
     }
 
+    @SuppressWarnings("unused")
+    @Inject
+    private void setJavascriptBasedVisualizationLoader(MatrixLayoutLoader loader) {
+        registerLoader(loader);
+    }
 }
