@@ -26,13 +26,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphBuilder;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
 
-public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest {
+public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutGraphTest {
 
     private DirectedAcyclicGraphBuilder underTest;
 

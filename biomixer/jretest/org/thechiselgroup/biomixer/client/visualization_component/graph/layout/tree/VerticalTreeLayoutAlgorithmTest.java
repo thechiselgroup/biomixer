@@ -18,14 +18,14 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
 public class VerticalTreeLayoutAlgorithmTest extends
-        AbstractLayoutAlgorithmTest {
+        AbstractLayoutGraphTest {
 
     private VerticalTreeLayoutAlgorithm underTest;
 

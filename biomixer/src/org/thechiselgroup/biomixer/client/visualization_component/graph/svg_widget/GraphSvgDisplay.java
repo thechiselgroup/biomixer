@@ -40,9 +40,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
@@ -73,8 +73,8 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
-        ViewResizeEventListener {
+public class GraphSvgDisplay extends AbstractLayoutGraph implements
+        GraphDisplay, ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 

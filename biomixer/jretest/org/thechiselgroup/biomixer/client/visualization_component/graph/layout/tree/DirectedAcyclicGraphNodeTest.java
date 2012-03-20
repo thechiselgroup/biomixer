@@ -23,14 +23,14 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphBuilder;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphNode;
 
-public class DirectedAcyclicGraphNodeTest extends AbstractLayoutAlgorithmTest {
+public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
 
     private DirectedAcyclicGraphBuilder dagBuilder = new DirectedAcyclicGraphBuilder();
 

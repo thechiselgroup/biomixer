@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
 
-public abstract class AbstractLayoutAlgorithmTest {
+public abstract class AbstractLayoutGraphTest {
 
     private double delta = 0.1;
 
