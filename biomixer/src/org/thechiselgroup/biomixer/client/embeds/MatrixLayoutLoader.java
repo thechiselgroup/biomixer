@@ -27,6 +27,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.inject.Inject;
 
 /**
@@ -72,7 +73,8 @@ public class MatrixLayoutLoader implements EmbeddedViewLoader {
                         // using label to get an empty div
                         Label label = new Label();
                         applyD3Layout(label.getElement(), json);
-                        callback.onSuccess(label);
+                        ScrollPanel panel = new ScrollPanel(label);
+                        callback.onSuccess(panel);
                     }
 
                 });
