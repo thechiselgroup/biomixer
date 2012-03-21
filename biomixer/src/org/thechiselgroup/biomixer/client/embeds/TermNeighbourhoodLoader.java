@@ -26,7 +26,10 @@ import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ElectronRepulsionForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.SpringAttractionForceCalculator;
 
 import com.google.inject.Inject;
 
@@ -99,8 +102,10 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm() {
-        return new HorizontalTreeLayoutAlgorithm(true, errorHandler);
-        // return new ForceDirectedLayoutAlgorithm(2, 5, 1, 0.9, errorHandler);
+        // return new HorizontalTreeLayoutAlgorithm(true, errorHandler);
+        return new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+                new SpringAttractionForceCalculator(2),
+                new ElectronRepulsionForceCalculator(4)), 1, 0.9, errorHandler);
     }
 
     protected void layout(final View graphView) {

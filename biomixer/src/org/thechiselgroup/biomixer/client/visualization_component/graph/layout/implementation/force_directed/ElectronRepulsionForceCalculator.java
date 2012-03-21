@@ -15,43 +15,25 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
- * Calculates forces as if the nodes and arcs were part of a physical system.
- * The arcs are modelled as springs using Hooke's law and nodes are modelled as
- * electrons using Coulomb's law.
+ * Calculates forces as if the nodes were electrons pushing each other apart
+ * according to Coulomb's Law.
  * 
  * @author drusk
  * 
  */
-public class SpringAndElectronForceCalculator extends AbstractForceCalculator {
-
-    private final double springConstant;
+public class ElectronRepulsionForceCalculator extends AbstractForceCalculator {
 
     private final double chargeConstant;
 
-    public SpringAndElectronForceCalculator(double springConstant,
-            double chargeConstant) {
-        this.springConstant = springConstant;
+    public ElectronRepulsionForceCalculator(double chargeConstant) {
         this.chargeConstant = chargeConstant;
     }
 
     @Override
-    public Vector2D getAttractionForce(LayoutNode currentNode,
-            LayoutArc arc) {
-        LayoutNode otherNode = arc.getSourceNode().equals(currentNode) ? arc
-                .getTargetNode() : arc.getSourceNode();
-
-        Vector2D distanceVector = getDistanceVector(currentNode,
-                otherNode);
-        return distanceVector.scaleBy(springConstant);
-    }
-
-    @Override
-    public Vector2D getRepulsionForce(LayoutNode currentNode,
-            LayoutNode otherNode) {
+    public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
         double distanceBetween = getDistanceBetween(currentNode, otherNode);
 
         double repulsionMagnitude = chargeConstant

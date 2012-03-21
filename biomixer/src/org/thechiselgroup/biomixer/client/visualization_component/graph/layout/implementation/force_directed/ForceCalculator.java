@@ -15,7 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -28,20 +29,15 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 public interface ForceCalculator {
 
     /**
-     * Calculates the attractive force applied to <code>currentNode</code> due
-     * to <code>arc</code>.
-     * 
-     * @return two-dimensional force vector
+     * Calculates the force applied to <code>currentNode</code> by
+     * <code>otherNode</code>.
      */
-    Vector2D getAttractionForce(LayoutNode currentNode, LayoutArc arc);
+    Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode);
 
     /**
-     * Calculates the repulsive force applied to <code>currentNode</code> by the
-     * presence of <code>otherNode</code>.
-     * 
-     * @return two-dimensional force vector
+     * Calculates the net force applied to <code>currentNode</code> by
+     * <code>otherNodes</code>.
      */
-    Vector2D getRepulsionForce(LayoutNode currentNode,
-            LayoutNode otherNode);
+    Vector2D getNetForce(LayoutNode currentNode, List<LayoutNode> otherNodes);
 
 }

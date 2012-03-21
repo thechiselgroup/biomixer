@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
@@ -46,12 +48,21 @@ public abstract class AbstractForceCalculator implements ForceCalculator {
      *            node)
      * @return distance vector
      */
-    protected Vector2D getDistanceVector(LayoutNode source,
-            LayoutNode target) {
+    protected Vector2D getDistanceVector(LayoutNode source, LayoutNode target) {
         PointDouble sourceCentre = source.getCentre();
         PointDouble targetCentre = target.getCentre();
         return new Vector2D(targetCentre.getX() - sourceCentre.getX(),
                 targetCentre.getY() - sourceCentre.getY());
+    }
+
+    @Override
+    public Vector2D getNetForce(LayoutNode currentNode,
+            List<LayoutNode> otherNodes) {
+        Vector2D netForce = new Vector2D(0, 0);
+        for (LayoutNode otherNode : otherNodes) {
+            netForce.add(getForce(currentNode, otherNode));
+        }
+        return netForce;
     }
 
 }

@@ -27,6 +27,42 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
+    /*
+     * XXX once refactoring to separate LayoutNode from rendered node is done,
+     * move this into an abstract layout node class. It will only need node2
+     * passed in.
+     */
+    public static boolean areNodesConnected(LayoutNode node1, LayoutNode node2) {
+        return getConnectedNodes(node1).contains(node2);
+    }
+
+    /*
+     * XXX once refactoring to separate LayoutNode from rendered node is done,
+     * move this into an abstract layout node class. It will not need any
+     * parameters.
+     */
+    public static List<LayoutNode> getConnectedNodes(LayoutNode node) {
+        List<LayoutNode> connectedNodes = new ArrayList<LayoutNode>();
+        for (LayoutArc connectedArc : node.getConnectedArcs()) {
+            connectedNodes.add(getNodeConnectedByArc(node,
+                    connectedArc));
+        }
+        return connectedNodes;
+    }
+
+    /*
+     * XXX once refactoring to separate LayoutNode from rendered node is done,
+     * move this into an abstract layout node class. It will only need the arc
+     * passed in then of course.
+     */
+    public static LayoutNode getNodeConnectedByArc(LayoutNode currentNode,
+            LayoutArc arc) {
+        assert arc.getSourceNode().equals(currentNode)
+                || arc.getTargetNode().equals(currentNode);
+        return arc.getSourceNode().equals(currentNode) ? arc.getTargetNode()
+                : arc.getSourceNode();
+    }
+
     private double energyThreshold = 0.5;
 
     private final double timeStep;
@@ -50,22 +86,11 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     @Override
     protected boolean computeIteration() throws RuntimeException {
         double kineticEnergy = 0;
-        List<LayoutNode> allNodes = graph.getAllNodes();
-
         for (ForceNode currentNode : forceNodes) {
-            LayoutNode layoutNode = currentNode.getLayoutNode();
-            Vector2D force = new Vector2D(0, 0);
+            Vector2D netForce = forceCalculator.getNetForce(
+                    currentNode.getLayoutNode(), graph.getAllNodes());
 
-            for (LayoutNode otherNode : allNodes) {
-                force.add(forceCalculator.getRepulsionForce(layoutNode,
-                        otherNode));
-            }
-
-            for (LayoutArc arc : layoutNode.getConnectedArcs()) {
-                force.add(forceCalculator.getAttractionForce(layoutNode, arc));
-            }
-
-            currentNode.updateVelocity(force, timeStep, damping);
+            currentNode.updateVelocity(netForce, timeStep, damping);
             currentNode.updatePosition(timeStep);
 
             kineticEnergy += currentNode.getKineticEnergy();

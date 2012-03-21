@@ -34,11 +34,9 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
 
     private ForceCalculator forceCalculator;
 
-    public ForceDirectedLayoutAlgorithm(double springConstant,
-            double chargeConstant, double timeStep, double damping,
-            ErrorHandler errorHandler) {
-        this.forceCalculator = new SpringAndElectronForceCalculator(
-                springConstant, chargeConstant);
+    public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
+            double timeStep, double damping, ErrorHandler errorHandler) {
+        this.forceCalculator = forceCalculator;
         this.timeStep = timeStep;
         this.damping = damping;
         this.errorHandler = errorHandler;
