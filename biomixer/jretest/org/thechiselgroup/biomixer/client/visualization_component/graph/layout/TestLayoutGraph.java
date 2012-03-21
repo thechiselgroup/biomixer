@@ -18,7 +18,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestLayoutGraph implements LayoutGraph {
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
+
+public class TestLayoutGraph extends AbstractLayoutGraph {
 
     private BoundsDouble graphBounds;
 
