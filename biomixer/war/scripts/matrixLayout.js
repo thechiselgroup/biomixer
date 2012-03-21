@@ -33,7 +33,7 @@ function matrixLayout(div, json){
 	
 	var jsonObject = eval('(' + json + ')');
 		
-	var margin = {top: 200, right: 0, bottom: 10, left: 200}
+	var margin = {top: 200, right: 50, bottom: 50, left: 200}
 		width = 2000,
 	    height = 2000;
 	
@@ -307,26 +307,26 @@ function matrixLayout(div, json){
 	  menu.on("change", order());
 	
 	  function order() {
-		  return function(d, i){
-			  x.domain(orders[this.value]);
+		  	return function(d, i){
+		  		x.domain(orders[this.value]);
 
-			  var t = svg.transition().duration(2500);
+		  		var t = svg.transition().duration(2500);
 
-			  t.selectAll(".row")
-			      .delay(function(d, i) { return x(i) * 4; })
-			      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
-		     .selectAll(".cell")
-	         .delay(function(d) { return x(d.x) * 4; })
-			      .attr("x", function(d) { return x(d.x); }); 
+		  		t.selectAll(".row")
+			      	.delay(function(d, i) { return x(i) * 4; })
+			      	.attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+			      .selectAll(".cell")
+			      	.delay(function(d) { return x(d.x) * 4; })
+			      	.attr("x", function(d) { return x(d.x); }); 
 
-			  t.selectAll(".empty")
-			      .delay(function(d) { return x(d.x) * 4; })
-			      .attr("x", function(d) { return x(d.x); });
+		  		t.selectAll(".empty")
+		  			.delay(function(d) { return x(d.x) * 4; })
+		  			.attr("x", function(d) { return x(d.x); });
 
-			  t.selectAll(".column")
-			      .delay(function(d, i) { return x(i) * 4; })
-			      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-			 
+		  		t.selectAll(".column")
+		  			.delay(function(d, i) { return x(i) * 4; })
+		  			.attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+			  
 		  	}
 	  	}
 	}
