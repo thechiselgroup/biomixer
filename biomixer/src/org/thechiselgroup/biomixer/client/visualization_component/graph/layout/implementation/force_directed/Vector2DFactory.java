@@ -19,12 +19,12 @@ public class Vector2DFactory {
 
     public static Vector2D createVectorFromCartesianCoordinates(
             double xComponent, double yComponent) {
-        return new DefaultVector2D(xComponent, yComponent);
+        return new Vector2D(xComponent, yComponent);
     }
 
-    public static Vector2D createVectorFromPolarCoordinates(double magnitude,
-            double direction) {
-        return new DefaultVector2D(magnitude * Math.cos(direction), magnitude
+    public static Vector2D createVectorFromPolarCoordinates(
+            double magnitude, double direction) {
+        return new Vector2D(magnitude * Math.cos(direction), magnitude
                 * Math.sin(direction));
     }
 

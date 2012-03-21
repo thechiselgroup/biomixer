@@ -30,7 +30,7 @@ public class ForceNode {
      */
     private final LayoutNode layoutNode;
 
-    private Vector2D velocity = new DefaultVector2D(0, 0);
+    private Vector2D velocity = new Vector2D(0, 0);
 
     public ForceNode(LayoutNode layoutNode) {
         this.layoutNode = layoutNode;

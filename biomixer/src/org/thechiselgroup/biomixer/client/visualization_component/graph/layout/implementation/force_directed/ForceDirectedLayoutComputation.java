@@ -54,7 +54,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
         for (ForceNode currentNode : forceNodes) {
             LayoutNode layoutNode = currentNode.getLayoutNode();
-            Vector2D force = new DefaultVector2D(0, 0);
+            Vector2D force = new Vector2D(0, 0);
 
             for (LayoutNode otherNode : allNodes) {
                 force.add(forceCalculator.getRepulsionForce(layoutNode,

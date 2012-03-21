@@ -46,10 +46,11 @@ public abstract class AbstractForceCalculator implements ForceCalculator {
      *            node)
      * @return distance vector
      */
-    protected Vector2D getDistanceVector(LayoutNode source, LayoutNode target) {
+    protected Vector2D getDistanceVector(LayoutNode source,
+            LayoutNode target) {
         PointDouble sourceCentre = source.getCentre();
         PointDouble targetCentre = target.getCentre();
-        return new DefaultVector2D(targetCentre.getX() - sourceCentre.getX(),
+        return new Vector2D(targetCentre.getX() - sourceCentre.getX(),
                 targetCentre.getY() - sourceCentre.getY());
     }
 

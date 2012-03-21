@@ -44,7 +44,8 @@ public class SpringAndElectronForceCalculator extends AbstractForceCalculator {
         LayoutNode otherNode = arc.getSourceNode().equals(currentNode) ? arc
                 .getTargetNode() : arc.getSourceNode();
 
-        Vector2D distanceVector = getDistanceVector(currentNode, otherNode);
+        Vector2D distanceVector = getDistanceVector(currentNode,
+                otherNode);
         return distanceVector.scaleBy(springConstant);
     }
 

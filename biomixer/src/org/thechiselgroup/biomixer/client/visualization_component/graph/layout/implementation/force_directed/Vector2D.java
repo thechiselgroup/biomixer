@@ -22,7 +22,16 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
  * @author drusk
  * 
  */
-public interface Vector2D {
+public class Vector2D {
+
+    private double xComponent;
+
+    private double yComponent;
+
+    public Vector2D(double xComponent, double yComponent) {
+        this.xComponent = xComponent;
+        this.yComponent = yComponent;
+    }
 
     /**
      * Adds another vector to this vector. Returns a reference to this vector
@@ -32,28 +41,40 @@ public interface Vector2D {
      *            the vector being added with this one
      * @return the vector resulting from the addition.
      */
-    Vector2D add(Vector2D other);
+    public Vector2D add(Vector2D other) {
+        xComponent += other.getXComponent();
+        yComponent += other.getYComponent();
+        return this;
+    }
 
     /**
      * @return this vector's direction in radians with respect to the positive
      *         side of the x-axis.
      */
-    double getDirection();
+    public double getDirection() {
+        return Math.atan2(yComponent, xComponent);
+    }
 
     /**
      * @return the magnitude (scalar) of this vector.
      */
-    double getMagnitude();
+    public double getMagnitude() {
+        return Math.sqrt(xComponent * xComponent + yComponent * yComponent);
+    }
 
     /**
      * @return the vector's projection along the x-axis.
      */
-    double getXComponent();
+    public double getXComponent() {
+        return xComponent;
+    }
 
     /**
      * @return the vector's projection along the y-axis.
      */
-    double getYComponent();
+    public double getYComponent() {
+        return yComponent;
+    }
 
     /**
      * Scales this vector by the given value. Returns a reference to this vector
@@ -63,6 +84,15 @@ public interface Vector2D {
      *            value to scale by
      * @return the scaled vector
      */
-    Vector2D scaleBy(double scalar);
+    public Vector2D scaleBy(double scalar) {
+        xComponent *= scalar;
+        yComponent *= scalar;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "[" + xComponent + ", " + yComponent + "]";
+    }
 
 }
