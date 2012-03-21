@@ -1,9 +1,40 @@
+/*******************************************************************************
+ * Copyright 2012 Elena Voyloshnikova
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0 
+ *     
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.  
+ *******************************************************************************/
+
 function matrixLayout(div, json){
 	
-		var jsonObject = eval('(' + json + ')');
+	d3.select(div).append("p")
+		.text("Order: ");
+	
+	// add a selection menu
+	var menu = d3.select(div).append("select")
+		.attr("id", "order");
+	
+	menu.append("option")
+	  .text("by Label")
+	  .attr("value", "name");
+	
+	menu.append("option")
+	  .text("by Ontology")
+	  .attr("value", "group");
+	
+	var jsonObject = eval('(' + json + ')');
 		
-		var margin = {top: 200, right: 0, bottom: 10, left: 200}
-	    width = 2000,
+	var margin = {top: 200, right: 0, bottom: 10, left: 200}
+		width = 2000,
 	    height = 2000;
 	
 	var x = d3.scale.ordinal().rangeBands([0, width]),
@@ -43,19 +74,19 @@ function matrixLayout(div, json){
 	
 	  // Compute index per node.
 	  nodes.forEach(function(node, i) {
-	    node.index = i;
-	    node.count = 0;
-	    matrix[i] = d3.range(n).map(function(j) { return {x: j, y: i, z: 0}; });
+	      node.index = i;
+	      node.count = 0;
+	      matrix[i] = d3.range(n).map(function(j) { return {x: j, y: i, z: 0}; });
 	  });
 	
 	  // Convert links to matrix; count character occurrences.
 	  data.links.forEach(function(link) {
-	    matrix[link.source][link.target].z += link.value;
-	    matrix[link.target][link.source].z += link.value;
-	    matrix[link.source][link.source].z += link.value;
-	    matrix[link.target][link.target].z += link.value;
-	    nodes[link.source].count += link.value;
-	    nodes[link.target].count += link.value;
+		  matrix[link.source][link.target].z += link.value;
+		  matrix[link.target][link.source].z += link.value;
+		  matrix[link.source][link.source].z += link.value;
+		  matrix[link.target][link.target].z += link.value;
+		  nodes[link.source].count += link.value;
+		  nodes[link.target].count += link.value;
 	  });
 	
 	  // Precompute the orders.
@@ -71,7 +102,8 @@ function matrixLayout(div, json){
 	  svg.append("rect")
 	      .attr("class", "background")
 	      .attr("width", width)
-	      .attr("height", height);
+	      .attr("height", height)
+	      .style("fill", "#eee");
 	
 	  var row = svg.selectAll(".row")
 	      .data(matrix)
@@ -113,7 +145,6 @@ function matrixLayout(div, json){
 	      .attr("x1", -width)
 	      .style("stroke", "white")
 	      .style("stroke-width", 2);
-
 		  
 	  column.append("line")
 		  .attr("x1", 3)
@@ -133,6 +164,7 @@ function matrixLayout(div, json){
 		  .on ("mouseover", topTextMouseover)
 		  .on("mouseout", mouseout);
 	
+	  //create cells (mappings and empty cells) in every row
 	  function row(row) {
 	    var empty = d3.select(this).selectAll(".cell")
 	        .data(row)
@@ -163,8 +195,9 @@ function matrixLayout(div, json){
 	        .on("mouseout", mouseout);
 	  }
 	
+	  //compute cell colors
 	  function gradient(index1, index2, colour1, colour2){
-	  var gradient = svg.append("svg:defs")
+		  var gradient = svg.append("svg:defs")
 		  .append("svg:linearGradient")
 			.attr("id", "gradient"+index1+index2)
 			.attr("x1", "0%")
@@ -187,71 +220,114 @@ function matrixLayout(div, json){
 	  }
 	  
 	  function mouseover(p, i) {
-	    d3.selectAll(".row text").filter( function(d, i) { return i == p.y&&i!=p.x; }).style("fill", "red").style("font-size", "20px");
-	    d3.selectAll(".column text").filter(function(d, i) { return i == p.x&&i!=p.y; }).style("fill",  "red").style("font-size", "20px");	
-		d3.selectAll(".empty").filter(function(f){return f.x==p.x}).style("fill", "#F4F3D7");	
-		d3.selectAll(".empty").filter(function(f, i){return f.y==p.y}).style("fill", "#F4F3D7");
+		  d3.selectAll(".row text")
+	      	.filter( function(d, i) { return i == p.y&&i!=p.x; })
+	      	.style("fill", "red")
+	      	.style("font-size", "20px");
+		  
+	      d3.selectAll(".column text")
+	      	.filter(function(d, i) { return i == p.x&&i!=p.y; })
+	      	.style("fill",  "red")
+	      	.style("font-size", "20px");	
+	      
+		  d3.selectAll(".empty")
+		  	.filter(function(f){return f.x==p.x})
+		  	.style("fill", "#F4F3D7");	
+		  
+		  d3.selectAll(".empty")
+		  	.filter(function(f, i){return f.y==p.y})
+		  	.style("fill", "#F4F3D7");
 	  }
 	
 	  function mouseout() {
-	    d3.selectAll("text").classed("active", false)
+		  d3.selectAll("text").classed("active", false)
 			.style("fill", "black")
 			.style("font-weight", "normal")
 			.style("font-size", "15px");
-		d3.selectAll(".cell").filter(function(d){return d.x!=d.y})
+		  
+		  d3.selectAll(".cell")
+		  	.filter(function(d){return d.x!=d.y})
 			.style("fill", function(g){ 
 				colour1 = c(nodes[g.x].group);
 				colour2 = c(nodes[g.y].group);
 				return  gradient(g.x, g.y, colour1, colour2);
 				})
 			.style("stroke-width", 0);
-		d3.selectAll(".empty").style("fill", "#eee");
+		  
+		  d3.selectAll(".empty")
+		  	.style("fill", "#eee");
 	  }
 	
 	  function topTextMouseover(g, i){
-	    d3.select(this).style("fill", "red").style("font-size", "20px");
-		d3.selectAll(".cell").filter(function(d){return i==d.x})
-		.each(function(f, i){
-			d3.selectAll(".row text").filter(function(p, i){return i==f.y}).style("fill", "red").style("font-size", "20px");
-			d3.selectAll(".empty").filter(function(d){return d.y==f.y}).style("fill", "#F4F3D7");	
-		});
-		d3.selectAll(".empty").filter(function(f){return f.x==i}).style("fill", "#F4F3D7");	
+		  d3.select(this)
+		  	.style("fill", "red")
+		  	.style("font-size", "20px");
+		  
+		  d3.selectAll(".cell")
+		  	.filter(function(d){return i==d.x})
+		  	.each(function(f, i){
+		  		d3.selectAll(".row text")
+		  			.filter(function(p, i){return i==f.y})
+		  			.style("fill", "red")
+		  			.style("font-size", "20px");
+		  		
+		  		d3.selectAll(".empty")
+		  			.filter(function(d){return d.y==f.y})
+		  			.style("fill", "#F4F3D7");	
+		  	});
+		  
+		d3.selectAll(".empty")
+			.filter(function(f){return f.x==i})
+			.style("fill", "#F4F3D7");	
 	  }
 	  
 	   function sideTextMouseover(g, i){
-	    d3.select(this).style("fill", "red").style("font-size", "20px");
-		d3.selectAll(".cell").filter(function(d){return i==d.y})
+	    d3.select(this)
+	    	.style("fill", "red")
+	    	.style("font-size", "20px");
+	    
+		d3.selectAll(".cell")
+			.filter(function(d){return i==d.y})
 			.each(function(f, i){
-			d3.selectAll(".column text").filter(function(p, i){return i==f.x}).style("fill", "red").style("font-size","20px");
-			d3.selectAll(".empty").filter(function(d){return d.x==f.x}).style("fill", "#F4F3D7");	
+				d3.selectAll(".column text")
+					.filter(function(p, i){return i==f.x})
+					.style("fill", "red")
+					.style("font-size","20px");
+				
+				d3.selectAll(".empty")
+					.filter(function(d){return d.x==f.x})
+					.style("fill", "#F4F3D7");	
 		});
-		d3.selectAll(".empty").filter(function(f){return f.y==i}).style("fill", "#F4F3D7");	
+		
+		d3.selectAll(".empty")
+			.filter(function(f){return f.y==i})
+			.style("fill", "#F4F3D7");	
 	  }
 	  
-	  d3.select("#order").on("change", function() {
-	    order(this.value);
-	  });
+	  menu.on("change", order());
 	
-	  function order(value) {
-	    x.domain(orders[value]);
-	
-	    var t = svg.transition().duration(2500);
-	
-	    t.selectAll(".row")
-	        .delay(function(d, i) { return x(i) * 4; })
-	        .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
-	      .selectAll(".cell")
-	        .delay(function(d) { return x(d.x) * 4; })
-	        .attr("x", function(d) { return x(d.x); }); 
-	
-		t.selectAll(".empty")
-	        .delay(function(d) { return x(d.x) * 4; })
-	        .attr("x", function(d) { return x(d.x); });
-	
-	    t.selectAll(".column")
-	        .delay(function(d, i) { return x(i) * 4; })
-	        .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-	  }
-	
+	  function order() {
+		  return function(d, i){
+			  x.domain(orders[this.value]);
+
+			  var t = svg.transition().duration(2500);
+
+			  t.selectAll(".row")
+			      .delay(function(d, i) { return x(i) * 4; })
+			      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+		     .selectAll(".cell")
+	         .delay(function(d) { return x(d.x) * 4; })
+			      .attr("x", function(d) { return x(d.x); }); 
+
+			  t.selectAll(".empty")
+			      .delay(function(d) { return x(d.x) * 4; })
+			      .attr("x", function(d) { return x(d.x); });
+
+			  t.selectAll(".column")
+			      .delay(function(d, i) { return x(i) * 4; })
+			      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+			 
+		  	}
+	  	}
 	}
 }
