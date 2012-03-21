@@ -44,8 +44,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     public static List<LayoutNode> getConnectedNodes(LayoutNode node) {
         List<LayoutNode> connectedNodes = new ArrayList<LayoutNode>();
         for (LayoutArc connectedArc : node.getConnectedArcs()) {
-            connectedNodes.add(getNodeConnectedByArc(node,
-                    connectedArc));
+            connectedNodes.add(getNodeConnectedByArc(node, connectedArc));
         }
         return connectedNodes;
     }
@@ -87,8 +86,11 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     protected boolean computeIteration() throws RuntimeException {
         double kineticEnergy = 0;
         for (ForceNode currentNode : forceNodes) {
-            Vector2D netForce = forceCalculator.getNetForce(
-                    currentNode.getLayoutNode(), graph.getAllNodes());
+            Vector2D netForce = new Vector2D(0, 0);
+            for (LayoutNode otherNode : graph.getAllNodes()) {
+                netForce.add(forceCalculator.getForce(
+                        currentNode.getLayoutNode(), otherNode));
+            }
 
             currentNode.updateVelocity(netForce, timeStep, damping);
             currentNode.updatePosition(timeStep);

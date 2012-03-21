@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -42,16 +40,6 @@ public class CompositeForceCalculator implements ForceCalculator {
                     .add(forceCalculator.getForce(currentNode, otherNode));
         }
         return compositeForce;
-    }
-
-    @Override
-    public Vector2D getNetForce(LayoutNode currentNode,
-            List<LayoutNode> otherNodes) {
-        Vector2D netForce = new Vector2D(0, 0);
-        for (ForceCalculator forceCalculator : forceCalculators) {
-            netForce.add(forceCalculator.getNetForce(currentNode, otherNodes));
-        }
-        return netForce;
     }
 
 }

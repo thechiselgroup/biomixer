@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -33,11 +31,5 @@ public interface ForceCalculator {
      * <code>otherNode</code>.
      */
     Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode);
-
-    /**
-     * Calculates the net force applied to <code>currentNode</code> by
-     * <code>otherNodes</code>.
-     */
-    Vector2D getNetForce(LayoutNode currentNode, List<LayoutNode> otherNodes);
 
 }
