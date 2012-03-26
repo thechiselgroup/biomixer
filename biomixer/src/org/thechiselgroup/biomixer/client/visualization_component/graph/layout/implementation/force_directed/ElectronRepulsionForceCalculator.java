@@ -24,6 +24,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
+// XXX not currently in use.
 public class ElectronRepulsionForceCalculator extends AbstractForceCalculator {
 
     private final double chargeConstant;
@@ -35,14 +36,15 @@ public class ElectronRepulsionForceCalculator extends AbstractForceCalculator {
     @Override
     public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
         double distanceBetween = getDistanceBetween(currentNode, otherNode);
+        if (distanceBetween < 1) {
+            distanceBetween = 1;
+        }
 
-        double repulsionMagnitude = chargeConstant
-                / Math.pow(distanceBetween, 2);
-
-        double repulsionAngle = getAngleBetween(currentNode, otherNode);
-
-        return Vector2DFactory.createVectorFromPolarCoordinates(
-                repulsionMagnitude, repulsionAngle);
+        /*
+         * Repulsive force pushes from other node to current node
+         */
+        return Vector2DFactory.createVectorFromPolarCoordinates(chargeConstant
+                / distanceBetween, getAngleBetween(otherNode, currentNode));
     }
 
 }

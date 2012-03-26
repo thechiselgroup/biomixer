@@ -23,6 +23,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
+// XXX this class is not really needed for the Fruchterman-Reingold style force
+// calculators... it should probably be removed since timestep and velocities
+// are no longer used
 public class ForceNode {
 
     /*
@@ -57,18 +60,17 @@ public class ForceNode {
         return velocity;
     }
 
-    /**
-     * Calculates the node's new position after a specified period of time. This
-     * is determined using the node's velocity.
-     * 
-     * @param timeStep
-     *            the node's position is updated as if it had been travelling at
-     *            its current velocity for this amount of time
-     */
-    public void updatePosition(double timeStep) {
-        Vector2D positionDelta = velocity.scaleBy(timeStep);
-        layoutNode.setX(layoutNode.getX() + positionDelta.getXComponent());
-        layoutNode.setY(layoutNode.getY() + positionDelta.getYComponent());
+    public double getX() {
+        return layoutNode.getX();
+    }
+
+    public double getY() {
+        return layoutNode.getY();
+    }
+
+    public void updatePosition(double x, double y) {
+        layoutNode.setX(x);
+        layoutNode.setY(y);
     }
 
     /**
@@ -83,7 +85,8 @@ public class ForceNode {
      *            causes the node's velocity to gradually decrease over time.
      */
     public void updateVelocity(Vector2D force, double timeStep, double damping) {
-        velocity.add(force.scaleBy(timeStep)).scaleBy(damping);
+        // velocity.add(force.scaleBy(timeStep)).scaleBy(damping);
+        velocity.add(force).scaleBy(damping);
     }
 
 }

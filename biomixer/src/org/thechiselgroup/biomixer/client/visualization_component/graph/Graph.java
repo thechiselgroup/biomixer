@@ -49,6 +49,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -446,6 +447,11 @@ public class Graph extends AbstractViewContentDisplay implements
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();
         return new DefaultSizeInt(width, height);
+    }
+
+    @Override
+    public LayoutGraph getLayoutGraph() {
+        return graphDisplay.getLayoutGraph();
     }
 
     @Override

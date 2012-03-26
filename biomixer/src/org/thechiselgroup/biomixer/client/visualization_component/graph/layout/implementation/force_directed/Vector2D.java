@@ -90,6 +90,26 @@ public class Vector2D {
         return this;
     }
 
+    /**
+     * Allows the x component of the vector to be set to a specific value
+     * 
+     * @param x
+     *            the value that the x component of the vector will be set to
+     */
+    public void setX(double x) {
+        xComponent = x;
+    }
+
+    /**
+     * Allows the y component of the vector to be set to a specific value
+     * 
+     * @param y
+     *            the value that the y component of the vector will be set to
+     */
+    public void setY(double y) {
+        yComponent = y;
+    }
+
     @Override
     public String toString() {
         return "[" + xComponent + ", " + yComponent + "]";

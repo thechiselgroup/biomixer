@@ -26,6 +26,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.ArrayUtils;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 
 import pl.rmalinowski.gwt2swf.client.ui.SWFWidget;
 
@@ -469,6 +470,12 @@ public class GraphWidget extends SWFWidget implements GraphDisplay {
         assert arcsByID.containsKey(arcId);
 
         return arcsByID.get(arcId);
+    }
+
+    @Override
+    public LayoutGraph getLayoutGraph() {
+        // not applicable to flash implementation
+        return null;
     }
 
     @Override

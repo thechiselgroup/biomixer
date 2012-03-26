@@ -15,42 +15,35 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
-/**
- * Calculates forces as if arcs where springs pulling nodes together according
- * to Hooke's Law.
- * 
- * @author drusk
- * 
- */
-// XXX not currently in use.
-public class SpringAttractionForceCalculator extends AbstractForceCalculator {
+public class BoundsAwareRepulsionCalculator extends BoundsAwareForceCalculator {
 
-    private final double springConstant;
-
-    public SpringAttractionForceCalculator(double springConstant) {
-        this.springConstant = springConstant;
+    public BoundsAwareRepulsionCalculator(LayoutGraph graph) {
+        super(graph);
     }
 
     @Override
     public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
         /*
-         * XXX once refactoring to separate LayoutNode from rendered node is
-         * done, move this will be a call to
-         * currentNode.isNodeConnected(otherNode);
+         * If distance is too close to 0 then division will produce an almost
+         * infinite force. Therefore limit the distance to a min value of 1.
          */
-        if (!ForceDirectedLayoutComputation.areNodesConnected(currentNode,
-                otherNode)) {
-            /*
-             * If the nodes are not connected by an arc then there is no spring
-             * force.
-             */
-            return new Vector2D(0, 0);
+        double interNodeDistance = getDistanceBetween(currentNode, otherNode);
+        if (interNodeDistance < 1) {
+            interNodeDistance = 1;
         }
-        Vector2D springForce = getDistanceVector(currentNode, otherNode)
-                .scaleBy(springConstant);
-        return springForce;
+
+        double magnitude = Math.pow(getOptimalEdgeLength(), 2)
+                / interNodeDistance;
+
+        /*
+         * Note the force is directed towards the current node since it is a
+         * repulsion force on the current node.
+         */
+        return Vector2DFactory.createVectorFromPolarCoordinates(magnitude,
+                getAngleBetween(otherNode, currentNode));
     }
 
 }

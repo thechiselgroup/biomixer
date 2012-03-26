@@ -40,6 +40,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
@@ -398,6 +399,11 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     protected int getGraphAbsoluteTop() {
         return asWidget.getAbsoluteTop();
+    }
+
+    @Override
+    public LayoutGraph getLayoutGraph() {
+        return this;
     }
 
     @Override

@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
+import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
@@ -62,9 +64,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
                 : arc.getSourceNode();
     }
 
-    private double energyThreshold = 0.5;
-
-    private final double timeStep;
+    private double totalDisplacemenThreshold = 10;
 
     private final double damping;
 
@@ -72,42 +72,87 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private ForceCalculator forceCalculator;
 
+    private int iterations = 0;
+
     public ForceDirectedLayoutComputation(ForceCalculator forceCalculator,
-            double timeStep, double damping, LayoutGraph graph,
-            Executor executor, ErrorHandler errorHandler) {
+            double damping, LayoutGraph graph, Executor executor,
+            ErrorHandler errorHandler) {
         super(graph, executor, errorHandler);
         this.forceCalculator = forceCalculator;
-        this.timeStep = timeStep;
         this.damping = damping;
         initForceNodes();
     }
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
-        double kineticEnergy = 0;
+        double totalDisplacement = 0;
         for (ForceNode currentNode : forceNodes) {
             Vector2D netForce = new Vector2D(0, 0);
-            for (LayoutNode otherNode : graph.getAllNodes()) {
+            for (LayoutNode otherNode : graph.getNodesExcept(currentNode
+                    .getLayoutNode())) {
                 netForce.add(forceCalculator.getForce(
                         currentNode.getLayoutNode(), otherNode));
             }
 
-            currentNode.updateVelocity(netForce, timeStep, damping);
-            currentNode.updatePosition(timeStep);
-
-            kineticEnergy += currentNode.getKineticEnergy();
+            updatePosition(netForce, currentNode);
+            totalDisplacement += netForce.getMagnitude();
         }
 
         /*
-         * Continue computing iterations until kinetic energy is close to 0
-         * (within a small threshold value)
+         * Continue computing iterations until the overall movement on the graph
+         * is below a threshold value.
          */
-        return kineticEnergy > energyThreshold;
+        iterations++;
+        return totalDisplacement > totalDisplacemenThreshold;
+    }
+
+    // XXX this should be moved elsewhere, duplicated from
+    // BoundsAwareForceCalculator
+    private double getOptimalEdgeLength() {
+        return Math.sqrt(graph.getBounds().getArea()
+                / graph.getAllNodes().size()) / 2;
     }
 
     private void initForceNodes() {
         for (LayoutNode unanchoredNode : graph.getUnanchoredNodes()) {
             forceNodes.add(new ForceNode(unanchoredNode));
         }
+    }
+
+    /**
+     * Updates the position of a node, but makes sure it stays within the graph
+     * bounds.
+     * 
+     * @param netForce
+     *            the force which determines the displacement of the node
+     * @param forceNode
+     *            the node to position.
+     */
+    private void updatePosition(Vector2D netForce, ForceNode forceNode) {
+        /*
+         * If nodes are very close together or very far apart the forces exerted
+         * on them can be way too large. Currently to compensate for this, I
+         * limit the displacement in the x and y directions for a node in one
+         * iteration to be the 'optimalEdgeLength' (see {@link
+         * BoundsAwareForceCalculator}). This is kind of arbitrary, and perhaps
+         * more appropriate values could be found.
+         */
+        VectorUtils.limitVectorComponents(netForce, getOptimalEdgeLength());
+
+        /*
+         * Damping provides simulated annealing
+         */
+        Vector2D positionDelta = netForce
+                .scaleBy(Math.pow(damping, iterations));
+
+        double nextX = forceNode.getX() + positionDelta.getXComponent();
+        double nextY = forceNode.getY() + positionDelta.getYComponent();
+
+        BoundsDouble bounds = graph.getBounds();
+        forceNode.updatePosition(
+                MathUtils.restrictToInterval(nextX, bounds.getLeftX(),
+                        bounds.getRightX()),
+                MathUtils.restrictToInterval(nextY, bounds.getTopY(),
+                        bounds.getBottomY()));
     }
 }

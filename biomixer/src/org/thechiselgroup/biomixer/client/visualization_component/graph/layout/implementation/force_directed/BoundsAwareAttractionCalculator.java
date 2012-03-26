@@ -15,42 +15,34 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
-/**
- * Calculates forces as if arcs where springs pulling nodes together according
- * to Hooke's Law.
- * 
- * @author drusk
- * 
- */
-// XXX not currently in use.
-public class SpringAttractionForceCalculator extends AbstractForceCalculator {
+public class BoundsAwareAttractionCalculator extends BoundsAwareForceCalculator {
 
-    private final double springConstant;
-
-    public SpringAttractionForceCalculator(double springConstant) {
-        this.springConstant = springConstant;
+    public BoundsAwareAttractionCalculator(LayoutGraph graph) {
+        super(graph);
     }
 
     @Override
     public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
-        /*
-         * XXX once refactoring to separate LayoutNode from rendered node is
-         * done, move this will be a call to
-         * currentNode.isNodeConnected(otherNode);
-         */
         if (!ForceDirectedLayoutComputation.areNodesConnected(currentNode,
                 otherNode)) {
             /*
-             * If the nodes are not connected by an arc then there is no spring
-             * force.
+             * If the nodes are not connected by an arc then there is no
+             * attraction force.
              */
             return new Vector2D(0, 0);
         }
-        Vector2D springForce = getDistanceVector(currentNode, otherNode)
-                .scaleBy(springConstant);
-        return springForce;
+        double magnitude = Math.pow(getDistanceBetween(currentNode, otherNode),
+                2) / getOptimalEdgeLength();
+
+        /*
+         * Note the force is directed towards the other node since it is an
+         * attraction force on the current node.
+         */
+        return Vector2DFactory.createVectorFromPolarCoordinates(magnitude,
+                getAngleBetween(currentNode, otherNode));
     }
 
 }

@@ -26,10 +26,11 @@ import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ElectronRepulsionForceCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.SpringAttractionForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
 
 import com.google.inject.Inject;
 
@@ -101,19 +102,26 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     }
 
-    protected LayoutAlgorithm getLayoutAlgorithm() {
+    protected LayoutAlgorithm getLayoutAlgorithm(LayoutGraph layoutGraph) {
         // return new HorizontalTreeLayoutAlgorithm(true, errorHandler);
+        // return new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+        // new SpringAttractionForceCalculator(0.25),
+        // new ElectronRepulsionForceCalculator(10000)), 0.1, 0.8,
+        // errorHandler);
         return new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
-                new SpringAttractionForceCalculator(2),
-                new ElectronRepulsionForceCalculator(4)), 1, 0.9, errorHandler);
+                new BoundsAwareAttractionCalculator(layoutGraph),
+                new BoundsAwareRepulsionCalculator(layoutGraph)), 0.9,
+                errorHandler);
     }
 
     protected void layout(final View graphView) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
-                        getLayoutAlgorithm());
+                GraphLayoutSupport layoutSupport = graphView
+                        .adaptTo(GraphLayoutSupport.class);
+                layoutSupport.runLayout(getLayoutAlgorithm(layoutSupport
+                        .getLayoutGraph()));
             }
         }, 50);
     }

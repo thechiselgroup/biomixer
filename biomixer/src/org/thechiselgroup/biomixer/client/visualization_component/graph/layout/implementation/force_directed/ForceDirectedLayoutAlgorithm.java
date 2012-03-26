@@ -16,8 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
-import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
+import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
@@ -26,18 +25,15 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
 
     private ErrorHandler errorHandler;
 
-    private Executor executor = new DirectExecutor();
-
-    private final double timeStep;
+    private DelayedExecutor executor = new DelayedExecutor(10);
 
     private final double damping;
 
     private ForceCalculator forceCalculator;
 
     public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
-            double timeStep, double damping, ErrorHandler errorHandler) {
+            double damping, ErrorHandler errorHandler) {
         this.forceCalculator = forceCalculator;
-        this.timeStep = timeStep;
         this.damping = damping;
         this.errorHandler = errorHandler;
     }
@@ -45,8 +41,7 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         ForceDirectedLayoutComputation computation = new ForceDirectedLayoutComputation(
-                forceCalculator, timeStep, damping, graph, executor,
-                errorHandler);
+                forceCalculator, damping, graph, executor, errorHandler);
         computation.run();
         return computation;
     }

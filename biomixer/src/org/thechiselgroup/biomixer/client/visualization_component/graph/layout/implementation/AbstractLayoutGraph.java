@@ -31,6 +31,14 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 public abstract class AbstractLayoutGraph implements LayoutGraph {
 
     @Override
+    public List<LayoutNode> getNodesExcept(LayoutNode exceptNode) {
+        List<LayoutNode> nodes = new ArrayList<LayoutNode>();
+        nodes.addAll(getAllNodes());
+        nodes.remove(exceptNode);
+        return nodes;
+    }
+
+    @Override
     public List<LayoutNode> getUnanchoredNodes() {
         List<LayoutNode> unanchoredNodes = new ArrayList<LayoutNode>();
         for (LayoutNode layoutNode : getAllNodes()) {
