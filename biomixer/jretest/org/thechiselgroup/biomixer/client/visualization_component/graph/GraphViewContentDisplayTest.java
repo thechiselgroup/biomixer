@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
@@ -86,6 +87,9 @@ public class GraphViewContentDisplayTest {
 
     @Mock
     private GraphExpansionRegistry registry;
+
+    @Mock
+    private ErrorHandler errorHandler;
 
     @Mock
     private ResourceCategorizer resourceCategorizer;
@@ -305,7 +309,7 @@ public class GraphViewContentDisplayTest {
 
     private void init() {
         underTest = new Graph(graphDisplay, commandManager, resourceManager,
-                resourceCategorizer, arcStyleProvider, registry);
+                resourceCategorizer, arcStyleProvider, registry, errorHandler);
         underTest.init(visualItemContainer, callback);
         ArgumentCaptor<GraphDisplayReadyEventHandler> argument = ArgumentCaptor
                 .forClass(GraphDisplayReadyEventHandler.class);
