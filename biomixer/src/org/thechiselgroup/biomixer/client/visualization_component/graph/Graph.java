@@ -241,7 +241,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private ResourceSet automaticResources;
 
-    private GraphLayoutManager nodeExpansionLayoutManager;
+    private RepeatedLayoutExecutionManager nodeExpansionLayoutManager;
 
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
@@ -309,8 +309,6 @@ public class Graph extends AbstractViewContentDisplay implements
         }
     };
 
-    private final ErrorHandler errorHandler;
-
     @Inject
     public Graph(GraphDisplay display, CommandManager commandManager,
             ResourceManager resourceManager,
@@ -336,7 +334,6 @@ public class Graph extends AbstractViewContentDisplay implements
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
         this.registry = registry;
-        this.errorHandler = errorHandler;
 
         /*
          * we init the arc type containers early so they are available for UI
@@ -572,7 +569,7 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void initGraphLayoutManager(ErrorHandler errorHandler) {
-        this.nodeExpansionLayoutManager = new GraphLayoutManager(
+        this.nodeExpansionLayoutManager = new RepeatedLayoutExecutionManager(
                 new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
                         new BoundsAwareAttractionCalculator(getLayoutGraph()),
                         new BoundsAwareRepulsionCalculator(getLayoutGraph())),

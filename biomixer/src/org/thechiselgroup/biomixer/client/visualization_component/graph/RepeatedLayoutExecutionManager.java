@@ -28,7 +28,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
-public class GraphLayoutManager {
+public class RepeatedLayoutExecutionManager {
 
     private LayoutAlgorithm layoutAlgorithm;
 
@@ -42,7 +42,7 @@ public class GraphLayoutManager {
      */
     private boolean hasExistingRestartRequest = false;
 
-    public GraphLayoutManager(LayoutAlgorithm layoutAlgorithm, LayoutGraph graph) {
+    public RepeatedLayoutExecutionManager(LayoutAlgorithm layoutAlgorithm, LayoutGraph graph) {
         this.layoutAlgorithm = layoutAlgorithm;
         this.graph = graph;
     }
