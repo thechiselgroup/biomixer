@@ -19,9 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
@@ -74,6 +73,8 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private int iterations = 0;
 
+    private LayoutNodeBoundsEnforcer boundsEnforcer;
+
     public ForceDirectedLayoutComputation(ForceCalculator forceCalculator,
             double damping, LayoutGraph graph, Executor executor,
             ErrorHandler errorHandler) {
@@ -81,6 +82,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         this.forceCalculator = forceCalculator;
         this.damping = damping;
         initForceNodes();
+        this.boundsEnforcer = new LayoutNodeBoundsEnforcer(graph);
     }
 
     @Override
@@ -145,14 +147,15 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         Vector2D positionDelta = netForce
                 .scaleBy(Math.pow(damping, iterations));
 
-        double nextX = forceNode.getX() + positionDelta.getXComponent();
-        double nextY = forceNode.getY() + positionDelta.getYComponent();
+        /*
+         * Need to make sure the next calculated position doesn't cause all or
+         * part of the node to go outside the visible graph area
+         */
+        PointDouble restrictedTopLeft = boundsEnforcer.getRestrictedPosition(
+                forceNode.getLayoutNode(),
+                forceNode.getX() + positionDelta.getXComponent(),
+                forceNode.getY() + positionDelta.getYComponent());
 
-        BoundsDouble bounds = graph.getBounds();
-        forceNode.updatePosition(
-                MathUtils.restrictToInterval(nextX, bounds.getLeftX(),
-                        bounds.getRightX()),
-                MathUtils.restrictToInterval(nextY, bounds.getTopY(),
-                        bounds.getBottomY()));
+        forceNode.getLayoutNode().setPosition(restrictedTopLeft);
     }
 }
