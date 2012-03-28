@@ -70,8 +70,6 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private final double dampingConstant;
 
-    private List<ForceNode> forceNodes = new ArrayList<ForceNode>();
-
     private ForceCalculator forceCalculator;
 
     private LayoutNodeBoundsEnforcer boundsEnforcer;
@@ -87,7 +85,6 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         super(graph, executor, errorHandler);
         this.forceCalculator = forceCalculator;
         this.dampingConstant = dampingConstant;
-        initForceNodes();
         this.boundsEnforcer = new LayoutNodeBoundsEnforcer(graph);
         initializeNodeDampening();
     }
@@ -95,12 +92,11 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     @Override
     protected boolean computeIteration() throws RuntimeException {
         double totalDisplacement = 0;
-        for (ForceNode currentNode : forceNodes) {
+        List<LayoutNode> allNodes = graph.getAllNodes();
+        for (LayoutNode currentNode : allNodes) {
             Vector2D netForce = new Vector2D(0, 0);
-            for (LayoutNode otherNode : graph.getNodesExcept(currentNode
-                    .getLayoutNode())) {
-                netForce.add(forceCalculator.getForce(
-                        currentNode.getLayoutNode(), otherNode));
+            for (LayoutNode otherNode : graph.getNodesExcept(currentNode)) {
+                netForce.add(forceCalculator.getForce(currentNode, otherNode));
             }
 
             updatePosition(netForce, currentNode);
@@ -108,7 +104,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         }
 
         /*
-         * Effect of dampening should increase each iteration.
+         * Effect of dampening should increase with each iteration.
          */
         increaseDampeningForAllNodes();
 
@@ -130,7 +126,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
      */
     private double getDampening(LayoutNode layoutNode) {
         if (!nodeDampenings.containsKey(layoutNode)) {
-            nodeDampenings.put(layoutNode, dampingConstant);
+            nodeDampenings.put(layoutNode, Double.valueOf(1.0));
         }
         return nodeDampenings.get(layoutNode);
     }
@@ -153,15 +149,12 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         }
     }
 
-    private void initForceNodes() {
-        for (LayoutNode unanchoredNode : graph.getUnanchoredNodes()) {
-            forceNodes.add(new ForceNode(unanchoredNode));
-        }
-    }
-
+    /**
+     * Start all nodes on the graph off with no damping.
+     */
     private void initializeNodeDampening() {
         for (LayoutNode layoutNode : graph.getAllNodes()) {
-            nodeDampenings.put(layoutNode, Double.valueOf(dampingConstant));
+            nodeDampenings.put(layoutNode, Double.valueOf(1.0));
         }
     }
 
@@ -171,10 +164,10 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
      * 
      * @param netForce
      *            the force which determines the displacement of the node
-     * @param forceNode
+     * @param node
      *            the node to position.
      */
-    private void updatePosition(Vector2D netForce, ForceNode forceNode) {
+    private void updatePosition(Vector2D netForce, LayoutNode node) {
         /*
          * If nodes are very close together or very far apart the forces exerted
          * on them can be way too large. Currently to compensate for this, I
@@ -188,18 +181,16 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         /*
          * Damping provides simulated annealing
          */
-        Vector2D positionDelta = netForce.scaleBy(getDampening(forceNode
-                .getLayoutNode()));
+        Vector2D positionDelta = netForce.scaleBy(getDampening(node));
 
         /*
          * Need to make sure the next calculated position doesn't cause all or
          * part of the node to go outside the visible graph area
          */
         PointDouble restrictedTopLeft = boundsEnforcer.getRestrictedPosition(
-                forceNode.getLayoutNode(),
-                forceNode.getX() + positionDelta.getXComponent(),
-                forceNode.getY() + positionDelta.getYComponent());
+                node, node.getX() + positionDelta.getXComponent(), node.getY()
+                        + positionDelta.getYComponent());
 
-        forceNode.getLayoutNode().setPosition(restrictedTopLeft);
+        node.setPosition(restrictedTopLeft);
     }
 }
