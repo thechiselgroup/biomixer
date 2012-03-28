@@ -16,7 +16,10 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
@@ -65,24 +68,28 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private double totalDisplacemenThreshold = 10;
 
-    private final double damping;
+    private final double dampingConstant;
 
     private List<ForceNode> forceNodes = new ArrayList<ForceNode>();
 
     private ForceCalculator forceCalculator;
 
-    private int iterations = 0;
-
     private LayoutNodeBoundsEnforcer boundsEnforcer;
 
+    /*
+     * The dampening factors for nodes are maintained individually.
+     */
+    private Map<LayoutNode, Double> nodeDampenings = new HashMap<LayoutNode, Double>();
+
     public ForceDirectedLayoutComputation(ForceCalculator forceCalculator,
-            double damping, LayoutGraph graph, Executor executor,
+            double dampingConstant, LayoutGraph graph, Executor executor,
             ErrorHandler errorHandler) {
         super(graph, executor, errorHandler);
         this.forceCalculator = forceCalculator;
-        this.damping = damping;
+        this.dampingConstant = dampingConstant;
         initForceNodes();
         this.boundsEnforcer = new LayoutNodeBoundsEnforcer(graph);
+        initializeNodeDampening();
     }
 
     @Override
@@ -101,11 +108,31 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         }
 
         /*
+         * Effect of dampening should increase each iteration.
+         */
+        increaseDampeningForAllNodes();
+
+        /*
          * Continue computing iterations until the overall movement on the graph
          * is below a threshold value.
          */
-        iterations++;
         return totalDisplacement > totalDisplacemenThreshold;
+    }
+
+    /**
+     * Retrieves the dampening factor for a node. If the node has just recently
+     * been added and has no existing dampening factor, it will be created
+     * lazily here.
+     * 
+     * @param layoutNode
+     *            the node to retrieve the dampening factor for
+     * @return dampening factor
+     */
+    private double getDampening(LayoutNode layoutNode) {
+        if (!nodeDampenings.containsKey(layoutNode)) {
+            nodeDampenings.put(layoutNode, dampingConstant);
+        }
+        return nodeDampenings.get(layoutNode);
     }
 
     // XXX this should be moved elsewhere, duplicated from
@@ -115,9 +142,26 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
                 / graph.getAllNodes().size()) / 2;
     }
 
+    /**
+     * Increases the dampening of all the nodes on the graph by a factor of
+     * <code>dampingConstant</code>.
+     */
+    private void increaseDampeningForAllNodes() {
+        for (Entry<LayoutNode, Double> entry : nodeDampenings.entrySet()) {
+            nodeDampenings.put(entry.getKey(), entry.getValue()
+                    * dampingConstant);
+        }
+    }
+
     private void initForceNodes() {
         for (LayoutNode unanchoredNode : graph.getUnanchoredNodes()) {
             forceNodes.add(new ForceNode(unanchoredNode));
+        }
+    }
+
+    private void initializeNodeDampening() {
+        for (LayoutNode layoutNode : graph.getAllNodes()) {
+            nodeDampenings.put(layoutNode, Double.valueOf(dampingConstant));
         }
     }
 
@@ -144,8 +188,8 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         /*
          * Damping provides simulated annealing
          */
-        Vector2D positionDelta = netForce
-                .scaleBy(Math.pow(damping, iterations));
+        Vector2D positionDelta = netForce.scaleBy(getDampening(forceNode
+                .getLayoutNode()));
 
         /*
          * Need to make sure the next calculated position doesn't cause all or
