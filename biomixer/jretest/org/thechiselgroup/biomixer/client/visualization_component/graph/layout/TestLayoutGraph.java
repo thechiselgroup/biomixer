@@ -101,6 +101,17 @@ public class TestLayoutGraph implements LayoutGraph {
     }
 
     @Override
+    public double getLeftMostNodeX() {
+        double leftMostX = Double.MAX_VALUE;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            if (layoutNode.getX() < leftMostX) {
+                leftMostX = layoutNode.getX();
+            }
+        }
+        return leftMostX;
+    }
+
+    @Override
     public List<LayoutNodeType> getNodeTypes() {
         return nodeTypes;
     }
@@ -111,6 +122,17 @@ public class TestLayoutGraph implements LayoutGraph {
 
     public TestLayoutNodeType[] getTestLayoutNodeTypes() {
         return testLayoutNodeTypes;
+    }
+
+    @Override
+    public double getTopMostNodeY() {
+        double topMostY = Double.MAX_VALUE;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            if (layoutNode.getY() < topMostY) {
+                topMostY = layoutNode.getY();
+            }
+        }
+        return topMostY;
     }
 
 }

@@ -53,11 +53,23 @@ public interface LayoutGraph {
     BoundsDouble getBounds();
 
     /**
+     * 
+     * @return the farthest left point of a node on a graph.
+     */
+    double getLeftMostNodeX();
+
+    /**
      * NOTE: we return a list to guarantee node order for testing purposes.
      * There must be no duplicate nodes in this list.
      * 
      * @return all node types in this graph
      */
     List<LayoutNodeType> getNodeTypes();
+
+    /**
+     * 
+     * @return the point of a node closest to the top of the graph.
+     */
+    double getTopMostNodeY();
 
 }

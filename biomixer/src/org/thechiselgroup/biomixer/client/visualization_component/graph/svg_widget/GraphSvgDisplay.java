@@ -98,9 +98,9 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     private EventBus eventBus = new SimpleEventBus();
 
-    private int width;
+    private int totalViewWidth;
 
-    private int height;
+    private int totalViewHeight;
 
     private NodeInteractionManager nodeInteractionManager;
 
@@ -110,7 +110,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     private ChooselEventHandler viewWideInteractionListener;
 
-    private SvgElement background;
+    private GraphBackground background;
 
     private IdentifiablesList<DefaultLayoutNodeType> nodeTypes = new IdentifiablesList<DefaultLayoutNodeType>();
 
@@ -126,8 +126,8 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     public GraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {
-        this.width = width;
-        this.height = height;
+        this.totalViewWidth = width;
+        this.totalViewHeight = height;
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
 
@@ -253,7 +253,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
         if (isWidgetInitialized() && nodes.size() > 1) {
-            setLocation(node, new Point(width / 2, height / 2));
+            setLocation(node, new Point(totalViewWidth / 2, totalViewHeight / 2));
         }
 
         nodeGroup.appendChild(nodeComponent);
@@ -296,7 +296,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
             rootSvgComponent = new CompositeSvgComponent(
                     asWidget.getSvgElement(), rootSvgComponent,
                     viewWideInteractionListener);
-            asWidget.setPixelSize(width, height);
+            asWidget.setPixelSize(totalViewWidth, totalViewHeight);
         }
         return asWidget;
     }
@@ -389,7 +389,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
     @Override
     public BoundsDouble getBounds() {
         // TODO x and y always 0?
-        return new DefaultBoundsDouble(0, 0, width, height);
+        return new DefaultBoundsDouble(0, 0, totalViewWidth, totalViewHeight);
     }
 
     protected int getGraphAbsoluteLeft() {
@@ -398,6 +398,17 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     protected int getGraphAbsoluteTop() {
         return asWidget.getAbsoluteTop();
+    }
+
+    @Override
+    public double getLeftMostNodeX() {
+        double leftMostX = Double.MAX_VALUE;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            if (layoutNode.getX() < leftMostX) {
+                leftMostX = layoutNode.getX();
+            }
+        }
+        return leftMostX;
     }
 
     @Override
@@ -449,23 +460,37 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
         return layoutNodeTypes;
     }
 
-    private void initBackground(int width, int height) {
-        background = svgElementFactory.createElement(Svg.RECT);
-        background.setAttribute(Svg.WIDTH, width);
-        background.setAttribute(Svg.HEIGHT, height);
-        background.setAttribute(Svg.FILL, Colors.WHITE);
-        background.setEventListener(new ChooselEventHandler() {
+    @Override
+    public double getTopMostNodeY() {
+        double topMostY = Double.MAX_VALUE;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            if (layoutNode.getY() < topMostY) {
+                topMostY = layoutNode.getY();
+            }
+        }
+        return topMostY;
+    }
 
+    private void initBackground(int width, int height) {
+        background = new GraphBackground(width, height, svgElementFactory);
+
+        background.setEventListener(new ChooselEventHandler() {
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
                     onBackgroundClick(event.getClientX(), event.getClientY());
                 }
-
             }
-
         });
-        rootSvgComponent.appendChild(background);
+
+        background.setEventListener(new DragEventHandler() {
+            @Override
+            public void handleDrag(DragEvent dragEvent) {
+                panBackground(dragEvent.getDeltaX(), dragEvent.getDeltaY());
+            }
+        });
+
+        rootSvgComponent.appendChild(background.asSvg());
     }
 
     private void initCompositeGroupingComponents() {
@@ -614,10 +639,10 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     @Override
     public void onResize(ViewResizeEvent resizeEvent) {
-        width = resizeEvent.getWidth();
-        height = resizeEvent.getHeight();
-        background.setAttribute(Svg.WIDTH, width);
-        background.setAttribute(Svg.HEIGHT, height);
+        totalViewWidth = resizeEvent.getWidth();
+        totalViewHeight = resizeEvent.getHeight();
+        background.setWidth(totalViewWidth);
+        background.setHeight(totalViewHeight);
     }
 
     public void onViewMouseMove(int mouseX, int mouseY) {
@@ -626,6 +651,35 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     private void onWidgetReady() {
         eventBus.fireEvent(new GraphDisplayReadyEvent(this));
+    }
+
+    public void panBackground(int deltaX, int deltaY) {
+        /*
+         * Only allow panning to the left if it will not push any node off the
+         * left hand side, and only allow panning up if it will not push any
+         * node off the top of the graph. Panning right or down may push nodes
+         * off the screen.
+         */
+        if (getLeftMostNodeX() + deltaX > 0) {
+            /*
+             * Don't let background width become less than view width.
+             */
+            double newBackgroundWidth = background.getWidth() + deltaX;
+            if (newBackgroundWidth >= totalViewWidth) {
+                background.setWidth(newBackgroundWidth);
+            }
+            shiftGraphContentsHorizontally(deltaX);
+        }
+        if (getTopMostNodeY() + deltaY > 0) {
+            /*
+             * Don't let background height become less than view height.
+             */
+            double newBackgroundHeight = background.getHeight() + deltaY;
+            if (newBackgroundHeight >= totalViewHeight) {
+                background.setHeight(background.getHeight() + deltaY);
+            }
+            shiftGraphContentsVertically(deltaY);
+        }
     }
 
     @Override
@@ -716,6 +770,19 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
         else if (styleProperty.equals(NODE_BORDER_COLOR)) {
             nodeComponent.setBorderColor(styleValue);
+        }
+
+    }
+
+    private void shiftGraphContentsHorizontally(int deltaX) {
+        for (LayoutNode layoutNode : getAllNodes()) {
+            layoutNode.setX(layoutNode.getX() + deltaX);
+        }
+    }
+
+    private void shiftGraphContentsVertically(int deltaY) {
+        for (LayoutNode layoutNode : getAllNodes()) {
+            layoutNode.setY(layoutNode.getY() + deltaY);
         }
 
     }
