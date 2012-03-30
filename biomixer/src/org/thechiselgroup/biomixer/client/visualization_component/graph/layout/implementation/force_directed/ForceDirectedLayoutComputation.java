@@ -68,6 +68,9 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private double averageNodeDisplacementThreshold = 2.0;
 
+    /*
+     * Should be a number between 0 and 1.
+     */
     private final double dampingConstant;
 
     private ForceCalculator forceCalculator;
@@ -77,7 +80,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     /*
      * The dampening factors for nodes are maintained individually.
      */
-    private Map<LayoutNode, Double> nodeDampenings = new HashMap<LayoutNode, Double>();
+    private Map<LayoutNode, Double> nodeDampeningFactors = new HashMap<LayoutNode, Double>();
 
     public ForceDirectedLayoutComputation(ForceCalculator forceCalculator,
             double dampingConstant, LayoutGraph graph, Executor executor,
@@ -141,10 +144,10 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
      * @return dampening factor
      */
     private double getDampening(LayoutNode layoutNode) {
-        if (!nodeDampenings.containsKey(layoutNode)) {
-            nodeDampenings.put(layoutNode, Double.valueOf(1.0));
+        if (!nodeDampeningFactors.containsKey(layoutNode)) {
+            nodeDampeningFactors.put(layoutNode, Double.valueOf(1.0));
         }
-        return nodeDampenings.get(layoutNode);
+        return nodeDampeningFactors.get(layoutNode);
     }
 
     // XXX this should be moved elsewhere, duplicated from
@@ -156,11 +159,12 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     /**
      * Increases the dampening of all the nodes on the graph by a factor of
-     * <code>dampingConstant</code>.
+     * <code>dampingConstant</code>. Note that increasing the dampening means
+     * decreasing the numerical value of the dampening factor coefficient.
      */
     private void increaseDampeningForAllNodes() {
-        for (Entry<LayoutNode, Double> entry : nodeDampenings.entrySet()) {
-            nodeDampenings.put(entry.getKey(), entry.getValue()
+        for (Entry<LayoutNode, Double> entry : nodeDampeningFactors.entrySet()) {
+            nodeDampeningFactors.put(entry.getKey(), entry.getValue()
                     * dampingConstant);
         }
     }
@@ -170,7 +174,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
      */
     private void initializeNodeDampening() {
         for (LayoutNode layoutNode : graph.getAllNodes()) {
-            nodeDampenings.put(layoutNode, Double.valueOf(1.0));
+            nodeDampeningFactors.put(layoutNode, Double.valueOf(1.0));
         }
     }
 

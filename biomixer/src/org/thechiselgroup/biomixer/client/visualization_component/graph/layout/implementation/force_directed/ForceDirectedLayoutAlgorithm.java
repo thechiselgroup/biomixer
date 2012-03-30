@@ -31,6 +31,14 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
 
     private ForceCalculator forceCalculator;
 
+    /**
+     * 
+     * @param forceCalculator
+     *            determines what forces are applied to nodes
+     * @param damping
+     *            coefficient between 0 and 1
+     * @param errorHandler
+     */
     public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
             double damping, ErrorHandler errorHandler) {
         this.forceCalculator = forceCalculator;
