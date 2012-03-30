@@ -66,7 +66,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
                 : arc.getSourceNode();
     }
 
-    private double totalDisplacemenThreshold = 10;
+    private double averageNodeDisplacementThreshold = 2.0;
 
     private final double dampingConstant;
 
@@ -109,10 +109,13 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         increaseDampeningForAllNodes();
 
         /*
-         * Continue computing iterations until the overall movement on the graph
-         * is below a threshold value.
+         * Continue computing iterations until the average movement per node on
+         * the graph is below a threshold value. Average movement is used so
+         * that graphs with a lot of nodes moving tiny amounts don't stay above
+         * the threshold longer than a graph with only few nodes moving the same
+         * amount.
          */
-        return totalDisplacement > totalDisplacemenThreshold;
+        return totalDisplacement / allNodes.size() > averageNodeDisplacementThreshold;
     }
 
     /**
