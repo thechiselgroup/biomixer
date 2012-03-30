@@ -120,6 +120,13 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         return running;
     }
 
+    @Override
+    public void restart() {
+        running = true;
+        shouldStop = false;
+        run();
+    }
+
     /**
      * Computes an iteration and schedules another iteration if needed. Fires
      * the finished event once done. Should only be called once to trigger the

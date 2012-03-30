@@ -241,7 +241,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private ResourceSet automaticResources;
 
-    private RepeatedLayoutExecutionManager nodeExpansionLayoutManager;
+    private GraphLayoutExecutionManager nodeExpansionLayoutManager;
 
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
@@ -569,7 +569,7 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void initGraphLayoutManager(ErrorHandler errorHandler) {
-        this.nodeExpansionLayoutManager = new RepeatedLayoutExecutionManager(
+        this.nodeExpansionLayoutManager = new ContinuousLayoutExecutionManager(
                 new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
                         new BoundsAwareAttractionCalculator(getLayoutGraph()),
                         new BoundsAwareRepulsionCalculator(getLayoutGraph())),

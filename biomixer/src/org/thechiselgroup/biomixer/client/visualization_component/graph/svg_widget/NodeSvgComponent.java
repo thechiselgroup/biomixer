@@ -198,6 +198,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
      * @param isAnchored
      *            set <code>true</code> to anchor this node
      */
+    @Override
     public void setAnchored(boolean isAnchored) {
         this.isAnchored = isAnchored;
     }

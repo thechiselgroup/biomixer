@@ -115,6 +115,14 @@ public interface LayoutNode {
     boolean isAnchored();
 
     /**
+     * 
+     * @param anchored
+     *            set to <code>true</code> if the node should not be moved. Set
+     *            to <code>false</code> to clear any restrictions on movement.
+     */
+    void setAnchored(boolean anchored);
+
+    /**
      * Sets the position of the node label.
      * 
      * @param x

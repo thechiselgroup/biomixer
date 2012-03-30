@@ -137,6 +137,11 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
+    public void setAnchored(boolean anchored) {
+        this.isAnchored = anchored;
+    }
+
+    @Override
     public void setLabelPosition(double x, double y) {
         setLabelX(x);
         setLabelY(y);

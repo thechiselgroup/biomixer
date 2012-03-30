@@ -22,13 +22,14 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 
 /**
- * Manages the repeated execution of a particular {@link LayoutAlgorithm} on a
- * particular {@link LayoutGraph}.
+ * Layout requests that come in before the previous finishes are dealt with by
+ * telling the current computation to stop and scheduling a brand new one.
  * 
  * @author drusk
  * 
  */
-public class RepeatedLayoutExecutionManager {
+public class RestartingLayoutExecutionManager implements
+        GraphLayoutExecutionManager {
 
     private LayoutAlgorithm layoutAlgorithm;
 
@@ -42,7 +43,8 @@ public class RepeatedLayoutExecutionManager {
      */
     private boolean hasExistingRestartRequest = false;
 
-    public RepeatedLayoutExecutionManager(LayoutAlgorithm layoutAlgorithm, LayoutGraph graph) {
+    public RestartingLayoutExecutionManager(LayoutAlgorithm layoutAlgorithm,
+            LayoutGraph graph) {
         this.layoutAlgorithm = layoutAlgorithm;
         this.graph = graph;
     }
@@ -76,6 +78,7 @@ public class RepeatedLayoutExecutionManager {
      * Schedule the layout algorithm to start a new computation as soon as
      * possible.
      */
+    @Override
     public void runLayout() {
         if (currentComputation == null || !currentComputation.isRunning()) {
             currentComputation = layoutAlgorithm.computeLayout(graph);
