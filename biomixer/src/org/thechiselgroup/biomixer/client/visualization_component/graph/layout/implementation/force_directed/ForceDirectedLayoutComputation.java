@@ -95,7 +95,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
         List<LayoutNode> allNodes = graph.getAllNodes();
         for (LayoutNode currentNode : allNodes) {
             Vector2D netForce = new Vector2D(0, 0);
-            for (LayoutNode otherNode : graph.getNodesExcept(currentNode)) {
+            for (LayoutNode otherNode : getAllNodesExcept(currentNode)) {
                 netForce.add(forceCalculator.getForce(currentNode, otherNode));
             }
 
@@ -113,6 +113,19 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
          * is below a threshold value.
          */
         return totalDisplacement > totalDisplacemenThreshold;
+    }
+
+    /**
+     * 
+     * @param exceptNode
+     *            the node to be excluded
+     * @return a list of all nodes except for the specified one.
+     */
+    private List<LayoutNode> getAllNodesExcept(LayoutNode node) {
+        List<LayoutNode> nodes = new ArrayList<LayoutNode>();
+        nodes.addAll(graph.getAllNodes());
+        nodes.remove(node);
+        return nodes;
     }
 
     /**

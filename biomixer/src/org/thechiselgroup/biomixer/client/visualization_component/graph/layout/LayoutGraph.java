@@ -53,14 +53,6 @@ public interface LayoutGraph {
     BoundsDouble getBounds();
 
     /**
-     * 
-     * @param exceptNode
-     *            the node to be excluded
-     * @return a list of all nodes except for the specified one.
-     */
-    List<LayoutNode> getNodesExcept(LayoutNode exceptNode);
-
-    /**
      * NOTE: we return a list to guarantee node order for testing purposes.
      * There must be no duplicate nodes in this list.
      * 
