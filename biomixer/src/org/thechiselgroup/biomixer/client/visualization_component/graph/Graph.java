@@ -241,7 +241,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private ResourceSet automaticResources;
 
-    private GraphLayoutExecutionManager nodeExpansionLayoutManager;
+    private GraphLayoutExecutionManager layoutManager;
 
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
@@ -398,7 +398,7 @@ public class Graph extends AbstractViewContentDisplay implements
          * NOTE: the expansion layout (currently ForceDirected) is run each time
          * a node is added.
          */
-        nodeExpansionLayoutManager.runLayout();
+        layoutManager.runLayout();
 
         return graphItem;
     }
@@ -569,7 +569,7 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void initGraphLayoutManager(ErrorHandler errorHandler) {
-        this.nodeExpansionLayoutManager = new ContinuousLayoutExecutionManager(
+        this.layoutManager = new GraphLayoutExecutionManager(
                 new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
                         new BoundsAwareAttractionCalculator(getLayoutGraph()),
                         new BoundsAwareRepulsionCalculator(getLayoutGraph())),
@@ -731,7 +731,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public void runLayout(LayoutAlgorithm layoutAlgorithm) {
-        graphDisplay.runLayout(layoutAlgorithm);
+        layoutManager.registerAndRunLayoutAlgorithm(layoutAlgorithm);
     }
 
     @Override

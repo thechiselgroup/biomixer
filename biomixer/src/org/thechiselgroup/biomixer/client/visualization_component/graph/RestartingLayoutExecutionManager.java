@@ -28,8 +28,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
-public class RestartingLayoutExecutionManager implements
-        GraphLayoutExecutionManager {
+// XXX not currently being used
+public class RestartingLayoutExecutionManager {
 
     private LayoutAlgorithm layoutAlgorithm;
 
@@ -78,7 +78,6 @@ public class RestartingLayoutExecutionManager implements
      * Schedule the layout algorithm to start a new computation as soon as
      * possible.
      */
-    @Override
     public void runLayout() {
         if (currentComputation == null || !currentComputation.isRunning()) {
             currentComputation = layoutAlgorithm.computeLayout(graph);

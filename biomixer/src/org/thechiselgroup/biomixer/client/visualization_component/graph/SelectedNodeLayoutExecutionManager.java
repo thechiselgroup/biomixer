@@ -29,6 +29,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
+// XXX not being used
 public class SelectedNodeLayoutExecutionManager {
 
     private LayoutAlgorithm layoutAlgorithm;

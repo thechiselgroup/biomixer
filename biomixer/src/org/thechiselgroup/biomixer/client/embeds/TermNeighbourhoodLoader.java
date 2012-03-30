@@ -27,10 +27,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLay
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
 import com.google.inject.Inject;
 
@@ -103,15 +100,11 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm(LayoutGraph layoutGraph) {
-        // return new HorizontalTreeLayoutAlgorithm(true, errorHandler);
+        return new HorizontalTreeLayoutAlgorithm(true, errorHandler);
         // return new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
-        // new SpringAttractionForceCalculator(0.25),
-        // new ElectronRepulsionForceCalculator(10000)), 0.1, 0.8,
+        // new BoundsAwareAttractionCalculator(layoutGraph),
+        // new BoundsAwareRepulsionCalculator(layoutGraph)), 0.9,
         // errorHandler);
-        return new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
-                new BoundsAwareAttractionCalculator(layoutGraph),
-                new BoundsAwareRepulsionCalculator(layoutGraph)), 0.9,
-                errorHandler);
     }
 
     protected void layout(final View graphView) {
