@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -48,7 +50,8 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
         nodeContainer.getEventListener().onEvent(event);
     }
 
-    public void fireTabMenuItemTestEvent(String expanderLabel, ChooselEvent event) {
+    public void fireTabMenuItemTestEvent(String expanderLabel,
+            ChooselEvent event) {
         // XXX better way of firing these events?
         PopupExpanderSvgComponent popupExpanderList = (PopupExpanderSvgComponent) popupGroup
                 .getCompositeSubComponents().get(0);
@@ -59,6 +62,10 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
 
     public void fireViewWideTestEvent(ChooselEvent chooselEvent) {
         getTextRootSvgElement().getEventListener().onEvent(chooselEvent);
+    }
+
+    public TestAnimationRunner getAnimationRunner() {
+        return (TestAnimationRunner) animationRunner;
     }
 
     @Override
@@ -73,6 +80,11 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
 
     private TextSvgElement getTextRootSvgElement() {
         return (TextSvgElement) rootSvgComponent.getSvgElement();
+    }
+
+    @Override
+    protected AnimationRunner initAnimationRunner() {
+        return new TestAnimationRunner();
     }
 
     @Override

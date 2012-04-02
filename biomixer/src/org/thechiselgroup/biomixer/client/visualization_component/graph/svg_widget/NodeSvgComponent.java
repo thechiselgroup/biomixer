@@ -22,10 +22,13 @@ import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -40,6 +43,8 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 public class NodeSvgComponent extends CompositeSvgComponent implements
         Identifiable, LayoutNode {
 
+    public static final int ANIMATION_DURATION = 750;
+
     private Node node;
 
     private List<ArcSvgComponent> arcsConnectedToThisNode = new ArrayList<ArcSvgComponent>();
@@ -51,6 +56,8 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     private boolean isAnchored = false;
 
     private LayoutNodeType nodeType;
+
+    private AnimationRunner animationRunner = new GwtAnimationRunner();
 
     public NodeSvgComponent(Node node, LayoutNodeType nodeType,
             SvgElement baseContainer, BoxedTextSvgComponent boxedText,
@@ -66,6 +73,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     public void addConnectedArc(ArcSvgComponent arc) {
         arcsConnectedToThisNode.add(arc);
+    }
+
+    public void animateTo(double x, double y) {
+        animationRunner.run(new LayoutNodeAnimation(this, x, y),
+                ANIMATION_DURATION);
     }
 
     public List<ArcSvgComponent> getConnectedArcComponents() {

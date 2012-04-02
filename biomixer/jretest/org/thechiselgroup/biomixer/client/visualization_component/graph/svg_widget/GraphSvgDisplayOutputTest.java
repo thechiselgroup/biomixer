@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -92,8 +93,9 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
 
     @Test
     public void animateToMovesOneNodeFinalDesinationShouldBeNewPoint() {
-        Node node = addNode(N1, LABEL1, TYPE1);
-        underTest.animateMoveTo(node, new Point(100, 100));
+        TestAnimationRunner animationRunner = animate(
+                addNode(N1, LABEL1, TYPE1), new Point(100, 100));
+        animationRunner.progressTo(1);
         assertUnderTestAsSvgEqualsFile("animateMoveOneNode");
     }
 
