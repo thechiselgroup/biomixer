@@ -18,6 +18,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
+
 public class TestLayoutGraph implements LayoutGraph {
 
     private BoundsDouble graphBounds;
@@ -101,14 +104,31 @@ public class TestLayoutGraph implements LayoutGraph {
     }
 
     @Override
-    public double getLeftMostNodeX() {
-        double leftMostX = Double.MAX_VALUE;
+    public BoundsDouble getNodeBounds() {
+        double minX = Double.MAX_VALUE;
+        double maxX = 0;
+        double minY = Double.MAX_VALUE;
+        double maxY = 0;
         for (LayoutNode layoutNode : getAllNodes()) {
-            if (layoutNode.getX() < leftMostX) {
-                leftMostX = layoutNode.getX();
+            SizeDouble size = layoutNode.getSize();
+            double nodeLeftX = layoutNode.getX();
+            if (nodeLeftX < minX) {
+                minX = nodeLeftX;
+            }
+            double nodeRightX = layoutNode.getX() + size.getWidth();
+            if (nodeRightX > maxX) {
+                maxX = nodeRightX;
+            }
+            double nodeTopY = layoutNode.getY();
+            if (nodeTopY < minY) {
+                minY = nodeTopY;
+            }
+            double nodeBottomY = layoutNode.getY() + size.getHeight();
+            if (nodeBottomY > maxY) {
+                maxY = nodeBottomY;
             }
         }
-        return leftMostX;
+        return new DefaultBoundsDouble(minX, minY, maxX - minX, maxY - minY);
     }
 
     @Override
@@ -122,17 +142,6 @@ public class TestLayoutGraph implements LayoutGraph {
 
     public TestLayoutNodeType[] getTestLayoutNodeTypes() {
         return testLayoutNodeTypes;
-    }
-
-    @Override
-    public double getTopMostNodeY() {
-        double topMostY = Double.MAX_VALUE;
-        for (LayoutNode layoutNode : getAllNodes()) {
-            if (layoutNode.getY() < topMostY) {
-                topMostY = layoutNode.getY();
-            }
-        }
-        return topMostY;
     }
 
 }
