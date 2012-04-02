@@ -123,8 +123,7 @@ public class LayoutNodeAnimationWrapper implements LayoutNode {
 
     @Override
     public void setPosition(PointDouble position) {
-        setX(position.getX());
-        setY(position.getY());
+        setPosition(position.getX(), position.getY());
     }
 
     @Override
