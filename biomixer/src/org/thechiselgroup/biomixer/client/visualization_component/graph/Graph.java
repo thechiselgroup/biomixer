@@ -396,9 +396,12 @@ public class Graph extends AbstractViewContentDisplay implements
 
         /*
          * NOTE: the expansion layout (currently ForceDirected) is run each time
-         * a node is added.
+         * a node is added, except if the layout graph is null, as in some
+         * tests.
          */
-        layoutManager.runLayout();
+        if (getLayoutGraph() != null) {
+            layoutManager.runLayout();
+        }
 
         return graphItem;
     }
