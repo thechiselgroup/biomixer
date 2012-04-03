@@ -17,9 +17,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 public class TestLayoutArc implements LayoutArc {
 
-    private LayoutNode sourceNode;
+    private TestLayoutNode sourceNode;
 
-    private LayoutNode targetNode;
+    private TestLayoutNode targetNode;
 
     private double thickness;
 
@@ -27,13 +27,15 @@ public class TestLayoutArc implements LayoutArc {
 
     private LayoutArcType type;
 
-    public TestLayoutArc(LayoutNode sourceNode, LayoutNode targetNode,
+    public TestLayoutArc(TestLayoutNode sourceNode, TestLayoutNode targetNode,
             double thickness, boolean isDirected, LayoutArcType type) {
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.thickness = thickness;
         this.isDirected = isDirected;
         this.type = type;
+        sourceNode.addConnectedArc(this);
+        targetNode.addConnectedArc(this);
     }
 
     @Override

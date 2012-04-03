@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
@@ -49,6 +50,11 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -235,6 +241,8 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private ResourceSet automaticResources;
 
+    private GraphLayoutExecutionManager layoutManager;
+
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
      * not disposed) when methods are called (to prevent errors in asynchronous
@@ -305,7 +313,8 @@ public class Graph extends AbstractViewContentDisplay implements
     public Graph(GraphDisplay display, CommandManager commandManager,
             ResourceManager resourceManager,
             ResourceCategorizer resourceCategorizer,
-            ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry) {
+            ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry,
+            ErrorHandler errorHandler) {
 
         assert display != null;
         assert commandManager != null;
@@ -313,6 +322,7 @@ public class Graph extends AbstractViewContentDisplay implements
         assert resourceCategorizer != null;
         assert arcStyleProvider != null;
         assert registry != null;
+        assert errorHandler != null;
 
         this.arcStyleProvider = arcStyleProvider;
         this.resourceCategorizer = resourceCategorizer;
@@ -330,6 +340,8 @@ public class Graph extends AbstractViewContentDisplay implements
          * customization in Choosel applications.
          */
         initArcTypeContainers();
+
+        initGraphLayoutManager(errorHandler);
     }
 
     @SuppressWarnings("unchecked")
@@ -380,6 +392,15 @@ public class Graph extends AbstractViewContentDisplay implements
         if (ready) {
             registry.getAutomaticExpander(type).expand(visualItem,
                     expansionCallback);
+        }
+
+        /*
+         * NOTE: the expansion layout (currently ForceDirected) is run each time
+         * a node is added, except if the layout graph is null, as in some
+         * tests.
+         */
+        if (getLayoutGraph() != null) {
+            layoutManager.runLayout();
         }
 
         return graphItem;
@@ -446,6 +467,11 @@ public class Graph extends AbstractViewContentDisplay implements
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();
         return new DefaultSizeInt(width, height);
+    }
+
+    @Override
+    public LayoutGraph getLayoutGraph() {
+        return graphDisplay.getLayoutGraph();
     }
 
     @Override
@@ -543,6 +569,14 @@ public class Graph extends AbstractViewContentDisplay implements
             arcItemContainersByArcTypeID.put(arcType.getArcTypeID(),
                     new ArcItemContainer(arcType, graphDisplay, this));
         }
+    }
+
+    private void initGraphLayoutManager(ErrorHandler errorHandler) {
+        this.layoutManager = new GraphLayoutExecutionManager(
+                new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+                        new BoundsAwareAttractionCalculator(getLayoutGraph()),
+                        new BoundsAwareRepulsionCalculator(getLayoutGraph())),
+                        0.9, errorHandler), getLayoutGraph());
     }
 
     private void initNodeMenuItems() {
@@ -700,7 +734,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public void runLayout(LayoutAlgorithm layoutAlgorithm) {
-        graphDisplay.runLayout(layoutAlgorithm);
+        layoutManager.registerAndRunLayoutAlgorithm(layoutAlgorithm);
     }
 
     @Override

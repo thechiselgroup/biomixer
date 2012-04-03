@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
@@ -42,6 +45,8 @@ public class TestLayoutNode implements LayoutNode {
     private DefaultSizeDouble labelSize;
 
     private TestAnimationRunner animationRunner = new TestAnimationRunner();
+
+    List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
 
     public TestLayoutNode(double width, double height, boolean isAnchored,
             double labelWidth, double LabelHeight, LayoutNodeType type) {
@@ -77,8 +82,23 @@ public class TestLayoutNode implements LayoutNode {
         this.labelSize = new DefaultSizeDouble(0, 0);
     }
 
+    public void addConnectedArc(LayoutArc arc) {
+        connectedArcs.add(arc);
+    }
+
     public void animateTo(double x, double y) {
         animationRunner.run(new LayoutNodeAnimation(this, x, y), 2);
+    }
+
+    @Override
+    public PointDouble getCentre() {
+        return new PointDouble(getX() + getSize().getWidth() / 2, getY()
+                + getSize().getHeight() / 2);
+    }
+
+    @Override
+    public List<LayoutArc> getConnectedArcs() {
+        return connectedArcs;
     }
 
     @Override
@@ -109,6 +129,11 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
+    public PointDouble getTopLeftForCentreAt(PointDouble centre) {
+        return getTopLeftForCentreAt(centre.getX(), centre.getY());
+    }
+
+    @Override
     public LayoutNodeType getType() {
         return type;
     }
@@ -131,6 +156,11 @@ public class TestLayoutNode implements LayoutNode {
     @Override
     public boolean isAnchored() {
         return isAnchored;
+    }
+
+    @Override
+    public void setAnchored(boolean anchored) {
+        this.isAnchored = anchored;
     }
 
     @Override

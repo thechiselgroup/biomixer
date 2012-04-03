@@ -20,6 +20,8 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
 public interface BoundsDouble extends SizeDouble {
 
+    double getArea();
+
     double getBottomY();
 
     PointDouble getCentre();

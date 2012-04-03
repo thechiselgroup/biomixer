@@ -60,4 +60,10 @@ public interface LayoutGraph {
      */
     List<LayoutNodeType> getNodeTypes();
 
+    /**
+     * 
+     * @return all nodes on the graph which have not been anchored.
+     */
+    List<LayoutNode> getUnanchoredNodes();
+
 }

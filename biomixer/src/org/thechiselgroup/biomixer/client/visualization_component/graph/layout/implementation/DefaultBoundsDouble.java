@@ -44,6 +44,11 @@ public class DefaultBoundsDouble implements BoundsDouble {
     }
 
     @Override
+    public double getArea() {
+        return width * height;
+    }
+
+    @Override
     public double getBottomY() {
         return bottomY;
     }

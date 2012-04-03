@@ -14,7 +14,8 @@ public class AbstractLayoutGraphTest {
 
     protected LayoutArc createArc(int arcType, LayoutNode sourceNode,
             LayoutNode targetNode) {
-        return graph.createArc(sourceNode, targetNode, 2, true,
+        return graph.createArc((TestLayoutNode) sourceNode,
+                (TestLayoutNode) targetNode, 2, true,
                 graph.getTestLayoutArcTypes()[arcType]);
     }
 

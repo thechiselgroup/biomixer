@@ -20,6 +20,7 @@ import java.util.Collection;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;
@@ -72,6 +73,8 @@ public interface GraphDisplay extends IsWidget {
     boolean containsNode(String nodeId);
 
     Arc getArc(String arcId);
+
+    LayoutGraph getLayoutGraph();
 
     Point getLocation(Node node);
 

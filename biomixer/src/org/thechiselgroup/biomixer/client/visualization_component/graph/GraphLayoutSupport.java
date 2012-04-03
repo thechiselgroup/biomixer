@@ -16,9 +16,12 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 
 public interface GraphLayoutSupport {
+
+    LayoutGraph getLayoutGraph();
 
     /**
      * Runs a customized graph layout.

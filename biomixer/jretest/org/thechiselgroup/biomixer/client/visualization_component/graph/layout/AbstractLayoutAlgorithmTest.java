@@ -23,7 +23,8 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
 
-public abstract class AbstractLayoutAlgorithmTest extends AbstractLayoutGraphTest {
+public abstract class AbstractLayoutAlgorithmTest extends
+        AbstractLayoutGraphTest {
 
     private double delta = 0.1;
 

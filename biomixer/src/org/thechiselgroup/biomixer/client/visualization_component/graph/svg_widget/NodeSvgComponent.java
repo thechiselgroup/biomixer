@@ -26,6 +26,7 @@ import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
@@ -80,8 +81,23 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
                 ANIMATION_DURATION);
     }
 
+    @Override
+    public PointDouble getCentre() {
+        return new PointDouble(getX() + getSize().getWidth() / 2, getY()
+                + getSize().getHeight() / 2);
+    }
+
     public List<ArcSvgComponent> getConnectedArcComponents() {
         return arcsConnectedToThisNode;
+    }
+
+    @Override
+    public List<LayoutArc> getConnectedArcs() {
+        List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
+        for (LayoutArc layoutArc : arcsConnectedToThisNode) {
+            connectedArcs.add(layoutArc);
+        }
+        return connectedArcs;
     }
 
     public ExpanderTabSvgComponent getExpanderTab() {
@@ -154,6 +170,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
+    public PointDouble getTopLeftForCentreAt(PointDouble centre) {
+        return getTopLeftForCentreAt(centre.getX(), centre.getY());
+    }
+
+    @Override
     public LayoutNodeType getType() {
         return nodeType;
     }
@@ -189,6 +210,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
      * @param isAnchored
      *            set <code>true</code> to anchor this node
      */
+    @Override
     public void setAnchored(boolean isAnchored) {
         this.isAnchored = isAnchored;
     }

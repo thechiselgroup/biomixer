@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
@@ -26,6 +28,18 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
  * @author Lars Grammel
  */
 public interface LayoutNode {
+
+    /**
+     * @return the node's centre point
+     */
+    PointDouble getCentre();
+
+    /**
+     * Retrieves arcs whose source or destination is this node.
+     * 
+     * @return the arcs connected to this node
+     */
+    List<LayoutArc> getConnectedArcs();
 
     /**
      * @return size of the separate node label. Returns a SizeDouble(0,0) if
@@ -62,17 +76,30 @@ public interface LayoutNode {
     PointDouble getTopLeftForCentreAt(double x, double y);
 
     /**
+     * Determines the top left corner position necessary for the node's centre
+     * to be at the specified point.
+     * 
+     * @param centre
+     *            the desired centre point
+     * @return position of top left corner in order to have centre at specified
+     *         location
+     */
+    PointDouble getTopLeftForCentreAt(PointDouble centre);
+
+    /**
      * Returns the type of this node.
      */
     LayoutNodeType getType();
 
     /**
-     * @return current x position of this node, or Double.NaN if undefined.
+     * @return current x position of this node, or Double.NaN if undefined. This
+     *         is the left starting point of the node.
      */
     double getX();
 
     /**
-     * @return current y position of this node, or Double.NaN if undefined.
+     * @return current y position of this node, or Double.NaN if undefined. This
+     *         is the top starting point of the node.
      */
     double getY();
 
@@ -86,6 +113,14 @@ public interface LayoutNode {
      * @return <code>true</code> when the node should not be moved.
      */
     boolean isAnchored();
+
+    /**
+     * 
+     * @param anchored
+     *            set to <code>true</code> if the node should not be moved. Set
+     *            to <code>false</code> to clear any restrictions on movement.
+     */
+    void setAnchored(boolean anchored);
 
     /**
      * Sets the position of the node label.
