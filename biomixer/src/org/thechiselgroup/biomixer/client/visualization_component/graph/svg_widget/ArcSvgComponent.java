@@ -31,9 +31,9 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
 
     private Arc arc;
 
-    private NodeSvgComponent source;
+    private SvgLayoutNode source;
 
-    private NodeSvgComponent target;
+    private SvgLayoutNode target;
 
     private final SvgElement arcLine;
 
@@ -43,7 +43,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
 
     public ArcSvgComponent(Arc arc, LayoutArcType arcType,
             SvgElement container, SvgElement arcLine, SvgArrowHead arrow,
-            NodeSvgComponent source, NodeSvgComponent target) {
+            SvgLayoutNode source, SvgLayoutNode target) {
         super(container);
         this.arc = arc;
         this.arcType = arcType;
@@ -62,8 +62,8 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         return getArc().getId();
     }
 
-    public NodeSvgComponent getSource() {
-        return source;
+    public NodeSvgComponent getRenderedSource() {
+        return source.getRenderedNode();
     }
 
     @Override
@@ -71,8 +71,8 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         return source;
     }
 
-    public NodeSvgComponent getTarget() {
-        return target;
+    public NodeSvgComponent getRenderedTarget() {
+        return target.getRenderedNode();
     }
 
     @Override
@@ -97,8 +97,8 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     }
 
     public void removeNodeConnections() {
-        source.removeConnectedArc(this);
-        target.removeConnectedArc(this);
+        source.getRenderedNode().removeConnectedArc(this);
+        target.getRenderedNode().removeConnectedArc(this);
     }
 
     /**
@@ -139,17 +139,17 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     private void updateArrow() {
         if (isDirected()) {
             assert arrow != null;
-            arrow.alignWithPoints(source.getMidPoint(), target.getMidPoint());
+            arrow.alignWithPoints(source.getCentre(), target.getCentre());
         }
     }
 
     public void updateSourcePoint() {
-        SvgUtils.setX1Y1(arcLine, source.getMidPoint());
+        SvgUtils.setX1Y1(arcLine, source.getCentre());
         updateArrow();
     }
 
     public void updateTargetPoint() {
-        SvgUtils.setX2Y2(arcLine, target.getMidPoint());
+        SvgUtils.setX2Y2(arcLine, target.getCentre());
         updateArrow();
     }
 

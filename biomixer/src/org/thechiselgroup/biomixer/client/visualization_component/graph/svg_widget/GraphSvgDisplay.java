@@ -92,6 +92,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private IdentifiablesList<ArcSvgComponent> arcs = new IdentifiablesList<ArcSvgComponent>();
 
+    private IdentifiablesList<SvgLayoutNode> layoutNodes = new IdentifiablesList<SvgLayoutNode>();
+
     private SvgWidget svgWidget = null;
 
     private ScrollableSvgWidget asScrollingWidget = null;
@@ -176,8 +178,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         assert nodes.contains(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        NodeSvgComponent sourceNode = nodes.get(sourceNodeId);
-        NodeSvgComponent targetNode = nodes.get(targetNodeId);
+        SvgLayoutNode sourceNode = layoutNodes.get(sourceNodeId);
+        SvgLayoutNode targetNode = layoutNodes.get(targetNodeId);
         final ArcSvgComponent arcComponent = arcComponentFactory
                 .createArcComponent(arc, layoutArcType, sourceNode, targetNode);
         layoutArcType.add(arcComponent);
@@ -194,8 +196,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
         arcs.add(arcComponent);
 
-        sourceNode.addConnectedArc(arcComponent);
-        targetNode.addConnectedArc(arcComponent);
+        sourceNode.getRenderedNode().addConnectedArc(arcComponent);
+        targetNode.getRenderedNode().addConnectedArc(arcComponent);
 
         arcGroup.appendChild(arcComponent);
     }
@@ -247,7 +249,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
         final NodeSvgComponent nodeComponent = nodeComponentFactory
                 .createNodeComponent(node, layoutNodeType);
-        layoutNodeType.add(nodeComponent);
 
         nodeComponent.setNodeEventListener(new SvgNodeEventHandler(
                 nodeComponent, this, nodeInteractionManager));
@@ -263,6 +264,11 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         });
 
         nodes.add(nodeComponent);
+
+        SvgLayoutNode layoutNode = new SvgLayoutNode(nodeComponent,
+                layoutNodeType);
+        layoutNodes.add(layoutNode);
+        layoutNodeType.add(layoutNode);
 
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -295,8 +301,9 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
-        LayoutNodeAnimation animation = new LayoutNodeAnimation(nodes.get(node
-                .getId()), targetLocation.getX(), targetLocation.getY());
+        LayoutNodeAnimation animation = new LayoutNodeAnimation(
+                layoutNodes.get(node.getId()), targetLocation.getX(),
+                targetLocation.getY());
         animationRunner.run(animation, 2);
     }
 
@@ -353,11 +360,11 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     @Override
     public List<LayoutNode> getAllNodes() {
-        List<LayoutNode> layoutNodes = new ArrayList<LayoutNode>();
-        for (LayoutNode layoutNode : nodes) {
-            layoutNodes.add(layoutNode);
+        List<LayoutNode> downcastLayoutNodes = new ArrayList<LayoutNode>();
+        for (LayoutNode layoutNode : layoutNodes) {
+            downcastLayoutNodes.add(layoutNode);
         }
-        return layoutNodes;
+        return downcastLayoutNodes;
     }
 
     @Override
@@ -590,8 +597,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     public void onArcMouseOver(ArcSvgComponent arcComponent) {
         // bring connected nodes to front
-        nodeGroup.appendChild(arcComponent.getSource());
-        nodeGroup.appendChild(arcComponent.getTarget());
+        nodeGroup.appendChild(arcComponent.getRenderedSource());
+        nodeGroup.appendChild(arcComponent.getRenderedTarget());
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {
@@ -773,6 +780,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             removeArc(arcComponent.getArc());
         }
         nodes.remove(node.getId());
+        layoutNodes.remove(node.getId());
         nodeGroup.removeChild(node.getId());
     }
 
@@ -817,7 +825,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     @Override
     public void setLocation(Node node, Point location) {
         assert nodes.contains(node.getId());
-        nodes.get(node.getId()).setPosition(location);
+        layoutNodes.get(node.getId()).setPosition(location.getX(),
+                location.getY());
     }
 
     @Override
