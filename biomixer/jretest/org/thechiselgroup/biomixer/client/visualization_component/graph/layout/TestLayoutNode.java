@@ -21,10 +21,9 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AbstractLayoutNode;
 
-public class TestLayoutNode implements LayoutNode {
+public class TestLayoutNode extends AbstractLayoutNode {
 
     private double x = Double.NaN;
 
@@ -43,8 +42,6 @@ public class TestLayoutNode implements LayoutNode {
     private DefaultSizeDouble nodeSize;
 
     private DefaultSizeDouble labelSize;
-
-    private TestAnimationRunner animationRunner = new TestAnimationRunner();
 
     List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
 
@@ -86,16 +83,6 @@ public class TestLayoutNode implements LayoutNode {
         connectedArcs.add(arc);
     }
 
-    public void animateTo(double x, double y) {
-        animationRunner.run(new LayoutNodeAnimation(this, x, y), 2);
-    }
-
-    @Override
-    public PointDouble getCentre() {
-        return new PointDouble(getX() + getSize().getWidth() / 2, getY()
-                + getSize().getHeight() / 2);
-    }
-
     @Override
     public List<LayoutArc> getConnectedArcs() {
         return connectedArcs;
@@ -119,18 +106,6 @@ public class TestLayoutNode implements LayoutNode {
     @Override
     public SizeDouble getSize() {
         return nodeSize;
-    }
-
-    @Override
-    public PointDouble getTopLeftForCentreAt(double x, double y) {
-        SizeDouble size = getSize();
-        return new PointDouble(x - size.getWidth() / 2, y - size.getHeight()
-                / 2);
-    }
-
-    @Override
-    public PointDouble getTopLeftForCentreAt(PointDouble centre) {
-        return getTopLeftForCentreAt(centre.getX(), centre.getY());
     }
 
     @Override
