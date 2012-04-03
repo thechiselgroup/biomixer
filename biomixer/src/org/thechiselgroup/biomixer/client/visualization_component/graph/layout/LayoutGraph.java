@@ -53,6 +53,12 @@ public interface LayoutGraph {
     BoundsDouble getBounds();
 
     /**
+     * 
+     * @return the outer bounds of the nodes on the graph
+     */
+    BoundsDouble getNodeBounds();
+
+    /**
      * NOTE: we return a list to guarantee node order for testing purposes.
      * There must be no duplicate nodes in this list.
      * 

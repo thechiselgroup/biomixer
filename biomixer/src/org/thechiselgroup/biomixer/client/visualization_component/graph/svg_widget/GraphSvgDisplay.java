@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
@@ -37,6 +38,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEve
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ScrollableSvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
@@ -90,7 +92,9 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private IdentifiablesList<ArcSvgComponent> arcs = new IdentifiablesList<ArcSvgComponent>();
 
-    private SvgWidget asWidget = null;
+    private SvgWidget svgWidget = null;
+
+    private ScrollableSvgWidget asScrollingWidget = null;
 
     protected CompositeSvgComponent rootSvgComponent = null;
 
@@ -102,9 +106,9 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private EventBus eventBus = new SimpleEventBus();
 
-    private int width;
+    private int totalViewWidth;
 
-    private int height;
+    private int totalViewHeight;
 
     private NodeInteractionManager nodeInteractionManager;
 
@@ -114,7 +118,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private ChooselEventHandler viewWideInteractionListener;
 
-    private SvgElement background;
+    private GraphBackground background;
 
     private IdentifiablesList<DefaultLayoutNodeType> nodeTypes = new IdentifiablesList<DefaultLayoutNodeType>();
 
@@ -134,8 +138,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     public GraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {
-        this.width = width;
-        this.height = height;
+        this.totalViewWidth = width;
+        this.totalViewHeight = height;
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
 
@@ -263,7 +267,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
         if (isWidgetInitialized() && nodes.size() > 1) {
-            setLocation(node, new Point(width / 2, height / 2));
+            setLocation(node,
+                    new Point(totalViewWidth / 2, totalViewHeight / 2));
         }
 
         nodeGroup.appendChild(nodeComponent);
@@ -302,13 +307,14 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     @Override
     public Widget asWidget() {
         if (!isWidgetInitialized()) {
-            asWidget = new SvgWidget();
+            svgWidget = new SvgWidget();
             rootSvgComponent = new CompositeSvgComponent(
-                    asWidget.getSvgElement(), rootSvgComponent,
+                    svgWidget.getSvgElement(), rootSvgComponent,
                     viewWideInteractionListener);
-            asWidget.setPixelSize(width, height);
+            asScrollingWidget = new ScrollableSvgWidget(svgWidget,
+                    totalViewWidth, totalViewHeight);
         }
-        return asWidget;
+        return asScrollingWidget;
     }
 
     public void clearPopups() {
@@ -396,15 +402,15 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     @Override
     public BoundsDouble getBounds() {
         // TODO x and y always 0?
-        return new DefaultBoundsDouble(0, 0, width, height);
+        return new DefaultBoundsDouble(0, 0, totalViewWidth, totalViewHeight);
     }
 
     protected int getGraphAbsoluteLeft() {
-        return asWidget.getAbsoluteLeft();
+        return svgWidget.getAbsoluteLeft();
     }
 
     protected int getGraphAbsoluteTop() {
-        return asWidget.getAbsoluteTop();
+        return svgWidget.getAbsoluteTop();
     }
 
     @Override
@@ -419,11 +425,69 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         return nodes.get(node.getId()).getLocation().toPointInt();
     }
 
+    /**
+     * 
+     * @return the maximum x value used by a node on the graph.
+     */
+    private double getMaxNodeX() {
+        double maxNodeX = 0;
+        for (LayoutNode node : getAllNodes()) {
+            double nodeRightX = node.getX() + node.getSize().getWidth();
+            if (nodeRightX > maxNodeX) {
+                maxNodeX = nodeRightX;
+            }
+        }
+        return maxNodeX;
+    }
+
+    /**
+     * 
+     * @return the maximum x value used by a node on the graph.
+     */
+    private double getMaxNodeY() {
+        double maxNodeY = 0;
+        for (LayoutNode node : getAllNodes()) {
+            double nodeBottomY = node.getY() + node.getSize().getHeight();
+            if (nodeBottomY > maxNodeY) {
+                maxNodeY = nodeBottomY;
+            }
+        }
+        return maxNodeY;
+    }
+
     @Override
     public Node getNode(String nodeId) {
         assert nodeId != null;
         assert nodes.contains(nodeId);
         return nodes.get(nodeId).getNode();
+    }
+
+    @Override
+    public BoundsDouble getNodeBounds() {
+        double minX = Double.MAX_VALUE;
+        double maxX = 0;
+        double minY = Double.MAX_VALUE;
+        double maxY = 0;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            SizeDouble size = layoutNode.getSize();
+            double nodeLeftX = layoutNode.getX();
+            if (nodeLeftX < minX) {
+                minX = nodeLeftX;
+            }
+            double nodeRightX = layoutNode.getX() + size.getWidth();
+            if (nodeRightX > maxX) {
+                maxX = nodeRightX;
+            }
+            double nodeTopY = layoutNode.getY();
+            if (nodeTopY < minY) {
+                minY = nodeTopY;
+            }
+            double nodeBottomY = layoutNode.getY() + size.getHeight();
+            if (nodeBottomY > maxY) {
+                maxY = nodeBottomY;
+            }
+        }
+        return new DefaultBoundsDouble(minX, minY, maxX - minX, maxY - minY);
     }
 
     protected NodeSvgComponent getNodeComponent(Node node) {
@@ -466,22 +530,22 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     }
 
     private void initBackground(int width, int height) {
-        background = svgElementFactory.createElement(Svg.RECT);
-        background.setAttribute(Svg.WIDTH, width);
-        background.setAttribute(Svg.HEIGHT, height);
-        background.setAttribute(Svg.FILL, Colors.WHITE);
-        background.setEventListener(new ChooselEventHandler() {
+        background = new GraphBackground(width, height, svgElementFactory);
 
+        background.setEventListener(new DragAndClickHandler() {
             @Override
-            public void onEvent(ChooselEvent event) {
-                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
-                    onBackgroundClick(event.getClientX(), event.getClientY());
-                }
-
+            public void handleClick(ClickEvent clickEvent) {
+                onBackgroundClick(clickEvent.getClickX(),
+                        clickEvent.getClickY());
             }
 
+            @Override
+            public void handleDrag(DragEvent dragEvent) {
+                panBackground(dragEvent.getDeltaX(), dragEvent.getDeltaY());
+            }
         });
-        rootSvgComponent.appendChild(background);
+
+        rootSvgComponent.appendChild(background.asSvg());
     }
 
     private void initCompositeGroupingComponents() {
@@ -521,7 +585,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     }
 
     private boolean isWidgetInitialized() {
-        return asWidget != null;
+        return svgWidget != null;
     }
 
     public void onArcMouseOver(ArcSvgComponent arcComponent) {
@@ -630,10 +694,20 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     @Override
     public void onResize(ViewResizeEvent resizeEvent) {
-        width = resizeEvent.getWidth();
-        height = resizeEvent.getHeight();
-        background.setAttribute(Svg.WIDTH, width);
-        background.setAttribute(Svg.HEIGHT, height);
+        totalViewWidth = resizeEvent.getWidth();
+        totalViewHeight = resizeEvent.getHeight();
+
+        /*
+         * Make sure nodes that go off screen can still be scrolled to
+         */
+        if (totalViewWidth > getMaxNodeX()) {
+            background.setWidth(totalViewWidth);
+            asScrollingWidget.updateWidth(totalViewWidth);
+        }
+        if (totalViewHeight > getMaxNodeY()) {
+            background.setHeight(totalViewHeight);
+            asScrollingWidget.updateHeight(totalViewHeight);
+        }
     }
 
     public void onViewMouseMove(int mouseX, int mouseY) {
@@ -642,6 +716,38 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private void onWidgetReady() {
         eventBus.fireEvent(new GraphDisplayReadyEvent(this));
+    }
+
+    public void panBackground(int deltaX, int deltaY) {
+        /*
+         * Only allow panning to the left if it will not push any node off the
+         * left hand side, and only allow panning up if it will not push any
+         * node off the top of the graph. Panning right or down may push nodes
+         * off the screen.
+         */
+        BoundsDouble nodeBounds = getNodeBounds();
+        if (nodeBounds.getLeftX() + deltaX > 0) {
+            /*
+             * Don't let background width become less than view width.
+             */
+            double newBackgroundWidth = background.getWidth() + deltaX;
+            if (newBackgroundWidth >= totalViewWidth) {
+                background.setWidth(newBackgroundWidth);
+                asScrollingWidget.updateWidth((int) newBackgroundWidth);
+            }
+            shiftGraphContentsHorizontally(deltaX);
+        }
+        if (nodeBounds.getTopY() + deltaY > 0) {
+            /*
+             * Don't let background height become less than view height.
+             */
+            double newBackgroundHeight = background.getHeight() + deltaY;
+            if (newBackgroundHeight >= totalViewHeight) {
+                background.setHeight(background.getHeight() + deltaY);
+                asScrollingWidget.updateHeight((int) newBackgroundHeight);
+            }
+            shiftGraphContentsVertically(deltaY);
+        }
     }
 
     @Override
@@ -732,6 +838,19 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
         else if (styleProperty.equals(NODE_BORDER_COLOR)) {
             nodeComponent.setBorderColor(styleValue);
+        }
+
+    }
+
+    private void shiftGraphContentsHorizontally(int deltaX) {
+        for (LayoutNode layoutNode : getAllNodes()) {
+            layoutNode.setX(layoutNode.getX() + deltaX);
+        }
+    }
+
+    private void shiftGraphContentsVertically(int deltaY) {
+        for (LayoutNode layoutNode : getAllNodes()) {
+            layoutNode.setY(layoutNode.getY() + deltaY);
         }
 
     }

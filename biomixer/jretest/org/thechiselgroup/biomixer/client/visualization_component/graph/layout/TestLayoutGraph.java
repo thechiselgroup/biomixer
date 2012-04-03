@@ -18,7 +18,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
 
 public class TestLayoutGraph extends AbstractLayoutGraph {
 
@@ -101,6 +103,34 @@ public class TestLayoutGraph extends AbstractLayoutGraph {
     @Override
     public BoundsDouble getBounds() {
         return graphBounds;
+    }
+
+    @Override
+    public BoundsDouble getNodeBounds() {
+        double minX = Double.MAX_VALUE;
+        double maxX = 0;
+        double minY = Double.MAX_VALUE;
+        double maxY = 0;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            SizeDouble size = layoutNode.getSize();
+            double nodeLeftX = layoutNode.getX();
+            if (nodeLeftX < minX) {
+                minX = nodeLeftX;
+            }
+            double nodeRightX = layoutNode.getX() + size.getWidth();
+            if (nodeRightX > maxX) {
+                maxX = nodeRightX;
+            }
+            double nodeTopY = layoutNode.getY();
+            if (nodeTopY < minY) {
+                minY = nodeTopY;
+            }
+            double nodeBottomY = layoutNode.getY() + size.getHeight();
+            if (nodeBottomY > maxY) {
+                maxY = nodeBottomY;
+            }
+        }
+        return new DefaultBoundsDouble(minX, minY, maxX - minX, maxY - minY);
     }
 
     @Override
