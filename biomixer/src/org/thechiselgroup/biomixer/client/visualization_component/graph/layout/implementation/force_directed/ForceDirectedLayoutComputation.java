@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
@@ -75,6 +76,8 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private ForceCalculator forceCalculator;
 
+    private int animationDuration;
+
     private LayoutNodeBoundsEnforcer boundsEnforcer;
 
     /*
@@ -84,13 +87,14 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     public ForceDirectedLayoutComputation(ForceCalculator forceCalculator,
             double dampingConstant, LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler) {
-        super(graph, executor, errorHandler, null);
-        // TODO animations
+            ErrorHandler errorHandler, AnimationRunner animationRunner,
+            int animationDuration) {
+        super(graph, executor, errorHandler, animationRunner);
         this.forceCalculator = forceCalculator;
         this.dampingConstant = dampingConstant;
         this.boundsEnforcer = new LayoutNodeBoundsEnforcer(graph);
         initializeNodeDampening();
+        this.animationDuration = animationDuration;
     }
 
     @Override
@@ -212,6 +216,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
                 node, node.getX() + positionDelta.getXComponent(), node.getY()
                         + positionDelta.getYComponent());
 
-        node.setPosition(restrictedTopLeft);
+        animateTo(node, restrictedTopLeft, animationDuration);
+        // node.setPosition(restrictedTopLeft);
     }
 }

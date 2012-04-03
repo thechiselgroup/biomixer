@@ -16,6 +16,8 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
@@ -23,13 +25,19 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 
 public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
 
+    protected static final int DELAY_BETWEEN_ITERATIONS = 250;
+
     private ErrorHandler errorHandler;
 
-    private DelayedExecutor executor = new DelayedExecutor(10);
+    private DelayedExecutor executor = new DelayedExecutor(
+            DELAY_BETWEEN_ITERATIONS);
 
     private final double damping;
 
     private ForceCalculator forceCalculator;
+
+    // XXX will cause problems with tests
+    private AnimationRunner animationRunner = new GwtAnimationRunner();
 
     /**
      * 
@@ -49,7 +57,8 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         ForceDirectedLayoutComputation computation = new ForceDirectedLayoutComputation(
-                forceCalculator, damping, graph, executor, errorHandler);
+                forceCalculator, damping, graph, executor, errorHandler,
+                animationRunner, DELAY_BETWEEN_ITERATIONS);
         computation.run();
         return computation;
     }
