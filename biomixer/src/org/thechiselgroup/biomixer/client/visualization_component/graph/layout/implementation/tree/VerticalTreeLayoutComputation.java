@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
@@ -25,8 +26,9 @@ public class VerticalTreeLayoutComputation extends
         AbstractTreeLayoutComputation {
 
     protected VerticalTreeLayoutComputation(LayoutGraph graph,
-            Executor executor, ErrorHandler errorHandler, boolean pointingUp) {
-        super(graph, executor, errorHandler, !pointingUp);
+            Executor executor, ErrorHandler errorHandler,
+            AnimationRunner animationRunner, boolean pointingUp) {
+        super(graph, executor, errorHandler, animationRunner, !pointingUp);
     }
 
     @Override

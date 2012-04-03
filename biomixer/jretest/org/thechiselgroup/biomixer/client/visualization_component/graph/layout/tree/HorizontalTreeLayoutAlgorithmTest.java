@@ -21,21 +21,19 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
 public class HorizontalTreeLayoutAlgorithmTest extends
         AbstractLayoutAlgorithmTest {
 
-    private HorizontalTreeLayoutAlgorithm underTest;
-
-    private void computeLayout(TestLayoutGraph graph) {
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
-        assertFalse(layoutComputation.isRunning());
+    @Override
+    protected void assertComputationRunningState(LayoutComputation computation) {
+        assertFalse(computation.isRunning());
     }
 
     private void setTreeDirectionRight(boolean right) {
-        underTest = new HorizontalTreeLayoutAlgorithm(right, errorHandler);
+        underTest = new HorizontalTreeLayoutAlgorithm(right, errorHandler,
+                animationRunner);
     }
 
     @Test

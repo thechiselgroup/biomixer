@@ -17,21 +17,25 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
 
-public abstract class AbstractLayoutAlgorithmTest {
+public abstract class AbstractLayoutAlgorithmTest extends AbstractLayoutGraphTest {
 
     private double delta = 0.1;
 
     @Mock
     protected ErrorHandler errorHandler;
 
-    protected TestLayoutGraph graph;
+    protected AnimationRunner animationRunner = new NullAnimationRunner();
+
+    protected LayoutAlgorithm underTest;
+
+    protected abstract void assertComputationRunningState(
+            LayoutComputation computation);
 
     protected void assertNodeHasCentre(double x, double y, LayoutNode node) {
         SizeDouble nodeSize = node.getSize();
@@ -51,40 +55,10 @@ public abstract class AbstractLayoutAlgorithmTest {
         }
     }
 
-    protected LayoutArc createArc(int arcType, LayoutNode sourceNode,
-            LayoutNode targetNode) {
-        return graph.createArc(sourceNode, targetNode, 2, true,
-                graph.getTestLayoutArcTypes()[arcType]);
-    }
-
-    protected LayoutArc createArc(LayoutNode sourceNode, LayoutNode targetNode) {
-        return createArc(0, sourceNode, targetNode);
-    }
-
-    protected void createGraph(double leftX, double topY, double width,
-            double height) {
-
-        createGraph(leftX, topY, width, height, 1, 1);
-    }
-
-    protected void createGraph(double leftX, double topY, double width,
-            double height, int numberOfNodeTypes, int numberOfArcTypes) {
-
-        graph = new TestLayoutGraph(new DefaultBoundsDouble(leftX, topY, width,
-                height), numberOfNodeTypes, numberOfArcTypes);
-    }
-
-    protected TestLayoutNode[] createNodes(int numberOfNodes) {
-        return createNodes(0, numberOfNodes);
-    }
-
-    protected TestLayoutNode[] createNodes(int nodeType, int numberOfNodes) {
-        TestLayoutNodeType testNodeType = graph.getTestLayoutNodeTypes()[nodeType];
-        TestLayoutNode[] result = new TestLayoutNode[numberOfNodes];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = graph.createNode(10, 10, false, testNodeType);
-        }
-        return result;
+    protected void computeLayout(TestLayoutGraph graph) {
+        initNodePositions();
+        LayoutComputation layoutComputation = underTest.computeLayout(graph);
+        assertComputationRunningState(layoutComputation);
     }
 
     protected double getCentreX(LayoutNode layoutNode) {
@@ -95,9 +69,14 @@ public abstract class AbstractLayoutAlgorithmTest {
         return layoutNode.getY() + layoutNode.getSize().getHeight() / 2;
     }
 
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    protected void initNodePositions() {
+        /*
+         * need to give nodes initial positions or the animation progress
+         * calculation doesn't work (default position is NaN)
+         */
+        for (LayoutNode layoutNode : graph.getAllNodes()) {
+            layoutNode.setPosition(0, 0);
+        }
     }
 
 }

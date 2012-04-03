@@ -21,21 +21,31 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
 public class VerticalTreeLayoutAlgorithmTest extends
         AbstractLayoutAlgorithmTest {
 
-    private VerticalTreeLayoutAlgorithm underTest;
+    // private VerticalTreeLayoutAlgorithm underTest;
+    //
+    // private void computeLayout(TestLayoutGraph graph) {
+    // /*
+    // * need to give nodes initial positions or the animation progress
+    // * calculation doesn't work (default position is NaN)
+    // */
+    // List<LayoutNode> allNodes = graph.getAllNodes();
+    // LayoutComputation layoutComputation = underTest.computeLayout(graph);
+    // assertFalse(layoutComputation.isRunning());
+    // }
 
-    private void computeLayout(TestLayoutGraph graph) {
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
-        assertFalse(layoutComputation.isRunning());
+    @Override
+    protected void assertComputationRunningState(LayoutComputation computation) {
+        assertFalse(computation.isRunning());
     }
 
     private void setTreeDirectionUp(boolean up) {
-        underTest = new VerticalTreeLayoutAlgorithm(up, errorHandler);
+        underTest = new VerticalTreeLayoutAlgorithm(up, errorHandler,
+                animationRunner);
     }
 
     @Test

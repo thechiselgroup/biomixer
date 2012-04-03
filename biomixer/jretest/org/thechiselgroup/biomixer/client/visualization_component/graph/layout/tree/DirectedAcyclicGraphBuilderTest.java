@@ -26,13 +26,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphBuilder;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
 
-public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest {
+public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutGraphTest {
 
     private DirectedAcyclicGraphBuilder underTest;
 
@@ -45,14 +45,16 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[3], nodes[1]);
         createArc(nodes[4], nodes[1]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
         assertThat(dag.getNumberOfNodes(), equalTo(5));
     }
 
-    private DirectedAcyclicGraphNode getDagNode(LayoutNode layoutNode, DirectedAcyclicGraph dag) {
+    private DirectedAcyclicGraphNode getDagNode(LayoutNode layoutNode,
+            DirectedAcyclicGraph dag) {
         for (DirectedAcyclicGraphNode dagNode : dag.getAllNodes()) {
             if (dagNode.getLayoutNode().equals(layoutNode)) {
                 return dagNode;
@@ -78,7 +80,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
     private List<LayoutNode> getNodesAtDistance(DirectedAcyclicGraph dag,
             int distance) {
         List<LayoutNode> layoutNodes = new ArrayList<LayoutNode>();
-        for (DirectedAcyclicGraphNode dagNode : dag.getNodesAtDistanceFromRoot(distance)) {
+        for (DirectedAcyclicGraphNode dagNode : dag
+                .getNodesAtDistanceFromRoot(distance)) {
             layoutNodes.add(dagNode.getLayoutNode());
         }
         return layoutNodes;
@@ -94,7 +97,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[1], nodes[0]);
         createArc(nodes[2], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -118,7 +122,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[4], nodes[2]);
         createArc(nodes[5], nodes[2]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -159,7 +164,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[1], nodes[0]);
         createArc(nodes[3], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
         DirectedAcyclicGraph dag = dags.get(0);
         assertThat(
@@ -179,7 +185,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         LayoutNode[] nodes = createNodes(2);
         createArc(nodes[1], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -197,7 +204,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[2], nodes[1]);
         createArc(nodes[1], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -217,7 +225,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[2], nodes[0]);
         createArc(nodes[1], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -239,7 +248,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[1], nodes[0]);
         createArc(nodes[2], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -264,7 +274,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createGraph(0, 0, 400, 400);
         createNodes(1);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
 
         assertThat(dags.size(), equalTo(1));
         DirectedAcyclicGraph dag = dags.get(0);
@@ -283,7 +294,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[1], nodes[0]);
         createArc(nodes[3], nodes[0]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(1));
 
         DirectedAcyclicGraph dag = dags.get(0);
@@ -304,7 +316,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createArc(nodes[3], nodes[0]);
         createArc(nodes[4], nodes[1]);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(2));
 
         DirectedAcyclicGraph dag1 = getDagWithRootNode(dags, nodes[0]);
@@ -325,7 +338,8 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutAlgorithmTest
         createGraph(0, 0, 400, 400);
         createNodes(2);
 
-        List<DirectedAcyclicGraph> dags = underTest.getDirectedAcyclicGraphs(graph);
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
         assertThat(dags.size(), equalTo(2));
         assertThat(dags.get(0).getNumberOfNodes(), equalTo(1));
         assertThat(dags.get(1).getNumberOfNodes(), equalTo(1));

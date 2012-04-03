@@ -151,7 +151,8 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm() {
-        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler);
+        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
+                animationRunner);
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
         return layout;
     }

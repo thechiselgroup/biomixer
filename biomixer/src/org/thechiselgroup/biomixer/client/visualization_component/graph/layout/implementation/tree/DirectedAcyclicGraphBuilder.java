@@ -25,7 +25,6 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.LayoutNodeAnimationWrapper;
 
 /**
  * Takes a graph and finds all the separate {@link DirectedAcyclicGraph}s on it.
@@ -49,15 +48,7 @@ public class DirectedAcyclicGraphBuilder {
         List<DirectedAcyclicGraphNode> potentialRoots = new ArrayList<DirectedAcyclicGraphNode>();
         for (LayoutNode node : graph.getAllNodes()) {
             DirectedAcyclicGraphNode root = new DirectedAcyclicGraphNode(node);
-            // XXX how can I properly retrieve a source/target node from an arc
-            // if I am wrapping them?
-            if (node instanceof LayoutNodeAnimationWrapper) {
-                directedAcyclicGraphNodes.put(
-                        ((LayoutNodeAnimationWrapper) node).getWrappedNode(),
-                        root);
-            } else {
-                directedAcyclicGraphNodes.put(node, root);
-            }
+            directedAcyclicGraphNodes.put(node, root);
             potentialRoots.add(root);
         }
 

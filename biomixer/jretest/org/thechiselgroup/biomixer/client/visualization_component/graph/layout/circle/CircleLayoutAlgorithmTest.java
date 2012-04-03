@@ -22,16 +22,13 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.TestLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
 public class CircleLayoutAlgorithmTest extends AbstractLayoutAlgorithmTest {
 
-    private CircleLayoutAlgorithm underTest;
-
-    private void computeLayout(TestLayoutGraph graph) {
-        LayoutComputation layoutComputation = underTest.computeLayout(graph);
-        assertFalse(layoutComputation.isRunning());
+    @Override
+    protected void assertComputationRunningState(LayoutComputation computation) {
+        assertFalse(computation.isRunning());
     }
 
     @Test
@@ -48,14 +45,18 @@ public class CircleLayoutAlgorithmTest extends AbstractLayoutAlgorithmTest {
         assertNodeHasCentre(25, 200, nodes[3]);
     }
 
+    private void setAngleRange(double minAngle, double maxAngle) {
+        ((CircleLayoutAlgorithm) underTest).setAngleRange(minAngle, maxAngle);
+    }
+
     @Before
     public void setUp() {
-        underTest = new CircleLayoutAlgorithm(errorHandler);
+        underTest = new CircleLayoutAlgorithm(errorHandler, animationRunner);
     }
 
     @Test
     public void threeNodesEqualSizeInLeft180() {
-        underTest.setAngleRange(180.0, 360.0);
+        setAngleRange(180.0, 360.0);
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(3);
 
@@ -68,7 +69,7 @@ public class CircleLayoutAlgorithmTest extends AbstractLayoutAlgorithmTest {
 
     @Test
     public void threeNodesEqualSizeInRight180() {
-        underTest.setAngleRange(0.0, 180.0);
+        setAngleRange(0.0, 180.0);
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(3);
 

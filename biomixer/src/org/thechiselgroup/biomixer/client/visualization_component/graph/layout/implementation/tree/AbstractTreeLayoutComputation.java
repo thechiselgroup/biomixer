@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
@@ -36,6 +37,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 public abstract class AbstractTreeLayoutComputation extends
         AbstractLayoutComputation {
 
+    private static final int animationDuration = 3000;
+
     private final boolean reversed;
 
     /**
@@ -45,8 +48,9 @@ public abstract class AbstractTreeLayoutComputation extends
      * pointing right, set <code>reversed</code> to true
      */
     protected AbstractTreeLayoutComputation(LayoutGraph graph,
-            Executor executor, ErrorHandler errorHandler, boolean reversed) {
-        super(graph, executor, errorHandler);
+            Executor executor, ErrorHandler errorHandler,
+            AnimationRunner animationRunner, boolean reversed) {
+        super(graph, executor, errorHandler, animationRunner);
         this.reversed = reversed;
     }
 
@@ -123,7 +127,7 @@ public abstract class AbstractTreeLayoutComputation extends
             PointDouble topLeft = getTopLeftForCentreAt(
                     currentPrimaryDimension, currentSecondaryDimension,
                     layoutNode);
-            layoutNode.setPosition(topLeft);
+            animateTo(layoutNode, topLeft, animationDuration);
             currentSecondaryDimension += secondaryDimensionSpacing;
         }
 

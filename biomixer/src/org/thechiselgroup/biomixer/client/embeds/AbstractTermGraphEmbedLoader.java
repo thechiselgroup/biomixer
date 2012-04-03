@@ -16,6 +16,8 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
@@ -39,6 +41,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
     @Inject
     protected ErrorHandler errorHandler;
+
+    protected AnimationRunner animationRunner = new GwtAnimationRunner();
 
     private final String id;
 

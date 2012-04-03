@@ -121,7 +121,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
 
     protected AnimationRunner animationRunner;
 
-    private int animationDuation = 3000;
+    private int animationDuration = 3000;
 
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
@@ -348,8 +348,7 @@ public class GraphSvgDisplay implements GraphDisplay, LayoutGraph,
     public List<LayoutNode> getAllNodes() {
         List<LayoutNode> layoutNodes = new ArrayList<LayoutNode>();
         for (LayoutNode layoutNode : nodes) {
-            layoutNodes.add(new LayoutNodeAnimationWrapper(layoutNode,
-                    animationRunner, animationDuation));
+            layoutNodes.add(layoutNode);
         }
         return layoutNodes;
     }

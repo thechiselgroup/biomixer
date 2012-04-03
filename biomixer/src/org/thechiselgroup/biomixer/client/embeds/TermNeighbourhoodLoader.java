@@ -99,7 +99,8 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm() {
-        return new HorizontalTreeLayoutAlgorithm(true, errorHandler);
+        return new HorizontalTreeLayoutAlgorithm(true, errorHandler,
+                animationRunner);
     }
 
     protected void layout(final View graphView) {

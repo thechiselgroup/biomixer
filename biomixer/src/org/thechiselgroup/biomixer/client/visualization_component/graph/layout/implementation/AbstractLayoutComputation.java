@@ -19,11 +19,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AnimatableLayoutNode;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -56,8 +60,10 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
 
     private final ErrorHandler errorHandler;
 
+    private AnimationRunner animationRunner;
+
     public AbstractLayoutComputation(LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler) {
+            ErrorHandler errorHandler, AnimationRunner animationRunner) {
 
         assert graph != null;
         assert executor != null;
@@ -66,6 +72,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         this.errorHandler = errorHandler;
         this.executor = executor;
         this.graph = graph;
+        this.animationRunner = animationRunner;
     }
 
     @Override
@@ -82,6 +89,12 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
                 eventHandlers.remove(handler);
             }
         };
+    }
+
+    protected void animateTo(LayoutNode node, PointDouble location, int duration) {
+        AnimatableLayoutNode animatableNode = new AnimatableLayoutNode(node,
+                animationRunner, duration);
+        animatableNode.setPosition(location);
     }
 
     /**

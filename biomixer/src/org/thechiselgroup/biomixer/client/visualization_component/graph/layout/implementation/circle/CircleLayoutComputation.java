@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
@@ -36,9 +37,12 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     private final double maxAngle;
 
+    private static final int animationDuration = 3000;
+
     public CircleLayoutComputation(double minAngle, double maxAngle,
-            LayoutGraph graph, Executor executor, ErrorHandler errorHandler) {
-        super(graph, executor, errorHandler);
+            LayoutGraph graph, Executor executor, ErrorHandler errorHandler,
+            AnimationRunner animationRunner) {
+        super(graph, executor, errorHandler, animationRunner);
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
     }
@@ -75,7 +79,7 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             double y = graphCentre.getY() + deltaYFromGraphCentre;
 
             PointDouble topLeft = layoutNode.getTopLeftForCentreAt(x, y);
-            layoutNode.setPosition(topLeft.getX(), topLeft.getY());
+            animateTo(layoutNode, topLeft, animationDuration);
         }
 
         // this is not a continuous layout
