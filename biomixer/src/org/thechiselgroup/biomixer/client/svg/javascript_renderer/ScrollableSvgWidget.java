@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph;
+package org.thechiselgroup.biomixer.client.svg.javascript_renderer;
 
-import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Overflow;
