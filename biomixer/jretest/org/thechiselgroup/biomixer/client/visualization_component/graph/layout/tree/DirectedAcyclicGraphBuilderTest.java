@@ -112,6 +112,63 @@ public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutGraphTest {
 
     @SuppressWarnings("unchecked")
     @Test
+    public void multiRootMultiPathSingleDag() {
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(8);
+        createArc(nodes[1], nodes[0]);
+        createArc(nodes[2], nodes[0]);
+        createArc(nodes[3], nodes[1]);
+        createArc(nodes[3], nodes[2]);
+        createArc(nodes[4], nodes[3]);
+        createArc(nodes[5], nodes[3]);
+        createArc(nodes[5], nodes[6]);
+        createArc(nodes[7], nodes[4]);
+        createArc(nodes[7], nodes[5]);
+
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
+        assertThat(dags.size(), equalTo(1));
+
+        DirectedAcyclicGraph dag = dags.get(0);
+        /*
+         * TODO update matcher so more general graph structures can be matched.
+         * Currently have to match "tree" based at each root, and there can be a
+         * lot of overlap
+         */
+        assertThat(
+                getDagNode(nodes[0], dag),
+                equalsDag(
+                        nodes[0],
+                        6,
+                        equalsDag(
+                                nodes[1],
+                                4,
+                                equalsDag(
+                                        nodes[3],
+                                        3,
+                                        equalsDag(nodes[4], 1,
+                                                equalsDag(nodes[7], 0)),
+                                        equalsDag(nodes[5], 1,
+                                                equalsDag(nodes[7], 0)))),
+                        equalsDag(
+                                nodes[2],
+                                4,
+                                equalsDag(
+                                        nodes[3],
+                                        3,
+                                        equalsDag(nodes[4], 1,
+                                                equalsDag(nodes[7], 0)),
+                                        equalsDag(nodes[5], 1,
+                                                equalsDag(nodes[7], 0))))));
+
+        assertThat(
+                getDagNode(nodes[6], dag),
+                equalsDag(nodes[6], 2,
+                        equalsDag(nodes[5], 1, equalsDag(nodes[7], 0))));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
     public void oneDagTwoRoots() {
         createGraph(0, 0, 400, 400);
         LayoutNode[] nodes = createNodes(6);
