@@ -67,6 +67,27 @@ public class ScrollableSvgWidget extends Widget {
         outerWrapper.getStyle().setOverflow(Overflow.AUTO);
     }
 
+    /*
+     * Doing this to avoid GWT assertion about camel case...
+     */
+    private native void setStyleProperty(Style style, String property,
+            String value) /*-{
+		style[property] = value;
+    }-*/;
+
+    /**
+     * Sets styles for making text unselectable on the inner wrapper.
+     */
+    public void setTextUnselectable() {
+        Style style = innerWrapper.getStyle();
+        setStyleProperty(style, "-webkit-touch-callout", "none");
+        setStyleProperty(style, "-webkit-user-select", "none");
+        setStyleProperty(style, "-khtml-user-select", "none");
+        setStyleProperty(style, "-moz-user-select", "none");
+        setStyleProperty(style, "-ms-user-select", "none");
+        setStyleProperty(style, "user-select", "none");
+    }
+
     /**
      * Updates the height of the inner wrapping div around the SVG document.
      * 

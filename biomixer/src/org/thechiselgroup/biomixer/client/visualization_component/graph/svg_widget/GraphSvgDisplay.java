@@ -320,6 +320,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
                     viewWideInteractionListener);
             asScrollingWidget = new ScrollableSvgWidget(svgWidget,
                     totalViewWidth, totalViewHeight);
+            asScrollingWidget.setTextUnselectable();
         }
         return asScrollingWidget;
     }
