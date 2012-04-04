@@ -116,6 +116,15 @@ public interface LayoutNode {
 
     /**
      * 
+     * @param otherNode
+     *            another node on the graph
+     * @return <code>true</code> if this node is connected to otherNode by an
+     *         arc
+     */
+    boolean isConnectedTo(LayoutNode otherNode);
+
+    /**
+     * 
      * @param anchored
      *            set to <code>true</code> if the node should not be moved. Set
      *            to <code>false</code> to clear any restrictions on movement.

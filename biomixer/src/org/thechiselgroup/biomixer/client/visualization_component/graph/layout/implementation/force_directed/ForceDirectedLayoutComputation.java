@@ -25,47 +25,20 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
+/**
+ * Calculates the movements of graph nodes during iterations of the
+ * force-directed layout. The force-directed layout is continuous; iterations
+ * continue until some base condition (threshold value) is reached. State is
+ * maintained between iterations.
+ * 
+ * @author drusk
+ * 
+ */
 public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
-
-    /*
-     * XXX once refactoring to separate LayoutNode from rendered node is done,
-     * move this into an abstract layout node class. It will only need node2
-     * passed in.
-     */
-    public static boolean areNodesConnected(LayoutNode node1, LayoutNode node2) {
-        return getConnectedNodes(node1).contains(node2);
-    }
-
-    /*
-     * XXX once refactoring to separate LayoutNode from rendered node is done,
-     * move this into an abstract layout node class. It will not need any
-     * parameters.
-     */
-    public static List<LayoutNode> getConnectedNodes(LayoutNode node) {
-        List<LayoutNode> connectedNodes = new ArrayList<LayoutNode>();
-        for (LayoutArc connectedArc : node.getConnectedArcs()) {
-            connectedNodes.add(getNodeConnectedByArc(node, connectedArc));
-        }
-        return connectedNodes;
-    }
-
-    /*
-     * XXX once refactoring to separate LayoutNode from rendered node is done,
-     * move this into an abstract layout node class. It will only need the arc
-     * passed in then of course.
-     */
-    public static LayoutNode getNodeConnectedByArc(LayoutNode currentNode,
-            LayoutArc arc) {
-        assert arc.getSourceNode().equals(currentNode)
-                || arc.getTargetNode().equals(currentNode);
-        return arc.getSourceNode().equals(currentNode) ? arc.getTargetNode()
-                : arc.getSourceNode();
-    }
 
     private double averageNodeDisplacementThreshold = 2.0;
 
@@ -217,6 +190,5 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
                         + positionDelta.getYComponent());
 
         animateTo(node, restrictedTopLeft, animationDuration);
-        // node.setPosition(restrictedTopLeft);
     }
 }

@@ -26,8 +26,7 @@ public class BoundsAwareAttractionCalculator extends BoundsAwareForceCalculator 
 
     @Override
     public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
-        if (!ForceDirectedLayoutComputation.areNodesConnected(currentNode,
-                otherNode)) {
+        if (!currentNode.isConnectedTo(otherNode)) {
             /*
              * If the nodes are not connected by an arc then there is no
              * attraction force.

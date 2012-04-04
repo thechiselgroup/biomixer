@@ -35,13 +35,7 @@ public class SpringAttractionForceCalculator extends AbstractForceCalculator {
 
     @Override
     public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
-        /*
-         * XXX once refactoring to separate LayoutNode from rendered node is
-         * done, move this will be a call to
-         * currentNode.isNodeConnected(otherNode);
-         */
-        if (!ForceDirectedLayoutComputation.areNodesConnected(currentNode,
-                otherNode)) {
+        if (!currentNode.isConnectedTo(otherNode)) {
             /*
              * If the nodes are not connected by an arc then there is no spring
              * force.

@@ -15,8 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 public abstract class AbstractLayoutNode implements LayoutNode {
@@ -25,6 +29,21 @@ public abstract class AbstractLayoutNode implements LayoutNode {
     public PointDouble getCentre() {
         return new PointDouble(getX() + getSize().getWidth() / 2, getY()
                 + getSize().getHeight() / 2);
+    }
+
+    public List<LayoutNode> getConnectedNodes() {
+        List<LayoutNode> connectedNodes = new ArrayList<LayoutNode>();
+        for (LayoutArc connectedArc : getConnectedArcs()) {
+            connectedNodes.add(getNodeConnectedByArc(connectedArc));
+        }
+        return connectedNodes;
+    }
+
+    public LayoutNode getNodeConnectedByArc(LayoutArc arc) {
+        assert arc.getSourceNode().equals(this)
+                || arc.getTargetNode().equals(this);
+        return arc.getSourceNode().equals(this) ? arc.getTargetNode() : arc
+                .getSourceNode();
     }
 
     @Override
@@ -37,6 +56,11 @@ public abstract class AbstractLayoutNode implements LayoutNode {
     @Override
     public PointDouble getTopLeftForCentreAt(PointDouble centre) {
         return getTopLeftForCentreAt(centre.getX(), centre.getY());
+    }
+
+    @Override
+    public boolean isConnectedTo(LayoutNode otherNode) {
+        return getConnectedNodes().contains(otherNode);
     }
 
     @Override
