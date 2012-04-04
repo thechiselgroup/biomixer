@@ -326,7 +326,7 @@ function matrixLayout(div, json){
 		  		t.selectAll(".column")
 		  			.delay(function(d, i) { return x(i) * 4; })
 		  			.attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-			  
+		  		
 		  	}
 	  	}
 	}
