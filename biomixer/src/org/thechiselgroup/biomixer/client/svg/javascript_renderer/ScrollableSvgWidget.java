@@ -32,14 +32,19 @@ public class ScrollableSvgWidget extends Widget {
 
     private Element innerWrapper;
 
+    private Element outerWrapper;
+
+    /*
+     * Caching these dimensions since they will need to be checked frequently
+     * when the window is being resized.
+     */
+    private int scrollableHeight = 0;
+
+    private int scrollableWidth = 0;
+
     public ScrollableSvgWidget(SvgWidget containedWidget, int initialWidth,
             int initialHeight) {
-        /*
-         * NOTE: SvgWidget already has a wrapper div which css gets applied to.
-         * To provide scrolling, we add another wrapping div, which gets the css
-         * property to cause scrolling when the inner div is larger than it.
-         */
-        Element outerWrapper = DOM.createDiv();
+        outerWrapper = DOM.createDiv();
         outerWrapper.appendChild(containedWidget.getElement());
         setElement(outerWrapper);
 
@@ -58,15 +63,77 @@ public class ScrollableSvgWidget extends Widget {
         innerWrapperstyle.setWidth(initialWidth, Unit.PX);
         innerWrapperstyle.setHeight(initialHeight, Unit.PX);
 
-        /*
-         * Scroll bars should only appear when the inner wrapper is larger than
-         * the outer wrapper
-         */
-        outerWrapper.getStyle().setOverflow(Overflow.AUTO);
+        checkIfScrollbarsNeeded();
+    }
+
+    public void checkIfScrollbarsNeeded() {
+        if (getDisplayableHeight() < scrollableHeight
+                || getDisplayableWidth() < scrollableWidth) {
+            setScrollbarsVisible(true);
+        } else {
+            setScrollbarsVisible(false);
+        }
+    }
+
+    /**
+     * 
+     * @return the height available for display. Excess content height should be
+     *         accessible through scrolling.
+     */
+    private int getDisplayableHeight() {
+        return outerWrapper.getOffsetHeight();
+    }
+
+    /**
+     * 
+     * @return the width available for display. Excess content width should be
+     *         accessible through scrolling.
+     */
+    private int getDisplayableWidth() {
+        return outerWrapper.getOffsetWidth();
     }
 
     public Element getInnerWrapper() {
         return innerWrapper;
+    }
+
+    /**
+     * Updates the height of the inner wrapping div around the SVG document.
+     * 
+     * @param height
+     *            the new height of the SVG document
+     */
+    public void setScrollableContentHeight(int height) {
+        scrollableHeight = height;
+        innerWrapper.getStyle().setHeight(height, Unit.PX);
+        checkIfScrollbarsNeeded();
+    }
+
+    /**
+     * Updates the width of the inner wrapping div around the SVG document.
+     * 
+     * @param width
+     *            the new width of the SVG document
+     */
+    public void setScrollableContentWidth(int width) {
+        scrollableWidth = width;
+        innerWrapper.getStyle().setWidth(width, Unit.PX);
+        checkIfScrollbarsNeeded();
+    }
+
+    /**
+     * Turns scrollbars on or off
+     * 
+     * @param visible
+     *            if <code>true</code> then turn scrollbars on.
+     */
+    private void setScrollbarsVisible(boolean visible) {
+        Style style = outerWrapper.getStyle();
+        if (visible) {
+            style.setOverflow(Overflow.SCROLL);
+        } else {
+            style.setOverflow(Overflow.HIDDEN);
+        }
     }
 
     /*
@@ -78,7 +145,9 @@ public class ScrollableSvgWidget extends Widget {
     }-*/;
 
     /**
-     * Sets styles for making text unselectable on the inner wrapper.
+     * Sets styles for making text unselectable on the inner wrapper. Need this
+     * for Chrome because it uses the text cursor on drag which can cause you to
+     * highlight node text accidentally.
      */
     public void setTextUnselectable() {
         Style style = innerWrapper.getStyle();
@@ -88,26 +157,6 @@ public class ScrollableSvgWidget extends Widget {
         setStyleProperty(style, "-moz-user-select", "none");
         setStyleProperty(style, "-ms-user-select", "none");
         setStyleProperty(style, "user-select", "none");
-    }
-
-    /**
-     * Updates the height of the inner wrapping div around the SVG document.
-     * 
-     * @param height
-     *            the new height of the SVG document
-     */
-    public void updateHeight(int height) {
-        innerWrapper.getStyle().setHeight(height, Unit.PX);
-    }
-
-    /**
-     * Updates the width of the inner wrapping div around the SVG document.
-     * 
-     * @param width
-     *            the new width of the SVG document
-     */
-    public void updateWidth(int width) {
-        innerWrapper.getStyle().setWidth(width, Unit.PX);
     }
 
 }

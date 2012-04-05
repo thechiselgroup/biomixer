@@ -31,7 +31,6 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactor
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.core.util.scrolling.ScrollbarSizeCalculator;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
@@ -131,21 +130,12 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private int animationDuration = 3000;
 
-    private int verticalScrollbarThickness = 0;
-
-    private int horizontalScrollbarThickness = 0;
-
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
     private Map<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = new HashMap<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>>();
 
     public GraphSvgDisplay(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
-        ScrollbarSizeCalculator scrollbarSizeCalculator = new ScrollbarSizeCalculator();
-        this.verticalScrollbarThickness = scrollbarSizeCalculator
-                .getVerticalScrollbarThickness();
-        this.horizontalScrollbarThickness = scrollbarSizeCalculator
-                .getHorizontalScrollbarThickness();
     }
 
     public GraphSvgDisplay(int width, int height,
@@ -329,7 +319,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
                     svgWidget.getSvgElement(), rootSvgComponent,
                     viewWideInteractionListener);
             asScrollingWidget = new ScrollableSvgWidget(svgWidget,
-                    getAvailableViewWidth(), getAvailableViewHeight());
+                    totalViewWidth, totalViewHeight);
             asScrollingWidget.setTextUnselectable();
             asScrollingWidget.getElement().getStyle()
                     .setBackgroundColor("white");
@@ -417,14 +407,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             layoutArcTypes.add(layoutArcType);
         }
         return layoutArcTypes;
-    }
-
-    private int getAvailableViewHeight() {
-        return totalViewHeight - horizontalScrollbarThickness;
-    }
-
-    private int getAvailableViewWidth() {
-        return totalViewWidth - verticalScrollbarThickness;
     }
 
     @Override
@@ -731,12 +713,16 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
          */
         if (totalViewWidth > getMaxNodeX()) {
             background.setWidth(totalViewWidth);
-            asScrollingWidget.updateWidth(getAvailableViewWidth());
+            asScrollingWidget.setScrollableContentWidth(totalViewWidth);
         }
         if (totalViewHeight > getMaxNodeY()) {
             background.setHeight(totalViewHeight);
-            asScrollingWidget.updateHeight(getAvailableViewHeight());
+            asScrollingWidget.setScrollableContentHeight(totalViewHeight);
         }
+
+        // need this in case scrollable content size is not changed but the
+        // available
+        asScrollingWidget.checkIfScrollbarsNeeded();
     }
 
     public void onViewMouseMove(int mouseX, int mouseY) {
@@ -760,9 +746,10 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
              * Don't let background width become less than view width.
              */
             double newBackgroundWidth = background.getWidth() + deltaX;
-            if (newBackgroundWidth >= getAvailableViewWidth()) {
+            if (newBackgroundWidth >= totalViewWidth) {
                 background.setWidth(newBackgroundWidth);
-                asScrollingWidget.updateWidth((int) newBackgroundWidth);
+                asScrollingWidget
+                        .setScrollableContentWidth((int) newBackgroundWidth);
             }
             shiftGraphContentsHorizontally(deltaX);
         }
@@ -771,9 +758,10 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
              * Don't let background height become less than view height.
              */
             double newBackgroundHeight = background.getHeight() + deltaY;
-            if (newBackgroundHeight >= getAvailableViewHeight()) {
+            if (newBackgroundHeight >= totalViewHeight) {
                 background.setHeight(background.getHeight() + deltaY);
-                asScrollingWidget.updateHeight((int) newBackgroundHeight);
+                asScrollingWidget
+                        .setScrollableContentHeight((int) newBackgroundHeight);
             }
             shiftGraphContentsVertically(deltaY);
         }

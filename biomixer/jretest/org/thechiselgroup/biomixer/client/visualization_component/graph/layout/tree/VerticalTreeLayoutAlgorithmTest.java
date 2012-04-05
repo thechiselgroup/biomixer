@@ -117,7 +117,7 @@ public class VerticalTreeLayoutAlgorithmTest extends
         }
         assertNodeHasCentre(200.0, 1200.0 / 7, nodes[2]);
         assertNodeHasCentre(200.0, 1600.0 / 7, nodes[4]);
-        if (getCentreX(nodes[4]) == 400.0 / 3) {
+        if (getCentreX(nodes[5]) == 400.0 / 3) {
             assertNodeHasCentre(400.0 / 3, 2000.0 / 7, nodes[5]);
             assertNodeHasCentre(800.0 / 3, 2000.0 / 7, nodes[6]);
         } else {
