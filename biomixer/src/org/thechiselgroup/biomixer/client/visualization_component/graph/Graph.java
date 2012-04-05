@@ -51,6 +51,8 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
@@ -330,6 +332,14 @@ public class Graph extends AbstractViewContentDisplay implements
         // didn't want to change GraphDisplay's interface yet
         if (graphDisplay instanceof GraphSvgDisplay) {
             addResizeListener((GraphSvgDisplay) graphDisplay);
+            ((GraphSvgDisplay) graphDisplay)
+                    .addContentChangedListener(new LayoutGraphContentChangedListener() {
+                        @Override
+                        public void onContentChanged(
+                                LayoutGraphContentChangedEvent event) {
+                            runLayout();
+                        }
+                    });
         }
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
@@ -399,9 +409,9 @@ public class Graph extends AbstractViewContentDisplay implements
          * a node is added, except if the layout graph is null, as in some
          * tests.
          */
-        if (getLayoutGraph() != null) {
-            layoutManager.runLayout();
-        }
+        // if (getLayoutGraph() != null) {
+        // runLayout();
+        // }
 
         return graphItem;
     }
@@ -720,6 +730,11 @@ public class Graph extends AbstractViewContentDisplay implements
 
             setLocation(item, location);
         }
+    }
+
+    @Override
+    public void runLayout() {
+        layoutManager.runLayout();
     }
 
     @Override

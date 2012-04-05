@@ -45,6 +45,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
@@ -130,6 +132,9 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private int animationDuration = 3000;
 
+    // TODO move to extracted LayoutGraph
+    private List<LayoutGraphContentChangedListener> contentChangedListeners = new ArrayList<LayoutGraphContentChangedListener>();
+
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
     private Map<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = new HashMap<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>>();
@@ -195,11 +200,18 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         });
 
         arcs.add(arcComponent);
+        fireLayoutGraphContentChangedEvent();
 
         sourceNode.getRenderedNode().addConnectedArc(arcComponent);
         targetNode.getRenderedNode().addConnectedArc(arcComponent);
 
         arcGroup.appendChild(arcComponent);
+    }
+
+    // TODO move to extracted LayoutGraph
+    public void addContentChangedListener(
+            LayoutGraphContentChangedListener listener) {
+        contentChangedListeners.add(listener);
     }
 
     @Override
@@ -269,6 +281,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
                 layoutNodeType);
         layoutNodes.add(layoutNode);
         layoutNodeType.add(layoutNode);
+        fireLayoutGraphContentChangedEvent();
 
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -345,6 +358,16 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
         groupingElement.setAttribute(Svg.ID, id);
         return new CompositeSvgComponent(groupingElement);
+    }
+
+    private void fireLayoutGraphContentChangedEvent() {
+        // TODO move event creation to where this method is called
+        // TODO add info about what was changed?
+        LayoutGraphContentChangedEvent event = new LayoutGraphContentChangedEvent(
+                this);
+        for (LayoutGraphContentChangedListener listener : contentChangedListeners) {
+            listener.onContentChanged(event);
+        }
     }
 
     @Override
@@ -765,6 +788,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         assert arcs.contains(id);
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
+        fireLayoutGraphContentChangedEvent();
         arcGroup.removeChild(arc.getId());
     }
 
@@ -782,16 +806,20 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         }
         nodes.remove(node.getId());
         layoutNodes.remove(node.getId());
+        fireLayoutGraphContentChangedEvent();
         nodeGroup.removeChild(node.getId());
     }
 
     @Override
     public void runLayout() throws LayoutException {
-        // TODO remove? or choose some default layout?
+        // XXX layouts run from Graph only? That is where the layout execution
+        // manager is.
     }
 
     @Override
     public LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm) {
+        // XXX layouts run from Graph only? That is where the layout execution
+        // manager is.
         return layoutAlgorithm.computeLayout(this);
     }
 

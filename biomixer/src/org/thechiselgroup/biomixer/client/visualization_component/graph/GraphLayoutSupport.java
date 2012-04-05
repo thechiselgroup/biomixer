@@ -24,6 +24,11 @@ public interface GraphLayoutSupport {
     LayoutGraph getLayoutGraph();
 
     /**
+     * Runs the current default layout.
+     */
+    void runLayout();
+
+    /**
      * Runs a customized graph layout.
      */
     void runLayout(GraphLayout layout);
@@ -42,5 +47,4 @@ public interface GraphLayoutSupport {
      * @see GraphLayouts
      */
     void runLayout(String layout);
-
 }
