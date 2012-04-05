@@ -1,68 +1,54 @@
+/*******************************************************************************
+ * Copyright 2012 David Rusk, Elena Voyloshnikova 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0 
+ *     
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.  
+ *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.util.url;
 
-import java.util.List;
-import java.util.Map;
-
-import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 
+import com.google.gwt.jsonp.client.JsonpRequestBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Retrieves the content of URLs using a JSONP.
+ * Retrieves the content of URLs using JSONP.
  */
 public class JsonpUrlFetchService implements UrlFetchService {
-    private static enum Status {
-        INITIALIZING, NOT_INITIALIZED, READY
-    }
-
-    // @formatter:off
-    private static native void _requestURL(String swfID, String url) /*-{
-		$doc.getElementById(swfID).call(url, "_flexproxy_callback");
-    }-*/;
-
-    
-    private Status status = Status.NOT_INITIALIZED;
-    
-    private final Map<String, List<AsyncCallback<String>>> requests = CollectionFactory
-            .createStringMap();
-    
-    
-    private void addUrlCallback(String url, AsyncCallback<String> callback) {
-        // TODO Auto-generated method stub
-        
-    }
 
     @Override
-    public void fetchURL(String url, AsyncCallback<String> callback) {
-        // TODO Auto-generated method stub
-        addUrlCallback(url, callback);
+    public void fetchURL(final String url, final AsyncCallback<String> callback) {
 
-        switch (status) {
-        case NOT_INITIALIZED: {
-            init();
-        }
-            break;
-        case INITIALIZING: {
-        }
-            break;
-        case READY: {
-            if (requests.get(url).size() == 1) {
-                requestURL(url);
+        /*
+         * XXX ncbo wiki says you need to set request header to have Accept:
+         * application/json. How can we do this with the request builder??
+         */
+        JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
+        jsonp.requestString(url, new AsyncCallback<String>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                // TODO error handling async callback
+                callback.onFailure(caught);
             }
-        }
-            break;
-        }
-    }
 
-    private void init() {
-        // TODO Auto-generated method stub
-        
-    }
+            @Override
+            public void onSuccess(String result) {
+                System.out.println(result);
+                callback.onSuccess(result);
+            }
 
-    private void requestURL(String url) {
-        // TODO Auto-generated method stub
-        
+        });
+
     }
 
 }
