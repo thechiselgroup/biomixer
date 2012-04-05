@@ -32,13 +32,13 @@ public class ArcComponentFactory {
     }
 
     public ArcSvgComponent createArcComponent(Arc arc, LayoutArcType arcType,
-            NodeSvgComponent sourceNode, NodeSvgComponent targetNode) {
+            SvgLayoutNode sourceNode, SvgLayoutNode targetNode) {
 
         SvgElement container = svgElementFactory.createElement(Svg.G);
         container.setAttribute(Svg.ID, arc.getId());
 
-        PointDouble sourceNodeLocation = sourceNode.getMidPoint();
-        PointDouble targetNodeLocation = targetNode.getMidPoint();
+        PointDouble sourceNodeLocation = sourceNode.getCentre();
+        PointDouble targetNodeLocation = targetNode.getCentre();
 
         SvgElement arcLine = svgElementFactory.createElement(Svg.LINE);
         arcLine.setAttribute(Svg.X1, sourceNodeLocation.getX());

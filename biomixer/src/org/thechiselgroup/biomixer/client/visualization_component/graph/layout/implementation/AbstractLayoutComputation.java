@@ -20,14 +20,14 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AnimatableLayoutNode;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -60,8 +60,10 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
 
     private final ErrorHandler errorHandler;
 
+    private AnimationRunner animationRunner;
+
     public AbstractLayoutComputation(LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler) {
+            ErrorHandler errorHandler, AnimationRunner animationRunner) {
 
         assert graph != null;
         assert executor != null;
@@ -70,6 +72,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         this.errorHandler = errorHandler;
         this.executor = executor;
         this.graph = graph;
+        this.animationRunner = animationRunner;
     }
 
     @Override
@@ -86,6 +89,12 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
                 eventHandlers.remove(handler);
             }
         };
+    }
+
+    protected void animateTo(LayoutNode node, PointDouble location, int duration) {
+        AnimatableLayoutNode animatableNode = new AnimatableLayoutNode(node,
+                animationRunner, duration);
+        animatableNode.setPosition(location);
     }
 
     /**
@@ -119,39 +128,16 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         return graph;
     }
 
-    /**
-     * 
-     * @return the centre point of the graph
-     */
-    protected PointDouble getGraphCentre() {
-        BoundsDouble graphBounds = graph.getBounds();
-        double centreX = graphBounds.getLeftX() + graphBounds.getWidth() / 2;
-        double centreY = graphBounds.getTopY() + graphBounds.getHeight() / 2;
-        return new PointDouble(centreX, centreY);
-    }
-
-    /**
-     * Determines the top left corner coordinates necessary for a given node's
-     * centre to be at the specified point.
-     * 
-     * @param x
-     *            desired x coordinate for <code>node</code>'s centre
-     * @param y
-     *            desired y coordinate for <code>node</code>'s centre
-     * @param node
-     *            node to find the top left coordinate for
-     * @return top left corner coordinates
-     */
-    protected PointDouble getTopLeftForCentreAt(double x, double y,
-            LayoutNode node) {
-        SizeDouble size = node.getSize();
-        return new PointDouble(x - size.getWidth() / 2, y - size.getHeight()
-                / 2);
-    }
-
     @Override
     public boolean isRunning() {
         return running;
+    }
+
+    @Override
+    public void restart() {
+        running = true;
+        shouldStop = false;
+        run();
     }
 
     /**

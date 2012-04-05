@@ -45,6 +45,13 @@ public interface LayoutComputation {
     boolean isRunning();
 
     /**
+     * Forces the layout to compute another iteration. For a continuous layout,
+     * this may revive the state of a computation that had finished but now has
+     * new nodes.
+     */
+    void restart();
+
+    /**
      * <p>
      * Stops the layout algorithm. Stopping the layout does not immediately stop
      * it, but it will be stopped as soon as possible. An event will be fired

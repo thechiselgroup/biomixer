@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
@@ -29,15 +30,28 @@ public class HorizontalTreeLayoutAlgorithm implements LayoutAlgorithm {
 
     private ErrorHandler errorHandler;
 
-    public HorizontalTreeLayoutAlgorithm(ErrorHandler errorHandler) {
-        this.errorHandler = errorHandler;
+    private final boolean pointingRight;
 
+    private final AnimationRunner animationRunner;
+
+    /**
+     * 
+     * @param pointingRight
+     *            if <code>true</code>, arrows on directed arcs will be pointing
+     *            to the right. If <code>false</code> they will point to the
+     *            left.
+     */
+    public HorizontalTreeLayoutAlgorithm(boolean pointingRight,
+            ErrorHandler errorHandler, AnimationRunner animationRunner) {
+        this.errorHandler = errorHandler;
+        this.pointingRight = pointingRight;
+        this.animationRunner = animationRunner;
     }
 
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         AbstractLayoutComputation computation = new HorizontalTreeLayoutComputation(
-                graph, executor, errorHandler);
+                graph, executor, errorHandler, animationRunner, pointingRight);
         computation.run();
         return computation;
     }

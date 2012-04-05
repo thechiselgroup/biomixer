@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.embed;
 
-import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 
 public interface EmbeddedViewLoader {
 
@@ -29,6 +29,6 @@ public interface EmbeddedViewLoader {
     Iterable<String> getEmbedModes();
 
     void loadView(WindowLocation windowLocation, String embedMode,
-            AsyncCallback<View> callback, EmbedLoader loader);
+            AsyncCallback<IsWidget> callback, EmbedLoader loader);
 
 }

@@ -19,52 +19,53 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.internal.matchers.TypeSafeMatcher;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.NetworkNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphNode;
 
-public class NetworkNodeMatcher extends TypeSafeMatcher<NetworkNode> {
+public class DirectedAcyclicGraphNodeMatcher extends TypeSafeMatcher<DirectedAcyclicGraphNode> {
 
-    public static <T> Matcher<NetworkNode> equalsNetwork(LayoutNode node,
-            int numberOfDescendants, Matcher<NetworkNode>... matchers) {
-        return new NetworkNodeMatcher(node, numberOfDescendants, matchers);
+    public static <T> Matcher<DirectedAcyclicGraphNode> equalsDag(LayoutNode node,
+            int numberOfDescendants, Matcher<DirectedAcyclicGraphNode>... matchers) {
+        return new DirectedAcyclicGraphNodeMatcher(node, numberOfDescendants, matchers);
     }
 
     private final LayoutNode node;
 
     private final int numberOfDescendants;
 
-    private final Matcher<NetworkNode>[] networkNodeMatchers;
+    private final Matcher<DirectedAcyclicGraphNode>[] directedAcyclicGraphNodeMatchers;
 
-    public NetworkNodeMatcher(LayoutNode node, int numberOfDescendants,
-            Matcher<NetworkNode>... matchers) {
+    public DirectedAcyclicGraphNodeMatcher(LayoutNode node, int numberOfDescendants,
+            Matcher<DirectedAcyclicGraphNode>... matchers) {
         this.node = node;
         this.numberOfDescendants = numberOfDescendants;
-        this.networkNodeMatchers = matchers;
+        this.directedAcyclicGraphNodeMatchers = matchers;
     }
 
     /**
      * 
-     * @param treeNode
-     *            The TreeNode whose children the matchers will try to match.
+     * @param dagNode
+     *            The {@link DirectedAcyclicGraphNode} whose children the matchers will try to
+     *            match.
      * @return Each child must be matched by one of the matchers, and there
      *         cannot be any extra matchers left over. The order of the children
      *         and matchers is not important.
      */
-    private boolean allChildrenExactlyMatch(NetworkNode treeNode) {
-        if (treeNode.getChildren().size() != networkNodeMatchers.length) {
+    private boolean allChildrenExactlyMatch(DirectedAcyclicGraphNode dagNode) {
+        if (dagNode.getChildren().size() != directedAcyclicGraphNodeMatchers.length) {
             return false;
         }
-        for (NetworkNode childTreeNode : treeNode.getChildren()) {
+        for (DirectedAcyclicGraphNode childDagNode : dagNode.getChildren()) {
             // one of the matchers must match it
-            if (!childHasMatch(childTreeNode)) {
+            if (!childHasMatch(childDagNode)) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean childHasMatch(NetworkNode childTreeNode) {
-        for (Matcher<NetworkNode> matcher : networkNodeMatchers) {
-            if (matcher.matches(childTreeNode)) {
+    private boolean childHasMatch(DirectedAcyclicGraphNode childDagNode) {
+        for (Matcher<DirectedAcyclicGraphNode> matcher : directedAcyclicGraphNodeMatchers) {
+            if (matcher.matches(childDagNode)) {
                 return true;
             }
         }
@@ -79,9 +80,9 @@ public class NetworkNodeMatcher extends TypeSafeMatcher<NetworkNode> {
     }
 
     @Override
-    public boolean matchesSafely(NetworkNode networkNode) {
-        return (node.equals(networkNode.getLayoutNode())
-                && networkNode.getNumberOfDescendants() == numberOfDescendants && allChildrenExactlyMatch(networkNode));
+    public boolean matchesSafely(DirectedAcyclicGraphNode dagNode) {
+        return (node.equals(dagNode.getLayoutNode())
+                && dagNode.getNumberOfDescendants() == numberOfDescendants && allChildrenExactlyMatch(dagNode));
 
     }
 }

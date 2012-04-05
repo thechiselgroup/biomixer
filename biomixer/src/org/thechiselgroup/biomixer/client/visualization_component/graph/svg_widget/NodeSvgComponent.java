@@ -19,12 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -38,7 +37,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * 
  */
 public class NodeSvgComponent extends CompositeSvgComponent implements
-        Identifiable, LayoutNode {
+        Identifiable {
 
     private Node node;
 
@@ -47,8 +46,6 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     private final ExpanderTabSvgComponent expanderTab;
 
     private final BoxedTextSvgComponent boxedText;
-
-    private boolean isAnchored = false;
 
     private LayoutNodeType nodeType;
 
@@ -72,6 +69,14 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return arcsConnectedToThisNode;
     }
 
+    public List<LayoutArc> getConnectedArcs() {
+        List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
+        for (LayoutArc layoutArc : arcsConnectedToThisNode) {
+            connectedArcs.add(layoutArc);
+        }
+        return connectedArcs;
+    }
+
     public ExpanderTabSvgComponent getExpanderTab() {
         return expanderTab;
     }
@@ -83,24 +88,6 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     @Override
     public String getId() {
         return getNode().getId();
-    }
-
-    @Override
-    public SizeDouble getLabelSize() {
-        // TODO support for external labels
-        return new DefaultSizeDouble(0, 0);
-    }
-
-    @Override
-    public double getLabelX() {
-        // TODO support for external labels
-        return Double.NaN;
-    }
-
-    @Override
-    public double getLabelY() {
-        // TODO support for external labels
-        return Double.NaN;
     }
 
     /**
@@ -128,50 +115,26 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return boxedText.getSvgElement();
     }
 
-    @Override
+    // rendered object interface?
     public SizeDouble getSize() {
         return new DefaultSizeDouble(boxedText.getTotalWidth(),
                 boxedText.getTotalHeight());
     }
 
-    @Override
     public LayoutNodeType getType() {
         return nodeType;
     }
 
-    @Override
     public double getX() {
         return Double.parseDouble(compositeElement.getAttributeAsString(Svg.X));
     }
 
-    @Override
     public double getY() {
         return Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y));
     }
 
-    @Override
-    public boolean hasLabel() {
-        // currently label has to be in node
-        return false;
-    }
-
-    @Override
-    public boolean isAnchored() {
-        return isAnchored;
-    }
-
     public void removeConnectedArc(ArcSvgComponent arc) {
         arcsConnectedToThisNode.remove(arc);
-    }
-
-    /**
-     * Allows a node to be made stationary during any layout algorithms applied
-     * 
-     * @param isAnchored
-     *            set <code>true</code> to anchor this node
-     */
-    public void setAnchored(boolean isAnchored) {
-        this.isAnchored = isAnchored;
     }
 
     public void setBackgroundColor(String color) {
@@ -200,51 +163,18 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         }
     }
 
-    @Override
-    public void setLabelPosition(double x, double y) {
-        // TODO support for external labels
-    }
-
-    @Override
-    public void setLabelX(double x) {
-        // TODO support for external labels
-    }
-
-    @Override
-    public void setLabelY(double y) {
-        // TODO support for external labels
+    public void setLeftX(double x) {
+        compositeElement.setAttribute(Svg.X, x);
+        updateConnectedArcs();
     }
 
     public void setNodeEventListener(ChooselEventHandler handler) {
         boxedText.setEventListener(handler);
     }
 
-    @Override
-    public void setPosition(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-    public void setPosition(Point location) {
-        setPosition(location.getX(), location.getY());
-    }
-
-    @Override
-    public void setX(double x) {
-        // XXX should this just be an assertion?
-        if (!isAnchored()) {
-            compositeElement.setAttribute(Svg.X, x);
-            updateConnectedArcs();
-        }
-    }
-
-    @Override
-    public void setY(double y) {
-        // XXX should this just be an assertion?
-        if (!isAnchored()) {
-            compositeElement.setAttribute(Svg.Y, y);
-            updateConnectedArcs();
-        }
+    public void setTopY(double y) {
+        compositeElement.setAttribute(Svg.Y, y);
+        updateConnectedArcs();
     }
 
     private void updateConnectedArcs() {

@@ -19,10 +19,10 @@ import org.thechiselgroup.biomixer.client.core.util.collections.SingleItemIterab
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
-import org.thechiselgroup.biomixer.client.workbench.services.AsyncCallbackDelegate;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ViewLoader;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 public class StoredViewEmbedLoader implements EmbeddedViewLoader {
@@ -39,18 +39,23 @@ public class StoredViewEmbedLoader implements EmbeddedViewLoader {
 
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
-            final AsyncCallback<View> callback, EmbedLoader embedLoader) {
+            final AsyncCallback<IsWidget> callback, EmbedLoader embedLoader) {
 
         String viewIdString = windowLocation
                 .getParameter(WorkbenchInitializer.VIEW_ID);
         // TODO catch exception, handle in here
         final long viewId = Long.parseLong(viewIdString);
 
-        viewLoader.loadView(viewId, new AsyncCallbackDelegate<View>(callback) {
+        viewLoader.loadView(viewId, new AsyncCallback<View>() {
             @Override
             public void onFailure(Throwable caught) {
                 callback.onFailure(new Exception(
                         "Could not load visualization " + viewId + "."));
+            }
+
+            @Override
+            public void onSuccess(View result) {
+                callback.onSuccess(result);
             }
         });
     }

@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
@@ -33,14 +34,19 @@ public class CircleLayoutAlgorithm implements LayoutAlgorithm {
 
     private double maxAngle = 360.0;
 
-    public CircleLayoutAlgorithm(ErrorHandler errorHandler) {
+    private final AnimationRunner animationRunner;
+
+    public CircleLayoutAlgorithm(ErrorHandler errorHandler,
+            AnimationRunner animationRunner) {
         this.errorHandler = errorHandler;
+        this.animationRunner = animationRunner;
     }
 
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {
         AbstractLayoutComputation computation = new CircleLayoutComputation(
-                minAngle, maxAngle, graph, executor, errorHandler);
+                minAngle, maxAngle, graph, executor, errorHandler,
+                animationRunner);
         computation.run();
         return computation;
     }

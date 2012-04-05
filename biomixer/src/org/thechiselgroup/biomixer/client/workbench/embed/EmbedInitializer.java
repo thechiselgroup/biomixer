@@ -20,12 +20,12 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.BrowserDetect;
-import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.init.ApplicationInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 public class EmbedInitializer implements ApplicationInitializer {
@@ -74,7 +74,7 @@ public class EmbedInitializer implements ApplicationInitializer {
 
         embedContainer.setInfoText("Loading...");
         embeddedViewLoader.loadView(windowLocation, embedMode,
-                new AsyncCallback<View>() {
+                new AsyncCallback<IsWidget>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         loggingErrorHandler.handleError(caught);
@@ -82,7 +82,7 @@ public class EmbedInitializer implements ApplicationInitializer {
                     }
 
                     @Override
-                    public void onSuccess(View result) {
+                    public void onSuccess(IsWidget result) {
                         embedContainer.setWidget(result.asWidget());
                     }
                 }, new EmbedLoader() {

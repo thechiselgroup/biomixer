@@ -15,11 +15,16 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 
 public interface BoundsDouble extends SizeDouble {
 
+    double getArea();
+
     double getBottomY();
+
+    PointDouble getCentre();
 
     double getLeftX();
 

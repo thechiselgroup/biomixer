@@ -17,12 +17,15 @@ package org.thechiselgroup.biomixer.client.core.util.animation;
 
 public final class Interpolations {
 
-    public double interpolate(double progress, double from, double to) {
+    public static double interpolate(double progress, double from, double to) {
         return from + progress * (to - from);
     }
 
-    public int interpolate(double progress, int from, int to) {
+    public static int interpolate(double progress, int from, int to) {
         return from + (int) (progress * (to - from));
+    }
+
+    private Interpolations() {
     }
 
 }

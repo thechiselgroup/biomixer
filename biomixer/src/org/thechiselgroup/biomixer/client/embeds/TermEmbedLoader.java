@@ -16,7 +16,6 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
-import org.thechiselgroup.biomixer.client.core.visualization.View;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -31,6 +30,6 @@ public interface TermEmbedLoader extends Identifiable {
     String getLabel();
 
     void loadView(String virtualOntologyId, String fullConceptId,
-            IsWidget topBarWidget, AsyncCallback<View> callback);
+            IsWidget topBarWidget, AsyncCallback<IsWidget> callback);
 
 }

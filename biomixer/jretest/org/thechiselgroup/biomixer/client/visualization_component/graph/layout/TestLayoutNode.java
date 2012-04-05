@@ -15,10 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import java.util.ArrayList;
+import java.util.List;
 
-public class TestLayoutNode implements LayoutNode {
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AbstractLayoutNode;
+
+public class TestLayoutNode extends AbstractLayoutNode {
 
     private double x = Double.NaN;
 
@@ -38,6 +43,8 @@ public class TestLayoutNode implements LayoutNode {
 
     private DefaultSizeDouble labelSize;
 
+    List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
+
     public TestLayoutNode(double width, double height, boolean isAnchored,
             double labelWidth, double LabelHeight, LayoutNodeType type) {
 
@@ -56,6 +63,29 @@ public class TestLayoutNode implements LayoutNode {
         this.type = type;
         this.hasLabel = false;
         this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
+    /**
+     * Also sets default position.
+     */
+    public TestLayoutNode(double x, double y, double width, double height,
+            boolean isAnchored, LayoutNodeType type) {
+        this.x = x;
+        this.y = y;
+        this.nodeSize = new DefaultSizeDouble(width, height);
+        this.isAnchored = isAnchored;
+        this.type = type;
+        this.hasLabel = false;
+        this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
+    public void addConnectedArc(LayoutArc arc) {
+        connectedArcs.add(arc);
+    }
+
+    @Override
+    public List<LayoutArc> getConnectedArcs() {
+        return connectedArcs;
     }
 
     @Override
@@ -104,6 +134,11 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
+    public void setAnchored(boolean anchored) {
+        this.isAnchored = anchored;
+    }
+
+    @Override
     public void setLabelPosition(double x, double y) {
         setLabelX(x);
         setLabelY(y);
@@ -123,6 +158,11 @@ public class TestLayoutNode implements LayoutNode {
     public void setPosition(double x, double y) {
         setX(x);
         setY(y);
+    }
+
+    @Override
+    public void setPosition(PointDouble position) {
+        setPosition(position.getX(), position.getY());
     }
 
     @Override
