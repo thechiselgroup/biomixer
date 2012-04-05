@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.svg.javascript_renderer;
 
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.dom.client.Style.Unit;
@@ -64,6 +63,10 @@ public class ScrollableSvgWidget extends Widget {
          * the outer wrapper
          */
         outerWrapper.getStyle().setOverflow(Overflow.AUTO);
+    }
+
+    public Element getInnerWrapper() {
+        return innerWrapper;
     }
 
     /*
