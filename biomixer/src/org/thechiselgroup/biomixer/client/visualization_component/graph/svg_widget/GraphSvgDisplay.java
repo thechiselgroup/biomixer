@@ -334,6 +334,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             asScrollingWidget = new ScrollableSvgWidget(svgWidget,
                     totalViewWidth, totalViewHeight);
             asScrollingWidget.setTextUnselectable();
+            asScrollingWidget.getElement().getStyle()
+                    .setBackgroundColor("white");
         }
         return asScrollingWidget;
     }
@@ -433,6 +435,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     @Override
     public BoundsDouble getBounds() {
         // TODO x and y always 0?
+        // XXX available view width/height?
         return new DefaultBoundsDouble(0, 0, totalViewWidth, totalViewHeight);
     }
 
@@ -733,12 +736,16 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
          */
         if (totalViewWidth > getMaxNodeX()) {
             background.setWidth(totalViewWidth);
-            asScrollingWidget.updateWidth(totalViewWidth);
+            asScrollingWidget.setScrollableContentWidth(totalViewWidth);
         }
         if (totalViewHeight > getMaxNodeY()) {
             background.setHeight(totalViewHeight);
-            asScrollingWidget.updateHeight(totalViewHeight);
+            asScrollingWidget.setScrollableContentHeight(totalViewHeight);
         }
+
+        // need this in case scrollable content size is not changed but the
+        // available
+        asScrollingWidget.checkIfScrollbarsNeeded();
     }
 
     public void onViewMouseMove(int mouseX, int mouseY) {
@@ -764,7 +771,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             double newBackgroundWidth = background.getWidth() + deltaX;
             if (newBackgroundWidth >= totalViewWidth) {
                 background.setWidth(newBackgroundWidth);
-                asScrollingWidget.updateWidth((int) newBackgroundWidth);
+                asScrollingWidget
+                        .setScrollableContentWidth((int) newBackgroundWidth);
             }
             shiftGraphContentsHorizontally(deltaX);
         }
@@ -775,7 +783,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             double newBackgroundHeight = background.getHeight() + deltaY;
             if (newBackgroundHeight >= totalViewHeight) {
                 background.setHeight(background.getHeight() + deltaY);
-                asScrollingWidget.updateHeight((int) newBackgroundHeight);
+                asScrollingWidget
+                        .setScrollableContentHeight((int) newBackgroundHeight);
             }
             shiftGraphContentsVertically(deltaY);
         }

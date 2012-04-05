@@ -290,8 +290,8 @@ public abstract class AbstractViewContentDisplay implements ViewContentDisplay,
 
     @Override
     public void setSize(int width, int height) {
-        fireResizeEvent(new ViewResizeEvent(width, height, this));
         widget.setSize(width + CSS.PX, height + CSS.PX);
+        fireResizeEvent(new ViewResizeEvent(width, height, this));
     }
 
     private void setState(State state) {
