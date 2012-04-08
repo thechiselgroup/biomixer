@@ -73,7 +73,7 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
             TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
         super(svgElementFactory.createElement(Svg.SVG));
-
+        compositeElement.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         this.textBoundsEstimator = textBoundsEstimator;
         this.svgElementFactory = svgElementFactory;
         this.text = text;

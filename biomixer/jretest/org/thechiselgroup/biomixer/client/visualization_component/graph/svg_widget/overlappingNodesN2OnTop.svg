@@ -2,22 +2,22 @@
   <rect fill="#FFFFFF" height="300.0" width="400.0" />
   <g id="arcGroup"></g>
   <g id="nodeGroup">
-    <svg id="n1" x="0.0" y="0.0">
-      <svg>
+    <svg id="n1" overflow="visible" x="0.0" y="0.0">
+      <svg overflow="visible">
         <rect fill="#FFFFFF" stroke="#000000" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
         <text x="10.0" y="30.0" font-family="Arial, sans-serif" font-size="12px">Concept1</text>
       </svg>
-      <svg x="35.0" y="40.0">
+      <svg overflow="visible" x="35.0" y="40.0">
         <rect fill="#FFFFFF" stroke="#000000" width="30.0" height="8.0" x="0.0" y="0.0" />
         <polygon points="11.25,2.0 18.75,2.0 15.0,6.0 " fill="#000000" />
       </svg>
     </svg>
-    <svg id="n2" x="0.0" y="20.0">
-      <svg>
+    <svg id="n2" overflow="visible" x="0.0" y="20.0">
+      <svg overflow="visible">
         <rect fill="#FFFFFF" stroke="#000000" rx="10.0" ry="10.0" width="100.0" height="40.0" x="0.0" y="0.0"/>
         <text x="10.0" y="30.0" font-family="Arial, sans-serif" font-size="12px">Concept2</text>
       </svg>
-      <svg x="35.0" y="40.0">
+      <svg overflow="visible" x="35.0" y="40.0">
         <rect fill="#FFFFFF" stroke="#000000" width="30.0" height="8.0" x="0.0" y="0.0" />
         <polygon points="11.25,2.0 18.75,2.0 15.0,6.0 " fill="#000000" />
       </svg>
