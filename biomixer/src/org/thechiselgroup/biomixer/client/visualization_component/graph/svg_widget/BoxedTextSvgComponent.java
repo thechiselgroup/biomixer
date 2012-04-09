@@ -86,7 +86,6 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
                     + TEXT_BUFFER
                     + (getWidthOfLongestTextLine() - getTextSize(entry.getKey())
                             .getWidth()) / 2;
-            System.out.println("Setting x=" + x);
             entry.getValue().setAttribute(Svg.X, x);
         }
     }
@@ -131,10 +130,7 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
     }
 
     private double getBoxLeftX() {
-        double parseDouble = Double.parseDouble(boxElement
-                .getAttributeAsString(Svg.X));
-        System.out.println("getBoxLeftX=" + parseDouble);
-        return parseDouble;
+        return Double.parseDouble(boxElement.getAttributeAsString(Svg.X));
     }
 
     private double getBoxWidth() {
