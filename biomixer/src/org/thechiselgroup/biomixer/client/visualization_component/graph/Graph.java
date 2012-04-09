@@ -332,8 +332,8 @@ public class Graph extends AbstractViewContentDisplay implements
         // didn't want to change GraphDisplay's interface yet
         if (graphDisplay instanceof GraphSvgDisplay) {
             addResizeListener((GraphSvgDisplay) graphDisplay);
-            ((GraphSvgDisplay) graphDisplay)
-                    .addContentChangedListener(new LayoutGraphContentChangedListener() {
+            graphDisplay.getLayoutGraph().addContentChangedListener(
+                    new LayoutGraphContentChangedListener() {
                         @Override
                         public void onContentChanged(
                                 LayoutGraphContentChangedEvent event) {

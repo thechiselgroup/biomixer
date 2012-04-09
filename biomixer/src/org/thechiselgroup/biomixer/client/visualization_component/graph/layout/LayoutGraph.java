@@ -24,6 +24,14 @@ import java.util.List;
 public interface LayoutGraph {
 
     /**
+     * Adds a listener which acts upon changes to the graph.
+     * 
+     * @param listener
+     *            listens for changes to the graph
+     */
+    void addContentChangedListener(LayoutGraphContentChangedListener listener);
+
+    /**
      * NOTE: we return a list to guarantee arc order for testing purposes. There
      * must be no duplicate arcs in this list.
      * 

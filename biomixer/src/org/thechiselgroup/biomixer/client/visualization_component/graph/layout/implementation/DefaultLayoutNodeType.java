@@ -53,4 +53,8 @@ public class DefaultLayoutNodeType implements LayoutNodeType, Identifiable {
         return nodes;
     }
 
+    public void remove(LayoutNode node) {
+        nodes.remove(node);
+    }
+
 }
