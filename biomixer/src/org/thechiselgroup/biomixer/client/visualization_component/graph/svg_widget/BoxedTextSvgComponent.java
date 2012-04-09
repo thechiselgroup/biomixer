@@ -80,6 +80,17 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
         createBoxedText();
     }
 
+    private void centreTextElements() {
+        for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
+            double x = getBoxLeftX()
+                    + TEXT_BUFFER
+                    + (getWidthOfLongestTextLine() - getTextSize(entry.getKey())
+                            .getWidth()) / 2;
+            System.out.println("Setting x=" + x);
+            entry.getValue().setAttribute(Svg.X, x);
+        }
+    }
+
     private void createBoxedText() {
         textElement = svgElementFactory.createElement(Svg.TEXT);
         setTextContent();
@@ -119,12 +130,15 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
         return Double.parseDouble(boxElement.getAttributeAsString(Svg.HEIGHT));
     }
 
-    private double getBoxWidth() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.WIDTH));
+    private double getBoxLeftX() {
+        double parseDouble = Double.parseDouble(boxElement
+                .getAttributeAsString(Svg.X));
+        System.out.println("getBoxLeftX=" + parseDouble);
+        return parseDouble;
     }
 
-    private double getBoxX() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.X));
+    private double getBoxWidth() {
+        return Double.parseDouble(boxElement.getAttributeAsString(Svg.WIDTH));
     }
 
     private SizeInt getTextSize(String text) {
@@ -167,29 +181,25 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
     }
 
     private void setBoxAroundText() {
-        double widthOfLongestTextLine = getWidthOfLongestTextLine();
         int lineHeight = getTextSize(text).getHeight();
-
-        boxElement.setAttribute(Svg.WIDTH, widthOfLongestTextLine + 2
-                * TEXT_BUFFER);
-        boxElement.setAttribute(Svg.HEIGHT, (double) lineHeight * numberOfLines
-                + 2 * TEXT_BUFFER);
+        setBoxWidth(getWidthOfLongestTextLine() + 2 * TEXT_BUFFER);
+        setBoxHeight((double) lineHeight * numberOfLines + 2 * TEXT_BUFFER);
 
         if (numberOfLines == 1) {
-            textElement.setAttribute(Svg.X, TEXT_BUFFER);
+            textElement.setAttribute(Svg.X, getBoxLeftX() + TEXT_BUFFER);
         } else {
-            // need to centre each line of text
-            for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
-                double x = TEXT_BUFFER
-                        + (widthOfLongestTextLine - getTextSize(entry.getKey())
-                                .getWidth()) / 2;
-                entry.getValue().setAttribute(Svg.X, x);
-            }
+            centreTextElements();
         }
 
-        // the y-position of the text refers to the bottom of the FIRST LINE of
-        // text
+        /*
+         * the y-position of the text refers to the bottom of the FIRST LINE of
+         * text
+         */
         textElement.setAttribute(Svg.Y, TEXT_BUFFER + lineHeight);
+    }
+
+    public void setBoxHeight(double height) {
+        boxElement.setAttribute(Svg.HEIGHT, height);
     }
 
     public void setBoxWidth(double width) {
@@ -225,9 +235,11 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
     }
 
     public void setFontWeight(String fontWeight) {
+        double oldWidth = getWidthOfLongestTextLine();
         this.fontWeight = fontWeight;
         textElement.setAttribute(Svg.FONT_WEIGHT, fontWeight);
-        updateBoxWidthAndPositionAroundText();
+        double newWidth = getWidthOfLongestTextLine();
+        updateBoxWidthAndPositionAroundText(newWidth - oldWidth);
     }
 
     private void setTextContent() {
@@ -278,10 +290,9 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
         compositeElement.setAttribute(Svg.Y, y);
     }
 
-    private void updateBoxWidthAndPositionAroundText() {
-        double oldBoxWidth = getBoxWidth();
+    private void updateBoxWidthAndPositionAroundText(double deltaWidth) {
+        setBoxX(getBoxLeftX() - (deltaWidth / 2));
         setBoxAroundText();
-        double newBoxWidth = getBoxWidth();
-        setBoxX(getBoxX() - (newBoxWidth - oldBoxWidth) / 2);
+        centreTextElements();
     }
 }
