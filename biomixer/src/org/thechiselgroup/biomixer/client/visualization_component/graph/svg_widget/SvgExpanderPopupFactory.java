@@ -46,6 +46,7 @@ public class SvgExpanderPopupFactory {
             PointDouble topLeftLocation, Set<String> expanderLabels) {
 
         SvgElement popUpContainer = svgElementFactory.createElement(Svg.SVG);
+        popUpContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         SvgUtils.setXY(popUpContainer, topLeftLocation);
 
         Map<String, BoxedTextSvgComponent> boxedTextEntries = CollectionFactory

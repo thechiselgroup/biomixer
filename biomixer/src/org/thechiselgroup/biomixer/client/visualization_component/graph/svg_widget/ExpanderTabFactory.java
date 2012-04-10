@@ -40,6 +40,7 @@ public class ExpanderTabFactory {
     public ExpanderTabSvgComponent createExpanderTabSvgElement() {
         // container for tab-related elements
         SvgElement tab = svgElementFactory.createElement(Svg.SVG);
+        tab.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
 
         // main portion of tab
         SvgElement rectangle = svgElementFactory.createElement(Svg.RECT);

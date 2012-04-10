@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
@@ -41,19 +40,13 @@ import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgW
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultBoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.SvgLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -81,8 +74,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgDisplay extends AbstractLayoutGraph implements
-        GraphDisplay, ViewResizeEventListener {
+public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
@@ -93,8 +85,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     private IdentifiablesList<NodeSvgComponent> nodes = new IdentifiablesList<NodeSvgComponent>();
 
     private IdentifiablesList<ArcSvgComponent> arcs = new IdentifiablesList<ArcSvgComponent>();
-
-    private IdentifiablesList<SvgLayoutNode> layoutNodes = new IdentifiablesList<SvgLayoutNode>();
 
     private SvgWidget svgWidget = null;
 
@@ -114,6 +104,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     private int totalViewHeight;
 
+    private SvgLayoutGraph layoutGraph;
+
     private NodeInteractionManager nodeInteractionManager;
 
     private SvgExpanderPopupFactory expanderPopupFactory;
@@ -129,11 +121,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     private IdentifiablesList<DefaultLayoutArcType> arcTypes = new IdentifiablesList<DefaultLayoutArcType>();
 
     protected AnimationRunner animationRunner;
-
-    private int animationDuration = 3000;
-
-    // TODO move to extracted LayoutGraph
-    private List<LayoutGraphContentChangedListener> contentChangedListeners = new ArrayList<LayoutGraphContentChangedListener>();
 
     // maps node types to their available menu item click handlers and those
     // handlers' associated labels
@@ -164,6 +151,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         nodeInteractionManager = new NodeInteractionManager(this);
         initViewWideInteractionHandler();
 
+        this.layoutGraph = new SvgLayoutGraph(width, height);
         this.animationRunner = initAnimationRunner();
     }
 
@@ -183,11 +171,10 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         assert nodes.contains(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        SvgLayoutNode sourceNode = layoutNodes.get(sourceNodeId);
-        SvgLayoutNode targetNode = layoutNodes.get(targetNodeId);
+        SvgLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
+        SvgLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
         final ArcSvgComponent arcComponent = arcComponentFactory
                 .createArcComponent(arc, layoutArcType, sourceNode, targetNode);
-        layoutArcType.add(arcComponent);
 
         arcComponent.setEventListener(new ChooselEventHandler() {
 
@@ -200,18 +187,12 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         });
 
         arcs.add(arcComponent);
-        fireLayoutGraphContentChangedEvent();
+        layoutGraph.addLayoutArc(arcComponent);
 
         sourceNode.getRenderedNode().addConnectedArc(arcComponent);
         targetNode.getRenderedNode().addConnectedArc(arcComponent);
 
         arcGroup.appendChild(arcComponent);
-    }
-
-    // TODO move to extracted LayoutGraph
-    public void addContentChangedListener(
-            LayoutGraphContentChangedListener listener) {
-        contentChangedListeners.add(listener);
     }
 
     @Override
@@ -279,9 +260,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
         SvgLayoutNode layoutNode = new SvgLayoutNode(nodeComponent,
                 layoutNodeType);
-        layoutNodes.add(layoutNode);
-        layoutNodeType.add(layoutNode);
-        fireLayoutGraphContentChangedEvent();
+        layoutGraph.addSvgLayoutNode(layoutNode);
 
         // if this isn't the first node, need to position it
         // XXX remove this once FlexVis has been completely replaced
@@ -315,8 +294,8 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
         LayoutNodeAnimation animation = new LayoutNodeAnimation(
-                layoutNodes.get(node.getId()), targetLocation.getX(),
-                targetLocation.getY());
+                layoutGraph.getSvgLayoutNode(node.getId()),
+                targetLocation.getX(), targetLocation.getY());
         animationRunner.run(animation, 2);
     }
 
@@ -362,37 +341,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         return new CompositeSvgComponent(groupingElement);
     }
 
-    private void fireLayoutGraphContentChangedEvent() {
-        // TODO move event creation to where this method is called
-        // TODO add info about what was changed?
-        LayoutGraphContentChangedEvent event = new LayoutGraphContentChangedEvent(
-                this);
-        for (LayoutGraphContentChangedListener listener : contentChangedListeners) {
-            listener.onContentChanged(event);
-        }
-    }
-
-    @Override
-    public List<LayoutArc> getAllArcs() {
-        // TODO is there a way to cast an existing List<ArcSvgComponent> down
-        // to List<LayoutArc> ? Because then arcs.asList() could be used
-        // instead of making new list
-        List<LayoutArc> layoutArcs = new ArrayList<LayoutArc>();
-        for (ArcSvgComponent layoutArc : arcs) {
-            layoutArcs.add(layoutArc);
-        }
-        return layoutArcs;
-    }
-
-    @Override
-    public List<LayoutNode> getAllNodes() {
-        List<LayoutNode> downcastLayoutNodes = new ArrayList<LayoutNode>();
-        for (LayoutNode layoutNode : layoutNodes) {
-            downcastLayoutNodes.add(layoutNode);
-        }
-        return downcastLayoutNodes;
-    }
-
     @Override
     public Arc getArc(String arcId) {
         assert arcId != null;
@@ -419,26 +367,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         return layoutArcType;
     }
 
-    @Override
-    public List<LayoutArcType> getArcTypes() {
-        // TODO is there a way to cast an existing List<DefaultLayoutArcType>
-        // down
-        // to List<LayoutArcType> ? Because then arcTypes.asList() could be used
-        // instead of making new list
-        List<LayoutArcType> layoutArcTypes = new ArrayList<LayoutArcType>();
-        for (DefaultLayoutArcType layoutArcType : arcTypes) {
-            layoutArcTypes.add(layoutArcType);
-        }
-        return layoutArcTypes;
-    }
-
-    @Override
-    public BoundsDouble getBounds() {
-        // TODO x and y always 0?
-        // XXX available view width/height?
-        return new DefaultBoundsDouble(0, 0, totalViewWidth, totalViewHeight);
-    }
-
     protected int getGraphAbsoluteLeft() {
         return svgWidget.getAbsoluteLeft();
     }
@@ -449,7 +377,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
     @Override
     public LayoutGraph getLayoutGraph() {
-        return this;
+        return layoutGraph;
     }
 
     @Override
@@ -459,69 +387,11 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
         return nodes.get(node.getId()).getLocation().toPointInt();
     }
 
-    /**
-     * 
-     * @return the maximum x value used by a node on the graph.
-     */
-    private double getMaxNodeX() {
-        double maxNodeX = 0;
-        for (LayoutNode node : getAllNodes()) {
-            double nodeRightX = node.getX() + node.getSize().getWidth();
-            if (nodeRightX > maxNodeX) {
-                maxNodeX = nodeRightX;
-            }
-        }
-        return maxNodeX;
-    }
-
-    /**
-     * 
-     * @return the maximum x value used by a node on the graph.
-     */
-    private double getMaxNodeY() {
-        double maxNodeY = 0;
-        for (LayoutNode node : getAllNodes()) {
-            double nodeBottomY = node.getY() + node.getSize().getHeight();
-            if (nodeBottomY > maxNodeY) {
-                maxNodeY = nodeBottomY;
-            }
-        }
-        return maxNodeY;
-    }
-
     @Override
     public Node getNode(String nodeId) {
         assert nodeId != null;
         assert nodes.contains(nodeId);
         return nodes.get(nodeId).getNode();
-    }
-
-    @Override
-    public BoundsDouble getNodeBounds() {
-        double minX = Double.MAX_VALUE;
-        double maxX = 0;
-        double minY = Double.MAX_VALUE;
-        double maxY = 0;
-        for (LayoutNode layoutNode : getAllNodes()) {
-            SizeDouble size = layoutNode.getSize();
-            double nodeLeftX = layoutNode.getX();
-            if (nodeLeftX < minX) {
-                minX = nodeLeftX;
-            }
-            double nodeRightX = layoutNode.getX() + size.getWidth();
-            if (nodeRightX > maxX) {
-                maxX = nodeRightX;
-            }
-            double nodeTopY = layoutNode.getY();
-            if (nodeTopY < minY) {
-                minY = nodeTopY;
-            }
-            double nodeBottomY = layoutNode.getY() + size.getHeight();
-            if (nodeBottomY > maxY) {
-                maxY = nodeBottomY;
-            }
-        }
-        return new DefaultBoundsDouble(minX, minY, maxX - minX, maxY - minY);
     }
 
     protected NodeSvgComponent getNodeComponent(Node node) {
@@ -545,18 +415,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             layoutNodeType = nodeTypes.get(nodeType);
         }
         return layoutNodeType;
-    }
-
-    @Override
-    public List<LayoutNodeType> getNodeTypes() {
-        // TODO is there a way to cast an existing List<DefaultLayoutNodeType>
-        // down to List<LayoutNodeType> ? Because then nodeTypes.asList() could
-        // be used instead of making new list
-        List<LayoutNodeType> layoutNodeTypes = new ArrayList<LayoutNodeType>();
-        for (DefaultLayoutNodeType layoutNodeType : nodeTypes) {
-            layoutNodeTypes.add(layoutNodeType);
-        }
-        return layoutNodeTypes;
     }
 
     protected AnimationRunner initAnimationRunner() {
@@ -730,15 +588,17 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     public void onResize(ViewResizeEvent resizeEvent) {
         totalViewWidth = resizeEvent.getWidth();
         totalViewHeight = resizeEvent.getHeight();
+        layoutGraph.setWidth(totalViewWidth);
+        layoutGraph.setHeight(totalViewHeight);
 
         /*
          * Make sure nodes that go off screen can still be scrolled to
          */
-        if (totalViewWidth > getMaxNodeX()) {
+        if (totalViewWidth > layoutGraph.getMaxNodeX()) {
             background.setWidth(totalViewWidth);
             asScrollingWidget.setScrollableContentWidth(totalViewWidth);
         }
-        if (totalViewHeight > getMaxNodeY()) {
+        if (totalViewHeight > layoutGraph.getMaxNodeY()) {
             background.setHeight(totalViewHeight);
             asScrollingWidget.setScrollableContentHeight(totalViewHeight);
         }
@@ -763,7 +623,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
          * node off the top of the graph. Panning right or down may push nodes
          * off the screen.
          */
-        BoundsDouble nodeBounds = getNodeBounds();
+        BoundsDouble nodeBounds = layoutGraph.getNodeBounds();
         if (nodeBounds.getLeftX() + deltaX > 0) {
             /*
              * Don't let background width become less than view width.
@@ -774,7 +634,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
                 asScrollingWidget
                         .setScrollableContentWidth((int) newBackgroundWidth);
             }
-            shiftGraphContentsHorizontally(deltaX);
+            layoutGraph.shiftContentsHorizontally(deltaX);
         }
         if (nodeBounds.getTopY() + deltaY > 0) {
             /*
@@ -786,7 +646,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
                 asScrollingWidget
                         .setScrollableContentHeight((int) newBackgroundHeight);
             }
-            shiftGraphContentsVertically(deltaY);
+            layoutGraph.shiftContentsVertically(deltaY);
         }
     }
 
@@ -794,10 +654,10 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     public void removeArc(Arc arc) {
         assert arc != null;
         String id = arc.getId();
+        layoutGraph.removeLayoutArc(arcs.get(id));
         assert arcs.contains(id);
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
-        fireLayoutGraphContentChangedEvent();
         arcGroup.removeChild(arc.getId());
     }
 
@@ -814,8 +674,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
             removeArc(arcComponent.getArc());
         }
         nodes.remove(node.getId());
-        layoutNodes.remove(node.getId());
-        fireLayoutGraphContentChangedEvent();
+        layoutGraph.removeSvgLayoutNode(node.getId());
         nodeGroup.removeChild(node.getId());
     }
 
@@ -829,7 +688,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     public LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm) {
         // XXX layouts run from Graph only? That is where the layout execution
         // manager is.
-        return layoutAlgorithm.computeLayout(this);
+        return layoutAlgorithm.computeLayout(layoutGraph);
     }
 
     @Override
@@ -863,7 +722,7 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
     @Override
     public void setLocation(Node node, Point location) {
         assert nodes.contains(node.getId());
-        layoutNodes.get(node.getId()).setPosition(location.getX(),
+        layoutGraph.getSvgLayoutNode(node.getId()).setPosition(location.getX(),
                 location.getY());
     }
 
@@ -885,19 +744,6 @@ public class GraphSvgDisplay extends AbstractLayoutGraph implements
 
         else if (styleProperty.equals(NODE_BORDER_COLOR)) {
             nodeComponent.setBorderColor(styleValue);
-        }
-
-    }
-
-    private void shiftGraphContentsHorizontally(int deltaX) {
-        for (LayoutNode layoutNode : getAllNodes()) {
-            layoutNode.setX(layoutNode.getX() + deltaX);
-        }
-    }
-
-    private void shiftGraphContentsVertically(int deltaY) {
-        for (LayoutNode layoutNode : getAllNodes()) {
-            layoutNode.setY(layoutNode.getY() + deltaY);
         }
 
     }

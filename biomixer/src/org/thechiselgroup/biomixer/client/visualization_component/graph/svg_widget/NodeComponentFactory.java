@@ -49,6 +49,7 @@ public class NodeComponentFactory {
         assert nodeType != null;
 
         SvgElement baseContainer = svgElementFactory.createElement(Svg.SVG);
+        baseContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         baseContainer.setAttribute(Svg.ID, node.getId());
         baseContainer.setAttribute(Svg.X, 0.0);
         baseContainer.setAttribute(Svg.Y, 0.0);

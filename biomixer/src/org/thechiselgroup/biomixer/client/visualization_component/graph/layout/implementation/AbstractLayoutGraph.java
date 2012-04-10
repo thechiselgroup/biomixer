@@ -18,7 +18,11 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -30,6 +34,79 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  */
 public abstract class AbstractLayoutGraph implements LayoutGraph {
 
+    private List<LayoutGraphContentChangedListener> contentChangedListeners = new ArrayList<LayoutGraphContentChangedListener>();
+
+    @Override
+    public void addContentChangedListener(
+            LayoutGraphContentChangedListener listener) {
+        this.contentChangedListeners.add(listener);
+    }
+
+    protected void fireLayoutGraphContentChangedEvent(
+            LayoutGraphContentChangedEvent event) {
+        for (LayoutGraphContentChangedListener listener : contentChangedListeners) {
+            listener.onContentChanged(event);
+        }
+    }
+
+    /**
+     * 
+     * @return the maximum x value used by a node on the graph.
+     */
+    public double getMaxNodeX() {
+        double maxNodeX = 0;
+        for (LayoutNode node : getAllNodes()) {
+            double nodeRightX = node.getX() + node.getSize().getWidth();
+            if (nodeRightX > maxNodeX) {
+                maxNodeX = nodeRightX;
+            }
+        }
+        return maxNodeX;
+    }
+
+    /**
+     * 
+     * @return the maximum x value used by a node on the graph.
+     */
+    public double getMaxNodeY() {
+        double maxNodeY = 0;
+        for (LayoutNode node : getAllNodes()) {
+            double nodeBottomY = node.getY() + node.getSize().getHeight();
+            if (nodeBottomY > maxNodeY) {
+                maxNodeY = nodeBottomY;
+            }
+        }
+        return maxNodeY;
+    }
+
+    @Override
+    public BoundsDouble getNodeBounds() {
+        double minX = Double.MAX_VALUE;
+        double maxX = 0;
+        double minY = Double.MAX_VALUE;
+        double maxY = 0;
+        for (LayoutNode layoutNode : getAllNodes()) {
+            SizeDouble size = layoutNode.getSize();
+            double nodeLeftX = layoutNode.getX();
+            if (nodeLeftX < minX) {
+                minX = nodeLeftX;
+            }
+            double nodeRightX = layoutNode.getX() + size.getWidth();
+            if (nodeRightX > maxX) {
+                maxX = nodeRightX;
+            }
+            double nodeTopY = layoutNode.getY();
+            if (nodeTopY < minY) {
+                minY = nodeTopY;
+            }
+            double nodeBottomY = layoutNode.getY() + size.getHeight();
+            if (nodeBottomY > maxY) {
+                maxY = nodeBottomY;
+            }
+        }
+        return new DefaultBoundsDouble(minX, minY, maxX - minX, maxY - minY);
+    }
+
     @Override
     public List<LayoutNode> getUnanchoredNodes() {
         List<LayoutNode> unanchoredNodes = new ArrayList<LayoutNode>();
@@ -39,6 +116,19 @@ public abstract class AbstractLayoutGraph implements LayoutGraph {
             }
         }
         return unanchoredNodes;
+    }
+
+    public void shiftContentsHorizontally(int deltaX) {
+        for (LayoutNode layoutNode : getAllNodes()) {
+            layoutNode.setX(layoutNode.getX() + deltaX);
+        }
+    }
+
+    public void shiftContentsVertically(int deltaY) {
+        for (LayoutNode layoutNode : getAllNodes()) {
+            layoutNode.setY(layoutNode.getY() + deltaY);
+        }
+
     }
 
 }
