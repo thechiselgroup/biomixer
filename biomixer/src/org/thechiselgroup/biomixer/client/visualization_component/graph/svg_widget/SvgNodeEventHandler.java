@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 
+// TODO refactor
 public class SvgNodeEventHandler implements ChooselEventHandler {
 
     private NodeSvgComponent nodeComponent;
@@ -42,11 +43,13 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
         switch (event.getEventType()) {
 
         case MOUSE_OVER:
-            graphDisplay.onNodeMouseOver(nodeComponent.getId(), clientX, clientY);
+            graphDisplay.onNodeMouseOver(nodeComponent.getId(), clientX,
+                    clientY);
             break;
 
         case MOUSE_OUT:
-            graphDisplay.onNodeMouseOut(nodeComponent.getId(), clientX, clientY);
+            graphDisplay
+                    .onNodeMouseOut(nodeComponent.getId(), clientX, clientY);
             break;
 
         case MOUSE_UP:
