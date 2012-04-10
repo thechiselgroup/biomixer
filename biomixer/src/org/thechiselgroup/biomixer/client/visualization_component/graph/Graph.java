@@ -378,8 +378,12 @@ public class Graph extends AbstractViewContentDisplay implements
 
         NodeItem graphItem = new NodeItem(visualItem, type, graphDisplay);
 
+        /*
+         * NOTE: When the node is added, a LayoutGraphContentChangedEvent will
+         * be fired (see DefaultLayoutGraph), causing the current layout
+         * algorithm to be run.
+         */
         graphDisplay.addNode(graphItem.getNode());
-        positionNode(graphItem.getNode());
 
         // TODO re-enable
         // TODO remove once new drag and drop mechanism works...
@@ -403,15 +407,6 @@ public class Graph extends AbstractViewContentDisplay implements
             registry.getAutomaticExpander(type).expand(visualItem,
                     expansionCallback);
         }
-
-        /*
-         * NOTE: the expansion layout (currently ForceDirected) is run each time
-         * a node is added, except if the layout graph is null, as in some
-         * tests.
-         */
-        // if (getLayoutGraph() != null) {
-        // runLayout();
-        // }
 
         return graphItem;
     }
@@ -648,29 +643,6 @@ public class Graph extends AbstractViewContentDisplay implements
     @Override
     public boolean isReady() {
         return ready;
-    }
-
-    private void positionNode(Node node) {
-        // FIXME positioning: FlexVis takes care of positioning nodes into empty
-        // space except for first node - if the node is the first node, we put
-        // it in the center
-        // TODO improve interface to access all resources
-
-        assert node != null;
-
-        if (getVisualItems().size() > 1) {
-            return;
-        }
-
-        Widget displayWidget = graphDisplay.asWidget();
-        if (displayWidget == null) {
-            return; // for tests
-        }
-
-        int height = displayWidget.getOffsetHeight();
-        int width = displayWidget.getOffsetWidth();
-
-        graphDisplay.setLocation(node, new Point(width / 2, height / 2));
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
