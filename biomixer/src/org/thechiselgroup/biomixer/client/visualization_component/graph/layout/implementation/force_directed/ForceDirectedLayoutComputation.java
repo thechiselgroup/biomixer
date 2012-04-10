@@ -79,7 +79,6 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
             for (LayoutNode otherNode : getAllNodesExcept(currentNode)) {
                 netForce.add(forceCalculator.getForce(currentNode, otherNode));
             }
-
             updatePosition(netForce, currentNode);
             totalDisplacement += netForce.getMagnitude();
         }

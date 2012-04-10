@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
@@ -42,6 +43,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.B
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
@@ -260,14 +262,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         SvgLayoutNode layoutNode = new SvgLayoutNode(nodeComponent,
                 layoutNodeType);
+        setDefaultPosition(layoutNode);
         layoutGraph.addSvgLayoutNode(layoutNode);
-
-        // if this isn't the first node, need to position it
-        // XXX remove this once FlexVis has been completely replaced
-        if (isWidgetInitialized() && nodes.size() > 1) {
-            setLocation(node,
-                    new Point(totalViewWidth / 2, totalViewHeight / 2));
-        }
 
         nodeGroup.appendChild(nodeComponent);
     }
@@ -716,6 +712,21 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
             arcComponent.setArcThickness(styleValue);
+        }
+    }
+
+    /**
+     * Positions a node at the default position which is the centre of the
+     * graph.
+     * 
+     * @param node
+     *            the node to be positioned
+     */
+    private void setDefaultPosition(LayoutNode node) {
+        if (isWidgetInitialized()) {
+            PointDouble topLeft = node.getTopLeftForCentreAt(layoutGraph
+                    .getBounds().getCentre());
+            node.setPosition(topLeft);
         }
     }
 
