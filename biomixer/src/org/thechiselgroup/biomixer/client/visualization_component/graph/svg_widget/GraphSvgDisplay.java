@@ -588,6 +588,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public void onResize(ViewResizeEvent resizeEvent) {
         totalViewWidth = resizeEvent.getWidth();
         totalViewHeight = resizeEvent.getHeight();
+        layoutGraph.setWidth(totalViewWidth);
+        layoutGraph.setHeight(totalViewHeight);
 
         /*
          * Make sure nodes that go off screen can still be scrolled to
