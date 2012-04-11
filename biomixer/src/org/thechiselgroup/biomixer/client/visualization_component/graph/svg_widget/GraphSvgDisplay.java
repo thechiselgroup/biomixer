@@ -102,9 +102,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private EventBus eventBus = new SimpleEventBus();
 
-    private int totalViewWidth;
+    private int viewWidth;
 
-    private int totalViewHeight;
+    private int viewHeight;
 
     private SvgLayoutGraph layoutGraph;
 
@@ -134,8 +134,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     public GraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {
-        this.totalViewWidth = width;
-        this.totalViewHeight = height;
+        this.viewWidth = width;
+        this.viewHeight = height;
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
 
@@ -306,8 +306,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             rootSvgComponent = new CompositeSvgComponent(
                     svgWidget.getSvgElement(), rootSvgComponent,
                     viewWideInteractionListener);
-            asScrollingWidget = new ScrollableSvgWidget(svgWidget,
-                    totalViewWidth, totalViewHeight);
+            asScrollingWidget = new ScrollableSvgWidget(svgWidget, viewWidth,
+                    viewHeight);
             asScrollingWidget.setTextUnselectable();
             asScrollingWidget.getElement().getStyle()
                     .setBackgroundColor("white");
@@ -375,6 +375,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return svgWidget.getAbsoluteTop();
     }
 
+    /**
+     * 
+     * @return the offset distance from the absolute left of the view to the
+     *         left of the visible view. This is non-zero if the view has been
+     *         panned.
+     */
+    private double getHorizontalScrollDistance() {
+        return background.getWidth() - viewWidth;
+    }
+
     @Override
     public LayoutGraph getLayoutGraph() {
         return layoutGraph;
@@ -415,6 +425,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             layoutNodeType = nodeTypes.get(nodeType);
         }
         return layoutNodeType;
+    }
+
+    /**
+     * 
+     * @return the offset distance from the absolute top of the view to the top
+     *         of the visible view. This is non-zero if the view has been
+     *         panned.
+     */
+    private double getVerticalScrollDistance() {
+        return background.getHeight() - viewHeight;
     }
 
     protected AnimationRunner initAnimationRunner() {
@@ -531,8 +551,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void onNodeMouseOver(String nodeId, int mouseX, int mouseY) {
-        int x = mouseX - getGraphAbsoluteLeft();
-        int y = mouseY - getGraphAbsoluteTop();
+        int x = mouseX - getGraphAbsoluteLeft()
+                - (int) getHorizontalScrollDistance();
+        int y = mouseY - getGraphAbsoluteTop()
+                - (int) getVerticalScrollDistance();
 
         eventBus.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
                 x, y));
@@ -586,21 +608,21 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void onResize(ViewResizeEvent resizeEvent) {
-        totalViewWidth = resizeEvent.getWidth();
-        totalViewHeight = resizeEvent.getHeight();
-        layoutGraph.setWidth(totalViewWidth);
-        layoutGraph.setHeight(totalViewHeight);
+        viewWidth = resizeEvent.getWidth();
+        viewHeight = resizeEvent.getHeight();
+        layoutGraph.setWidth(viewWidth);
+        layoutGraph.setHeight(viewHeight);
 
         /*
          * Make sure nodes that go off screen can still be scrolled to
          */
-        if (totalViewWidth > layoutGraph.getMaxNodeX()) {
-            background.setWidth(totalViewWidth);
-            asScrollingWidget.setScrollableContentWidth(totalViewWidth);
+        if (viewWidth > layoutGraph.getMaxNodeX()) {
+            background.setWidth(viewWidth);
+            asScrollingWidget.setScrollableContentWidth(viewWidth);
         }
-        if (totalViewHeight > layoutGraph.getMaxNodeY()) {
-            background.setHeight(totalViewHeight);
-            asScrollingWidget.setScrollableContentHeight(totalViewHeight);
+        if (viewHeight > layoutGraph.getMaxNodeY()) {
+            background.setHeight(viewHeight);
+            asScrollingWidget.setScrollableContentHeight(viewHeight);
         }
 
         // need this in case scrollable content size is not changed but the
@@ -638,8 +660,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 /*
                  * Don't let background width become less than view width.
                  */
-                if (newBackgroundWidth < totalViewWidth) {
-                    newBackgroundWidth = totalViewWidth;
+                if (newBackgroundWidth < viewWidth) {
+                    newBackgroundWidth = viewWidth;
                 }
                 background.setWidth(newBackgroundWidth);
                 asScrollingWidget
@@ -664,8 +686,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 /*
                  * Don't let background height become less than view height.
                  */
-                if (newBackgroundHeight < totalViewHeight) {
-                    newBackgroundHeight = totalViewHeight;
+                if (newBackgroundHeight < viewHeight) {
+                    newBackgroundHeight = viewHeight;
                 }
                 background.setHeight(background.getHeight() + deltaY);
                 asScrollingWidget
