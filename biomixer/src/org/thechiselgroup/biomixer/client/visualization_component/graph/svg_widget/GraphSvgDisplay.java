@@ -315,6 +315,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return asScrollingWidget;
     }
 
+    /**
+     * Clear the node expander popup if there is one. This does not get rid of
+     * the on mouse-over node details though, which is done using HTML not SVG.
+     */
     public void clearPopups() {
         popupGroup.removeAllChildren();
     }
@@ -613,6 +617,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void panBackground(int deltaX, int deltaY) {
+        clearPopups();
+
         /*
          * Only allow panning to the left if it will not push any node off the
          * left hand side, and only allow panning up if it will not push any
