@@ -641,14 +641,13 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public void panBackground(int deltaX, int deltaY) {
         clearPopups();
 
+        BoundsDouble nodeBounds = layoutGraph.getNodeBounds();
         /*
          * Only allow panning to the left if it will not push any node off the
          * left hand side, and only allow panning up if it will not push any
          * node off the top of the graph. Panning right or down may push nodes
          * off the screen.
          */
-        BoundsDouble nodeBounds = layoutGraph.getNodeBounds();
-
         if (nodeBounds.getLeftX() + deltaX > 0) {
             /*
              * Only extend background if a node would be pushed off the screen.
@@ -689,7 +688,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 if (newBackgroundHeight < viewHeight) {
                     newBackgroundHeight = viewHeight;
                 }
-                background.setHeight(background.getHeight() + deltaY);
+                background.setHeight(newBackgroundHeight);
                 asScrollingWidget
                         .setScrollableContentHeight((int) newBackgroundHeight);
             }
