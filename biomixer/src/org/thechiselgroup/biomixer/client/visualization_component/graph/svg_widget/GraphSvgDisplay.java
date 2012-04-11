@@ -626,28 +626,56 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
          * off the screen.
          */
         BoundsDouble nodeBounds = layoutGraph.getNodeBounds();
+
         if (nodeBounds.getLeftX() + deltaX > 0) {
             /*
-             * Don't let background width become less than view width.
+             * Only extend background if a node would be pushed off the screen.
              */
-            double newBackgroundWidth = background.getWidth() + deltaX;
-            if (newBackgroundWidth >= totalViewWidth) {
+            if (deltaX < 0
+                    || layoutGraph.getMaxNodeX() + deltaX > background
+                            .getWidth()) {
+                double newBackgroundWidth = background.getWidth() + deltaX;
+                /*
+                 * Don't let background width become less than view width.
+                 */
+                if (newBackgroundWidth < totalViewWidth) {
+                    newBackgroundWidth = totalViewWidth;
+                }
                 background.setWidth(newBackgroundWidth);
                 asScrollingWidget
                         .setScrollableContentWidth((int) newBackgroundWidth);
             }
+            /*
+             * Still shift the nodes even if the background was not adjusted.
+             * The outer if statement makes sure this wouldn't push them in a
+             * negative direction.
+             */
             layoutGraph.shiftContentsHorizontally(deltaX);
         }
+
         if (nodeBounds.getTopY() + deltaY > 0) {
             /*
-             * Don't let background height become less than view height.
+             * Only extend background if a node would be pushed off the screen.
              */
-            double newBackgroundHeight = background.getHeight() + deltaY;
-            if (newBackgroundHeight >= totalViewHeight) {
+            if (deltaY < 0
+                    || layoutGraph.getMaxNodeY() + deltaY > background
+                            .getHeight()) {
+                double newBackgroundHeight = background.getHeight() + deltaY;
+                /*
+                 * Don't let background height become less than view height.
+                 */
+                if (newBackgroundHeight < totalViewHeight) {
+                    newBackgroundHeight = totalViewHeight;
+                }
                 background.setHeight(background.getHeight() + deltaY);
                 asScrollingWidget
                         .setScrollableContentHeight((int) newBackgroundHeight);
             }
+            /*
+             * Still shift the nodes even if the background was not adjusted.
+             * The outer if statement makes sure this wouldn't push them in a
+             * negative direction.
+             */
             layoutGraph.shiftContentsVertically(deltaY);
         }
     }
