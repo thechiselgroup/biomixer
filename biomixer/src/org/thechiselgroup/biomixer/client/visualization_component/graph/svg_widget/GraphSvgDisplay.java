@@ -102,9 +102,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private EventBus eventBus = new SimpleEventBus();
 
-    private int totalViewWidth;
+    private int viewWidth;
 
-    private int totalViewHeight;
+    private int viewHeight;
 
     private SvgLayoutGraph layoutGraph;
 
@@ -134,8 +134,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     public GraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {
-        this.totalViewWidth = width;
-        this.totalViewHeight = height;
+        this.viewWidth = width;
+        this.viewHeight = height;
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
 
@@ -306,8 +306,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             rootSvgComponent = new CompositeSvgComponent(
                     svgWidget.getSvgElement(), rootSvgComponent,
                     viewWideInteractionListener);
-            asScrollingWidget = new ScrollableSvgWidget(svgWidget,
-                    totalViewWidth, totalViewHeight);
+            asScrollingWidget = new ScrollableSvgWidget(svgWidget, viewWidth,
+                    viewHeight);
             asScrollingWidget.setTextUnselectable();
             asScrollingWidget.getElement().getStyle()
                     .setBackgroundColor("white");
@@ -315,6 +315,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return asScrollingWidget;
     }
 
+    /**
+     * Clear the node expander popup if there is one. This does not get rid of
+     * the on mouse-over node details though, which is done using HTML not SVG.
+     */
     public void clearPopups() {
         popupGroup.removeAllChildren();
     }
@@ -371,6 +375,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return svgWidget.getAbsoluteTop();
     }
 
+    /**
+     * 
+     * @return the offset distance from the absolute left of the view to the
+     *         left of the visible view. This is non-zero if the view has been
+     *         panned.
+     */
+    private double getHorizontalScrollDistance() {
+        return background.getWidth() - viewWidth;
+    }
+
     @Override
     public LayoutGraph getLayoutGraph() {
         return layoutGraph;
@@ -411,6 +425,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             layoutNodeType = nodeTypes.get(nodeType);
         }
         return layoutNodeType;
+    }
+
+    /**
+     * 
+     * @return the offset distance from the absolute top of the view to the top
+     *         of the visible view. This is non-zero if the view has been
+     *         panned.
+     */
+    private double getVerticalScrollDistance() {
+        return background.getHeight() - viewHeight;
     }
 
     protected AnimationRunner initAnimationRunner() {
@@ -527,8 +551,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void onNodeMouseOver(String nodeId, int mouseX, int mouseY) {
-        int x = mouseX - getGraphAbsoluteLeft();
-        int y = mouseY - getGraphAbsoluteTop();
+        int x = mouseX - getGraphAbsoluteLeft()
+                - (int) getHorizontalScrollDistance();
+        int y = mouseY - getGraphAbsoluteTop()
+                - (int) getVerticalScrollDistance();
 
         eventBus.fireEvent(new NodeMouseOverEvent(nodes.get(nodeId).getNode(),
                 x, y));
@@ -582,21 +608,21 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void onResize(ViewResizeEvent resizeEvent) {
-        totalViewWidth = resizeEvent.getWidth();
-        totalViewHeight = resizeEvent.getHeight();
-        layoutGraph.setWidth(totalViewWidth);
-        layoutGraph.setHeight(totalViewHeight);
+        viewWidth = resizeEvent.getWidth();
+        viewHeight = resizeEvent.getHeight();
+        layoutGraph.setWidth(viewWidth);
+        layoutGraph.setHeight(viewHeight);
 
         /*
          * Make sure nodes that go off screen can still be scrolled to
          */
-        if (totalViewWidth > layoutGraph.getMaxNodeX()) {
-            background.setWidth(totalViewWidth);
-            asScrollingWidget.setScrollableContentWidth(totalViewWidth);
+        if (viewWidth > layoutGraph.getMaxNodeX()) {
+            background.setWidth(viewWidth);
+            asScrollingWidget.setScrollableContentWidth(viewWidth);
         }
-        if (totalViewHeight > layoutGraph.getMaxNodeY()) {
-            background.setHeight(totalViewHeight);
-            asScrollingWidget.setScrollableContentHeight(totalViewHeight);
+        if (viewHeight > layoutGraph.getMaxNodeY()) {
+            background.setHeight(viewHeight);
+            asScrollingWidget.setScrollableContentHeight(viewHeight);
         }
 
         // need this in case scrollable content size is not changed but the
@@ -613,6 +639,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void panBackground(int deltaX, int deltaY) {
+        clearPopups();
+
         /*
          * Only allow panning to the left if it will not push any node off the
          * left hand side, and only allow panning up if it will not push any
@@ -620,28 +648,56 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
          * off the screen.
          */
         BoundsDouble nodeBounds = layoutGraph.getNodeBounds();
+
         if (nodeBounds.getLeftX() + deltaX > 0) {
             /*
-             * Don't let background width become less than view width.
+             * Only extend background if a node would be pushed off the screen.
              */
-            double newBackgroundWidth = background.getWidth() + deltaX;
-            if (newBackgroundWidth >= totalViewWidth) {
+            if (deltaX < 0
+                    || layoutGraph.getMaxNodeX() + deltaX > background
+                            .getWidth()) {
+                double newBackgroundWidth = background.getWidth() + deltaX;
+                /*
+                 * Don't let background width become less than view width.
+                 */
+                if (newBackgroundWidth < viewWidth) {
+                    newBackgroundWidth = viewWidth;
+                }
                 background.setWidth(newBackgroundWidth);
                 asScrollingWidget
                         .setScrollableContentWidth((int) newBackgroundWidth);
             }
+            /*
+             * Still shift the nodes even if the background was not adjusted.
+             * The outer if statement makes sure this wouldn't push them in a
+             * negative direction.
+             */
             layoutGraph.shiftContentsHorizontally(deltaX);
         }
+
         if (nodeBounds.getTopY() + deltaY > 0) {
             /*
-             * Don't let background height become less than view height.
+             * Only extend background if a node would be pushed off the screen.
              */
-            double newBackgroundHeight = background.getHeight() + deltaY;
-            if (newBackgroundHeight >= totalViewHeight) {
+            if (deltaY < 0
+                    || layoutGraph.getMaxNodeY() + deltaY > background
+                            .getHeight()) {
+                double newBackgroundHeight = background.getHeight() + deltaY;
+                /*
+                 * Don't let background height become less than view height.
+                 */
+                if (newBackgroundHeight < viewHeight) {
+                    newBackgroundHeight = viewHeight;
+                }
                 background.setHeight(background.getHeight() + deltaY);
                 asScrollingWidget
                         .setScrollableContentHeight((int) newBackgroundHeight);
             }
+            /*
+             * Still shift the nodes even if the background was not adjusted.
+             * The outer if statement makes sure this wouldn't push them in a
+             * negative direction.
+             */
             layoutGraph.shiftContentsVertically(deltaY);
         }
     }
