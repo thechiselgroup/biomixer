@@ -38,18 +38,19 @@ public class BoundsAwareRepulsionCalculator extends BoundsAwareForceCalculator {
     private double getForceMagnitude(LayoutNode currentNode,
             LayoutNode otherNode) {
 
-        double interNodeDistance = getBufferedDistanceBetween(currentNode, otherNode);
-        if (areNodesInSameGraph(currentNode, otherNode)) {
-            return Math.pow(getOptimalEdgeLength(), 2) / interNodeDistance;
-        } else {
-            /*
-             * Force drops off by distance^2 so that if there are two
-             * unconnected nodes they don't slam each other across to the
-             * opposite wall.
-             */
-            return Math.pow(getOptimalEdgeLength(), 2)
-                    / Math.pow(interNodeDistance, 2);
-        }
+        double interNodeDistance = getBufferedDistanceBetween(currentNode,
+                otherNode);
+        // if (areNodesInSameGraph(currentNode, otherNode)) {
+        return Math.pow(getOptimalEdgeLength(), 2) / interNodeDistance;
+        // } else {
+        // /*
+        // * Force drops off by distance^2 so that if there are two
+        // * unconnected nodes they don't slam each other across to the
+        // * opposite wall.
+        // */
+        // return Math.pow(getOptimalEdgeLength(), 2)
+        // / Math.pow(interNodeDistance, 2);
+        // }
     }
 
 }
