@@ -40,6 +40,7 @@ public class BoundsAwareRepulsionCalculator extends BoundsAwareForceCalculator {
 
         double interNodeDistance = getBufferedDistanceBetween(currentNode,
                 otherNode);
+        // XXX checking if nodes are in the same graph is too slow right now
         // if (areNodesInSameGraph(currentNode, otherNode)) {
         return Math.pow(getOptimalEdgeLength(), 2) / interNodeDistance;
         // } else {
