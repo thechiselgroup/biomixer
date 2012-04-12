@@ -248,10 +248,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert !nodes.contains(node.getId()) : node.toString()
                 + " must not be contained";
 
-        DefaultLayoutNodeType layoutNodeType = getNodeType(node.getType());
-
         final NodeSvgComponent nodeComponent = nodeComponentFactory
-                .createNodeComponent(node, layoutNodeType);
+                .createNodeComponent(node);
 
         nodeComponent.setNodeEventListener(new SvgNodeEventHandler(
                 nodeComponent, this, nodeInteractionManager));
@@ -268,6 +266,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         nodes.add(nodeComponent);
 
+        DefaultLayoutNodeType layoutNodeType = getNodeType(node.getType());
         SvgLayoutNode layoutNode = new SvgLayoutNode(nodeComponent,
                 layoutNodeType);
         setDefaultPosition(layoutNode);
@@ -570,8 +569,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void onNodeTabClick(final NodeSvgComponent nodeComponent) {
+        LayoutNodeType type = getNodeType(nodeComponent.getType());
         Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
-                .get(nodeComponent.getType());
+                .get(type);
         PopupExpanderSvgComponent popupExpanderList = expanderPopupFactory
                 .createExpanderPopupList(
                         nodeComponent.getExpanderTabAbsoluteLocation(),

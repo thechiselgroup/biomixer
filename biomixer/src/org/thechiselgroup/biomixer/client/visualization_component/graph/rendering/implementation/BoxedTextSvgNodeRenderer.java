@@ -67,12 +67,12 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
 
         ExpanderTabSvgComponent expanderTab = expanderTabRenderer
                 .createExpanderTabSvgElement();
-        expanderTab.setLocation(
-                (boxedText.getTotalWidth() - ExpanderTabRenderer.TAB_WIDTH) / 2,
-                boxedText.getTotalHeight());
+        expanderTab
+                .setLocation(
+                        (boxedText.getTotalWidth() - ExpanderTabRenderer.TAB_WIDTH) / 2,
+                        boxedText.getTotalHeight());
 
-        return new NodeSvgComponent(node, null, baseContainer, boxedText,
-                expanderTab);
+        return new NodeSvgComponent(node, baseContainer, boxedText, expanderTab);
     }
 
 }

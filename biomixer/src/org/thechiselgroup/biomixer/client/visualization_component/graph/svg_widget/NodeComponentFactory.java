@@ -16,7 +16,6 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ExpanderTabRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ExpanderTabSvgComponent;
@@ -47,10 +46,8 @@ public class NodeComponentFactory {
         this.expanderTabFactory = new ExpanderTabRenderer(svgElementFactory);
     }
 
-    public NodeSvgComponent createNodeComponent(final Node node,
-            LayoutNodeType nodeType) {
+    public NodeSvgComponent createNodeComponent(final Node node) {
         assert node != null;
-        assert nodeType != null;
 
         SvgElement baseContainer = svgElementFactory.createElement(Svg.SVG);
         baseContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
@@ -65,12 +62,12 @@ public class NodeComponentFactory {
 
         ExpanderTabSvgComponent expanderTab = expanderTabFactory
                 .createExpanderTabSvgElement();
-        expanderTab.setLocation(
-                (boxedText.getTotalWidth() - ExpanderTabRenderer.TAB_WIDTH) / 2,
-                boxedText.getTotalHeight());
+        expanderTab
+                .setLocation(
+                        (boxedText.getTotalWidth() - ExpanderTabRenderer.TAB_WIDTH) / 2,
+                        boxedText.getTotalHeight());
 
-        return new NodeSvgComponent(node, nodeType, baseContainer, boxedText,
-                expanderTab);
+        return new NodeSvgComponent(node, baseContainer, boxedText, expanderTab);
     }
 
 }

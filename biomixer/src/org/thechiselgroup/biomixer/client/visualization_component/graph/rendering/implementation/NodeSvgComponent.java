@@ -23,7 +23,6 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -47,16 +46,12 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     private final BoxedTextSvgComponent boxedText;
 
-    private LayoutNodeType nodeType;
-
-    public NodeSvgComponent(Node node, LayoutNodeType nodeType,
-            SvgElement baseContainer, BoxedTextSvgComponent boxedText,
-            ExpanderTabSvgComponent expanderTab) {
+    public NodeSvgComponent(Node node, SvgElement baseContainer,
+            BoxedTextSvgComponent boxedText, ExpanderTabSvgComponent expanderTab) {
         super(baseContainer);
         appendChild(boxedText);
         appendChild(expanderTab);
         this.node = node;
-        this.nodeType = nodeType;
         this.boxedText = boxedText;
         this.expanderTab = expanderTab;
     }
@@ -123,8 +118,8 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y));
     }
 
-    public LayoutNodeType getType() {
-        return nodeType;
+    public String getType() {
+        return node.getType();
     }
 
     public void removeConnectedArc(ArcSvgComponent arc) {
