@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -40,7 +41,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     private Node node;
 
-    private List<ArcSvgComponent> arcsConnectedToThisNode = new ArrayList<ArcSvgComponent>();
+    private List<RenderedArc> connectedArcs = new ArrayList<RenderedArc>();
 
     private final ExpanderTabSvgComponent expanderTab;
 
@@ -57,7 +58,12 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     public void addConnectedArc(ArcSvgComponent arc) {
-        arcsConnectedToThisNode.add(arc);
+        connectedArcs.add(arc);
+    }
+
+    @Override
+    public void addConnectedArc(RenderedArc arc) {
+        connectedArcs.add(arc);
     }
 
     @Override
@@ -66,8 +72,9 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
                 + getSize().getHeight() / 2);
     }
 
-    public List<ArcSvgComponent> getConnectedArcComponents() {
-        return arcsConnectedToThisNode;
+    @Override
+    public List<RenderedArc> getConnectedArcs() {
+        return connectedArcs;
     }
 
     public ExpanderTabSvgComponent getExpanderTab() {
@@ -105,6 +112,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
                 topLeft.getY() + boxedText.getTotalHeight() / 2);
     }
 
+    @Override
     public Node getNode() {
         return node;
     }
@@ -129,7 +137,12 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     public void removeConnectedArc(ArcSvgComponent arc) {
-        arcsConnectedToThisNode.remove(arc);
+        connectedArcs.remove(arc);
+    }
+
+    @Override
+    public void removeConnectedArc(RenderedArc arc) {
+        connectedArcs.remove(arc);
     }
 
     @Override
@@ -178,13 +191,10 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         updateConnectedArcs();
     }
 
+    // XXX extract to superclass
     private void updateConnectedArcs() {
-        for (ArcSvgComponent arcComponent : arcsConnectedToThisNode) {
-            if (arcComponent.getArc().getSourceNodeId().equals(node.getId())) {
-                arcComponent.updateSourcePoint();
-            } else {
-                arcComponent.updateTargetPoint();
-            }
+        for (RenderedArc arc : connectedArcs) {
+            arc.update();
         }
     }
 

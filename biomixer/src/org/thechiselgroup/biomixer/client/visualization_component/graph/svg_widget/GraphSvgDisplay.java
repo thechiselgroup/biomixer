@@ -15,10 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -508,8 +506,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     public void onArcMouseOver(ArcSvgComponent arcComponent) {
         // bring connected nodes to front
-        nodeGroup.appendChild(arcComponent.getRenderedSource());
-        nodeGroup.appendChild(arcComponent.getRenderedTarget());
+        // XXX renderedGraph.bringToForeground
+        nodeGroup.appendChild(arcComponent.getSource());
+        nodeGroup.appendChild(arcComponent.getTarget());
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {
@@ -724,13 +723,15 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert node != null;
         assert nodes.contains(node.getId());
 
-        List<ArcSvgComponent> connectedArcComponents = new ArrayList<ArcSvgComponent>();
-        connectedArcComponents.addAll(nodes.get(node.getId())
-                .getConnectedArcComponents());
-
-        for (ArcSvgComponent arcComponent : connectedArcComponents) {
-            removeArc(arcComponent.getArc());
-        }
+        // renderedGraph.remove will take care of this
+        // List<ArcSvgComponent> connectedArcComponents = new
+        // ArrayList<ArcSvgComponent>();
+        // connectedArcComponents.addAll(nodes.get(node.getId())
+        // .getConnectedArcComponents());
+        //
+        // for (ArcSvgComponent arcComponent : connectedArcComponents) {
+        // removeArc(arcComponent.getArc());
+        // }
         nodes.remove(node.getId());
         layoutGraph.removeSvgLayoutNode(node.getId());
         nodeGroup.removeChild(node.getId());

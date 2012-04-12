@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -29,9 +30,9 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
 
     private Arc arc;
 
-    private NodeSvgComponent source;
+    private RenderedNode source;
 
-    private NodeSvgComponent target;
+    private RenderedNode target;
 
     private final SvgElement arcLine;
 
@@ -47,6 +48,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         this.target = target;
     }
 
+    @Override
     public Arc getArc() {
         return arc;
     }
@@ -56,11 +58,13 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         return getArc().getId();
     }
 
-    public NodeSvgComponent getRenderedSource() {
+    @Override
+    public RenderedNode getSource() {
         return source;
     }
 
-    public NodeSvgComponent getRenderedTarget() {
+    @Override
+    public RenderedNode getTarget() {
         return target;
     }
 

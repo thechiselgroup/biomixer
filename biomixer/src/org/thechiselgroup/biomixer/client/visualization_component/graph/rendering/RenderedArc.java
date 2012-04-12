@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+
 /**
  * A displayable arc.
  * 
@@ -22,6 +24,12 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
  * 
  */
 public interface RenderedArc {
+
+    Arc getArc();
+
+    RenderedNode getSource();
+
+    RenderedNode getTarget();
 
     double getThickness();
 

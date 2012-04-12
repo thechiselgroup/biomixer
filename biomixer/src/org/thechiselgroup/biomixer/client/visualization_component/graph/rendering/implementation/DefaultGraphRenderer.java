@@ -29,7 +29,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
- * Constructs graph visualization elements.
+ * Manages construction and deletion of graph visualization elements.
  * 
  * @author drusk
  * 
@@ -53,13 +53,23 @@ public class DefaultGraphRenderer implements GraphRenderer {
     @Override
     public void removeArc(Arc arc) {
         assert renderedArcs.containsKey(arc) : "Cannot remove an arc which has not been rendered";
+        removeNodeConnections(renderedArcs.get(arc));
         renderedArcs.remove(arc);
     }
 
     @Override
     public void removeNode(Node node) {
         assert renderedNodes.containsKey(node) : "Cannot remove a node which has not been rendered";
+        for (RenderedArc renderedArc : renderedNodes.get(node)
+                .getConnectedArcs()) {
+            removeArc(renderedArc.getArc());
+        }
         renderedNodes.remove(node);
+    }
+
+    private void removeNodeConnections(RenderedArc arc) {
+        renderedNodes.get(arc.getSource().getNode()).removeConnectedArc(arc);
+        renderedNodes.get(arc.getTarget().getNode()).removeConnectedArc(arc);
     }
 
     @Override

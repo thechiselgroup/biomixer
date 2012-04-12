@@ -15,8 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
  * A displayable node.
@@ -26,13 +29,21 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
  */
 public interface RenderedNode {
 
+    void addConnectedArc(RenderedArc arc);
+
     PointDouble getCentre();
 
+    List<RenderedArc> getConnectedArcs();
+
     double getLeftX();
+
+    Node getNode();
 
     SizeDouble getSize();
 
     double getTopY();
+
+    void removeConnectedArc(RenderedArc arc);
 
     void setBackgroundColor(String color);
 
