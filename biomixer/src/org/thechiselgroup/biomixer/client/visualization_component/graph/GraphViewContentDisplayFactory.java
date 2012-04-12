@@ -53,7 +53,7 @@ public class GraphViewContentDisplayFactory implements
 
         return new Graph(new Graph.DefaultDisplay(), commandManager,
                 resourceManager, resourceCategorizer, arcStyleProvider,
-                registry);
+                registry, errorHandler);
     }
 
     @Override

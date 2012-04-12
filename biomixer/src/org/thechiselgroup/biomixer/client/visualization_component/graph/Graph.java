@@ -21,7 +21,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSize;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
@@ -48,13 +49,21 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemCon
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandleMouseDownEvent;
@@ -85,7 +94,7 @@ import com.google.inject.Inject;
 public class Graph extends AbstractViewContentDisplay implements
         RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
 
-    public static class DefaultDisplay extends GraphWidget implements
+    public static class DefaultDisplay extends GraphSvgDisplay implements
             GraphDisplay {
 
         // TODO why is size needed in the first place??
@@ -234,6 +243,8 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private ResourceSet automaticResources;
 
+    private GraphLayoutExecutionManager layoutManager;
+
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
      * not disposed) when methods are called (to prevent errors in asynchronous
@@ -304,7 +315,8 @@ public class Graph extends AbstractViewContentDisplay implements
     public Graph(GraphDisplay display, CommandManager commandManager,
             ResourceManager resourceManager,
             ResourceCategorizer resourceCategorizer,
-            ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry) {
+            ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry,
+            ErrorHandler errorHandler) {
 
         assert display != null;
         assert commandManager != null;
@@ -312,10 +324,23 @@ public class Graph extends AbstractViewContentDisplay implements
         assert resourceCategorizer != null;
         assert arcStyleProvider != null;
         assert registry != null;
+        assert errorHandler != null;
 
         this.arcStyleProvider = arcStyleProvider;
         this.resourceCategorizer = resourceCategorizer;
         graphDisplay = display;
+        // didn't want to change GraphDisplay's interface yet
+        if (graphDisplay instanceof GraphSvgDisplay) {
+            addResizeListener((GraphSvgDisplay) graphDisplay);
+            graphDisplay.getLayoutGraph().addContentChangedListener(
+                    new LayoutGraphContentChangedListener() {
+                        @Override
+                        public void onContentChanged(
+                                LayoutGraphContentChangedEvent event) {
+                            runLayout();
+                        }
+                    });
+        }
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
         this.registry = registry;
@@ -325,6 +350,8 @@ public class Graph extends AbstractViewContentDisplay implements
          * customization in Choosel applications.
          */
         initArcTypeContainers();
+
+        initGraphLayoutManager(errorHandler);
     }
 
     @SuppressWarnings("unchecked")
@@ -351,8 +378,12 @@ public class Graph extends AbstractViewContentDisplay implements
 
         NodeItem graphItem = new NodeItem(visualItem, type, graphDisplay);
 
+        /*
+         * NOTE: When the node is added, a LayoutGraphContentChangedEvent will
+         * be fired (see DefaultLayoutGraph), causing the current layout
+         * algorithm to be run.
+         */
         graphDisplay.addNode(graphItem.getNode());
-        positionNode(graphItem.getNode());
 
         // TODO re-enable
         // TODO remove once new drag and drop mechanism works...
@@ -440,7 +471,12 @@ public class Graph extends AbstractViewContentDisplay implements
         Widget displayWidget = graphDisplay.asWidget();
         int height = displayWidget.getOffsetHeight();
         int width = displayWidget.getOffsetWidth();
-        return new DefaultSize(width, height);
+        return new DefaultSizeInt(width, height);
+    }
+
+    @Override
+    public LayoutGraph getLayoutGraph() {
+        return graphDisplay.getLayoutGraph();
     }
 
     @Override
@@ -540,6 +576,14 @@ public class Graph extends AbstractViewContentDisplay implements
         }
     }
 
+    private void initGraphLayoutManager(ErrorHandler errorHandler) {
+        this.layoutManager = new GraphLayoutExecutionManager(
+                new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+                        new BoundsAwareAttractionCalculator(getLayoutGraph()),
+                        new BoundsAwareRepulsionCalculator(getLayoutGraph())),
+                        0.9, errorHandler), getLayoutGraph());
+    }
+
     private void initNodeMenuItems() {
         for (Entry<String, List<NodeMenuEntry>> entry : registry
                 .getNodeMenuEntriesByCategory()) {
@@ -601,27 +645,9 @@ public class Graph extends AbstractViewContentDisplay implements
         return ready;
     }
 
-    private void positionNode(Node node) {
-        // FIXME positioning: FlexVis takes care of positioning nodes into empty
-        // space except for first node - if the node is the first node, we put
-        // it in the center
-        // TODO improve interface to access all resources
-
-        assert node != null;
-
-        if (getVisualItems().size() > 1) {
-            return;
-        }
-
-        Widget displayWidget = graphDisplay.asWidget();
-        if (displayWidget == null) {
-            return; // for tests
-        }
-
-        int height = displayWidget.getOffsetHeight();
-        int width = displayWidget.getOffsetWidth();
-
-        graphDisplay.setLocation(node, new Point(width / 2, height / 2));
+    @Override
+    public void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm) {
+        layoutManager.registerDefaultAlgorithm(layoutAlgorithm);
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
@@ -684,6 +710,11 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     @Override
+    public void runLayout() {
+        layoutManager.runLayout();
+    }
+
+    @Override
     public void runLayout(GraphLayout layout) {
         assert layout != null;
         for (VisualItem visualItem : getVisualItems()) {
@@ -691,6 +722,11 @@ public class Graph extends AbstractViewContentDisplay implements
         }
         updateArcsForVisuaItems(getVisualItems());
         layout.run(getNodeItems(), getArcItems(), this);
+    }
+
+    @Override
+    public void runLayout(LayoutAlgorithm layoutAlgorithm) {
+        layoutManager.registerAndRunLayoutAlgorithm(layoutAlgorithm);
     }
 
     @Override

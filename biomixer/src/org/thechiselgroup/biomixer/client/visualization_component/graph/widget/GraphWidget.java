@@ -24,6 +24,9 @@ import java.util.logging.Logger;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.collections.ArrayUtils;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 
 import pl.rmalinowski.gwt2swf.client.ui.SWFWidget;
 
@@ -470,6 +473,12 @@ public class GraphWidget extends SWFWidget implements GraphDisplay {
     }
 
     @Override
+    public LayoutGraph getLayoutGraph() {
+        // not applicable to flash implementation
+        return null;
+    }
+
+    @Override
     public Point getLocation(Node node) {
         assert node != null;
         assert containsNode(node.getId());
@@ -633,6 +642,13 @@ public class GraphWidget extends SWFWidget implements GraphDisplay {
     @Override
     public void runLayout() throws LayoutException {
         runLayout(DEFAULT_LAYOUT);
+    }
+
+    @Override
+    public LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm) {
+        // XXX this Flash widget cannot run the new algorithms. This widget will
+        // be removed.
+        return null;
     }
 
     @Override

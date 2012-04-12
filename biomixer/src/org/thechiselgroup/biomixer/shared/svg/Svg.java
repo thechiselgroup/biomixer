@@ -73,6 +73,12 @@ public final class Svg {
 
     public static final String TEXT = "text";
 
+    public static final String TSPAN = "tspan";
+
+    public static final String DY = "dy";
+
+    public static final String DX = "dx";
+
     public static final String FONT_WEIGHT = "font-weight";
 
     public static final String DEFS = "defs";
@@ -97,6 +103,32 @@ public final class Svg {
 
     public static final String Y2 = "y2";
 
+    public static final String STROKE_DASHARRAY = "stroke-dasharray";
+
+    public static final String REF_X = "refX";
+
+    public static final String REF_Y = "refY";
+
+    public static final String MARKER = "marker";
+
+    public static final String MARKER_START = "marker-start";
+
+    public static final String MARKER_MID = "marker-mid";
+
+    public static final String MARKER_END = "marker-end";
+
+    public static final String MARKER_UNITS = "markerUnits";
+
+    public static final String MARKER_WIDTH = "markerWidth";
+
+    public static final String MARKER_HEIGHT = "markerHeight";
+
+    public static final String ORIENT = "orient";
+
+    public static final String AUTO = "auto";
+
+    public static final String VIEW_BOX = "viewBox";
+
     public static final String FONT_SIZE = "font-size";
 
     public static final String FONT_FAMILY = "font-family";
@@ -104,6 +136,14 @@ public final class Svg {
     public static final String POLYGON = "polygon";
 
     public static final String POINTS = "points";
+
+    public static final String BOLD = "bold";
+
+    public static final String NORMAL = "normal";
+
+    public static final String OVERFLOW = "overflow";
+
+    public static final String VISIBLE = "visible";
 
     public static String localUrl(String id) {
         return "url(#" + id + ")";

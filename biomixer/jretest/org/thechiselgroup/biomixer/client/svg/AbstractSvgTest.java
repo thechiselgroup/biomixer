@@ -30,12 +30,16 @@ public abstract class AbstractSvgTest {
 
     protected TextSvgElementFactory svgElementFactory;
 
-    public void assertSvgElementEquals(String expectedSvg, SvgElement element) {
-        XmlTestUtils.assertXmlEquals(expectedSvg,
-                ((TextSvgElement) element).toXML());
+    public void assertElementEqualsFile(String fileIdentifier, String xmlElement) {
+        try {
+            XmlTestUtils.assertXmlEquals(getExpectedSvg(fileIdentifier),
+                    xmlElement);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void assertSvgElementEqualsFile(String fileIdentifier,
+    public void assertElementEqualsFile(String fileIdentifier,
             SvgElement element) {
 
         TextSvgElement svgElement = svgElementFactory.createElement(Svg.SVG);
@@ -43,16 +47,28 @@ public abstract class AbstractSvgTest {
         svgElement.setAttribute("version", "1.1");
         svgElement.appendChild(element);
 
+        assertSvgRootElementEqualsFile(fileIdentifier, svgElement);
+    }
+
+    public void assertSvgElementEquals(String expectedSvg, SvgElement element) {
+        XmlTestUtils.assertXmlEquals(expectedSvg,
+                ((TextSvgElement) element).toXML());
+    }
+
+    public void assertSvgRootElementEqualsFile(String fileIdentifier,
+            SvgElement element) {
         try {
-            String fileName = getClass().getSimpleName() + "_" + fileIdentifier
-                    + ".svg";
-            InputStream stream = getClass().getResourceAsStream(fileName);
-            assert stream != null : "file " + fileName + " not loaded";
-            String expectedSvg = IOUtils.readIntoString(stream);
-            assertSvgElementEquals(expectedSvg, svgElement);
+            assertSvgElementEquals(getExpectedSvg(fileIdentifier), element);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getExpectedSvg(String fileIdentifier) throws IOException {
+        String fileName = fileIdentifier + ".svg";
+        InputStream stream = getClass().getResourceAsStream(fileName);
+        assert stream != null : "file " + fileName + " not loaded";
+        return IOUtils.readIntoString(stream);
     }
 
     @Before

@@ -65,6 +65,16 @@ public interface SvgElement {
     SvgStyle getStyle();
 
     /**
+     * Checks whether the specified attribute currently exists in the element
+     * 
+     * @param attribute
+     *            The name of the attribute to check for
+     * @return true if the svg element has the specified attribute, false if it
+     *         does not
+     */
+    boolean hasAttribute(String attribute);
+
+    /**
      * Inserts the node newChild before the existing child node refChild. If
      * refChild is <code>null</code>, insert newChild at the end of the list of
      * children.
@@ -80,6 +90,23 @@ public interface SvgElement {
 
     // TODO document
     void removeAllChildren();
+
+    /**
+     * Removes the specified attribute from the element if it exists. Does
+     * nothing if the element does not have that attribute.
+     * 
+     * @param attribute
+     *            The name of the attribute to be removed
+     */
+    void removeAttribute(String attribute);
+
+    /**
+     * Removes all children found with the specified id.
+     * 
+     * @param id
+     *            The id attribute of the child to be removed.
+     */
+    void removeChild(String id);
 
     /**
      * Removes the child node indicated by oldChild from the list of children,

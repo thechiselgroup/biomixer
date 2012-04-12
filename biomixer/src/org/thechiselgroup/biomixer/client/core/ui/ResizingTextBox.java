@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.core.ui;
 
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.core.util.text.HtmlTextBoundsEstimator;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -38,12 +39,16 @@ public class ResizingTextBox extends TextBox {
 
     private final int maxWidth;
 
+    private HtmlTextBoundsEstimator textBoundsEstimator;
+
     public ResizingTextBox(int minWidth, int maxWidth) {
         assert minWidth >= 0;
         assert maxWidth >= minWidth;
 
         this.minWidth = minWidth;
         this.maxWidth = maxWidth;
+
+        initTextBoundsEstimator();
 
         addChangeHandler(new ChangeHandler() {
             @Override
@@ -73,6 +78,15 @@ public class ResizingTextBox extends TextBox {
         });
     }
 
+    private void initTextBoundsEstimator() {
+        textBoundsEstimator = new HtmlTextBoundsEstimator();
+        textBoundsEstimator.setUp();
+        /*
+         * Bounds estimator will need to be used throughout the lifetime of the
+         * application, so don't worry about calling tearDown
+         */
+    }
+
     @Override
     protected void onAttach() {
         super.onAttach();
@@ -90,7 +104,7 @@ public class ResizingTextBox extends TextBox {
     }
 
     private void updateWidth(String text) {
-        int width = new TextBoundsEstimator().getWidth(text, getElement());
+        int width = textBoundsEstimator.getWidth(text, getElement());
 
         // we add some extra width for the focus indicator etc
         width += EXTRA_WIDTH;

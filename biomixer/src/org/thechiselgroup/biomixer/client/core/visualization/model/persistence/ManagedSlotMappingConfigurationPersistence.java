@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 import org.thechiselgroup.biomixer.client.core.persistence.IdentifiableCreatingPersistence;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.RestoringPersistenceManager;
-import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiableSet;
+import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesSet;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultManagedSlotMappingConfiguration;
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.ManagedSlotMappingConfiguration;
@@ -35,7 +35,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.managed.Manag
 public class ManagedSlotMappingConfigurationPersistence implements
         RestoringPersistenceManager<ManagedSlotMappingConfiguration> {
 
-    private IdentifiableSet<IdentifiableCreatingPersistence<ManagedVisualItemValueResolver>> visualItemResolverFactoryPersistenceManagers = new IdentifiableSet<IdentifiableCreatingPersistence<ManagedVisualItemValueResolver>>();
+    private IdentifiablesSet<IdentifiableCreatingPersistence<ManagedVisualItemValueResolver>> visualItemResolverFactoryPersistenceManagers = new IdentifiablesSet<IdentifiableCreatingPersistence<ManagedVisualItemValueResolver>>();
 
     public void registerResolverPersistence(
             IdentifiableCreatingPersistence<ManagedVisualItemValueResolver> persistenceManager) {

@@ -15,14 +15,38 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 
 public interface GraphLayoutSupport {
+
+    LayoutGraph getLayoutGraph();
+
+    /**
+     * Registers a layout algorithm to be the default one run when the graph
+     * changes.
+     * 
+     * @param layoutAlgorithm
+     */
+    void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm);
+
+    /**
+     * Runs the current default layout.
+     */
+    void runLayout();
 
     /**
      * Runs a customized graph layout.
      */
     void runLayout(GraphLayout layout);
+
+    /**
+     * 
+     * @param layoutAlgorithm
+     *            the layout algorithm to be run
+     */
+    void runLayout(LayoutAlgorithm layoutAlgorithm);
 
     /**
      * Runs a graph layout that is defined in the graph widget. The constants
@@ -31,5 +55,4 @@ public interface GraphLayoutSupport {
      * @see GraphLayouts
      */
     void runLayout(String layout);
-
 }

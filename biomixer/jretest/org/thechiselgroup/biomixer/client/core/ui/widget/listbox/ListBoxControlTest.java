@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.transform.ToStringTransformer;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -44,13 +45,7 @@ public class ListBoxControlTest {
 
     private ListBoxControl<Integer> listBoxControl;
 
-    private final Transformer<Integer, String> formatter = new Transformer<Integer, String>() {
-
-        @Override
-        public String transform(Integer value) throws Exception {
-            return value.toString();
-        }
-    };
+    private final Transformer<Integer, String> formatter = new ToStringTransformer();
 
     @Test
     public void addOneItemShouldBeInValuesAndStringRepresentationInPresenter() {

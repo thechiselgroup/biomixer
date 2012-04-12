@@ -34,6 +34,14 @@ public final class ObjectUtils {
         return o1.equals(o2);
     }
 
+    /**
+     * {@link #toString()} static method that can handle <code>null</code> cases
+     * (returns empty String for those).
+     */
+    public static String toString(Object o) {
+        return o == null ? "" : o.toString();
+    }
+
     private ObjectUtils() {
 
     }

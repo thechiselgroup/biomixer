@@ -37,7 +37,7 @@ public final class DevelopmentSettings {
      * debugging features (e.g. having the browser's context menu available) are
      * active.
      */
-    private final static boolean DEVELOPMENT = false;
+    private final static boolean DEVELOPMENT = true;
 
     /**
      * Returns if benchmarking is active or not. The benchmarking is only active

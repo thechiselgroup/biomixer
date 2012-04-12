@@ -3,9 +3,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.svg.javascript_renderer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgStyle;
 
@@ -48,13 +52,13 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
 
     @Override
     public final native SvgElement appendChild(SvgElement newChild) /*-{
-                                                                    return this.appendChild(newChild);
-                                                                    }-*/;
+		return this.appendChild(newChild);
+    }-*/;
 
     @Override
     public final native String getAttributeAsString(String name)/*-{
-                                                                return this.getAttribute(name);
-                                                                }-*/;
+		return this.getAttribute(name);
+    }-*/;
 
     @Override
     public final SizeDouble getBBox() {
@@ -66,37 +70,42 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
     }
 
     private final native int getBBoxHeight() /*-{
-                                             return this.getBBox().height;
-                                             }-*/;
+		return this.getBBox().height;
+    }-*/;
 
     private final native int getBBoxWidth() /*-{
-                                            return this.getBBox().width;
-                                            }-*/;
+		return this.getBBox().width;
+    }-*/;
 
     private final native JsDomBBoxWrapper getBBoxWrapper() /*-{
-                                                           return this._bboxWrapper;
-                                                           }-*/;
+		return this._bboxWrapper;
+    }-*/;
 
     @Override
     public final native SvgElement getChild(int childIndex) /*-{
-                                                            return this.childNodes[childIndex];
-                                                            }-*/;
+		return this.childNodes[childIndex];
+    }-*/;
 
     @Override
     public final native int getChildCount() /*-{
-                                            return this.childNodes.length;
-                                            }-*/;
+		return this.childNodes.length;
+    }-*/;
 
     @Override
     public final native SvgStyle getStyle() /*-{
-                                            return this.style;
-                                            }-*/;
+		return this.style;
+    }-*/;
+
+    @Override
+    public final native boolean hasAttribute(String attribute) /*-{
+		return this.hasAttribute(attribute);
+    }-*/;
 
     @Override
     public final native SvgElement insertBefore(SvgElement newChild,
             SvgElement refChild) /*-{
-                                 return this.insertBefore(newChild, refChild);
-                                 }-*/;
+		return this.insertBefore(newChild, refChild);
+    }-*/;
 
     // @formatter:off
     @Override
@@ -108,23 +117,45 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
     // @formatter:on
 
     @Override
+    public final native void removeAttribute(String attribute) /*-{
+		if (this.hasAttribute(attribute)) {
+			this.removeAttribute(attribute);
+		}
+    }-*/;
+
+    @Override
+    public final void removeChild(String id) {
+        List<SvgElement> childrenToRemove = new ArrayList<SvgElement>();
+        for (int i = 0; i < getChildCount(); i++) {
+            SvgElement child = getChild(i);
+            if (child.hasAttribute(Svg.ID)
+                    && child.getAttributeAsString(Svg.ID).equals(id)) {
+                childrenToRemove.add(child);
+            }
+        }
+        for (SvgElement child : childrenToRemove) {
+            removeChild(child);
+        }
+    }
+
+    @Override
     public final native SvgElement removeChild(SvgElement oldChild) /*-{
-                                                                    return this.removeChild(oldChild);
-                                                                    }-*/;
+		return this.removeChild(oldChild);
+    }-*/;
 
     @Override
     public final native void setAttribute(String name, double value) /*-{
-                                                                     this.setAttribute(name, value);
-                                                                     }-*/;
+		this.setAttribute(name, value);
+    }-*/;
 
     @Override
     public final native void setAttribute(String name, String value) /*-{
-                                                                     this.setAttribute(name, value);
-                                                                     }-*/;
+		this.setAttribute(name, value);
+    }-*/;
 
     private final native void setBBoxWrapper(JsDomBBoxWrapper wrapper) /*-{
-                                                                       this._bboxWrapper = wrapper;
-                                                                       }-*/;
+		this._bboxWrapper = wrapper;
+    }-*/;
 
     @Override
     public final void setEventListener(final ChooselEventHandler handler) {
@@ -146,7 +177,7 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
 
     @Override
     public final native void setTextContent(String text) /*-{
-                                                         this.textContent = text;
-                                                         }-*/;
+		this.textContent = text;
+    }-*/;
 
 }

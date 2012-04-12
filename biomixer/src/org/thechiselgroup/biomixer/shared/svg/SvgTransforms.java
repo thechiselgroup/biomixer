@@ -17,6 +17,10 @@ package org.thechiselgroup.biomixer.shared.svg;
 
 public final class SvgTransforms {
 
+    public static String rotate(double degrees, double centreX, double centreY) {
+        return "rotate(" + degrees + " " + centreX + " " + centreY + ")";
+    }
+
     public static String translate(double x, double y) {
         return "translate(" + x + "," + y + ")";
     }

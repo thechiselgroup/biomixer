@@ -22,6 +22,8 @@ import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjec
 import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.DROP_TARGET_MANAGER_VIEW_CONTENT;
 import static org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants.LABEL_PROVIDER_SELECTION_SET;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
@@ -47,7 +49,10 @@ import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
+import org.thechiselgroup.biomixer.client.core.visualization.CenterRightViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.HighlightingVisualItemBehavior;
@@ -88,6 +93,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
+// TODO how can we make the whole build process configuration more flexible? patterns?
 public class ViewWindowContentProducer implements WindowContentProducer {
 
     @Inject
@@ -151,9 +157,45 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     @Inject
     private ManagedSlotMappingConfigurationPersistence slotMappingConfigurationPersistence;
 
+    /**
+     * Hook for overriding.
+     */
+    protected List<ViewTopBarExtension> createViewTopBarExtensions(
+            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
+
+        List<ViewTopBarExtension> extensions = new ArrayList<ViewTopBarExtension>();
+
+        extensions.add(createResourceModelPresenterExtension(resourceModel));
+        extensions.add(createSelectionModelPresenterExtension(selectionModel));
+
+        return extensions;
+    }
+
     protected ResourceMultiCategorizer createDefaultCategorizer(
             String contentType) {
         return new ResourceByUriMultiCategorizer();
+    }
+
+    private ViewTopBarExtension createResourceModelPresenterExtension(
+            ResourceModel resourceModel) {
+
+        return new LeftViewTopBarExtension(
+                new DefaultResourceModelPresenter(
+                        new ResourceSetAvatarResourceSetsPresenter(
+                                allResourcesDragAvatarFactory),
+                        new ResourceSetAvatarResourceSetsPresenter(
+                                userSetsDragAvatarFactory), resourceModel));
+    }
+
+    private ViewTopBarExtension createSelectionModelPresenterExtension(
+            DefaultSelectionModel selectionModel) {
+
+        return new CenterRightViewTopBarExtension(
+                new DefaultSelectionModelPresenter(
+                        new ResourceSetAvatarResourceSetsPresenter(
+                                dropTargetFactory),
+                        new ResourceSetAvatarResourceSetsPresenter(
+                                selectionDragAvatarFactory), selectionModel));
     }
 
     // XXX remove
@@ -215,19 +257,8 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                             .getAutomaticResourceSet());
         }
 
-        DefaultResourceModelPresenter resourceModelPresenter = new DefaultResourceModelPresenter(
-                new ResourceSetAvatarResourceSetsPresenter(
-                        allResourcesDragAvatarFactory),
-                new ResourceSetAvatarResourceSetsPresenter(
-                        userSetsDragAvatarFactory), resourceModel);
-
         DefaultSelectionModel selectionModel = new DefaultSelectionModel(
                 selectionModelLabelFactory, resourceSetFactory);
-
-        DefaultSelectionModelPresenter selectionModelPresenter = new DefaultSelectionModelPresenter(
-                new ResourceSetAvatarResourceSetsPresenter(dropTargetFactory),
-                new ResourceSetAvatarResourceSetsPresenter(
-                        selectionDragAvatarFactory), selectionModel);
 
         Map<Slot, VisualItemValueResolver> fixedSlotResolvers = viewContentDisplayConfiguration
                 .getFixedSlotResolvers(contentType);
@@ -301,11 +332,15 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                         new GwtDateTimeFormatFactory(), errorHandler);
 
         DefaultView view = new DefaultView(contentDisplay, label, contentType,
-                selectionModelPresenter, resourceModelPresenter,
                 visualMappingsControl, sidePanelSections, visualizationModel,
                 resourceModel, selectionModel, managedConfiguration,
-                slotMappingConfigurationPersistence,
-                throwablesContainerErrorHandler, disposeUtil, listBoxControl);
+                slotMappingConfigurationPersistence, disposeUtil,
+                listBoxControl);
+
+        for (ViewTopBarExtension extension : createViewTopBarExtensions(
+                resourceModel, selectionModel)) {
+            view.addTopBarExtension(extension);
+        }
 
         for (ViewPart viewPart : viewParts) {
             viewPart.afterViewCreation(view);
