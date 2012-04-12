@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,9 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.ArcSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.CompositeSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -37,7 +40,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * 
  */
 public class NodeSvgComponent extends CompositeSvgComponent implements
-        Identifiable {
+        Identifiable, RenderedNode {
 
     private Node node;
 
@@ -90,6 +93,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return getNode().getId();
     }
 
+    @Override
+    public double getLeftX() {
+        return Double.parseDouble(compositeElement.getAttributeAsString(Svg.X));
+    }
+
     /**
      * 
      * @return the coordinates of the top left corner of the node, using the
@@ -115,22 +123,19 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return boxedText.getSvgElement();
     }
 
-    // rendered object interface?
+    @Override
     public SizeDouble getSize() {
         return new DefaultSizeDouble(boxedText.getTotalWidth(),
                 boxedText.getTotalHeight());
     }
 
+    @Override
+    public double getTopY() {
+        return Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y));
+    }
+
     public LayoutNodeType getType() {
         return nodeType;
-    }
-
-    public double getX() {
-        return Double.parseDouble(compositeElement.getAttributeAsString(Svg.X));
-    }
-
-    public double getY() {
-        return Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y));
     }
 
     public void removeConnectedArc(ArcSvgComponent arc) {
@@ -163,6 +168,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         }
     }
 
+    @Override
     public void setLeftX(double x) {
         compositeElement.setAttribute(Svg.X, x);
         updateConnectedArcs();
@@ -172,6 +178,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         boxedText.setEventListener(handler);
     }
 
+    @Override
     public void setTopY(double y) {
         compositeElement.setAttribute(Svg.Y, y);
         updateConnectedArcs();

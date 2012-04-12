@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
 public class PopupExpanderSvgComponent extends CompositeSvgComponent {

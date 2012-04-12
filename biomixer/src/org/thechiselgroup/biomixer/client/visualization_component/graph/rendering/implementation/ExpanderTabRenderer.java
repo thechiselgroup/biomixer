@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -21,7 +21,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.SvgPointsBuilder;
 
-public class ExpanderTabFactory {
+public class ExpanderTabRenderer {
 
     private SvgElementFactory svgElementFactory;
 
@@ -33,7 +33,7 @@ public class ExpanderTabFactory {
 
     public static final double TAB_WIDTH = 30.0;
 
-    public ExpanderTabFactory(SvgElementFactory svgElementFactory) {
+    public ExpanderTabRenderer(SvgElementFactory svgElementFactory) {
         this.svgElementFactory = svgElementFactory;
     }
 

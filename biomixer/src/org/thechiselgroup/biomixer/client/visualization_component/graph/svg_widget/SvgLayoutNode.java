@@ -22,6 +22,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
 
 public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
@@ -80,12 +81,12 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     @Override
     public double getX() {
-        return svgComponent.getX();
+        return svgComponent.getLeftX();
     }
 
     @Override
     public double getY() {
-        return svgComponent.getY();
+        return svgComponent.getTopY();
     }
 
     @Override

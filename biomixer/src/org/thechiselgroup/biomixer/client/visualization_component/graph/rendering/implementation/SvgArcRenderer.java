@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 
 /**
- * A displayable node.
+ * Renders an arc using SVG.
  * 
  * @author drusk
  * 
  */
-public interface RenderedNode {
+public class SvgArcRenderer implements ArcRenderer {
 
-    double getLeftX();
-
-    SizeDouble getSize();
-
-    double getTopY();
-
-    void setLeftX(double x);
-
-    void setTopY(double y);
+    @Override
+    public RenderedArc createRenderedArc(Arc arc) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

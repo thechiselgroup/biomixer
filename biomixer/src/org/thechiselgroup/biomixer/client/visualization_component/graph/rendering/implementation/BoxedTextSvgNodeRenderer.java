@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ExpanderTabRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ExpanderTabSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
-public class NodeComponentFactory {
+/**
+ * Renders a node as the classic rectangle with text in it.
+ * 
+ * @author drusk
+ * 
+ */
+public class BoxedTextSvgNodeRenderer implements NodeRenderer {
 
     public static final double RX_DEFAULT = 10.0;
 
@@ -34,23 +37,22 @@ public class NodeComponentFactory {
 
     private SvgElementFactory svgElementFactory;
 
-    private ExpanderTabRenderer expanderTabFactory;
+    private ExpanderTabRenderer expanderTabRenderer;
 
     private TextBoundsEstimator textBoundsEstimator;
 
-    public NodeComponentFactory(SvgElementFactory svgElementFactory,
+    public BoxedTextSvgNodeRenderer(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         this.textBoundsEstimator = textBoundsEstimator;
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.expanderTabFactory = new ExpanderTabRenderer(svgElementFactory);
+        this.expanderTabRenderer = new ExpanderTabRenderer(svgElementFactory);
     }
 
-    public NodeSvgComponent createNodeComponent(final Node node,
-            LayoutNodeType nodeType) {
+    @Override
+    public RenderedNode createRenderedNode(Node node) {
         assert node != null;
-        assert nodeType != null;
 
         SvgElement baseContainer = svgElementFactory.createElement(Svg.SVG);
         baseContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
@@ -63,13 +65,13 @@ public class NodeComponentFactory {
         boxedText.setCornerCurveWidth(RX_DEFAULT);
         boxedText.setCornerCurveHeight(RY_DEFAULT);
 
-        ExpanderTabSvgComponent expanderTab = expanderTabFactory
+        ExpanderTabSvgComponent expanderTab = expanderTabRenderer
                 .createExpanderTabSvgElement();
         expanderTab.setLocation(
                 (boxedText.getTotalWidth() - ExpanderTabRenderer.TAB_WIDTH) / 2,
                 boxedText.getTotalHeight());
 
-        return new NodeSvgComponent(node, nodeType, baseContainer, boxedText,
+        return new NodeSvgComponent(node, null, baseContainer, boxedText,
                 expanderTab);
     }
 

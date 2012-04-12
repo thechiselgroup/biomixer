@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
 
 public class BoxedTextSvgComponentTest extends AbstractSvgTest {
 
