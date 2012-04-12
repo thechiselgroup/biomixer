@@ -180,7 +180,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         SvgLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
         SvgLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
         final ArcSvgComponent arcComponent = arcComponentFactory
-                .createArcComponent(arc, sourceNode, targetNode);
+                .createArcComponent(arc, sourceNode.getRenderedNode(),
+                        targetNode.getRenderedNode());
 
         arcComponent.setEventListener(new ChooselEventHandler() {
 
@@ -195,7 +196,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         arcs.add(arcComponent);
 
         SvgLayoutArc layoutArc = new SvgLayoutArc(arcComponent,
-                getArcType(arc.getType()));
+                getArcType(arc.getType()), sourceNode, targetNode);
         layoutGraph.addSvgLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);

@@ -13,37 +13,17 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
-/**
- * A displayable node.
- * 
- * @author drusk
- * 
- */
-public interface RenderedNode {
+public abstract class AbstractRenderedNode implements RenderedNode {
 
-    PointDouble getCentre();
-
-    double getLeftX();
-
-    SizeDouble getSize();
-
-    double getTopY();
-
-    void setBackgroundColor(String color);
-
-    void setBorderColor(String color);
-
-    void setFontColor(String color);
-
-    void setFontWeight(String fontWeight);
-
-    void setLeftX(double x);
-
-    void setTopY(double y);
+    @Override
+    public PointDouble getCentre() {
+        return new PointDouble(getLeftX() + getSize().getWidth() / 2, getTopY()
+                + getSize().getHeight() / 2);
+    }
 
 }

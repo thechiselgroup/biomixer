@@ -27,9 +27,16 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     private final LayoutArcType arcType;
 
-    public SvgLayoutArc(ArcSvgComponent svgComponent, LayoutArcType arcType) {
+    private final LayoutNode sourceNode;
+
+    private final LayoutNode targetNode;
+
+    public SvgLayoutArc(ArcSvgComponent svgComponent, LayoutArcType arcType,
+            LayoutNode sourceNode, LayoutNode targetNode) {
         this.svgComponent = svgComponent;
         this.arcType = arcType;
+        this.sourceNode = sourceNode;
+        this.targetNode = targetNode;
     }
 
     @Override
@@ -43,12 +50,12 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     @Override
     public LayoutNode getSourceNode() {
-        return svgComponent.getSourceNode();
+        return sourceNode;
     }
 
     @Override
     public LayoutNode getTargetNode() {
-        return svgComponent.getTargetNode();
+        return targetNode;
     }
 
     @Override

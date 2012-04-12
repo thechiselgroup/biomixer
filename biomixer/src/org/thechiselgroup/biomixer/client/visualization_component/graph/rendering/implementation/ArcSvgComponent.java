@@ -17,9 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -31,16 +29,16 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
 
     private Arc arc;
 
-    private SvgLayoutNode source;
+    private NodeSvgComponent source;
 
-    private SvgLayoutNode target;
+    private NodeSvgComponent target;
 
     private final SvgElement arcLine;
 
     private final SvgArrowHead arrow;
 
     public ArcSvgComponent(Arc arc, SvgElement container, SvgElement arcLine,
-            SvgArrowHead arrow, SvgLayoutNode source, SvgLayoutNode target) {
+            SvgArrowHead arrow, NodeSvgComponent source, NodeSvgComponent target) {
         super(container);
         this.arc = arc;
         this.arcLine = arcLine;
@@ -59,18 +57,10 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     }
 
     public NodeSvgComponent getRenderedSource() {
-        return source.getRenderedNode();
-    }
-
-    public NodeSvgComponent getRenderedTarget() {
-        return target.getRenderedNode();
-    }
-
-    public LayoutNode getSourceNode() {
         return source;
     }
 
-    public LayoutNode getTargetNode() {
+    public NodeSvgComponent getRenderedTarget() {
         return target;
     }
 
@@ -89,8 +79,8 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     }
 
     public void removeNodeConnections() {
-        source.getRenderedNode().removeConnectedArc(this);
-        target.getRenderedNode().removeConnectedArc(this);
+        source.removeConnectedArc(this);
+        target.removeConnectedArc(this);
     }
 
     /**

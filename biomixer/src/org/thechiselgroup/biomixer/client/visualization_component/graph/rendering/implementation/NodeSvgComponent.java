@@ -60,6 +60,12 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         arcsConnectedToThisNode.add(arc);
     }
 
+    @Override
+    public PointDouble getCentre() {
+        return new PointDouble(getLeftX() + getSize().getWidth() / 2, getTopY()
+                + getSize().getHeight() / 2);
+    }
+
     public List<ArcSvgComponent> getConnectedArcComponents() {
         return arcsConnectedToThisNode;
     }
