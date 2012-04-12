@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
  * Renders an arc using SVG.
@@ -26,6 +27,12 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
  * 
  */
 public class SvgArcRenderer implements ArcRenderer {
+
+    private SvgElementFactory svgElementFactory;
+
+    public SvgArcRenderer(SvgElementFactory svgElementFactory) {
+        this.svgElementFactory = svgElementFactory;
+    }
 
     @Override
     public RenderedArc createRenderedArc(Arc arc) {

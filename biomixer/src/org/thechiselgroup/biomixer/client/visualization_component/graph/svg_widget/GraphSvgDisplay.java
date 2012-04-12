@@ -169,8 +169,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert !arcs.contains(arc.getId()) : "arc '" + arc.getId()
                 + "'must not be already contained";
 
-        DefaultLayoutArcType layoutArcType = getArcType(arc.getType());
-
         String sourceNodeId = arc.getSourceNodeId();
         String targetNodeId = arc.getTargetNodeId();
 
@@ -182,7 +180,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         SvgLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
         SvgLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
         final ArcSvgComponent arcComponent = arcComponentFactory
-                .createArcComponent(arc, layoutArcType, sourceNode, targetNode);
+                .createArcComponent(arc, sourceNode, targetNode);
 
         arcComponent.setEventListener(new ChooselEventHandler() {
 
@@ -196,7 +194,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         arcs.add(arcComponent);
 
-        SvgLayoutArc layoutArc = new SvgLayoutArc(arcComponent, layoutArcType);
+        SvgLayoutArc layoutArc = new SvgLayoutArc(arcComponent,
+                getArcType(arc.getType()));
         layoutGraph.addSvgLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);
@@ -266,9 +265,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         nodes.add(nodeComponent);
 
-        DefaultLayoutNodeType layoutNodeType = getNodeType(node.getType());
         SvgLayoutNode layoutNode = new SvgLayoutNode(nodeComponent,
-                layoutNodeType);
+                getNodeType(node.getType()));
         setDefaultPosition(layoutNode);
         layoutGraph.addSvgLayoutNode(layoutNode);
 
