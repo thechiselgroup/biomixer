@@ -27,12 +27,12 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
- * Constructs graph visualization elements using SVG.
+ * Constructs graph visualization elements.
  * 
  * @author drusk
  * 
  */
-public class SvgGraphRenderer implements GraphRenderer {
+public class DefaultGraphRenderer implements GraphRenderer {
 
     private NodeRenderer nodeRenderer;
 
@@ -42,7 +42,8 @@ public class SvgGraphRenderer implements GraphRenderer {
 
     private Map<Arc, RenderedArc> renderedArcs = new HashMap<Arc, RenderedArc>();
 
-    public SvgGraphRenderer(NodeRenderer nodeRenderer, ArcRenderer arcRenderer) {
+    public DefaultGraphRenderer(NodeRenderer nodeRenderer,
+            ArcRenderer arcRenderer) {
         this.nodeRenderer = nodeRenderer;
         this.arcRenderer = arcRenderer;
     }
