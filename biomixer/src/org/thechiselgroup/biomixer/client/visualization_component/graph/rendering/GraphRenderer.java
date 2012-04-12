@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
- * Creates the actual visualizable nodes for display on the graph.
+ * Handles construction of the actual components displayed for a graph view.
  * 
  * @author drusk
  * 
  */
-public interface NodeRenderer {
+public interface GraphRenderer {
 
-    RenderedNode createRenderedNode(Node node);
+    void removeArc(Arc arc);
+
+    void removeNode(Node node);
+
+    void renderArc(Arc arc);
+
+    void renderNode(Node node);
 
 }

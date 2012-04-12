@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 

@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
-
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
 /**
- * Creates the actual visualizable nodes for display on the graph.
+ * A displayable arc.
  * 
  * @author drusk
  * 
  */
-public interface ArcRenderer {
-
-    RenderedArc createRenderedArc(Arc arc);
+public interface RenderedArc {
 
 }
