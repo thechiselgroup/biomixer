@@ -15,9 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
@@ -33,6 +38,10 @@ public class SvgGraphRenderer implements GraphRenderer {
 
     private ArcRenderer arcRenderer;
 
+    private Map<Node, RenderedNode> renderedNodes = new HashMap<Node, RenderedNode>();
+
+    private Map<Arc, RenderedArc> renderedArcs = new HashMap<Arc, RenderedArc>();
+
     public SvgGraphRenderer(NodeRenderer nodeRenderer, ArcRenderer arcRenderer) {
         this.nodeRenderer = nodeRenderer;
         this.arcRenderer = arcRenderer;
@@ -40,26 +49,26 @@ public class SvgGraphRenderer implements GraphRenderer {
 
     @Override
     public void removeArc(Arc arc) {
-        // TODO Auto-generated method stub
-
+        assert renderedArcs.containsKey(arc) : "Cannot remove an arc which has not been rendered";
+        renderedArcs.remove(arc);
     }
 
     @Override
     public void removeNode(Node node) {
-        // TODO Auto-generated method stub
-
+        assert renderedNodes.containsKey(node) : "Cannot remove a node which has not been rendered";
+        renderedNodes.remove(node);
     }
 
     @Override
     public void renderArc(Arc arc) {
-        // TODO Auto-generated method stub
-
+        assert !renderedArcs.containsKey(arc) : "Cannot render the same arc multiple times";
+        renderedArcs.put(arc, arcRenderer.createRenderedArc(arc));
     }
 
     @Override
     public void renderNode(Node node) {
-        // TODO Auto-generated method stub
-
+        assert !renderedNodes.containsKey(node) : "Cannot render the same node multiple times";
+        renderedNodes.put(node, nodeRenderer.createRenderedNode(node));
     }
 
 }
