@@ -23,4 +23,17 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
  */
 public interface RenderedArc {
 
+    double getThickness();
+
+    void setArcStyle(String arcStyle);
+
+    void setColor(String color);
+
+    void setThickness(String thickness);
+
+    /**
+     * Updates the arc to match new nodes locations.
+     */
+    void update();
+
 }

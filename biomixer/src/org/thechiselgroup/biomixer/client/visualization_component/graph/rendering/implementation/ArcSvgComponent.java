@@ -19,6 +19,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
@@ -27,7 +28,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 public class ArcSvgComponent extends CompositeSvgComponent implements
-        Identifiable {
+        Identifiable, RenderedArc {
 
     private Arc arc;
 
@@ -78,6 +79,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         return target;
     }
 
+    @Override
     public double getThickness() {
         return Double.parseDouble(arcLine
                 .getAttributeAsString(Svg.STROKE_WIDTH));
@@ -104,6 +106,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
      *            ArcSettings.ARC_STYLE_DASHED
      * 
      */
+    @Override
     public void setArcStyle(String arcStyle) {
         if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)
                 && arcLine.hasAttribute(Svg.STROKE_DASHARRAY)) {
@@ -114,10 +117,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         }
     }
 
-    public void setArcThickness(String thickness) {
-        arcLine.setAttribute(Svg.STROKE_WIDTH, thickness);
-    }
-
+    @Override
     public void setColor(String color) {
         arcLine.setAttribute(Svg.STROKE, color);
         if (isDirected()) {
@@ -129,6 +129,18 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     @Override
     public void setEventListener(ChooselEventHandler handler) {
         arcLine.setEventListener(handler);
+    }
+
+    @Override
+    public void setThickness(String thickness) {
+        arcLine.setAttribute(Svg.STROKE_WIDTH, thickness);
+    }
+
+    @Override
+    public void update() {
+        SvgUtils.setX1Y1(arcLine, source.getCentre());
+        SvgUtils.setX2Y2(arcLine, target.getCentre());
+        updateArrow();
     }
 
     private void updateArrow() {

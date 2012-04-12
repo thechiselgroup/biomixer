@@ -774,7 +774,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         }
 
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
-            arcComponent.setArcThickness(styleValue);
+            arcComponent.setThickness(styleValue);
         }
     }
 
