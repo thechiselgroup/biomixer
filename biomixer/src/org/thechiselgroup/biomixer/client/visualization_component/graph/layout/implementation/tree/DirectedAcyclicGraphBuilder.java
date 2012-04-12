@@ -53,6 +53,13 @@ public class DirectedAcyclicGraphBuilder {
         }
 
         for (LayoutArc arc : graph.getAllArcs()) {
+            if (!arc.isDirected()) {
+                /*
+                 * This is a DIRECTED acyclic graph. For now just ignore
+                 * undirected edges.
+                 */
+                continue;
+            }
             // XXX arcs point from child to parent. Therefore sourceNode is a
             // child of targetNode.
             DirectedAcyclicGraphNode sourceNode = directedAcyclicGraphNodes
