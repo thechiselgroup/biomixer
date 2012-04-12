@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
  */
 public interface ArcRenderer {
 
-    RenderedArc createRenderedArc(Arc arc);
+    RenderedArc createRenderedArc(Arc arc, RenderedNode source,
+            RenderedNode target);
 
 }

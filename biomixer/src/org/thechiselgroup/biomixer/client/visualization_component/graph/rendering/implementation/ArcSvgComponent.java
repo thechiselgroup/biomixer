@@ -39,7 +39,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     private final SvgArrowHead arrow;
 
     public ArcSvgComponent(Arc arc, SvgElement container, SvgElement arcLine,
-            SvgArrowHead arrow, NodeSvgComponent source, NodeSvgComponent target) {
+            SvgArrowHead arrow, RenderedNode source, RenderedNode target) {
         super(container);
         this.arc = arc;
         this.arcLine = arcLine;
@@ -78,6 +78,7 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         return arc.getType();
     }
 
+    @Override
     public boolean isDirected() {
         return arc.isDirected();
     }

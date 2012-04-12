@@ -34,7 +34,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  * @author drusk
  * 
  */
-public class DefaultGraphRenderer implements GraphRenderer {
+public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private NodeRenderer nodeRenderer;
 
@@ -44,27 +44,36 @@ public class DefaultGraphRenderer implements GraphRenderer {
 
     private Map<Arc, RenderedArc> renderedArcs = new HashMap<Arc, RenderedArc>();
 
-    public DefaultGraphRenderer(NodeRenderer nodeRenderer,
+    protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
             ArcRenderer arcRenderer) {
         this.nodeRenderer = nodeRenderer;
         this.arcRenderer = arcRenderer;
     }
 
+    protected abstract void addArcToGraph(RenderedArc arc);
+
+    protected abstract void addNodeToGraph(RenderedNode node);
+
     @Override
     public void removeArc(Arc arc) {
         assert renderedArcs.containsKey(arc) : "Cannot remove an arc which has not been rendered";
-        removeNodeConnections(renderedArcs.get(arc));
+        RenderedArc renderedArc = renderedArcs.get(arc);
+        removeNodeConnections(renderedArc);
         renderedArcs.remove(arc);
+        removeArcFromGraph(renderedArc);
     }
+
+    protected abstract void removeArcFromGraph(RenderedArc arc);
 
     @Override
     public void removeNode(Node node) {
         assert renderedNodes.containsKey(node) : "Cannot remove a node which has not been rendered";
-        for (RenderedArc renderedArc : renderedNodes.get(node)
-                .getConnectedArcs()) {
+        RenderedNode renderedNode = renderedNodes.get(node);
+        for (RenderedArc renderedArc : renderedNode.getConnectedArcs()) {
             removeArc(renderedArc.getArc());
         }
         renderedNodes.remove(node);
+        removeNodeFromGraph(renderedNode);
     }
 
     private void removeNodeConnections(RenderedArc arc) {
@@ -72,16 +81,24 @@ public class DefaultGraphRenderer implements GraphRenderer {
         renderedNodes.get(arc.getTarget().getNode()).removeConnectedArc(arc);
     }
 
+    protected abstract void removeNodeFromGraph(RenderedNode node);
+
     @Override
-    public void renderArc(Arc arc) {
+    public RenderedArc renderArc(Arc arc, RenderedNode source,
+            RenderedNode target) {
         assert !renderedArcs.containsKey(arc) : "Cannot render the same arc multiple times";
-        renderedArcs.put(arc, arcRenderer.createRenderedArc(arc));
+        RenderedArc renderedArc = arcRenderer.createRenderedArc(arc, source,
+                target);
+        renderedArcs.put(arc, renderedArc);
+        return renderedArc;
     }
 
     @Override
-    public void renderNode(Node node) {
+    public RenderedNode renderNode(Node node) {
         assert !renderedNodes.containsKey(node) : "Cannot render the same node multiple times";
-        renderedNodes.put(node, nodeRenderer.createRenderedNode(node));
+        RenderedNode renderedNode = nodeRenderer.createRenderedNode(node);
+        renderedNodes.put(node, renderedNode);
+        return renderedNode;
     }
 
     @Override

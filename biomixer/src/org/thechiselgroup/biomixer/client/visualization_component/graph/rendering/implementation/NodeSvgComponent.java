@@ -152,12 +152,18 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
+    public void setBodyEventHandler(ChooselEventHandler handler) {
+        boxedText.setEventListener(handler);
+    }
+
+    @Override
     public void setBorderColor(String color) {
         boxedText.setBorderColor(color);
         expanderTab.setBorderColor(color);
     }
 
-    public void setExpanderTabEventListener(ChooselEventHandler handler) {
+    @Override
+    public void setExpansionEventHandler(ChooselEventHandler handler) {
         expanderTab.setEventListener(handler);
     }
 
@@ -179,10 +185,6 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     public void setLeftX(double x) {
         compositeElement.setAttribute(Svg.X, x);
         updateConnectedArcs();
-    }
-
-    public void setNodeEventListener(ChooselEventHandler handler) {
-        boxedText.setEventListener(handler);
     }
 
     @Override

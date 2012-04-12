@@ -17,21 +17,21 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
 // TODO refactor
 public class SvgNodeEventHandler implements ChooselEventHandler {
 
-    private NodeSvgComponent nodeComponent;
+    private RenderedNode renderedNode;
 
     private GraphSvgDisplay graphDisplay;
 
     private final NodeInteractionManager nodeInteractionManager;
 
-    public SvgNodeEventHandler(NodeSvgComponent nodeComponent,
+    public SvgNodeEventHandler(RenderedNode renderedNode,
             GraphSvgDisplay graphDisplay,
             NodeInteractionManager nodeInteractionManager) {
-        this.nodeComponent = nodeComponent;
+        this.renderedNode = renderedNode;
         this.nodeInteractionManager = nodeInteractionManager;
         this.graphDisplay = graphDisplay;
     }
@@ -44,13 +44,11 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
         switch (event.getEventType()) {
 
         case MOUSE_OVER:
-            graphDisplay.onNodeMouseOver(nodeComponent.getId(), clientX,
-                    clientY);
+            graphDisplay.onNodeMouseOver(renderedNode, clientX, clientY);
             break;
 
         case MOUSE_OUT:
-            graphDisplay
-                    .onNodeMouseOut(nodeComponent.getId(), clientX, clientY);
+            graphDisplay.onNodeMouseOut(renderedNode, clientX, clientY);
             break;
 
         case MOUSE_UP:
@@ -58,8 +56,8 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
             break;
 
         case MOUSE_DOWN:
-            nodeInteractionManager.onMouseDown(nodeComponent.getId(), clientX,
-                    clientY);
+            nodeInteractionManager.onMouseDown(renderedNode.getNode().getId(),
+                    clientX, clientY);
             break;
 
         default:

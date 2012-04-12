@@ -23,11 +23,11 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
 public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
-    private NodeSvgComponent svgComponent;
+    private RenderedNode svgComponent;
 
     private boolean isAnchored = false;
 
@@ -35,7 +35,11 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     private List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
 
-    public SvgLayoutNode(NodeSvgComponent svgComponent, LayoutNodeType nodeType) {
+    private final String id;
+
+    public SvgLayoutNode(String id, RenderedNode svgComponent,
+            LayoutNodeType nodeType) {
+        this.id = id;
         this.svgComponent = svgComponent;
         this.nodeType = nodeType;
     }
@@ -52,7 +56,7 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     @Override
     public String getId() {
-        return svgComponent.getId();
+        return id;
     }
 
     @Override
@@ -73,7 +77,7 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
         return Double.NaN;
     }
 
-    public NodeSvgComponent getRenderedNode() {
+    public RenderedNode getRenderedNode() {
         return svgComponent;
     }
 

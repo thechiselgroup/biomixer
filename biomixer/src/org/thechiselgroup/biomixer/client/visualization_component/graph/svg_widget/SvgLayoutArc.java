@@ -19,11 +19,11 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 
 public class SvgLayoutArc implements LayoutArc, Identifiable {
 
-    private ArcSvgComponent svgComponent;
+    private RenderedArc svgComponent;
 
     private final LayoutArcType arcType;
 
@@ -31,9 +31,12 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     private final LayoutNode targetNode;
 
-    public SvgLayoutArc(ArcSvgComponent svgComponent, LayoutArcType arcType,
-            LayoutNode sourceNode, LayoutNode targetNode) {
-        this.svgComponent = svgComponent;
+    private final String id;
+
+    public SvgLayoutArc(String id, RenderedArc renderedArc,
+            LayoutArcType arcType, LayoutNode sourceNode, LayoutNode targetNode) {
+        this.id = id;
+        this.svgComponent = renderedArc;
         this.arcType = arcType;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
@@ -41,10 +44,10 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     @Override
     public String getId() {
-        return svgComponent.getId();
+        return id;
     }
 
-    public ArcSvgComponent getRenderedArc() {
+    public RenderedArc getRenderedArc() {
         return svgComponent;
     }
 

@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
@@ -26,16 +28,27 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  */
 public interface GraphRenderer {
 
+    // FIXME: generalize
+    void addPopup(PopupExpanderSvgComponent popup);
+
+    void bringToForeground(RenderedNode node);
+
+    void clearPopups();
+
     void removeArc(Arc arc);
 
     void removeNode(Node node);
 
-    void renderArc(Arc arc);
+    RenderedArc renderArc(Arc arc, RenderedNode source, RenderedNode target);
 
-    void renderNode(Node node);
+    RenderedNode renderNode(Node node);
 
     void setArcStyle(Arc arc, String styleProperty, String styleValue);
 
+    void setBackgroundEventListener(ChooselEventHandler handler);
+
     void setNodeStyle(Node node, String styleProperty, String styleValue);
+
+    void setViewWideInteractionHandler(ChooselEventHandler handler);
 
 }

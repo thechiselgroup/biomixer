@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 
 /**
@@ -33,9 +34,13 @@ public interface RenderedArc {
 
     double getThickness();
 
+    boolean isDirected();
+
     void setArcStyle(String arcStyle);
 
     void setColor(String color);
+
+    void setEventListener(ChooselEventHandler handler);
 
     void setThickness(String thickness);
 

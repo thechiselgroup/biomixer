@@ -22,16 +22,16 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
- * Background of the graph viewer.
+ * Rendered background of the SVG graph viewer.
  * 
  * @author drusk
  * 
  */
-public class GraphBackground {
+public class SvgGraphBackground {
 
     private SvgElement svgElement;
 
-    public GraphBackground(int width, int height,
+    public SvgGraphBackground(int width, int height,
             SvgElementFactory svgElementFactory) {
         svgElement = svgElementFactory.createElement(Svg.RECT);
         svgElement.setAttribute(Svg.WIDTH, width);

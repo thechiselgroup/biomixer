@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
@@ -47,7 +48,11 @@ public interface RenderedNode {
 
     void setBackgroundColor(String color);
 
+    void setBodyEventHandler(ChooselEventHandler handler);
+
     void setBorderColor(String color);
+
+    void setExpansionEventHandler(ChooselEventHandler handler);
 
     void setFontColor(String color);
 
