@@ -79,8 +79,9 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
             for (LayoutNode otherNode : getAllNodesExcept(currentNode)) {
                 netForce.add(forceCalculator.getForce(currentNode, otherNode));
             }
-            updatePosition(netForce, currentNode);
-            totalDisplacement += netForce.getMagnitude();
+            Vector2D positionDelta = getPositionDelta(netForce, currentNode);
+            updatePosition(positionDelta, currentNode);
+            totalDisplacement += positionDelta.getMagnitude();
         }
 
         /*
@@ -135,6 +136,39 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     }
 
     /**
+     * Calculates the change in position for a node due to a net force. Takes
+     * into account the effects of dampening, and also makes sure that the node
+     * doesn't go outside the graph's visible area.
+     * 
+     * @param netForce
+     *            a force on a node which should cause a displacement
+     * @param node
+     *            the node the netForce has been applied to
+     * @return the change in position for the node
+     */
+    private Vector2D getPositionDelta(Vector2D netForce, LayoutNode node) {
+        /*
+         * If nodes are very close together or very far apart the forces exerted
+         * on them can be way too large. Currently to compensate for this, I
+         * limit the displacement in the x and y directions for a node in one
+         * iteration to be the 'optimalEdgeLength' (see {@link
+         * BoundsAwareForceCalculator}). This is kind of arbitrary, and perhaps
+         * more appropriate values could be found.
+         */
+        VectorUtils.limitVectorComponents(netForce, getOptimalEdgeLength());
+
+        /*
+         * Damping provides simulated annealing
+         */
+        Vector2D dampedDelta = netForce.scaleBy(getDampening(node));
+        /*
+         * Need to make sure the next calculated position doesn't cause all or
+         * part of the node to go outside the visible graph area
+         */
+        return boundsEnforcer.getRestrictedDelta(node, dampedDelta);
+    }
+
+    /**
      * Increases the dampening of all the nodes on the graph by a factor of
      * <code>dampingConstant</code>. Note that increasing the dampening means
      * decreasing the numerical value of the dampening factor coefficient.
@@ -156,38 +190,17 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     }
 
     /**
-     * Updates the position of a node, but makes sure it stays within the graph
-     * bounds.
+     * Updates the position of a node and adds animation to the movement.
      * 
-     * @param netForce
-     *            the force which determines the displacement of the node
+     * @param position
+     *            delta the displacement of the node
      * @param node
      *            the node to position.
      */
-    private void updatePosition(Vector2D netForce, LayoutNode node) {
-        /*
-         * If nodes are very close together or very far apart the forces exerted
-         * on them can be way too large. Currently to compensate for this, I
-         * limit the displacement in the x and y directions for a node in one
-         * iteration to be the 'optimalEdgeLength' (see {@link
-         * BoundsAwareForceCalculator}). This is kind of arbitrary, and perhaps
-         * more appropriate values could be found.
-         */
-        VectorUtils.limitVectorComponents(netForce, getOptimalEdgeLength());
-
-        /*
-         * Damping provides simulated annealing
-         */
-        Vector2D positionDelta = netForce.scaleBy(getDampening(node));
-
-        /*
-         * Need to make sure the next calculated position doesn't cause all or
-         * part of the node to go outside the visible graph area
-         */
-        PointDouble restrictedTopLeft = boundsEnforcer.getRestrictedPosition(
-                node, node.getX() + positionDelta.getXComponent(), node.getY()
-                        + positionDelta.getYComponent());
-
-        animateTo(node, restrictedTopLeft, animationDuration);
+    private void updatePosition(Vector2D positionDelta, LayoutNode node) {
+        animateTo(node,
+                new PointDouble(node.getX() + positionDelta.getXComponent(),
+                        node.getY() + positionDelta.getYComponent()),
+                animationDuration);
     }
 }

@@ -25,7 +25,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
@@ -112,7 +111,6 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                                                                                     .getResourceModel()
                                                                                     .addResourceSet(
                                                                                             resourceSet);
-                                                                            layout(graphView);
                                                                         }
 
                                                                         @Override
@@ -150,21 +148,12 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                 });
     }
 
+    @Override
     protected LayoutAlgorithm getLayoutAlgorithm() {
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
                 animationRunner);
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
         return layout;
-    }
-
-    protected void layout(final View graphView) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
-                        getLayoutAlgorithm());
-            }
-        }, 50);
     }
 
     @Override

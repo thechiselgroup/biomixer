@@ -27,7 +27,6 @@ import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServic
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
@@ -79,19 +78,10 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                 });
     }
 
+    @Override
     protected LayoutAlgorithm getLayoutAlgorithm() {
         return new VerticalTreeLayoutAlgorithm(true, errorHandler,
                 animationRunner);
-    }
-
-    protected void layout(final View graphView) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                graphView.adaptTo(GraphLayoutSupport.class).runLayout(
-                        getLayoutAlgorithm());
-            }
-        }, 50);
     }
 
     private void loadConcept(final String virtualOntologyId,
@@ -105,8 +95,6 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                     protected void runOnSuccess(Resource resource) {
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
-                        // TODO automatic layout re-execution on add?
-                        layout(graphView);
                     }
 
                     @Override
@@ -189,7 +177,6 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
-                        layout(graphView);
 
                         for (String parentUri : resource
                                 .getUriListValue(Concept.PARENT_CONCEPTS)) {

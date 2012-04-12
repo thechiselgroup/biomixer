@@ -58,7 +58,8 @@ public class GraphLayoutExecutionManager {
             if (currentComputation.isRunning()) {
                 stopCurrentComputationAndScheduleNewLayout(newLayoutAlgorithm);
             } else {
-                replaceAlgorithmAndRun(newLayoutAlgorithm);
+                replaceAlgorithm(newLayoutAlgorithm);
+                runLayout();
             }
         } else {
             /*
@@ -68,10 +69,33 @@ public class GraphLayoutExecutionManager {
         }
     }
 
-    private void replaceAlgorithmAndRun(LayoutAlgorithm newLayoutAlgorithm) {
+    /**
+     * Stop any calculations and set a new layout algorithm. Does not run it
+     * immediately.
+     * 
+     * @param newLayoutAlgorithm
+     *            the layout algorithm to be run in the future
+     */
+    public void registerDefaultAlgorithm(
+            final LayoutAlgorithm newLayoutAlgorithm) {
+        if (currentComputation == null || !currentComputation.isRunning()) {
+            replaceAlgorithm(newLayoutAlgorithm);
+        } else {
+            currentComputation
+                    .addEventHandler(new LayoutComputationFinishedHandler() {
+                        @Override
+                        public void onLayoutComputationFinished(
+                                LayoutComputationFinishedEvent e) {
+                            replaceAlgorithm(newLayoutAlgorithm);
+                        }
+                    });
+            currentComputation.stop();
+        }
+    }
+
+    private void replaceAlgorithm(LayoutAlgorithm newLayoutAlgorithm) {
         layoutAlgorithm = newLayoutAlgorithm;
         currentComputation = null;
-        runLayout();
     }
 
     /**
@@ -111,7 +135,8 @@ public class GraphLayoutExecutionManager {
                     public void onLayoutComputationFinished(
                             LayoutComputationFinishedEvent e) {
 
-                        replaceAlgorithmAndRun(newLayoutAlgorithm);
+                        replaceAlgorithm(newLayoutAlgorithm);
+                        runLayout();
                     }
                 });
 

@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
@@ -38,15 +36,21 @@ public abstract class BoundsAwareForceCalculator extends
      * DirectedAcyclicGraph.
      */
     protected boolean areNodesInSameGraph(LayoutNode node1, LayoutNode node2) {
-        List<DirectedAcyclicGraph> unconnectedGraphs = graphBuilder
-                .getDirectedAcyclicGraphs(graph);
-        for (DirectedAcyclicGraph directedAcyclicGraph : unconnectedGraphs) {
-            if (directedAcyclicGraph.containsLayoutNode(node1)
-                    && directedAcyclicGraph.containsLayoutNode(node2)) {
-                return true;
+        DirectedAcyclicGraph node1Graph = null;
+        DirectedAcyclicGraph node2Graph = null;
+        for (DirectedAcyclicGraph directedAcyclicGraph : graphBuilder
+                .getDirectedAcyclicGraphs(graph)) {
+            if (directedAcyclicGraph.containsLayoutNode(node1)) {
+                node1Graph = directedAcyclicGraph;
+            }
+            if (directedAcyclicGraph.containsLayoutNode(node2)) {
+                node2Graph = directedAcyclicGraph;
             }
         }
-        return false;
+        if (node1Graph == null || node2Graph == null) {
+            return false;
+        }
+        return node1Graph.equals(node2Graph);
     }
 
     protected double getOptimalEdgeLength() {
