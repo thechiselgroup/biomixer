@@ -20,6 +20,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
+import com.google.gwt.user.client.ui.Widget;
+
 /**
  * Handles construction of the actual components displayed for a graph view.
  * 
@@ -30,6 +32,8 @@ public interface GraphRenderer {
 
     // FIXME: generalize
     void addPopup(PopupExpanderSvgComponent popup);
+
+    Widget asWidget();
 
     void bringToForeground(RenderedNode node);
 
@@ -46,6 +50,10 @@ public interface GraphRenderer {
     void setArcStyle(Arc arc, String styleProperty, String styleValue);
 
     void setBackgroundEventListener(ChooselEventHandler handler);
+
+    void setGraphHeight(int height);
+
+    void setGraphWidth(int width);
 
     void setNodeStyle(Node node, String styleProperty, String styleValue);
 

@@ -17,12 +17,16 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgWidget;
+import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgGraphBackground;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
+
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Manages low level details of the SVG graph rendering.
@@ -31,6 +35,10 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  * 
  */
 public class SvgGraphRenderer extends AbstractGraphRenderer {
+
+    private SvgWidget svgWidget = null;
+
+    private ScrollableSvgWidget asScrollingWidget = null;
 
     protected CompositeSvgComponent rootSvgComponent = null;
 
@@ -44,11 +52,21 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     private final SvgElementFactory svgElementFactory;
 
+    // TODO extract to abstract?
+    private int graphWidth;
+
+    // TODO extract to abstract?
+    private int graphHeight;
+
+    private ChooselEventHandler viewWideInteractionHandler;
+
     public SvgGraphRenderer(int width, int height,
             SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         super(new BoxedTextSvgNodeRenderer(svgElementFactory,
                 textBoundsEstimator), new SvgArcRenderer(svgElementFactory));
+        this.graphWidth = width;
+        this.graphHeight = height;
         this.svgElementFactory = svgElementFactory;
         initRootSvgElement();
         initBackground(width, height);
@@ -67,6 +85,11 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         nodeGroup.appendChild((NodeSvgComponent) node);
     }
 
+    @Override
+    public void addPopup(PopupExpanderSvgComponent popup) {
+        popupGroup.appendChild(popup);
+    }
+
     /**
      * For testing.
      * 
@@ -74,6 +97,22 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
      */
     public SvgElement asSvg() {
         return rootSvgComponent.getSvgElement();
+    }
+
+    @Override
+    public Widget asWidget() {
+        if (!isWidgetInitialized()) {
+            svgWidget = new SvgWidget();
+            rootSvgComponent = new CompositeSvgComponent(
+                    svgWidget.getSvgElement(), rootSvgComponent,
+                    viewWideInteractionHandler);
+            asScrollingWidget = new ScrollableSvgWidget(svgWidget, graphWidth,
+                    graphHeight);
+            asScrollingWidget.setTextUnselectable();
+            asScrollingWidget.getElement().getStyle()
+                    .setBackgroundColor("white");
+        }
+        return asScrollingWidget;
     }
 
     @Override
@@ -119,6 +158,10 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         rootSvgComponent.appendChild(popupGroup);
     }
 
+    private boolean isWidgetInitialized() {
+        return svgWidget != null;
+    }
+
     @Override
     protected void removeArcFromGraph(RenderedArc arc) {
         // FIXME
@@ -132,7 +175,23 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     }
 
     @Override
+    public void setBackgroundEventListener(ChooselEventHandler handler) {
+        background.setEventListener(handler);
+    }
+
+    @Override
+    public void setGraphHeight(int height) {
+        this.graphHeight = height;
+    }
+
+    @Override
+    public void setGraphWidth(int width) {
+        this.graphWidth = width;
+    }
+
+    @Override
     public void setViewWideInteractionHandler(ChooselEventHandler handler) {
+        this.viewWideInteractionHandler = handler;
         rootSvgComponent.setEventListener(handler);
     }
 

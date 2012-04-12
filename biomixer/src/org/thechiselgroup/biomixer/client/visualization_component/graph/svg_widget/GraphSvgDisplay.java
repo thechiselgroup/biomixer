@@ -52,7 +52,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.CompositeSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgExpanderPopupFactory;
@@ -193,7 +192,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 sourceNode.getRenderedNode(), targetNode.getRenderedNode());
 
         renderedArc.setEventListener(new ChooselEventHandler() {
-
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)) {
@@ -318,18 +316,19 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public Widget asWidget() {
-        if (!isWidgetInitialized()) {
-            svgWidget = new SvgWidget();
-            rootSvgComponent = new CompositeSvgComponent(
-                    svgWidget.getSvgElement(), rootSvgComponent,
-                    viewWideInteractionListener);
-            asScrollingWidget = new ScrollableSvgWidget(svgWidget, viewWidth,
-                    viewHeight);
-            asScrollingWidget.setTextUnselectable();
-            asScrollingWidget.getElement().getStyle()
-                    .setBackgroundColor("white");
-        }
-        return asScrollingWidget;
+        // if (!isWidgetInitialized()) {
+        // svgWidget = new SvgWidget();
+        // rootSvgComponent = new CompositeSvgComponent(
+        // svgWidget.getSvgElement(), rootSvgComponent,
+        // viewWideInteractionListener);
+        // asScrollingWidget = new ScrollableSvgWidget(svgWidget, viewWidth,
+        // viewHeight);
+        // asScrollingWidget.setTextUnselectable();
+        // asScrollingWidget.getElement().getStyle()
+        // .setBackgroundColor("white");
+        // }
+        // return asScrollingWidget;
+        return graphRenderer.asWidget();
     }
 
     // /**
@@ -616,7 +615,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                         break;
 
                     case CLICK:
-                        handler.onNodeMenuItemClicked(nodeComponent.getNode());
+                        handler.onNodeMenuItemClicked(renderedNode.getNode());
                         graphRenderer.clearPopups();
                         break;
 
