@@ -37,6 +37,46 @@ public class LayoutNodeBoundsEnforcer {
     }
 
     /**
+     * Returns the position delta vector which most closely matches the
+     * requested delta while still staying within the graph bounds.
+     * 
+     * @param node
+     *            the node the position delta vector applies to
+     * @param requestedDelta
+     *            the delta that was calculated for this node, but which may put
+     *            it outside the graph bounds
+     * @return a position delta vector which will keep the node within the graph
+     *         bounds.
+     */
+    public Vector2D getRestrictedDelta(LayoutNode node, Vector2D requestedDelta) {
+        BoundsDouble bounds = graph.getBounds();
+        SizeDouble nodeSize = node.getSize();
+
+        double adjustedXComponent = requestedDelta.getXComponent();
+        double adjustedYComponent = requestedDelta.getYComponent();
+
+        if (node.getX() + requestedDelta.getXComponent() < bounds.getLeftX()) {
+            adjustedXComponent = bounds.getLeftX() - node.getX();
+        }
+
+        double nodeRightX = node.getX() + nodeSize.getWidth();
+        if (nodeRightX > bounds.getRightX()) {
+            adjustedXComponent = bounds.getRightX() - nodeRightX;
+        }
+
+        if (node.getY() + requestedDelta.getYComponent() < bounds.getTopY()) {
+            adjustedYComponent = bounds.getTopY() - node.getY();
+        }
+
+        double nodeBottomY = node.getY() + nodeSize.getHeight();
+        if (nodeBottomY > bounds.getBottomY()) {
+            adjustedYComponent = bounds.getBottomY() - nodeBottomY;
+        }
+
+        return new Vector2D(adjustedXComponent, adjustedYComponent);
+    }
+
+    /**
      * Returns the top left coordinates that should be used to make sure that
      * the entire node stays within the graph bounds while still being as close
      * to the requested position as possible.
