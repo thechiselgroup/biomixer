@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutNode;
@@ -28,7 +27,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 public class ArcSvgComponent extends CompositeSvgComponent implements
-        LayoutArc, Identifiable {
+        Identifiable {
 
     private Arc arc;
 
@@ -67,32 +66,27 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
         return source.getRenderedNode();
     }
 
-    @Override
-    public LayoutNode getSourceNode() {
-        return source;
-    }
-
     public NodeSvgComponent getRenderedTarget() {
         return target.getRenderedNode();
     }
 
-    @Override
+    public LayoutNode getSourceNode() {
+        return source;
+    }
+
     public LayoutNode getTargetNode() {
         return target;
     }
 
-    @Override
     public double getThickness() {
         return Double.parseDouble(arcLine
                 .getAttributeAsString(Svg.STROKE_WIDTH));
     }
 
-    @Override
     public LayoutArcType getType() {
         return arcType;
     }
 
-    @Override
     public boolean isDirected() {
         return arc.isDirected();
     }

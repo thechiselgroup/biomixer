@@ -195,10 +195,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         });
 
         arcs.add(arcComponent);
-        layoutGraph.addLayoutArc(arcComponent);
 
-        sourceNode.getRenderedNode().addConnectedArc(arcComponent);
-        targetNode.getRenderedNode().addConnectedArc(arcComponent);
+        SvgLayoutArc layoutArc = new SvgLayoutArc(arcComponent, layoutArcType);
+        layoutGraph.addSvgLayoutArc(layoutArc);
+
+        sourceNode.addConnectedArc(layoutArc);
+        targetNode.addConnectedArc(layoutArc);
 
         arcGroup.appendChild(arcComponent);
     }
@@ -711,10 +713,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public void removeArc(Arc arc) {
         assert arc != null;
         String id = arc.getId();
-        layoutGraph.removeLayoutArc(arcs.get(id));
         assert arcs.contains(id);
         arcs.get(id).removeNodeConnections();
         arcs.remove(id);
+        layoutGraph.removeSvgLayoutArc(id);
         arcGroup.removeChild(arc.getId());
     }
 

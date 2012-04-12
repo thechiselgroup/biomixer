@@ -16,14 +16,22 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutNode;
 
 public class SvgLayoutGraph extends DefaultLayoutGraph {
 
     private IdentifiablesList<SvgLayoutNode> svgLayoutNodes = new IdentifiablesList<SvgLayoutNode>();
 
+    private IdentifiablesList<SvgLayoutArc> svgLayoutArcs = new IdentifiablesList<SvgLayoutArc>();
+
     public SvgLayoutGraph(double width, double height) {
         super(width, height);
+    }
+
+    public void addSvgLayoutArc(SvgLayoutArc arc) {
+        addLayoutArc(arc);
+        svgLayoutArcs.add(arc);
     }
 
     public void addSvgLayoutNode(SvgLayoutNode node) {
@@ -31,8 +39,17 @@ public class SvgLayoutGraph extends DefaultLayoutGraph {
         svgLayoutNodes.add(node);
     }
 
+    public SvgLayoutArc getSvgLayoutArc(String id) {
+        return svgLayoutArcs.get(id);
+    }
+
     public SvgLayoutNode getSvgLayoutNode(String id) {
         return svgLayoutNodes.get(id);
+    }
+
+    public void removeSvgLayoutArc(String id) {
+        removeLayoutArc(getSvgLayoutArc(id));
+        svgLayoutArcs.remove(id);
     }
 
     public void removeSvgLayoutNode(String id) {

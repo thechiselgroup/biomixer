@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
@@ -32,14 +33,21 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     private final LayoutNodeType nodeType;
 
+    private List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
+
     public SvgLayoutNode(NodeSvgComponent svgComponent, LayoutNodeType nodeType) {
         this.svgComponent = svgComponent;
         this.nodeType = nodeType;
     }
 
+    public void addConnectedArc(SvgLayoutArc layoutArc) {
+        connectedArcs.add(layoutArc);
+        svgComponent.addConnectedArc(layoutArc.getRenderedArc());
+    }
+
     @Override
     public List<LayoutArc> getConnectedArcs() {
-        return svgComponent.getConnectedArcs();
+        return connectedArcs;
     }
 
     @Override

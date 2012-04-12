@@ -23,7 +23,6 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -68,14 +67,6 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     public List<ArcSvgComponent> getConnectedArcComponents() {
         return arcsConnectedToThisNode;
-    }
-
-    public List<LayoutArc> getConnectedArcs() {
-        List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
-        for (LayoutArc layoutArc : arcsConnectedToThisNode) {
-            connectedArcs.add(layoutArc);
-        }
-        return connectedArcs;
     }
 
     public ExpanderTabSvgComponent getExpanderTab() {
