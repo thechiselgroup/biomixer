@@ -49,8 +49,12 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.a
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.SvgLayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.CompositeSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgExpanderPopupFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;

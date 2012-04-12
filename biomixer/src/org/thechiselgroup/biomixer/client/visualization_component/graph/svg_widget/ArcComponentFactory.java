@@ -18,6 +18,8 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgArrowHead;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
