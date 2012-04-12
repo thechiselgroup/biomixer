@@ -31,6 +31,14 @@ public interface RenderedNode {
 
     double getTopY();
 
+    void setBackgroundColor(String color);
+
+    void setBorderColor(String color);
+
+    void setFontColor(String color);
+
+    void setFontWeight(String fontWeight);
+
     void setLeftX(double x);
 
     void setTopY(double y);

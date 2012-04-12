@@ -34,4 +34,8 @@ public interface GraphRenderer {
 
     void renderNode(Node node);
 
+    void setArcStyle(Arc arc, String styleProperty, String styleValue);
+
+    void setNodeStyle(Node node, String styleProperty, String styleValue);
+
 }

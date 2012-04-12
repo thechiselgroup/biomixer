@@ -24,6 +24,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
@@ -70,6 +72,44 @@ public class DefaultGraphRenderer implements GraphRenderer {
     public void renderNode(Node node) {
         assert !renderedNodes.containsKey(node) : "Cannot render the same node multiple times";
         renderedNodes.put(node, nodeRenderer.createRenderedNode(node));
+    }
+
+    @Override
+    public void setArcStyle(Arc arc, String styleProperty, String styleValue) {
+        RenderedArc renderedArc = renderedArcs.get(arc);
+
+        if (styleProperty.equals(ArcSettings.ARC_COLOR)) {
+            renderedArc.setColor(styleValue);
+        }
+
+        else if (styleProperty.equals(ArcSettings.ARC_STYLE)) {
+            renderedArc.setArcStyle(styleValue);
+        }
+
+        else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
+            renderedArc.setThickness(styleValue);
+        }
+    }
+
+    @Override
+    public void setNodeStyle(Node node, String styleProperty, String styleValue) {
+        RenderedNode renderedNode = renderedNodes.get(node);
+
+        if (styleProperty.equals(GraphDisplay.NODE_BACKGROUND_COLOR)) {
+            renderedNode.setBackgroundColor(styleValue);
+        }
+
+        else if (styleProperty.equals(GraphDisplay.NODE_FONT_COLOR)) {
+            renderedNode.setFontColor(styleValue);
+        }
+
+        else if (styleProperty.equals(GraphDisplay.NODE_FONT_WEIGHT)) {
+            renderedNode.setFontWeight(styleValue);
+        }
+
+        else if (styleProperty.equals(GraphDisplay.NODE_BORDER_COLOR)) {
+            renderedNode.setBorderColor(styleValue);
+        }
     }
 
 }

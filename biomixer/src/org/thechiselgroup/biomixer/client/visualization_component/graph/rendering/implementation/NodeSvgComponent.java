@@ -126,11 +126,13 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         arcsConnectedToThisNode.remove(arc);
     }
 
+    @Override
     public void setBackgroundColor(String color) {
         boxedText.setBackgroundColor(color);
         expanderTab.setBackgroundColor(color);
     }
 
+    @Override
     public void setBorderColor(String color) {
         boxedText.setBorderColor(color);
         expanderTab.setBorderColor(color);
@@ -140,10 +142,12 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         expanderTab.setEventListener(handler);
     }
 
+    @Override
     public void setFontColor(String color) {
         boxedText.setFontColor(color);
     }
 
+    @Override
     public void setFontWeight(String styleValue) {
         if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_NORMAL)) {
             boxedText.setFontWeight(Svg.NORMAL);
