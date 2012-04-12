@@ -23,10 +23,8 @@ import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
 import com.google.inject.Inject;
@@ -75,7 +73,6 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                                                 graphView.getResourceModel()
                                                         .addResourceSet(
                                                                 resourceSet);
-                                                layout(graphView);
                                             }
 
                                             @Override
@@ -99,25 +96,10 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     }
 
-    protected LayoutAlgorithm getLayoutAlgorithm(LayoutGraph layoutGraph) {
+    @Override
+    protected LayoutAlgorithm getLayoutAlgorithm() {
         return new HorizontalTreeLayoutAlgorithm(true, errorHandler,
                 animationRunner);
-        // return new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
-        // new BoundsAwareAttractionCalculator(layoutGraph),
-        // new BoundsAwareRepulsionCalculator(layoutGraph)), 0.9,
-        // errorHandler);
-    }
-
-    protected void layout(final View graphView) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                GraphLayoutSupport layoutSupport = graphView
-                        .adaptTo(GraphLayoutSupport.class);
-                layoutSupport.runLayout(getLayoutAlgorithm(layoutSupport
-                        .getLayoutGraph()));
-            }
-        }, 50);
     }
 
     @Override

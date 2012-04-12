@@ -645,6 +645,11 @@ public class Graph extends AbstractViewContentDisplay implements
         return ready;
     }
 
+    @Override
+    public void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm) {
+        layoutManager.registerDefaultAlgorithm(layoutAlgorithm);
+    }
+
     private void registerNodeMenuItem(String category, String menuLabel,
             final GraphNodeExpander nodeExpander) {
 
