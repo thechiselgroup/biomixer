@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
@@ -21,9 +21,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 
-public class SvgLayoutArc implements LayoutArc, Identifiable {
+public class IdentifiableLayoutArc implements LayoutArc, Identifiable {
 
-    private RenderedArc svgComponent;
+    private RenderedArc renderedArc;
 
     private final LayoutArcType arcType;
 
@@ -33,10 +33,10 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     private final String id;
 
-    public SvgLayoutArc(String id, RenderedArc renderedArc,
+    public IdentifiableLayoutArc(String id, RenderedArc renderedArc,
             LayoutArcType arcType, LayoutNode sourceNode, LayoutNode targetNode) {
         this.id = id;
-        this.svgComponent = renderedArc;
+        this.renderedArc = renderedArc;
         this.arcType = arcType;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
@@ -48,7 +48,7 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
     }
 
     public RenderedArc getRenderedArc() {
-        return svgComponent;
+        return renderedArc;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     @Override
     public double getThickness() {
-        return svgComponent.getThickness();
+        return renderedArc.getThickness();
     }
 
     @Override
@@ -73,7 +73,7 @@ public class SvgLayoutArc implements LayoutArc, Identifiable {
 
     @Override
     public boolean isDirected() {
-        return svgComponent.isDirected();
+        return renderedArc.isDirected();
     }
 
 }

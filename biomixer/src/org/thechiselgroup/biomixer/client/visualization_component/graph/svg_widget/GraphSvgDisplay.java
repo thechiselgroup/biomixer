@@ -44,6 +44,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
@@ -93,7 +96,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     // TODO needed here? just use renderer?
     private int viewHeight;
 
-    private SvgLayoutGraph layoutGraph;
+    private IdentifiableLayoutGraph layoutGraph;
 
     private GraphRenderer graphRenderer;
 
@@ -137,7 +140,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         nodeInteractionManager = new NodeInteractionManager(this);
         initViewWideInteractionHandler();
 
-        this.layoutGraph = new SvgLayoutGraph(width, height);
+        this.layoutGraph = new IdentifiableLayoutGraph(width, height);
         this.animationRunner = initAnimationRunner();
     }
 
@@ -156,8 +159,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert nodes.containsKey(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        SvgLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
-        SvgLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
+        IdentifiableLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
+        IdentifiableLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
 
         final RenderedArc renderedArc = graphRenderer.renderArc(arc,
                 sourceNode.getRenderedNode(), targetNode.getRenderedNode());
@@ -171,7 +174,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             }
         });
 
-        SvgLayoutArc layoutArc = new SvgLayoutArc(arc.getId(), renderedArc,
+        IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(arc.getId(), renderedArc,
                 getArcType(arc.getType()), sourceNode, targetNode);
         layoutGraph.addSvgLayoutArc(layoutArc);
 
@@ -231,7 +234,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             }
         });
 
-        SvgLayoutNode layoutNode = new SvgLayoutNode(node.getId(),
+        IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(node.getId(),
                 renderedNode, getNodeType(node.getType()));
         setDefaultPosition(layoutNode);
         layoutGraph.addSvgLayoutNode(layoutNode);

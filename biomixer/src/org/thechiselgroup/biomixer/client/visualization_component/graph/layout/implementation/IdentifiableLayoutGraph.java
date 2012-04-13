@@ -13,36 +13,35 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutGraph;
 
-public class SvgLayoutGraph extends DefaultLayoutGraph {
+public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
 
-    private IdentifiablesList<SvgLayoutNode> svgLayoutNodes = new IdentifiablesList<SvgLayoutNode>();
+    private IdentifiablesList<IdentifiableLayoutNode> svgLayoutNodes = new IdentifiablesList<IdentifiableLayoutNode>();
 
-    private IdentifiablesList<SvgLayoutArc> svgLayoutArcs = new IdentifiablesList<SvgLayoutArc>();
+    private IdentifiablesList<IdentifiableLayoutArc> svgLayoutArcs = new IdentifiablesList<IdentifiableLayoutArc>();
 
-    public SvgLayoutGraph(double width, double height) {
+    public IdentifiableLayoutGraph(double width, double height) {
         super(width, height);
     }
 
-    public void addSvgLayoutArc(SvgLayoutArc arc) {
+    public void addSvgLayoutArc(IdentifiableLayoutArc arc) {
         addLayoutArc(arc);
         svgLayoutArcs.add(arc);
     }
 
-    public void addSvgLayoutNode(SvgLayoutNode node) {
+    public void addSvgLayoutNode(IdentifiableLayoutNode node) {
         addLayoutNode(node);
         svgLayoutNodes.add(node);
     }
 
-    public SvgLayoutArc getSvgLayoutArc(String id) {
+    public IdentifiableLayoutArc getSvgLayoutArc(String id) {
         return svgLayoutArcs.get(id);
     }
 
-    public SvgLayoutNode getSvgLayoutNode(String id) {
+    public IdentifiableLayoutNode getSvgLayoutNode(String id) {
         return svgLayoutNodes.get(id);
     }
 

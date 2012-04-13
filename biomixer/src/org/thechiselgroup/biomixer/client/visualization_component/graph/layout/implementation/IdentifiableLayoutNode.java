@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +23,11 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
-public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
+public class IdentifiableLayoutNode extends AbstractLayoutNode implements Identifiable {
 
-    private RenderedNode svgComponent;
+    private RenderedNode renderedNode;
 
     private boolean isAnchored = false;
 
@@ -38,16 +37,16 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     private final String id;
 
-    public SvgLayoutNode(String id, RenderedNode svgComponent,
+    public IdentifiableLayoutNode(String id, RenderedNode svgComponent,
             LayoutNodeType nodeType) {
         this.id = id;
-        this.svgComponent = svgComponent;
+        this.renderedNode = svgComponent;
         this.nodeType = nodeType;
     }
 
-    public void addConnectedArc(SvgLayoutArc layoutArc) {
+    public void addConnectedArc(IdentifiableLayoutArc layoutArc) {
         connectedArcs.add(layoutArc);
-        svgComponent.addConnectedArc(layoutArc.getRenderedArc());
+        renderedNode.addConnectedArc(layoutArc.getRenderedArc());
     }
 
     @Override
@@ -79,12 +78,12 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
     }
 
     public RenderedNode getRenderedNode() {
-        return svgComponent;
+        return renderedNode;
     }
 
     @Override
     public SizeDouble getSize() {
-        return svgComponent.getSize();
+        return renderedNode.getSize();
     }
 
     @Override
@@ -94,12 +93,12 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     @Override
     public double getX() {
-        return svgComponent.getLeftX();
+        return renderedNode.getLeftX();
     }
 
     @Override
     public double getY() {
-        return svgComponent.getTopY();
+        return renderedNode.getTopY();
     }
 
     @Override
@@ -135,12 +134,12 @@ public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {
 
     @Override
     public void setX(double x) {
-        svgComponent.setLeftX(x);
+        renderedNode.setLeftX(x);
     }
 
     @Override
     public void setY(double y) {
-        svgComponent.setTopY(y);
+        renderedNode.setTopY(y);
     }
 
 }
