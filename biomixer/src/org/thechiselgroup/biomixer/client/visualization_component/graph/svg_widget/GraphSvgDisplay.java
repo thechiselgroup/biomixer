@@ -152,10 +152,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         String sourceNodeId = arc.getSourceNodeId();
         String targetNodeId = arc.getTargetNodeId();
 
-        assert nodes.containsKey(sourceNodeId) : "source node '"
-                + sourceNodeId + "' must be available";
-        assert nodes.containsKey(targetNodeId) : "target node '"
-                + targetNodeId + "' must be available";
+        assert nodes.containsKey(sourceNodeId) : "source node '" + sourceNodeId
+                + "' must be available";
+        assert nodes.containsKey(targetNodeId) : "target node '" + targetNodeId
+                + "' must be available";
 
         SvgLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
         SvgLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
@@ -548,8 +548,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             graphRenderer.setGraphHeight(viewHeight);
         }
 
-        // need this in case scrollable content size is not changed but the
-        // available
+        /*
+         * Need this in case scrollable content size is not changed but the
+         * available
+         */
         graphRenderer.checkIfScrollbarsNeeded();
     }
 
