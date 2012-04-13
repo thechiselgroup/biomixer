@@ -23,7 +23,6 @@ import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgW
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgGraphBackground;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
