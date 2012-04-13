@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.SvgLayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutGraph;
 
 public class SvgLayoutGraph extends DefaultLayoutGraph {
 

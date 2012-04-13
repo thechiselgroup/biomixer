@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
 public class SvgLayoutNode extends AbstractLayoutNode implements Identifiable {

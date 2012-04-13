@@ -27,7 +27,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AnimatableLayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.AnimatableLayoutNode;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
