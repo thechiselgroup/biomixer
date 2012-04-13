@@ -50,10 +50,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgExpanderPopupFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -90,21 +88,15 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private EventBus eventBus = new SimpleEventBus();
 
-    // TODO needed here? just use renderer?
     private int viewWidth;
 
-    // TODO needed here? just use renderer?
     private int viewHeight;
 
     private IdentifiableLayoutGraph layoutGraph;
 
     private GraphRenderer graphRenderer;
 
-    // XXX needed?
     private NodeInteractionManager nodeInteractionManager;
-
-    // TODO move to rendering
-    private SvgExpanderPopupFactory expanderPopupFactory;
 
     // TODO remove
     protected TextBoundsEstimator textBoundsEstimator;
@@ -134,8 +126,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         this.graphRenderer = new SvgGraphRenderer(width, height,
                 svgElementFactory, textBoundsEstimator);
         initBackgroundListener();
-        this.expanderPopupFactory = new SvgExpanderPopupFactory(
-                svgElementFactory, textBoundsEstimator);
 
         nodeInteractionManager = new NodeInteractionManager(this);
         initViewWideInteractionHandler();
@@ -159,8 +149,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert nodes.containsKey(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        IdentifiableLayoutNode sourceNode = layoutGraph.getIdentifiableLayoutNode(sourceNodeId);
-        IdentifiableLayoutNode targetNode = layoutGraph.getIdentifiableLayoutNode(targetNodeId);
+        IdentifiableLayoutNode sourceNode = layoutGraph
+                .getIdentifiableLayoutNode(sourceNodeId);
+        IdentifiableLayoutNode targetNode = layoutGraph
+                .getIdentifiableLayoutNode(targetNodeId);
 
         final RenderedArc renderedArc = graphRenderer.renderArc(arc,
                 sourceNode.getRenderedNode(), targetNode.getRenderedNode());
@@ -174,8 +166,9 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             }
         });
 
-        IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(arc.getId(), renderedArc,
-                getArcType(arc.getType()), sourceNode, targetNode);
+        IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(
+                arc.getId(), renderedArc, getArcType(arc.getType()),
+                sourceNode, targetNode);
         layoutGraph.addIdentifiableLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);
@@ -234,8 +227,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             }
         });
 
-        IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(node.getId(),
-                renderedNode, getNodeType(node.getType()));
+        IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(
+                node.getId(), renderedNode, getNodeType(node.getType()));
         setDefaultPosition(layoutNode);
         layoutGraph.addIdentifiableLayoutNode(layoutNode);
     }
@@ -267,6 +260,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         animationRunner.run(animation, 2);
     }
 
+    // XXX
     public SvgElement asSvg() {
         return ((SvgGraphRenderer) graphRenderer).asSvg();
     }
@@ -314,12 +308,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return layoutArcType;
     }
 
-    protected int getGraphAbsoluteLeft() {
+    private int getGraphAbsoluteLeft() {
         return graphRenderer.getGraphWidget().getAbsoluteLeft();
     }
 
-    protected int getGraphAbsoluteTop() {
-        return graphRenderer.getGraphWidget().getAbsoluteLeft();
+    private int getGraphAbsoluteTop() {
+        return graphRenderer.getGraphWidget().getAbsoluteTop();
     }
 
     /**
@@ -341,8 +335,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public Point getLocation(Node node) {
         assert node != null;
         assert nodes.containsKey(node.getId());
-        RenderedNode renderedNode = graphRenderer.getRenderedNode(node);
-        return renderedNode.getTopLeft().toPointInt();
+        return graphRenderer.getRenderedNode(node).getTopLeft().toPointInt();
     }
 
     @Override
@@ -429,7 +422,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {
-        graphRenderer.clearPopups();
+        graphRenderer.removeAllNodeExpanders();
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
@@ -443,7 +436,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         setLocation(node, new Point(endX, endY));
         eventBus.fireEvent(new NodeDragEvent(node, startX, startY, endX, endY));
-        graphRenderer.clearPopups();
+        graphRenderer.removeAllNodeExpanders();
     }
 
     public void onNodeDragHandleMouseMove(String nodeID, int mouseX, int mouseY) {
@@ -456,7 +449,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         int y = mouseY - getGraphAbsoluteTop();
 
         eventBus.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
-        graphRenderer.clearPopups();
+        graphRenderer.removeAllNodeExpanders();
     }
 
     public void onNodeMouseDoubleClick(String nodeId, int mouseX, int mouseY) {
@@ -485,52 +478,51 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void onNodeTabClick(final RenderedNode renderedNode) {
+        graphRenderer.removeAllNodeExpanders();
         // FIXME
-        NodeSvgComponent nodeComponent = (NodeSvgComponent) renderedNode;
-        LayoutNodeType type = getNodeType(nodeComponent.getType());
+        LayoutNodeType type = getNodeType(((NodeSvgComponent) renderedNode)
+                .getType());
         Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
                 .get(type);
-        PopupExpanderSvgComponent popupExpanderList = expanderPopupFactory
-                .createExpanderPopupList(
-                        nodeComponent.getExpanderTabAbsoluteLocation(),
+        final RenderedNodeExpander renderNodeExpander = graphRenderer
+                .renderNodeExpander(renderedNode.getExpanderPopupLocation(),
                         nodeMenuItemClickHandlers.keySet());
 
         for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
                 .entrySet()) {
-            String expanderId = entry.getKey();
+            final String expanderId = entry.getKey();
             final NodeMenuItemClickedHandler handler = entry.getValue();
-            final BoxedTextSvgComponent expanderEntry = popupExpanderList
-                    .getEntryByExpanderLabel(expanderId);
-            expanderEntry.setEventListener(new ChooselEventHandler() {
+            renderNodeExpander.setEventHandlerOnOption(expanderId,
+                    new ChooselEventHandler() {
 
-                @Override
-                public void onEvent(ChooselEvent event) {
-                    switch (event.getEventType()) {
-                    case MOUSE_OVER:
-                        // give rect highlight color
-                        expanderEntry.setBackgroundColor(Colors.BLUE_1);
-                        break;
+                        @Override
+                        public void onEvent(ChooselEvent event) {
+                            switch (event.getEventType()) {
+                            case MOUSE_OVER:
+                                // give rect highlight color
+                                renderNodeExpander.setOptionBackgroundColor(
+                                        expanderId, Colors.BLUE_1);
+                                break;
 
-                    case MOUSE_OUT:
-                        // give rect default color
-                        expanderEntry.setBackgroundColor(Colors.WHITE);
-                        break;
+                            case MOUSE_OUT:
+                                // give rect default color
+                                renderNodeExpander.setOptionBackgroundColor(
+                                        expanderId, Colors.WHITE);
+                                break;
 
-                    case CLICK:
-                        handler.onNodeMenuItemClicked(renderedNode.getNode());
-                        graphRenderer.clearPopups();
-                        break;
+                            case CLICK:
+                                handler.onNodeMenuItemClicked(renderedNode
+                                        .getNode());
+                                graphRenderer.removeAllNodeExpanders();
+                                break;
 
-                    default:
-                        break;
-                    }
-                }
-            });
+                            default:
+                                break;
+                            }
+                        }
+                    });
         }
 
-        graphRenderer.clearPopups();
-        // FIXME
-        graphRenderer.addPopup(popupExpanderList);
     }
 
     @Override
@@ -566,7 +558,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void panBackground(int deltaX, int deltaY) {
-        graphRenderer.clearPopups();
+        graphRenderer.removeAllNodeExpanders();
 
         BoundsDouble nodeBounds = layoutGraph.getNodeBounds();
         /*
@@ -686,8 +678,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public void setLocation(Node node, Point location) {
         assert nodes.containsKey(node.getId());
-        layoutGraph.getIdentifiableLayoutNode(node.getId()).setPosition(location.getX(),
-                location.getY());
+        layoutGraph.getIdentifiableLayoutNode(node.getId()).setPosition(
+                location.getX(), location.getY());
     }
 
     @Override

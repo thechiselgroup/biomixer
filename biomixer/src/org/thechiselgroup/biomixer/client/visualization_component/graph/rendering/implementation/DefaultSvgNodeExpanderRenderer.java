@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2012 David Rusk 
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- *
- *    http://www.apache.org/licenses/LICENSE-2.0 
- *     
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License.  
- *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
 import java.util.List;
@@ -23,28 +8,36 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
-public class SvgExpanderPopupFactory {
+/**
+ * Renders the node expander as stacked rectangles with text in them.
+ * 
+ * @author drusk
+ * 
+ */
+public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
 
-    private final SvgElementFactory svgElementFactory;
+    private SvgElementFactory svgElementFactory;
 
     private TextBoundsEstimator textBoundsEstimator;
 
-    public SvgExpanderPopupFactory(SvgElementFactory svgElementFactory,
+    public DefaultSvgNodeExpanderRenderer(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
-        this.textBoundsEstimator = textBoundsEstimator;
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
+        this.textBoundsEstimator = textBoundsEstimator;
     }
 
-    public PopupExpanderSvgComponent createExpanderPopupList(
-            PointDouble topLeftLocation, Set<String> expanderLabels) {
-
+    @Override
+    public RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
+            Set<String> expanderLabels) {
         SvgElement popUpContainer = svgElementFactory.createElement(Svg.SVG);
         popUpContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         SvgUtils.setXY(popUpContainer, topLeftLocation);
@@ -77,4 +70,5 @@ public class SvgExpanderPopupFactory {
 
         return new PopupExpanderSvgComponent(popUpContainer, boxedTextEntries);
     }
+
 }

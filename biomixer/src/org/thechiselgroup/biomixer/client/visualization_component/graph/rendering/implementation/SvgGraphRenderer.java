@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgW
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -65,7 +66,9 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
             SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         super(new BoxedTextSvgNodeRenderer(svgElementFactory,
-                textBoundsEstimator), new SvgArcRenderer(svgElementFactory));
+                textBoundsEstimator), new SvgArcRenderer(svgElementFactory),
+                new DefaultSvgNodeExpanderRenderer(svgElementFactory,
+                        textBoundsEstimator));
         this.graphWidth = width;
         this.graphHeight = height;
         this.svgElementFactory = svgElementFactory;
@@ -81,14 +84,15 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     }
 
     @Override
-    protected void addNodeToGraph(RenderedNode node) {
+    protected void addNodeExpanderToGraph(RenderedNodeExpander expander) {
         // FIXME
-        nodeGroup.appendChild((NodeSvgComponent) node);
+        popupGroup.appendChild((PopupExpanderSvgComponent) expander);
     }
 
     @Override
-    public void addPopup(PopupExpanderSvgComponent popup) {
-        popupGroup.appendChild(popup);
+    protected void addNodeToGraph(RenderedNode node) {
+        // FIXME
+        nodeGroup.appendChild((NodeSvgComponent) node);
     }
 
     /**
@@ -109,11 +113,6 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     public void checkIfScrollbarsNeeded() {
         asScrollingWidget.checkIfScrollbarsNeeded();
-    }
-
-    @Override
-    public void clearPopups() {
-        popupGroup.removeAllChildren();
     }
 
     private CompositeSvgComponent createCompositeGroupingComponent(String id) {
@@ -174,6 +173,12 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     protected void removeArcFromGraph(RenderedArc arc) {
         // FIXME
         arcGroup.removeChild((ArcSvgComponent) arc);
+    }
+
+    @Override
+    protected void removeNodeExpanderFromGraph(RenderedNodeExpander expander) {
+        // FIXME
+        popupGroup.removeChild((PopupExpanderSvgComponent) expander);
     }
 
     @Override

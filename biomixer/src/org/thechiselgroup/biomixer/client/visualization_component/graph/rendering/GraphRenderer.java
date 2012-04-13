@@ -15,9 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import java.util.Set;
+
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
@@ -31,18 +33,9 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public interface GraphRenderer {
 
-    // FIXME: generalize
-    void addPopup(PopupExpanderSvgComponent popup);
-
     void bringToForeground(RenderedNode node);
 
     void checkIfScrollbarsNeeded();
-
-    /**
-     * Clear the node expander popup if there is one. This does not get rid of
-     * the on mouse-over node details though, which is done using HTML.
-     */
-    void clearPopups();
 
     SizeDouble getGraphSize();
 
@@ -52,16 +45,22 @@ public interface GraphRenderer {
 
     RenderedNode getRenderedNode(Node node);
 
-    // XXX remove?
     boolean isWidgetInitialized();
+
+    void removeAllNodeExpanders();
 
     void removeArc(Arc arc);
 
     void removeNode(Node node);
 
+    void removeNodeExpander(RenderedNodeExpander expander);
+
     RenderedArc renderArc(Arc arc, RenderedNode source, RenderedNode target);
 
     RenderedNode renderNode(Node node);
+
+    RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
+            Set<String> expanderLabels);
 
     void setArcStyle(Arc arc, String styleProperty, String styleValue);
 

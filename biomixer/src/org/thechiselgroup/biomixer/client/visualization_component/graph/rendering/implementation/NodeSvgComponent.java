@@ -78,12 +78,17 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return connectedArcs;
     }
 
-    public ExpanderTabSvgComponent getExpanderTab() {
-        return expanderTab;
+    @Override
+    public PointDouble getExpanderPopupLocation() {
+        return getLocation().plus(expanderTab.getLocation());
     }
 
-    public PointDouble getExpanderTabAbsoluteLocation() {
-        return getLocation().plus(expanderTab.getLocation());
+    // public PointDouble getExpanderTabAbsoluteLocation() {
+    // return getLocation().plus(expanderTab.getLocation());
+    // }
+
+    public ExpanderTabSvgComponent getExpanderTab() {
+        return expanderTab;
     }
 
     @Override

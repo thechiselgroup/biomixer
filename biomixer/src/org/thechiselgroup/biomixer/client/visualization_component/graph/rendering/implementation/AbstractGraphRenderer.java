@@ -15,14 +15,21 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -40,19 +47,35 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private ArcRenderer arcRenderer;
 
+    private NodeExpanderRenderer nodeExpanderRenderer;
+
     private Map<Node, RenderedNode> renderedNodes = new HashMap<Node, RenderedNode>();
 
     private Map<Arc, RenderedArc> renderedArcs = new HashMap<Arc, RenderedArc>();
 
+    private List<RenderedNodeExpander> renderedNodeExpanders = new ArrayList<RenderedNodeExpander>();
+
     protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
-            ArcRenderer arcRenderer) {
+            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
         this.nodeRenderer = nodeRenderer;
         this.arcRenderer = arcRenderer;
+        this.nodeExpanderRenderer = nodeExpanderRenderer;
     }
 
     protected abstract void addArcToGraph(RenderedArc arc);
 
+    protected abstract void addNodeExpanderToGraph(RenderedNodeExpander expander);
+
     protected abstract void addNodeToGraph(RenderedNode node);
+
+    @Override
+    public void removeAllNodeExpanders() {
+        for (Iterator<RenderedNodeExpander> it = renderedNodeExpanders
+                .iterator(); it.hasNext();) {
+            removeNodeExpanderFromGraph(it.next());
+            it.remove();
+        }
+    }
 
     @Override
     public RenderedArc getRenderedArc(Arc arc) {
@@ -91,6 +114,16 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         renderedNodes.get(arc.getTarget().getNode()).removeConnectedArc(arc);
     }
 
+    @Override
+    public void removeNodeExpander(RenderedNodeExpander expander) {
+        assert renderedNodeExpanders.contains(expander);
+        renderedNodeExpanders.remove(expander);
+        removeNodeExpanderFromGraph(expander);
+    }
+
+    protected abstract void removeNodeExpanderFromGraph(
+            RenderedNodeExpander expander);
+
     protected abstract void removeNodeFromGraph(RenderedNode node);
 
     @Override
@@ -111,6 +144,16 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         renderedNodes.put(node, renderedNode);
         addNodeToGraph(renderedNode);
         return renderedNode;
+    }
+
+    @Override
+    public RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
+            Set<String> expanderLabels) {
+        RenderedNodeExpander expander = nodeExpanderRenderer
+                .renderNodeExpander(topLeftLocation, expanderLabels);
+        renderedNodeExpanders.add(expander);
+        addNodeExpanderToGraph(expander);
+        return expander;
     }
 
     @Override

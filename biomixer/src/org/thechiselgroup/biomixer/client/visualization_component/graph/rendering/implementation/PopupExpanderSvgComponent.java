@@ -17,9 +17,12 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class PopupExpanderSvgComponent extends CompositeSvgComponent {
+public class PopupExpanderSvgComponent extends CompositeSvgComponent implements
+        RenderedNodeExpander {
 
     private Map<String, BoxedTextSvgComponent> expanders;
 
@@ -31,6 +34,21 @@ public class PopupExpanderSvgComponent extends CompositeSvgComponent {
 
     public BoxedTextSvgComponent getEntryByExpanderLabel(String expanderLabel) {
         return expanders.get(expanderLabel);
+    }
+
+    @Override
+    public void setEventHandlerOnOption(String optionId,
+            ChooselEventHandler handler) {
+        assert expanders.containsKey(optionId) : "Option id " + optionId
+                + " is not among those rendered";
+        expanders.get(optionId).setEventListener(handler);
+    }
+
+    @Override
+    public void setOptionBackgroundColor(String optionId, String color) {
+        assert expanders.containsKey(optionId) : "Option id " + optionId
+                + " is not among those rendered";
+        expanders.get(optionId).setBackgroundColor(color);
     }
 
 }

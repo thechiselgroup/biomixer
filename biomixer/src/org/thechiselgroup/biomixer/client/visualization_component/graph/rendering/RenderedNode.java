@@ -36,6 +36,8 @@ public interface RenderedNode {
 
     List<RenderedArc> getConnectedArcs();
 
+    PointDouble getExpanderPopupLocation();
+
     double getLeftX();
 
     Node getNode();

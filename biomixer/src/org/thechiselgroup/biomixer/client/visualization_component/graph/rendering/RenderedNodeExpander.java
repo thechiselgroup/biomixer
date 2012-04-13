@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+
 /**
  * The UI element which provides node expansion options.
  * 
@@ -22,5 +24,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
  * 
  */
 public interface RenderedNodeExpander {
+
+    void setEventHandlerOnOption(String optionId, ChooselEventHandler handler);
+
+    void setOptionBackgroundColor(String optionId, String color);
 
 }
