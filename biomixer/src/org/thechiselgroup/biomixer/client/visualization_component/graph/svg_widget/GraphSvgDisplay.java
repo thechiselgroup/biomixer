@@ -35,8 +35,6 @@ import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
-import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgWidget;
-import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
@@ -50,14 +48,12 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.BoxedTextSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgExpanderPopupFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
@@ -86,45 +82,30 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
-    // private ArcComponentFactory arcComponentFactory;
+    private Map<String, Node> nodes = CollectionFactory.createStringMap();
 
-    private NodeComponentFactory nodeComponentFactory;
-
-    private IdentifiablesList<NodeSvgComponent> nodes = new IdentifiablesList<NodeSvgComponent>();
-
-    private IdentifiablesList<ArcSvgComponent> arcs = new IdentifiablesList<ArcSvgComponent>();
-
-    private SvgWidget svgWidget = null;
-
-    private ScrollableSvgWidget asScrollingWidget = null;
-
-    // protected CompositeSvgComponent rootSvgComponent = null;
-    //
-    // private CompositeSvgComponent arcGroup;
-    //
-    // private CompositeSvgComponent nodeGroup;
-    //
-    // protected CompositeSvgComponent popupGroup;
+    private Map<String, Arc> arcs = CollectionFactory.createStringMap();
 
     private EventBus eventBus = new SimpleEventBus();
 
+    // TODO needed here? just use renderer?
     private int viewWidth;
 
+    // TODO needed here? just use renderer?
     private int viewHeight;
 
     private SvgLayoutGraph layoutGraph;
 
     private GraphRenderer graphRenderer;
 
+    // XXX needed?
     private NodeInteractionManager nodeInteractionManager;
 
+    // TODO move to rendering
     private SvgExpanderPopupFactory expanderPopupFactory;
 
+    // TODO remove
     protected TextBoundsEstimator textBoundsEstimator;
-
-    private ChooselEventHandler viewWideInteractionListener;
-
-    private SvgGraphBackground background;
 
     private IdentifiablesList<DefaultLayoutNodeType> nodeTypes = new IdentifiablesList<DefaultLayoutNodeType>();
 
@@ -150,14 +131,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         initTextBoundsEstimator();
         this.graphRenderer = new SvgGraphRenderer(width, height,
                 svgElementFactory, textBoundsEstimator);
-        // initRootSvgComponent();
-        initBackground(width, height);
-        // initCompositeGroupingComponents();
-
-        // this.arcComponentFactory = new
-        // ArcComponentFactory(svgElementFactory);
-        this.nodeComponentFactory = new NodeComponentFactory(svgElementFactory,
-                textBoundsEstimator);
+        initBackgroundListener();
         this.expanderPopupFactory = new SvgExpanderPopupFactory(
                 svgElementFactory, textBoundsEstimator);
 
@@ -171,22 +145,20 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public void addArc(Arc arc) {
         assert arc != null;
-        assert !arcs.contains(arc.getId()) : "arc '" + arc.getId()
-                + "'must not be already contained";
+        assert !arcs.containsKey(arc.getId()) : "arc '" + arc.getId()
+                + "' is already on the graph";
+        arcs.put(arc.getId(), arc);
 
         String sourceNodeId = arc.getSourceNodeId();
         String targetNodeId = arc.getTargetNodeId();
 
-        assert nodes.contains(sourceNodeId) : "source node '" + sourceNodeId
-                + "' must be available";
-        assert nodes.contains(targetNodeId) : "target node '" + targetNodeId
-                + "' must be available";
+        assert nodes.containsKey(sourceNodeId) : "source node '"
+                + sourceNodeId + "' must be available";
+        assert nodes.containsKey(targetNodeId) : "target node '"
+                + targetNodeId + "' must be available";
 
         SvgLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
         SvgLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
-        // final ArcSvgComponent arcComponent = arcComponentFactory
-        // .createArcComponent(arc, sourceNode.getRenderedNode(),
-        // targetNode.getRenderedNode());
 
         final RenderedArc renderedArc = graphRenderer.renderArc(arc,
                 sourceNode.getRenderedNode(), targetNode.getRenderedNode());
@@ -200,16 +172,12 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             }
         });
 
-        // arcs.add(arcComponent);
-
         SvgLayoutArc layoutArc = new SvgLayoutArc(arc.getId(), renderedArc,
                 getArcType(arc.getType()), sourceNode, targetNode);
         layoutGraph.addSvgLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);
         targetNode.addConnectedArc(layoutArc);
-
-        // arcGroup.appendChild(arcComponent);
     }
 
     @Override
@@ -219,11 +187,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert handler != null;
 
         return eventBus.addHandler(type, handler);
-        // if (type instanceof DomEvent.Type) {
-        // return asWidget.addDomHandler(handler, (DomEvent.Type<T>) type);
-        // } else {
-        // return asWidget.addHandler(handler, type);
-        // }
     }
 
     // TODO remove
@@ -232,7 +195,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             GraphDisplayLoadingFailureEventHandler handler) {
 
         assert handler != null;
-
         return eventBus.addHandler(GraphDisplayLoadingFailureEvent.TYPE,
                 handler);
     }
@@ -252,35 +214,28 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void addNode(Node node) {
-        assert !nodes.contains(node.getId()) : node.toString()
-                + " must not be contained";
+        assert !nodes.containsKey(node.getId()) : node.toString()
+                + " is already be on the graph";
 
-        // final NodeSvgComponent nodeComponent = nodeComponentFactory
-        // .createNodeComponent(node);
-
+        nodes.put(node.getId(), node);
         final RenderedNode renderedNode = graphRenderer.renderNode(node);
 
         renderedNode.setBodyEventHandler(new SvgNodeEventHandler(renderedNode,
                 this, nodeInteractionManager));
-        renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
 
+        renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
                     onNodeTabClick(renderedNode);
                 }
             }
-
         });
-
-        // nodes.add(nodeComponent);
 
         SvgLayoutNode layoutNode = new SvgLayoutNode(node.getId(),
                 renderedNode, getNodeType(node.getType()));
         setDefaultPosition(layoutNode);
         layoutGraph.addSvgLayoutNode(layoutNode);
-
-        // nodeGroup.appendChild(nodeComponent);
     }
 
     @Override
@@ -316,54 +271,26 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public Widget asWidget() {
-        // if (!isWidgetInitialized()) {
-        // svgWidget = new SvgWidget();
-        // rootSvgComponent = new CompositeSvgComponent(
-        // svgWidget.getSvgElement(), rootSvgComponent,
-        // viewWideInteractionListener);
-        // asScrollingWidget = new ScrollableSvgWidget(svgWidget, viewWidth,
-        // viewHeight);
-        // asScrollingWidget.setTextUnselectable();
-        // asScrollingWidget.getElement().getStyle()
-        // .setBackgroundColor("white");
-        // }
-        // return asScrollingWidget;
-        return graphRenderer.asWidget();
+        return graphRenderer.getGraphWidget();
     }
-
-    // /**
-    // * Clear the node expander popup if there is one. This does not get rid of
-    // * the on mouse-over node details though, which is done using HTML not
-    // SVG.
-    // */
-    // public void clearPopups() {
-    // popupGroup.removeAllChildren();
-    // }
 
     @Override
     public boolean containsArc(String arcId) {
         assert arcId != null;
-        return arcs.contains(arcId);
+        return arcs.containsKey(arcId);
     }
 
     @Override
     public boolean containsNode(String nodeId) {
         assert nodeId != null;
-        return nodes.contains(nodeId);
+        return nodes.containsKey(nodeId);
     }
-
-    // private CompositeSvgComponent createCompositeGroupingComponent(String id)
-    // {
-    // SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
-    // groupingElement.setAttribute(Svg.ID, id);
-    // return new CompositeSvgComponent(groupingElement);
-    // }
 
     @Override
     public Arc getArc(String arcId) {
         assert arcId != null;
-        assert arcs.contains(arcId);
-        return arcs.get(arcId).getArc();
+        assert arcs.containsKey(arcId);
+        return arcs.get(arcId);
     }
 
     /**
@@ -386,11 +313,11 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     protected int getGraphAbsoluteLeft() {
-        return svgWidget.getAbsoluteLeft();
+        return graphRenderer.getGraphWidget().getAbsoluteLeft();
     }
 
     protected int getGraphAbsoluteTop() {
-        return svgWidget.getAbsoluteTop();
+        return graphRenderer.getGraphWidget().getAbsoluteLeft();
     }
 
     /**
@@ -400,7 +327,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
      *         panned.
      */
     private double getHorizontalScrollDistance() {
-        return background.getWidth() - viewWidth;
+        return graphRenderer.getGraphSize().getWidth() - viewWidth;
     }
 
     @Override
@@ -411,19 +338,20 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public Point getLocation(Node node) {
         assert node != null;
-        assert nodes.contains(node.getId());
-        return nodes.get(node.getId()).getLocation().toPointInt();
+        assert nodes.containsKey(node.getId());
+        RenderedNode renderedNode = graphRenderer.getRenderedNode(node);
+        return renderedNode.getTopLeft().toPointInt();
     }
 
     @Override
     public Node getNode(String nodeId) {
         assert nodeId != null;
-        assert nodes.contains(nodeId);
-        return nodes.get(nodeId).getNode();
+        assert nodes.containsKey(nodeId);
+        return nodes.get(nodeId);
     }
 
-    protected NodeSvgComponent getNodeComponent(Node node) {
-        return nodes.get(node.getId());
+    protected RenderedNode getNodeComponent(Node node) {
+        return graphRenderer.getRenderedNode(node);
     }
 
     /**
@@ -452,17 +380,14 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
      *         panned.
      */
     private double getVerticalScrollDistance() {
-        return background.getHeight() - viewHeight;
+        return graphRenderer.getGraphSize().getHeight() - viewHeight;
     }
 
     protected AnimationRunner initAnimationRunner() {
         return new GwtAnimationRunner();
     }
 
-    private void initBackground(int width, int height) {
-        // background = new SvgGraphBackground(width, height,
-        // svgElementFactory);
-
+    private void initBackgroundListener() {
         graphRenderer.setBackgroundEventListener(new DragAndClickHandler() {
             @Override
             public void handleClick(ClickEvent clickEvent) {
@@ -475,26 +400,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 panBackground(dragEvent.getDeltaX(), dragEvent.getDeltaY());
             }
         });
-
-        // rootSvgComponent.appendChild(background.asSvg());
     }
-
-    // private void initCompositeGroupingComponents() {
-    // arcGroup = createCompositeGroupingComponent("arcGroup");
-    // nodeGroup = createCompositeGroupingComponent("nodeGroup");
-    // popupGroup = createCompositeGroupingComponent("popupGroup");
-    // // order is important here - want arcs behind nodes and popups
-    // rootSvgComponent.appendChild(arcGroup);
-    // rootSvgComponent.appendChild(nodeGroup);
-    // rootSvgComponent.appendChild(popupGroup);
-    // }
-
-    // private void initRootSvgComponent() {
-    // SvgElement root = svgElementFactory.createElement(Svg.SVG);
-    // root.setAttribute("xmlns", Svg.NAMESPACE);
-    // root.setAttribute("version", "1.1");
-    // rootSvgComponent = new CompositeSvgComponent(root);
-    // }
 
     protected void initTextBoundsEstimator() {
         this.textBoundsEstimator = new CanvasTextBoundsEstimator(
@@ -502,23 +408,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     private void initViewWideInteractionHandler() {
-        viewWideInteractionListener = new ChooselEventHandler() {
-
+        ChooselEventHandler viewWideInteractionListener = new ChooselEventHandler() {
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.MOUSE_MOVE)) {
                     onViewMouseMove(event.getClientX(), event.getClientY());
                 }
-
             }
         };
         graphRenderer
                 .setViewWideInteractionHandler(viewWideInteractionListener);
-        // rootSvgComponent.setEventListener(viewWideInteractionListener);
-    }
-
-    private boolean isWidgetInitialized() {
-        return svgWidget != null;
     }
 
     public void onArcMouseOver(RenderedArc arc) {
@@ -532,15 +431,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     }
 
     public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
-        Point startLocation = nodes.get(nodeId).getLocation().toPointInt();
+        Node node = nodes.get(nodeId);
+        Point startLocation = graphRenderer.getRenderedNode(node).getTopLeft()
+                .toPointInt();
         int startX = startLocation.getX();
         int startY = startLocation.getY();
         int endX = startX + deltaX;
         int endY = startY + deltaY;
 
-        setLocation(nodes.get(nodeId).getNode(), new Point(endX, endY));
-        eventBus.fireEvent(new NodeDragEvent(nodes.get(nodeId).getNode(),
-                startX, startY, endX, endY));
+        setLocation(node, new Point(endX, endY));
+        eventBus.fireEvent(new NodeDragEvent(node, startX, startY, endX, endY));
         graphRenderer.clearPopups();
     }
 
@@ -642,17 +542,15 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
          * Make sure nodes that go off screen can still be scrolled to
          */
         if (viewWidth > layoutGraph.getMaxNodeX()) {
-            background.setWidth(viewWidth);
-            asScrollingWidget.setScrollableContentWidth(viewWidth);
+            graphRenderer.setGraphWidth(viewWidth);
         }
         if (viewHeight > layoutGraph.getMaxNodeY()) {
-            background.setHeight(viewHeight);
-            asScrollingWidget.setScrollableContentHeight(viewHeight);
+            graphRenderer.setGraphHeight(viewHeight);
         }
 
         // need this in case scrollable content size is not changed but the
         // available
-        asScrollingWidget.checkIfScrollbarsNeeded();
+        graphRenderer.checkIfScrollbarsNeeded();
     }
 
     public void onViewMouseMove(int mouseX, int mouseY) {
@@ -677,19 +575,16 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             /*
              * Only extend background if a node would be pushed off the screen.
              */
-            if (deltaX < 0
-                    || layoutGraph.getMaxNodeX() + deltaX > background
-                            .getWidth()) {
-                double newBackgroundWidth = background.getWidth() + deltaX;
+            double visibleWidth = graphRenderer.getGraphSize().getWidth();
+            if (deltaX < 0 || layoutGraph.getMaxNodeX() + deltaX > visibleWidth) {
+                double newBackgroundWidth = visibleWidth + deltaX;
                 /*
                  * Don't let background width become less than view width.
                  */
                 if (newBackgroundWidth < viewWidth) {
                     newBackgroundWidth = viewWidth;
                 }
-                background.setWidth(newBackgroundWidth);
-                asScrollingWidget
-                        .setScrollableContentWidth((int) newBackgroundWidth);
+                graphRenderer.setGraphWidth((int) newBackgroundWidth);
             }
             /*
              * Still shift the nodes even if the background was not adjusted.
@@ -703,19 +598,17 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
             /*
              * Only extend background if a node would be pushed off the screen.
              */
+            double visibleHeight = graphRenderer.getGraphSize().getHeight();
             if (deltaY < 0
-                    || layoutGraph.getMaxNodeY() + deltaY > background
-                            .getHeight()) {
-                double newBackgroundHeight = background.getHeight() + deltaY;
+                    || layoutGraph.getMaxNodeY() + deltaY > visibleHeight) {
+                double newBackgroundHeight = visibleHeight + deltaY;
                 /*
                  * Don't let background height become less than view height.
                  */
                 if (newBackgroundHeight < viewHeight) {
                     newBackgroundHeight = viewHeight;
                 }
-                background.setHeight(newBackgroundHeight);
-                asScrollingWidget
-                        .setScrollableContentHeight((int) newBackgroundHeight);
+                graphRenderer.setGraphHeight((int) newBackgroundHeight);
             }
             /*
              * Still shift the nodes even if the background was not adjusted.
@@ -729,32 +622,17 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public void removeArc(Arc arc) {
         assert arc != null;
-        // assert arcs.contains(id);
-        // arcs.get(id).removeNodeConnections();
-        // arcs.remove(id);
+        arcs.remove(arc.getId());
         graphRenderer.removeArc(arc);
         layoutGraph.removeSvgLayoutArc(arc.getId());
-        // arcGroup.removeChild(arc.getId());
     }
 
     @Override
     public void removeNode(Node node) {
         assert node != null;
-        // assert nodes.contains(node.getId());
-
-        // renderedGraph.remove will take care of this
-        // List<ArcSvgComponent> connectedArcComponents = new
-        // ArrayList<ArcSvgComponent>();
-        // connectedArcComponents.addAll(nodes.get(node.getId())
-        // .getConnectedArcComponents());
-        //
-        // for (ArcSvgComponent arcComponent : connectedArcComponents) {
-        // removeArc(arcComponent.getArc());
-        // }
-        // nodes.remove(node.getId());
+        nodes.remove(node.getId());
         graphRenderer.removeNode(node);
         layoutGraph.removeSvgLayoutNode(node.getId());
-        // nodeGroup.removeChild(node.getId());
     }
 
     @Override
@@ -783,19 +661,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void setArcStyle(Arc arc, String styleProperty, String styleValue) {
-        ArcSvgComponent arcComponent = arcs.get(arc.getId());
-
-        if (styleProperty.equals(ArcSettings.ARC_COLOR)) {
-            arcComponent.setColor(styleValue);
-        }
-
-        else if (styleProperty.equals(ArcSettings.ARC_STYLE)) {
-            arcComponent.setArcStyle(styleValue);
-        }
-
-        else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
-            arcComponent.setThickness(styleValue);
-        }
+        graphRenderer.setArcStyle(arc, styleProperty, styleValue);
     }
 
     /**
@@ -806,7 +672,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
      *            the node to be positioned
      */
     private void setDefaultPosition(LayoutNode node) {
-        if (isWidgetInitialized()) {
+        if (graphRenderer.isWidgetInitialized()) {
             PointDouble topLeft = node.getTopLeftForCentreAt(layoutGraph
                     .getBounds().getCentre());
             node.setPosition(topLeft);
@@ -815,31 +681,14 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     @Override
     public void setLocation(Node node, Point location) {
-        assert nodes.contains(node.getId());
+        assert nodes.containsKey(node.getId());
         layoutGraph.getSvgLayoutNode(node.getId()).setPosition(location.getX(),
                 location.getY());
     }
 
     @Override
     public void setNodeStyle(Node node, String styleProperty, String styleValue) {
-        NodeSvgComponent nodeComponent = nodes.get(node.getId());
-
-        if (styleProperty.equals(NODE_BACKGROUND_COLOR)) {
-            nodeComponent.setBackgroundColor(styleValue);
-        }
-
-        else if (styleProperty.equals(NODE_FONT_COLOR)) {
-            nodeComponent.setFontColor(styleValue);
-        }
-
-        else if (styleProperty.equals(NODE_FONT_WEIGHT)) {
-            nodeComponent.setFontWeight(styleValue);
-        }
-
-        else if (styleProperty.equals(NODE_BORDER_COLOR)) {
-            nodeComponent.setBorderColor(styleValue);
-        }
-
+        graphRenderer.setNodeStyle(node, styleProperty, styleValue);
     }
 
 }

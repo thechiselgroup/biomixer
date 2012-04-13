@@ -42,6 +42,8 @@ public interface RenderedNode {
 
     SizeDouble getSize();
 
+    PointDouble getTopLeft();
+
     double getTopY();
 
     void removeConnectedArc(RenderedArc arc);

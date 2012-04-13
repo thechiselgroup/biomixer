@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgWidget;
@@ -100,7 +102,34 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     }
 
     @Override
-    public Widget asWidget() {
+    public void bringToForeground(RenderedNode node) {
+        // FIXME
+        nodeGroup.appendChild((NodeSvgComponent) node);
+    }
+
+    @Override
+    public void checkIfScrollbarsNeeded() {
+        asScrollingWidget.checkIfScrollbarsNeeded();
+    }
+
+    @Override
+    public void clearPopups() {
+        popupGroup.removeAllChildren();
+    }
+
+    private CompositeSvgComponent createCompositeGroupingComponent(String id) {
+        SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
+        groupingElement.setAttribute(Svg.ID, id);
+        return new CompositeSvgComponent(groupingElement);
+    }
+
+    @Override
+    public SizeDouble getGraphSize() {
+        return new DefaultSizeDouble(graphWidth, graphHeight);
+    }
+
+    @Override
+    public Widget getGraphWidget() {
         if (!isWidgetInitialized()) {
             svgWidget = new SvgWidget();
             rootSvgComponent = new CompositeSvgComponent(
@@ -113,27 +142,6 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
                     .setBackgroundColor("white");
         }
         return asScrollingWidget;
-    }
-
-    @Override
-    public void bringToForeground(RenderedNode node) {
-        // FIXME
-        nodeGroup.appendChild((NodeSvgComponent) node);
-    }
-
-    /**
-     * Clear the node expander popup if there is one. This does not get rid of
-     * the on mouse-over node details though, which is done using HTML not SVG.
-     */
-    @Override
-    public void clearPopups() {
-        popupGroup.removeAllChildren();
-    }
-
-    private CompositeSvgComponent createCompositeGroupingComponent(String id) {
-        SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
-        groupingElement.setAttribute(Svg.ID, id);
-        return new CompositeSvgComponent(groupingElement);
     }
 
     private void initBackground(int width, int height) {
@@ -158,7 +166,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         rootSvgComponent.appendChild(popupGroup);
     }
 
-    private boolean isWidgetInitialized() {
+    @Override
+    public boolean isWidgetInitialized() {
         return svgWidget != null;
     }
 
@@ -182,11 +191,15 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     public void setGraphHeight(int height) {
         this.graphHeight = height;
+        background.setHeight(height);
+        asScrollingWidget.setScrollableContentHeight(height);
     }
 
     @Override
     public void setGraphWidth(int width) {
         this.graphWidth = width;
+        background.setWidth(width);
+        asScrollingWidget.setScrollableContentWidth(width);
     }
 
     @Override

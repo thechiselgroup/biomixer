@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -33,11 +34,26 @@ public interface GraphRenderer {
     // FIXME: generalize
     void addPopup(PopupExpanderSvgComponent popup);
 
-    Widget asWidget();
-
     void bringToForeground(RenderedNode node);
 
+    void checkIfScrollbarsNeeded();
+
+    /**
+     * Clear the node expander popup if there is one. This does not get rid of
+     * the on mouse-over node details though, which is done using HTML.
+     */
     void clearPopups();
+
+    SizeDouble getGraphSize();
+
+    Widget getGraphWidget();
+
+    RenderedArc getRenderedArc(Arc arc);
+
+    RenderedNode getRenderedNode(Node node);
+
+    // XXX remove?
+    boolean isWidgetInitialized();
 
     void removeArc(Arc arc);
 

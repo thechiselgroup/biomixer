@@ -26,4 +26,9 @@ public abstract class AbstractRenderedNode implements RenderedNode {
                 + getSize().getHeight() / 2);
     }
 
+    @Override
+    public PointDouble getTopLeft() {
+        return new PointDouble(getLeftX(), getTopY());
+    }
+
 }

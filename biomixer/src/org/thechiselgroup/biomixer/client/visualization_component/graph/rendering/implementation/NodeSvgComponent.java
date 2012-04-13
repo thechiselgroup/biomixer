@@ -36,6 +36,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
+// FIXME: need to extend abstract rendered node
 public class NodeSvgComponent extends CompositeSvgComponent implements
         Identifiable, RenderedNode {
 
@@ -125,6 +126,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     public SizeDouble getSize() {
         return new DefaultSizeDouble(boxedText.getTotalWidth(),
                 boxedText.getTotalHeight());
+    }
+
+    @Override
+    public PointDouble getTopLeft() {
+        return new PointDouble(getLeftX(), getTopY());
     }
 
     @Override

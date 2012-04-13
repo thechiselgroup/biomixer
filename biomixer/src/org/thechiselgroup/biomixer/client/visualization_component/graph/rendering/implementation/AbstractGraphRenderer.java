@@ -55,6 +55,16 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     protected abstract void addNodeToGraph(RenderedNode node);
 
     @Override
+    public RenderedArc getRenderedArc(Arc arc) {
+        return renderedArcs.get(arc);
+    }
+
+    @Override
+    public RenderedNode getRenderedNode(Node node) {
+        return renderedNodes.get(node);
+    }
+
+    @Override
     public void removeArc(Arc arc) {
         assert renderedArcs.containsKey(arc) : "Cannot remove an arc which has not been rendered";
         RenderedArc renderedArc = renderedArcs.get(arc);
@@ -90,6 +100,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         RenderedArc renderedArc = arcRenderer.createRenderedArc(arc, source,
                 target);
         renderedArcs.put(arc, renderedArc);
+        addArcToGraph(renderedArc);
         return renderedArc;
     }
 
@@ -98,6 +109,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         assert !renderedNodes.containsKey(node) : "Cannot render the same node multiple times";
         RenderedNode renderedNode = nodeRenderer.createRenderedNode(node);
         renderedNodes.put(node, renderedNode);
+        addNodeToGraph(renderedNode);
         return renderedNode;
     }
 
