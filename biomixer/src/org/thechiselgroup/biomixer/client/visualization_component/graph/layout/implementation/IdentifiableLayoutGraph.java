@@ -19,40 +19,40 @@ import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesLis
 
 public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
 
-    private IdentifiablesList<IdentifiableLayoutNode> svgLayoutNodes = new IdentifiablesList<IdentifiableLayoutNode>();
+    private IdentifiablesList<IdentifiableLayoutNode> identifiableLayoutNodes = new IdentifiablesList<IdentifiableLayoutNode>();
 
-    private IdentifiablesList<IdentifiableLayoutArc> svgLayoutArcs = new IdentifiablesList<IdentifiableLayoutArc>();
+    private IdentifiablesList<IdentifiableLayoutArc> identifiableLayoutArcs = new IdentifiablesList<IdentifiableLayoutArc>();
 
     public IdentifiableLayoutGraph(double width, double height) {
         super(width, height);
     }
 
-    public void addSvgLayoutArc(IdentifiableLayoutArc arc) {
+    public void addIdentifiableLayoutArc(IdentifiableLayoutArc arc) {
         addLayoutArc(arc);
-        svgLayoutArcs.add(arc);
+        identifiableLayoutArcs.add(arc);
     }
 
-    public void addSvgLayoutNode(IdentifiableLayoutNode node) {
+    public void addIdentifiableLayoutNode(IdentifiableLayoutNode node) {
         addLayoutNode(node);
-        svgLayoutNodes.add(node);
+        identifiableLayoutNodes.add(node);
     }
 
-    public IdentifiableLayoutArc getSvgLayoutArc(String id) {
-        return svgLayoutArcs.get(id);
+    public IdentifiableLayoutArc getIdentifiableLayoutArc(String id) {
+        return identifiableLayoutArcs.get(id);
     }
 
-    public IdentifiableLayoutNode getSvgLayoutNode(String id) {
-        return svgLayoutNodes.get(id);
+    public IdentifiableLayoutNode getIdentifiableLayoutNode(String id) {
+        return identifiableLayoutNodes.get(id);
     }
 
-    public void removeSvgLayoutArc(String id) {
-        removeLayoutArc(getSvgLayoutArc(id));
-        svgLayoutArcs.remove(id);
+    public void removeIdentifiableLayoutArc(String id) {
+        removeLayoutArc(getIdentifiableLayoutArc(id));
+        identifiableLayoutArcs.remove(id);
     }
 
-    public void removeSvgLayoutNode(String id) {
-        removeLayoutNode(getSvgLayoutNode(id));
-        svgLayoutNodes.remove(id);
+    public void removeIdentifiableLayoutNode(String id) {
+        removeLayoutNode(getIdentifiableLayoutNode(id));
+        identifiableLayoutNodes.remove(id);
     }
 
 }

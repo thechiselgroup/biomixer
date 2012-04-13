@@ -159,8 +159,8 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert nodes.containsKey(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        IdentifiableLayoutNode sourceNode = layoutGraph.getSvgLayoutNode(sourceNodeId);
-        IdentifiableLayoutNode targetNode = layoutGraph.getSvgLayoutNode(targetNodeId);
+        IdentifiableLayoutNode sourceNode = layoutGraph.getIdentifiableLayoutNode(sourceNodeId);
+        IdentifiableLayoutNode targetNode = layoutGraph.getIdentifiableLayoutNode(targetNodeId);
 
         final RenderedArc renderedArc = graphRenderer.renderArc(arc,
                 sourceNode.getRenderedNode(), targetNode.getRenderedNode());
@@ -176,7 +176,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(arc.getId(), renderedArc,
                 getArcType(arc.getType()), sourceNode, targetNode);
-        layoutGraph.addSvgLayoutArc(layoutArc);
+        layoutGraph.addIdentifiableLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);
         targetNode.addConnectedArc(layoutArc);
@@ -237,7 +237,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(node.getId(),
                 renderedNode, getNodeType(node.getType()));
         setDefaultPosition(layoutNode);
-        layoutGraph.addSvgLayoutNode(layoutNode);
+        layoutGraph.addIdentifiableLayoutNode(layoutNode);
     }
 
     @Override
@@ -262,7 +262,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
         LayoutNodeAnimation animation = new LayoutNodeAnimation(
-                layoutGraph.getSvgLayoutNode(node.getId()),
+                layoutGraph.getIdentifiableLayoutNode(node.getId()),
                 targetLocation.getX(), targetLocation.getY());
         animationRunner.run(animation, 2);
     }
@@ -628,7 +628,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert arc != null;
         arcs.remove(arc.getId());
         graphRenderer.removeArc(arc);
-        layoutGraph.removeSvgLayoutArc(arc.getId());
+        layoutGraph.removeIdentifiableLayoutArc(arc.getId());
     }
 
     @Override
@@ -636,7 +636,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert node != null;
         nodes.remove(node.getId());
         graphRenderer.removeNode(node);
-        layoutGraph.removeSvgLayoutNode(node.getId());
+        layoutGraph.removeIdentifiableLayoutNode(node.getId());
     }
 
     @Override
@@ -686,7 +686,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     @Override
     public void setLocation(Node node, Point location) {
         assert nodes.containsKey(node.getId());
-        layoutGraph.getSvgLayoutNode(node.getId()).setPosition(location.getX(),
+        layoutGraph.getIdentifiableLayoutNode(node.getId()).setPosition(location.getX(),
                 location.getY());
     }
 
