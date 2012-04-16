@@ -27,7 +27,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
-public class CompositeSvgComponent {
+public class CompositeSvgComponent implements IsSvg {
 
     protected SvgElement compositeElement;
 
@@ -51,25 +51,26 @@ public class CompositeSvgComponent {
             CompositeSvgComponent other, ChooselEventHandler newContainerHandler) {
         this.compositeElement = newContainer;
         compositeElement.setEventListener(newContainerHandler);
-        while (other.getSvgElement().getChildCount() > 0) {
+        while (other.asSvgElement().getChildCount() > 0) {
             /*
              * appendChild to newContainer seems to remove it from the old
              * container, therefore ordinary for loop doesn't work because
              * other.childCount() is changing
              */
-            appendChild(other.getSvgElement().getChild(0));
+            appendChild(other.asSvgElement().getChild(0));
         }
     }
 
-    public void appendChild(CompositeSvgComponent compositedSvgComponent) {
-        appendChild(compositedSvgComponent.getSvgElement());
+    public void appendChild(IsSvg child) {
+        appendChild(child.asSvgElement());
     }
 
-    public void appendChild(SvgElement svgElement) {
+    private void appendChild(SvgElement svgElement) {
         compositeElement.appendChild(svgElement);
     }
 
-    public SvgElement getSvgElement() {
+    @Override
+    public SvgElement asSvgElement() {
         return compositeElement;
     }
 
@@ -77,16 +78,8 @@ public class CompositeSvgComponent {
         compositeElement.removeAllChildren();
     }
 
-    public void removeChild(CompositeSvgComponent compositeSvgComponent) {
-        removeChild(compositeSvgComponent.getSvgElement());
-    }
-
-    public void removeChild(String id) {
-        compositeElement.removeChild(id);
-    }
-
-    public void removeChild(SvgElement svgElement) {
-        compositeElement.removeChild(svgElement);
+    public void removeChild(IsSvg child) {
+        compositeElement.removeChild(child.asSvgElement());
     }
 
     public void setEventListener(ChooselEventHandler handler) {

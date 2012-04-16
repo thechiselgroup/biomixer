@@ -27,7 +27,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  * @author drusk
  * 
  */
-public class SvgGraphBackground {
+public class SvgGraphBackground implements IsSvg {
 
     private SvgElement svgElement;
 
@@ -40,6 +40,11 @@ public class SvgGraphBackground {
     }
 
     public SvgElement asSvg() {
+        return svgElement;
+    }
+
+    @Override
+    public SvgElement asSvgElement() {
         return svgElement;
     }
 

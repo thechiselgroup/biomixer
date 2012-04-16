@@ -86,26 +86,17 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addArcToGraph(RenderedArc arc) {
-        addToArcGroup((StraightLineRenderedSvgArc) arc);
+        arcGroup.appendChild((StraightLineRenderedSvgArc) arc);
     }
 
     @Override
     protected void addNodeExpanderToGraph(RenderedNodeExpander expander) {
-        popupGroup.appendChild(((PopupExpanderSvgComponent) expander)
-                .asSvgElement());
+        popupGroup.appendChild((PopupExpanderSvgComponent) expander);
     }
 
     @Override
     protected void addNodeToGraph(RenderedNode node) {
-        addToNodeGroup((BoxedTextRenderedSvgNode) node);
-    }
-
-    private void addToArcGroup(StraightLineRenderedSvgArc arc) {
-        arcGroup.appendChild(arc.asSvgElement());
-    }
-
-    private void addToNodeGroup(BoxedTextRenderedSvgNode node) {
-        nodeGroup.appendChild(node.asSvgElement());
+        nodeGroup.appendChild((BoxedTextRenderedSvgNode) node);
     }
 
     /**
@@ -114,13 +105,13 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
      * @return
      */
     public SvgElement asSvg() {
-        return rootSvgComponent.getSvgElement();
+        return rootSvgComponent.asSvgElement();
     }
 
     @Override
     public void bringToForeground(RenderedNode node) {
         // FIXME
-        nodeGroup.appendChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
+        nodeGroup.appendChild((BoxedTextRenderedSvgNode) node);
     }
 
     @Override
@@ -162,7 +153,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     private void initBackground(int width, int height) {
         background = new SvgGraphBackground(width, height, svgElementFactory);
-        rootSvgComponent.appendChild(background.asSvg());
+        rootSvgComponent.appendChild(background);
     }
 
     private void initRootSvgElement() {
@@ -190,20 +181,19 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     protected void removeArcFromGraph(RenderedArc arc) {
         // FIXME
-        arcGroup.removeChild(((StraightLineRenderedSvgArc) arc).asSvgElement());
+        arcGroup.removeChild((StraightLineRenderedSvgArc) arc);
     }
 
     @Override
     protected void removeNodeExpanderFromGraph(RenderedNodeExpander expander) {
         // FIXME
-        popupGroup.removeChild(((PopupExpanderSvgComponent) expander)
-                .asSvgElement());
+        popupGroup.removeChild((PopupExpanderSvgComponent) expander);
     }
 
     @Override
     protected void removeNodeFromGraph(RenderedNode node) {
         // FIXME
-        nodeGroup.removeChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
+        nodeGroup.removeChild((BoxedTextRenderedSvgNode) node);
     }
 
     @Override
