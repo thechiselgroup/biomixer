@@ -27,6 +27,13 @@ import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
+/**
+ * An SVG element with text surrounded by a rectangle. It is one of the primary
+ * components of {@link BoxedTextRenderedSvgNode}.
+ * 
+ * @author drusk
+ * 
+ */
 public class BoxedTextSvgComponent implements IsSvg {
 
     private static final double THRESHOLD_TEXT_LENGTH = 150.0;

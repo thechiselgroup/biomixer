@@ -15,15 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -31,17 +27,13 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 /**
- * Contains references to components of a node
+ * The classic rendering of a node as a rectangle with text inside it.
  * 
  * @author drusk
  * 
  */
-public class NodeSvgComponent extends AbstractRenderedNode implements
+public class BoxedTextRenderedSvgNode extends AbstractRenderedNode implements
         Identifiable, IsSvg {
-
-    private Node node;
-
-    private List<RenderedArc> connectedArcs = new ArrayList<RenderedArc>();
 
     private final ExpanderTabSvgComponent expanderTab;
 
@@ -49,19 +41,14 @@ public class NodeSvgComponent extends AbstractRenderedNode implements
 
     private final SvgElement baseContainer;
 
-    public NodeSvgComponent(Node node, SvgElement baseContainer,
+    public BoxedTextRenderedSvgNode(Node node, SvgElement baseContainer,
             BoxedTextSvgComponent boxedText, ExpanderTabSvgComponent expanderTab) {
+        super(node);
         this.baseContainer = baseContainer;
         baseContainer.appendChild(boxedText.asSvgElement());
         baseContainer.appendChild(expanderTab.asSvgElement());
-        this.node = node;
         this.boxedText = boxedText;
         this.expanderTab = expanderTab;
-    }
-
-    @Override
-    public void addConnectedArc(RenderedArc arc) {
-        connectedArcs.add(arc);
     }
 
     @Override
@@ -72,11 +59,6 @@ public class NodeSvgComponent extends AbstractRenderedNode implements
     @Override
     public ChooselEventHandler getBodyEventHandler() {
         return ((TextSvgElement) boxedText.asSvgElement()).getEventListener();
-    }
-
-    @Override
-    public List<RenderedArc> getConnectedArcs() {
-        return connectedArcs;
     }
 
     @Override
@@ -112,11 +94,6 @@ public class NodeSvgComponent extends AbstractRenderedNode implements
     }
 
     @Override
-    public Node getNode() {
-        return node;
-    }
-
-    @Override
     public SizeDouble getSize() {
         return new DefaultSizeDouble(boxedText.getTotalWidth(),
                 boxedText.getTotalHeight());
@@ -125,15 +102,6 @@ public class NodeSvgComponent extends AbstractRenderedNode implements
     @Override
     public double getTopY() {
         return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
-    }
-
-    public String getType() {
-        return node.getType();
-    }
-
-    @Override
-    public void removeConnectedArc(RenderedArc arc) {
-        connectedArcs.remove(arc);
     }
 
     @Override
@@ -184,10 +152,4 @@ public class NodeSvgComponent extends AbstractRenderedNode implements
         updateConnectedArcs();
     }
 
-    // XXX extract to superclass
-    private void updateConnectedArcs() {
-        for (RenderedArc arc : connectedArcs) {
-            arc.update();
-        }
-    }
 }

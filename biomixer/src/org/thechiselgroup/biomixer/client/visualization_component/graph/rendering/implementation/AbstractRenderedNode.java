@@ -15,10 +15,28 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 public abstract class AbstractRenderedNode implements RenderedNode {
+
+    protected List<RenderedArc> connectedArcs = new ArrayList<RenderedArc>();
+
+    private Node node;
+
+    protected AbstractRenderedNode(Node node) {
+        this.node = node;
+    }
+
+    @Override
+    public void addConnectedArc(RenderedArc arc) {
+        connectedArcs.add(arc);
+    }
 
     @Override
     public PointDouble getCentre() {
@@ -27,8 +45,33 @@ public abstract class AbstractRenderedNode implements RenderedNode {
     }
 
     @Override
+    public List<RenderedArc> getConnectedArcs() {
+        return connectedArcs;
+    }
+
+    @Override
+    public Node getNode() {
+        return node;
+    }
+
+    @Override
     public PointDouble getTopLeft() {
         return new PointDouble(getLeftX(), getTopY());
+    }
+
+    public String getType() {
+        return node.getType();
+    }
+
+    @Override
+    public void removeConnectedArc(RenderedArc arc) {
+        connectedArcs.remove(arc);
+    }
+
+    protected void updateConnectedArcs() {
+        for (RenderedArc arc : connectedArcs) {
+            arc.update();
+        }
     }
 
 }

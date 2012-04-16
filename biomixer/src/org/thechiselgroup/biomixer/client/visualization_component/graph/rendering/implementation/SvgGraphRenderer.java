@@ -92,7 +92,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     protected void addNodeToGraph(RenderedNode node) {
         // FIXME
-        nodeGroup.appendChild(((NodeSvgComponent) node).asSvgElement());
+        nodeGroup.appendChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
     }
 
     /**
@@ -107,7 +107,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     public void bringToForeground(RenderedNode node) {
         // FIXME
-        nodeGroup.appendChild(((NodeSvgComponent) node).asSvgElement());
+        nodeGroup.appendChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
     }
 
     @Override
@@ -189,7 +189,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     protected void removeNodeFromGraph(RenderedNode node) {
         // FIXME
-        nodeGroup.removeChild(((NodeSvgComponent) node).asSvgElement());
+        nodeGroup.removeChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
     }
 
     @Override
