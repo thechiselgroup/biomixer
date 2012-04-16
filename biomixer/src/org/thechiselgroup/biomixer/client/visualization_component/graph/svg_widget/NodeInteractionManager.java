@@ -22,6 +22,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
  * @author drusk
  * 
  */
+// XXX some duplication between this and DragAndClickHandler
 public class NodeInteractionManager {
 
     /*

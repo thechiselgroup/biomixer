@@ -55,6 +55,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private List<RenderedNodeExpander> renderedNodeExpanders = new ArrayList<RenderedNodeExpander>();
 
+    /* TODO document */
+    private Node nodeBeingRemoved = null;
+
     protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
             ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
         this.nodeRenderer = nodeRenderer;
@@ -69,15 +72,6 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     protected abstract void addNodeToGraph(RenderedNode node);
 
     @Override
-    public void removeAllNodeExpanders() {
-        for (Iterator<RenderedNodeExpander> it = renderedNodeExpanders
-                .iterator(); it.hasNext();) {
-            removeNodeExpanderFromGraph(it.next());
-            it.remove();
-        }
-    }
-
-    @Override
     public RenderedArc getRenderedArc(Arc arc) {
         return renderedArcs.get(arc);
     }
@@ -85,6 +79,15 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     @Override
     public RenderedNode getRenderedNode(Node node) {
         return renderedNodes.get(node);
+    }
+
+    @Override
+    public void removeAllNodeExpanders() {
+        for (Iterator<RenderedNodeExpander> it = renderedNodeExpanders
+                .iterator(); it.hasNext();) {
+            removeNodeExpanderFromGraph(it.next());
+            it.remove();
+        }
     }
 
     @Override
@@ -98,20 +101,30 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     protected abstract void removeArcFromGraph(RenderedArc arc);
 
+    private void removeConnectionIfNodeNotBeingRemoved(Node node,
+            RenderedArc arc) {
+        if (!node.equals(nodeBeingRemoved)) {
+            renderedNodes.get(node).removeConnectedArc(arc);
+        }
+    }
+
     @Override
     public void removeNode(Node node) {
         assert renderedNodes.containsKey(node) : "Cannot remove a node which has not been rendered";
+        nodeBeingRemoved = node;
         RenderedNode renderedNode = renderedNodes.get(node);
-        for (RenderedArc renderedArc : renderedNode.getConnectedArcs()) {
-            removeArc(renderedArc.getArc());
+        for (Iterator<RenderedArc> it = renderedNode.getConnectedArcs()
+                .iterator(); it.hasNext();) {
+            removeArc(it.next().getArc());
         }
         renderedNodes.remove(node);
         removeNodeFromGraph(renderedNode);
+        nodeBeingRemoved = null;
     }
 
     private void removeNodeConnections(RenderedArc arc) {
-        renderedNodes.get(arc.getSource().getNode()).removeConnectedArc(arc);
-        renderedNodes.get(arc.getTarget().getNode()).removeConnectedArc(arc);
+        removeConnectionIfNodeNotBeingRemoved(arc.getSource().getNode(), arc);
+        removeConnectionIfNodeNotBeingRemoved(arc.getTarget().getNode(), arc);
     }
 
     @Override
