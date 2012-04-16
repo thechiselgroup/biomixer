@@ -91,8 +91,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addNodeExpanderToGraph(RenderedNodeExpander expander) {
-        // FIXME
-        popupGroup.appendChild((PopupExpanderSvgComponent) expander);
+        popupGroup.appendChild(((PopupExpanderSvgComponent) expander)
+                .asSvgElement());
     }
 
     @Override
@@ -196,7 +196,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     protected void removeNodeExpanderFromGraph(RenderedNodeExpander expander) {
         // FIXME
-        popupGroup.removeChild((PopupExpanderSvgComponent) expander);
+        popupGroup.removeChild(((PopupExpanderSvgComponent) expander)
+                .asSvgElement());
     }
 
     @Override
