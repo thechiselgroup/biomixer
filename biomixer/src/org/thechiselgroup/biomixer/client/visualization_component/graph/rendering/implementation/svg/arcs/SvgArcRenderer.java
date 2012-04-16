@@ -63,7 +63,7 @@ public class SvgArcRenderer implements ArcRenderer {
             container.appendChild(arrowHead.asSvgElement());
         }
 
-        return new ArcSvgComponent(arc, container, arcLine, arrowHead, source,
+        return new StraightLineRenderedSvgArc(arc, container, arcLine, arrowHead, source,
                 target);
     }
 

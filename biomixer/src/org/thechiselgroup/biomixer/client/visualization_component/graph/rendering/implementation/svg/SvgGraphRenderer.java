@@ -25,7 +25,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.ArcSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineRenderedSvgArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.SvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.PopupExpanderSvgComponent;
@@ -86,8 +86,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addArcToGraph(RenderedArc arc) {
-        // FIXME
-        arcGroup.appendChild((ArcSvgComponent) arc);
+        addToArcGroup((StraightLineRenderedSvgArc) arc);
     }
 
     @Override
@@ -98,8 +97,15 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addNodeToGraph(RenderedNode node) {
-        // FIXME
-        nodeGroup.appendChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
+        addToNodeGroup((BoxedTextRenderedSvgNode) node);
+    }
+
+    private void addToArcGroup(StraightLineRenderedSvgArc arc) {
+        arcGroup.appendChild(arc.asSvgElement());
+    }
+
+    private void addToNodeGroup(BoxedTextRenderedSvgNode node) {
+        nodeGroup.appendChild(node.asSvgElement());
     }
 
     /**
@@ -184,7 +190,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     protected void removeArcFromGraph(RenderedArc arc) {
         // FIXME
-        arcGroup.removeChild((ArcSvgComponent) arc);
+        arcGroup.removeChild(((StraightLineRenderedSvgArc) arc).asSvgElement());
     }
 
     @Override

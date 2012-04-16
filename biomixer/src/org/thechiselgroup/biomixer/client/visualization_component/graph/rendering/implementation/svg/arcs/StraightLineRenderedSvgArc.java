@@ -17,41 +17,42 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.CompositeSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractRenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.IsSvg;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
-public class ArcSvgComponent extends CompositeSvgComponent implements
-        Identifiable, RenderedArc {
-
-    private Arc arc;
-
-    private RenderedNode source;
-
-    private RenderedNode target;
+/**
+ * Renders an arc as a straight line.
+ * 
+ * @author drusk
+ * 
+ */
+public class StraightLineRenderedSvgArc extends AbstractRenderedArc implements
+        Identifiable, IsSvg {
 
     private final SvgElement arcLine;
 
     private final SvgArrowHead arrow;
 
-    public ArcSvgComponent(Arc arc, SvgElement container, SvgElement arcLine,
-            SvgArrowHead arrow, RenderedNode source, RenderedNode target) {
-        super(container);
-        this.arc = arc;
+    private SvgElement baseContainer;
+
+    public StraightLineRenderedSvgArc(Arc arc, SvgElement container,
+            SvgElement arcLine, SvgArrowHead arrow, RenderedNode source,
+            RenderedNode target) {
+        super(arc, source, target);
+        this.baseContainer = container;
         this.arcLine = arcLine;
         this.arrow = arrow;
-        this.source = source;
-        this.target = target;
     }
 
     @Override
-    public Arc getArc() {
-        return arc;
+    public SvgElement asSvgElement() {
+        return baseContainer;
     }
 
     @Override
@@ -60,33 +61,9 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
-    public RenderedNode getSource() {
-        return source;
-    }
-
-    @Override
-    public RenderedNode getTarget() {
-        return target;
-    }
-
-    @Override
     public double getThickness() {
         return Double.parseDouble(arcLine
                 .getAttributeAsString(Svg.STROKE_WIDTH));
-    }
-
-    public String getType() {
-        return arc.getType();
-    }
-
-    @Override
-    public boolean isDirected() {
-        return arc.isDirected();
-    }
-
-    public void removeNodeConnections() {
-        source.removeConnectedArc(this);
-        target.removeConnectedArc(this);
     }
 
     /**
@@ -139,16 +116,6 @@ public class ArcSvgComponent extends CompositeSvgComponent implements
             assert arrow != null;
             arrow.alignWithPoints(source.getCentre(), target.getCentre());
         }
-    }
-
-    public void updateSourcePoint() {
-        SvgUtils.setX1Y1(arcLine, source.getCentre());
-        updateArrow();
-    }
-
-    public void updateTargetPoint() {
-        SvgUtils.setX2Y2(arcLine, target.getCentre());
-        updateArrow();
     }
 
 }
