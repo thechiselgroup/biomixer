@@ -10,7 +10,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBoxedText;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -43,7 +43,7 @@ public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
         popUpContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         SvgUtils.setXY(popUpContainer, topLeftLocation);
 
-        Map<String, BoxedTextSvgComponent> boxedTextEntries = CollectionFactory
+        Map<String, SvgBoxedText> boxedTextEntries = CollectionFactory
                 .createStringMap();
 
         double maxWidth = 0.0;
@@ -51,7 +51,7 @@ public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
         List<String> sortedExpanderLabels = CollectionUtils
                 .asSortedList(expanderLabels);
         for (String expanderId : sortedExpanderLabels) {
-            BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent(
+            SvgBoxedText boxedText = new SvgBoxedText(
                     expanderId, textBoundsEstimator, svgElementFactory);
             boxedTextEntries.put(expanderId, boxedText);
             double boxWidth = boxedText.getTotalWidth();
@@ -62,7 +62,7 @@ public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
 
         double currentOffsetY = 0;
         for (String expanderId : sortedExpanderLabels) {
-            BoxedTextSvgComponent boxedText = boxedTextEntries.get(expanderId);
+            SvgBoxedText boxedText = boxedTextEntries.get(expanderId);
             boxedText.setBoxWidth(maxWidth);
             boxedText.setY(currentOffsetY);
             popUpContainer.appendChild(boxedText.asSvgElement());

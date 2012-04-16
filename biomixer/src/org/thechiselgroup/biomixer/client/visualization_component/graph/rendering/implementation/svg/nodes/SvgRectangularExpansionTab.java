@@ -21,7 +21,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class ExpanderTabSvgComponent implements IsSvg {
+public class SvgRectangularExpansionTab implements IsSvg {
 
     private SvgElement rectangle;
 
@@ -29,7 +29,7 @@ public class ExpanderTabSvgComponent implements IsSvg {
 
     private SvgElement container;
 
-    public ExpanderTabSvgComponent(SvgElement container, SvgElement rectangle,
+    public SvgRectangularExpansionTab(SvgElement container, SvgElement rectangle,
             SvgElement arrow) {
         this.container = container;
         container.appendChild(rectangle);

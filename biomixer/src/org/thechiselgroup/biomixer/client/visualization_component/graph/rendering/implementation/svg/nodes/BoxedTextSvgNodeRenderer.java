@@ -61,12 +61,12 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
         baseContainer.setAttribute(Svg.X, 0.0);
         baseContainer.setAttribute(Svg.Y, 0.0);
 
-        BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent(
+        SvgBoxedText boxedText = new SvgBoxedText(
                 node.getLabel(), textBoundsEstimator, svgElementFactory);
         boxedText.setCornerCurveWidth(RX_DEFAULT);
         boxedText.setCornerCurveHeight(RY_DEFAULT);
 
-        ExpanderTabSvgComponent expanderTab = expanderTabRenderer
+        SvgRectangularExpansionTab expanderTab = expanderTabRenderer
                 .createExpanderTabSvgElement();
         expanderTab
                 .setLocation(

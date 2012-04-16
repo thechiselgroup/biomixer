@@ -18,16 +18,16 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBoxedText;
 
-public class BoxedTextSvgComponentTest extends AbstractSvgTest {
+public class SvgBoxedTextTest extends AbstractSvgTest {
 
     private TestTextBoundsEstimator textBoundsEstimator = new TestTextBoundsEstimator(
             10, 20);
 
     @Test
     public void longTextMultipleWordsWrapToSecondLine() {
-        BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent(
+        SvgBoxedText boxedText = new SvgBoxedText(
                 "testing a very long label", textBoundsEstimator,
                 svgElementFactory);
         assertElementEqualsFile("longTextMultipleWordsWrapped",
@@ -36,7 +36,7 @@ public class BoxedTextSvgComponentTest extends AbstractSvgTest {
 
     @Test
     public void shortTextNoWrapping() {
-        BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent("testing",
+        SvgBoxedText boxedText = new SvgBoxedText("testing",
                 textBoundsEstimator, svgElementFactory);
         assertElementEqualsFile("shortBoxedText", boxedText.asSvgElement());
     }

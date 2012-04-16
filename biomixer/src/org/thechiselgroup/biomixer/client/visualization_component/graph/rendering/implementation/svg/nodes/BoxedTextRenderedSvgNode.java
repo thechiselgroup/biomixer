@@ -37,14 +37,14 @@ import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 public class BoxedTextRenderedSvgNode extends AbstractRenderedNode implements
         Identifiable, IsSvg {
 
-    private final ExpanderTabSvgComponent expanderTab;
+    private final SvgRectangularExpansionTab expanderTab;
 
-    private final BoxedTextSvgComponent boxedText;
+    private final SvgBoxedText boxedText;
 
     private final SvgElement baseContainer;
 
     public BoxedTextRenderedSvgNode(Node node, SvgElement baseContainer,
-            BoxedTextSvgComponent boxedText, ExpanderTabSvgComponent expanderTab) {
+            SvgBoxedText boxedText, SvgRectangularExpansionTab expanderTab) {
         super(node);
         this.baseContainer = baseContainer;
         baseContainer.appendChild(boxedText.asSvgElement());

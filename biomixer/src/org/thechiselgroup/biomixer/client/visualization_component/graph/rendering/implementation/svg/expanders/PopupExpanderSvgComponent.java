@@ -20,22 +20,22 @@ import java.util.Map;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.CompositeSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBoxedText;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 public class PopupExpanderSvgComponent extends CompositeSvgComponent implements
         RenderedNodeExpander {
 
-    private Map<String, BoxedTextSvgComponent> expanders;
+    private Map<String, SvgBoxedText> expanders;
 
     public PopupExpanderSvgComponent(SvgElement container,
-            Map<String, BoxedTextSvgComponent> expanders) {
+            Map<String, SvgBoxedText> expanders) {
         super(container);
         this.expanders = expanders;
     }
 
-    public BoxedTextSvgComponent getEntryByExpanderLabel(String expanderLabel) {
+    public SvgBoxedText getEntryByExpanderLabel(String expanderLabel) {
         return expanders.get(expanderLabel);
     }
 

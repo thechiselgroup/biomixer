@@ -35,7 +35,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  * @author drusk
  * 
  */
-public class BoxedTextSvgComponent implements IsSvg {
+public class SvgBoxedText implements IsSvg {
 
     private static final double THRESHOLD_TEXT_LENGTH = 150.0;
 
@@ -80,7 +80,7 @@ public class BoxedTextSvgComponent implements IsSvg {
 
     private SvgElement container;
 
-    public BoxedTextSvgComponent(String text,
+    public SvgBoxedText(String text,
             TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
         container = svgElementFactory.createElement(Svg.SVG);

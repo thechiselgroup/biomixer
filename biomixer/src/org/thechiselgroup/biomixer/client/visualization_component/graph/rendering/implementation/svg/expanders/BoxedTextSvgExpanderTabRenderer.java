@@ -16,7 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders;
 
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.ExpanderTabSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgRectangularExpansionTab;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -38,7 +38,7 @@ public class BoxedTextSvgExpanderTabRenderer {
         this.svgElementFactory = svgElementFactory;
     }
 
-    public ExpanderTabSvgComponent createExpanderTabSvgElement() {
+    public SvgRectangularExpansionTab createExpanderTabSvgElement() {
         // container for tab-related elements
         SvgElement tab = svgElementFactory.createElement(Svg.SVG);
         tab.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
@@ -68,7 +68,7 @@ public class BoxedTextSvgExpanderTabRenderer {
         arrow.setAttribute(Svg.POINTS, pointsBuilder.toPointsString());
         arrow.setAttribute(Svg.FILL, Colors.BLACK);
 
-        return new ExpanderTabSvgComponent(tab, rectangle, arrow);
+        return new SvgRectangularExpansionTab(tab, rectangle, arrow);
     }
 
     private double getHorizontalTabMargin() {
