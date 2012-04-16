@@ -52,6 +52,8 @@ public interface RenderedNode {
 
     double getTopY();
 
+    String getType();
+
     void removeConnectedArc(RenderedArc arc);
 
     void setBackgroundColor(String color);

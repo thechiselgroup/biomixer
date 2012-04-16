@@ -59,6 +59,7 @@ public abstract class AbstractRenderedNode implements RenderedNode {
         return new PointDouble(getLeftX(), getTopY());
     }
 
+    @Override
     public String getType() {
         return node.getType();
     }
