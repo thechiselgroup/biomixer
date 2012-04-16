@@ -31,11 +31,11 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  * @author drusk
  * 
  */
-public class SvgArcRenderer implements ArcRenderer {
+public class StraightLineSvgArcRenderer implements ArcRenderer {
 
     private SvgElementFactory svgElementFactory;
 
-    public SvgArcRenderer(SvgElementFactory svgElementFactory) {
+    public StraightLineSvgArcRenderer(SvgElementFactory svgElementFactory) {
         this.svgElementFactory = svgElementFactory;
     }
 

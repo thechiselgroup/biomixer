@@ -26,9 +26,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.AbstractSvgRenderedArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.SvgArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.AbstractSvgRenderedNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.AbstractSvgRenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -73,8 +73,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
             SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         super(new BoxedTextSvgNodeRenderer(svgElementFactory,
-                textBoundsEstimator), new SvgArcRenderer(svgElementFactory),
-                new DefaultSvgNodeExpanderRenderer(svgElementFactory,
+                textBoundsEstimator), new StraightLineSvgArcRenderer(svgElementFactory),
+                new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
                         textBoundsEstimator));
         this.graphWidth = width;
         this.graphHeight = height;

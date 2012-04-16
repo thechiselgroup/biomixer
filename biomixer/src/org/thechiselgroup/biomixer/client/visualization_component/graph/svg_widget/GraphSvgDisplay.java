@@ -49,6 +49,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -117,6 +120,13 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         this.svgElementFactory = svgElementFactory;
 
         initTextBoundsEstimator();
+
+        BoxedTextSvgNodeRenderer nodeRenderer = new BoxedTextSvgNodeRenderer(
+                svgElementFactory, textBoundsEstimator);
+        StraightLineSvgArcRenderer arcRenderer = new StraightLineSvgArcRenderer(svgElementFactory);
+        BoxedTextSvgNodeExpanderRenderer nodeExpanderRenderer = new BoxedTextSvgNodeExpanderRenderer(
+                svgElementFactory, textBoundsEstimator);
+
         this.graphRenderer = new SvgGraphRenderer(width, height,
                 svgElementFactory, textBoundsEstimator);
         initBackgroundListener();

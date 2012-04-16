@@ -22,13 +22,13 @@ import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
  * @author drusk
  * 
  */
-public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
+public class BoxedTextSvgNodeExpanderRenderer implements NodeExpanderRenderer {
 
     private SvgElementFactory svgElementFactory;
 
     private TextBoundsEstimator textBoundsEstimator;
 
-    public DefaultSvgNodeExpanderRenderer(SvgElementFactory svgElementFactory,
+    public BoxedTextSvgNodeExpanderRenderer(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
