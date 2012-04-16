@@ -121,14 +121,13 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
         initTextBoundsEstimator();
 
-        BoxedTextSvgNodeRenderer nodeRenderer = new BoxedTextSvgNodeRenderer(
-                svgElementFactory, textBoundsEstimator);
-        StraightLineSvgArcRenderer arcRenderer = new StraightLineSvgArcRenderer(svgElementFactory);
-        BoxedTextSvgNodeExpanderRenderer nodeExpanderRenderer = new BoxedTextSvgNodeExpanderRenderer(
-                svgElementFactory, textBoundsEstimator);
-
         this.graphRenderer = new SvgGraphRenderer(width, height,
-                svgElementFactory, textBoundsEstimator);
+                svgElementFactory, new BoxedTextSvgNodeRenderer(
+                        svgElementFactory, textBoundsEstimator),
+                new StraightLineSvgArcRenderer(svgElementFactory),
+                new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
+                        textBoundsEstimator));
+
         initBackgroundListener();
 
         nodeInteractionManager = new NodeInteractionManager(this);

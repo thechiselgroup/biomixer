@@ -18,19 +18,18 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgWidget;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.AbstractSvgRenderedArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.AbstractSvgRenderedNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.AbstractSvgRenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -70,12 +69,9 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     private ChooselEventHandler viewWideInteractionHandler;
 
     public SvgGraphRenderer(int width, int height,
-            SvgElementFactory svgElementFactory,
-            TextBoundsEstimator textBoundsEstimator) {
-        super(new BoxedTextSvgNodeRenderer(svgElementFactory,
-                textBoundsEstimator), new StraightLineSvgArcRenderer(svgElementFactory),
-                new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
-                        textBoundsEstimator));
+            SvgElementFactory svgElementFactory, NodeRenderer nodeRenderer,
+            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
+        super(nodeRenderer, arcRenderer, nodeExpanderRenderer);
         this.graphWidth = width;
         this.graphHeight = height;
         this.svgElementFactory = svgElementFactory;
