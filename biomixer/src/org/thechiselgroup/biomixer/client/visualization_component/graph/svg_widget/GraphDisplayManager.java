@@ -77,7 +77,8 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListener {
+public class GraphDisplayManager implements GraphDisplay,
+        ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
@@ -96,8 +97,6 @@ public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListene
     protected GraphRenderer graphRenderer;
 
     private NodeInteractionManager nodeInteractionManager;
-
-    protected TextBoundsEstimator textBoundsEstimator;
 
     protected AnimationRunner animationRunner;
 
@@ -119,8 +118,9 @@ public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListene
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
 
-        initTextBoundsEstimator();
+        nodeInteractionManager = new NodeInteractionManager(this);
 
+        TextBoundsEstimator textBoundsEstimator = getTextBoundsEstimator();
         this.graphRenderer = new SvgGraphRenderer(width, height,
                 svgElementFactory, new BoxedTextSvgNodeRenderer(
                         svgElementFactory, textBoundsEstimator),
@@ -129,8 +129,6 @@ public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListene
                         textBoundsEstimator));
 
         initBackgroundListener();
-
-        nodeInteractionManager = new NodeInteractionManager(this);
         initViewWideInteractionHandler();
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
@@ -364,6 +362,11 @@ public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListene
         return layoutNodeType;
     }
 
+    protected TextBoundsEstimator getTextBoundsEstimator() {
+        return new CanvasTextBoundsEstimator(new SvgBBoxTextBoundsEstimator(
+                svgElementFactory));
+    }
+
     /**
      * 
      * @return the offset distance from the absolute top of the view to the top
@@ -391,11 +394,6 @@ public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListene
                 panBackground(dragEvent.getDeltaX(), dragEvent.getDeltaY());
             }
         });
-    }
-
-    protected void initTextBoundsEstimator() {
-        this.textBoundsEstimator = new CanvasTextBoundsEstimator(
-                new SvgBBoxTextBoundsEstimator(svgElementFactory));
     }
 
     private void initViewWideInteractionHandler() {

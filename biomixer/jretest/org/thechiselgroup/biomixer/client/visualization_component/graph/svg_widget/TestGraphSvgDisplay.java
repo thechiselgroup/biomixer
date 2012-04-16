@@ -19,6 +19,7 @@ import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -77,13 +78,13 @@ public class TestGraphSvgDisplay extends GraphDisplayManager {
     }
 
     @Override
-    protected AnimationRunner initAnimationRunner() {
-        return new TestAnimationRunner();
+    protected TextBoundsEstimator getTextBoundsEstimator() {
+        return new TestTextBoundsEstimator(10, 20);
     }
 
     @Override
-    protected void initTextBoundsEstimator() {
-        textBoundsEstimator = new TestTextBoundsEstimator(10, 20);
+    protected AnimationRunner initAnimationRunner() {
+        return new TestAnimationRunner();
     }
 
 }
