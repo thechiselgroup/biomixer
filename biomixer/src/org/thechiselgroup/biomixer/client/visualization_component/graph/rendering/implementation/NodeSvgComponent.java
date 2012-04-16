@@ -24,7 +24,6 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -37,9 +36,8 @@ import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
  * @author drusk
  * 
  */
-// FIXME: need to extend abstract rendered node
-public class NodeSvgComponent extends CompositeSvgComponent implements
-        Identifiable, RenderedNode {
+public class NodeSvgComponent extends AbstractRenderedNode implements
+        Identifiable, IsSvg {
 
     private Node node;
 
@@ -49,18 +47,16 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     private final BoxedTextSvgComponent boxedText;
 
+    private final SvgElement baseContainer;
+
     public NodeSvgComponent(Node node, SvgElement baseContainer,
             BoxedTextSvgComponent boxedText, ExpanderTabSvgComponent expanderTab) {
-        super(baseContainer);
-        appendChild(boxedText);
-        appendChild(expanderTab);
+        this.baseContainer = baseContainer;
+        baseContainer.appendChild(boxedText.asSvgElement());
+        baseContainer.appendChild(expanderTab.asSvgElement());
         this.node = node;
         this.boxedText = boxedText;
         this.expanderTab = expanderTab;
-    }
-
-    public void addConnectedArc(ArcSvgComponent arc) {
-        connectedArcs.add(arc);
     }
 
     @Override
@@ -69,14 +65,13 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
-    public ChooselEventHandler getBodyEventHandler() {
-        return ((TextSvgElement) boxedText.getSvgElement()).getEventListener();
+    public SvgElement asSvgElement() {
+        return baseContainer;
     }
 
     @Override
-    public PointDouble getCentre() {
-        return new PointDouble(getLeftX() + getSize().getWidth() / 2, getTopY()
-                + getSize().getHeight() / 2);
+    public ChooselEventHandler getBodyEventHandler() {
+        return ((TextSvgElement) boxedText.asSvgElement()).getEventListener();
     }
 
     @Override
@@ -89,15 +84,10 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return getLocation().plus(expanderTab.getLocation());
     }
 
-    public ExpanderTabSvgComponent getExpanderTab() {
-        return expanderTab;
-    }
-
     @Override
     /* FIXME: this is for testing only. Some other way of firing events? */
     public ChooselEventHandler getExpansionEventHandler() {
-        return ((TextSvgElement) expanderTab.getSvgElement())
-                .getEventListener();
+        return ((TextSvgElement) expanderTab.asSvgElement()).getEventListener();
     }
 
     @Override
@@ -107,7 +97,7 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     @Override
     public double getLeftX() {
-        return Double.parseDouble(compositeElement.getAttributeAsString(Svg.X));
+        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.X));
     }
 
     /**
@@ -116,24 +106,14 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
      *         base svg element's coordinate system
      */
     public PointDouble getLocation() {
-        return new PointDouble(
-                Double.parseDouble(compositeElement.getAttributeAsString(Svg.X)),
-                Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y)));
-    }
-
-    public PointDouble getMidPoint() {
-        PointDouble topLeft = getLocation();
-        return new PointDouble(topLeft.getX() + boxedText.getTotalWidth() / 2,
-                topLeft.getY() + boxedText.getTotalHeight() / 2);
+        return new PointDouble(Double.parseDouble(baseContainer
+                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
+                .getAttributeAsString(Svg.Y)));
     }
 
     @Override
     public Node getNode() {
         return node;
-    }
-
-    public SvgElement getNodeContainer() {
-        return boxedText.getSvgElement();
     }
 
     @Override
@@ -143,21 +123,12 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
-    public PointDouble getTopLeft() {
-        return new PointDouble(getLeftX(), getTopY());
-    }
-
-    @Override
     public double getTopY() {
-        return Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y));
+        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
     }
 
     public String getType() {
         return node.getType();
-    }
-
-    public void removeConnectedArc(ArcSvgComponent arc) {
-        connectedArcs.remove(arc);
     }
 
     @Override
@@ -203,13 +174,13 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
 
     @Override
     public void setLeftX(double x) {
-        compositeElement.setAttribute(Svg.X, x);
+        baseContainer.setAttribute(Svg.X, x);
         updateConnectedArcs();
     }
 
     @Override
     public void setTopY(double y) {
-        compositeElement.setAttribute(Svg.Y, y);
+        baseContainer.setAttribute(Svg.Y, y);
         updateConnectedArcs();
     }
 

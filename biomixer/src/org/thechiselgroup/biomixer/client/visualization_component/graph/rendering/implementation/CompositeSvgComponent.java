@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
@@ -34,21 +31,18 @@ public class CompositeSvgComponent {
 
     protected SvgElement compositeElement;
 
-    // XXX remove once better way of firing test events is found
-    protected List<CompositeSvgComponent> compositeSubComponents = new ArrayList<CompositeSvgComponent>();
-
     public CompositeSvgComponent(SvgElement container) {
         this.compositeElement = container;
     }
 
     /**
-     * Creates a ContainedSvgComponent from an existing one, but using a
-     * different container.
+     * Creates a <code>CompositeSvgComponent</code> from an existing one, but
+     * using a different container.
      * 
      * @param newContainer
      *            An SVG element which will act as the new container
      * @param other
-     *            An existing ContainedSvgComponent whose children will be added
+     *            An existing CompositeSvgComponent whose children will be added
      *            to the newContainer
      * @param newContainerHandler
      *            The event handler to be set on the new container
@@ -58,26 +52,21 @@ public class CompositeSvgComponent {
         this.compositeElement = newContainer;
         compositeElement.setEventListener(newContainerHandler);
         while (other.getSvgElement().getChildCount() > 0) {
-            // appendChild to newContainer seems to remove it from the old
-            // container, therefore ordinary for loop doesn't work because
-            // other.childCount() is changing
+            /*
+             * appendChild to newContainer seems to remove it from the old
+             * container, therefore ordinary for loop doesn't work because
+             * other.childCount() is changing
+             */
             appendChild(other.getSvgElement().getChild(0));
         }
     }
 
     public void appendChild(CompositeSvgComponent compositedSvgComponent) {
-        // XXX remove once better way of firing test events is found
-        compositeSubComponents.add(compositedSvgComponent);
         appendChild(compositedSvgComponent.getSvgElement());
     }
 
     public void appendChild(SvgElement svgElement) {
         compositeElement.appendChild(svgElement);
-    }
-
-    // XXX remove this method once a better way of firing test events is found
-    public List<CompositeSvgComponent> getCompositeSubComponents() {
-        return compositeSubComponents;
     }
 
     public SvgElement getSvgElement() {

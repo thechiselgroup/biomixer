@@ -64,7 +64,7 @@ public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
             BoxedTextSvgComponent boxedText = boxedTextEntries.get(expanderId);
             boxedText.setBoxWidth(maxWidth);
             boxedText.setY(currentOffsetY);
-            popUpContainer.appendChild(boxedText.getSvgElement());
+            popUpContainer.appendChild(boxedText.asSvgElement());
             currentOffsetY += boxedText.getTotalHeight();
         }
 

@@ -31,14 +31,14 @@ public class BoxedTextSvgComponentTest extends AbstractSvgTest {
                 "testing a very long label", textBoundsEstimator,
                 svgElementFactory);
         assertElementEqualsFile("longTextMultipleWordsWrapped",
-                boxedText.getSvgElement());
+                boxedText.asSvgElement());
     }
 
     @Test
     public void shortTextNoWrapping() {
         BoxedTextSvgComponent boxedText = new BoxedTextSvgComponent("testing",
                 textBoundsEstimator, svgElementFactory);
-        assertElementEqualsFile("shortBoxedText", boxedText.getSvgElement());
+        assertElementEqualsFile("shortBoxedText", boxedText.asSvgElement());
     }
 
 }

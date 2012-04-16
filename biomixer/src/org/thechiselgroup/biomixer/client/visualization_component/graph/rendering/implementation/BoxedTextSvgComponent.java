@@ -21,12 +21,13 @@ import java.util.Map.Entry;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
-public class BoxedTextSvgComponent extends CompositeSvgComponent {
+public class BoxedTextSvgComponent implements IsSvg {
 
     private static final double THRESHOLD_TEXT_LENGTH = 150.0;
 
@@ -69,15 +70,22 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
 
     private String longestTextLine;
 
+    private SvgElement container;
+
     public BoxedTextSvgComponent(String text,
             TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
-        super(svgElementFactory.createElement(Svg.SVG));
-        compositeElement.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
+        container = svgElementFactory.createElement(Svg.SVG);
+        container.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         this.textBoundsEstimator = textBoundsEstimator;
         this.svgElementFactory = svgElementFactory;
         this.text = text;
         createBoxedText();
+    }
+
+    @Override
+    public SvgElement asSvgElement() {
+        return container;
     }
 
     private void centreTextElements() {
@@ -100,8 +108,8 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
 
         setBoxAroundText();
 
-        appendChild(boxElement);
-        appendChild(textElement);
+        container.appendChild(boxElement);
+        container.appendChild(textElement);
     }
 
     private void finishLine(StringBuilder currentLine, int textHeight,
@@ -226,6 +234,10 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
         textElement.setAttribute(Svg.FONT_SIZE, DEFAULT_FONT_SIZE_PIXELS);
     }
 
+    public void setEventListener(ChooselEventHandler listener) {
+        container.setEventListener(listener);
+    }
+
     public void setFontColor(String color) {
         textElement.setAttribute(Svg.FILL, color);
     }
@@ -283,7 +295,7 @@ public class BoxedTextSvgComponent extends CompositeSvgComponent {
     }
 
     public void setY(double y) {
-        compositeElement.setAttribute(Svg.Y, y);
+        container.setAttribute(Svg.Y, y);
     }
 
     private void updateBoxWidthAndPositionAroundText(double deltaWidth) {

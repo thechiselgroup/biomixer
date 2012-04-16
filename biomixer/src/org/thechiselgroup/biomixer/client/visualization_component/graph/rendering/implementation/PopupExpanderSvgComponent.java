@@ -39,7 +39,7 @@ public class PopupExpanderSvgComponent extends CompositeSvgComponent implements
 
     @Override
     public ChooselEventHandler getEventHandler(String optionId) {
-        return ((TextSvgElement) expanders.get(optionId).compositeElement)
+        return ((TextSvgElement) expanders.get(optionId).asSvgElement())
                 .getEventListener();
     }
 

@@ -16,22 +16,30 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
-public class ExpanderTabSvgComponent extends CompositeSvgComponent {
+public class ExpanderTabSvgComponent implements IsSvg {
 
     private SvgElement rectangle;
 
     private SvgElement arrow;
 
+    private SvgElement container;
+
     public ExpanderTabSvgComponent(SvgElement container, SvgElement rectangle,
             SvgElement arrow) {
-        super(container);
-        appendChild(rectangle);
-        appendChild(arrow);
+        this.container = container;
+        container.appendChild(rectangle);
+        container.appendChild(arrow);
         this.rectangle = rectangle;
         this.arrow = arrow;
+    }
+
+    @Override
+    public SvgElement asSvgElement() {
+        return container;
     }
 
     public SvgElement getArrow() {
@@ -39,9 +47,9 @@ public class ExpanderTabSvgComponent extends CompositeSvgComponent {
     }
 
     public PointDouble getLocation() {
-        return new PointDouble(
-                Double.parseDouble(compositeElement.getAttributeAsString(Svg.X)),
-                Double.parseDouble(compositeElement.getAttributeAsString(Svg.Y)));
+        return new PointDouble(Double.parseDouble(container
+                .getAttributeAsString(Svg.X)), Double.parseDouble(container
+                .getAttributeAsString(Svg.Y)));
     }
 
     public SvgElement getRectangle() {
@@ -56,9 +64,13 @@ public class ExpanderTabSvgComponent extends CompositeSvgComponent {
         rectangle.setAttribute(Svg.STROKE, color);
     }
 
+    public void setEventListener(ChooselEventHandler listener) {
+        container.setEventListener(listener);
+    }
+
     public void setLocation(double x, double y) {
-        compositeElement.setAttribute(Svg.X, x);
-        compositeElement.setAttribute(Svg.Y, y);
+        container.setAttribute(Svg.X, x);
+        container.setAttribute(Svg.Y, y);
     }
 
 }
