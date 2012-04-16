@@ -23,7 +23,10 @@ public class Node {
 
     private String type;
 
-    public Node(String id, String label, String type) {
+    private int size;
+
+    public Node(String id, String label, String type, int size) {
+        this.size = size;
         assert id != null;
         assert type != null;
 
@@ -38,6 +41,10 @@ public class Node {
 
     public String getLabel() {
         return label;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     public String getType() {
