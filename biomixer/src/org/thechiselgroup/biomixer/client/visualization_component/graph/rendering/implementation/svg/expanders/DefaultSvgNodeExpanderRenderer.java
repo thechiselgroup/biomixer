@@ -1,4 +1,4 @@
-package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +10,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgComponent;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;

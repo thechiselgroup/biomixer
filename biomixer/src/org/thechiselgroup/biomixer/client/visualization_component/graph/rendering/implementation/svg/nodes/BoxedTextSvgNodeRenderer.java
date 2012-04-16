@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes;
 
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgExpanderTabRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -37,7 +38,7 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
 
     private SvgElementFactory svgElementFactory;
 
-    private ExpanderTabRenderer expanderTabRenderer;
+    private BoxedTextSvgExpanderTabRenderer expanderTabRenderer;
 
     private TextBoundsEstimator textBoundsEstimator;
 
@@ -47,7 +48,7 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.expanderTabRenderer = new ExpanderTabRenderer(svgElementFactory);
+        this.expanderTabRenderer = new BoxedTextSvgExpanderTabRenderer(svgElementFactory);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
                 .createExpanderTabSvgElement();
         expanderTab
                 .setLocation(
-                        (boxedText.getTotalWidth() - ExpanderTabRenderer.TAB_WIDTH) / 2,
+                        (boxedText.getTotalWidth() - BoxedTextSvgExpanderTabRenderer.TAB_WIDTH) / 2,
                         boxedText.getTotalHeight());
 
         return new BoxedTextRenderedSvgNode(node, baseContainer, boxedText, expanderTab);

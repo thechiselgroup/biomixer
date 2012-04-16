@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
@@ -24,6 +24,13 @@ import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.ArcSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.SvgArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.PopupExpanderSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextRenderedSvgNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
