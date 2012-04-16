@@ -24,12 +24,12 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
 
     private RenderedNode renderedNode;
 
-    private GraphSvgDisplay graphDisplay;
+    private GraphDisplayManager graphDisplay;
 
     private final NodeInteractionManager nodeInteractionManager;
 
     public SvgNodeEventHandler(RenderedNode renderedNode,
-            GraphSvgDisplay graphDisplay,
+            GraphDisplayManager graphDisplay,
             NodeInteractionManager nodeInteractionManager) {
         this.renderedNode = renderedNode;
         this.nodeInteractionManager = nodeInteractionManager;

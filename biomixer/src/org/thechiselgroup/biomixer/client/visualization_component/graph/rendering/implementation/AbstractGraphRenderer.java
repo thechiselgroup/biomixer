@@ -22,7 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
@@ -43,6 +45,10 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  */
 public abstract class AbstractGraphRenderer implements GraphRenderer {
 
+    protected int graphWidth;
+
+    protected int graphHeight;
+
     private NodeRenderer nodeRenderer;
 
     private ArcRenderer arcRenderer;
@@ -55,7 +61,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private List<RenderedNodeExpander> renderedNodeExpanders = new ArrayList<RenderedNodeExpander>();
 
-    /* TODO document */
+    /*
+     * Keep track of any node currently in the process of being removed so that
+     * concurrent modifications can be detected and avoided.
+     */
     private Node nodeBeingRemoved = null;
 
     protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
@@ -70,6 +79,11 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     protected abstract void addNodeExpanderToGraph(RenderedNodeExpander expander);
 
     protected abstract void addNodeToGraph(RenderedNode node);
+
+    @Override
+    public SizeDouble getGraphSize() {
+        return new DefaultSizeDouble(graphWidth, graphHeight);
+    }
 
     @Override
     public RenderedArc getRenderedArc(Arc arc) {
@@ -189,6 +203,16 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
             renderedArc.setThickness(styleValue);
         }
+    }
+
+    @Override
+    public void setGraphHeight(int height) {
+        this.graphHeight = height;
+    }
+
+    @Override
+    public void setGraphWidth(int width) {
+        this.graphWidth = width;
     }
 
     @Override

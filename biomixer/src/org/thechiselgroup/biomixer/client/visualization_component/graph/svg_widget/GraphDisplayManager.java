@@ -77,7 +77,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
+public class GraphDisplayManager implements GraphDisplay, ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
@@ -108,11 +108,11 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     private Map<String, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = CollectionFactory
             .createStringMap();
 
-    public GraphSvgDisplay(int width, int height) {
+    public GraphDisplayManager(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
     }
 
-    public GraphSvgDisplay(int width, int height,
+    public GraphDisplayManager(int width, int height,
             SvgElementFactory svgElementFactory) {
         this.viewWidth = width;
         this.viewHeight = height;

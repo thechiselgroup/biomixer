@@ -32,7 +32,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  * @author drusk
  * 
  */
-public class TestGraphSvgDisplay extends GraphSvgDisplay {
+public class TestGraphSvgDisplay extends GraphDisplayManager {
 
     public TestGraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {

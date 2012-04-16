@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg;
 
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgWidget;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
@@ -48,23 +46,17 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     private ScrollableSvgWidget asScrollingWidget = null;
 
-    protected CompositeSvgComponent rootSvgComponent = null;
+    private CompositeSvgComponent rootSvgComponent = null;
 
     private CompositeSvgComponent arcGroup;
 
     private CompositeSvgComponent nodeGroup;
 
-    protected CompositeSvgComponent popupGroup;
+    private CompositeSvgComponent popupGroup;
 
     private SvgGraphBackground background;
 
     private final SvgElementFactory svgElementFactory;
-
-    // TODO extract to abstract?
-    private int graphWidth;
-
-    // TODO extract to abstract?
-    private int graphHeight;
 
     private ChooselEventHandler viewWideInteractionHandler;
 
@@ -118,11 +110,6 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
         groupingElement.setAttribute(Svg.ID, id);
         return new CompositeSvgComponent(groupingElement);
-    }
-
-    @Override
-    public SizeDouble getGraphSize() {
-        return new DefaultSizeDouble(graphWidth, graphHeight);
     }
 
     @Override
@@ -195,14 +182,14 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     public void setGraphHeight(int height) {
-        this.graphHeight = height;
+        super.setGraphHeight(height);
         background.setHeight(height);
         asScrollingWidget.setScrollableContentHeight(height);
     }
 
     @Override
     public void setGraphWidth(int width) {
-        this.graphWidth = width;
+        super.setGraphWidth(width);
         background.setWidth(width);
         asScrollingWidget.setScrollableContentWidth(width);
     }

@@ -37,9 +37,9 @@ public class NodeInteractionManager {
 
     private boolean movedSinceMouseDown = false;
 
-    private final GraphSvgDisplay graphDisplay;
+    private final GraphDisplayManager graphDisplay;
 
-    public NodeInteractionManager(GraphSvgDisplay graphDisplay) {
+    public NodeInteractionManager(GraphDisplayManager graphDisplay) {
         this.graphDisplay = graphDisplay;
     }
 

@@ -57,7 +57,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayManager;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
@@ -94,7 +94,7 @@ import com.google.inject.Inject;
 public class Graph extends AbstractViewContentDisplay implements
         RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
 
-    public static class DefaultDisplay extends GraphSvgDisplay implements
+    public static class DefaultDisplay extends GraphDisplayManager implements
             GraphDisplay {
 
         // TODO why is size needed in the first place??
@@ -330,8 +330,8 @@ public class Graph extends AbstractViewContentDisplay implements
         this.resourceCategorizer = resourceCategorizer;
         graphDisplay = display;
         // didn't want to change GraphDisplay's interface yet
-        if (graphDisplay instanceof GraphSvgDisplay) {
-            addResizeListener((GraphSvgDisplay) graphDisplay);
+        if (graphDisplay instanceof GraphDisplayManager) {
+            addResizeListener((GraphDisplayManager) graphDisplay);
             graphDisplay.getLayoutGraph().addContentChangedListener(
                     new LayoutGraphContentChangedListener() {
                         @Override
