@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
  */
 public interface ArcRenderer {
 
+    // TODO refactor so that source and target don't have to be provided
     RenderedArc createRenderedArc(Arc arc, RenderedNode source,
             RenderedNode target);
 

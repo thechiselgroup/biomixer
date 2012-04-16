@@ -58,7 +58,7 @@ public interface GraphRenderer {
 
     void removeNodeExpander(RenderedNodeExpander expander);
 
-    RenderedArc renderArc(Arc arc, RenderedNode source, RenderedNode target);
+    RenderedArc renderArc(Arc arc);
 
     RenderedNode renderNode(Node node);
 

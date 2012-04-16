@@ -25,6 +25,7 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
@@ -56,6 +57,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     private NodeExpanderRenderer nodeExpanderRenderer;
 
     private Map<Node, RenderedNode> renderedNodes = new HashMap<Node, RenderedNode>();
+
+    private Map<String, RenderedNode> renderedNodesById = CollectionFactory
+            .createStringMap();
 
     private Map<Arc, RenderedArc> renderedArcs = new HashMap<Arc, RenderedArc>();
 
@@ -137,6 +141,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
             removeArc(it.next().getArc());
         }
         renderedNodes.remove(node);
+        renderedNodesById.remove(node.getId());
         removeNodeFromGraph(renderedNode);
         nodeBeingRemoved = null;
     }
@@ -159,11 +164,14 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     protected abstract void removeNodeFromGraph(RenderedNode node);
 
     @Override
-    public RenderedArc renderArc(Arc arc, RenderedNode source,
-            RenderedNode target) {
+    public RenderedArc renderArc(Arc arc) {
         assert !renderedArcs.containsKey(arc) : "Cannot render the same arc multiple times";
-        RenderedArc renderedArc = arcRenderer.createRenderedArc(arc, source,
-                target);
+        RenderedNode renderedSource = renderedNodesById.get(arc
+                .getSourceNodeId());
+        RenderedNode renderedTarget = renderedNodesById.get(arc
+                .getTargetNodeId());
+        RenderedArc renderedArc = arcRenderer.createRenderedArc(arc,
+                renderedSource, renderedTarget);
         renderedArcs.put(arc, renderedArc);
         addArcToGraph(renderedArc);
         return renderedArc;
@@ -174,6 +182,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         assert !renderedNodes.containsKey(node) : "Cannot render the same node multiple times";
         RenderedNode renderedNode = nodeRenderer.createRenderedNode(node);
         renderedNodes.put(node, renderedNode);
+        renderedNodesById.put(node.getId(), renderedNode);
         addNodeToGraph(renderedNode);
         return renderedNode;
     }

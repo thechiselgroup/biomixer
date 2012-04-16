@@ -152,13 +152,7 @@ public class GraphDisplayManager implements GraphDisplay,
         assert nodes.containsKey(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        IdentifiableLayoutNode sourceNode = layoutGraph
-                .getIdentifiableLayoutNode(sourceNodeId);
-        IdentifiableLayoutNode targetNode = layoutGraph
-                .getIdentifiableLayoutNode(targetNodeId);
-
-        final RenderedArc renderedArc = graphRenderer.renderArc(arc,
-                sourceNode.getRenderedNode(), targetNode.getRenderedNode());
+        final RenderedArc renderedArc = graphRenderer.renderArc(arc);
 
         renderedArc.setEventListener(new ChooselEventHandler() {
             @Override
@@ -168,6 +162,11 @@ public class GraphDisplayManager implements GraphDisplay,
                 }
             }
         });
+
+        IdentifiableLayoutNode sourceNode = layoutGraph
+                .getIdentifiableLayoutNode(sourceNodeId);
+        IdentifiableLayoutNode targetNode = layoutGraph
+                .getIdentifiableLayoutNode(targetNodeId);
 
         IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(
                 arc.getId(), renderedArc, getArcType(arc.getType()),
