@@ -82,6 +82,11 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     }
 
     @Override
+    public RenderedNodeExpander getRenderedNodeExpander(int index) {
+        return renderedNodeExpanders.get(index);
+    }
+
+    @Override
     public void removeAllNodeExpanders() {
         for (Iterator<RenderedNodeExpander> it = renderedNodeExpanders
                 .iterator(); it.hasNext();) {

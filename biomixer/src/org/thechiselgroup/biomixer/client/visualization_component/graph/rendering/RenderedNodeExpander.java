@@ -25,6 +25,9 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
  */
 public interface RenderedNodeExpander {
 
+    /* XXX for testing */
+    ChooselEventHandler getEventHandler(String optionId);
+
     void setEventHandlerOnOption(String optionId, ChooselEventHandler handler);
 
     void setOptionBackgroundColor(String optionId, String color);

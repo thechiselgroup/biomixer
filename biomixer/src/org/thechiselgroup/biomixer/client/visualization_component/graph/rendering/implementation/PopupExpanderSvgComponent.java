@@ -20,6 +20,7 @@ import java.util.Map;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
+import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 public class PopupExpanderSvgComponent extends CompositeSvgComponent implements
         RenderedNodeExpander {
@@ -34,6 +35,12 @@ public class PopupExpanderSvgComponent extends CompositeSvgComponent implements
 
     public BoxedTextSvgComponent getEntryByExpanderLabel(String expanderLabel) {
         return expanders.get(expanderLabel);
+    }
+
+    @Override
+    public ChooselEventHandler getEventHandler(String optionId) {
+        return ((TextSvgElement) expanders.get(optionId).compositeElement)
+                .getEventListener();
     }
 
     @Override

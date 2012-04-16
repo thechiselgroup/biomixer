@@ -94,7 +94,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private IdentifiableLayoutGraph layoutGraph;
 
-    private GraphRenderer graphRenderer;
+    protected GraphRenderer graphRenderer;
 
     private NodeInteractionManager nodeInteractionManager;
 
@@ -308,11 +308,11 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return layoutArcType;
     }
 
-    private int getGraphAbsoluteLeft() {
+    protected int getGraphAbsoluteLeft() {
         return graphRenderer.getGraphWidget().getAbsoluteLeft();
     }
 
-    private int getGraphAbsoluteTop() {
+    protected int getGraphAbsoluteTop() {
         return graphRenderer.getGraphWidget().getAbsoluteTop();
     }
 
@@ -343,10 +343,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert nodeId != null;
         assert nodes.containsKey(nodeId);
         return nodes.get(nodeId);
-    }
-
-    protected RenderedNode getNodeComponent(Node node) {
-        return graphRenderer.getRenderedNode(node);
     }
 
     /**

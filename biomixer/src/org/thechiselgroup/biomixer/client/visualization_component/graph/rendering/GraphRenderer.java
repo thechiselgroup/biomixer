@@ -45,6 +45,9 @@ public interface GraphRenderer {
 
     RenderedNode getRenderedNode(Node node);
 
+    /* XXX for testing */
+    RenderedNodeExpander getRenderedNodeExpander(int index);
+
     boolean isWidgetInitialized();
 
     void removeAllNodeExpanders();

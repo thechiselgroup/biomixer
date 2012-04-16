@@ -142,6 +142,11 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         return asScrollingWidget;
     }
 
+    /* XXX for testing */
+    public ChooselEventHandler getViewWideInteractionHandler() {
+        return viewWideInteractionHandler;
+    }
+
     private void initBackground(int width, int height) {
         background = new SvgGraphBackground(width, height, svgElementFactory);
         rootSvgComponent.appendChild(background.asSvg());

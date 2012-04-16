@@ -29,6 +29,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
+import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 /**
  * Contains references to components of a node
@@ -68,6 +69,11 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
     }
 
     @Override
+    public ChooselEventHandler getBodyEventHandler() {
+        return ((TextSvgElement) boxedText.getSvgElement()).getEventListener();
+    }
+
+    @Override
     public PointDouble getCentre() {
         return new PointDouble(getLeftX() + getSize().getWidth() / 2, getTopY()
                 + getSize().getHeight() / 2);
@@ -83,12 +89,15 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
         return getLocation().plus(expanderTab.getLocation());
     }
 
-    // public PointDouble getExpanderTabAbsoluteLocation() {
-    // return getLocation().plus(expanderTab.getLocation());
-    // }
-
     public ExpanderTabSvgComponent getExpanderTab() {
         return expanderTab;
+    }
+
+    @Override
+    /* FIXME: this is for testing only. Some other way of firing events? */
+    public ChooselEventHandler getExpansionEventHandler() {
+        return ((TextSvgElement) expanderTab.getSvgElement())
+                .getEventListener();
     }
 
     @Override
@@ -210,5 +219,4 @@ public class NodeSvgComponent extends CompositeSvgComponent implements
             arc.update();
         }
     }
-
 }

@@ -19,10 +19,10 @@ import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.PopupExpanderSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 /**
  * This class provides default values for anything that would normally involve
@@ -40,29 +40,22 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
     }
 
     public void fireNodeTabTestEvent(Node node, ChooselEvent event) {
-        TextSvgElement tabContainer = (TextSvgElement) getNodeComponent(node)
-                .getExpanderTab().getSvgElement();
-        tabContainer.getEventListener().onEvent(event);
+        getRenderedNode(node).getExpansionEventHandler().onEvent(event);
     }
 
     public void fireNodeTestEvent(Node node, ChooselEvent event) {
-        TextSvgElement nodeContainer = (TextSvgElement) getNodeComponent(node)
-                .getNodeContainer();
-        nodeContainer.getEventListener().onEvent(event);
+        getRenderedNode(node).getBodyEventHandler().onEvent(event);
     }
 
     public void fireTabMenuItemTestEvent(String expanderLabel,
             ChooselEvent event) {
-        // XXX better way of firing these events?
-        PopupExpanderSvgComponent popupExpanderList = (PopupExpanderSvgComponent) popupGroup
-                .getCompositeSubComponents().get(0);
-        TextSvgElement menuItemContainer = (TextSvgElement) popupExpanderList
-                .getEntryByExpanderLabel(expanderLabel).getSvgElement();
-        menuItemContainer.getEventListener().onEvent(event);
+        graphRenderer.getRenderedNodeExpander(0).getEventHandler(expanderLabel)
+                .onEvent(event);
     }
 
     public void fireViewWideTestEvent(ChooselEvent chooselEvent) {
-        getTextRootSvgElement().getEventListener().onEvent(chooselEvent);
+        SvgGraphRenderer renderer = ((SvgGraphRenderer) graphRenderer);
+        renderer.getViewWideInteractionHandler().onEvent(chooselEvent);
     }
 
     public TestAnimationRunner getAnimationRunner() {
@@ -79,8 +72,8 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
         return 0;
     }
 
-    private TextSvgElement getTextRootSvgElement() {
-        return (TextSvgElement) rootSvgComponent.getSvgElement();
+    private RenderedNode getRenderedNode(Node node) {
+        return graphRenderer.getRenderedNode(node);
     }
 
     @Override
