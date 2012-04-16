@@ -69,7 +69,7 @@ public class DefaultSvgNodeExpanderRenderer implements NodeExpanderRenderer {
             currentOffsetY += boxedText.getTotalHeight();
         }
 
-        return new PopupExpanderSvgComponent(popUpContainer, boxedTextEntries);
+        return new BoxedTextSvgNodeExpander(popUpContainer, boxedTextEntries);
     }
 
 }

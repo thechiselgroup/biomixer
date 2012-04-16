@@ -24,13 +24,13 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
-public class PopupExpanderSvgComponent implements RenderedNodeExpander, IsSvg {
+public class BoxedTextSvgNodeExpander implements RenderedNodeExpander, IsSvg {
 
     private Map<String, SvgBoxedText> expanders;
 
     private SvgElement container;
 
-    public PopupExpanderSvgComponent(SvgElement container,
+    public BoxedTextSvgNodeExpander(SvgElement container,
             Map<String, SvgBoxedText> expanders) {
         this.container = container;
         this.expanders = expanders;

@@ -28,7 +28,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineRenderedSvgArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.SvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.PopupExpanderSvgComponent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextRenderedSvgNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -91,7 +91,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addNodeExpanderToGraph(RenderedNodeExpander expander) {
-        popupGroup.appendChild((PopupExpanderSvgComponent) expander);
+        popupGroup.appendChild((BoxedTextSvgNodeExpander) expander);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     protected void removeNodeExpanderFromGraph(RenderedNodeExpander expander) {
         // FIXME
-        popupGroup.removeChild((PopupExpanderSvgComponent) expander);
+        popupGroup.removeChild((BoxedTextSvgNodeExpander) expander);
     }
 
     @Override
