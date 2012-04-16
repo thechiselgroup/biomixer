@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
  * @author drusk
  * 
  */
-public abstract class AbstractSvgNodeExpander implements RenderedNodeExpander,
+public abstract class AbstractSvgRenderedNodeExpander implements RenderedNodeExpander,
         IsSvg {
 
 }

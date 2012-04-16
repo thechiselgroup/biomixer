@@ -18,8 +18,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractRenderedArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.IsSvg;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -32,8 +30,8 @@ import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
  * @author drusk
  * 
  */
-public class StraightLineRenderedSvgArc extends AbstractRenderedArc implements
-        Identifiable, IsSvg {
+public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
+        implements Identifiable {
 
     private final SvgElement arcLine;
 

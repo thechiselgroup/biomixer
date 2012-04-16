@@ -25,11 +25,11 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineRenderedSvgArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.AbstractSvgRenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.SvgArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.AbstractSvgRenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextRenderedSvgNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.AbstractSvgRenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -86,17 +86,17 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addArcToGraph(RenderedArc arc) {
-        arcGroup.appendChild((StraightLineRenderedSvgArc) arc);
+        arcGroup.appendChild((AbstractSvgRenderedArc) arc);
     }
 
     @Override
     protected void addNodeExpanderToGraph(RenderedNodeExpander expander) {
-        popupGroup.appendChild((BoxedTextSvgNodeExpander) expander);
+        popupGroup.appendChild((AbstractSvgRenderedNodeExpander) expander);
     }
 
     @Override
     protected void addNodeToGraph(RenderedNode node) {
-        nodeGroup.appendChild((BoxedTextRenderedSvgNode) node);
+        nodeGroup.appendChild((AbstractSvgRenderedNode) node);
     }
 
     /**
@@ -110,8 +110,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     public void bringToForeground(RenderedNode node) {
-        // FIXME
-        nodeGroup.appendChild((BoxedTextRenderedSvgNode) node);
+        nodeGroup.appendChild((AbstractSvgRenderedNode) node);
     }
 
     @Override
@@ -180,20 +179,17 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void removeArcFromGraph(RenderedArc arc) {
-        // FIXME
-        arcGroup.removeChild((StraightLineRenderedSvgArc) arc);
+        arcGroup.removeChild((AbstractSvgRenderedArc) arc);
     }
 
     @Override
     protected void removeNodeExpanderFromGraph(RenderedNodeExpander expander) {
-        // FIXME
-        popupGroup.removeChild((BoxedTextSvgNodeExpander) expander);
+        popupGroup.removeChild((AbstractSvgRenderedNodeExpander) expander);
     }
 
     @Override
     protected void removeNodeFromGraph(RenderedNode node) {
-        // FIXME
-        nodeGroup.removeChild((BoxedTextRenderedSvgNode) node);
+        nodeGroup.removeChild((AbstractSvgRenderedNode) node);
     }
 
     @Override
