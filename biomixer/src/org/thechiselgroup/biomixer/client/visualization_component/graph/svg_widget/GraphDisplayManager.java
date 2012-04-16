@@ -38,7 +38,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutArc;
@@ -98,7 +98,9 @@ public class GraphDisplayManager implements GraphDisplay,
 
     private NodeInteractionManager nodeInteractionManager;
 
-    protected AnimationRunner animationRunner;
+    private NodeAnimator nodeAnimator;
+
+    private static final int DEFAULT_ANIMATION_DURATION = 250;
 
     /*
      * maps node types to their available menu item click handlers and those
@@ -132,7 +134,7 @@ public class GraphDisplayManager implements GraphDisplay,
         initViewWideInteractionHandler();
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
-        this.animationRunner = initAnimationRunner();
+        this.nodeAnimator = new NodeAnimator(getAnimationRunner());
     }
 
     @Override
@@ -252,10 +254,9 @@ public class GraphDisplayManager implements GraphDisplay,
 
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
-        LayoutNodeAnimation animation = new LayoutNodeAnimation(
+        nodeAnimator.animateNodeTo(
                 layoutGraph.getIdentifiableLayoutNode(node.getId()),
-                targetLocation.getX(), targetLocation.getY());
-        animationRunner.run(animation, 2);
+                targetLocation, DEFAULT_ANIMATION_DURATION);
     }
 
     // XXX
@@ -278,6 +279,10 @@ public class GraphDisplayManager implements GraphDisplay,
     public boolean containsNode(String nodeId) {
         assert nodeId != null;
         return nodes.containsKey(nodeId);
+    }
+
+    protected AnimationRunner getAnimationRunner() {
+        return new GwtAnimationRunner();
     }
 
     @Override
@@ -375,10 +380,6 @@ public class GraphDisplayManager implements GraphDisplay,
      */
     private double getVerticalScrollDistance() {
         return graphRenderer.getGraphSize().getHeight() - viewHeight;
-    }
-
-    protected AnimationRunner initAnimationRunner() {
-        return new GwtAnimationRunner();
     }
 
     private void initBackgroundListener() {

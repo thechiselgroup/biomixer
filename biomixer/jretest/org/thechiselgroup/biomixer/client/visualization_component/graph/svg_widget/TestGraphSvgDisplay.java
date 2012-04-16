@@ -35,6 +35,8 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  */
 public class TestGraphSvgDisplay extends GraphDisplayManager {
 
+    private AnimationRunner animationRunner;
+
     public TestGraphSvgDisplay(int width, int height,
             SvgElementFactory svgElementFactory) {
         super(width, height, svgElementFactory);
@@ -59,8 +61,10 @@ public class TestGraphSvgDisplay extends GraphDisplayManager {
         renderer.getViewWideInteractionHandler().onEvent(chooselEvent);
     }
 
-    public TestAnimationRunner getAnimationRunner() {
-        return (TestAnimationRunner) animationRunner;
+    @Override
+    protected AnimationRunner getAnimationRunner() {
+        this.animationRunner = new TestAnimationRunner();
+        return animationRunner;
     }
 
     @Override
@@ -77,14 +81,12 @@ public class TestGraphSvgDisplay extends GraphDisplayManager {
         return graphRenderer.getRenderedNode(node);
     }
 
+    public TestAnimationRunner getTestAnimationRunner() {
+        return (TestAnimationRunner) animationRunner;
+    }
+
     @Override
     protected TextBoundsEstimator getTextBoundsEstimator() {
         return new TestTextBoundsEstimator(10, 20);
     }
-
-    @Override
-    protected AnimationRunner initAnimationRunner() {
-        return new TestAnimationRunner();
-    }
-
 }

@@ -80,7 +80,7 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected TestAnimationRunner animate(Node node, Point destination) {
         underTest.animateMoveTo(node, destination);
-        return underTest.getAnimationRunner();
+        return underTest.getTestAnimationRunner();
     }
 
     /**
