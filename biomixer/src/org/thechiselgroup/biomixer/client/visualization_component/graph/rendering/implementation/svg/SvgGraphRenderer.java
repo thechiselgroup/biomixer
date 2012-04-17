@@ -30,7 +30,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.PopupExpanderSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextRenderedSvgNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularNodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularRenderedNode;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -72,8 +73,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     public SvgGraphRenderer(int width, int height,
             SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
-        super(new BoxedTextSvgNodeRenderer(svgElementFactory,
-                textBoundsEstimator), new SvgArcRenderer(svgElementFactory),
+        super(new CircularNodeRenderer(svgElementFactory, textBoundsEstimator),
+                new SvgArcRenderer(svgElementFactory),
                 new DefaultSvgNodeExpanderRenderer(svgElementFactory,
                         textBoundsEstimator));
         this.graphWidth = width;
@@ -97,14 +98,14 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addNodeToGraph(RenderedNode node) {
-        addToNodeGroup((BoxedTextRenderedSvgNode) node);
+        addToNodeGroup((CircularRenderedNode) node);
     }
 
     private void addToArcGroup(StraightLineRenderedSvgArc arc) {
         arcGroup.appendChild(arc.asSvgElement());
     }
 
-    private void addToNodeGroup(BoxedTextRenderedSvgNode node) {
+    private void addToNodeGroup(CircularRenderedNode node) {
         nodeGroup.appendChild(node.asSvgElement());
     }
 
@@ -113,6 +114,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
      * 
      * @return
      */
+
     public SvgElement asSvg() {
         return rootSvgComponent.getSvgElement();
     }
@@ -120,7 +122,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     public void bringToForeground(RenderedNode node) {
         // FIXME
-        nodeGroup.appendChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
+        nodeGroup.appendChild(((CircularRenderedNode) node).asSvgElement());
     }
 
     @Override

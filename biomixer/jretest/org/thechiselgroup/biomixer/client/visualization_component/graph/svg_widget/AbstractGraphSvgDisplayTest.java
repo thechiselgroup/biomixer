@@ -73,7 +73,7 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     }
 
     protected Node addNode(String id, String label, String type) {
-        Node node = new Node(id, label, type);
+        Node node = new Node(id, label, type, 1);
         underTest.addNode(node);
         return node;
     }

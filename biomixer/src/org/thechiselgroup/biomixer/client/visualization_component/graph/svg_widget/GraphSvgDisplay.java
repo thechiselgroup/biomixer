@@ -52,7 +52,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextRenderedSvgNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularRenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -476,7 +476,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
     public void onNodeTabClick(final RenderedNode renderedNode) {
         graphRenderer.removeAllNodeExpanders();
         // FIXME
-        LayoutNodeType type = getNodeType(((BoxedTextRenderedSvgNode) renderedNode)
+        LayoutNodeType type = getNodeType(((CircularRenderedNode) renderedNode)
                 .getType());
         Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
                 .get(type);
