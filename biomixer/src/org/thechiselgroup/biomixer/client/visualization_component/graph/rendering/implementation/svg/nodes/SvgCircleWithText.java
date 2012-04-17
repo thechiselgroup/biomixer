@@ -23,7 +23,9 @@ public class SvgCircleWithText {
 
     public static final String DEFAULT_FONT_WEIGHT = "normal";
 
-    public static final double TEXT_BUFFER = 10.0;
+    public static final double TEXT_BUFFER_X = 12.0;
+
+    public static final double TEXT_BUFFER_Y = 5.0;
 
     private SvgElement textElement;
 
@@ -73,10 +75,7 @@ public class SvgCircleWithText {
 
     private void centreTextElements() {
         for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
-            double x = getBoxLeftX()
-                    + TEXT_BUFFER
-                    + (getWidthOfLongestTextLine() - getTextSize(entry.getKey())
-                            .getWidth()) / 2;
+            double x = getBoxLeftX() + TEXT_BUFFER_X;
             entry.getValue().setAttribute(Svg.X, x);
         }
     }
@@ -102,7 +101,7 @@ public class SvgCircleWithText {
         String line = currentLine.toString().trim();
         tspan.setTextContent(line);
 
-        tspan.setAttribute(Svg.X, TEXT_BUFFER);
+        tspan.setAttribute(Svg.X, TEXT_BUFFER_X);
         int dy = numberOfLines == 0 ? 0 : textHeight;
         tspan.setAttribute(Svg.DY, dy);
 
@@ -168,12 +167,9 @@ public class SvgCircleWithText {
     }
 
     private void setBoxAroundText() {
-        int lineHeight = getTextSize(text).getHeight();
-        // setBoxWidth(getWidthOfLongestTextLine() + 2 * TEXT_BUFFER);
-        // setBoxHeight((double) lineHeight * numberOfLines + 2 * TEXT_BUFFER);
         setCircleRadius(10);
         if (numberOfLines == 1) {
-            textElement.setAttribute(Svg.X, getBoxLeftX() + TEXT_BUFFER);
+            textElement.setAttribute(Svg.X, getBoxLeftX() + TEXT_BUFFER_X);
         } else {
             centreTextElements();
         }
@@ -182,32 +178,16 @@ public class SvgCircleWithText {
          * the y-position of the text refers to the bottom of the FIRST LINE of
          * text
          */
-        textElement.setAttribute(Svg.Y, TEXT_BUFFER + lineHeight);
+        textElement.setAttribute(Svg.Y, TEXT_BUFFER_Y);
     }
 
     private void setBoxX(double x) {
         boxElement.setAttribute(Svg.CX, x);
     }
 
-    // public void setBoxHeight(double height) {
-    // boxElement.setAttribute(Svg.HEIGHT, height);
-    // }
-
-    // public void setBoxWidth(double width) {
-    // boxElement.setAttribute(Svg.WIDTH, width);
-    // }
-
     public void setCircleRadius(double radius) {
         boxElement.setAttribute(Svg.R, radius);
     }
-
-    // public void setCornerCurveHeight(double cornerCurveHeight) {
-    // boxElement.setAttribute(Svg.RY, cornerCurveHeight);
-    // }
-
-    // public void setCornerCurveWidth(double cornerCurveWidth) {
-    // boxElement.setAttribute(Svg.RX, cornerCurveWidth);
-    // }
 
     private void setDefaultBoxValues(SvgElement boxElement) {
         boxElement.setAttribute(Svg.FILL, Colors.WHITE);
