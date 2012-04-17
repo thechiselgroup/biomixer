@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
@@ -499,13 +498,9 @@ public class GraphDisplayController implements GraphDisplay,
                         nodeMenuItemClickHandlers.keySet(),
                         renderedNode.getNode());
 
-        for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
-                .entrySet()) {
-            final String expanderId = entry.getKey();
-            final NodeMenuItemClickedHandler handler = entry.getValue();
+        for (final String expanderId : nodeMenuItemClickHandlers.keySet()) {
             renderNodeExpander.setEventHandlerOnOption(expanderId,
                     new ChooselEventHandler() {
-
                         @Override
                         public void onEvent(ChooselEvent event) {
                             switch (event.getEventType()) {
