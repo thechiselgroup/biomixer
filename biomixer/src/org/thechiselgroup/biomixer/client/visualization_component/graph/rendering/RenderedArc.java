@@ -45,7 +45,7 @@ public interface RenderedArc {
     void setThickness(String thickness);
 
     /**
-     * Updates the arc to match new nodes locations.
+     * Updates the arc to match new source or target node locations.
      */
     void update();
 

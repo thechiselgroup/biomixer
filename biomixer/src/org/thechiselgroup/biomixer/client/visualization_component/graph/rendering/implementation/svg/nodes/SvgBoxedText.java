@@ -29,8 +29,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
- * An SVG element with text surrounded by a rectangle. It is one of the primary
- * components of {@link BoxedTextRenderedSvgNode}.
+ * An SVG element with text surrounded by a rectangle.
  * 
  * @author drusk
  * 
@@ -80,8 +79,7 @@ public class SvgBoxedText implements IsSvg {
 
     private SvgElement container;
 
-    public SvgBoxedText(String text,
-            TextBoundsEstimator textBoundsEstimator,
+    public SvgBoxedText(String text, TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
         container = svgElementFactory.createElement(Svg.SVG);
         container.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);

@@ -33,8 +33,18 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public interface GraphRenderer {
 
+    /**
+     * Brings a node forward to be on top of any overlapping nodes.
+     * 
+     * @param node
+     *            the node to bring on top
+     */
     void bringToForeground(RenderedNode node);
 
+    /**
+     * Checks whether scrollbars are needed in order to make all graph contents
+     * visible. If they are needed, it creates them.
+     */
     void checkIfScrollbarsNeeded();
 
     SizeDouble getGraphSize();

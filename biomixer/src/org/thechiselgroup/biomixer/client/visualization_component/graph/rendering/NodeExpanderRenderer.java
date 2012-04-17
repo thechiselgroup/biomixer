@@ -28,6 +28,16 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  */
 public interface NodeExpanderRenderer {
 
+    /**
+     * 
+     * @param topLeftLocation
+     *            the point where the expander's top left corner should go
+     * @param expanderLabels
+     *            the labels to be displayed as expansion options
+     * @param node
+     *            the node for which this expander expands
+     * @return the rendered node expander
+     */
     RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
             Set<String> expanderLabels, Node node);
 

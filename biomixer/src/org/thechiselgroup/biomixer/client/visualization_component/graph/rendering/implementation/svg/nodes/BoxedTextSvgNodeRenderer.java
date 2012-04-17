@@ -25,7 +25,8 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
- * Renders a node as the classic rectangle with text in it.
+ * Renders a node as the classic rectangle with text in it using
+ * {@link SvgBoxedText}.
  * 
  * @author drusk
  * 
@@ -48,7 +49,8 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.expanderTabRenderer = new BoxedTextSvgExpanderTabRenderer(svgElementFactory);
+        this.expanderTabRenderer = new BoxedTextSvgExpanderTabRenderer(
+                svgElementFactory);
     }
 
     @Override
@@ -61,8 +63,8 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
         baseContainer.setAttribute(Svg.X, 0.0);
         baseContainer.setAttribute(Svg.Y, 0.0);
 
-        SvgBoxedText boxedText = new SvgBoxedText(
-                node.getLabel(), textBoundsEstimator, svgElementFactory);
+        SvgBoxedText boxedText = new SvgBoxedText(node.getLabel(),
+                textBoundsEstimator, svgElementFactory);
         boxedText.setCornerCurveWidth(RX_DEFAULT);
         boxedText.setCornerCurveHeight(RY_DEFAULT);
 
@@ -73,7 +75,8 @@ public class BoxedTextSvgNodeRenderer implements NodeRenderer {
                         (boxedText.getTotalWidth() - BoxedTextSvgExpanderTabRenderer.TAB_WIDTH) / 2,
                         boxedText.getTotalHeight());
 
-        return new BoxedTextRenderedSvgNode(node, baseContainer, boxedText, expanderTab);
+        return new BoxedTextRenderedSvgNode(node, baseContainer, boxedText,
+                expanderTab);
     }
 
 }

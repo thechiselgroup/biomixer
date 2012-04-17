@@ -37,7 +37,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
- * Manages construction and deletion of graph visualization elements.
+ * Manages construction and deletion of graph visualization elements. Also
+ * applies styling to nodes and arcs.
  * 
  * @author drusk
  * 

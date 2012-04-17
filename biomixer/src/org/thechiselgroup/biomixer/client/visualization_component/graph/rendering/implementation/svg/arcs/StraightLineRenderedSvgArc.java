@@ -25,7 +25,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 /**
- * Renders an arc as a straight line.
+ * An SVG arc rendered as a straight line.
  * 
  * @author drusk
  * 

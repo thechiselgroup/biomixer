@@ -26,7 +26,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
- * Renders an arc using SVG.
+ * Renders an arc as a straight line using SVG.
  * 
  * @author drusk
  * 
@@ -63,8 +63,8 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
             container.appendChild(arrowHead.asSvgElement());
         }
 
-        return new StraightLineRenderedSvgArc(arc, container, arcLine, arrowHead, source,
-                target);
+        return new StraightLineRenderedSvgArc(arc, container, arcLine,
+                arrowHead, source, target);
     }
 
 }
