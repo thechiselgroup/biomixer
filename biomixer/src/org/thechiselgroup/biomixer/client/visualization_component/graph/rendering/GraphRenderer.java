@@ -33,8 +33,18 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public interface GraphRenderer {
 
+    /**
+     * Brings a node forward to be on top of any overlapping nodes.
+     * 
+     * @param node
+     *            the node to bring on top
+     */
     void bringToForeground(RenderedNode node);
 
+    /**
+     * Checks whether scrollbars are needed in order to make all graph contents
+     * visible. If they are needed, it creates them.
+     */
     void checkIfScrollbarsNeeded();
 
     SizeDouble getGraphSize();
@@ -45,8 +55,7 @@ public interface GraphRenderer {
 
     RenderedNode getRenderedNode(Node node);
 
-    /* XXX for testing */
-    RenderedNodeExpander getRenderedNodeExpander(int index);
+    RenderedNodeExpander getRenderedNodeExpander(Node node);
 
     boolean isWidgetInitialized();
 
@@ -58,12 +67,12 @@ public interface GraphRenderer {
 
     void removeNodeExpander(RenderedNodeExpander expander);
 
-    RenderedArc renderArc(Arc arc, RenderedNode source, RenderedNode target);
+    RenderedArc renderArc(Arc arc);
 
     RenderedNode renderNode(Node node);
 
     RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
-            Set<String> expanderLabels);
+            Set<String> expanderLabels, Node node);
 
     void setArcStyle(Arc arc, String styleProperty, String styleValue);
 

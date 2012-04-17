@@ -21,6 +21,13 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
+/**
+ * The rectangular tab on the bottom of a node which typically has an event
+ * handler associated with it for bringing up node expansion options.
+ * 
+ * @author drusk
+ * 
+ */
 public class SvgRectangularExpansionTab implements IsSvg {
 
     private SvgElement rectangle;
@@ -29,8 +36,8 @@ public class SvgRectangularExpansionTab implements IsSvg {
 
     private SvgElement container;
 
-    public SvgRectangularExpansionTab(SvgElement container, SvgElement rectangle,
-            SvgElement arrow) {
+    public SvgRectangularExpansionTab(SvgElement container,
+            SvgElement rectangle, SvgElement arrow) {
         this.container = container;
         container.appendChild(rectangle);
         container.appendChild(arrow);

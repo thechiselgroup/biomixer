@@ -17,6 +17,12 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
+/**
+ * An object which can be represented as an {@link SvgElement}.
+ * 
+ * @author drusk
+ * 
+ */
 public interface IsSvg {
 
     SvgElement asSvgElement();

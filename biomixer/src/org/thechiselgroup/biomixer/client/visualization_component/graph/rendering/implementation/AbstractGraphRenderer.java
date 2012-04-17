@@ -15,14 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
@@ -36,12 +37,17 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
- * Manages construction and deletion of graph visualization elements.
+ * Manages construction and deletion of graph visualization elements. Also
+ * applies styling to nodes and arcs.
  * 
  * @author drusk
  * 
  */
 public abstract class AbstractGraphRenderer implements GraphRenderer {
+
+    protected int graphWidth;
+
+    protected int graphHeight;
 
     private NodeRenderer nodeRenderer;
 
@@ -51,11 +57,17 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private Map<Node, RenderedNode> renderedNodes = new HashMap<Node, RenderedNode>();
 
+    private Map<String, RenderedNode> renderedNodesById = CollectionFactory
+            .createStringMap();
+
     private Map<Arc, RenderedArc> renderedArcs = new HashMap<Arc, RenderedArc>();
 
-    private List<RenderedNodeExpander> renderedNodeExpanders = new ArrayList<RenderedNodeExpander>();
+    private Map<Node, RenderedNodeExpander> renderedNodeExpanders = new HashMap<Node, RenderedNodeExpander>();
 
-    /* TODO document */
+    /*
+     * Keep track of any node currently in the process of being removed so that
+     * concurrent modifications can be detected and avoided.
+     */
     private Node nodeBeingRemoved = null;
 
     protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
@@ -72,6 +84,11 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     protected abstract void addNodeToGraph(RenderedNode node);
 
     @Override
+    public SizeDouble getGraphSize() {
+        return new DefaultSizeDouble(graphWidth, graphHeight);
+    }
+
+    @Override
     public RenderedArc getRenderedArc(Arc arc) {
         return renderedArcs.get(arc);
     }
@@ -82,17 +99,17 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     }
 
     @Override
-    public RenderedNodeExpander getRenderedNodeExpander(int index) {
-        return renderedNodeExpanders.get(index);
+    public RenderedNodeExpander getRenderedNodeExpander(Node node) {
+        return renderedNodeExpanders.get(node);
     }
 
     @Override
     public void removeAllNodeExpanders() {
-        for (Iterator<RenderedNodeExpander> it = renderedNodeExpanders
-                .iterator(); it.hasNext();) {
-            removeNodeExpanderFromGraph(it.next());
-            it.remove();
+        for (RenderedNodeExpander renderedNodeExpander : renderedNodeExpanders
+                .values()) {
+            removeNodeExpanderFromGraph(renderedNodeExpander);
         }
+        renderedNodeExpanders.clear();
     }
 
     @Override
@@ -123,6 +140,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
             removeArc(it.next().getArc());
         }
         renderedNodes.remove(node);
+        renderedNodesById.remove(node.getId());
         removeNodeFromGraph(renderedNode);
         nodeBeingRemoved = null;
     }
@@ -134,8 +152,8 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     @Override
     public void removeNodeExpander(RenderedNodeExpander expander) {
-        assert renderedNodeExpanders.contains(expander);
-        renderedNodeExpanders.remove(expander);
+        assert renderedNodeExpanders.containsKey(expander.getNode());
+        renderedNodeExpanders.remove(expander.getNode());
         removeNodeExpanderFromGraph(expander);
     }
 
@@ -145,11 +163,14 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     protected abstract void removeNodeFromGraph(RenderedNode node);
 
     @Override
-    public RenderedArc renderArc(Arc arc, RenderedNode source,
-            RenderedNode target) {
+    public RenderedArc renderArc(Arc arc) {
         assert !renderedArcs.containsKey(arc) : "Cannot render the same arc multiple times";
-        RenderedArc renderedArc = arcRenderer.createRenderedArc(arc, source,
-                target);
+        RenderedNode renderedSource = renderedNodesById.get(arc
+                .getSourceNodeId());
+        RenderedNode renderedTarget = renderedNodesById.get(arc
+                .getTargetNodeId());
+        RenderedArc renderedArc = arcRenderer.createRenderedArc(arc,
+                renderedSource, renderedTarget);
         renderedArcs.put(arc, renderedArc);
         addArcToGraph(renderedArc);
         return renderedArc;
@@ -160,16 +181,17 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         assert !renderedNodes.containsKey(node) : "Cannot render the same node multiple times";
         RenderedNode renderedNode = nodeRenderer.createRenderedNode(node);
         renderedNodes.put(node, renderedNode);
+        renderedNodesById.put(node.getId(), renderedNode);
         addNodeToGraph(renderedNode);
         return renderedNode;
     }
 
     @Override
     public RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
-            Set<String> expanderLabels) {
+            Set<String> expanderLabels, Node node) {
         RenderedNodeExpander expander = nodeExpanderRenderer
-                .renderNodeExpander(topLeftLocation, expanderLabels);
-        renderedNodeExpanders.add(expander);
+                .renderNodeExpander(topLeftLocation, expanderLabels, node);
+        renderedNodeExpanders.put(expander.getNode(), expander);
         addNodeExpanderToGraph(expander);
         return expander;
     }
@@ -189,6 +211,16 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
             renderedArc.setThickness(styleValue);
         }
+    }
+
+    @Override
+    public void setGraphHeight(int height) {
+        this.graphHeight = height;
+    }
+
+    @Override
+    public void setGraphWidth(int width) {
+        this.graphWidth = width;
     }
 
     @Override

@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
  * Creates the visible UI elements for displaying node expansion options.
@@ -27,7 +28,17 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
  */
 public interface NodeExpanderRenderer {
 
+    /**
+     * 
+     * @param topLeftLocation
+     *            the point where the expander's top left corner should go
+     * @param expanderLabels
+     *            the labels to be displayed as expansion options
+     * @param node
+     *            the node for which this expander expands
+     * @return the rendered node expander
+     */
     RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
-            Set<String> expanderLabels);
+            Set<String> expanderLabels, Node node);
 
 }

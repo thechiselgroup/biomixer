@@ -15,23 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg;
 
-import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
-import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.ScrollableSvgWidget;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.SvgWidget;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineRenderedSvgArc;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.SvgArcRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.DefaultSvgNodeExpanderRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.PopupExpanderSvgComponent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextRenderedSvgNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularNodeRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularRenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.AbstractSvgRenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.AbstractSvgRenderedNodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.AbstractSvgRenderedNode;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -50,33 +46,24 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     private ScrollableSvgWidget asScrollingWidget = null;
 
-    protected CompositeSvgComponent rootSvgComponent = null;
+    private CompositeSvgComponent rootSvgComponent = null;
 
     private CompositeSvgComponent arcGroup;
 
     private CompositeSvgComponent nodeGroup;
 
-    protected CompositeSvgComponent popupGroup;
+    private CompositeSvgComponent popupGroup;
 
     private SvgGraphBackground background;
 
-    private final SvgElementFactory svgElementFactory;
-
-    // TODO extract to abstract?
-    private int graphWidth;
-
-    // TODO extract to abstract?
-    private int graphHeight;
+    private SvgElementFactory svgElementFactory;
 
     private ChooselEventHandler viewWideInteractionHandler;
 
     public SvgGraphRenderer(int width, int height,
-            SvgElementFactory svgElementFactory,
-            TextBoundsEstimator textBoundsEstimator) {
-        super(new CircularNodeRenderer(svgElementFactory, textBoundsEstimator),
-                new SvgArcRenderer(svgElementFactory),
-                new DefaultSvgNodeExpanderRenderer(svgElementFactory,
-                        textBoundsEstimator));
+            SvgElementFactory svgElementFactory, NodeRenderer nodeRenderer,
+            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
+        super(nodeRenderer, arcRenderer, nodeExpanderRenderer);
         this.graphWidth = width;
         this.graphHeight = height;
         this.svgElementFactory = svgElementFactory;
@@ -87,26 +74,17 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void addArcToGraph(RenderedArc arc) {
-        addToArcGroup((StraightLineRenderedSvgArc) arc);
+        arcGroup.appendChild((AbstractSvgRenderedArc) arc);
     }
 
     @Override
     protected void addNodeExpanderToGraph(RenderedNodeExpander expander) {
-        // FIXME
-        popupGroup.appendChild((PopupExpanderSvgComponent) expander);
+        popupGroup.appendChild((AbstractSvgRenderedNodeExpander) expander);
     }
 
     @Override
     protected void addNodeToGraph(RenderedNode node) {
-        addToNodeGroup((CircularRenderedNode) node);
-    }
-
-    private void addToArcGroup(StraightLineRenderedSvgArc arc) {
-        arcGroup.appendChild(arc.asSvgElement());
-    }
-
-    private void addToNodeGroup(CircularRenderedNode node) {
-        nodeGroup.appendChild(node.asSvgElement());
+        nodeGroup.appendChild((AbstractSvgRenderedNode) node);
     }
 
     /**
@@ -116,13 +94,12 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
      */
 
     public SvgElement asSvg() {
-        return rootSvgComponent.getSvgElement();
+        return rootSvgComponent.asSvgElement();
     }
 
     @Override
     public void bringToForeground(RenderedNode node) {
-        // FIXME
-        nodeGroup.appendChild(((CircularRenderedNode) node).asSvgElement());
+        nodeGroup.appendChild((AbstractSvgRenderedNode) node);
     }
 
     @Override
@@ -134,11 +111,6 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         SvgElement groupingElement = svgElementFactory.createElement(Svg.G);
         groupingElement.setAttribute(Svg.ID, id);
         return new CompositeSvgComponent(groupingElement);
-    }
-
-    @Override
-    public SizeDouble getGraphSize() {
-        return new DefaultSizeDouble(graphWidth, graphHeight);
     }
 
     @Override
@@ -157,14 +129,9 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         return asScrollingWidget;
     }
 
-    /* XXX for testing */
-    public ChooselEventHandler getViewWideInteractionHandler() {
-        return viewWideInteractionHandler;
-    }
-
     private void initBackground(int width, int height) {
         background = new SvgGraphBackground(width, height, svgElementFactory);
-        rootSvgComponent.appendChild(background.asSvg());
+        rootSvgComponent.appendChild(background);
     }
 
     private void initRootSvgElement() {
@@ -191,20 +158,17 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     protected void removeArcFromGraph(RenderedArc arc) {
-        // FIXME
-        arcGroup.removeChild(((StraightLineRenderedSvgArc) arc).asSvgElement());
+        arcGroup.removeChild((AbstractSvgRenderedArc) arc);
     }
 
     @Override
     protected void removeNodeExpanderFromGraph(RenderedNodeExpander expander) {
-        // FIXME
-        popupGroup.removeChild((PopupExpanderSvgComponent) expander);
+        popupGroup.removeChild((AbstractSvgRenderedNodeExpander) expander);
     }
 
     @Override
     protected void removeNodeFromGraph(RenderedNode node) {
-        // FIXME
-        nodeGroup.removeChild(((BoxedTextRenderedSvgNode) node).asSvgElement());
+        nodeGroup.removeChild((AbstractSvgRenderedNode) node);
     }
 
     @Override
@@ -214,14 +178,14 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     public void setGraphHeight(int height) {
-        this.graphHeight = height;
+        super.setGraphHeight(height);
         background.setHeight(height);
         asScrollingWidget.setScrollableContentHeight(height);
     }
 
     @Override
     public void setGraphWidth(int width) {
-        this.graphWidth = width;
+        super.setGraphWidth(width);
         background.setWidth(width);
         asScrollingWidget.setScrollableContentWidth(width);
     }

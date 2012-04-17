@@ -18,31 +18,30 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.CompositeSvgComponent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBoxedText;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
-public class PopupExpanderSvgComponent extends CompositeSvgComponent implements
-        RenderedNodeExpander {
+public class BoxedTextSvgNodeExpander extends AbstractSvgRenderedNodeExpander {
 
     private Map<String, SvgBoxedText> expanders;
 
-    public PopupExpanderSvgComponent(SvgElement container,
-            Map<String, SvgBoxedText> expanders) {
-        super(container);
+    private SvgElement container;
+
+    public BoxedTextSvgNodeExpander(SvgElement container,
+            Map<String, SvgBoxedText> expanders, Node node) {
+        super(node);
+        this.container = container;
         this.expanders = expanders;
+    }
+
+    @Override
+    public SvgElement asSvgElement() {
+        return container;
     }
 
     public SvgBoxedText getEntryByExpanderLabel(String expanderLabel) {
         return expanders.get(expanderLabel);
-    }
-
-    @Override
-    public ChooselEventHandler getEventHandler(String optionId) {
-        return ((TextSvgElement) expanders.get(optionId).asSvgElement())
-                .getEventListener();
     }
 
     @Override

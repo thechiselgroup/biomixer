@@ -16,9 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
@@ -26,7 +24,6 @@ import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
-import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
@@ -40,8 +37,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.LayoutNodeAnimation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutArc;
@@ -52,7 +48,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularRenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -68,7 +66,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseDoubleClickEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
-import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 import com.google.gwt.event.shared.EventBus;
@@ -78,7 +75,8 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
+public class GraphDisplayController implements GraphDisplay,
+        ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
 
@@ -98,40 +96,43 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
 
     private NodeInteractionManager nodeInteractionManager;
 
-    // TODO remove
-    protected TextBoundsEstimator textBoundsEstimator;
+    private NodeAnimator nodeAnimator;
 
-    private IdentifiablesList<DefaultLayoutNodeType> nodeTypes = new IdentifiablesList<DefaultLayoutNodeType>();
+    private static final int DEFAULT_ANIMATION_DURATION = 250;
 
-    private IdentifiablesList<DefaultLayoutArcType> arcTypes = new IdentifiablesList<DefaultLayoutArcType>();
+    /*
+     * maps node types to their available menu item click handlers and those
+     * handlers' associated labels
+     */
+    private Map<String, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = CollectionFactory
+            .createStringMap();
 
-    protected AnimationRunner animationRunner;
-
-    // maps node types to their available menu item click handlers and those
-    // handlers' associated labels
-    private Map<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = new HashMap<LayoutNodeType, Map<String, NodeMenuItemClickedHandler>>();
-
-    public GraphSvgDisplay(int width, int height) {
+    public GraphDisplayController(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
     }
 
-    public GraphSvgDisplay(int width, int height,
+    public GraphDisplayController(int width, int height,
             SvgElementFactory svgElementFactory) {
         this.viewWidth = width;
         this.viewHeight = height;
         assert svgElementFactory != null;
         this.svgElementFactory = svgElementFactory;
 
-        initTextBoundsEstimator();
-        this.graphRenderer = new SvgGraphRenderer(width, height,
-                svgElementFactory, textBoundsEstimator);
-        initBackgroundListener();
-
         nodeInteractionManager = new NodeInteractionManager(this);
+
+        TextBoundsEstimator textBoundsEstimator = getTextBoundsEstimator();
+        this.graphRenderer = new SvgGraphRenderer(width, height,
+                svgElementFactory, new BoxedTextSvgNodeRenderer(
+                        svgElementFactory, textBoundsEstimator),
+                new StraightLineSvgArcRenderer(svgElementFactory),
+                new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
+                        textBoundsEstimator));
+
+        initBackgroundListener();
         initViewWideInteractionHandler();
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
-        this.animationRunner = initAnimationRunner();
+        this.nodeAnimator = new NodeAnimator(getAnimationRunner());
     }
 
     @Override
@@ -149,13 +150,7 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert nodes.containsKey(targetNodeId) : "target node '" + targetNodeId
                 + "' must be available";
 
-        IdentifiableLayoutNode sourceNode = layoutGraph
-                .getIdentifiableLayoutNode(sourceNodeId);
-        IdentifiableLayoutNode targetNode = layoutGraph
-                .getIdentifiableLayoutNode(targetNodeId);
-
-        final RenderedArc renderedArc = graphRenderer.renderArc(arc,
-                sourceNode.getRenderedNode(), targetNode.getRenderedNode());
+        final RenderedArc renderedArc = graphRenderer.renderArc(arc);
 
         renderedArc.setEventListener(new ChooselEventHandler() {
             @Override
@@ -165,6 +160,11 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 }
             }
         });
+
+        IdentifiableLayoutNode sourceNode = layoutGraph
+                .getIdentifiableLayoutNode(sourceNodeId);
+        IdentifiableLayoutNode targetNode = layoutGraph
+                .getIdentifiableLayoutNode(targetNodeId);
 
         IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(
                 arc.getId(), renderedArc, getArcType(arc.getType()),
@@ -215,20 +215,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         nodes.put(node.getId(), node);
         final RenderedNode renderedNode = graphRenderer.renderNode(node);
 
-        renderedNode.setBodyEventHandler(new SvgNodeEventHandler(renderedNode,
-                this, nodeInteractionManager));
-
-        renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
-            @Override
-            public void onEvent(ChooselEvent event) {
-                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
-                    onNodeTabClick(renderedNode);
-                }
-            }
-        });
+        setNodeEventHandlers(renderedNode);
 
         IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(
-                node.getId(), renderedNode, getNodeType(node.getType()));
+                node.getId(), renderedNode, getNodeLayoutType(node.getType()));
         setDefaultPosition(layoutNode);
         layoutGraph.addIdentifiableLayoutNode(layoutNode);
     }
@@ -241,28 +231,19 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert handler != null;
         assert nodeType != null;
 
-        DefaultLayoutNodeType layoutNodeType = getNodeType(nodeType);
-
-        if (!nodeMenuItemClickHandlersByType.containsKey(layoutNodeType)) {
-            nodeMenuItemClickHandlersByType.put(layoutNodeType,
-                    CollectionFactory
-                            .<NodeMenuItemClickedHandler> createStringMap());
+        if (!nodeMenuItemClickHandlersByType.containsKey(nodeType)) {
+            nodeMenuItemClickHandlersByType.put(nodeType, CollectionFactory
+                    .<NodeMenuItemClickedHandler> createStringMap());
         }
-        nodeMenuItemClickHandlersByType.get(layoutNodeType).put(menuLabel,
-                handler);
+        nodeMenuItemClickHandlersByType.get(nodeType).put(menuLabel, handler);
+
     }
 
     @Override
     public void animateMoveTo(Node node, Point targetLocation) {
-        LayoutNodeAnimation animation = new LayoutNodeAnimation(
+        nodeAnimator.animateNodeTo(
                 layoutGraph.getIdentifiableLayoutNode(node.getId()),
-                targetLocation.getX(), targetLocation.getY());
-        animationRunner.run(animation, 2);
-    }
-
-    // XXX
-    public SvgElement asSvg() {
-        return ((SvgGraphRenderer) graphRenderer).asSvg();
+                targetLocation, DEFAULT_ANIMATION_DURATION);
     }
 
     @Override
@@ -282,6 +263,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         return nodes.containsKey(nodeId);
     }
 
+    protected AnimationRunner getAnimationRunner() {
+        return new GwtAnimationRunner();
+    }
+
     @Override
     public Arc getArc(String arcId) {
         assert arcId != null;
@@ -299,11 +284,11 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
      */
     private DefaultLayoutArcType getArcType(String arcType) {
         DefaultLayoutArcType layoutArcType = null;
-        if (!arcTypes.contains(arcType)) {
+        if (!layoutGraph.containsArcType(arcType)) {
             layoutArcType = new DefaultLayoutArcType(arcType);
-            arcTypes.add(layoutArcType);
+            layoutGraph.addLayoutArcType(layoutArcType);
         } else {
-            layoutArcType = arcTypes.get(arcType);
+            layoutArcType = layoutGraph.getArcType(arcType);
         }
         return layoutArcType;
     }
@@ -353,15 +338,20 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
      *            the node whose type is to be determined
      * @return the type of the node
      */
-    private DefaultLayoutNodeType getNodeType(String nodeType) {
+    private DefaultLayoutNodeType getNodeLayoutType(String nodeType) {
         DefaultLayoutNodeType layoutNodeType = null;
-        if (!nodeTypes.contains(nodeType)) {
+        if (!layoutGraph.containsNodeType(nodeType)) {
             layoutNodeType = new DefaultLayoutNodeType(nodeType);
-            nodeTypes.add(layoutNodeType);
+            layoutGraph.addLayoutNodeType(layoutNodeType);
         } else {
-            layoutNodeType = nodeTypes.get(nodeType);
+            layoutNodeType = layoutGraph.getNodeType(nodeType);
         }
         return layoutNodeType;
+    }
+
+    protected TextBoundsEstimator getTextBoundsEstimator() {
+        return new CanvasTextBoundsEstimator(new SvgBBoxTextBoundsEstimator(
+                svgElementFactory));
     }
 
     /**
@@ -372,10 +362,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
      */
     private double getVerticalScrollDistance() {
         return graphRenderer.getGraphSize().getHeight() - viewHeight;
-    }
-
-    protected AnimationRunner initAnimationRunner() {
-        return new GwtAnimationRunner();
     }
 
     private void initBackgroundListener() {
@@ -391,11 +377,6 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 panBackground(dragEvent.getDeltaX(), dragEvent.getDeltaY());
             }
         });
-    }
-
-    protected void initTextBoundsEstimator() {
-        this.textBoundsEstimator = new CanvasTextBoundsEstimator(
-                new SvgBBoxTextBoundsEstimator(svgElementFactory));
     }
 
     private void initViewWideInteractionHandler() {
@@ -440,6 +421,26 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
                 mouseX, mouseY));
     }
 
+    public void onNodeExpanderClick(RenderedNodeExpander expander,
+            String optionId) {
+        Node node = expander.getNode();
+        nodeMenuItemClickHandlersByType.get(node.getType()).get(optionId)
+                .onNodeMenuItemClicked(node);
+        graphRenderer.removeAllNodeExpanders();
+    }
+
+    public void onNodeExpanderMouseOut(RenderedNodeExpander expander,
+            String optionId) {
+        // set back to default colour
+        expander.setOptionBackgroundColor(optionId, Colors.WHITE);
+    }
+
+    public void onNodeExpanderMouseOver(RenderedNodeExpander expander,
+            String optionId) {
+        // give highlighting colour
+        expander.setOptionBackgroundColor(optionId, Colors.BLUE_1);
+    }
+
     public void onNodeMouseClick(String nodeId, int mouseX, int mouseY) {
         int x = mouseX - getGraphAbsoluteLeft();
         int y = mouseY - getGraphAbsoluteTop();
@@ -453,6 +454,10 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         int y = getGraphAbsoluteTop() + mouseY;
 
         eventBus.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId), x, y));
+    }
+
+    public void onNodeMouseDown(Node node, int clientX, int clientY) {
+        nodeInteractionManager.onMouseDown(node.getId(), clientX, clientY);
     }
 
     public void onNodeMouseOut(RenderedNode renderedNode, int mouseX, int mouseY) {
@@ -473,43 +478,38 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         graphRenderer.bringToForeground(renderedNode);
     }
 
+    public void onNodeMouseUp() {
+        nodeInteractionManager.onMouseUp();
+    }
+
     public void onNodeTabClick(final RenderedNode renderedNode) {
         graphRenderer.removeAllNodeExpanders();
-        // FIXME
-        LayoutNodeType type = getNodeType(((CircularRenderedNode) renderedNode)
-                .getType());
         Map<String, NodeMenuItemClickedHandler> nodeMenuItemClickHandlers = nodeMenuItemClickHandlersByType
-                .get(type);
+                .get(renderedNode.getType());
         final RenderedNodeExpander renderNodeExpander = graphRenderer
                 .renderNodeExpander(renderedNode.getExpanderPopupLocation(),
-                        nodeMenuItemClickHandlers.keySet());
+                        nodeMenuItemClickHandlers.keySet(),
+                        renderedNode.getNode());
 
-        for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
-                .entrySet()) {
-            final String expanderId = entry.getKey();
-            final NodeMenuItemClickedHandler handler = entry.getValue();
+        for (final String expanderId : nodeMenuItemClickHandlers.keySet()) {
             renderNodeExpander.setEventHandlerOnOption(expanderId,
                     new ChooselEventHandler() {
-
                         @Override
                         public void onEvent(ChooselEvent event) {
                             switch (event.getEventType()) {
                             case MOUSE_OVER:
-                                // give rect highlight color
-                                renderNodeExpander.setOptionBackgroundColor(
-                                        expanderId, Colors.BLUE_1);
+                                onNodeExpanderMouseOver(renderNodeExpander,
+                                        expanderId);
                                 break;
 
                             case MOUSE_OUT:
-                                // give rect default color
-                                renderNodeExpander.setOptionBackgroundColor(
-                                        expanderId, Colors.WHITE);
+                                onNodeExpanderMouseOut(renderNodeExpander,
+                                        expanderId);
                                 break;
 
                             case CLICK:
-                                handler.onNodeMenuItemClicked(renderedNode
-                                        .getNode());
-                                graphRenderer.removeAllNodeExpanders();
+                                onNodeExpanderClick(renderNodeExpander,
+                                        expanderId);
                                 break;
 
                             default:
@@ -676,6 +676,46 @@ public class GraphSvgDisplay implements GraphDisplay, ViewResizeEventListener {
         assert nodes.containsKey(node.getId());
         layoutGraph.getIdentifiableLayoutNode(node.getId()).setPosition(
                 location.getX(), location.getY());
+    }
+
+    private void setNodeEventHandlers(final RenderedNode renderedNode) {
+        renderedNode.setBodyEventHandler(new ChooselEventHandler() {
+            @Override
+            public void onEvent(ChooselEvent event) {
+                int clientX = event.getClientX();
+                int clientY = event.getClientY();
+
+                switch (event.getEventType()) {
+                case MOUSE_OVER:
+                    onNodeMouseOver(renderedNode, clientX, clientY);
+                    break;
+
+                case MOUSE_OUT:
+                    onNodeMouseOut(renderedNode, clientX, clientY);
+                    break;
+
+                case MOUSE_UP:
+                    onNodeMouseUp();
+                    break;
+
+                case MOUSE_DOWN:
+                    onNodeMouseDown(renderedNode.getNode(), clientX, clientY);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        });
+
+        renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
+            @Override
+            public void onEvent(ChooselEvent event) {
+                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
+                    onNodeTabClick(renderedNode);
+                }
+            }
+        });
     }
 
     @Override

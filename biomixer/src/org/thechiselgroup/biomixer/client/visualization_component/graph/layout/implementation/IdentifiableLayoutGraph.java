@@ -23,6 +23,10 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
 
     private IdentifiablesList<IdentifiableLayoutArc> identifiableLayoutArcs = new IdentifiablesList<IdentifiableLayoutArc>();
 
+    private IdentifiablesList<DefaultLayoutNodeType> nodeTypes = new IdentifiablesList<DefaultLayoutNodeType>();
+
+    private IdentifiablesList<DefaultLayoutArcType> arcTypes = new IdentifiablesList<DefaultLayoutArcType>();
+
     public IdentifiableLayoutGraph(double width, double height) {
         super(width, height);
     }
@@ -37,12 +41,38 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
         identifiableLayoutNodes.add(node);
     }
 
+    @Override
+    public void addLayoutArcType(DefaultLayoutArcType arcType) {
+        arcTypes.add(arcType);
+    }
+
+    @Override
+    public void addLayoutNodeType(DefaultLayoutNodeType nodeType) {
+        nodeTypes.add(nodeType);
+    }
+
+    public boolean containsArcType(String arcType) {
+        return arcTypes.contains(arcType);
+    }
+
+    public boolean containsNodeType(String nodeType) {
+        return nodeTypes.contains(nodeType);
+    }
+
+    public DefaultLayoutArcType getArcType(String arcType) {
+        return arcTypes.get(arcType);
+    }
+
     public IdentifiableLayoutArc getIdentifiableLayoutArc(String id) {
         return identifiableLayoutArcs.get(id);
     }
 
     public IdentifiableLayoutNode getIdentifiableLayoutNode(String id) {
         return identifiableLayoutNodes.get(id);
+    }
+
+    public DefaultLayoutNodeType getNodeType(String nodeType) {
+        return nodeTypes.get(nodeType);
     }
 
     public void removeIdentifiableLayoutArc(String id) {
@@ -53,6 +83,14 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
     public void removeIdentifiableLayoutNode(String id) {
         removeLayoutNode(getIdentifiableLayoutNode(id));
         identifiableLayoutNodes.remove(id);
+    }
+
+    public void removeLayoutArcType(DefaultLayoutArcType arcType) {
+        arcTypes.remove(arcType.getId());
+    }
+
+    public void removeLayoutNodeType(DefaultLayoutNodeType nodeType) {
+        nodeTypes.remove(nodeType.getId());
     }
 
 }

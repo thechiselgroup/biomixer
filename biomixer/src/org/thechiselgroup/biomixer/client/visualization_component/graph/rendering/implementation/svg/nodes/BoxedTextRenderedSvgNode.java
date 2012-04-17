@@ -20,13 +20,10 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractRenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.IsSvg;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 /**
  * The classic rendering of a node as a rectangle with text inside it.
@@ -34,8 +31,8 @@ import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
  * @author drusk
  * 
  */
-public class BoxedTextRenderedSvgNode extends AbstractRenderedNode implements
-        Identifiable, IsSvg {
+public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
+        Identifiable {
 
     private final SvgRectangularExpansionTab expanderTab;
 
@@ -59,19 +56,8 @@ public class BoxedTextRenderedSvgNode extends AbstractRenderedNode implements
     }
 
     @Override
-    public ChooselEventHandler getBodyEventHandler() {
-        return ((TextSvgElement) boxedText.asSvgElement()).getEventListener();
-    }
-
-    @Override
     public PointDouble getExpanderPopupLocation() {
         return getLocation().plus(expanderTab.getLocation());
-    }
-
-    @Override
-    /* FIXME: this is for testing only. Some other way of firing events? */
-    public ChooselEventHandler getExpansionEventHandler() {
-        return ((TextSvgElement) expanderTab.asSvgElement()).getEventListener();
     }
 
     @Override

@@ -22,7 +22,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
  * @author drusk
  * 
  */
-// XXX some duplication between this and DragAndClickHandler
 public class NodeInteractionManager {
 
     /*
@@ -37,9 +36,9 @@ public class NodeInteractionManager {
 
     private boolean movedSinceMouseDown = false;
 
-    private final GraphSvgDisplay graphDisplay;
+    private final GraphDisplayController graphDisplay;
 
-    public NodeInteractionManager(GraphSvgDisplay graphDisplay) {
+    public NodeInteractionManager(GraphDisplayController graphDisplay) {
         this.graphDisplay = graphDisplay;
     }
 

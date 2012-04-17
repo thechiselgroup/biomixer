@@ -11,7 +11,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 public class CircularRenderedNode extends AbstractRenderedNode implements
         Identifiable, IsSvg {
@@ -38,19 +37,8 @@ public class CircularRenderedNode extends AbstractRenderedNode implements
     }
 
     @Override
-    public ChooselEventHandler getBodyEventHandler() {
-        return ((TextSvgElement) boxedText.asSvgElement()).getEventListener();
-    }
-
-    @Override
     public PointDouble getExpanderPopupLocation() {
         return getLocation().plus(expanderTab.getLocation());
-    }
-
-    @Override
-    /* FIXME: this is for testing only. Some other way of firing events? */
-    public ChooselEventHandler getExpansionEventHandler() {
-        return ((TextSvgElement) expanderTab.asSvgElement()).getEventListener();
     }
 
     @Override

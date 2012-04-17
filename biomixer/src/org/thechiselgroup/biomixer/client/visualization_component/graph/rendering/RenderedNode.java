@@ -30,17 +30,27 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  */
 public interface RenderedNode {
 
+    /**
+     * 
+     * @param arc
+     *            an arc which has this node as either a source or target
+     */
     void addConnectedArc(RenderedArc arc);
-
-    ChooselEventHandler getBodyEventHandler();
 
     PointDouble getCentre();
 
+    /**
+     * 
+     * @return the arcs with this node as either a source or target
+     */
     List<RenderedArc> getConnectedArcs();
 
+    /**
+     * 
+     * @return the location where a node's expander should be placed when its
+     *         display is triggered.
+     */
     PointDouble getExpanderPopupLocation();
-
-    ChooselEventHandler getExpansionEventHandler();
 
     double getLeftX();
 
@@ -52,14 +62,28 @@ public interface RenderedNode {
 
     double getTopY();
 
+    String getType();
+
     void removeConnectedArc(RenderedArc arc);
 
     void setBackgroundColor(String color);
 
+    /**
+     * 
+     * @param handler
+     *            the event handler for most interactions with a node, such as
+     *            click, drag, mouse over, etc.
+     */
     void setBodyEventHandler(ChooselEventHandler handler);
 
     void setBorderColor(String color);
 
+    /**
+     * 
+     * @param handler
+     *            the event handler for creating/displaying node expansion
+     *            options.
+     */
     void setExpansionEventHandler(ChooselEventHandler handler);
 
     void setFontColor(String color);

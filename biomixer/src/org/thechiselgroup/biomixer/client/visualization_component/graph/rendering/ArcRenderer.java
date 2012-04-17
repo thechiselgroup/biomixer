@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 
 /**
- * Creates the actual visualizable nodes for display on the graph.
+ * Creates the actual visualizable arcs for display on the graph.
  * 
  * @author drusk
  * 

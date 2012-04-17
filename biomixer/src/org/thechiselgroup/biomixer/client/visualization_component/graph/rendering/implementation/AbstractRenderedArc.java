@@ -58,8 +58,4 @@ public abstract class AbstractRenderedArc implements RenderedArc {
         return arc.isDirected();
     }
 
-    public void removeNodeConnections() {
-        source.removeConnectedArc(this);
-        target.removeConnectedArc(this);
-    }
 }

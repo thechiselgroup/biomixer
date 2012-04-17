@@ -13,40 +13,23 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
+package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes;
 
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractRenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.IsSvg;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
- * A displayable arc.
+ * All SVG based rendered nodes should extend this.
  * 
  * @author drusk
  * 
  */
-public interface RenderedArc {
+public abstract class AbstractSvgRenderedNode extends AbstractRenderedNode
+        implements IsSvg {
 
-    Arc getArc();
-
-    RenderedNode getSource();
-
-    RenderedNode getTarget();
-
-    double getThickness();
-
-    boolean isDirected();
-
-    void setArcStyle(String arcStyle);
-
-    void setColor(String color);
-
-    void setEventListener(ChooselEventHandler handler);
-
-    void setThickness(String thickness);
-
-    /**
-     * Updates the arc to match new source or target node locations.
-     */
-    void update();
+    protected AbstractSvgRenderedNode(Node node) {
+        super(node);
+    }
 
 }
