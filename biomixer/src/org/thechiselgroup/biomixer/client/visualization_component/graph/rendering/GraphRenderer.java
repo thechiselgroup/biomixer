@@ -45,8 +45,7 @@ public interface GraphRenderer {
 
     RenderedNode getRenderedNode(Node node);
 
-    /* XXX for testing */
-    RenderedNodeExpander getRenderedNodeExpander(int index);
+    RenderedNodeExpander getRenderedNodeExpander(Node node);
 
     boolean isWidgetInitialized();
 
@@ -63,7 +62,7 @@ public interface GraphRenderer {
     RenderedNode renderNode(Node node);
 
     RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
-            Set<String> expanderLabels);
+            Set<String> expanderLabels, Node node);
 
     void setArcStyle(Arc arc, String styleProperty, String styleValue);
 

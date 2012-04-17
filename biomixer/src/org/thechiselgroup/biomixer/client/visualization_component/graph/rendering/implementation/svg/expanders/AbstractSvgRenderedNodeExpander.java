@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.IsSvg;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
  * All SVG based rendered node expanders should extend this.
@@ -24,7 +25,18 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
  * @author drusk
  * 
  */
-public abstract class AbstractSvgRenderedNodeExpander implements RenderedNodeExpander,
-        IsSvg {
+public abstract class AbstractSvgRenderedNodeExpander implements
+        RenderedNodeExpander, IsSvg {
+
+    private Node node;
+
+    protected AbstractSvgRenderedNodeExpander(Node node) {
+        this.node = node;
+    }
+
+    @Override
+    public Node getNode() {
+        return node;
+    }
 
 }

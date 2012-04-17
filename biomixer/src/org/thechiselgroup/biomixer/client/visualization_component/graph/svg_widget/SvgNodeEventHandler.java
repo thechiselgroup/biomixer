@@ -52,12 +52,12 @@ public class SvgNodeEventHandler implements ChooselEventHandler {
             break;
 
         case MOUSE_UP:
-            nodeInteractionManager.onMouseUp();
+            graphDisplay.onNodeMouseUp();
             break;
 
         case MOUSE_DOWN:
-            nodeInteractionManager.onMouseDown(renderedNode.getNode().getId(),
-                    clientX, clientY);
+            graphDisplay.onNodeMouseDown(renderedNode.getNode(), clientX,
+                    clientY);
             break;
 
         default:

@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering;
 
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 /**
  * The UI element which provides node expansion options.
@@ -25,8 +26,7 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
  */
 public interface RenderedNodeExpander {
 
-    /* XXX for testing */
-    ChooselEventHandler getEventHandler(String optionId);
+    Node getNode();
 
     void setEventHandlerOnOption(String optionId, ChooselEventHandler handler);
 

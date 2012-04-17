@@ -17,12 +17,8 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
@@ -42,25 +38,6 @@ public class TestGraphSvgDisplay extends GraphDisplayManager {
         super(width, height, svgElementFactory);
     }
 
-    public void fireNodeTabTestEvent(Node node, ChooselEvent event) {
-        getRenderedNode(node).getExpansionEventHandler().onEvent(event);
-    }
-
-    public void fireNodeTestEvent(Node node, ChooselEvent event) {
-        getRenderedNode(node).getBodyEventHandler().onEvent(event);
-    }
-
-    public void fireTabMenuItemTestEvent(String expanderLabel,
-            ChooselEvent event) {
-        graphRenderer.getRenderedNodeExpander(0).getEventHandler(expanderLabel)
-                .onEvent(event);
-    }
-
-    public void fireViewWideTestEvent(ChooselEvent chooselEvent) {
-        SvgGraphRenderer renderer = ((SvgGraphRenderer) graphRenderer);
-        renderer.getViewWideInteractionHandler().onEvent(chooselEvent);
-    }
-
     @Override
     protected AnimationRunner getAnimationRunner() {
         this.animationRunner = new TestAnimationRunner();
@@ -77,10 +54,6 @@ public class TestGraphSvgDisplay extends GraphDisplayManager {
         return 0;
     }
 
-    private RenderedNode getRenderedNode(Node node) {
-        return graphRenderer.getRenderedNode(node);
-    }
-
     public TestAnimationRunner getTestAnimationRunner() {
         return (TestAnimationRunner) animationRunner;
     }
@@ -89,4 +62,5 @@ public class TestGraphSvgDisplay extends GraphDisplayManager {
     protected TextBoundsEstimator getTextBoundsEstimator() {
         return new TestTextBoundsEstimator(10, 20);
     }
+
 }

@@ -32,15 +32,11 @@ public interface RenderedNode {
 
     void addConnectedArc(RenderedArc arc);
 
-    ChooselEventHandler getBodyEventHandler();
-
     PointDouble getCentre();
 
     List<RenderedArc> getConnectedArcs();
 
     PointDouble getExpanderPopupLocation();
-
-    ChooselEventHandler getExpansionEventHandler();
 
     double getLeftX();
 

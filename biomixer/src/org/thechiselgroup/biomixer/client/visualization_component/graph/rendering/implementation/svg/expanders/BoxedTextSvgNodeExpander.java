@@ -19,8 +19,8 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBoxedText;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
 
 public class BoxedTextSvgNodeExpander extends AbstractSvgRenderedNodeExpander {
 
@@ -29,7 +29,8 @@ public class BoxedTextSvgNodeExpander extends AbstractSvgRenderedNodeExpander {
     private SvgElement container;
 
     public BoxedTextSvgNodeExpander(SvgElement container,
-            Map<String, SvgBoxedText> expanders) {
+            Map<String, SvgBoxedText> expanders, Node node) {
+        super(node);
         this.container = container;
         this.expanders = expanders;
     }
@@ -41,12 +42,6 @@ public class BoxedTextSvgNodeExpander extends AbstractSvgRenderedNodeExpander {
 
     public SvgBoxedText getEntryByExpanderLabel(String expanderLabel) {
         return expanders.get(expanderLabel);
-    }
-
-    @Override
-    public ChooselEventHandler getEventHandler(String optionId) {
-        return ((TextSvgElement) expanders.get(optionId).asSvgElement())
-                .getEventListener();
     }
 
     @Override

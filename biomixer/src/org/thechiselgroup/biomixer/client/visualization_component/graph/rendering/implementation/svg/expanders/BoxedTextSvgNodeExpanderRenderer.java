@@ -11,6 +11,7 @@ import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBoxedText;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
@@ -28,7 +29,8 @@ public class BoxedTextSvgNodeExpanderRenderer implements NodeExpanderRenderer {
 
     private TextBoundsEstimator textBoundsEstimator;
 
-    public BoxedTextSvgNodeExpanderRenderer(SvgElementFactory svgElementFactory,
+    public BoxedTextSvgNodeExpanderRenderer(
+            SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
@@ -38,7 +40,7 @@ public class BoxedTextSvgNodeExpanderRenderer implements NodeExpanderRenderer {
 
     @Override
     public RenderedNodeExpander renderNodeExpander(PointDouble topLeftLocation,
-            Set<String> expanderLabels) {
+            Set<String> expanderLabels, Node node) {
         SvgElement popUpContainer = svgElementFactory.createElement(Svg.SVG);
         popUpContainer.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         SvgUtils.setXY(popUpContainer, topLeftLocation);
@@ -51,8 +53,8 @@ public class BoxedTextSvgNodeExpanderRenderer implements NodeExpanderRenderer {
         List<String> sortedExpanderLabels = CollectionUtils
                 .asSortedList(expanderLabels);
         for (String expanderId : sortedExpanderLabels) {
-            SvgBoxedText boxedText = new SvgBoxedText(
-                    expanderId, textBoundsEstimator, svgElementFactory);
+            SvgBoxedText boxedText = new SvgBoxedText(expanderId,
+                    textBoundsEstimator, svgElementFactory);
             boxedTextEntries.put(expanderId, boxedText);
             double boxWidth = boxedText.getTotalWidth();
             if (boxWidth > maxWidth) {
@@ -69,7 +71,8 @@ public class BoxedTextSvgNodeExpanderRenderer implements NodeExpanderRenderer {
             currentOffsetY += boxedText.getTotalHeight();
         }
 
-        return new BoxedTextSvgNodeExpander(popUpContainer, boxedTextEntries);
+        return new BoxedTextSvgNodeExpander(popUpContainer, boxedTextEntries,
+                node);
     }
 
 }

@@ -217,17 +217,7 @@ public class GraphDisplayManager implements GraphDisplay,
         nodes.put(node.getId(), node);
         final RenderedNode renderedNode = graphRenderer.renderNode(node);
 
-        renderedNode.setBodyEventHandler(new SvgNodeEventHandler(renderedNode,
-                this, nodeInteractionManager));
-
-        renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
-            @Override
-            public void onEvent(ChooselEvent event) {
-                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
-                    onNodeTabClick(renderedNode);
-                }
-            }
-        });
+        setNodeEventHandlers(renderedNode);
 
         IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(
                 node.getId(), renderedNode, getNodeLayoutType(node.getType()));
@@ -438,6 +428,26 @@ public class GraphDisplayManager implements GraphDisplay,
                 mouseX, mouseY));
     }
 
+    public void onNodeExpanderClick(RenderedNodeExpander expander,
+            String optionId) {
+        Node node = expander.getNode();
+        nodeMenuItemClickHandlersByType.get(node.getType()).get(optionId)
+                .onNodeMenuItemClicked(node);
+        graphRenderer.removeAllNodeExpanders();
+    }
+
+    public void onNodeExpanderMouseOut(RenderedNodeExpander expander,
+            String optionId) {
+        // set back to default colour
+        expander.setOptionBackgroundColor(optionId, Colors.WHITE);
+    }
+
+    public void onNodeExpanderMouseOver(RenderedNodeExpander expander,
+            String optionId) {
+        // give highlighting colour
+        expander.setOptionBackgroundColor(optionId, Colors.BLUE_1);
+    }
+
     public void onNodeMouseClick(String nodeId, int mouseX, int mouseY) {
         int x = mouseX - getGraphAbsoluteLeft();
         int y = mouseY - getGraphAbsoluteTop();
@@ -451,6 +461,10 @@ public class GraphDisplayManager implements GraphDisplay,
         int y = getGraphAbsoluteTop() + mouseY;
 
         eventBus.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId), x, y));
+    }
+
+    public void onNodeMouseDown(Node node, int clientX, int clientY) {
+        nodeInteractionManager.onMouseDown(node.getId(), clientX, clientY);
     }
 
     public void onNodeMouseOut(RenderedNode renderedNode, int mouseX, int mouseY) {
@@ -471,6 +485,10 @@ public class GraphDisplayManager implements GraphDisplay,
         graphRenderer.bringToForeground(renderedNode);
     }
 
+    public void onNodeMouseUp() {
+        nodeInteractionManager.onMouseUp();
+    }
+
     public void onNodeTabClick(final RenderedNode renderedNode) {
         graphRenderer.removeAllNodeExpanders();
 
@@ -478,7 +496,8 @@ public class GraphDisplayManager implements GraphDisplay,
                 .get(renderedNode.getType());
         final RenderedNodeExpander renderNodeExpander = graphRenderer
                 .renderNodeExpander(renderedNode.getExpanderPopupLocation(),
-                        nodeMenuItemClickHandlers.keySet());
+                        nodeMenuItemClickHandlers.keySet(),
+                        renderedNode.getNode());
 
         for (Entry<String, NodeMenuItemClickedHandler> entry : nodeMenuItemClickHandlers
                 .entrySet()) {
@@ -491,21 +510,18 @@ public class GraphDisplayManager implements GraphDisplay,
                         public void onEvent(ChooselEvent event) {
                             switch (event.getEventType()) {
                             case MOUSE_OVER:
-                                // give rect highlight color
-                                renderNodeExpander.setOptionBackgroundColor(
-                                        expanderId, Colors.BLUE_1);
+                                onNodeExpanderMouseOver(renderNodeExpander,
+                                        expanderId);
                                 break;
 
                             case MOUSE_OUT:
-                                // give rect default color
-                                renderNodeExpander.setOptionBackgroundColor(
-                                        expanderId, Colors.WHITE);
+                                onNodeExpanderMouseOut(renderNodeExpander,
+                                        expanderId);
                                 break;
 
                             case CLICK:
-                                handler.onNodeMenuItemClicked(renderedNode
-                                        .getNode());
-                                graphRenderer.removeAllNodeExpanders();
+                                onNodeExpanderClick(renderNodeExpander,
+                                        expanderId);
                                 break;
 
                             default:
@@ -672,6 +688,20 @@ public class GraphDisplayManager implements GraphDisplay,
         assert nodes.containsKey(node.getId());
         layoutGraph.getIdentifiableLayoutNode(node.getId()).setPosition(
                 location.getX(), location.getY());
+    }
+
+    private void setNodeEventHandlers(final RenderedNode renderedNode) {
+        renderedNode.setBodyEventHandler(new SvgNodeEventHandler(renderedNode,
+                this, nodeInteractionManager));
+
+        renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
+            @Override
+            public void onEvent(ChooselEvent event) {
+                if (event.getEventType().equals(ChooselEvent.Type.CLICK)) {
+                    onNodeTabClick(renderedNode);
+                }
+            }
+        });
     }
 
     @Override
