@@ -86,7 +86,7 @@ public class SvgCircleWithText {
         setTextContent();
         setDefaultFontValues(textElement);
 
-        boxElement = svgElementFactory.createElement(Svg.CIRCLE);
+        boxElement = svgElementFactory.createElement(Svg.RECT);
         setDefaultBoxValues(boxElement);
 
         setBoxAroundText();

@@ -50,7 +50,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularNodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
@@ -122,9 +122,9 @@ public class GraphDisplayController implements GraphDisplay,
 
         TextBoundsEstimator textBoundsEstimator = getTextBoundsEstimator();
         this.graphRenderer = new SvgGraphRenderer(width, height,
-                svgElementFactory, new BoxedTextSvgNodeRenderer(
-                        svgElementFactory, textBoundsEstimator),
-                new StraightLineSvgArcRenderer(svgElementFactory),
+                svgElementFactory, new CircularNodeRenderer(svgElementFactory,
+                        textBoundsEstimator), new StraightLineSvgArcRenderer(
+                        svgElementFactory),
                 new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
                         textBoundsEstimator));
 
