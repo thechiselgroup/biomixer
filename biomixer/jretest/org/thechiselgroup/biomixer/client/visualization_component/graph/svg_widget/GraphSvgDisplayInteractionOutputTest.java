@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -23,6 +24,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickEvent;
 
 /**
  * Tests interactions such as mouse over, mouse down, etc. as well as more
@@ -36,6 +38,20 @@ public class GraphSvgDisplayInteractionOutputTest extends
 
     private void clickBackground(int x, int y) {
         underTest.onBackgroundClick(x, y);
+    }
+
+    @Test
+    public void clickingNodeBodyRemovesExpander() throws Exception {
+        Node node = addNode(N1, LABEL1, TYPE1);
+        clickNodeTab(node);
+        clickNode(node, 10, 10);
+        verify(nodeMouseClickHandler, times(1)).onMouseClick(
+                any(NodeMouseClickEvent.class));
+        assertComponentWithIdEqualsFile(N1, "basicNode1");
+    }
+
+    private void clickNode(Node node, int x, int y) {
+        underTest.onNodeMouseClick(node.getId(), x, y);
     }
 
     private void clickNodeExpanderItem(Node node, String itemId) {
