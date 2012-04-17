@@ -77,7 +77,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 
-public class GraphDisplayManager implements GraphDisplay,
+public class GraphDisplayController implements GraphDisplay,
         ViewResizeEventListener {
 
     private SvgElementFactory svgElementFactory;
@@ -109,11 +109,11 @@ public class GraphDisplayManager implements GraphDisplay,
     private Map<String, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = CollectionFactory
             .createStringMap();
 
-    public GraphDisplayManager(int width, int height) {
+    public GraphDisplayController(int width, int height) {
         this(width, height, new JsDomSvgElementFactory());
     }
 
-    public GraphDisplayManager(int width, int height,
+    public GraphDisplayController(int width, int height,
             SvgElementFactory svgElementFactory) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -691,8 +691,34 @@ public class GraphDisplayManager implements GraphDisplay,
     }
 
     private void setNodeEventHandlers(final RenderedNode renderedNode) {
-        renderedNode.setBodyEventHandler(new SvgNodeEventHandler(renderedNode,
-                this, nodeInteractionManager));
+        renderedNode.setBodyEventHandler(new ChooselEventHandler() {
+            @Override
+            public void onEvent(ChooselEvent event) {
+                int clientX = event.getClientX();
+                int clientY = event.getClientY();
+
+                switch (event.getEventType()) {
+                case MOUSE_OVER:
+                    onNodeMouseOver(renderedNode, clientX, clientY);
+                    break;
+
+                case MOUSE_OUT:
+                    onNodeMouseOut(renderedNode, clientX, clientY);
+                    break;
+
+                case MOUSE_UP:
+                    onNodeMouseUp();
+                    break;
+
+                case MOUSE_DOWN:
+                    onNodeMouseDown(renderedNode.getNode(), clientX, clientY);
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        });
 
         renderedNode.setExpansionEventHandler(new ChooselEventHandler() {
             @Override
