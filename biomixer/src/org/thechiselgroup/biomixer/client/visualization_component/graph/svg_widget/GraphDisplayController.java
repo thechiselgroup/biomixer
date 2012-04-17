@@ -53,11 +53,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandleMouseMoveEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMenuItemClickedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseDoubleClickEvent;
@@ -390,11 +388,6 @@ public class GraphDisplayController implements GraphDisplay,
         graphRenderer.removeAllNodeExpanders();
     }
 
-    public void onNodeDragHandleMouseMove(String nodeID, int mouseX, int mouseY) {
-        eventBus.fireEvent(new NodeDragHandleMouseMoveEvent(getNode(nodeID),
-                mouseX, mouseY));
-    }
-
     public void onNodeExpanderClick(RenderedNodeExpander expander,
             String optionId) {
         Node node = expander.getNode();
@@ -522,10 +515,6 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onViewMouseMove(int mouseX, int mouseY) {
         nodeInteractionManager.onMouseMove(mouseX, mouseY);
-    }
-
-    private void onWidgetReady() {
-        eventBus.fireEvent(new GraphDisplayReadyEvent(this));
     }
 
     public void panBackground(int deltaX, int deltaY) {
