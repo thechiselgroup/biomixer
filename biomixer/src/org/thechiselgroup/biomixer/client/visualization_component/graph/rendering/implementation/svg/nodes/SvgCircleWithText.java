@@ -64,7 +64,7 @@ public class SvgCircleWithText {
         this.textBoundsEstimator = textBoundsEstimator;
         this.svgElementFactory = svgElementFactory;
         this.text = text;
-        createBoxedText();
+        createCircleWithText();
     }
 
     public SvgElement asSvgElement() {
@@ -81,12 +81,12 @@ public class SvgCircleWithText {
         }
     }
 
-    private void createBoxedText() {
+    private void createCircleWithText() {
         textElement = svgElementFactory.createElement(Svg.TEXT);
         setTextContent();
         setDefaultFontValues(textElement);
 
-        boxElement = svgElementFactory.createElement(Svg.RECT);
+        boxElement = svgElementFactory.createElement(Svg.CIRCLE);
         setDefaultBoxValues(boxElement);
 
         setBoxAroundText();
@@ -117,15 +117,15 @@ public class SvgCircleWithText {
     }
 
     private double getBoxHeight() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.HEIGHT));
+        return Double.parseDouble(boxElement.getAttributeAsString(Svg.R));
     }
 
     private double getBoxLeftX() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.X));
+        return Double.parseDouble(boxElement.getAttributeAsString(Svg.CX));
     }
 
     private double getBoxWidth() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.WIDTH));
+        return Double.parseDouble(boxElement.getAttributeAsString(Svg.R));
     }
 
     private SizeInt getTextSize(String text) {
@@ -169,9 +169,9 @@ public class SvgCircleWithText {
 
     private void setBoxAroundText() {
         int lineHeight = getTextSize(text).getHeight();
-        setBoxWidth(getWidthOfLongestTextLine() + 2 * TEXT_BUFFER);
-        setBoxHeight((double) lineHeight * numberOfLines + 2 * TEXT_BUFFER);
-
+        // setBoxWidth(getWidthOfLongestTextLine() + 2 * TEXT_BUFFER);
+        // setBoxHeight((double) lineHeight * numberOfLines + 2 * TEXT_BUFFER);
+        setCircleRadius(10);
         if (numberOfLines == 1) {
             textElement.setAttribute(Svg.X, getBoxLeftX() + TEXT_BUFFER);
         } else {
@@ -185,31 +185,35 @@ public class SvgCircleWithText {
         textElement.setAttribute(Svg.Y, TEXT_BUFFER + lineHeight);
     }
 
-    public void setBoxHeight(double height) {
-        boxElement.setAttribute(Svg.HEIGHT, height);
-    }
-
-    public void setBoxWidth(double width) {
-        boxElement.setAttribute(Svg.WIDTH, width);
-    }
-
     private void setBoxX(double x) {
-        boxElement.setAttribute(Svg.X, x);
+        boxElement.setAttribute(Svg.CX, x);
     }
 
-    public void setCornerCurveHeight(double cornerCurveHeight) {
-        boxElement.setAttribute(Svg.RY, cornerCurveHeight);
+    // public void setBoxHeight(double height) {
+    // boxElement.setAttribute(Svg.HEIGHT, height);
+    // }
+
+    // public void setBoxWidth(double width) {
+    // boxElement.setAttribute(Svg.WIDTH, width);
+    // }
+
+    public void setCircleRadius(double radius) {
+        boxElement.setAttribute(Svg.R, radius);
     }
 
-    public void setCornerCurveWidth(double cornerCurveWidth) {
-        boxElement.setAttribute(Svg.RX, cornerCurveWidth);
-    }
+    // public void setCornerCurveHeight(double cornerCurveHeight) {
+    // boxElement.setAttribute(Svg.RY, cornerCurveHeight);
+    // }
+
+    // public void setCornerCurveWidth(double cornerCurveWidth) {
+    // boxElement.setAttribute(Svg.RX, cornerCurveWidth);
+    // }
 
     private void setDefaultBoxValues(SvgElement boxElement) {
         boxElement.setAttribute(Svg.FILL, Colors.WHITE);
         boxElement.setAttribute(Svg.STROKE, Colors.BLACK);
-        boxElement.setAttribute(Svg.X, 0.0);
-        boxElement.setAttribute(Svg.Y, 0.0);
+        boxElement.setAttribute(Svg.CX, 0.0);
+        boxElement.setAttribute(Svg.CY, 0.0);
     }
 
     private void setDefaultFontValues(SvgElement textElement) {

@@ -43,8 +43,8 @@ public class CircularNodeRenderer implements NodeRenderer {
 
         SvgCircleWithText boxedText = new SvgCircleWithText(node.getLabel(),
                 textBoundsEstimator, svgElementFactory);
-        boxedText.setCornerCurveWidth(RX_DEFAULT);
-        boxedText.setCornerCurveHeight(RY_DEFAULT);
+        // boxedText.setCornerCurveWidth(RX_DEFAULT);
+        // boxedText.setCornerCurveHeight(RY_DEFAULT);
 
         SvgRectangularExpansionTab expanderTab = expanderTabRenderer
                 .createExpanderTabSvgElement();
