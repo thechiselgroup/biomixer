@@ -56,7 +56,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     private SvgGraphBackground background;
 
-    private final SvgElementFactory svgElementFactory;
+    private SvgElementFactory svgElementFactory;
 
     private ChooselEventHandler viewWideInteractionHandler;
 

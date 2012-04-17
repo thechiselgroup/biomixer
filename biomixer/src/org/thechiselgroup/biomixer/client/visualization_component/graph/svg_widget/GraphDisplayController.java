@@ -66,7 +66,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseDoubleClickEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
-import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 import com.google.gwt.event.shared.EventBus;
@@ -245,11 +244,6 @@ public class GraphDisplayController implements GraphDisplay,
         nodeAnimator.animateNodeTo(
                 layoutGraph.getIdentifiableLayoutNode(node.getId()),
                 targetLocation, DEFAULT_ANIMATION_DURATION);
-    }
-
-    // XXX
-    public SvgElement asSvg() {
-        return ((SvgGraphRenderer) graphRenderer).asSvg();
     }
 
     @Override
