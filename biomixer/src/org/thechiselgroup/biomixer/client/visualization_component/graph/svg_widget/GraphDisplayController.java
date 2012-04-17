@@ -53,10 +53,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.BoxedTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
@@ -182,29 +179,6 @@ public class GraphDisplayController implements GraphDisplay,
         assert handler != null;
 
         return eventBus.addHandler(type, handler);
-    }
-
-    // TODO remove
-    @Override
-    public HandlerRegistration addGraphDisplayLoadingFailureHandler(
-            GraphDisplayLoadingFailureEventHandler handler) {
-
-        assert handler != null;
-        return eventBus.addHandler(GraphDisplayLoadingFailureEvent.TYPE,
-                handler);
-    }
-
-    // TODO remove
-    @Override
-    public HandlerRegistration addGraphDisplayReadyHandler(
-            GraphDisplayReadyEventHandler handler) {
-
-        assert handler != null;
-
-        HandlerRegistration handlerRegistration = eventBus.addHandler(
-                GraphDisplayReadyEvent.TYPE, handler);
-        onWidgetReady();
-        return handlerRegistration;
     }
 
     @Override

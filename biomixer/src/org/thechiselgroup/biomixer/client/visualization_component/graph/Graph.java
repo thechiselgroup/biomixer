@@ -59,10 +59,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
@@ -226,8 +222,6 @@ public class Graph extends AbstractViewContentDisplay implements
     // advanced node class: (incoming, outgoing, expanded: state machine)
 
     private final GraphDisplay graphDisplay;
-
-    private boolean ready = false;
 
     private final GraphExpansionRegistry registry;
 
@@ -403,10 +397,8 @@ public class Graph extends AbstractViewContentDisplay implements
          * 
          * NOTE: we do not execute the expanders if we are restoring the graph
          */
-        if (ready) {
-            registry.getAutomaticExpander(type).expand(visualItem,
-                    expansionCallback);
-        }
+        registry.getAutomaticExpander(type).expand(visualItem,
+                expansionCallback);
 
         return graphItem;
     }
@@ -597,38 +589,16 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void initStateChangeHandlers() {
+        GraphEventHandler handler = new GraphEventHandler();
         graphDisplay
-                .addGraphDisplayReadyHandler(new GraphDisplayReadyEventHandler() {
-                    @Override
-                    public void onWidgetReady(GraphDisplayReadyEvent event) {
-                        ready = true;
+                .addEventHandler(NodeDragHandleMouseDownEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeMouseOverEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeMouseOutEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeDragEvent.TYPE, handler);
+        graphDisplay.addEventHandler(MouseMoveEvent.getType(), handler);
 
-                        GraphEventHandler handler = new GraphEventHandler();
-
-                        graphDisplay.addEventHandler(
-                                NodeDragHandleMouseDownEvent.TYPE, handler);
-                        graphDisplay.addEventHandler(NodeMouseOverEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(NodeMouseOutEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(NodeDragEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(MouseMoveEvent.getType(),
-                                handler);
-
-                        initNodeMenuItems();
-                    }
-                });
-        graphDisplay
-                .addGraphDisplayLoadingFailureHandler(new GraphDisplayLoadingFailureEventHandler() {
-                    @Override
-                    public void onLoadingFailure(
-                            GraphDisplayLoadingFailureEvent event) {
-                        // TODO handle loading failures
-                    }
-                });
+        initNodeMenuItems();
     }
 
     @Override
@@ -638,11 +608,6 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         return super.isAdaptableTo(clazz);
-    }
-
-    @Override
-    public boolean isReady() {
-        return ready;
     }
 
     @Override
@@ -657,10 +622,6 @@ public class Graph extends AbstractViewContentDisplay implements
                 new NodeMenuItemClickedHandler() {
                     @Override
                     public void onNodeMenuItemClicked(Node node) {
-                        if (!ready) {
-                            return;
-                        }
-
                         nodeExpander.expand(getVisualItem(node),
                                 expansionCallback);
                     }
