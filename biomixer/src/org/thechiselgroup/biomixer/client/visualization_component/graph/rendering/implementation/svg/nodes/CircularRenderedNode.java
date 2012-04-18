@@ -13,20 +13,17 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 public class CircularRenderedNode extends AbstractSvgRenderedNode implements
         Identifiable {
 
-    private final SvgRectangularExpansionTab expanderTab;
-
     private final SvgCircleWithText boxedText;
 
     private final SvgElement baseContainer;
 
     public CircularRenderedNode(Node node, SvgElement baseContainer,
-            SvgCircleWithText boxedText2, SvgRectangularExpansionTab expanderTab) {
+            SvgCircleWithText boxedText2) {
         super(node);
         this.baseContainer = baseContainer;
         baseContainer.appendChild(boxedText2.asSvgElement());
-        baseContainer.appendChild(expanderTab.asSvgElement());
+        // baseContainer.appendChild(expanderTab.asSvgElement());
         this.boxedText = boxedText2;
-        this.expanderTab = expanderTab;
     }
 
     @Override
@@ -34,9 +31,11 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
         return baseContainer;
     }
 
+    // the following two methods are not used for ontology overview graph
     @Override
     public PointDouble getExpanderPopupLocation() {
-        return getLocation().plus(expanderTab.getLocation());
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -74,7 +73,6 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
     @Override
     public void setBackgroundColor(String color) {
         boxedText.setBackgroundColor(color);
-        expanderTab.setBackgroundColor(color);
     }
 
     @Override
@@ -85,12 +83,12 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
     @Override
     public void setBorderColor(String color) {
         boxedText.setBorderColor(color);
-        expanderTab.setBorderColor(color);
     }
 
     @Override
     public void setExpansionEventHandler(ChooselEventHandler handler) {
-        expanderTab.setEventListener(handler);
+        // TODO Auto-generated method stub
+
     }
 
     @Override

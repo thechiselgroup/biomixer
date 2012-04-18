@@ -3,7 +3,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgExpanderTabRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -17,8 +16,6 @@ public class CircularNodeRenderer implements NodeRenderer {
 
     private SvgElementFactory svgElementFactory;
 
-    private BoxedTextSvgExpanderTabRenderer expanderTabRenderer;
-
     private TextBoundsEstimator textBoundsEstimator;
 
     public CircularNodeRenderer(SvgElementFactory svgElementFactory,
@@ -27,8 +24,6 @@ public class CircularNodeRenderer implements NodeRenderer {
         assert svgElementFactory != null;
         assert textBoundsEstimator != null;
         this.svgElementFactory = svgElementFactory;
-        this.expanderTabRenderer = new BoxedTextSvgExpanderTabRenderer(
-                svgElementFactory);
     }
 
     @Override
@@ -42,16 +37,8 @@ public class CircularNodeRenderer implements NodeRenderer {
         baseContainer.setAttribute(Svg.Y, 0.0);
 
         SvgCircleWithText boxedText = new SvgCircleWithText(node.getLabel(),
-                textBoundsEstimator, svgElementFactory);
+                textBoundsEstimator, svgElementFactory, node.getSize());
 
-        SvgRectangularExpansionTab expanderTab = expanderTabRenderer
-                .createExpanderTabSvgElement();
-        expanderTab
-                .setLocation(
-                        (boxedText.getTotalWidth() - BoxedTextSvgExpanderTabRenderer.TAB_WIDTH) / 2,
-                        boxedText.getTotalHeight());
-
-        return new CircularRenderedNode(node, baseContainer, boxedText,
-                expanderTab);
+        return new CircularRenderedNode(node, baseContainer, boxedText);
     }
 }

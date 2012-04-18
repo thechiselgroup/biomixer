@@ -58,14 +58,17 @@ public class SvgCircleWithText {
 
     private SvgElement container;
 
+    private int size;
+
     public SvgCircleWithText(String text,
             TextBoundsEstimator textBoundsEstimator,
-            SvgElementFactory svgElementFactory) {
+            SvgElementFactory svgElementFactory, int size) {
         container = svgElementFactory.createElement(Svg.SVG);
         container.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         this.textBoundsEstimator = textBoundsEstimator;
         this.svgElementFactory = svgElementFactory;
         this.text = text;
+        this.size = size;
         createCircleWithText();
     }
 
@@ -167,7 +170,7 @@ public class SvgCircleWithText {
     }
 
     private void setBoxAroundText() {
-        setCircleRadius(10);
+        setCircleRadius(Math.sqrt(size));
         if (numberOfLines == 1) {
             textElement.setAttribute(Svg.X, getBoxLeftX() + TEXT_BUFFER_X);
         } else {
