@@ -138,6 +138,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
         SvgElement root = svgElementFactory.createElement(Svg.SVG);
         root.setAttribute("xmlns", Svg.NAMESPACE);
         root.setAttribute("version", "1.1");
+        root.setAttribute(Svg.WIDTH, graphWidth);
+        root.setAttribute(Svg.HEIGHT, graphHeight);
         rootSvgComponent = new CompositeSvgComponent(root);
     }
 
@@ -179,6 +181,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     public void setGraphHeight(int height) {
         super.setGraphHeight(height);
+        rootSvgComponent.asSvgElement().setAttribute(Svg.HEIGHT, height);
         background.setHeight(height);
         asScrollingWidget.setScrollableContentHeight(height);
     }
@@ -186,6 +189,7 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
     @Override
     public void setGraphWidth(int width) {
         super.setGraphWidth(width);
+        rootSvgComponent.asSvgElement().setAttribute(Svg.WIDTH, width);
         background.setWidth(width);
         asScrollingWidget.setScrollableContentWidth(width);
     }
