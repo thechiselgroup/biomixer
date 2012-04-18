@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
@@ -33,11 +34,9 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  */
 public class TestGraphSvgDisplay extends GraphDisplayController {
 
-    private AnimationRunner animationRunner;
-
     public TestGraphSvgDisplay(int width, int height,
-            SvgElementFactory svgElementFactory) {
-        super(width, height, svgElementFactory);
+            SvgElementFactory svgElementFactory, ErrorHandler errorHandler) {
+        super(width, height, svgElementFactory, errorHandler);
     }
 
     public SvgElement asSvg() {
@@ -46,8 +45,7 @@ public class TestGraphSvgDisplay extends GraphDisplayController {
 
     @Override
     protected AnimationRunner getAnimationRunner() {
-        this.animationRunner = new TestAnimationRunner();
-        return animationRunner;
+        return new TestAnimationRunner();
     }
 
     @Override

@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
@@ -36,8 +35,7 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
 
     private ForceCalculator forceCalculator;
 
-    // XXX will cause problems with tests
-    private AnimationRunner animationRunner = new GwtAnimationRunner();
+    private AnimationRunner animationRunner;
 
     /**
      * 
@@ -48,10 +46,12 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
      * @param errorHandler
      */
     public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
-            double damping, ErrorHandler errorHandler) {
+            double damping, AnimationRunner animationRunner,
+            ErrorHandler errorHandler) {
         this.forceCalculator = forceCalculator;
         this.damping = damping;
         this.errorHandler = errorHandler;
+        this.animationRunner = animationRunner;
     }
 
     @Override

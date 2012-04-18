@@ -55,12 +55,6 @@ public interface GraphDisplay extends IsWidget {
     <T extends EventHandler> HandlerRegistration addEventHandler(Type<T> type,
             T handler);
 
-    HandlerRegistration addGraphDisplayLoadingFailureHandler(
-            GraphDisplayLoadingFailureEventHandler handler);
-
-    HandlerRegistration addGraphDisplayReadyHandler(
-            GraphDisplayReadyEventHandler handler);
-
     void addNode(Node node);
 
     void addNodeMenuItemHandler(String menuLabel,
@@ -79,6 +73,8 @@ public interface GraphDisplay extends IsWidget {
     Point getLocation(Node node);
 
     Node getNode(String nodeId);
+
+    void registerDefaultLayoutAlgorithm(LayoutAlgorithm layoutAlgorithm);
 
     void removeArc(Arc arc);
 
