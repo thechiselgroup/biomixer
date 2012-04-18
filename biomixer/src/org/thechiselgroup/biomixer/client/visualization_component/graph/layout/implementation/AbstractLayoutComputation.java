@@ -27,7 +27,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AnimatableLayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
@@ -60,7 +60,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
 
     private final ErrorHandler errorHandler;
 
-    private AnimationRunner animationRunner;
+    private NodeAnimator nodeAnimator;
 
     public AbstractLayoutComputation(LayoutGraph graph, Executor executor,
             ErrorHandler errorHandler, AnimationRunner animationRunner) {
@@ -72,7 +72,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         this.errorHandler = errorHandler;
         this.executor = executor;
         this.graph = graph;
-        this.animationRunner = animationRunner;
+        this.nodeAnimator = new NodeAnimator(animationRunner);
     }
 
     @Override
@@ -92,9 +92,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
     }
 
     protected void animateTo(LayoutNode node, PointDouble location, int duration) {
-        AnimatableLayoutNode animatableNode = new AnimatableLayoutNode(node,
-                animationRunner, duration);
-        animatableNode.setPosition(location);
+        nodeAnimator.animateNodeTo(node, location, duration);
     }
 
     /**

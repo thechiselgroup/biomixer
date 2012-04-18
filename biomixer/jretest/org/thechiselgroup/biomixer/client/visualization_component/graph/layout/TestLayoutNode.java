@@ -21,7 +21,7 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.AbstractLayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutNode;
 
 public class TestLayoutNode extends AbstractLayoutNode {
 
