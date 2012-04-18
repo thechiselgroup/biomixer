@@ -74,6 +74,8 @@ public interface GraphDisplay extends IsWidget {
 
     Node getNode(String nodeId);
 
+    void registerDefaultLayoutAlgorithm(LayoutAlgorithm layoutAlgorithm);
+
     void removeArc(Arc arc);
 
     void removeNode(Node node);

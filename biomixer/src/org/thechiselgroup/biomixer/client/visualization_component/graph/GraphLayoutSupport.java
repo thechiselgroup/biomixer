@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 
 public interface GraphLayoutSupport {
 
+    // TODO remove
     LayoutGraph getLayoutGraph();
 
     /**
@@ -39,6 +40,7 @@ public interface GraphLayoutSupport {
     /**
      * Runs a customized graph layout.
      */
+    // TODO remove
     void runLayout(GraphLayout layout);
 
     /**
@@ -54,5 +56,6 @@ public interface GraphLayoutSupport {
      * 
      * @see GraphLayouts
      */
+    // TODO remove
     void runLayout(String layout);
 }

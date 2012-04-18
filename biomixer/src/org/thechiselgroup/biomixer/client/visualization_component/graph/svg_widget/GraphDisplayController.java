@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import java.util.Collection;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
@@ -32,10 +33,13 @@ import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutExecutionManager;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
@@ -43,6 +47,10 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
@@ -93,6 +101,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     private NodeAnimator nodeAnimator;
 
+    private GraphLayoutExecutionManager layoutManager;
+
     private static final int DEFAULT_ANIMATION_DURATION = 250;
 
     /*
@@ -102,12 +112,17 @@ public class GraphDisplayController implements GraphDisplay,
     private Map<String, Map<String, NodeMenuItemClickedHandler>> nodeMenuItemClickHandlersByType = CollectionFactory
             .createStringMap();
 
-    public GraphDisplayController(int width, int height) {
-        this(width, height, new JsDomSvgElementFactory());
+    protected AnimationRunner animationRunner;
+
+    public GraphDisplayController(int width, int height,
+            ErrorHandler errorHandler) {
+        this(width, height, new JsDomSvgElementFactory(), errorHandler);
+        /* Don't want layouts to be run automatically in unit tests */
+        setLayoutGraphContentChangedListener();
     }
 
     public GraphDisplayController(int width, int height,
-            SvgElementFactory svgElementFactory) {
+            SvgElementFactory svgElementFactory, ErrorHandler errorHandler) {
         this.viewWidth = width;
         this.viewHeight = height;
         assert svgElementFactory != null;
@@ -127,7 +142,11 @@ public class GraphDisplayController implements GraphDisplay,
         initViewWideInteractionHandler();
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
-        this.nodeAnimator = new NodeAnimator(getAnimationRunner());
+
+        animationRunner = getAnimationRunner();
+        this.nodeAnimator = new NodeAnimator(animationRunner);
+
+        initGraphLayoutManager(errorHandler);
     }
 
     @Override
@@ -235,6 +254,12 @@ public class GraphDisplayController implements GraphDisplay,
         return nodes.containsKey(nodeId);
     }
 
+    /**
+     * Override in tests to get a test animation runner.
+     * 
+     * @return a GwtAnimationRunner which will not work in java unit tests
+     *         because it uses Javascript
+     */
     protected AnimationRunner getAnimationRunner() {
         return new GwtAnimationRunner();
     }
@@ -349,6 +374,14 @@ public class GraphDisplayController implements GraphDisplay,
                 panBackground(dragEvent.getDeltaX(), dragEvent.getDeltaY());
             }
         });
+    }
+
+    private void initGraphLayoutManager(ErrorHandler errorHandler) {
+        this.layoutManager = new GraphLayoutExecutionManager(
+                new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+                        new BoundsAwareAttractionCalculator(getLayoutGraph()),
+                        new BoundsAwareRepulsionCalculator(getLayoutGraph())),
+                        0.9, animationRunner, errorHandler), getLayoutGraph());
     }
 
     private void initViewWideInteractionHandler() {
@@ -576,6 +609,11 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     @Override
+    public void registerDefaultLayoutAlgorithm(LayoutAlgorithm layoutAlgorithm) {
+        layoutManager.registerDefaultAlgorithm(layoutAlgorithm);
+    }
+
+    @Override
     public void removeArc(Arc arc) {
         assert arc != null;
         arcs.remove(arc.getId());
@@ -593,26 +631,24 @@ public class GraphDisplayController implements GraphDisplay,
 
     @Override
     public void runLayout() throws LayoutException {
-        // XXX layouts run from Graph only? That is where the layout execution
-        // manager is.
+        layoutManager.runLayout();
     }
 
     @Override
     public LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm) {
-        // XXX layouts run from Graph only? That is where the layout execution
-        // manager is.
-        return layoutAlgorithm.computeLayout(layoutGraph);
+        layoutManager.registerAndRunLayoutAlgorithm(layoutAlgorithm);
+        // FIXME return LayoutComputations from all runLayout methods
+        return null;
     }
 
     @Override
     public void runLayout(String layout) throws LayoutException {
-        // TODO remove? Was used for Flash layouts
+        // TODO remove when addressing issue104
     }
 
     @Override
     public void runLayoutOnNodes(Collection<Node> nodes) throws LayoutException {
-        // TODO remove? New layout interfaces have a LayoutGraph passed in.
-        // Nodes can be anchored if they should not get moved.
+        // TODO implement with anchor and unanchor
     }
 
     @Override
@@ -633,6 +669,17 @@ public class GraphDisplayController implements GraphDisplay,
                     .getBounds().getCentre());
             node.setPosition(topLeft);
         }
+    }
+
+    private void setLayoutGraphContentChangedListener() {
+        layoutGraph
+                .addContentChangedListener(new LayoutGraphContentChangedListener() {
+                    @Override
+                    public void onContentChanged(
+                            LayoutGraphContentChangedEvent event) {
+                        runLayout();
+                    }
+                });
     }
 
     @Override

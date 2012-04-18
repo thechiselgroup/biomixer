@@ -51,12 +51,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
@@ -94,12 +88,12 @@ public class Graph extends AbstractViewContentDisplay implements
             GraphDisplay {
 
         // TODO why is size needed in the first place??
-        public DefaultDisplay() {
-            this(400, 300);
+        public DefaultDisplay(ErrorHandler errorHandler) {
+            this(400, 300, errorHandler);
         }
 
-        public DefaultDisplay(int width, int height) {
-            super(width, height);
+        public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
+            super(width, height, errorHandler);
         }
 
     }
@@ -237,8 +231,6 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private ResourceSet automaticResources;
 
-    private GraphLayoutExecutionManager layoutManager;
-
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
      * not disposed) when methods are called (to prevent errors in asynchronous
@@ -326,14 +318,6 @@ public class Graph extends AbstractViewContentDisplay implements
         // didn't want to change GraphDisplay's interface yet
         if (graphDisplay instanceof GraphDisplayController) {
             addResizeListener((GraphDisplayController) graphDisplay);
-            graphDisplay.getLayoutGraph().addContentChangedListener(
-                    new LayoutGraphContentChangedListener() {
-                        @Override
-                        public void onContentChanged(
-                                LayoutGraphContentChangedEvent event) {
-                            runLayout();
-                        }
-                    });
         }
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
@@ -344,8 +328,6 @@ public class Graph extends AbstractViewContentDisplay implements
          * customization in Choosel applications.
          */
         initArcTypeContainers();
-
-        initGraphLayoutManager(errorHandler);
     }
 
     @SuppressWarnings("unchecked")
@@ -568,14 +550,6 @@ public class Graph extends AbstractViewContentDisplay implements
         }
     }
 
-    private void initGraphLayoutManager(ErrorHandler errorHandler) {
-        this.layoutManager = new GraphLayoutExecutionManager(
-                new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
-                        new BoundsAwareAttractionCalculator(getLayoutGraph()),
-                        new BoundsAwareRepulsionCalculator(getLayoutGraph())),
-                        0.9, errorHandler), getLayoutGraph());
-    }
-
     private void initNodeMenuItems() {
         for (Entry<String, List<NodeMenuEntry>> entry : registry
                 .getNodeMenuEntriesByCategory()) {
@@ -612,7 +586,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm) {
-        layoutManager.registerDefaultAlgorithm(layoutAlgorithm);
+        graphDisplay.registerDefaultLayoutAlgorithm(layoutAlgorithm);
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
@@ -672,7 +646,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public void runLayout() {
-        layoutManager.runLayout();
+        graphDisplay.runLayout();
     }
 
     @Override
@@ -687,7 +661,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public void runLayout(LayoutAlgorithm layoutAlgorithm) {
-        layoutManager.registerAndRunLayoutAlgorithm(layoutAlgorithm);
+        graphDisplay.runLayout(layoutAlgorithm);
     }
 
     @Override
