@@ -17,6 +17,8 @@ package org.thechiselgroup.biomixer.client.workbench.util.url;
 
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.jsonp.client.JsonpRequestBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -28,23 +30,17 @@ public class JsonpUrlFetchService implements UrlFetchService {
     @Override
     public void fetchURL(final String url, final AsyncCallback<String> callback) {
 
-        /*
-         * XXX ncbo wiki says you need to set request header to have Accept:
-         * application/json. How can we do this with the request builder??
-         */
         JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
-        jsonp.requestString(url, new AsyncCallback<String>() {
+        jsonp.requestObject(url, new AsyncCallback<JavaScriptObject>() {
 
             @Override
             public void onFailure(Throwable caught) {
-                // TODO error handling async callback
                 callback.onFailure(caught);
             }
 
             @Override
-            public void onSuccess(String result) {
-                System.out.println(result);
-                callback.onSuccess(result);
+            public void onSuccess(JavaScriptObject result) {
+                callback.onSuccess(new JSONObject(result).toString());
             }
 
         });
