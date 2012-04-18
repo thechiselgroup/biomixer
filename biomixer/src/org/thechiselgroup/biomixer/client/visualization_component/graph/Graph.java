@@ -50,7 +50,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
@@ -416,6 +415,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return arcItemContainersByArcTypeID.values();
     }
 
+    // TODO remove if not used
     private ArcItem[] getArcItems() {
         Iterable<ArcItemContainer> arcItemContainers = getArcItemContainers();
         int size = 0;
@@ -449,11 +449,6 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     @Override
-    public LayoutGraph getLayoutGraph() {
-        return graphDisplay.getLayoutGraph();
-    }
-
-    @Override
     public Point getLocation(NodeItem nodeItem) {
         return graphDisplay.getLocation(nodeItem.getNode());
     }
@@ -467,6 +462,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return visualItem.<NodeItem> getDisplayObject().getNode();
     }
 
+    // TODO remove if not used
     private NodeItem[] getNodeItems() {
         LightweightCollection<VisualItem> visualItems = getVisualItems();
         NodeItem[] nodeItems = new NodeItem[visualItems.size()];
@@ -650,24 +646,8 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     @Override
-    public void runLayout(GraphLayout layout) {
-        assert layout != null;
-        for (VisualItem visualItem : getVisualItems()) {
-            updateNode(visualItem);
-        }
-        updateArcsForVisuaItems(getVisualItems());
-        layout.run(getNodeItems(), getArcItems(), this);
-    }
-
-    @Override
     public void runLayout(LayoutAlgorithm layoutAlgorithm) {
         graphDisplay.runLayout(layoutAlgorithm);
-    }
-
-    @Override
-    public void runLayout(String layout) {
-        assert layout != null;
-        graphDisplay.runLayout(layout);
     }
 
     @Override
