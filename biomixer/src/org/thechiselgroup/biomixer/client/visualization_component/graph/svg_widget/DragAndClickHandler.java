@@ -43,6 +43,13 @@ public abstract class DragAndClickHandler implements ChooselEventHandler {
 
     @Override
     public void onEvent(ChooselEvent event) {
+
+        /*
+         * XXX Prevent Firefox from doing its weird drag action where it makes a
+         * circle with a line through it and doesn't fire the mouse-up event.
+         */
+        event.getBrowserEvent().preventDefault();
+
         int clientX = event.getClientX();
         int clientY = event.getClientY();
 

@@ -27,6 +27,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widg
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMenuItemClickedHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickHandler;
 import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
@@ -53,6 +55,9 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     protected static final String MENU_ITEM_2_LABEL = "MenuItem2";
 
     @Mock
+    protected NodeMouseClickHandler nodeMouseClickHandler;
+
+    @Mock
     protected NodeMenuItemClickedHandler menuItemHandler0;
 
     @Mock
@@ -73,14 +78,14 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     }
 
     protected Node addNode(String id, String label, String type) {
-        Node node = new Node(id, label, type);
+        Node node = new Node(id, label, type, 1);
         underTest.addNode(node);
         return node;
     }
 
     protected TestAnimationRunner animate(Node node, Point destination) {
         underTest.animateMoveTo(node, destination);
-        return underTest.getAnimationRunner();
+        return underTest.getTestAnimationRunner();
     }
 
     /**
@@ -120,6 +125,7 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
         MockitoAnnotations.initMocks(this);
         underTest = new TestGraphSvgDisplay(400, 300,
                 new TextSvgElementFactory());
+        underTest.addEventHandler(NodeMouseClickEvent.TYPE, nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,
                 TYPE1);
         underTest.addNodeMenuItemHandler(MENU_ITEM_1_LABEL, menuItemHandler1,

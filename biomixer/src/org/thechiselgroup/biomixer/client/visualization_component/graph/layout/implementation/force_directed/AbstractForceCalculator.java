@@ -30,6 +30,29 @@ public abstract class AbstractForceCalculator implements ForceCalculator {
         return getDistanceVector(node1, node2).getDirection();
     }
 
+    /**
+     * 
+     * @return the magnitude of the distance vector between the two nodes,
+     *         buffering it to a minimum value of 1 if it is less than 1.
+     */
+    protected double getBufferedDistanceBetween(LayoutNode currentNode,
+            LayoutNode otherNode) {
+        /*
+         * If distance is too close to 0 then division will produce an almost
+         * infinite force. Therefore limit the distance to a min value of 1.
+         */
+        double interNodeDistance = getDistanceBetween(currentNode, otherNode);
+        if (interNodeDistance < 1) {
+            interNodeDistance = 1;
+        }
+        return interNodeDistance;
+    }
+
+    /**
+     * See also getBufferedDistanceBetween(LayoutNode, LayoutNode)
+     * 
+     * @return the magnitude of the distance vector.
+     */
     protected double getDistanceBetween(LayoutNode node1, LayoutNode node2) {
         return getDistanceVector(node1, node2).getMagnitude();
     }

@@ -16,14 +16,41 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.DirectedAcyclicGraphBuilder;
 
 public abstract class BoundsAwareForceCalculator extends
         AbstractForceCalculator {
 
-    private final LayoutGraph graph;
+    protected final LayoutGraph graph;
+
+    private DirectedAcyclicGraphBuilder graphBuilder = new DirectedAcyclicGraphBuilder();
 
     public BoundsAwareForceCalculator(LayoutGraph graph) {
         this.graph = graph;
+    }
+
+    /**
+     * Determines whether two layout nodes are part of the same
+     * DirectedAcyclicGraph.
+     */
+    protected boolean areNodesInSameGraph(LayoutNode node1, LayoutNode node2) {
+        DirectedAcyclicGraph node1Graph = null;
+        DirectedAcyclicGraph node2Graph = null;
+        for (DirectedAcyclicGraph directedAcyclicGraph : graphBuilder
+                .getDirectedAcyclicGraphs(graph)) {
+            if (directedAcyclicGraph.containsLayoutNode(node1)) {
+                node1Graph = directedAcyclicGraph;
+            }
+            if (directedAcyclicGraph.containsLayoutNode(node2)) {
+                node2Graph = directedAcyclicGraph;
+            }
+        }
+        if (node1Graph == null || node2Graph == null) {
+            return false;
+        }
+        return node1Graph.equals(node2Graph);
     }
 
     protected double getOptimalEdgeLength() {
@@ -32,8 +59,15 @@ public abstract class BoundsAwareForceCalculator extends
          * other the the outermost edges of the graph. Therefore use a smaller
          * value to keep them further within bounds.
          */
+        return 0.5 * getUnscaledOptimalEdgeLength();
+    }
+
+    private double getUnscaledOptimalEdgeLength() {
+        /*
+         * k = C*sqrt(area/numberOfNodes). C=1 for unscaled.
+         */
         return Math.sqrt(graph.getBounds().getArea()
-                / graph.getAllNodes().size()) / 2;
+                / graph.getAllNodes().size());
     }
 
 }

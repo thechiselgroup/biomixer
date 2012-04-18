@@ -24,6 +24,19 @@ public interface GraphLayoutSupport {
     LayoutGraph getLayoutGraph();
 
     /**
+     * Registers a layout algorithm to be the default one run when the graph
+     * changes.
+     * 
+     * @param layoutAlgorithm
+     */
+    void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm);
+
+    /**
+     * Runs the current default layout.
+     */
+    void runLayout();
+
+    /**
      * Runs a customized graph layout.
      */
     void runLayout(GraphLayout layout);
@@ -42,5 +55,4 @@ public interface GraphLayoutSupport {
      * @see GraphLayouts
      */
     void runLayout(String layout);
-
 }

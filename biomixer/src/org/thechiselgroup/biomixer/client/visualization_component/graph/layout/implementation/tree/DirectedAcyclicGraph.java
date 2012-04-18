@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+
 /**
  * Stores a node structure where there are nodes which directed arcs between
  * them. Nodes may have more than one parent, and there may be more than one
@@ -53,6 +55,16 @@ public class DirectedAcyclicGraph {
 
         this.roots = roots;
         initializeNodeDistanceMapping();
+    }
+
+    public boolean containsLayoutNode(LayoutNode node) {
+        Set<DirectedAcyclicGraphNode> allNodes = getAllNodes();
+        for (DirectedAcyclicGraphNode directedAcyclicGraphNode : allNodes) {
+            if (directedAcyclicGraphNode.getLayoutNode().equals(node)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -92,7 +104,8 @@ public class DirectedAcyclicGraph {
      *            the max distance from any root
      * @return all nodes at the specified distance from a root
      */
-    public List<DirectedAcyclicGraphNode> getNodesAtDistanceFromRoot(int distance) {
+    public List<DirectedAcyclicGraphNode> getNodesAtDistanceFromRoot(
+            int distance) {
         assert distance >= 0;
         assert nodesByMaxDistanceFromARoot.containsKey(Integer
                 .valueOf(distance)) : "no nodes at distance=" + distance

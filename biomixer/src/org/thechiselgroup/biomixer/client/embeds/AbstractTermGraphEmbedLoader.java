@@ -22,6 +22,8 @@ import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExten
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
@@ -66,6 +68,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         return label;
     }
 
+    protected abstract LayoutAlgorithm getLayoutAlgorithm();
+
     protected abstract void loadData(String virtualOntologyId,
             String fullConceptId, View graphView);
 
@@ -77,8 +81,15 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
                 .createWindowContent(Graph.ID)).getView();
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
         graphView.init();
+        setLayoutAlgorithm(graphView, getLayoutAlgorithm());
         callback.onSuccess(graphView);
 
         loadData(virtualOntologyId, fullConceptId, graphView);
+    }
+
+    private void setLayoutAlgorithm(View graphView,
+            LayoutAlgorithm layoutAlgorithm) {
+        graphView.adaptTo(GraphLayoutSupport.class).registerDefaultLayout(
+                layoutAlgorithm);
     }
 }

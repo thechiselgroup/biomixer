@@ -51,11 +51,13 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
@@ -92,7 +94,7 @@ import com.google.inject.Inject;
 public class Graph extends AbstractViewContentDisplay implements
         RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
 
-    public static class DefaultDisplay extends GraphSvgDisplay implements
+    public static class DefaultDisplay extends GraphDisplayController implements
             GraphDisplay {
 
         // TODO why is size needed in the first place??
@@ -328,8 +330,16 @@ public class Graph extends AbstractViewContentDisplay implements
         this.resourceCategorizer = resourceCategorizer;
         graphDisplay = display;
         // didn't want to change GraphDisplay's interface yet
-        if (graphDisplay instanceof GraphSvgDisplay) {
-            addResizeListener((GraphSvgDisplay) graphDisplay);
+        if (graphDisplay instanceof GraphDisplayController) {
+            addResizeListener((GraphDisplayController) graphDisplay);
+            graphDisplay.getLayoutGraph().addContentChangedListener(
+                    new LayoutGraphContentChangedListener() {
+                        @Override
+                        public void onContentChanged(
+                                LayoutGraphContentChangedEvent event) {
+                            runLayout();
+                        }
+                    });
         }
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
@@ -368,8 +378,12 @@ public class Graph extends AbstractViewContentDisplay implements
 
         NodeItem graphItem = new NodeItem(visualItem, type, graphDisplay);
 
+        /*
+         * NOTE: When the node is added, a LayoutGraphContentChangedEvent will
+         * be fired (see DefaultLayoutGraph), causing the current layout
+         * algorithm to be run.
+         */
         graphDisplay.addNode(graphItem.getNode());
-        positionNode(graphItem.getNode());
 
         // TODO re-enable
         // TODO remove once new drag and drop mechanism works...
@@ -392,15 +406,6 @@ public class Graph extends AbstractViewContentDisplay implements
         if (ready) {
             registry.getAutomaticExpander(type).expand(visualItem,
                     expansionCallback);
-        }
-
-        /*
-         * NOTE: the expansion layout (currently ForceDirected) is run each time
-         * a node is added, except if the layout graph is null, as in some
-         * tests.
-         */
-        if (getLayoutGraph() != null) {
-            layoutManager.runLayout();
         }
 
         return graphItem;
@@ -640,27 +645,9 @@ public class Graph extends AbstractViewContentDisplay implements
         return ready;
     }
 
-    private void positionNode(Node node) {
-        // FIXME positioning: FlexVis takes care of positioning nodes into empty
-        // space except for first node - if the node is the first node, we put
-        // it in the center
-        // TODO improve interface to access all resources
-
-        assert node != null;
-
-        if (getVisualItems().size() > 1) {
-            return;
-        }
-
-        Widget displayWidget = graphDisplay.asWidget();
-        if (displayWidget == null) {
-            return; // for tests
-        }
-
-        int height = displayWidget.getOffsetHeight();
-        int width = displayWidget.getOffsetWidth();
-
-        graphDisplay.setLocation(node, new Point(width / 2, height / 2));
+    @Override
+    public void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm) {
+        layoutManager.registerDefaultAlgorithm(layoutAlgorithm);
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
@@ -720,6 +707,11 @@ public class Graph extends AbstractViewContentDisplay implements
 
             setLocation(item, location);
         }
+    }
+
+    @Override
+    public void runLayout() {
+        layoutManager.runLayout();
     }
 
     @Override

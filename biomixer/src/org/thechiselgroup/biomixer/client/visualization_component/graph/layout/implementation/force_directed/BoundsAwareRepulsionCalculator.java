@@ -27,23 +27,31 @@ public class BoundsAwareRepulsionCalculator extends BoundsAwareForceCalculator {
     @Override
     public Vector2D getForce(LayoutNode currentNode, LayoutNode otherNode) {
         /*
-         * If distance is too close to 0 then division will produce an almost
-         * infinite force. Therefore limit the distance to a min value of 1.
-         */
-        double interNodeDistance = getDistanceBetween(currentNode, otherNode);
-        if (interNodeDistance < 1) {
-            interNodeDistance = 1;
-        }
-
-        double magnitude = Math.pow(getOptimalEdgeLength(), 2)
-                / interNodeDistance;
-
-        /*
          * Note the force is directed towards the current node since it is a
          * repulsion force on the current node.
          */
-        return Vector2DFactory.createVectorFromPolarCoordinates(magnitude,
+        return Vector2DFactory.createVectorFromPolarCoordinates(
+                getForceMagnitude(currentNode, otherNode),
                 getAngleBetween(otherNode, currentNode));
+    }
+
+    private double getForceMagnitude(LayoutNode currentNode,
+            LayoutNode otherNode) {
+
+        double interNodeDistance = getBufferedDistanceBetween(currentNode,
+                otherNode);
+        // XXX checking if nodes are in the same graph is too slow right now
+        // if (areNodesInSameGraph(currentNode, otherNode)) {
+        return Math.pow(getOptimalEdgeLength(), 2) / interNodeDistance;
+        // } else {
+        // /*
+        // * Force drops off by distance^2 so that if there are two
+        // * unconnected nodes they don't slam each other across to the
+        // * opposite wall.
+        // */
+        // return Math.pow(getOptimalEdgeLength(), 2)
+        // / Math.pow(interNodeDistance, 2);
+        // }
     }
 
 }
