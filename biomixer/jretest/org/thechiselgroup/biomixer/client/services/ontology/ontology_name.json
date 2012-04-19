@@ -1,0 +1,45 @@
+{"success": {
+  "accessedResource": "/bioportal/virtual/ontology/1487",
+  "accessDate": "2012-04-19 11:31:36.548 PDT",
+  "data": [
+    {
+      "id": 42651,
+      "ontologyId": 1487,
+      "virtualViewIds": [
+      ],
+      "internalVersionNumber": 1,
+      "userIds": [
+        38164
+      ],
+      "versionNumber": "1.0",
+      "isRemote": 0,
+      "statusId": 3,
+      "dateCreated": "2010-04-15 14:54:02.0 PDT",
+      "dateReleased": "2010-04-15 00:00:00.0 PDT",
+      "isManual": 1,
+      "displayLabel": "Body System",
+      "description": "This is a set of body-system terms used in the ICD 11 revision",
+      "abbreviation": "bodysystem",
+      "format": "OWL",
+      "contactName": "Samson Tu",
+      "contactEmail": "swt@stanford.edu",
+      "isFoundry": 0,
+      "userAcl": [
+      ],
+      "isView": false,
+      "categoryIds": [
+        2810
+      ],
+      "groupIds": [
+      ],
+      "filenames": [
+        "bodysystem.owl"
+      ],
+      "filePath": "/1487/1",
+      "hasViews": [
+      ],
+      "viewOnOntologyVersionId": [
+      ]
+    }
+  ]
+}}

@@ -1,18 +1,18 @@
-package org.thechiselgroup.biomixer.client.services.term;
+package org.thechiselgroup.biomixer.client.services;
 
-import name.pehl.totoe.json.client.JsonPath;
-
-import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameJsonParser;
 import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class TermTest extends GWTTestCase {
+/**
+ * XXX Temporary class for trying out stuff related to jsonp.
+ * 
+ * @author drusk
+ * 
+ */
+public class JsonpTest extends GWTTestCase {
 
     public static void main(String[] args) {
     }
@@ -48,18 +48,24 @@ public class TermTest extends GWTTestCase {
 
             @Override
             public void onSuccess(String result) {
-                System.out.println("Result:\n" + result);
-                JSONObject jsonObject = JSONParser.parseStrict(result)
-                        .isObject();
-                if (jsonObject == null) {
-                    System.err.println("ERROR");
-                }
 
-                JSONValue select = JsonPath.select(jsonObject,
-                        "$.success.data[0].id");
-                System.out.println("Data:");
-                JSONString string = select.isString();
-                System.out.println(string.stringValue());
+                OntologyNameJsonParser parser = new OntologyNameJsonParser(
+                        new TotoeJsonParser());
+                String ontologyName = parser.parse(result);
+                System.out.println("Ontology name: " + ontologyName);
+
+                // System.out.println("Result:\n" + result);
+                // JSONObject jsonObject = JSONParser.parseStrict(result)
+                // .isObject();
+                // if (jsonObject == null) {
+                // System.err.println("ERROR");
+                // }
+                //
+                // JSONValue select = JsonPath.select(jsonObject,
+                // "$.success.data[0].id");
+                // System.out.println("Data:");
+                // JSONString string = select.isString();
+                // System.out.println(string.stringValue());
 
             }
         });

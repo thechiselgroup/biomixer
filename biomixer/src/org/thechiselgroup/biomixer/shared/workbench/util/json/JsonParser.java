@@ -13,25 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services;
+package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
-import name.pehl.totoe.json.client.JsonPath;
+public interface JsonParser {
 
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-
-public class JsonResultParser {
-
-    public JSONArray getArray(JSONObject object, String path) {
-        return JsonPath.select(object, path).isArray();
-    }
-
-    public JSONObject getObject(JSONObject object, String path) {
-        return JsonPath.select(object, path).isObject();
-    }
-
-    public String getString(JSONObject object, String path) {
-        return getObject(object, path).toString();
-    }
+    String getString(String json, String path);
 
 }
