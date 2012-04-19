@@ -13,38 +13,32 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.server.workbench.util.json;
+package org.thechiselgroup.biomixer.client.services;
 
-import java.util.List;
-
-import org.thechiselgroup.biomixer.client.services.TotoeJsonParser;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
-import com.jayway.jsonpath.JsonPath;
+public abstract class AbstractJsonResultParser implements JsonParser {
 
-/**
- * Uses a java-based implementation of JSONPath. This means it can be used in
- * regular unit tests, unlike {@link TotoeJsonParser}.
- * 
- * @author drusk
- * 
- */
-public class JavaJsonParser extends AbstractJsonParser {
+    private JsonParser jsonParser;
+
+    protected AbstractJsonResultParser(JsonParser jsonParser) {
+        this.jsonParser = jsonParser;
+    }
 
     @Override
     public JsonItem[] getJsonItems(String json, String path) {
-        List<Object> jsonObjects = JsonPath.read(json, path);
-        JsonItem[] jsonItems = new JsonItem[jsonObjects.size()];
-        for (int i = 0; i < jsonObjects.size(); i++) {
-            jsonItems[i] = new JavaJsonItem(jsonObjects.get(i));
-        }
-        return jsonItems;
+        return jsonParser.getJsonItems(json, path);
+    }
+
+    @Override
+    public String getString(JsonItem jsonItem, String path) {
+        return jsonParser.getString(jsonItem, path);
     }
 
     @Override
     public String getString(String json, String path) {
-        return JsonPath.read(json, path);
+        return jsonParser.getString(json, path);
     }
 
 }

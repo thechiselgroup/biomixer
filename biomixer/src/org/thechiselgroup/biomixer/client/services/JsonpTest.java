@@ -1,5 +1,6 @@
 package org.thechiselgroup.biomixer.client.services;
 
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameJsonParser;
 import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 
@@ -36,6 +37,8 @@ public class JsonpTest extends GWTTestCase {
 
         // &conceptid=http%3A%2F%2Fwho.int%2Fbodysystem.owl%23BodySystem
 
+        String encode = UriUtils.encodeURIComponent("body system");
+        System.out.println("Encode test: " + encode);
         System.out.println(url);
 
         JsonpUrlFetchService urlFetch = new JsonpUrlFetchService();

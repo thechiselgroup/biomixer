@@ -15,36 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.server.workbench.util.json;
 
-import java.util.List;
-
-import org.thechiselgroup.biomixer.client.services.TotoeJsonParser;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
-import com.jayway.jsonpath.JsonPath;
+public class JavaJsonItem implements JsonItem {
 
-/**
- * Uses a java-based implementation of JSONPath. This means it can be used in
- * regular unit tests, unlike {@link TotoeJsonParser}.
- * 
- * @author drusk
- * 
- */
-public class JavaJsonParser extends AbstractJsonParser {
+    private Object object;
 
-    @Override
-    public JsonItem[] getJsonItems(String json, String path) {
-        List<Object> jsonObjects = JsonPath.read(json, path);
-        JsonItem[] jsonItems = new JsonItem[jsonObjects.size()];
-        for (int i = 0; i < jsonObjects.size(); i++) {
-            jsonItems[i] = new JavaJsonItem(jsonObjects.get(i));
-        }
-        return jsonItems;
+    public JavaJsonItem(Object object) {
+        this.object = object;
     }
 
     @Override
-    public String getString(String json, String path) {
-        return JsonPath.read(json, path);
+    public String stringValue() {
+        return object.toString();
     }
 
 }

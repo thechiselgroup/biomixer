@@ -18,11 +18,13 @@ package org.thechiselgroup.biomixer.client.services;
 import name.pehl.totoe.json.client.JsonPath;
 
 import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 
 /**
  * Uses Totoe to provide JSONPath support in GWT. Totoe wraps Dojo's
@@ -35,10 +37,39 @@ import com.google.gwt.json.client.JSONParser;
  * @author drusk
  * 
  */
-public class TotoeJsonParser implements JsonParser {
+public class TotoeJsonParser extends AbstractJsonParser {
 
     public JSONArray getArray(String json, String path) {
         return JsonPath.select(parseJsonObject(json), path).isArray();
+    }
+
+    @Override
+    // XXX better error handling?
+    public JsonItem[] getJsonItems(String json, String path) {
+        /*
+         * Could either be retrieving a JSONObject directly, or a JSONArray. If
+         * it is the array, return an array of JSONObject.
+         */
+        JSONValue startValue = JsonPath.select(parseJsonObject(json), path);
+        JSONObject jsonObject = startValue.isObject();
+        if (jsonObject != null) {
+            return new JsonItem[] { new JsJsonItem(jsonObject) };
+        }
+
+        JSONArray jsonArray = startValue.isArray();
+        if (jsonArray == null) {
+            return new JsonItem[] {};
+        }
+
+        JsonItem[] jsonItems = new JsonItem[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject obj = jsonArray.get(i).isObject();
+            if (obj != null) {
+                // XXX error
+            }
+            jsonItems[i] = new JsJsonItem(obj);
+        }
+        return jsonItems;
     }
 
     public JSONObject getObject(String json, String path) {

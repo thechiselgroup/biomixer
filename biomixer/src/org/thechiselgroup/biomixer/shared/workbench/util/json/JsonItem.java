@@ -15,12 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
-public interface JsonParser {
+public interface JsonItem {
 
-    JsonItem[] getJsonItems(String json, String path);
-
-    String getString(JsonItem jsonItem, String path);
-
-    String getString(String json, String path);
+    String stringValue();
 
 }

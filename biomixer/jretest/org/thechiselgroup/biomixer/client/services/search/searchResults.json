@@ -1,0 +1,74 @@
+{"success": {
+  "accessedResource": "/bioportal/search/",
+  "accessDate": "2012-04-19 13:33:06.110 PDT",
+  "data": [
+    {
+      "pageNum": 1,
+      "numPages": 1,
+      "pageSize": 3,
+      "numResultsPage": 3,
+      "numResultsTotal": 3,
+      "contents": {
+        "@class": "org.ncbo.stanford.bean.search.SearchResultListBean",
+        "searchResultList": {
+          "searchBean": {
+            "ontologyVersionId": 44686,
+            "ontologyId": 1311,
+            "ontologyDisplayLabel": "Malaria Ontology",
+            "recordType": "apreferredname",
+            "objectType": "class",
+            "conceptId": "http://purl.org/obo/owl/IDOMAL#IDOMAL_0001272",
+            "conceptIdShort": "IDOMAL:0001272",
+            "preferredName": "nematode",
+            "contents": "nematode",
+            "isObsolete": 0
+          },
+          "searchBean": {
+            "ontologyVersionId": 42295,
+            "ontologyId": 1427,
+            "ontologyDisplayLabel": "Read Codes, Clinical Terms Version 3 (CTV3) ",
+            "recordType": "apreferredname",
+            "objectType": "class",
+            "conceptId": "http://purl.bioontology.org/ontology/RCD/X73oJ",
+            "conceptIdShort": "X73oJ",
+            "preferredName": "Nematode",
+            "contents": "Nematode",
+            "isObsolete": 0
+          },
+          "searchBean": {
+            "ontologyVersionId": 38802,
+            "ontologyId": 1132,
+            "ontologyDisplayLabel": "NCBI organismal classification",
+            "recordType": "csynonym",
+            "objectType": "class",
+            "conceptId": "http://purl.org/obo/owl/NCBITaxon#NCBITaxon_6239",
+            "conceptIdShort": "NCBITaxon:6239",
+            "preferredName": "Caenorhabditis elegans",
+            "contents": "\"nematode\"",
+            "isObsolete": 0
+          }
+        },
+          "ontologyHitBean": {
+            "ontologyVersionId": 38802,
+            "ontologyId": 1132,
+            "ontologyDisplayLabel": "NCBI organismal classification",
+            "numHits": 39
+          },
+          "ontologyHitBean": {
+            "ontologyVersionId": 44686,
+            "ontologyId": 1311,
+            "ontologyDisplayLabel": "Malaria Ontology",
+            "numHits": 1
+          },
+          "ontologyHitBean": {
+            "ontologyVersionId": 42295,
+            "ontologyId": 1427,
+            "ontologyDisplayLabel": "Read Codes, Clinical Terms Version 3 (CTV3) ",
+            "numHits": 11
+          },
+        },
+        "numHitsTotal": "405"
+      }
+    }
+  ]
+}}

@@ -13,14 +13,24 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.shared.workbench.util.json;
+package org.thechiselgroup.biomixer.client.services;
 
-public interface JsonParser {
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
-    JsonItem[] getJsonItems(String json, String path);
+import com.google.gwt.json.client.JSONObject;
 
-    String getString(JsonItem jsonItem, String path);
+// XXX move package?
+public class JsJsonItem implements JsonItem {
 
-    String getString(String json, String path);
+    private JSONObject item;
+
+    public JsJsonItem(JSONObject item) {
+        this.item = item;
+    }
+
+    @Override
+    public String stringValue() {
+        return item.isObject().toString();
+    }
 
 }
