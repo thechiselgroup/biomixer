@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
@@ -648,7 +649,16 @@ public class GraphDisplayController implements GraphDisplay,
 
     @Override
     public void runLayoutOnNodes(Collection<Node> nodes) throws LayoutException {
-        // TODO implement with anchor and unanchor
+        IdentifiablesList<IdentifiableLayoutNode> allNodes = layoutGraph
+                .getAllIdentifiableLayoutNodes();
+        for (Node node : nodes) {
+            allNodes.get(node.getId()).setAnchored(true);
+        }
+        runLayout();
+        for (Node node : nodes) {
+            allNodes.get(node.getId()).setAnchored(false);
+        }
+
     }
 
     @Override

@@ -18,11 +18,11 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
+public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     protected static final int DELAY_BETWEEN_ITERATIONS = 250;
 
@@ -55,12 +55,10 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
     }
 
     @Override
-    public LayoutComputation computeLayout(LayoutGraph graph) {
-        ForceDirectedLayoutComputation computation = new ForceDirectedLayoutComputation(
-                forceCalculator, damping, graph, executor, errorHandler,
-                animationRunner, DELAY_BETWEEN_ITERATIONS);
-        computation.run();
-        return computation;
+    protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
+        return new ForceDirectedLayoutComputation(forceCalculator, damping,
+                graph, executor, errorHandler, animationRunner,
+                DELAY_BETWEEN_ITERATIONS);
     }
 
 }

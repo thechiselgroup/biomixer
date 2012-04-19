@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
+import java.util.List;
+
 /**
  * <p>
  * Algorithm that computes the position of nodes and edges for a graph
@@ -39,5 +41,16 @@ public interface LayoutAlgorithm {
      * @return computation that calculates the layout (for stopping, etc.)
      */
     LayoutComputation computeLayout(LayoutGraph graph);
+
+    /**
+     * Starts a layout computation on the given graph.
+     * 
+     * @param graph
+     *            graph structure that will be laid out
+     * 
+     * @return computation that calculates the layout (for stopping, etc.)
+     */
+    LayoutComputation computeLayout(LayoutGraph graph,
+            List<LayoutComputationFinishedHandler> handlers);
 
 }

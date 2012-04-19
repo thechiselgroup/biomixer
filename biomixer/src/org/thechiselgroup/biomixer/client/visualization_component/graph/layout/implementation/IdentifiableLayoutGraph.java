@@ -59,6 +59,10 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
         return nodeTypes.contains(nodeType);
     }
 
+    public IdentifiablesList<IdentifiableLayoutNode> getAllIdentifiableLayoutNodes() {
+        return identifiableLayoutNodes;
+    }
+
     public DefaultLayoutArcType getArcType(String arcType) {
         return arcTypes.get(arcType);
     }
