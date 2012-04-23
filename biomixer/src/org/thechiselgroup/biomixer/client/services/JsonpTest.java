@@ -1,6 +1,7 @@
 package org.thechiselgroup.biomixer.client.services;
 
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameJsonParser;
 import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 

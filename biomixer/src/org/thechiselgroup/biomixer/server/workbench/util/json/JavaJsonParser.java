@@ -17,9 +17,9 @@ package org.thechiselgroup.biomixer.server.workbench.util.json;
 
 import java.util.List;
 
-import org.thechiselgroup.biomixer.client.services.TotoeJsonParser;
+import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 
 import com.jayway.jsonpath.JsonPath;
 
@@ -33,18 +33,14 @@ import com.jayway.jsonpath.JsonPath;
 public class JavaJsonParser extends AbstractJsonParser {
 
     @Override
-    public JsonItem[] getJsonItems(String json, String path) {
-        List<Object> jsonObjects = JsonPath.read(json, path);
-        JsonItem[] jsonItems = new JsonItem[jsonObjects.size()];
-        for (int i = 0; i < jsonObjects.size(); i++) {
-            jsonItems[i] = new JavaJsonItem(jsonObjects.get(i));
-        }
-        return jsonItems;
+    public JsonArray getArray(String json, String path) {
+        List<Object> array = JsonPath.read(json, path);
+        return new JavaJsonArray(array);
     }
 
     @Override
     public String getString(String json, String path) {
-        return JsonPath.read(json, path);
+        return JsonPath.read(json, path).toString();
     }
 
 }

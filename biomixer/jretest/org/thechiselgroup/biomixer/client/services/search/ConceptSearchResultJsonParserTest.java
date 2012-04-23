@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -54,7 +53,6 @@ public class ConceptSearchResultJsonParserTest {
         return values;
     }
 
-    @Ignore("TODO finish implementing")
     @Test
     public void parseSearchResults() throws IOException {
         Set<Resource> searchResults = parseSearchResults("searchResults.json");

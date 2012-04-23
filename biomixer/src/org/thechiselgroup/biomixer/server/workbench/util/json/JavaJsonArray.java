@@ -13,14 +13,29 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.shared.workbench.util.json;
+package org.thechiselgroup.biomixer.server.workbench.util.json;
 
-public interface JsonParser {
+import java.util.List;
 
-    JsonArray getArray(String json, String path);
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
-    String getString(JsonItem jsonItem, String path);
+public class JavaJsonArray implements JsonArray {
 
-    String getString(String json, String path);
+    private List<Object> items;
+
+    public JavaJsonArray(List<Object> items) {
+        this.items = items;
+    }
+
+    @Override
+    public JsonItem get(int index) {
+        return new JavaJsonItem(items.get(index));
+    }
+
+    @Override
+    public int size() {
+        return items.size();
+    }
 
 }

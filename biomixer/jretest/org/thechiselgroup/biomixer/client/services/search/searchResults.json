@@ -10,8 +10,8 @@
       "numResultsTotal": 3,
       "contents": {
         "@class": "org.ncbo.stanford.bean.search.SearchResultListBean",
-        "searchResultList": {
-          "searchBean": {
+        "searchResultList": [
+          {
             "ontologyVersionId": 44686,
             "ontologyId": 1311,
             "ontologyDisplayLabel": "Malaria Ontology",
@@ -23,7 +23,7 @@
             "contents": "nematode",
             "isObsolete": 0
           },
-          "searchBean": {
+          {
             "ontologyVersionId": 42295,
             "ontologyId": 1427,
             "ontologyDisplayLabel": "Read Codes, Clinical Terms Version 3 (CTV3) ",
@@ -35,7 +35,7 @@
             "contents": "Nematode",
             "isObsolete": 0
           },
-          "searchBean": {
+          {
             "ontologyVersionId": 38802,
             "ontologyId": 1132,
             "ontologyDisplayLabel": "NCBI organismal classification",
@@ -47,27 +47,7 @@
             "contents": "\"nematode\"",
             "isObsolete": 0
           }
-        },
-          "ontologyHitBean": {
-            "ontologyVersionId": 38802,
-            "ontologyId": 1132,
-            "ontologyDisplayLabel": "NCBI organismal classification",
-            "numHits": 39
-          },
-          "ontologyHitBean": {
-            "ontologyVersionId": 44686,
-            "ontologyId": 1311,
-            "ontologyDisplayLabel": "Malaria Ontology",
-            "numHits": 1
-          },
-          "ontologyHitBean": {
-            "ontologyVersionId": 42295,
-            "ontologyId": 1427,
-            "ontologyDisplayLabel": "Read Codes, Clinical Terms Version 3 (CTV3) ",
-            "numHits": 11
-          },
-        },
-        "numHitsTotal": "405"
+        ]
       }
     }
   ]

@@ -21,12 +21,13 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
 
-    private static final String ROOT_EXPRESSION = "$..success.data[0].contents.searchResultList.searchBean[*]";
+    private static final String ROOT_EXPRESSION = "$..success.data[0].contents.searchResultList";
 
     public ConceptSearchResultJsonParser(JsonParser jsonParser) {
         super(jsonParser);
@@ -34,7 +35,7 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
 
     private Resource analyzeItem(JsonItem jsonItem) {
         String ontologyId = getString(jsonItem, "$.ontologyId");
-        String conceptId = getString(jsonItem, "$.ontologyId");
+        String conceptId = getString(jsonItem, "$.conceptId");
 
         Resource resource = new Resource(Concept.toConceptURI(ontologyId,
                 conceptId));
@@ -42,20 +43,23 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
         String conceptShortId = getString(jsonItem, "$.conceptIdShort");
         resource.putValue(Concept.FULL_ID, conceptId);
         resource.putValue(Concept.SHORT_ID, conceptShortId);
-        resource.putValue(Concept.LABEL,
-                getString(jsonItem, "preferredName/text()"));
+        resource.putValue(Concept.LABEL, getString(jsonItem, "$.preferredName"));
         resource.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
         resource.putValue(Concept.CONCEPT_ONTOLOGY_NAME,
-                getString(jsonItem, "ontologyDisplayLabel/text()"));
+                getString(jsonItem, "$.ontologyDisplayLabel"));
 
         return resource;
     }
 
     public Set<Resource> parse(String json) {
         Set<Resource> resources = new HashSet<Resource>();
-        for (JsonItem jsonItem : getJsonItems(json, ROOT_EXPRESSION)) {
-            resources.add(analyzeItem(jsonItem));
+        JsonArray searchResults = getArray(json, ROOT_EXPRESSION);
+        for (int i = 0; i < searchResults.size(); i++) {
+            resources.add(analyzeItem(searchResults.get(i)));
         }
+        // for (JsonItem jsonItem : getJsonItems(json, ROOT_EXPRESSION)) {
+        // resources.add(analyzeItem(jsonItem));
+        // }
         return resources;
     }
 }

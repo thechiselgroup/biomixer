@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services;
 
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
@@ -27,8 +28,8 @@ public abstract class AbstractJsonResultParser implements JsonParser {
     }
 
     @Override
-    public JsonItem[] getJsonItems(String json, String path) {
-        return jsonParser.getJsonItems(json, path);
+    public JsonArray getArray(String json, String path) {
+        return jsonParser.getArray(json, path);
     }
 
     @Override

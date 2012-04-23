@@ -15,6 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
+/**
+ * A generic JSON item. It could be an a dictionary (often just called object)
+ * or array, etc.
+ * 
+ * @author drusk
+ * 
+ */
 public interface JsonItem {
 
     String stringValue();

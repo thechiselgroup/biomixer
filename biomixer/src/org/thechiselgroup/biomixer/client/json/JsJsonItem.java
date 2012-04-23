@@ -13,24 +13,43 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services;
+package org.thechiselgroup.biomixer.client.json;
 
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 
 // XXX move package?
 public class JsJsonItem implements JsonItem {
 
-    private JSONObject item;
+    private JSONValue item;
 
-    public JsJsonItem(JSONObject item) {
+    public JsJsonItem(JSONValue item) {
         this.item = item;
     }
 
     @Override
     public String stringValue() {
-        return item.isObject().toString();
+        JSONObject asObject = item.isObject();
+        if (asObject != null) {
+            return asObject.toString();
+        }
+
+        JSONArray asArray = item.isArray();
+        if (asArray != null) {
+            return asArray.toString();
+        }
+
+        JSONString asString = item.isString();
+        if (asString != null) {
+            return asString.stringValue();
+        }
+
+        // TODO throw parse error?
+        return null;
     }
 
 }
