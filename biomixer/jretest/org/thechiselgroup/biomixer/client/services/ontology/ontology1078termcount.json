@@ -1,0 +1,14 @@
+{"success": {
+  "accessedResource": "/bioportal/virtual/ontology/1078/all",
+  "accessDate": "2012-04-23 15:59:40.40 PDT",
+  "data": [
+    {
+      "pageNum": 1,
+      "numPages": 1,
+      "pageSize": 129,
+      "numResultsPage": 129,
+      "numResultsTotal": 129,
+      "contents": {}
+    }
+  ]
+}}
