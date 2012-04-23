@@ -20,7 +20,7 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public class OntologyVersionJsonParser extends AbstractJsonResultParser {
 
-    protected OntologyVersionJsonParser(JsonParser jsonParser) {
+    public OntologyVersionJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }
 
