@@ -18,6 +18,11 @@ package org.thechiselgroup.biomixer.shared.workbench.util.json;
 public abstract class AbstractJsonParser implements JsonParser {
 
     @Override
+    public JsonArray getArray(JsonItem jsonItem, String path) {
+        return getArray(jsonItem.stringValue(), path);
+    }
+
+    @Override
     public String getString(JsonItem jsonItem, String path) {
         return getString(jsonItem.stringValue(), path);
     }

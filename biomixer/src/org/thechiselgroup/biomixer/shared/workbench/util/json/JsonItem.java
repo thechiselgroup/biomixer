@@ -24,6 +24,8 @@ package org.thechiselgroup.biomixer.shared.workbench.util.json;
  */
 public interface JsonItem {
 
+    JsonArray asArray();
+
     String stringValue();
 
 }

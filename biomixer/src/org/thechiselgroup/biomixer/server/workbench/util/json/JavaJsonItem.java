@@ -15,14 +15,32 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.server.workbench.util.json;
 
+import java.util.List;
+
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
+/**
+ * NOTE: The results of the java-based JsonPath library's JsonPath.read(json,
+ * path) is cast to whatever you assign it to. If you expect a JSONArray, you
+ * put the type as List<Object>. If you expect a JSONObject, you put the type as
+ * Object. Since we don't necessarily know whether a JsonItem is an array or
+ * object, we always pass in an Object and then cast if necessary.
+ * 
+ * @author drusk
+ * 
+ */
 public class JavaJsonItem implements JsonItem {
 
     private Object object;
 
-    public JavaJsonItem(Object object) {
-        this.object = object;
+    public JavaJsonItem(Object asObject) {
+        this.object = asObject;
+    }
+
+    @Override
+    public JsonArray asArray() {
+        return new JavaJsonArray((List<Object>) object);
     }
 
     @Override

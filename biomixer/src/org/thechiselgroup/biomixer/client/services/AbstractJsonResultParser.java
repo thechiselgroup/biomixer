@@ -28,8 +28,18 @@ public abstract class AbstractJsonResultParser implements JsonParser {
     }
 
     @Override
+    public JsonArray getArray(JsonItem jsonItem, String path) {
+        return jsonParser.getArray(jsonItem, path);
+    }
+
+    @Override
     public JsonArray getArray(String json, String path) {
         return jsonParser.getArray(json, path);
+    }
+
+    @Override
+    public JsonItem getItem(String json, String path) {
+        return jsonParser.getItem(json, path);
     }
 
     @Override

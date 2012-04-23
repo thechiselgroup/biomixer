@@ -13,18 +13,34 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.shared.workbench.util.json;
+package org.thechiselgroup.biomixer.client.services;
 
-public interface JsonParser {
+import java.io.IOException;
 
-    JsonArray getArray(JsonItem jsonItem, String path);
+import org.thechiselgroup.biomixer.server.core.util.IOUtils;
 
-    JsonArray getArray(String json, String path);
+/**
+ * Provides commonly needed functionality for JSON parser tests.
+ * 
+ * @author drusk
+ * 
+ */
+public abstract class AbstractJsonParserTest {
 
-    JsonItem getItem(String json, String path);
+    private final Class<? extends AbstractJsonParserTest> clazz;
 
-    String getString(JsonItem jsonItem, String path);
+    /**
+     * 
+     * @param clazz
+     *            subclass' class object
+     */
+    public AbstractJsonParserTest(Class<? extends AbstractJsonParserTest> clazz) {
+        this.clazz = clazz;
+    }
 
-    String getString(String json, String path);
+    protected String getFileContentsAsString(String filename)
+            throws IOException {
+        return IOUtils.readIntoString(clazz.getResourceAsStream(filename));
+    }
 
 }

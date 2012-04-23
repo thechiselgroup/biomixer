@@ -19,6 +19,8 @@ public interface JsonArray {
 
     JsonItem get(int index);
 
+    String getString(int index);
+
     int size();
 
 }

@@ -15,12 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.json;
 
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
 import com.google.gwt.json.client.JSONArray;
 
-public class JsJsonArray implements JsonArray {
+public class JsJsonArray extends AbstractJsonArray {
 
     private JSONArray jsonArray;
 

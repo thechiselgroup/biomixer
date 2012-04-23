@@ -17,10 +17,10 @@ package org.thechiselgroup.biomixer.server.workbench.util.json;
 
 import java.util.List;
 
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
-public class JavaJsonArray implements JsonArray {
+public class JavaJsonArray extends AbstractJsonArray {
 
     private List<Object> items;
 

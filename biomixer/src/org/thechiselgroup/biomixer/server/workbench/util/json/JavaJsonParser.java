@@ -20,12 +20,16 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
 import com.jayway.jsonpath.JsonPath;
 
 /**
  * Uses a java-based implementation of JSONPath. This means it can be used in
  * regular unit tests, unlike {@link TotoeJsonParser}.
+ * 
+ * NOTE: JsonPath.read by default returns an Object, but casts the result to
+ * whatever you try to assign it to.
  * 
  * @author drusk
  * 
@@ -36,6 +40,11 @@ public class JavaJsonParser extends AbstractJsonParser {
     public JsonArray getArray(String json, String path) {
         List<Object> array = JsonPath.read(json, path);
         return new JavaJsonArray(array);
+    }
+
+    @Override
+    public JsonItem getItem(String json, String path) {
+        return new JavaJsonItem(JsonPath.<Object> read(json, path));
     }
 
     @Override

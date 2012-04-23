@@ -20,6 +20,7 @@ import name.pehl.totoe.json.client.JsonPath;
 import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -41,6 +42,11 @@ public class TotoeJsonParser extends AbstractJsonParser {
     public JsonArray getArray(String json, String path) {
         return new JsJsonArray(JsonPath.select(parseJsonObject(json), path)
                 .isArray());
+    }
+
+    @Override
+    public JsonItem getItem(String json, String path) {
+        return new JsJsonItem(JsonPath.select(parseJsonObject(json), path));
     }
 
     @Override

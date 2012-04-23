@@ -15,16 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
-public interface JsonParser {
+public abstract class AbstractJsonArray implements JsonArray {
 
-    JsonArray getArray(JsonItem jsonItem, String path);
-
-    JsonArray getArray(String json, String path);
-
-    JsonItem getItem(String json, String path);
-
-    String getString(JsonItem jsonItem, String path);
-
-    String getString(String json, String path);
+    @Override
+    public String getString(int index) {
+        return get(index).stringValue();
+    }
 
 }

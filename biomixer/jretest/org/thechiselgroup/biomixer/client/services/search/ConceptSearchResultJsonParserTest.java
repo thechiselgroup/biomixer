@@ -28,21 +28,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.server.core.util.IOUtils;
+import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
 import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
 
-public class ConceptSearchResultJsonParserTest {
+public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
 
     private ConceptSearchResultJsonParser underTest;
 
-    /*
-     * TODO would be good to extract to a superclass if possible with class
-     * value
-     */
-    protected String getFileContentsAsString(String filename)
-            throws IOException {
-        return IOUtils.readIntoString(ConceptSearchResultJsonParserTest.class
-                .getResourceAsStream(filename));
+    public ConceptSearchResultJsonParserTest() {
+        super(ConceptSearchResultJsonParserTest.class);
     }
 
     public List<String> getValues(Set<Resource> resources, String key) {

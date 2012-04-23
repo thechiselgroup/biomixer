@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.json;
 
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
 import com.google.gwt.json.client.JSONArray;
@@ -29,6 +30,11 @@ public class JsJsonItem implements JsonItem {
 
     public JsJsonItem(JSONValue item) {
         this.item = item;
+    }
+
+    @Override
+    public JsonArray asArray() {
+        return new JsJsonArray(item.isArray());
     }
 
     @Override

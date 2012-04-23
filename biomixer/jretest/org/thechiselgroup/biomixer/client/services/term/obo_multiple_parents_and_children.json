@@ -1,0 +1,304 @@
+{"success": {
+  "accessedResource": "/bioportal/virtual/ontology/1070",
+  "accessDate": "2012-04-23 09:16:22.786 PDT",
+  "data": [
+    {
+      "id": "GO:0007569",
+      "fullId": "http://purl.org/obo/owl/GO#GO_0007569",
+      "label": "cell aging",
+      "type": "class",
+      "synonyms": [
+        "cell ageing"
+      ],
+      "definitions": [
+        "An aging process that has as participant a cell after a cell has stopped dividing.  Cell aging may occur when a cell has temporarily stopped dividing through cell cycle arrest  (GO:0007050) or when a cell has permanently stopped dividing, in which case it is undergoing cellular senescence (GO:0090398). May precede cell death (GO:0008219) and succeed cell maturation (GO:0048469)."
+      ],
+      "relations": [
+        [
+          "SubClass",
+          [
+            {
+              "id": "GO:0007576",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0007576",
+              "label": "nucleolar fragmentation",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  1
+                ]
+              ]
+            },
+            {
+              "id": "GO:0001301",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0001301",
+              "label": "progressive alteration of chromatin involved in cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  4
+                ]
+              ]
+            },
+            {
+              "id": "GO:0001300",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0001300",
+              "label": "chronological cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  3
+                ]
+              ]
+            },
+            {
+              "id": "GO:0090399",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090399",
+              "label": "replicative senescence",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  0
+                ]
+              ]
+            },
+            {
+              "id": "GO:0090398",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090398",
+              "label": "cellular senescence",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  2
+                ]
+              ]
+            },
+            {
+              "id": "GO:0001302",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0001302",
+              "label": "replicative cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  3
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "[R]part_of",
+          [
+            {
+              "id": "GO:0007576",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0007576",
+              "label": "nucleolar fragmentation",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  1
+                ]
+              ]
+            },
+            {
+              "id": "GO:0001301",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0001301",
+              "label": "progressive alteration of chromatin involved in cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  4
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "ChildCount",
+          6
+        ],
+        [
+          "xref_definition",
+          [
+            "GOC:PO_curators"
+          ]
+        ],
+        [
+          "[R]negatively_regulates",
+          [
+            {
+              "id": "GO:0090344",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090344",
+              "label": "negative regulation of cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  1
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "[R]is_a",
+          [
+            {
+              "id": "GO:0001300",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0001300",
+              "label": "chronological cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  3
+                ]
+              ]
+            },
+            {
+              "id": "GO:0090399",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090399",
+              "label": "replicative senescence",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  0
+                ]
+              ]
+            },
+            {
+              "id": "GO:0090398",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090398",
+              "label": "cellular senescence",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  2
+                ]
+              ]
+            },
+            {
+              "id": "GO:0001302",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0001302",
+              "label": "replicative cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  3
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "[R]positively_regulates",
+          [
+            {
+              "id": "GO:0090343",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090343",
+              "label": "positive regulation of cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  1
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "EXACT SYNONYM",
+          [
+            "cell ageing"
+          ]
+        ],
+        [
+          "[R]regulates",
+          [
+            {
+              "id": "GO:0090342",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0090342",
+              "label": "regulation of cell aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  4
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "is_a",
+          [
+            {
+              "id": "GO:0007568",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0007568",
+              "label": "aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  6
+                ]
+              ]
+            },
+            {
+              "id": "GO:0009987",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0009987",
+              "label": "cellular process",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  53
+                ]
+              ]
+            }
+          ]
+        ],
+        [
+          "SuperClass",
+          [
+            {
+              "id": "GO:0007568",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0007568",
+              "label": "aging",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  6
+                ]
+              ]
+            },
+            {
+              "id": "GO:0009987",
+              "fullId": "http://purl.org/obo/owl/GO#GO_0009987",
+              "label": "cellular process",
+              "type": "class",
+              "relations": [
+                [
+                  "ChildCount",
+                  53
+                ]
+              ]
+            }
+          ]
+        ]
+      ]
+    }
+  ]
+}}

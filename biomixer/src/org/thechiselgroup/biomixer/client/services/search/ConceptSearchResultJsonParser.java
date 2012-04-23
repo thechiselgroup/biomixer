@@ -57,9 +57,6 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
         for (int i = 0; i < searchResults.size(); i++) {
             resources.add(analyzeItem(searchResults.get(i)));
         }
-        // for (JsonItem jsonItem : getJsonItems(json, ROOT_EXPRESSION)) {
-        // resources.add(analyzeItem(jsonItem));
-        // }
         return resources;
     }
 }
