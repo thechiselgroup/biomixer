@@ -23,7 +23,7 @@ public abstract class AbstractJsonResultParser implements JsonParser {
 
     private JsonParser jsonParser;
 
-    protected AbstractJsonResultParser(JsonParser jsonParser) {
+    public AbstractJsonResultParser(JsonParser jsonParser) {
         this.jsonParser = jsonParser;
     }
 
