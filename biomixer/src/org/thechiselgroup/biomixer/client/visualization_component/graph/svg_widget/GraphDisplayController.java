@@ -40,7 +40,6 @@ import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElemen
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutExecutionManager;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
@@ -296,6 +295,12 @@ public class GraphDisplayController implements GraphDisplay,
         return layoutArcType;
     }
 
+    /**
+     * Override in tests to get a test delayed executor.
+     * 
+     * @return a GwtDelayedExecutor which will not work in java unit tests
+     *         because it uses Javascript
+     */
     protected DelayedExecutor getDelayedExecutor() {
         return new GwtDelayedExecutor();
     }
@@ -646,15 +651,8 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     @Override
-    public LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm) {
+    public void runLayout(LayoutAlgorithm layoutAlgorithm) {
         layoutManager.registerAndRunLayoutAlgorithm(layoutAlgorithm);
-        // FIXME return LayoutComputations from all runLayout methods
-        return null;
-    }
-
-    @Override
-    public void runLayout(String layout) throws LayoutException {
-        // TODO remove when addressing issue104
     }
 
     @Override

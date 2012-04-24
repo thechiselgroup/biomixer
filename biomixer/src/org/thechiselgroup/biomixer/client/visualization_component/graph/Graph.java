@@ -38,9 +38,12 @@ import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSet
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
+import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
@@ -50,6 +53,13 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
@@ -164,21 +174,25 @@ public class Graph extends AbstractViewContentDisplay implements
 
     public class GraphLayoutAction implements ViewContentDisplayAction {
 
-        private final String layout;
+        private final LayoutAlgorithm layoutAlgorithm;
 
-        public GraphLayoutAction(String layout) {
-            this.layout = layout;
+        private final String layoutLabel;
+
+        public GraphLayoutAction(String layoutLabel,
+                LayoutAlgorithm layoutAlgorithm) {
+            this.layoutLabel = layoutLabel;
+            this.layoutAlgorithm = layoutAlgorithm;
         }
 
         @Override
         public void execute() {
-            commandManager.execute(new GraphLayoutCommand(graphDisplay, layout,
-                    getAllNodes()));
+            commandManager.execute(new GraphLayoutCommand(graphDisplay,
+                    layoutAlgorithm, layoutLabel, getAllNodes()));
         }
 
         @Override
         public String getLabel() {
-            return layout;
+            return layoutLabel;
         }
     }
 
@@ -296,6 +310,8 @@ public class Graph extends AbstractViewContentDisplay implements
         }
     };
 
+    private ErrorHandler errorHandler;
+
     @Inject
     public Graph(GraphDisplay display, CommandManager commandManager,
             ResourceManager resourceManager,
@@ -327,6 +343,7 @@ public class Graph extends AbstractViewContentDisplay implements
          * customization in Choosel applications.
          */
         initArcTypeContainers();
+        this.errorHandler = errorHandler;
     }
 
     @SuppressWarnings("unchecked")
@@ -481,24 +498,26 @@ public class Graph extends AbstractViewContentDisplay implements
         return resourceManager;
     }
 
-    // TODO cleanup
     @Override
     public SidePanelSection[] getSidePanelSections() {
         List<ViewContentDisplayAction> actions = new ArrayList<ViewContentDisplayAction>();
-
-        actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_TREE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.SPRING_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.INDENTED_TREE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_BY_NODE_ID));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_BY_NODE_TYPE));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_ALPHABETICAL));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_BY_ARC_COUNT));
-        actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.FORCE_DIRECTED_LAYOUT));
+        // TODO cleanup
+        AnimationRunner animationRunner = new GwtAnimationRunner();
+        actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
+                new CircleLayoutAlgorithm(errorHandler, animationRunner)));
+        actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
+                new HorizontalTreeLayoutAlgorithm(true, errorHandler,
+                        animationRunner)));
+        actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_TREE_LAYOUT,
+                new VerticalTreeLayoutAlgorithm(true, errorHandler,
+                        animationRunner)));
+        actions.add(new GraphLayoutAction(GraphLayouts.FORCE_DIRECTED_LAYOUT,
+                new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+                        new BoundsAwareAttractionCalculator(graphDisplay
+                                .getLayoutGraph()),
+                        new BoundsAwareRepulsionCalculator(graphDisplay
+                                .getLayoutGraph())), 0.9, animationRunner,
+                        new GwtDelayedExecutor(), errorHandler)));
 
         VerticalPanel layoutPanel = new VerticalPanel();
         for (final ViewContentDisplayAction action : actions) {
