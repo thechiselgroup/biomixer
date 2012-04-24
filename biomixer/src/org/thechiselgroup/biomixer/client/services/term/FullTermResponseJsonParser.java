@@ -60,7 +60,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         List<Resource> resources = new ArrayList<Resource>();
 
         JsonArray queriedResourceRelations = getArray(json,
-                "$..success.data[0].relations");
+                "$.success.data[0].relations");
         for (int i = 0; i < queriedResourceRelations.size(); i++) {
             /*
              * Relations are in a strange form: [relationType:
@@ -111,7 +111,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
     }
 
     public Resource parseResource(String ontologyId, String json) {
-        JsonItem queriedResource = getItem(json, "$..success.data[0]");
+        JsonItem queriedResource = getItem(json, "$.success.data[0]");
 
         String fullConceptId = getString(queriedResource, "$.fullId");
         String shortConceptId = getString(queriedResource, "$.id");

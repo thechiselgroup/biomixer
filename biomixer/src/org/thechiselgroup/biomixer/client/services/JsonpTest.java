@@ -1,8 +1,9 @@
 package org.thechiselgroup.biomixer.client.services;
 
-import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameJsonParser;
+import org.thechiselgroup.biomixer.client.services.term.TermWithoutRelationshipsJsonParser;
 import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 
 import com.google.gwt.junit.client.GWTTestCase;
@@ -33,14 +34,16 @@ public class JsonpTest extends GWTTestCase {
         // + UriUtils
         // .encodeURIComponent("http://who.int/bodysystem.owl#BodySystem"))
         // .toString();
-        String url = new NcboJsonpRestUrlBuilderFactory().createUrlBuilder()
-                .parameter("path", "%2Fvirtual%2Fontology%2F1487").toString();
+        // String url = new NcboJsonpRestUrlBuilderFactory().createUrlBuilder()
+        // .parameter("path", "%2Fvirtual%2Fontology%2F1487").toString();
+
+        // System.out.println(url);
+        String url = "http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1516%3Flight%3D1%26norelations%3D1%26conceptid%3DO80-O84.9&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
 
         // &conceptid=http%3A%2F%2Fwho.int%2Fbodysystem.owl%23BodySystem
 
-        String encode = UriUtils.encodeURIComponent("body system");
-        System.out.println("Encode test: " + encode);
-        System.out.println(url);
+        // String encode = UriUtils.encodeURIComponent("body system");
+        // System.out.println("Encode test: " + encode);
 
         JsonpUrlFetchService urlFetch = new JsonpUrlFetchService();
         urlFetch.fetchURL(url, new AsyncCallback<String>() {
@@ -53,10 +56,11 @@ public class JsonpTest extends GWTTestCase {
             @Override
             public void onSuccess(String result) {
 
-                OntologyNameJsonParser parser = new OntologyNameJsonParser(
+                TermWithoutRelationshipsJsonParser parser = new TermWithoutRelationshipsJsonParser(
                         new TotoeJsonParser());
-                String ontologyName = parser.parse(result);
-                System.out.println("Ontology name: " + ontologyName);
+                Resource concept = parser.parseConcept("1516", result);
+                System.out.println("Full id: "
+                        + (String) concept.getValue(Concept.FULL_ID));
 
                 // System.out.println("Result:\n" + result);
                 // JSONObject jsonObject = JSONParser.parseStrict(result)

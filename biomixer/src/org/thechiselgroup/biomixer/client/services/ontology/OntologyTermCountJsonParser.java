@@ -31,7 +31,7 @@ public class OntologyTermCountJsonParser extends AbstractJsonResultParser {
      * @return the number of terms in the ontology, in string value. Ex: "129"
      */
     public String parse(String json) {
-        return getString(json, "$..success.data[0].numResultsTotal");
+        return getString(json, "$.success.data[0].numResultsTotal");
     }
 
 }

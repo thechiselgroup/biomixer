@@ -23,7 +23,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 
-// XXX move package?
 public class JsJsonItem implements JsonItem {
 
     private JSONValue item;

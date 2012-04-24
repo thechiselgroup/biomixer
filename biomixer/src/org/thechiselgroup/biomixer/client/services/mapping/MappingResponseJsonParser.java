@@ -79,7 +79,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         List<Resource> result = new ArrayList<Resource>();
 
         JsonArray mappings = getArray(json,
-                "$..success.data[0].contents.mappings");
+                "$.success.data[0].contents.mappings");
         for (int i = 0; i < mappings.size(); i++) {
             result.add(parseMapping(mappings.get(i)));
         }

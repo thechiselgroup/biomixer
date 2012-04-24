@@ -27,7 +27,7 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
 
-    private static final String ROOT_EXPRESSION = "$..success.data[0].contents.searchResultList";
+    private static final String ROOT_EXPRESSION = "$.success.data[0].contents.searchResultList";
 
     public ConceptSearchResultJsonParser(JsonParser jsonParser) {
         super(jsonParser);

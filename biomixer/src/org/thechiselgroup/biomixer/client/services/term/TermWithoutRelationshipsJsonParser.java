@@ -28,7 +28,7 @@ public class TermWithoutRelationshipsJsonParser extends
     }
 
     private String getAttribute(String json, String attribute) {
-        return getString(json, "$..success.data[0]" + attribute);
+        return getString(json, "$.success.data[0]." + attribute);
     }
 
     public Resource parseConcept(String ontologyId, String json) {
