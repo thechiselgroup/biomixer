@@ -1,9 +1,14 @@
 package org.thechiselgroup.biomixer.client.services;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
-import org.thechiselgroup.biomixer.client.services.term.TermWithoutRelationshipsJsonParser;
+import org.thechiselgroup.biomixer.client.services.term.FullTermResponseJsonParser;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 
 import com.google.gwt.junit.client.GWTTestCase;
@@ -38,8 +43,10 @@ public class JsonpTest extends GWTTestCase {
         // .parameter("path", "%2Fvirtual%2Fontology%2F1487").toString();
 
         // System.out.println(url);
-        String url = "http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1516%3Flight%3D1%26norelations%3D1%26conceptid%3DO80-O84.9&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
+        // String url =
+        // "http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1516%3Flight%3D1%26norelations%3D1%26conceptid%3DO80-O84.9&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
 
+        String url = "http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1070%3Fconceptid%3Dhttp%253A%252F%252Fpurl.org%252Fobo%252Fowl%252FGO%2523GO_0007569&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
         // &conceptid=http%3A%2F%2Fwho.int%2Fbodysystem.owl%23BodySystem
 
         // String encode = UriUtils.encodeURIComponent("body system");
@@ -56,11 +63,32 @@ public class JsonpTest extends GWTTestCase {
             @Override
             public void onSuccess(String result) {
 
-                TermWithoutRelationshipsJsonParser parser = new TermWithoutRelationshipsJsonParser(
+                FullTermResponseJsonParser parser = new FullTermResponseJsonParser(
                         new TotoeJsonParser());
-                Resource concept = parser.parseConcept("1516", result);
-                System.out.println("Full id: "
-                        + (String) concept.getValue(Concept.FULL_ID));
+                ResourceNeighbourhood neighbourhood = parser
+                        .parseNeighbourhood("1516", result);
+                System.out.println(neighbourhood.getResources().size());
+                Map<String, Serializable> partialProperties = neighbourhood
+                        .getPartialProperties();
+                UriList childUris = (UriList) partialProperties
+                        .get(Concept.CHILD_CONCEPTS);
+                UriList parentUris = (UriList) partialProperties
+                        .get(Concept.PARENT_CONCEPTS);
+
+                System.out.println("child uris");
+                for (String child : childUris) {
+                    System.out.println(child);
+                }
+
+                System.out.println("parent uris");
+                for (String parent : parentUris) {
+                    System.out.println(parent);
+                }
+
+                for (Resource resource : neighbourhood.getResources()) {
+                    System.out.println(resource
+                            .getValue(Concept.CONCEPT_CHILD_COUNT));
+                }
 
                 // System.out.println("Result:\n" + result);
                 // JSONObject jsonObject = JSONParser.parseStrict(result)

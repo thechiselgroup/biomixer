@@ -19,6 +19,8 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONBoolean;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
@@ -51,6 +53,16 @@ public class JsJsonItem implements JsonItem {
         JSONString asString = item.isString();
         if (asString != null) {
             return asString.stringValue();
+        }
+
+        JSONNumber asNumber = item.isNumber();
+        if (asNumber != null) {
+            return asNumber.toString();
+        }
+
+        JSONBoolean asBoolean = item.isBoolean();
+        if (asBoolean != null) {
+            return asBoolean.toString();
         }
 
         // TODO throw parse error?
