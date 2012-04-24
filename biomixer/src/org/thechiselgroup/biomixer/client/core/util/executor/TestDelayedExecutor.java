@@ -15,14 +15,25 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util.executor;
 
-public interface DelayedExecutor extends Executor {
+/**
+ * Replacement for {@link GwtDelayedExecutor} when testing. No delay is actually
+ * used.
+ * 
+ * @author drusk
+ * 
+ */
+public class TestDelayedExecutor implements DelayedExecutor {
 
-    /**
-     * Sets the delay before execution in milliseconds
-     * 
-     * @param delay
-     *            the delay in milliseconds
-     */
-    public void setDelay(int delay);
+    private int delay;
+
+    @Override
+    public void execute(Runnable command) {
+        command.run();
+    }
+
+    @Override
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
 
 }

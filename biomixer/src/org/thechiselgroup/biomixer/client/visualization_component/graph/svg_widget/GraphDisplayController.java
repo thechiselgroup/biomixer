@@ -15,7 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
@@ -25,9 +27,10 @@ import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
-import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
@@ -38,6 +41,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLay
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraphContentChangedListener;
@@ -94,7 +99,7 @@ public class GraphDisplayController implements GraphDisplay,
 
     private int viewHeight;
 
-    private IdentifiableLayoutGraph layoutGraph;
+    protected IdentifiableLayoutGraph layoutGraph;
 
     protected GraphRenderer graphRenderer;
 
@@ -291,6 +296,10 @@ public class GraphDisplayController implements GraphDisplay,
         return layoutArcType;
     }
 
+    protected DelayedExecutor getDelayedExecutor() {
+        return new GwtDelayedExecutor();
+    }
+
     protected int getGraphAbsoluteLeft() {
         return graphRenderer.getGraphWidget().getAbsoluteLeft();
     }
@@ -382,7 +391,8 @@ public class GraphDisplayController implements GraphDisplay,
                 new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
                         new BoundsAwareAttractionCalculator(getLayoutGraph()),
                         new BoundsAwareRepulsionCalculator(getLayoutGraph())),
-                        0.9, animationRunner, errorHandler), getLayoutGraph());
+                        0.9, animationRunner, getDelayedExecutor(),
+                        errorHandler), getLayoutGraph());
     }
 
     private void initViewWideInteractionHandler() {
@@ -648,17 +658,40 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     @Override
-    public void runLayoutOnNodes(Collection<Node> nodes) throws LayoutException {
-        IdentifiablesList<IdentifiableLayoutNode> allNodes = layoutGraph
-                .getAllIdentifiableLayoutNodes();
+    public void runLayoutOnNodes(final Collection<Node> nodes)
+            throws LayoutException {
+        /*
+         * Get a list of all the nodes which the layout should NOT be run on.
+         */
+        final List<String> unselectedNodeIds = new ArrayList<String>();
+        unselectedNodeIds.addAll(layoutGraph.getAllNodeIds());
         for (Node node : nodes) {
-            allNodes.get(node.getId()).setAnchored(true);
-        }
-        runLayout();
-        for (Node node : nodes) {
-            allNodes.get(node.getId()).setAnchored(false);
+            unselectedNodeIds.remove(node.getId());
         }
 
+        /*
+         * Anchor the nodes that should not be laid out
+         */
+        for (String nodeId : unselectedNodeIds) {
+            layoutGraph.getIdentifiableLayoutNode(nodeId).setAnchored(true);
+        }
+
+        /*
+         * When the layout computation finishes, unanchor the nodes that were
+         * anchored
+         */
+        layoutManager
+                .addLayoutComputationFinishedHandler(new LayoutComputationFinishedHandler() {
+                    @Override
+                    public void onLayoutComputationFinished(
+                            LayoutComputationFinishedEvent e) {
+                        for (String nodeId : unselectedNodeIds) {
+                            layoutGraph.getIdentifiableLayoutNode(nodeId)
+                                    .setAnchored(false);
+                        }
+                    }
+                });
+        runLayout();
     }
 
     @Override

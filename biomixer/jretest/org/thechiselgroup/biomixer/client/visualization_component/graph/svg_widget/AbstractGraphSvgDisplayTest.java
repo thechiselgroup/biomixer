@@ -47,6 +47,8 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     protected static final String N2 = "n2";
 
+    protected static final String N3 = "n3";
+
     protected static final String A1 = "a1";
 
     protected static final String MENU_ITEM_0_LABEL = "MenuItem0";

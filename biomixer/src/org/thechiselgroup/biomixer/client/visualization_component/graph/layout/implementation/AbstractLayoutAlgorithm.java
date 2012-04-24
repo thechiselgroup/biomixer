@@ -38,6 +38,7 @@ public abstract class AbstractLayoutAlgorithm implements LayoutAlgorithm {
         for (LayoutComputationFinishedHandler handler : handlers) {
             computation.addEventHandler(handler);
         }
+        computation.run();
         return computation;
     }
 

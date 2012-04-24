@@ -17,7 +17,10 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.util.executor.TestDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
@@ -45,7 +48,12 @@ public class TestGraphSvgDisplay extends GraphDisplayController {
 
     @Override
     protected AnimationRunner getAnimationRunner() {
-        return new TestAnimationRunner();
+        return new NullAnimationRunner();
+    }
+
+    @Override
+    protected DelayedExecutor getDelayedExecutor() {
+        return new TestDelayedExecutor();
     }
 
     @Override

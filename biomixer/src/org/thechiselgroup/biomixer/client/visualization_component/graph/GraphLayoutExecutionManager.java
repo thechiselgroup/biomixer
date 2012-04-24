@@ -40,7 +40,7 @@ public class GraphLayoutExecutionManager {
     private LayoutGraph graph;
 
     /**
-     * Handlers waiting for a computation to be created.
+     * Handlers for the next computation to be created.
      */
     private List<LayoutComputationFinishedHandler> pendingHandlers = new ArrayList<LayoutComputationFinishedHandler>();
 
@@ -60,11 +60,9 @@ public class GraphLayoutExecutionManager {
     }
 
     private void computeLayout() {
-        currentComputation = layoutAlgorithm.computeLayout(graph);
-
-        for (LayoutComputationFinishedHandler handler : pendingHandlers) {
-            currentComputation.addEventHandler(handler);
-        }
+        currentComputation = layoutAlgorithm.computeLayout(graph,
+                pendingHandlers);
+        pendingHandlers.clear();
     }
 
     /**

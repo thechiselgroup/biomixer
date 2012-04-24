@@ -73,8 +73,8 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
     @Override
     protected boolean computeIteration() throws RuntimeException {
         double totalDisplacement = 0;
-        List<LayoutNode> allNodes = graph.getAllNodes();
-        for (LayoutNode currentNode : allNodes) {
+        List<LayoutNode> mobileNodes = graph.getUnanchoredNodes();
+        for (LayoutNode currentNode : mobileNodes) {
             Vector2D netForce = new Vector2D(0, 0);
             for (LayoutNode otherNode : getAllNodesExcept(currentNode)) {
                 netForce.add(forceCalculator.getForce(currentNode, otherNode));
@@ -96,7 +96,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
          * the threshold longer than a graph with only few nodes moving the same
          * amount.
          */
-        return totalDisplacement / allNodes.size() > averageNodeDisplacementThreshold;
+        return totalDisplacement / mobileNodes.size() > averageNodeDisplacementThreshold;
     }
 
     /**

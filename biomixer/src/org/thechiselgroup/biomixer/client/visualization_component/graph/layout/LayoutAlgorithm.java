@@ -43,7 +43,8 @@ public interface LayoutAlgorithm {
     LayoutComputation computeLayout(LayoutGraph graph);
 
     /**
-     * Starts a layout computation on the given graph.
+     * Starts a layout computation on the given graph, preregistered with some
+     * event handlers for when it finishes.
      * 
      * @param graph
      *            graph structure that will be laid out
