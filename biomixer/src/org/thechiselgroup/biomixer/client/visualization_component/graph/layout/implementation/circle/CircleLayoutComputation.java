@@ -50,6 +50,18 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
     @Override
     protected boolean computeIteration() throws RuntimeException {
         List<LayoutNode> allNodes = graph.getAllNodes();
+
+        assert allNodes.size() >= 1;
+
+        // special case if there is just one node
+        if (allNodes.size() == 1) {
+            LayoutNode singleNode = allNodes.get(0);
+            PointDouble topLeft = singleNode.getTopLeftForCentreAt(graph
+                    .getBounds().getCentre());
+            animateTo(singleNode, topLeft, animationDuration);
+            return false;
+        }
+
         double angleBetweenNodes = getAngleBetweenNodes(allNodes);
 
         // get radius
