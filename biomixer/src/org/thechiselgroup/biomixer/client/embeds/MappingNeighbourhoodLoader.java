@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsync
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
@@ -150,8 +151,13 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     @Override
     protected LayoutAlgorithm getLayoutAlgorithm() {
+        /*
+         * XXX using NullAnimationRunner for now due to excess lag issues with
+         * regular animations when the layout is triggered repeatedly. Once that
+         * problem is fixed, use the regular animation runner
+         */
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
-                animationRunner);
+                new NullAnimationRunner());
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
         return layout;
     }
