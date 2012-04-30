@@ -16,4 +16,13 @@ public class OntologyMappingCount {
     public String getCount() {
         return count;
     }
+
+    public String getId1() {
+        return id1;
+    }
+
+    public String getId2() {
+        return id2;
+    }
+
 }

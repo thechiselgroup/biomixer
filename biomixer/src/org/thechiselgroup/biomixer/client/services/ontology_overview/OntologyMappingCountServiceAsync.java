@@ -6,6 +6,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface OntologyMappingCountServiceAsync {
     void getMappingCounts(List<String> virtualOntologyIds,
-            AsyncCallback<List<OntologyMappingCount>> callback);
+            AsyncCallback<TotalMappingCount> callback);
 
 }
