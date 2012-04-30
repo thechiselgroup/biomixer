@@ -22,5 +22,4 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface OntologyStatusServiceAsync {
 
     void getAvailableOntologies(AsyncCallback<List<String>> callback);
-
 }
