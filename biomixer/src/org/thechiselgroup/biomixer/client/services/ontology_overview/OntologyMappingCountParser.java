@@ -3,8 +3,11 @@ package org.thechiselgroup.biomixer.client.services.ontology_overview;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 
+import com.google.inject.Inject;
+
 public class OntologyMappingCountParser extends AbstractXMLResultParser {
 
+    @Inject
     public OntologyMappingCountParser(DocumentProcessor documentProcessor) {
         super(documentProcessor);
 

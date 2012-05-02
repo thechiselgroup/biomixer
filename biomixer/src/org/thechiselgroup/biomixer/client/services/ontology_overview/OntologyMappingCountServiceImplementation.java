@@ -8,6 +8,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 
 public class OntologyMappingCountServiceImplementation extends
         AbstractXMLWebResourceService implements
@@ -15,6 +16,7 @@ public class OntologyMappingCountServiceImplementation extends
 
     private OntologyMappingCountParser parser;
 
+    @Inject
     public OntologyMappingCountServiceImplementation(
             UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
