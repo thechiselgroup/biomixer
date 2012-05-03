@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.services.mapping;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,46 +45,86 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
         super(MappingResponseJsonParserTest.class);
     }
 
-    private List<Resource> parseMappings(String jsonFilename)
-            throws IOException {
-        return underTest.parseMapping(getFileContentsAsString(jsonFilename));
+    private Resource getMappingWithUri(String uri, List<Resource> mappings) {
+        for (Resource mapping : mappings) {
+            if (mapping.getUri().equals(uri)) {
+                return mapping;
+            }
+        }
+        Assert.fail();
+        return null;
     }
 
     @Test
-    public void parseResponse() throws IOException, ParseException {
-        List<Resource> parsedMappings = parseMappings("mapping-service.json");
-        assertThat(parsedMappings.size(), is(3));
+    public void parseAutomaticMapping() throws IOException, ParseException {
+        List<Resource> parsedMappings = parseMappings("new-mapping-service.json");
+        assertThat(parsedMappings.size(), is(29));
 
-        Resource mapping1 = parsedMappings.get(0);
+        String testMappingId = "http://purl.bioontology.org/mapping/fc69b2c0-f207-012d-745e-005056bd0010";
+        Resource mapping = getMappingWithUri(
+                Mapping.toMappingURI(testMappingId), parsedMappings);
+
+        assertThat(mapping.getUri(),
+                equalTo(Mapping.toMappingURI(testMappingId)));
 
         assertThat(
-                mapping1.getUri(),
-                equalTo(Mapping
-                        .toMappingURI("http://purl.bioontology.org/mapping/fc69b2c0-f207-012d-745e-005056bd0010")));
-
-        assertThat(
-                (String) mapping1.getValue(Mapping.ID),
+                (String) mapping.getValue(Mapping.ID),
                 equalTo("http://purl.bioontology.org/mapping/fc69b2c0-f207-012d-745e-005056bd0010"));
 
-        assertThat((String) mapping1.getValue(Mapping.SOURCE),
+        assertThat((String) mapping.getValue(Mapping.SOURCE),
                 equalTo(Concept.toConceptURI("1009",
                         "http://purl.org/obo/owl/DOID#DOID_0000000")));
         assertThat(
-                (String) mapping1.getValue(Mapping.TARGET),
+                (String) mapping.getValue(Mapping.TARGET),
                 equalTo(Concept
                         .toConceptURI("1245",
                                 "http://purl.bioontology.org/ontology/MCCL/DOID_0000000")));
 
-        assertThat((Date) mapping1.getValue(Mapping.DATE),
+        assertThat((Date) mapping.getValue(Mapping.DATE),
                 equalTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S z")
                         .parse("2010-05-17 16:24:34.0 PDT")));
 
-        assertThat((String) mapping1.getValue(Mapping.MAPPING_TYPE),
+        assertThat((String) mapping.getValue(Mapping.MAPPING_TYPE),
                 equalTo("Automatic"));
-        assertThat((String) mapping1.getValue(Mapping.MAPPING_SOURCE),
+        assertThat((String) mapping.getValue(Mapping.MAPPING_SOURCE),
                 equalTo("APPLICATION"));
-        assertThat((String) mapping1.getValue(Mapping.MAPPING_SOURCE_NAME),
+        assertThat((String) mapping.getValue(Mapping.MAPPING_SOURCE_NAME),
                 equalTo("LOOM"));
+    }
+
+    @Test
+    public void parseManualMapping() throws IOException, ParseException {
+        List<Resource> parsedMappings = parseMappings("new-mapping-service.json");
+        assertThat(parsedMappings.size(), is(29));
+
+        String testMappingId = "http://purl.bioontology.org/mapping/bbbdaca0-f1f4-012d-745c-005056bd0010";
+
+        Resource mapping = getMappingWithUri(
+                Mapping.toMappingURI(testMappingId), parsedMappings);
+
+        assertThat((String) mapping.getValue(Mapping.ID),
+                equalTo(testMappingId));
+
+        assertThat((String) mapping.getValue(Mapping.SOURCE),
+                equalTo(Concept.toConceptURI("1009",
+                        "http://purl.org/obo/owl/DOID#DOID_0000000")));
+        assertThat((String) mapping.getValue(Mapping.TARGET),
+                equalTo(Concept.toConceptURI("1101",
+                        "http://purl.bioontology.org/ontology/ICD-9/575.9")));
+
+        assertThat((Date) mapping.getValue(Mapping.DATE),
+                equalTo(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S z")
+                        .parse("2008-05-04 16:58:25.0 PDT")));
+
+        assertThat((String) mapping.getValue(Mapping.MAPPING_TYPE),
+                equalTo("Manual"));
+        assertNull(mapping.getValue(Mapping.MAPPING_SOURCE));
+        assertNull(mapping.getValue(Mapping.MAPPING_SOURCE_NAME));
+    }
+
+    private List<Resource> parseMappings(String jsonFilename)
+            throws IOException {
+        return underTest.parseMapping(getFileContentsAsString(jsonFilename));
     }
 
     @Before

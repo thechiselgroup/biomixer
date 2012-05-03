@@ -31,6 +31,8 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public class MappingResponseJsonParser extends AbstractJsonResultParser {
 
+    private static final String AUTOMATIC_MAPPING_TYPE = "Automatic";
+
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S z";
 
     private final DateTimeFormat dateFormat;
@@ -44,33 +46,34 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
 
     private Resource parseMapping(JsonItem mapping) {
         String id = getString(mapping, "$.id");
+        Resource resource = new Resource(Mapping.toMappingURI(id));
+        resource.putValue(Mapping.ID, id);
 
         String sourceOntologyId = getString(mapping, "$.sourceOntologyId");
-        // NOTE: odd json format -> {source: [fullId], target: [fullId]}
-        String sourceConceptId = getString(mapping, "$.source[0]");
+        // NOTE: odd json format -> {source: {fullId: [<fullId>]}, target:
+        // {fullId: [<fullId>]}}
+        String sourceConceptId = getString(mapping, "$.source.fullId[0]");
         String sourceUri = Concept.toConceptURI(sourceOntologyId,
                 sourceConceptId);
+        resource.putValue(Mapping.SOURCE, sourceUri);
 
         String targetOntologyId = getString(mapping, "$.targetOntologyId");
-        String targetConceptId = getString(mapping, "$.target[0]");
+        String targetConceptId = getString(mapping, "$.target.fullId[0]");
         String targetUri = Concept.toConceptURI(targetOntologyId,
                 targetConceptId);
+        resource.putValue(Mapping.TARGET, targetUri);
 
         String mappingType = getString(mapping, "$.mappingType");
-        String mappingSource = getString(mapping, "$.mappingSource");
-        String mappingSourceName = getString(mapping, "$.mappingSourceName");
+        resource.putValue(Mapping.MAPPING_TYPE, mappingType);
+        if (mappingType.equals(AUTOMATIC_MAPPING_TYPE)) {
+            resource.putValue(Mapping.MAPPING_SOURCE,
+                    getString(mapping, "$.mappingSource"));
+            resource.putValue(Mapping.MAPPING_SOURCE_NAME,
+                    getString(mapping, "$.mappingSourceName"));
+        }
 
         Date date = dateFormat.parse(getString(mapping, "$.date"));
-
-        Resource resource = new Resource(Mapping.toMappingURI(id));
-
-        resource.putValue(Mapping.ID, id);
-        resource.putValue(Mapping.SOURCE, sourceUri);
-        resource.putValue(Mapping.TARGET, targetUri);
         resource.putValue(Mapping.DATE, date);
-        resource.putValue(Mapping.MAPPING_TYPE, mappingType);
-        resource.putValue(Mapping.MAPPING_SOURCE, mappingSource);
-        resource.putValue(Mapping.MAPPING_SOURCE_NAME, mappingSourceName);
 
         return resource;
     }
@@ -79,7 +82,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         List<Resource> result = new ArrayList<Resource>();
 
         JsonArray mappings = getArray(json,
-                "$.success.data[0].contents.mappings");
+                "$.success.data.page[0].contents.mappings.mapping");
         for (int i = 0; i < mappings.size(); i++) {
             result.add(parseMapping(mappings.get(i)));
         }
