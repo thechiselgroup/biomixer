@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.services.term;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public class TermWithoutRelationshipsJsonParser extends
@@ -27,15 +28,13 @@ public class TermWithoutRelationshipsJsonParser extends
         super(jsonParser);
     }
 
-    private String getAttribute(String json, String attribute) {
-        return getString(json, "$.success.data[0]." + attribute);
-    }
-
     public Resource parseConcept(String ontologyId, String json) {
-        String fullId = getAttribute(json, "fullId");
-        String shortId = getAttribute(json, "id");
-        String label = getAttribute(json, "label");
-        String type = getAttribute(json, "type");
+        JsonItem classBean = getItem(json, "$.success.data[0].classBean");
+
+        String fullId = getString(classBean, "fullId");
+        String shortId = getString(classBean, "id");
+        String label = getString(classBean, "label");
+        String type = getString(classBean, "type");
 
         Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
 
