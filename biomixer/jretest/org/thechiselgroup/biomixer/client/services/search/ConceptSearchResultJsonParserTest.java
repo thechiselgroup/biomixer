@@ -50,9 +50,15 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
     @Test
     public void parseSearchResults() throws IOException {
         Set<Resource> searchResults = parseSearchResults("searchResults.json");
+
+        List<String> virtualOntologyIds = getValues(searchResults,
+                Concept.VIRTUAL_ONTOLOGY_ID);
+        assertThat(virtualOntologyIds,
+                containsExactly(Arrays.asList("1501", "1613", "1615")));
+
         List<String> shortIds = getValues(searchResults, Concept.SHORT_ID);
-        assertThat(shortIds, containsExactly(Arrays.asList("IDOMAL:0001272",
-                "X73oJ", "NCBITaxon:6239")));
+        assertThat(shortIds, containsExactly(Arrays.asList("neomark:Gene",
+                "Gene", "bp:Gene")));
     }
 
     public Set<Resource> parseSearchResults(String jsonFilename)
