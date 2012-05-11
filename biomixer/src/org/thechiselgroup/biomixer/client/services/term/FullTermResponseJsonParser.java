@@ -59,23 +59,20 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         UriList childConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
 
+        /*
+         * Note: only entries with a list attribute are retrieved
+         */
         JsonArray queriedResourceRelations = getArray(json,
-                "$.success.data[0].relations");
+                "$.success.data[0].classBean.relations[0].entry[?(@.list)]");
         for (int i = 0; i < queriedResourceRelations.size(); i++) {
             /*
-             * Relations are in a strange form: [relationType:
-             * [relationContents]] ex: ["subClass", [{"id":?, ...}, ...]]
+             * TODO form changed, update this comment Relations are in a strange
+             * form: [relationType: [relationContents]] ex: ["subClass",
+             * [{"id":?, ...}, ...]]
              */
-            JsonArray relationTypeAndContents = queriedResourceRelations.get(i)
-                    .asArray();
+            JsonItem entry = queriedResourceRelations.get(i);
 
-            if (relationTypeAndContents.size() <= 1) {
-                continue;
-            }
-
-            assert relationTypeAndContents.size() == 2;
-
-            String relationType = relationTypeAndContents.get(0).stringValue();
+            String relationType = getString(entry, "string");
             if (!("SubClass".equals(relationType) || "SuperClass"
                     .equals(relationType))) {
                 /*
@@ -85,10 +82,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 continue;
             }
 
-            JsonArray relationContents = relationTypeAndContents.get(1)
-                    .asArray();
-            for (int j = 0; j < relationContents.size(); j++) {
-                JsonItem relation = relationContents.get(j);
+            JsonArray entryListContents = getArray(entry, "list[0].classBean");
+            if (entryListContents.size() == 0) {
+                continue;
+            }
+
+            for (int j = 0; j < entryListContents.size(); j++) {
+                JsonItem relation = entryListContents.get(j);
 
                 if (getString(relation, "$.id").equals(OWL_THING)) {
                     // don't include owl:Thing as a neighbour
@@ -111,7 +111,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
     }
 
     public Resource parseResource(String ontologyId, String json) {
-        JsonItem queriedResource = getItem(json, "$.success.data[0]");
+        JsonItem queriedResource = getItem(json, "$.success.data[0].classBean");
 
         String fullConceptId = getString(queriedResource, "$.fullId");
         String shortConceptId = getString(queriedResource, "$.id");
@@ -139,10 +139,10 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         String label = getString(relation, "$.label");
 
         int childCount = 0;
-        JsonArray relationsArray = getArray(relation, "$.relations[0]");
-        if (relationsArray.size() >= 1
-                && relationsArray.getString(0).equals("ChildCount")) {
-            childCount = Integer.parseInt(relationsArray.getString(1));
+        JsonItem relationsEntry = getItem(relation.stringValue(),
+                "$.relations[0].entry");
+        if (getString(relationsEntry, "string").equals("ChildCount")) {
+            childCount = Integer.parseInt(getString(relationsEntry, "int"));
         }
 
         Resource concept = new Resource(Concept.toConceptURI(ontologyId,
