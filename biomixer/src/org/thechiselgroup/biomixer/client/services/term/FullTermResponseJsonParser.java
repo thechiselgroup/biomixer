@@ -33,14 +33,9 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 /**
  * Parses full term information for a concept.
  * 
- * NOTE: The JSON structure returned by the NCBO rest services is structured
- * oddly. Lists are used in places where a dictionary would make more sense. For
- * example, relationships are stored in a list with the relation type is at
- * index 0, and then the actual list of relationships in a list at index 1 of
- * the outer list.
- * 
- * To see specifics of the formatting, see the .json test files used by the unit
- * tests in {@link FullTermResponseJsonParserTest}.
+ * NOTE: see the .json test files used by the unit tests in
+ * {@link FullTermResponseJsonParserTest}. They show the structure of the json
+ * that must be parsed.
  * 
  * @author drusk
  * 
@@ -65,11 +60,6 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         JsonArray queriedResourceRelations = getArray(json,
                 "$.success.data[0].classBean.relations[0].entry[?(@.list)]");
         for (int i = 0; i < queriedResourceRelations.size(); i++) {
-            /*
-             * TODO form changed, update this comment Relations are in a strange
-             * form: [relationType: [relationContents]] ex: ["subClass",
-             * [{"id":?, ...}, ...]]
-             */
             JsonItem entry = queriedResourceRelations.get(i);
 
             String relationType = getString(entry, "string");
