@@ -35,7 +35,7 @@ public class OntologyNameJsonParserTest extends AbstractJsonParserTest {
 
     @Test
     public void getOntologyName() throws IOException {
-        String ontologyName = parseOntologyName("ontology_name.json");
+        String ontologyName = parseOntologyName("virtual_ontology_id_1487.json");
         assertThat(ontologyName, equalTo("Body System"));
     }
 

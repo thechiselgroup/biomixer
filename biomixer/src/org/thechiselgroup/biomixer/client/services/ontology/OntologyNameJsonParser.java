@@ -26,7 +26,8 @@ public class OntologyNameJsonParser {
     }
 
     public String parse(String json) {
-        return jsonParser.getString(json, "$.success.data[0].displayLabel");
+        return jsonParser.getString(json,
+                "$.success.data[0].ontologyBean.displayLabel");
     }
 
 }
