@@ -19,7 +19,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
@@ -27,7 +26,6 @@ public class NcboJsonpRestUrlBuilderTest {
 
     private UrlBuilderFactory urlBuilderFactory;
 
-    @Ignore("TODO implement")
     @Test
     public void basicUrlNoParams() {
         String url = urlBuilderFactory.createUrlBuilder()

@@ -33,7 +33,7 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
@@ -61,7 +61,7 @@ public class TermServiceImplementationTest {
     @Mock
     private UrlBuilderFactory urlBuilderFactory;
 
-    private UrlBuilder urlBuilder;
+    private DefaultUrlBuilder urlBuilder;
 
     @Ignore("TODO: introduction of the name service causes no argument to be captured")
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -99,7 +99,7 @@ public class TermServiceImplementationTest {
                 urlBuilderFactory, ontologyNameService, errorHandler,
                 responseParser);
 
-        this.urlBuilder = Mockito.spy(new UrlBuilder());
+        this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 
         when(urlBuilderFactory.createUrlBuilder()).thenReturn(urlBuilder);
         when(urlBuilder.toString()).thenReturn(URL);

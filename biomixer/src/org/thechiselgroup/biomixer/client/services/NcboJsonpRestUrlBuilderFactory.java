@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services;
 
+import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
@@ -32,7 +33,7 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new UrlBuilder()
+        return new DefaultUrlBuilder()
                 .host(SERVER)
                 .protocol(PROTOCOL)
                 .path(PATH)
