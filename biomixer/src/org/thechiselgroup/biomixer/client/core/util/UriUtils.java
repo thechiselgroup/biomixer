@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import com.google.gwt.core.client.GWT;
 
 /**
@@ -44,21 +47,25 @@ public final class UriUtils {
     public static String encodeURIComponent(String uriComponent) {
         if (GWT.isClient()) {
             return nativeEncodeURIComponent(uriComponent);
+        } else {
+            try {
+                return URLEncoder.encode(uriComponent, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
-
-        // XXX does not do anything
-        return uriComponent;
     }
 
     // @formatter:off
     private static native String nativeDecodeURIComponent(String uriComponent) /*-{
-        return decodeURIComponent(uriComponent);
+		return decodeURIComponent(uriComponent);
     }-*/;
     // @formatter:on
 
     // @formatter:off
     private static native String nativeEncodeURIComponent(String uriComponent) /*-{
-        return encodeURIComponent(uriComponent);
+		return encodeURIComponent(uriComponent);
     }-*/;
     // @formatter:on
 
