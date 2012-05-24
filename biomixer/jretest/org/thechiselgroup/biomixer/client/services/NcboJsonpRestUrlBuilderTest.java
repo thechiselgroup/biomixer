@@ -35,9 +35,32 @@ public class NcboJsonpRestUrlBuilderTest {
                 equalTo("http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1078%2Fall&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
+    @Test
+    public void pathAttributeHasParam() {
+        String url = urlBuilderFactory
+                .createUrlBuilder()
+                .path("bioportal/virtual/ontology/1070")
+                .uriParameter("conceptid",
+                        "http://purl.org/obo/owl/GO#GO_0007569").toString();
+        assertThat(
+                url,
+                equalTo("http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1070%3Fconceptid%3Dhttp%253A%252F%252Fpurl.org%252Fobo%252Fowl%252FGO%2523GO_0007569&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+    }
+
     @Before
     public void setUp() {
         urlBuilderFactory = new NcboJsonpRestUrlBuilderFactory();
+    }
+
+    @Test
+    public void urlWithParam() {
+        String url = urlBuilderFactory.createUrlBuilder()
+                .path("bioportal/virtual/ontology/1516")
+                .parameter("light", "1").parameter("norelations", "1")
+                .uriParameter("conceptid", "O80-O84.9").toString();
+        assertThat(
+                url,
+                equalTo("http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1516%3Fconceptid%3DO80-O84.9%26light%3D1%26norelations%3D1&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
 }

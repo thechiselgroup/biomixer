@@ -15,29 +15,98 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util.url;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+
+/**
+ * This class causes the UrlBuilder methods to be applied to the "path"
+ * attribute of the url in the NCBO JSONP REST service calls. If you need to
+ * manipulate the overall url, call {@link #getOverallUrlBuilder()} and add
+ * parameters, etc. to it.
+ * 
+ * @author drusk
+ * 
+ */
 public class JsonpUrlBuilder implements UrlBuilder {
 
-    private DefaultUrlBuilder defaultUrlBuilder;
+    /**
+     * Builds up the doubly-encoded "path" parameter portion of the overall url.
+     * 
+     * @author drusk
+     * 
+     */
+    private class PathBuilder {
+
+        private StringBuilder path = new StringBuilder();
+
+        private String hash = null;
+
+        private Map<String, String[]> params = CollectionFactory
+                .createStringMap();
+
+        public void addHash(String hash) {
+            this.hash = hash;
+        }
+
+        public void addParameter(String key, String... value) {
+            params.put(key, value);
+        }
+
+        public void setPath(String path) {
+            this.path.append(path);
+        }
+
+        public String toEncodedString() {
+            char prefix = '?';
+            for (Entry<String, String[]> entry : params.entrySet()) {
+                for (String val : entry.getValue()) {
+                    path.append(prefix).append(entry.getKey()).append("=")
+                            .append(val);
+                    prefix = '&';
+                }
+            }
+            if (hash != null) {
+                path.append("#").append(hash);
+            }
+            return UriUtils.encodeURIComponent(path.toString());
+        }
+    }
+
+    private DefaultUrlBuilder overallUrlBuilder;
+
+    private PathBuilder pathBuilder = new PathBuilder();
 
     public JsonpUrlBuilder(DefaultUrlBuilder defaultUrlBuilder) {
-        this.defaultUrlBuilder = defaultUrlBuilder;
+        this.overallUrlBuilder = defaultUrlBuilder;
+    }
+
+    public UrlBuilder getOverallUrlBuilder() {
+        return overallUrlBuilder;
     }
 
     @Override
     public UrlBuilder hash(String hash) {
-        // TODO Auto-generated method stub
-        return null;
+        pathBuilder.addHash(hash);
+        return this;
     }
 
     @Override
     public UrlBuilder host(String host) {
-        return defaultUrlBuilder.host(host);
+        overallUrlBuilder.host(host);
+        return this;
     }
 
+    /**
+     * Adds a parameter to the "path" attribute which should end up
+     * singly-encoded.
+     */
     @Override
     public UrlBuilder parameter(String key, String... values) {
-        // TODO Auto-generated method stub
-        return null;
+        pathBuilder.addParameter(key, values);
+        return this;
     }
 
     @Override
@@ -50,25 +119,36 @@ public class JsonpUrlBuilder implements UrlBuilder {
         /*
          * NOTE: remove /bioportal at front if it is present
          */
-        String trimmedPath = path.replaceFirst("^/?bioportal", "");
-        return defaultUrlBuilder.uriParameter("path", trimmedPath);
+        pathBuilder.setPath(path.replaceFirst("^/?bioportal", ""));
+        return this;
     }
 
     @Override
     public UrlBuilder port(int port) {
-        return defaultUrlBuilder.port(port);
+        overallUrlBuilder.port(port);
+        return this;
     }
 
     @Override
     public UrlBuilder protocol(String protocol) {
-        return defaultUrlBuilder.protocol(protocol);
+        overallUrlBuilder.protocol(protocol);
+        return this;
     }
 
     @Override
+    public String toString() {
+        overallUrlBuilder.parameter("path", pathBuilder.toEncodedString());
+        return overallUrlBuilder.toString();
+    }
+
+    /**
+     * Adds a parameter to the "path" attribute which should end up
+     * doubly-encoded.
+     */
+    @Override
     public UrlBuilder uriParameter(String key, String uriValue) {
-        // In the end will be doubly-encoded
-        // TODO Auto-generated method stub
-        return null;
+        parameter(key, UriUtils.encodeURIComponent(uriValue));
+        return this;
     }
 
 }
