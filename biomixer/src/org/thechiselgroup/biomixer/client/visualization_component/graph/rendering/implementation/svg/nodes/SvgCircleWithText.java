@@ -174,7 +174,7 @@ public class SvgCircleWithText {
     }
 
     private void setCircleWithText() {
-        setCircleRadius(Math.sqrt(size));
+        setCircleRadius(Math.sqrt(size * 100));
         if (numberOfLines == 1) {
             textElement.setAttribute(Svg.X, getCircleLeftX() + TEXT_BUFFER_X);
         } else {
