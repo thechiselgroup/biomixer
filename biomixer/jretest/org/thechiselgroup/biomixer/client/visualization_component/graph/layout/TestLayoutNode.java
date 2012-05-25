@@ -167,12 +167,16 @@ public class TestLayoutNode extends AbstractLayoutNode {
 
     @Override
     public void setX(double x) {
-        this.x = x;
+        if (!isAnchored) {
+            this.x = x;
+        }
     }
 
     @Override
     public void setY(double y) {
-        this.y = y;
+        if (!isAnchored) {
+            this.y = y;
+        }
     }
 
 }

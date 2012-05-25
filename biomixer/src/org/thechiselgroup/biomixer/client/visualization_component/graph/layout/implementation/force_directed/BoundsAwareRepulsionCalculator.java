@@ -18,6 +18,17 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
+/**
+ * Performs a modified version of Fruchterman and Reingold's attraction force
+ * calculation. The ratio of number of arcs to number of nodes is taken into
+ * account in order to prevent excessive clumping among highly interconnected
+ * nodes.
+ * 
+ * @see BoundsAwareAttractionCalculator
+ * 
+ * @author drusk
+ * 
+ */
 public class BoundsAwareRepulsionCalculator extends BoundsAwareForceCalculator {
 
     public BoundsAwareRepulsionCalculator(LayoutGraph graph) {
@@ -40,18 +51,16 @@ public class BoundsAwareRepulsionCalculator extends BoundsAwareForceCalculator {
 
         double interNodeDistance = getBufferedDistanceBetween(currentNode,
                 otherNode);
-        // XXX checking if nodes are in the same graph is too slow right now
-        // if (areNodesInSameGraph(currentNode, otherNode)) {
-        return Math.pow(getOptimalEdgeLength(), 2) / interNodeDistance;
-        // } else {
-        // /*
-        // * Force drops off by distance^2 so that if there are two
-        // * unconnected nodes they don't slam each other across to the
-        // * opposite wall.
-        // */
-        // return Math.pow(getOptimalEdgeLength(), 2)
-        // / Math.pow(interNodeDistance, 2);
-        // }
+        double coefficient = getNumberOfArcsOverNumberOfNodes();
+        if (coefficient == 0) {
+            /*
+             * Make sure there is some minimal force for the case where all
+             * nodes are unconnected
+             */
+            coefficient = 0.25;
+        }
+        return Math.pow(coefficient * getOptimalEdgeLength(), 2)
+                / interNodeDistance;
     }
 
 }

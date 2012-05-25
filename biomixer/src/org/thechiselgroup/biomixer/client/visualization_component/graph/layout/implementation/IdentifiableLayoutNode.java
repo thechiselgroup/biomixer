@@ -25,7 +25,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
-public class IdentifiableLayoutNode extends AbstractLayoutNode implements Identifiable {
+public class IdentifiableLayoutNode extends AbstractLayoutNode implements
+        Identifiable {
 
     private RenderedNode renderedNode;
 
@@ -134,12 +135,16 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements Identi
 
     @Override
     public void setX(double x) {
-        renderedNode.setLeftX(x);
+        if (!isAnchored) {
+            renderedNode.setLeftX(x);
+        }
     }
 
     @Override
     public void setY(double y) {
-        renderedNode.setTopY(y);
+        if (!isAnchored) {
+            renderedNode.setTopY(y);
+        }
     }
 
 }

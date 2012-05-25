@@ -17,27 +17,24 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
+public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     protected static final int DELAY_BETWEEN_ITERATIONS = 250;
 
     private ErrorHandler errorHandler;
 
-    private DelayedExecutor executor = new DelayedExecutor(
-            DELAY_BETWEEN_ITERATIONS);
+    private DelayedExecutor executor;
 
     private final double damping;
 
     private ForceCalculator forceCalculator;
 
-    // XXX will cause problems with tests
-    private AnimationRunner animationRunner = new GwtAnimationRunner();
+    private AnimationRunner animationRunner;
 
     /**
      * 
@@ -48,19 +45,23 @@ public class ForceDirectedLayoutAlgorithm implements LayoutAlgorithm {
      * @param errorHandler
      */
     public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
-            double damping, ErrorHandler errorHandler) {
+            double damping, AnimationRunner animationRunner,
+            DelayedExecutor executor, ErrorHandler errorHandler) {
         this.forceCalculator = forceCalculator;
         this.damping = damping;
+
+        this.executor = executor;
+        this.executor.setDelay(DELAY_BETWEEN_ITERATIONS);
+
         this.errorHandler = errorHandler;
+        this.animationRunner = animationRunner;
     }
 
     @Override
-    public LayoutComputation computeLayout(LayoutGraph graph) {
-        ForceDirectedLayoutComputation computation = new ForceDirectedLayoutComputation(
-                forceCalculator, damping, graph, executor, errorHandler,
-                animationRunner, DELAY_BETWEEN_ITERATIONS);
-        computation.run();
-        return computation;
+    protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
+        return new ForceDirectedLayoutComputation(forceCalculator, damping,
+                graph, executor, errorHandler, animationRunner,
+                DELAY_BETWEEN_ITERATIONS);
     }
 
 }

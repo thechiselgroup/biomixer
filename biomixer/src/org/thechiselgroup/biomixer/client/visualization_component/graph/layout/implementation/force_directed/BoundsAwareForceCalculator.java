@@ -53,6 +53,10 @@ public abstract class BoundsAwareForceCalculator extends
         return node1Graph.equals(node2Graph);
     }
 
+    protected double getNumberOfArcsOverNumberOfNodes() {
+        return (double) graph.getAllArcs().size() / graph.getAllNodes().size();
+    }
+
     protected double getOptimalEdgeLength() {
         /*
          * k = C*sqrt(area/numberOfNodes). With C=1 the nodes tend to push each
