@@ -56,18 +56,12 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         // NOTE: odd json format -> {source: [{fullId: <fullId>}], target:
         // [{fullId: <fullId>}]}
         String sourceConceptId = getString(mapping, "$.source[0].fullId");
-        if (sourceConceptId == null || sourceConceptId.equals("")) {
-            System.out.println("SOURCE CONCEPT ID IS NULL");
-        }
         String sourceUri = Concept.toConceptURI(sourceOntologyId,
                 sourceConceptId);
         resource.putValue(Mapping.SOURCE, sourceUri);
 
         String targetOntologyId = getString(mapping, "$.targetOntologyId");
         String targetConceptId = getString(mapping, "$.target[0].fullId");
-        if (targetConceptId == null || targetConceptId.equals("")) {
-            System.out.println("TARGET CONCEPT ID IS NULL");
-        }
         String targetUri = Concept.toConceptURI(targetOntologyId,
                 targetConceptId);
         resource.putValue(Mapping.TARGET, targetUri);
@@ -89,6 +83,12 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
 
     public List<Resource> parseMapping(String json) {
         List<Resource> result = new ArrayList<Resource>();
+
+        int numResults = Integer.parseInt(getString(json,
+                "$.success.data[0].page.numResultsTotal"));
+        if (numResults == 0) {
+            return result;
+        }
 
         JsonArray mappings = getArray(json,
                 "$.success.data[0].page.contents.mappings.mapping");

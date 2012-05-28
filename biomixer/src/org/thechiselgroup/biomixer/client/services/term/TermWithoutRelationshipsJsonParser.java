@@ -34,10 +34,10 @@ public class TermWithoutRelationshipsJsonParser extends
     public Resource parseConcept(String ontologyId, String json) {
         JsonItem classBean = getItem(json, "$.success.data[0].classBean");
 
-        String fullId = getString(classBean, "fullId");
-        String shortId = getString(classBean, "id");
-        String label = getString(classBean, "label");
-        String type = getString(classBean, "type");
+        String fullId = getString(classBean, "$.fullId");
+        String shortId = getString(classBean, "$.id");
+        String label = getString(classBean, "$.label");
+        String type = getString(classBean, "$.type");
 
         Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
 
