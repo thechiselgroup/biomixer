@@ -44,12 +44,13 @@ public class MappingServiceImplementation implements MappingServiceAsync {
 
     private final UrlFetchService urlFetchService;
 
-    private final MappingResponseParser responseParser;
+    private final MappingResponseJsonParser responseParser;
 
     private final UrlBuilderFactory urlBuilderFactory;
 
     @Inject
-    public MappingServiceImplementation(MappingResponseParser responseParser,
+    public MappingServiceImplementation(
+            MappingResponseJsonParser responseParser,
             UrlFetchService urlFetchService, UrlBuilderFactory urlBuilderFactory) {
 
         this.urlFetchService = urlFetchService;

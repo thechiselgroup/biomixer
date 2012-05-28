@@ -50,7 +50,7 @@ public class TermServiceImplementationTest {
     private TermServiceImplementation underTest;
 
     @Mock
-    private LightTermResponseWithoutRelationshipsParser responseParser;
+    private TermWithoutRelationshipsJsonParser responseParser;
 
     @Mock
     private OntologyNameServiceAsync ontologyNameService;

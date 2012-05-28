@@ -78,6 +78,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.DefaultDesktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.authentication.DefaultAuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.client.command.ui.CommandPresenterFactory;
@@ -97,7 +98,7 @@ import org.thechiselgroup.biomixer.client.workbench.ui.messages.DefaultMessageMa
 import org.thechiselgroup.biomixer.client.workbench.ui.messages.MessageBlockingCommandExecutor;
 import org.thechiselgroup.biomixer.client.workbench.ui.messages.MessageManager;
 import org.thechiselgroup.biomixer.client.workbench.ui.messages.ShadeMessageManager;
-import org.thechiselgroup.biomixer.client.workbench.util.url.FlashUrlFetchService;
+import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 import org.thechiselgroup.biomixer.client.workbench.util.xml.SarissaDocumentProcessor;
 import org.thechiselgroup.biomixer.client.workbench.workspace.DefaultShareConfigurationFactory;
 import org.thechiselgroup.biomixer.client.workbench.workspace.DefaultViewLoadManager;
@@ -116,6 +117,7 @@ import org.thechiselgroup.biomixer.client.workbench.workspace.WorkspacePresenter
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.ConfigureSharedViewsDialogCommand;
 import org.thechiselgroup.biomixer.client.workbench.workspace.command.LoadWorkspaceDialogCommand;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 
 import com.google.gwt.event.shared.HandlerManager;
@@ -223,7 +225,7 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
     }
 
     protected void bindUrlFetchService() {
-        bind(UrlFetchService.class).to(FlashUrlFetchService.class).in(
+        bind(UrlFetchService.class).to(JsonpUrlFetchService.class).in(
                 Singleton.class);
     }
 
@@ -348,6 +350,7 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
 
         bind(DocumentProcessor.class).to(SarissaDocumentProcessor.class).in(
                 Singleton.class);
+        bind(JsonParser.class).to(TotoeJsonParser.class).in(Singleton.class);
         bindUrlFetchService();
 
         bindBranding();

@@ -21,9 +21,12 @@ import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.inject.Inject;
+
 public class TermWithoutRelationshipsJsonParser extends
         AbstractJsonResultParser {
 
+    @Inject
     public TermWithoutRelationshipsJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }

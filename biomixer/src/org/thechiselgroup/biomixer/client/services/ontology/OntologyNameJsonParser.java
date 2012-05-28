@@ -17,10 +17,13 @@ package org.thechiselgroup.biomixer.client.services.ontology;
 
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.inject.Inject;
+
 public class OntologyNameJsonParser {
 
     private JsonParser jsonParser;
 
+    @Inject
     public OntologyNameJsonParser(JsonParser jsonParser) {
         this.jsonParser = jsonParser;
     }

@@ -60,7 +60,7 @@ public class MappingServiceImplementationTest {
     private MappingServiceImplementation underTest;
 
     @Mock
-    private MappingResponseParser responseParser;
+    private MappingResponseJsonParser responseParser;
 
     private String conceptUri;
 

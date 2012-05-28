@@ -58,7 +58,7 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
     @Test
     public void parseAutomaticMapping() throws IOException, ParseException {
         List<Resource> parsedMappings = parseMappings("new-mapping-service.json");
-        assertThat(parsedMappings.size(), is(29));
+        assertThat(parsedMappings.size(), is(2));
 
         String testMappingId = "http://purl.bioontology.org/mapping/fc69b2c0-f207-012d-745e-005056bd0010";
         Resource mapping = getMappingWithUri(
@@ -95,7 +95,7 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
     @Test
     public void parseManualMapping() throws IOException, ParseException {
         List<Resource> parsedMappings = parseMappings("new-mapping-service.json");
-        assertThat(parsedMappings.size(), is(29));
+        assertThat(parsedMappings.size(), is(2));
 
         String testMappingId = "http://purl.bioontology.org/mapping/bbbdaca0-f1f4-012d-745c-005056bd0010";
 

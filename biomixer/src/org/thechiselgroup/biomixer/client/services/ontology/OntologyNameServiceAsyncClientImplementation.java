@@ -26,12 +26,12 @@ import com.google.inject.Inject;
 public class OntologyNameServiceAsyncClientImplementation extends
         AbstractXMLWebResourceService implements OntologyNameServiceAsync {
 
-    private OntologyNameParser parser;
+    private OntologyNameJsonParser parser;
 
     @Inject
     public OntologyNameServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory, OntologyNameParser parser) {
+            UrlBuilderFactory urlBuilderFactory, OntologyNameJsonParser parser) {
         super(urlFetchService, urlBuilderFactory);
 
         assert parser != null;

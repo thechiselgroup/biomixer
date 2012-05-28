@@ -25,10 +25,13 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.inject.Inject;
+
 public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
 
     private static final String ROOT_EXPRESSION = "$.success.data[0].page.contents.searchResultList.searchBean";
 
+    @Inject
     public ConceptSearchResultJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }

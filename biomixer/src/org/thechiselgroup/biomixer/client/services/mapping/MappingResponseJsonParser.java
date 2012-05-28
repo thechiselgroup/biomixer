@@ -29,6 +29,8 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.inject.Inject;
+
 public class MappingResponseJsonParser extends AbstractJsonResultParser {
 
     private static final String AUTOMATIC_MAPPING_TYPE = "Automatic";
@@ -37,6 +39,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
 
     private final DateTimeFormat dateFormat;
 
+    @Inject
     public MappingResponseJsonParser(JsonParser jsonParser,
             DateTimeFormatFactory dateTimeFormatFactory) {
         super(jsonParser);
@@ -50,15 +53,21 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         resource.putValue(Mapping.ID, id);
 
         String sourceOntologyId = getString(mapping, "$.sourceOntologyId");
-        // NOTE: odd json format -> {source: {fullId: [<fullId>]}, target:
-        // {fullId: [<fullId>]}}
-        String sourceConceptId = getString(mapping, "$.source.fullId[0]");
+        // NOTE: odd json format -> {source: [{fullId: <fullId>}], target:
+        // [{fullId: <fullId>}]}
+        String sourceConceptId = getString(mapping, "$.source[0].fullId");
+        if (sourceConceptId == null || sourceConceptId.equals("")) {
+            System.out.println("SOURCE CONCEPT ID IS NULL");
+        }
         String sourceUri = Concept.toConceptURI(sourceOntologyId,
                 sourceConceptId);
         resource.putValue(Mapping.SOURCE, sourceUri);
 
         String targetOntologyId = getString(mapping, "$.targetOntologyId");
-        String targetConceptId = getString(mapping, "$.target.fullId[0]");
+        String targetConceptId = getString(mapping, "$.target[0].fullId");
+        if (targetConceptId == null || targetConceptId.equals("")) {
+            System.out.println("TARGET CONCEPT ID IS NULL");
+        }
         String targetUri = Concept.toConceptURI(targetOntologyId,
                 targetConceptId);
         resource.putValue(Mapping.TARGET, targetUri);
@@ -82,7 +91,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         List<Resource> result = new ArrayList<Resource>();
 
         JsonArray mappings = getArray(json,
-                "$.success.data.page[0].contents.mappings.mapping");
+                "$.success.data[0].page.contents.mappings.mapping");
         for (int i = 0; i < mappings.size(); i++) {
             result.add(parseMapping(mappings.get(i)));
         }

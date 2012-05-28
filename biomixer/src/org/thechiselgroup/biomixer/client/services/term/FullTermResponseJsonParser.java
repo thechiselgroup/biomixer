@@ -30,6 +30,8 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.inject.Inject;
+
 /**
  * Parses full term information for a concept.
  * 
@@ -44,6 +46,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
 
     private static final String OWL_THING = "owl:Thing";
 
+    @Inject
     public FullTermResponseJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }
@@ -62,9 +65,10 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         for (int i = 0; i < queriedResourceRelations.size(); i++) {
             JsonItem entry = queriedResourceRelations.get(i);
 
-            String relationType = getString(entry, "string");
-            if (!("SubClass".equals(relationType) || "SuperClass"
-                    .equals(relationType))) {
+            String relationType = getString(entry, "$.string");
+            if (relationType == null
+                    || !("SubClass".equals(relationType) || "SuperClass"
+                            .equals(relationType))) {
                 /*
                  * XXX OBO relations (such as 'negatively_regulates', '[R]is_a')
                  * get ignored
@@ -72,8 +76,19 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 continue;
             }
 
-            JsonArray entryListContents = getArray(entry, "list[0].classBean");
-            if (entryListContents.size() == 0) {
+            JsonArray entryListContents = getArray(entry, "$.list[0].classBean");
+            if (entryListContents == null) {
+                // if there is just one classbean it is not stored in an array
+                // XXX CLEAN THIS UP
+                JsonItem item = getItem(entry.stringValue(),
+                        "$.list[0].classBean");
+                if (item == null || getString(item, "$.id").equals(OWL_THING)) {
+                    continue;
+                }
+                Resource neighbour = process(item,
+                        "SuperClass".equals(relationType), ontologyId,
+                        parentConcepts, childConcepts);
+                resources.add(neighbour);
                 continue;
             }
 
@@ -131,8 +146,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         int childCount = 0;
         JsonItem relationsEntry = getItem(relation.stringValue(),
                 "$.relations[0].entry");
-        if (getString(relationsEntry, "string").equals("ChildCount")) {
-            childCount = Integer.parseInt(getString(relationsEntry, "int"));
+        String entryString = getString(relationsEntry, "$.string");
+        if (entryString != null && entryString.equals("ChildCount")) {
+            childCount = Integer.parseInt(getString(relationsEntry, "$.int"));
         }
 
         Resource concept = new Resource(Concept.toConceptURI(ontologyId,

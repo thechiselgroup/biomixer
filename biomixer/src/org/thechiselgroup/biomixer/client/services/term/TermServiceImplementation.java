@@ -31,7 +31,7 @@ import com.google.inject.Inject;
 public class TermServiceImplementation extends AbstractXMLWebResourceService
         implements TermServiceAsync {
 
-    private final LightTermResponseWithoutRelationshipsParser responseParser;
+    private final TermWithoutRelationshipsJsonParser responseParser;
 
     private OntologyNameServiceAsync ontologyNameService;
 
@@ -42,7 +42,7 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
             UrlBuilderFactory urlBuilderFactory,
             OntologyNameServiceAsync ontologyNameService,
             ErrorHandler errorHandler,
-            LightTermResponseWithoutRelationshipsParser responseParser) {
+            TermWithoutRelationshipsJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
 

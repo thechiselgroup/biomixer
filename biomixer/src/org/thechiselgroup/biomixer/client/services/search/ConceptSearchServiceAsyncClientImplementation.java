@@ -29,13 +29,13 @@ import com.google.inject.Inject;
 public class ConceptSearchServiceAsyncClientImplementation extends
         AbstractXMLWebResourceService implements ConceptSearchServiceAsync {
 
-    private final ConceptSearchResultParser resultParser;
+    private final ConceptSearchResultJsonParser resultParser;
 
     @Inject
     public ConceptSearchServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
-            ConceptSearchResultParser resultParser) {
+            ConceptSearchResultJsonParser resultParser) {
 
         super(urlFetchService, urlBuilderFactory);
 
@@ -56,8 +56,9 @@ public class ConceptSearchServiceAsyncClientImplementation extends
 
         fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
             @Override
-            public Set<Resource> transform(String xmlText) throws Exception {
-                return resultParser.parse(xmlText);
+            public Set<Resource> transform(String responseText)
+                    throws Exception {
+                return resultParser.parse(responseText);
             }
         });
     }

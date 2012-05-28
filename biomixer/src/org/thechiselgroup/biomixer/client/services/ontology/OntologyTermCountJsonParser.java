@@ -18,8 +18,11 @@ package org.thechiselgroup.biomixer.client.services.ontology;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.inject.Inject;
+
 public class OntologyTermCountJsonParser extends AbstractJsonResultParser {
 
+    @Inject
     public OntologyTermCountJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }

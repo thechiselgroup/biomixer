@@ -25,10 +25,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class OntologyTermCountServiceAsyncImpl extends
         AbstractXMLWebResourceService implements OntologyTermCountServiceAsync {
 
-    private OntologyTermCountParser parser;
+    private OntologyTermCountJsonParser parser;
 
     public OntologyTermCountServiceAsyncImpl(UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory, OntologyTermCountParser parser) {
+            UrlBuilderFactory urlBuilderFactory,
+            OntologyTermCountJsonParser parser) {
         super(urlFetchService, urlBuilderFactory);
         this.parser = parser;
     }

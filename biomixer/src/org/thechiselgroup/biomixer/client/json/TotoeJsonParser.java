@@ -22,8 +22,12 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonParser
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 
 /**
  * Uses Totoe to provide JSONPath support in GWT. Totoe wraps Dojo's
@@ -40,8 +44,9 @@ public class TotoeJsonParser extends AbstractJsonParser {
 
     @Override
     public JsonArray getArray(String json, String path) {
-        return new JsJsonArray(JsonPath.select(parseJsonObject(json), path)
-                .isArray());
+        JSONArray array = JsonPath.select(parseJsonObject(json), path)
+                .isArray();
+        return array == null ? null : new JsJsonArray(array);
     }
 
     @Override
@@ -51,8 +56,24 @@ public class TotoeJsonParser extends AbstractJsonParser {
 
     @Override
     public String getString(String json, String path) {
-        return JsonPath.select(parseJsonObject(json), path).isString()
-                .stringValue();
+        JSONValue jsonValue = JsonPath.select(parseJsonObject(json), path);
+        JSONString jsonString = jsonValue.isString();
+        if (jsonString != null) {
+            return jsonString.stringValue();
+        }
+
+        JSONNumber jsonNumber = jsonValue.isNumber();
+        if (jsonNumber != null) {
+            double doubleValue = jsonValue.isNumber().doubleValue();
+            double rounded = Math.round(doubleValue);
+            if (rounded == doubleValue) {
+                return ("" + rounded).split("\\.")[0];
+            } else {
+                return "" + doubleValue;
+            }
+        }
+
+        return null;
     }
 
     private JSONObject parseJsonObject(String json) {
