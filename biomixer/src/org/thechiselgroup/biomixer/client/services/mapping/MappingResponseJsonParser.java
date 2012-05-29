@@ -84,14 +84,13 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
     public List<Resource> parseMapping(String json) {
         List<Resource> result = new ArrayList<Resource>();
 
-        int numResults = Integer.parseInt(getString(json,
-                "$.success.data[0].page.numResultsTotal"));
-        if (numResults == 0) {
+        JsonArray mappings = getArray(json,
+                "$.success.data[0].page.contents.mappings.mapping");
+
+        if (mappings == null) {
             return result;
         }
 
-        JsonArray mappings = getArray(json,
-                "$.success.data[0].page.contents.mappings.mapping");
         for (int i = 0; i < mappings.size(); i++) {
             result.add(parseMapping(mappings.get(i)));
         }

@@ -127,6 +127,12 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
         return underTest.parseMapping(getFileContentsAsString(jsonFilename));
     }
 
+    @Test
+    public void parseResponseWithNoMappings() throws IOException {
+        List<Resource> parsedMappings = parseMappings("no_mappings_response.json");
+        assertThat(parsedMappings.size(), is(0));
+    }
+
     @Before
     public void setUp() {
         underTest = new MappingResponseJsonParser(new JavaJsonParser(),

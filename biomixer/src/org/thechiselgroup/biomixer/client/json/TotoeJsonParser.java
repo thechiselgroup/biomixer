@@ -75,7 +75,7 @@ public class TotoeJsonParser extends AbstractJsonParser {
 
         JSONNumber jsonNumber = jsonValue.isNumber();
         if (jsonNumber != null) {
-            double doubleValue = jsonValue.isNumber().doubleValue();
+            double doubleValue = jsonNumber.doubleValue();
             double rounded = Math.round(doubleValue);
             if (rounded == doubleValue) {
                 return ("" + rounded).split("\\.")[0];
