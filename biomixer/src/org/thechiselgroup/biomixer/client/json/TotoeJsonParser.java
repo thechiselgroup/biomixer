@@ -51,7 +51,18 @@ public class TotoeJsonParser extends AbstractJsonParser {
 
     @Override
     public JsonItem getItem(String json, String path) {
-        return new JsJsonItem(JsonPath.select(parseJsonObject(json), path));
+        JSONValue select = JsonPath.select(parseJsonObject(json), path);
+
+        if (select.isNull() != null) {
+            /*
+             * This is confusing, but isNull() returns java null if the selected
+             * value is NOT a JSONNull. Therefore, a java null indicates the
+             * JSON is not null...
+             */
+            return null;
+        }
+
+        return new JsJsonItem(select);
     }
 
     @Override

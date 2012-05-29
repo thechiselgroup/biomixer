@@ -31,6 +31,10 @@ import com.jayway.jsonpath.JsonPath;
  * NOTE: JsonPath.read by default returns an Object, but casts the result to
  * whatever you try to assign it to.
  * 
+ * NOTE2: If JsonPath.read cannot find any element matching the path, it results
+ * in a ClassCastException: java.lang.String cannot be cast to java.util.Map
+ * which is why we catch these exceptions and return null.
+ * 
  * @author drusk
  * 
  */
@@ -38,18 +42,30 @@ public class JavaJsonParser extends AbstractJsonParser {
 
     @Override
     public JsonArray getArray(String json, String path) {
-        List<Object> array = JsonPath.read(json, path);
-        return new JavaJsonArray(array);
+        try {
+            List<Object> array = JsonPath.read(json, path);
+            return new JavaJsonArray(array);
+        } catch (ClassCastException classCastException) {
+            // an array can not be found
+            return null;
+        }
     }
 
     @Override
     public JsonItem getItem(String json, String path) {
-        return new JavaJsonItem(JsonPath.<Object> read(json, path));
+        try {
+            Object read = JsonPath.read(json, path);
+            return new JavaJsonItem(read);
+        } catch (ClassCastException classCastException) {
+            // the item could not be found
+            return null;
+        }
     }
 
     @Override
     public String getString(String json, String path) {
-        return JsonPath.read(json, path).toString();
+        Object read = JsonPath.read(json, path);
+        return read == null ? null : read.toString();
     }
 
 }

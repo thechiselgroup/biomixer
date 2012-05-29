@@ -146,9 +146,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         int childCount = 0;
         JsonItem relationsEntry = getItem(relation.stringValue(),
                 "$.relations[0].entry");
-        String entryString = getString(relationsEntry, "$.string");
-        if (entryString != null && entryString.equals("ChildCount")) {
-            childCount = Integer.parseInt(getString(relationsEntry, "$.int"));
+
+        if (relationsEntry != null) {
+            String entryString = getString(relationsEntry, "$.string");
+            if (entryString != null && entryString.equals("ChildCount")) {
+                childCount = Integer
+                        .parseInt(getString(relationsEntry, "$.int"));
+            }
         }
 
         Resource concept = new Resource(Concept.toConceptURI(ontologyId,

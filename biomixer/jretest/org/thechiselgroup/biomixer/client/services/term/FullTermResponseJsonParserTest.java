@@ -100,6 +100,18 @@ public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
                 equalTo(2));
     }
 
+    @Test
+    public void parseResourceWithNoChildren() throws IOException {
+        Resource result = parseResource("1487", "full_term_no_children.json");
+
+        assertThat((String) result.getValue(Concept.FULL_ID),
+                equalTo("http://who.int/bodysystem.owl#VestibularSystem"));
+        assertThat(result.getUriListValue(Concept.PARENT_CONCEPTS).size(),
+                equalTo(1));
+        assertThat(result.getUriListValue(Concept.CHILD_CONCEPTS).size(),
+                equalTo(0));
+    }
+
     @Before
     public void setUp() {
         underTest = new FullTermResponseJsonParser(new JavaJsonParser());
