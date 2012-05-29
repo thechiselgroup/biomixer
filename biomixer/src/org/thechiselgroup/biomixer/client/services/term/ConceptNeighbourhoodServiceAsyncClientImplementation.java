@@ -22,7 +22,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
@@ -35,7 +35,7 @@ import com.google.inject.Inject;
  * @see "http://www.bioontology.org/wiki/index.php/NCBO_REST_services#Term_services"
  */
 public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
-        AbstractXMLWebResourceService implements
+        AbstractWebResourceService implements
         ConceptNeighbourhoodServiceAsync {
 
     private final FullTermResponseJsonParser responseParser;

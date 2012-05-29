@@ -21,13 +21,13 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class ConceptSearchServiceAsyncClientImplementation extends
-        AbstractXMLWebResourceService implements ConceptSearchServiceAsync {
+        AbstractWebResourceService implements ConceptSearchServiceAsync {
 
     private final ConceptSearchResultJsonParser resultParser;
 
