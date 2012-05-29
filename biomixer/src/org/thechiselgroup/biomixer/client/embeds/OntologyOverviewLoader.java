@@ -1,5 +1,6 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.core.util.collections.SingleItemIterable;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
@@ -13,14 +14,13 @@ public class OntologyOverviewLoader implements EmbeddedViewLoader {
 
     @Override
     public Iterable<String> getEmbedModes() {
-        // TODO Auto-generated method stub
-        return null;
+
+        return new SingleItemIterable<String>(EMBED_MODE);
     }
 
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
             AsyncCallback<IsWidget> callback, EmbedLoader loader) {
-        // TODO Auto-generated method stub
 
     }
 
