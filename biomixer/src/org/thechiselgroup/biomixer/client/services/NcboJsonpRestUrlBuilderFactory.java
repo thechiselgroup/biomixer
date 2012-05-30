@@ -24,7 +24,7 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public static final String PROTOCOL = "http";
 
-    public static final String SERVER = "stage.bioontology.org";
+    public static final String SERVER = "bioportal.bioontology.org";
 
     public final static String API_KEY_PARAMETER = "apikey";
 
