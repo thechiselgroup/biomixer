@@ -21,13 +21,13 @@ import java.util.Map;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class OntologyStatusServiceAsyncClientImplementation extends
-        AbstractXMLWebResourceService implements OntologyStatusServiceAsync {
+        AbstractWebResourceService implements OntologyStatusServiceAsync {
 
     public static final String AVAILABLE_STATUS = "28";
 

@@ -1,0 +1,19 @@
+{
+    "success": {
+        "accessedResource": "/bioportal/virtual/ontology/1516",
+        "accessDate": "2012-05-11 13:53:57.415 PDT",
+        "data": [
+            {
+                "classBean": {
+                    "id": "O80-O84.9",
+                    "fullId": "http://purl.bioontology.org/ontology/ICD10/O80-O84.9",
+                    "label": "Delivery",
+                    "type": "class",
+                    "relations": [
+                        ""
+                    ]
+                }
+            }
+        ]
+    }
+}

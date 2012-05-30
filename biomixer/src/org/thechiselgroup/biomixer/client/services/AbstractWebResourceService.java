@@ -26,13 +26,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * Implementation node: written so it is as independent of the execution
  * environment (client vs. server) as possible.
  */
-public abstract class AbstractXMLWebResourceService {
+public abstract class AbstractWebResourceService {
 
     protected final UrlFetchService urlFetchService;
 
     protected final UrlBuilderFactory urlBuilderFactory;
 
-    public AbstractXMLWebResourceService(UrlFetchService urlFetchService,
+    public AbstractWebResourceService(UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory) {
 
         this.urlFetchService = urlFetchService;

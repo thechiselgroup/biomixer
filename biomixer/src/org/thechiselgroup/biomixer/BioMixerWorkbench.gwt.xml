@@ -30,6 +30,9 @@
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.user.theme.standard.StandardResources" />
   
+  <!-- JSONPath support in GWT -->
+  <inherits name="name.pehl.totoe.json.JSON" />
+  
   <!-- GWT Date and Number Formatting -->
   <inherits name="com.google.gwt.i18n.I18N"/>
  
@@ -46,7 +49,7 @@
   <inherits name='org.adamtacy.GWTEffects' /> 
   
   <!-- GWT SWF Bridge: gwt2swf -->
-  <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' /> 
+  <!-- <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' />  -->
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 

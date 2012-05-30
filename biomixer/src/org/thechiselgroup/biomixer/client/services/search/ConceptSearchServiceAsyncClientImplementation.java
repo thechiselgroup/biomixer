@@ -21,21 +21,21 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class ConceptSearchServiceAsyncClientImplementation extends
-        AbstractXMLWebResourceService implements ConceptSearchServiceAsync {
+        AbstractWebResourceService implements ConceptSearchServiceAsync {
 
-    private final ConceptSearchResultParser resultParser;
+    private final ConceptSearchResultJsonParser resultParser;
 
     @Inject
     public ConceptSearchServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
-            ConceptSearchResultParser resultParser) {
+            ConceptSearchResultJsonParser resultParser) {
 
         super(urlFetchService, urlBuilderFactory);
 
@@ -56,8 +56,9 @@ public class ConceptSearchServiceAsyncClientImplementation extends
 
         fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
             @Override
-            public Set<Resource> transform(String xmlText) throws Exception {
-                return resultParser.parse(xmlText);
+            public Set<Resource> transform(String responseText)
+                    throws Exception {
+                return resultParser.parse(responseText);
             }
         });
     }

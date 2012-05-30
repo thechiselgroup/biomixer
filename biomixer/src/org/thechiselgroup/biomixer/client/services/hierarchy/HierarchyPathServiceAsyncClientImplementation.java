@@ -20,13 +20,13 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class HierarchyPathServiceAsyncClientImplementation extends
-        AbstractXMLWebResourceService implements HierarchyPathServiceAsync {
+        AbstractWebResourceService implements HierarchyPathServiceAsync {
 
     private final HierarchyParser parser;
 
