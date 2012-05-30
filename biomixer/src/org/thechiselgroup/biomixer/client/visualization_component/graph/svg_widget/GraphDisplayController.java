@@ -31,6 +31,7 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
 import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
@@ -109,6 +110,8 @@ public class GraphDisplayController implements GraphDisplay,
     private GraphLayoutExecutionManager layoutManager;
 
     private static final int DEFAULT_ANIMATION_DURATION = 250;
+
+    private static final int DEFAULT_NODE_OFFSET_RANGE = 5;
 
     /*
      * maps node types to their available menu item click handlers and those
@@ -359,6 +362,11 @@ public class GraphDisplayController implements GraphDisplay,
             layoutNodeType = layoutGraph.getNodeType(nodeType);
         }
         return layoutNodeType;
+    }
+
+    private int getRandomNodeOffset() {
+        return MathUtils.generateRandomNumber(-DEFAULT_NODE_OFFSET_RANGE,
+                DEFAULT_NODE_OFFSET_RANGE);
     }
 
     protected TextBoundsEstimator getTextBoundsEstimator() {
@@ -698,16 +706,19 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     /**
-     * Positions a node at the default position which is the centre of the
-     * graph.
+     * Positions a node at the default position which is near the centre of the
+     * graph but with some small offset.
      * 
      * @param node
      *            the node to be positioned
      */
     private void setDefaultPosition(LayoutNode node) {
         if (graphRenderer.isWidgetInitialized()) {
-            PointDouble topLeft = node.getTopLeftForCentreAt(layoutGraph
-                    .getBounds().getCentre());
+            PointDouble initialPosition = layoutGraph.getBounds().getCentre();
+            PointDouble offset = new PointDouble(getRandomNodeOffset(),
+                    getRandomNodeOffset());
+            PointDouble topLeft = node.getTopLeftForCentreAt(initialPosition
+                    .plus(offset));
             node.setPosition(topLeft);
         }
     }
