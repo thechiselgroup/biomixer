@@ -31,7 +31,6 @@ public class JsonpUrlFetchService implements UrlFetchService {
     public void fetchURL(final String url, final AsyncCallback<String> callback) {
 
         JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
-        jsonp.setTimeout(60000);
         jsonp.requestObject(url, new AsyncCallback<JavaScriptObject>() {
 
             @Override
