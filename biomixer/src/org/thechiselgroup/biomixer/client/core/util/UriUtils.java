@@ -45,20 +45,25 @@ public final class UriUtils {
         if (GWT.isClient()) {
             return nativeEncodeURIComponent(uriComponent);
         }
-
-        // XXX does not do anything
+        // TODO java implementation for unit tests
+        // try {
+        // return URLEncoder.encode(uriComponent, "UTF-8");
+        // } catch (UnsupportedEncodingException e) {
+        // e.printStackTrace();
+        // return null;
+        // }
         return uriComponent;
     }
 
     // @formatter:off
     private static native String nativeDecodeURIComponent(String uriComponent) /*-{
-        return decodeURIComponent(uriComponent);
+		return decodeURIComponent(uriComponent);
     }-*/;
     // @formatter:on
 
     // @formatter:off
     private static native String nativeEncodeURIComponent(String uriComponent) /*-{
-        return encodeURIComponent(uriComponent);
+		return encodeURIComponent(uriComponent);
     }-*/;
     // @formatter:on
 

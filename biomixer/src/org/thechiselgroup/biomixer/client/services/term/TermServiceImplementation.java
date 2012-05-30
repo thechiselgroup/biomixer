@@ -22,16 +22,16 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-public class TermServiceImplementation extends AbstractXMLWebResourceService
+public class TermServiceImplementation extends AbstractWebResourceService
         implements TermServiceAsync {
 
-    private final LightTermResponseWithoutRelationshipsParser responseParser;
+    private final TermWithoutRelationshipsJsonParser responseParser;
 
     private OntologyNameServiceAsync ontologyNameService;
 
@@ -42,7 +42,7 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
             UrlBuilderFactory urlBuilderFactory,
             OntologyNameServiceAsync ontologyNameService,
             ErrorHandler errorHandler,
-            LightTermResponseWithoutRelationshipsParser responseParser) {
+            TermWithoutRelationshipsJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
 

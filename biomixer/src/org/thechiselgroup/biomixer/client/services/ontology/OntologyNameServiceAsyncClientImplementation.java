@@ -18,20 +18,20 @@ package org.thechiselgroup.biomixer.client.services.ontology;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 public class OntologyNameServiceAsyncClientImplementation extends
-        AbstractXMLWebResourceService implements OntologyNameServiceAsync {
+        AbstractWebResourceService implements OntologyNameServiceAsync {
 
-    private OntologyNameParser parser;
+    private OntologyNameJsonParser parser;
 
     @Inject
     public OntologyNameServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory, OntologyNameParser parser) {
+            UrlBuilderFactory urlBuilderFactory, OntologyNameJsonParser parser) {
         super(urlFetchService, urlBuilderFactory);
 
         assert parser != null;
@@ -51,8 +51,8 @@ public class OntologyNameServiceAsyncClientImplementation extends
         String url = buildUrl(virtualOntologyId);
         fetchUrl(callback, url, new Transformer<String, String>() {
             @Override
-            public String transform(String xmlText) throws Exception {
-                return parser.parse(xmlText);
+            public String transform(String responseText) throws Exception {
+                return parser.parse(responseText);
             }
 
         });
