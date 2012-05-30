@@ -122,11 +122,6 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
     }
 
     @Override
-    public LayoutGraph getGraph() {
-        return graph;
-    }
-
-    @Override
     public boolean isRunning() {
         return running;
     }

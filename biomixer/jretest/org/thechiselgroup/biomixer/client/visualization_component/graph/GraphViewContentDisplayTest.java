@@ -57,8 +57,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.implementatio
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandler;
@@ -311,10 +309,6 @@ public class GraphViewContentDisplayTest {
         underTest = new Graph(graphDisplay, commandManager, resourceManager,
                 resourceCategorizer, arcStyleProvider, registry, errorHandler);
         underTest.init(visualItemContainer, callback);
-        ArgumentCaptor<GraphDisplayReadyEventHandler> argument = ArgumentCaptor
-                .forClass(GraphDisplayReadyEventHandler.class);
-        verify(graphDisplay).addGraphDisplayReadyHandler(argument.capture());
-        argument.getValue().onWidgetReady(new GraphDisplayReadyEvent(null));
     }
 
     @Test

@@ -40,7 +40,7 @@ import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
@@ -60,11 +60,11 @@ public class MappingServiceImplementationTest {
     private MappingServiceImplementation underTest;
 
     @Mock
-    private MappingResponseParser responseParser;
+    private MappingResponseJsonParser responseParser;
 
     private String conceptUri;
 
-    private UrlBuilder urlBuilder;
+    private DefaultUrlBuilder urlBuilder;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private ResourceNeighbourhood doGetMappings(List<Resource> parsedMappings)
@@ -157,7 +157,7 @@ public class MappingServiceImplementationTest {
         underTest = new MappingServiceImplementation(responseParser,
                 urlFetchService, urlBuilderFactory);
 
-        this.urlBuilder = Mockito.spy(new UrlBuilder());
+        this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 
         when(urlBuilderFactory.createUrlBuilder()).thenReturn(urlBuilder);
         when(urlBuilder.toString()).thenReturn(URL);

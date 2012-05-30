@@ -1,0 +1,39 @@
+{"success":{"accessedResource":"\/bioportal\/virtual\/mappings\/concepts\/1009",
+	"accessDate":"2012-05-03 14:26:19.392 PDT",
+	"data":[
+		{"page":
+			{"pageNum":1,"numPages":1,"pageSize":5000,"numResultsPage":2,"numResultsTotal":2,
+			"contents":{
+				"@class":"org.ncbo.stanford.bean.mapping.MappingResultListBean",
+				"mappings":{
+					"mapping":[
+						{"id":"http:\/\/purl.bioontology.org\/mapping\/fc69b2c0-f207-012d-745e-005056bd0010",
+						"source":[{"fullId":"http:\/\/purl.org\/obo\/owl\/DOID#DOID_0000000"}],
+						"target":[{"fullId":"http:\/\/purl.bioontology.org\/ontology\/MCCL\/DOID_0000000"}],
+						"relation":"http:\/\/www.w3.org\/2004\/02\/skos\/core#exactMatch",
+						"sourceOntologyId":1009,
+						"targetOntologyId":1245,
+						"createdInSourceOntologyVersion":42715,
+						"createdInTargetOntologyVersion":39927,
+						"submittedBy":38342,
+						"date":"2010-05-17 16:24:34.0 PDT",
+						"comment":"shared id",
+						"mappingType":"Automatic",
+						"mappingSource":"APPLICATION",
+						"mappingSourceName":"LOOM",
+						"mappingSourceContactInfo":"support@bioontology.org",
+						"mappingSourceSite":"http:\/\/www.bioontology.org",
+						"mappingSourceAlgorithm":"Mappings between the terms that share the same ID"},
+						{"id":"http:\/\/purl.bioontology.org\/mapping\/bbbdaca0-f1f4-012d-745c-005056bd0010",
+						"source":[{"fullId":"http:\/\/purl.org\/obo\/owl\/DOID#DOID_0000000"}],
+						"target":[{"fullId":"http:\/\/purl.bioontology.org\/ontology\/ICD-9\/575.9"}],
+						"relation":"http:\/\/www.w3.org\/2004\/02\/skos\/core#exactMatch",
+						"sourceOntologyId":1009,
+						"targetOntologyId":1101,
+						"createdInSourceOntologyVersion":38378,
+						"createdInTargetOntologyVersion":35686,
+						"submittedBy":38128,
+						"date":"2008-05-04 16:58:25.0 PDT",
+						"comment":"Mappings based on OBO xref mappings, which indicate related terms",
+						"mappingType":"Manual"
+						}]}}}}]}}

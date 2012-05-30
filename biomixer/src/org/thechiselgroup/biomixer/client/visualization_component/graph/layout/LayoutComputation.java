@@ -33,11 +33,6 @@ public interface LayoutComputation {
     HandlerRegistration addEventHandler(LayoutComputationFinishedHandler handler);
 
     /**
-     * @return graph structure that this layout computation is changing.
-     */
-    LayoutGraph getGraph();
-
-    /**
      * @return <code>true</code> when the layout algorithm is still calculating
      *         the layout (e.g. if it is a continuous layout algorithm such as
      *         force directed layout).

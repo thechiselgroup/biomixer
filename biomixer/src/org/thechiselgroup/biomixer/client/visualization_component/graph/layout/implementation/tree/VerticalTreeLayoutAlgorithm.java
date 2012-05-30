@@ -19,12 +19,11 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class VerticalTreeLayoutAlgorithm implements LayoutAlgorithm {
+public class VerticalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private Executor executor = new DirectExecutor();
 
@@ -48,10 +47,8 @@ public class VerticalTreeLayoutAlgorithm implements LayoutAlgorithm {
     }
 
     @Override
-    public LayoutComputation computeLayout(LayoutGraph graph) {
-        AbstractLayoutComputation computation = new VerticalTreeLayoutComputation(
-                graph, executor, errorHandler, animationRunner, pointingUp);
-        computation.run();
-        return computation;
+    protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
+        return new VerticalTreeLayoutComputation(graph, executor, errorHandler,
+                animationRunner, pointingUp);
     }
 }

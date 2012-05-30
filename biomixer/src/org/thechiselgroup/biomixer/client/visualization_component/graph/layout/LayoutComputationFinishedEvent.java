@@ -42,10 +42,6 @@ public class LayoutComputationFinishedEvent extends EventObject {
         return exception;
     }
 
-    public LayoutGraph getGraph() {
-        return getComputation().getGraph();
-    }
-
     public boolean hasException() {
         return exception != null;
     }

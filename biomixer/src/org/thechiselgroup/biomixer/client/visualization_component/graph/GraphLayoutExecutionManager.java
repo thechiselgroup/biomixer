@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
@@ -36,10 +39,30 @@ public class GraphLayoutExecutionManager {
 
     private LayoutGraph graph;
 
+    /**
+     * Handlers for the next computation to be created.
+     */
+    private List<LayoutComputationFinishedHandler> pendingHandlers = new ArrayList<LayoutComputationFinishedHandler>();
+
     public GraphLayoutExecutionManager(LayoutAlgorithm layoutAlgorithm,
             LayoutGraph graph) {
         this.layoutAlgorithm = layoutAlgorithm;
         this.graph = graph;
+    }
+
+    public void addLayoutComputationFinishedHandler(
+            LayoutComputationFinishedHandler handler) {
+        if (currentComputation != null) {
+            currentComputation.addEventHandler(handler);
+        } else {
+            pendingHandlers.add(handler);
+        }
+    }
+
+    private void computeLayout() {
+        currentComputation = layoutAlgorithm.computeLayout(graph,
+                pendingHandlers);
+        pendingHandlers.clear();
     }
 
     /**
@@ -109,7 +132,8 @@ public class GraphLayoutExecutionManager {
             /*
              * Run a brand new computation.
              */
-            currentComputation = layoutAlgorithm.computeLayout(graph);
+            computeLayout();
+
         } else if (!currentComputation.isRunning()) {
             /*
              * Restart with previous state
@@ -142,5 +166,4 @@ public class GraphLayoutExecutionManager {
 
         currentComputation.stop();
     }
-
 }

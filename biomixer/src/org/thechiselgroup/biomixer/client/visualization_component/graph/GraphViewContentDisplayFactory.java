@@ -51,9 +51,9 @@ public class GraphViewContentDisplayFactory implements
         GraphExpansionRegistry registry = registryFactory
                 .createRegistry(errorHandler);
 
-        return new Graph(new Graph.DefaultDisplay(), commandManager,
-                resourceManager, resourceCategorizer, arcStyleProvider,
-                registry, errorHandler);
+        return new Graph(new Graph.DefaultDisplay(errorHandler),
+                commandManager, resourceManager, resourceCategorizer,
+                arcStyleProvider, registry, errorHandler);
     }
 
     @Override

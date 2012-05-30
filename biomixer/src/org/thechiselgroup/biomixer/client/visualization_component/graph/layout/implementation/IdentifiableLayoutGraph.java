@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 
 public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
@@ -59,6 +62,10 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
         return nodeTypes.contains(nodeType);
     }
 
+    public IdentifiablesList<IdentifiableLayoutNode> getAllIdentifiableLayoutNodes() {
+        return identifiableLayoutNodes;
+    }
+
     public DefaultLayoutArcType getArcType(String arcType) {
         return arcTypes.get(arcType);
     }
@@ -69,6 +76,14 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
 
     public IdentifiableLayoutNode getIdentifiableLayoutNode(String id) {
         return identifiableLayoutNodes.get(id);
+    }
+
+    public List<String> getAllNodeIds() {
+        List<String> nodeIds = new ArrayList<String>();
+        for (IdentifiableLayoutNode node : identifiableLayoutNodes) {
+            nodeIds.add(node.getId());
+        }
+        return nodeIds;
     }
 
     public DefaultLayoutNodeType getNodeType(String nodeType) {

@@ -15,24 +15,14 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util.executor;
 
-import com.google.gwt.user.client.Timer;
+public interface DelayedExecutor extends Executor {
 
-public class DelayedExecutor implements Executor {
-
-    private final int delay;
-
-    public DelayedExecutor(int delay) {
-        this.delay = delay;
-    }
-
-    @Override
-    public void execute(final Runnable command) {
-        new Timer() {
-            @Override
-            public void run() {
-                command.run();
-            }
-        }.schedule(delay);
-    }
+    /**
+     * Sets the delay before execution in milliseconds
+     * 
+     * @param delay
+     *            the delay in milliseconds
+     */
+    public void setDelay(int delay);
 
 }
