@@ -59,7 +59,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -286,14 +285,16 @@ public class BioMixerViewWindowContentProducer extends
                     visualizationModel));
             sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
             sidePanelSections.addAll(contentDisplay.getSidePanelSections());
-            {
-                TextArea textArea = new TextArea();
-                textArea.setWidth("100%");
-                textArea.setHeight("100%");
 
-                sidePanelSections
-                        .add(new SidePanelSection("Comments", textArea));
-            }
+            // temporarily removing the Comment view part
+            // {
+            // TextArea textArea = new TextArea();
+            // textArea.setWidth("100%");
+            // textArea.setHeight("100%");
+            //
+            // sidePanelSections
+            // .add(new SidePanelSection("Comments", textArea));
+            // }
 
             return sidePanelSections;
         }
