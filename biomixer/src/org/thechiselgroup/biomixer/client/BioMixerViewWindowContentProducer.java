@@ -89,13 +89,19 @@ public class BioMixerViewWindowContentProducer extends
             String label = "unknown";
             if (DirectConceptMappingArcType.ID.equals(arcTypeId)) {
                 label = "Concept Mapping";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
             } else if (MappingArcType.ID.equals(arcTypeId)) {
                 label = "Mapping";
+
+                // disabled the options to edit the style of the arcs of the
+                // Mapping Nodes - likely to be permanent
+                // panel.add(createArcTypeContainerControl(label,
+                // arcItemContainer));
             } else if (ConceptArcType.ID.equals(arcTypeId)) {
                 label = "Concept Relationship";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
             }
 
-            panel.add(createArcTypeContainerControl(label, arcItemContainer));
         }
 
         return new SidePanelSection("Arcs", panel);
@@ -181,17 +187,21 @@ public class BioMixerViewWindowContentProducer extends
 
         final Map<String, CheckBox> ontologyToFilterBox = CollectionFactory
                 .createStringMap();
-        final CheckBox mappingNodesCheckbox = new CheckBox("Show Mapping Nodes");
-        mappingNodesCheckbox.setValue(false);
-        mappingNodesCheckbox
-                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                    @Override
-                    public void onValueChange(ValueChangeEvent<Boolean> event) {
-                        updatePredicate(resourceModel,
-                                mappingNodesCheckbox.getValue(),
-                                ontologyToFilterBox);
-                    }
-                });
+
+        // code below removes the "Show Mapping Nodes" checkbox under the
+        // "Nodes" view part in the vertical panel
+        // final CheckBox mappingNodesCheckbox = new
+        // CheckBox("Show Mapping Nodes");
+        // mappingNodesCheckbox.setValue(false);
+        // mappingNodesCheckbox
+        // .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+        // @Override
+        // public void onValueChange(ValueChangeEvent<Boolean> event) {
+        // updatePredicate(resourceModel,
+        // mappingNodesCheckbox.getValue(),
+        // ontologyToFilterBox);
+        // }
+        // });
 
         final CheckBox colorByOntologyCheckBox = new CheckBox(
                 "Color Concept Nodes by Ontology");
@@ -249,9 +259,16 @@ public class BioMixerViewWindowContentProducer extends
                                         public void onValueChange(
                                                 ValueChangeEvent<Boolean> event) {
                                             updatePredicate(resourceModel,
-                                                    mappingNodesCheckbox
-                                                            .getValue(),
-                                                    ontologyToFilterBox);
+                                                    false, ontologyToFilterBox);
+
+                                            // the code below updates the
+                                            // "Show Mapping Nodes" checkbox
+                                            // under "Nodes" view part in the
+                                            // vertical panel
+                                            // updatePredicate(resourceModel,
+                                            // mappingNodesCheckbox
+                                            // .getValue(),
+                                            // ontologyToFilterBox);
                                         }
                                     });
                                 }
@@ -260,7 +277,9 @@ public class BioMixerViewWindowContentProducer extends
                     }
                 });
 
-        panel.add(mappingNodesCheckbox);
+        // next line commented out so the "Show Mapping Nodes" checkbox is not
+        // added to the "Nodes" view part in the vertical panel
+        // panel.add(mappingNodesCheckbox);
         panel.add(colorByOntologyCheckBox);
 
         updatePredicate(resourceModel, false, ontologyToFilterBox);
@@ -286,7 +305,7 @@ public class BioMixerViewWindowContentProducer extends
             sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
             sidePanelSections.addAll(contentDisplay.getSidePanelSections());
 
-            // temporarily removing the Comment view part
+            // temporarily removing the Comments view part
             // {
             // TextArea textArea = new TextArea();
             // textArea.setWidth("100%");

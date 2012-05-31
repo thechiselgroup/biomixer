@@ -41,7 +41,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     @Inject
     public TermNeighbourhoodLoader() {
-        super("term neighbourhood", EMBED_MODE);
+        super("term neighborhood", EMBED_MODE);
     }
 
     private void doLoadData(final String virtualOntologyId,
