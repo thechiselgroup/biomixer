@@ -15,13 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
@@ -30,29 +26,28 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
 
     private RenderedNode renderedNode;
 
-    private boolean isAnchored = false;
-
     private final LayoutNodeType nodeType;
 
-    private List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
-
     private final String id;
+
+    private SizeDouble size;
 
     public IdentifiableLayoutNode(String id, RenderedNode svgComponent,
             LayoutNodeType nodeType) {
         this.id = id;
         this.renderedNode = svgComponent;
         this.nodeType = nodeType;
+
+        // XXX assumption: size does not change
+        size = renderedNode.getSize();
+        // XXX assumption: x,y managed through this class
+        super.setX(renderedNode.getLeftX());
+        super.setY(renderedNode.getTopY());
     }
 
     public void addConnectedArc(IdentifiableLayoutArc layoutArc) {
         connectedArcs.add(layoutArc);
         renderedNode.addConnectedArc(layoutArc.getRenderedArc());
-    }
-
-    @Override
-    public List<LayoutArc> getConnectedArcs() {
-        return connectedArcs;
     }
 
     @Override
@@ -84,7 +79,7 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
 
     @Override
     public SizeDouble getSize() {
-        return renderedNode.getSize();
+        return size;
     }
 
     @Override
@@ -93,29 +88,9 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
     }
 
     @Override
-    public double getX() {
-        return renderedNode.getLeftX();
-    }
-
-    @Override
-    public double getY() {
-        return renderedNode.getTopY();
-    }
-
-    @Override
     public boolean hasLabel() {
         // currently label has to be in node
         return false;
-    }
-
-    @Override
-    public boolean isAnchored() {
-        return isAnchored;
-    }
-
-    @Override
-    public void setAnchored(boolean anchored) {
-        this.isAnchored = anchored;
     }
 
     @Override
@@ -138,6 +113,8 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
         if (!isAnchored) {
             renderedNode.setLeftX(x);
         }
+
+        super.setX(x);
     }
 
     @Override
@@ -145,6 +122,8 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
         if (!isAnchored) {
             renderedNode.setTopY(y);
         }
+
+        super.setY(y);
     }
 
 }
