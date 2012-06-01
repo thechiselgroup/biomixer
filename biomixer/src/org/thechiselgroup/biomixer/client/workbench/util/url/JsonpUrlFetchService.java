@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.util.url;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -31,19 +33,17 @@ public class JsonpUrlFetchService implements UrlFetchService {
     public void fetchURL(final String url, final AsyncCallback<String> callback) {
 
         JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
-        jsonp.requestObject(url, new AsyncCallback<JavaScriptObject>() {
+        jsonp.requestObject(url,
+                new ErrorHandlingAsyncCallback<JavaScriptObject>(
+                        new AsyncCallbackErrorHandler(callback)) {
 
-            @Override
-            public void onFailure(Throwable caught) {
-                callback.onFailure(caught);
-            }
+                    @Override
+                    protected void runOnSuccess(JavaScriptObject result)
+                            throws Exception {
+                        callback.onSuccess(new JSONObject(result).toString());
+                    }
 
-            @Override
-            public void onSuccess(JavaScriptObject result) {
-                callback.onSuccess(new JSONObject(result).toString());
-            }
-
-        });
+                });
 
     }
 

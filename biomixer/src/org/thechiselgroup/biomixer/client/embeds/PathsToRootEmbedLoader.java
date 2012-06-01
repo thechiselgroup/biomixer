@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
@@ -49,14 +50,15 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected LayoutAlgorithm getLayoutAlgorithm() {
+    protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
         return new VerticalTreeLayoutAlgorithm(true, errorHandler,
                 animationRunner);
     }
 
     @Override
     protected void loadData(final String virtualOntologyId,
-            final String fullConceptId, final View graphView) {
+            final String fullConceptId, final View graphView,
+            ErrorHandler errorHandler) {
 
         /*
          * XXX NCBO REST service for hierarchy service is currently not
@@ -64,11 +66,12 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
          * recursively.
          */
         loadUsingRecursiveTermService(virtualOntologyId, fullConceptId,
-                graphView);
+                graphView, errorHandler);
     }
 
     private void loadTerm(final String virtualOntologyId,
-            final String fullConceptId, final View graphView) {
+            final String fullConceptId, final View graphView,
+            final ErrorHandler errorHandler) {
 
         final String conceptUri = Concept.toConceptURI(virtualOntologyId,
                 fullConceptId);
@@ -97,7 +100,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                             String parentFullConceptId = Concept
                                     .getConceptId(parentUri);
                             loadTerm(virtualOntologyId, parentFullConceptId,
-                                    graphView);
+                                    graphView, errorHandler);
                         }
                     }
 
@@ -111,12 +114,14 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
     }
 
     private void loadUsingRecursiveTermService(final String virtualOntologyId,
-            final String fullConceptId, final View graphView) {
+            final String fullConceptId, final View graphView,
+            final ErrorHandler errorHandler) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                loadTerm(virtualOntologyId, fullConceptId, graphView);
+                loadTerm(virtualOntologyId, fullConceptId, graphView,
+                        errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 50);
     }

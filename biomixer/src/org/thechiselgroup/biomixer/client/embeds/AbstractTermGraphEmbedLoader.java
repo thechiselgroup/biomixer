@@ -20,6 +20,7 @@ import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
+import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
@@ -40,9 +41,6 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
     @Inject
     protected DelayedExecutor executor;
-
-    @Inject
-    protected ErrorHandler errorHandler;
 
     protected AnimationRunner animationRunner = new GwtAnimationRunner();
 
@@ -68,10 +66,11 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         return label;
     }
 
-    protected abstract LayoutAlgorithm getLayoutAlgorithm();
+    protected abstract LayoutAlgorithm getLayoutAlgorithm(
+            ErrorHandler errorHandler);
 
     protected abstract void loadData(String virtualOntologyId,
-            String fullConceptId, View graphView);
+            String fullConceptId, View graphView, ErrorHandler errorHandler);
 
     @Override
     public final void loadView(String virtualOntologyId, String fullConceptId,
@@ -79,12 +78,21 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
         View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(Graph.ID)).getView();
+
+        // XXX likely to break when view content setup changes
+        // get the error handler from the view content display
+        // to show the errors in the view-specific error box (ListBox)
+        DropEnabledViewContentDisplay cd1 = (DropEnabledViewContentDisplay) graphView
+                .getModel().getViewContentDisplay();
+        Graph graph = (Graph) cd1.getDelegate();
+        ErrorHandler errorHandler = graph.getErrorHandler();
+
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
         graphView.init();
-        setLayoutAlgorithm(graphView, getLayoutAlgorithm());
+        setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 
-        loadData(virtualOntologyId, fullConceptId, graphView);
+        loadData(virtualOntologyId, fullConceptId, graphView, errorHandler);
     }
 
     private void setLayoutAlgorithm(View graphView,
