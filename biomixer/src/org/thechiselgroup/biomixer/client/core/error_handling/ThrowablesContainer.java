@@ -35,7 +35,13 @@ public class ThrowablesContainer {
 
     private void fireThrowableAddedEvent(ThrowableCaughtEvent event) {
         for (ThrowablesContainerEventListener listener : eventListeners) {
-            listener.onThrowableCaughtAdded(event);
+            // in case something goes wrong with updating the UI when errors
+            // have been added to this list, we want to continue.
+            try {
+                listener.onThrowableCaughtAdded(event);
+            } catch (Exception e) {
+                // XXX potentially log the error.
+            }
         }
     }
 

@@ -465,6 +465,10 @@ public class Graph extends AbstractViewContentDisplay implements
         return new DefaultSizeInt(width, height);
     }
 
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
     @Override
     public Point getLocation(NodeItem nodeItem) {
         return graphDisplay.getLocation(nodeItem.getNode());

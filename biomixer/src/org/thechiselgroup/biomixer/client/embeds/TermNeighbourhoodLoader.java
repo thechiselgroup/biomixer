@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -45,7 +46,8 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     private void doLoadData(final String virtualOntologyId,
-            final String fullConceptId, final View graphView) {
+            final String fullConceptId, final View graphView,
+            ErrorHandler errorHandler) {
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
                     @Override
@@ -97,19 +99,21 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected LayoutAlgorithm getLayoutAlgorithm() {
+    protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
         return new HorizontalTreeLayoutAlgorithm(true, errorHandler,
                 animationRunner);
     }
 
     @Override
     protected void loadData(final String virtualOntologyId,
-            final String fullConceptId, final View graphView) {
+            final String fullConceptId, final View graphView,
+            final ErrorHandler errorHandler) {
         // XXX remove once proper view content display lifecycle is available
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView);
+                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                        errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);
     }
