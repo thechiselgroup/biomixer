@@ -16,7 +16,7 @@
 package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
@@ -35,31 +35,26 @@ import com.google.inject.Inject;
  * @see "http://www.bioontology.org/wiki/index.php/NCBO_REST_services#Term_services"
  */
 public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
-        AbstractWebResourceService implements
-        ConceptNeighbourhoodServiceAsync {
+        AbstractWebResourceService implements ConceptNeighbourhoodServiceAsync {
 
     private final FullTermResponseJsonParser responseParser;
 
     private OntologyNameServiceAsync ontologyNameService;
-
-    private ErrorHandler errorHandler;
 
     @Inject
     public ConceptNeighbourhoodServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
             OntologyNameServiceAsync ontologyNameService,
-            ErrorHandler errorHandler, FullTermResponseJsonParser responseParser) {
+            FullTermResponseJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
 
         assert responseParser != null;
         assert ontologyNameService != null;
-        assert errorHandler != null;
 
         this.responseParser = responseParser;
         this.ontologyNameService = ontologyNameService;
-        this.errorHandler = errorHandler;
     }
 
     private String buildUrl(String fullConceptId, String ontologyId) {
@@ -79,7 +74,8 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         final String url = buildUrl(conceptId, ontologyId);
 
         ontologyNameService.getOntologyName(ontologyId,
-                new ErrorHandlingAsyncCallback<String>(errorHandler) {
+                new ErrorHandlingAsyncCallback<String>(
+                        new AsyncCallbackErrorHandler(callback)) {
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
@@ -89,7 +85,8 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                 new Transformer<String, ResourceNeighbourhood>() {
                                     @Override
                                     public ResourceNeighbourhood transform(
-                                            String responseText) throws Exception {
+                                            String responseText)
+                                            throws Exception {
 
                                         ResourceNeighbourhood neighbourhood = responseParser
                                                 .parseNeighbourhood(ontologyId,
@@ -128,14 +125,16 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         final String url = buildUrl(conceptId, ontologyId);
 
         ontologyNameService.getOntologyName(ontologyId,
-                new ErrorHandlingAsyncCallback<String>(errorHandler) {
+                new ErrorHandlingAsyncCallback<String>(
+                        new AsyncCallbackErrorHandler(callback)) {
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
                         fetchUrl(callback, url,
                                 new Transformer<String, Resource>() {
                                     @Override
-                                    public Resource transform(String responseText)
+                                    public Resource transform(
+                                            String responseText)
                                             throws Exception {
                                         Resource resource = responseParser
                                                 .parseResource(ontologyId,

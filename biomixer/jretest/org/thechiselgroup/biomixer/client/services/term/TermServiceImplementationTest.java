@@ -30,7 +30,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
@@ -54,9 +53,6 @@ public class TermServiceImplementationTest {
 
     @Mock
     private OntologyNameServiceAsync ontologyNameService;
-
-    @Mock
-    private ErrorHandler errorHandler;
 
     @Mock
     private UrlBuilderFactory urlBuilderFactory;
@@ -96,8 +92,7 @@ public class TermServiceImplementationTest {
         MockitoAnnotations.initMocks(this);
 
         underTest = new TermServiceImplementation(urlFetchService,
-                urlBuilderFactory, ontologyNameService, errorHandler,
-                responseParser);
+                urlBuilderFactory, ontologyNameService, responseParser);
 
         this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 
