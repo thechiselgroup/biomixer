@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
-    protected static final int DELAY_BETWEEN_ITERATIONS = 250;
+    protected static final int DELAY_BETWEEN_ITERATIONS = 1;
 
     private ErrorHandler errorHandler;
 
