@@ -15,15 +15,27 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 public abstract class AbstractLayoutNode implements LayoutNode {
+
+    protected boolean isAnchored = false;
+
+    protected double x = Double.NaN;
+
+    protected double y = Double.NaN;
+
+    protected LightweightList<LayoutArc> connectedArcs = CollectionFactory
+            .createLightweightList();
+
+    public void addConnectedArc(LayoutArc arc) {
+        connectedArcs.add(arc);
+    }
 
     @Override
     public PointDouble getCentre() {
@@ -31,8 +43,14 @@ public abstract class AbstractLayoutNode implements LayoutNode {
                 + getSize().getHeight() / 2);
     }
 
-    public List<LayoutNode> getConnectedNodes() {
-        List<LayoutNode> connectedNodes = new ArrayList<LayoutNode>();
+    @Override
+    public LightweightList<LayoutArc> getConnectedArcs() {
+        return connectedArcs;
+    }
+
+    public LightweightList<LayoutNode> getConnectedNodes() {
+        LightweightList<LayoutNode> connectedNodes = CollectionFactory
+                .createLightweightList();
         for (LayoutArc connectedArc : getConnectedArcs()) {
             connectedNodes.add(getNodeConnectedByArc(connectedArc));
         }
@@ -59,8 +77,28 @@ public abstract class AbstractLayoutNode implements LayoutNode {
     }
 
     @Override
+    public double getX() {
+        return x;
+    }
+
+    @Override
+    public double getY() {
+        return y;
+    }
+
+    @Override
+    public boolean isAnchored() {
+        return isAnchored;
+    }
+
+    @Override
     public boolean isConnectedTo(LayoutNode otherNode) {
         return getConnectedNodes().contains(otherNode);
+    }
+
+    @Override
+    public void setAnchored(boolean anchored) {
+        this.isAnchored = anchored;
     }
 
     @Override
@@ -72,6 +110,20 @@ public abstract class AbstractLayoutNode implements LayoutNode {
     @Override
     public void setPosition(PointDouble position) {
         setPosition(position.getX(), position.getY());
+    }
+
+    @Override
+    public void setX(double x) {
+        if (!isAnchored) {
+            this.x = x;
+        }
+    }
+
+    @Override
+    public void setY(double y) {
+        if (!isAnchored) {
+            this.y = y;
+        }
     }
 
 }

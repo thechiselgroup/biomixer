@@ -19,7 +19,6 @@ import org.thechiselgroup.biomixer.client.core.label.CategoryLabelProvider;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationServiceProvider;
 import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
-import org.thechiselgroup.biomixer.client.core.util.url.ProfilingUrlFetchServiceDecorator;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplaysConfiguration;
@@ -115,8 +114,8 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
     protected void bindUrlFetchService() {
         bind(UrlFetchService.class).annotatedWith(Names.named("delegate"))
                 .to(JsonpUrlFetchService.class).in(Singleton.class);
-        bind(UrlFetchService.class).to(ProfilingUrlFetchServiceDecorator.class)
-                .in(Singleton.class);
+        bind(UrlFetchService.class).to(JsonpUrlFetchService.class).in(
+                Singleton.class);
     }
 
     @Override
