@@ -27,13 +27,21 @@ public class NcboRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public final static String API_KEY_PARAMETER = "apikey";
 
+    public final static String USER_API_KEY_PARAMETER = "userapikey";
+
+    private String userApiKey;
+
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new DefaultUrlBuilder()
-                .host(SERVER)
-                .protocol(PROTOCOL)
-                .parameter(API_KEY_PARAMETER,
-                        "6700f7bc-5209-43b6-95da-44336cbc0a3a");
+        return new DefaultUrlBuilder().host(SERVER).protocol(PROTOCOL)
+                .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
+                .parameter(USER_API_KEY_PARAMETER, userApiKey);
+    }
+
+    @Override
+    public void setUserApiKey(String apiKey) {
+        assert apiKey != null;
+        this.userApiKey = apiKey;
     }
 
 }
