@@ -28,17 +28,26 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public final static String API_KEY_PARAMETER = "apikey";
 
+    public final static String USER_API_KEY_PARAMETER = "userapikey";
+
     public static final String CALLBACK = "callback";
 
     public static final String PATH = "ajax/jsonp";
 
+    private String userApiKey;
+
     @Override
     public UrlBuilder createUrlBuilder() {
         return new JsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
-                .host(SERVER)
-                .protocol(PROTOCOL)
-                .path(PATH)
-                .parameter(API_KEY_PARAMETER,
-                        "6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                .host(SERVER).protocol(PROTOCOL).path(PATH)
+                .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
+                .parameter(USER_API_KEY_PARAMETER, userApiKey));
     }
+
+    @Override
+    public void setUserApiKey(String apiKey) {
+        assert apiKey != null;
+        this.userApiKey = apiKey;
+    }
+
 }

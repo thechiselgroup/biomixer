@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
@@ -37,6 +38,8 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
 
     public static final String EMBED = "embed";
 
+    public static final String USER_API_KEY = "userapikey";
+
     @Inject
     protected ErrorHandler errorHandler;
 
@@ -51,6 +54,9 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
     @Inject
     private WindowLocation windowLocation;
 
+    @Inject
+    private UrlBuilderFactory urlBuilderFactory;
+
     @Override
     public void init() throws Exception {
         initGlobalErrorHandler();
@@ -59,6 +65,8 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
 
     private void initApplicationMode() throws Exception {
         Map<String, List<String>> parameters = windowLocation.getParameterMap();
+
+        initUserApiKey(parameters);
 
         if (!parameters.containsKey(APPLICATION_MODE_PARAMETER)) {
             workbenchInitializer.init();
@@ -94,6 +102,14 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
                 errorHandler.handleError(e);
             }
         });
+    }
+
+    protected void initUserApiKey(Map<String, List<String>> parameters) {
+        if (parameters.containsKey(USER_API_KEY)
+                && parameters.get(USER_API_KEY).size() > 0) {
+            urlBuilderFactory
+                    .setUserApiKey(parameters.get(USER_API_KEY).get(0));
+        }
     }
 
 }
