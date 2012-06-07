@@ -1,26 +1,35 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.client.core.util.collections.SingleItemIterable;
-import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
-import org.thechiselgroup.biomixer.client.workbench.embed.EmbeddedViewLoader;
-import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 
-public class OntologyOverviewLoader implements EmbeddedViewLoader {
+public class OntologyOverviewLoader implements OntologyEmbedLoader {
 
-    public static final String EMBED_MODE = "ontology_overview";
+    private final String id;
 
-    @Override
-    public Iterable<String> getEmbedModes() {
+    private final String label;
 
-        return new SingleItemIterable<String>(EMBED_MODE);
+    public OntologyOverviewLoader(String label, String id) {
+        assert label != null;
+        assert id != null;
+
+        this.id = id;
+        this.label = label;
     }
 
     @Override
-    public void loadView(WindowLocation windowLocation, String embedMode,
-            AsyncCallback<IsWidget> callback, EmbedLoader loader) {
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public String getLabel() {
+        return label;
+    }
+
+    @Override
+    public void loadView(String virtualOntologyId, String fullConceptId,
+            IsWidget topBarWidget, AsyncCallback<IsWidget> callback) {
 
     }
 
