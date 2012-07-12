@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs;
 
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
@@ -104,15 +105,15 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     @Override
     public void update() {
-        SvgUtils.setX1Y1(arcLine, source.getCentre());
-        SvgUtils.setX2Y2(arcLine, target.getCentre());
-        updateArrow();
-    }
+        PointDouble sourceCentre = source.getCentre(); // cache
+        PointDouble targetCentre = target.getCentre(); // cache
 
-    private void updateArrow() {
+        SvgUtils.setX1Y1(arcLine, sourceCentre);
+        SvgUtils.setX2Y2(arcLine, targetCentre);
+
         if (isDirected()) {
             assert arrow != null;
-            arrow.alignWithPoints(source.getCentre(), target.getCentre());
+            arrow.alignWithPoints(sourceCentre, targetCentre);
         }
     }
 
