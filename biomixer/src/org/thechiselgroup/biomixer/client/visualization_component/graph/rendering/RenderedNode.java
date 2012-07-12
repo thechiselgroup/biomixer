@@ -90,8 +90,6 @@ public interface RenderedNode {
 
     void setFontWeight(String fontWeight);
 
-    void setLeftX(double x);
-
-    void setTopY(double y);
+    void setPosition(double x, double y);
 
 }

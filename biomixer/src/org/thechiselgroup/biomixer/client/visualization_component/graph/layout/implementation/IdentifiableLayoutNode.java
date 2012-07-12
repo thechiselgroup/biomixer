@@ -41,8 +41,7 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
         // XXX assumption: size does not change
         size = renderedNode.getSize();
         // XXX assumption: x,y managed through this class
-        super.setX(renderedNode.getLeftX());
-        super.setY(renderedNode.getTopY());
+        super.setPosition(renderedNode.getLeftX(), renderedNode.getTopY());
     }
 
     public void addConnectedArc(IdentifiableLayoutArc layoutArc) {
@@ -109,21 +108,11 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
     }
 
     @Override
-    public void setX(double x) {
-        if (!isAnchored) {
-            renderedNode.setLeftX(x);
+    public void setPosition(double x, double y) {
+        if (isRealChange(x, y)) {
+            renderedNode.setPosition(x, y);
+            super.setPosition(x, y);
         }
-
-        super.setX(x);
-    }
-
-    @Override
-    public void setY(double y) {
-        if (!isAnchored) {
-            renderedNode.setTopY(y);
-        }
-
-        super.setY(y);
     }
 
 }

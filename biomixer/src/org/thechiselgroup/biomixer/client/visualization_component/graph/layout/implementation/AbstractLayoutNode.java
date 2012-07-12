@@ -96,6 +96,10 @@ public abstract class AbstractLayoutNode implements LayoutNode {
         return getConnectedNodes().contains(otherNode);
     }
 
+    protected boolean isRealChange(double x, double y) {
+        return !isAnchored && (this.x != x || this.y != y);
+    }
+
     @Override
     public void setAnchored(boolean anchored) {
         this.isAnchored = anchored;
@@ -103,27 +107,15 @@ public abstract class AbstractLayoutNode implements LayoutNode {
 
     @Override
     public void setPosition(double x, double y) {
-        setX(x);
-        setY(y);
+        if (isRealChange(x, y)) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     @Override
     public void setPosition(PointDouble position) {
         setPosition(position.getX(), position.getY());
-    }
-
-    @Override
-    public void setX(double x) {
-        if (!isAnchored) {
-            this.x = x;
-        }
-    }
-
-    @Override
-    public void setY(double y) {
-        if (!isAnchored) {
-            this.y = y;
-        }
     }
 
 }
