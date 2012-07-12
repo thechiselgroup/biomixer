@@ -36,10 +36,6 @@ public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
 
     private FullTermResponseJsonParser underTest;
 
-    public FullTermResponseJsonParserTest() {
-        super(FullTermResponseJsonParserTest.class);
-    }
-
     @Test
     public void parseNeighbourhoodMultipleParentsMultipleChildrenOBO()
             throws IOException {

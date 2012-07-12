@@ -25,22 +25,12 @@ import org.thechiselgroup.biomixer.server.core.util.IOUtils;
  * @author drusk
  * 
  */
-public abstract class AbstractJsonParserTest {
-
-    private final Class<? extends AbstractJsonParserTest> clazz;
-
-    /**
-     * 
-     * @param clazz
-     *            subclass' class object
-     */
-    public AbstractJsonParserTest(Class<? extends AbstractJsonParserTest> clazz) {
-        this.clazz = clazz;
-    }
+public class AbstractJsonParserTest {
 
     protected String getFileContentsAsString(String filename)
             throws IOException {
-        return IOUtils.readIntoString(clazz.getResourceAsStream(filename));
+
+        return IOUtils.readIntoString(getClass().getResourceAsStream(filename));
     }
 
 }

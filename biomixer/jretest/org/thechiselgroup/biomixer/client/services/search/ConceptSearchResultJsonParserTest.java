@@ -35,10 +35,6 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
 
     private ConceptSearchResultJsonParser underTest;
 
-    public ConceptSearchResultJsonParserTest() {
-        super(ConceptSearchResultJsonParserTest.class);
-    }
-
     public List<String> getValues(Set<Resource> resources, String key) {
         List<String> values = new ArrayList<String>();
         for (Resource resource : resources) {

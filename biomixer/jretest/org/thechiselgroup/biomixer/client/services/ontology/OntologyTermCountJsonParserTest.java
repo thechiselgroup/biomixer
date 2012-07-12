@@ -29,10 +29,6 @@ public class OntologyTermCountJsonParserTest extends AbstractJsonParserTest {
 
     private OntologyTermCountJsonParser underTest;
 
-    public OntologyTermCountJsonParserTest() {
-        super(OntologyTermCountJsonParserTest.class);
-    }
-
     @Test
     public void getTermCount() throws IOException {
         String termCount = parseTermCount("ontology1078termcount.json");

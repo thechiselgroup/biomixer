@@ -32,10 +32,6 @@ public class TermWithoutRelationshipsJsonParserTest extends
 
     private TermWithoutRelationshipsJsonParser underTest;
 
-    public TermWithoutRelationshipsJsonParserTest() {
-        super(TermWithoutRelationshipsJsonParserTest.class);
-    }
-
     private Resource parseResource(String ontologyId, String jsonFilename)
             throws IOException {
         return underTest.parseConcept(ontologyId,

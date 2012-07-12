@@ -41,10 +41,6 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
 
     private MappingResponseJsonParser underTest;
 
-    public MappingResponseJsonParserTest() {
-        super(MappingResponseJsonParserTest.class);
-    }
-
     private Resource getMappingWithUri(String uri, List<Resource> mappings) {
         for (Resource mapping : mappings) {
             if (mapping.getUri().equals(uri)) {

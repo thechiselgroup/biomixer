@@ -29,10 +29,6 @@ public class OntologyNameJsonParserTest extends AbstractJsonParserTest {
 
     private OntologyNameJsonParser underTest;
 
-    public OntologyNameJsonParserTest() {
-        super(OntologyNameJsonParserTest.class);
-    }
-
     @Test
     public void getOntologyName() throws IOException {
         String ontologyName = parseOntologyName("virtual_ontology_id_1487.json");

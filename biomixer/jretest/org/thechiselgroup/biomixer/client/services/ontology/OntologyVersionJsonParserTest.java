@@ -29,10 +29,6 @@ public class OntologyVersionJsonParserTest extends AbstractJsonParserTest {
 
     private OntologyVersionJsonParser underTest;
 
-    public OntologyVersionJsonParserTest() {
-        super(OntologyVersionJsonParserTest.class);
-    }
-
     @Test
     public void getOntologyVersionIdForVirtualId1148() throws IOException {
         String ontologyVersionId = parseOntologyVersionId("virtual_ontology_id_1148.json");
