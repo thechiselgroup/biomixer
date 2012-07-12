@@ -78,7 +78,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.DefaultDesktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
-import org.thechiselgroup.biomixer.client.json.TotoeJsonParser;
+import org.thechiselgroup.biomixer.client.json.JsJsonParser;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.authentication.DefaultAuthenticationManager;
 import org.thechiselgroup.biomixer.client.workbench.client.command.ui.CommandPresenterFactory;
@@ -350,7 +350,7 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
 
         bind(DocumentProcessor.class).to(SarissaDocumentProcessor.class).in(
                 Singleton.class);
-        bind(JsonParser.class).to(TotoeJsonParser.class).in(Singleton.class);
+        bind(JsonParser.class).to(JsJsonParser.class).in(Singleton.class);
         bindUrlFetchService();
 
         bindBranding();

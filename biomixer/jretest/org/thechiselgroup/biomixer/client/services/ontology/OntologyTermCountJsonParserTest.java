@@ -23,7 +23,7 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class OntologyTermCountJsonParserTest extends AbstractJsonParserTest {
 
@@ -41,7 +41,7 @@ public class OntologyTermCountJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        underTest = new OntologyTermCountJsonParser(new JavaJsonParser());
+        underTest = new OntologyTermCountJsonParser(new JacksonJsonParser());
     }
 
 }

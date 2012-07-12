@@ -24,8 +24,10 @@ public class OntologyVersionJsonParser extends AbstractJsonResultParser {
         super(jsonParser);
     }
 
+    @Override
     public String parse(String json) {
-        return getString(json, "$.success.data[0].ontologyBean.id");
+        return asString(get(
+                get(get(get(get(super.parse(json), "success"), "data"), 0),
+                        "ontologyBean"), "id"));
     }
-
 }

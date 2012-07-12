@@ -30,9 +30,6 @@
   <inherits name='com.google.gwt.user.User'/>
   <inherits name="com.google.gwt.user.theme.standard.StandardResources" />
   
-  <!-- JSONPath support in GWT -->
-  <inherits name="name.pehl.totoe.json.JSON" />
-  
   <!-- GWT Date and Number Formatting -->
   <inherits name="com.google.gwt.i18n.I18N"/>
  

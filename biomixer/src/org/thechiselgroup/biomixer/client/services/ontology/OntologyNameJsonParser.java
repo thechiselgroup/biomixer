@@ -15,22 +15,24 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.ontology;
 
+import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
 
-public class OntologyNameJsonParser {
-
-    private JsonParser jsonParser;
+public class OntologyNameJsonParser extends AbstractJsonResultParser {
 
     @Inject
     public OntologyNameJsonParser(JsonParser jsonParser) {
-        this.jsonParser = jsonParser;
+        super(jsonParser);
     }
 
+    @Override
     public String parse(String json) {
-        return jsonParser.getString(json,
-                "$.success.data[0].ontologyBean.displayLabel");
+        return asString(get(
+                get(get(get(get(super.parse(json), "success"), "data"), 0),
+                        "ontologyBean"),
+                "displayLabel"));
     }
 
 }
