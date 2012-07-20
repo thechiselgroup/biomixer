@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.error_handling.CompositeErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainerErrorHandler;
@@ -49,11 +51,11 @@ import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
-import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
-import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.CenterRightViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.HighlightingVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.PopupWithHighlightingVisualItemBehavior;
@@ -130,6 +132,9 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private HighlightingModel hoverModel;
 
     @Inject
+    private LoggingErrorHandler loggingErrorHandler;
+
+    @Inject
     protected VisualItemValueResolverUIControllerFactoryProvider uiProvider;
 
     @Inject
@@ -157,20 +162,6 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     @Inject
     private ManagedSlotMappingConfigurationPersistence slotMappingConfigurationPersistence;
 
-    /**
-     * Hook for overriding.
-     */
-    protected List<ViewTopBarExtension> createViewTopBarExtensions(
-            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
-
-        List<ViewTopBarExtension> extensions = new ArrayList<ViewTopBarExtension>();
-
-        extensions.add(createResourceModelPresenterExtension(resourceModel));
-        extensions.add(createSelectionModelPresenterExtension(selectionModel));
-
-        return extensions;
-    }
-
     protected ResourceMultiCategorizer createDefaultCategorizer(
             String contentType) {
         return new ResourceByUriMultiCategorizer();
@@ -179,12 +170,11 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private ViewTopBarExtension createResourceModelPresenterExtension(
             ResourceModel resourceModel) {
 
-        return new LeftViewTopBarExtension(
-                new DefaultResourceModelPresenter(
-                        new ResourceSetAvatarResourceSetsPresenter(
-                                allResourcesDragAvatarFactory),
-                        new ResourceSetAvatarResourceSetsPresenter(
-                                userSetsDragAvatarFactory), resourceModel));
+        return new LeftViewTopBarExtension(new DefaultResourceModelPresenter(
+                new ResourceSetAvatarResourceSetsPresenter(
+                        allResourcesDragAvatarFactory),
+                new ResourceSetAvatarResourceSetsPresenter(
+                        userSetsDragAvatarFactory), resourceModel));
     }
 
     private ViewTopBarExtension createSelectionModelPresenterExtension(
@@ -226,6 +216,20 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         return CollectionFactory.createLightweightList();
     }
 
+    /**
+     * Hook for overriding.
+     */
+    protected List<ViewTopBarExtension> createViewTopBarExtensions(
+            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
+
+        List<ViewTopBarExtension> extensions = new ArrayList<ViewTopBarExtension>();
+
+        extensions.add(createResourceModelPresenterExtension(resourceModel));
+        extensions.add(createSelectionModelPresenterExtension(selectionModel));
+
+        return extensions;
+    }
+
     protected VisualMappingsControl createVisualMappingsControl(
             HasResourceCategorizer resourceGrouping,
             DefaultManagedSlotMappingConfiguration uiModel, String contentType) {
@@ -240,8 +244,10 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         assert contentType != null;
 
         ThrowablesContainer throwablesContainer = new ThrowablesContainer();
-        ErrorHandler throwablesContainerErrorHandler = new ThrowablesContainerErrorHandler(
-                throwablesContainer);
+        CompositeErrorHandler throwablesContainerErrorHandler = new CompositeErrorHandler();
+        throwablesContainerErrorHandler
+                .add(new ThrowablesContainerErrorHandler(throwablesContainer));
+        throwablesContainerErrorHandler.add(loggingErrorHandler);
         ViewContentDisplay viewContentDisplay = viewContentDisplayConfiguration
                 .createDisplay(contentType, throwablesContainerErrorHandler);
 
