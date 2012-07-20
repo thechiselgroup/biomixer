@@ -50,7 +50,8 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         Resource resource = new Resource(Mapping.toMappingURI(id));
         resource.putValue(Mapping.ID, id);
 
-        String sourceOntologyId = asString(get(mapping, "sourceOntologyId"));
+        String sourceOntologyId = getOntologyIdAsString(mapping,
+                "sourceOntologyId");
         // NOTE: odd json format -> {source: [{fullId: <fullId>}], target:
         // [{fullId: <fullId>}]}
         String sourceConceptId = asString(get(get(get(mapping, "source"), 0),
@@ -59,7 +60,8 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
                 sourceConceptId);
         resource.putValue(Mapping.SOURCE, sourceUri);
 
-        String targetOntologyId = asString(get(mapping, "targetOntologyId"));
+        String targetOntologyId = getOntologyIdAsString(mapping,
+                "targetOntologyId");
         String targetConceptId = asString(get(get(get(mapping, "target"), 0),
                 "fullId"));
         String targetUri = Concept.toConceptURI(targetOntologyId,
@@ -85,14 +87,8 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         List<Resource> result = new ArrayList<Resource>();
 
         Object mappings = get(
-                get(get(get(get(get(get(parse(json),
-                        "success"),
-                        "data"),
-                        0),
-                        "page"),
-                        "contents"),
-                        "mappings"),
-                "mapping");
+                get(get(get(get(get(get(parse(json), "success"), "data"), 0),
+                        "page"), "contents"), "mappings"), "mapping");
 
         if (mappings == null) {
             return result;
