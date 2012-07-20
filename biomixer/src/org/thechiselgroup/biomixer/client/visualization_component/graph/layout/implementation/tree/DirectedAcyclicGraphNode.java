@@ -99,17 +99,20 @@ public class DirectedAcyclicGraphNode {
             return 0;
         }
 
-        int maxDistance = -1;
         if (children.contains(targetNode)) {
-            maxDistance = 1;
+            return 1;
         }
+
+        int maxDistance = -1;
         for (DirectedAcyclicGraphNode child : children) {
-            if (child.getDescendants().contains(targetNode)
-                    && (child.getMaxDistance(targetNode) + 1) > maxDistance) {
-                maxDistance = child.getMaxDistance(targetNode) + 1;
+            int childDistance = child.getMaxDistance(targetNode);
+
+            if (childDistance > maxDistance) {
+                maxDistance = childDistance;
             }
         }
-        return maxDistance;
+
+        return maxDistance >= 0 ? maxDistance + 1 : -1;
     }
 
     /**
