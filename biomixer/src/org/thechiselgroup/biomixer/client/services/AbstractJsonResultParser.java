@@ -50,6 +50,10 @@ public abstract class AbstractJsonResultParser implements JsonParser {
         return jsonParser.get(object, property);
     }
 
+    protected String getOntologyIdAsString(Object object, String property) {
+        return Integer.toString(asInt(get(object, property)));
+    }
+
     @Override
     public boolean has(Object object, String property) {
         return jsonParser.has(object, property);

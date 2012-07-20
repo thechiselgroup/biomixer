@@ -33,8 +33,7 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource analyzeItem(Object jsonItem) {
-        String ontologyId = Integer
-                .toString(asInt(get(jsonItem, "ontologyId")));
+        String ontologyId = getOntologyIdAsString(jsonItem, "ontologyId");
         String conceptId = asString(get(jsonItem, "conceptId"));
 
         Resource resource = new Resource(Concept.toConceptURI(ontologyId,
