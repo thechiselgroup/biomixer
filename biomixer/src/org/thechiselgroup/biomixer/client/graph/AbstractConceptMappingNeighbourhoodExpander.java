@@ -45,10 +45,10 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
 
     @Override
     protected String getErrorMessageWhenNeighbourhoodloadingFails(
-            Resource resource) {
+            Resource resource, String additionalMessage) {
         return "Could not expand all mappings for \""
                 + resource.getValue(Concept.LABEL) + "\" "
-                + getOntologyInfoForErrorMessage(resource);
+                + getOntologyInfoForErrorMessage(resource) + additionalMessage;
     }
 
     @Override
