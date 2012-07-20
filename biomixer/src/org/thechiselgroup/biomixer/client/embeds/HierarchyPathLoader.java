@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
+import com.google.gwt.jsonp.client.TimeoutException;
 import com.google.inject.Inject;
 
 /**
@@ -81,7 +82,9 @@ public class HierarchyPathLoader {
                     protected Throwable wrapException(Throwable caught) {
                         return new Exception(
                                 "Could not retrieve hierarchy to root for "
-                                        + shortConceptId, caught);
+                                        + shortConceptId
+                                        + ((caught instanceof TimeoutException) ? " (server timeout)"
+                                                : ""), caught);
                     }
                 });
     }
@@ -103,8 +106,11 @@ public class HierarchyPathLoader {
                     protected Throwable wrapException(Throwable caught) {
                         return new Exception(
                                 "Could not retrieve full term information for "
-                                        + conceptShortId + " ontology "
-                                        + virtualOntologyId, caught);
+                                        + conceptShortId
+                                        + " ontology "
+                                        + virtualOntologyId
+                                        + ((caught instanceof TimeoutException) ? " (server timeout)"
+                                                : ""), caught);
                     }
                 });
     }
@@ -142,7 +148,9 @@ public class HierarchyPathLoader {
                     protected Throwable wrapException(Throwable caught) {
                         return new Exception(
                                 "Could not retrieve basic information for "
-                                        + fullConceptId, caught);
+                                        + fullConceptId
+                                        + ((caught instanceof TimeoutException) ? " (server timeout)"
+                                                : ""), caught);
                     }
 
                 });
