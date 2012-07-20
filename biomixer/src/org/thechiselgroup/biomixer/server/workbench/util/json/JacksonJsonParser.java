@@ -44,7 +44,8 @@ public class JacksonJsonParser implements JsonParser {
 
     @Override
     public Object get(Object jsonNode, String property) {
-        return ((JsonNode) jsonNode).get(property);
+        JsonNode node = (JsonNode) jsonNode;
+        return node.isObject() ? node.get(property) : null;
     }
 
     @Override
