@@ -45,11 +45,15 @@ import org.thechiselgroup.biomixer.client.core.visualization.ui.VisualMappingsCo
 import org.thechiselgroup.biomixer.shared.core.util.ForTest;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.dom.client.Style.Overflow;
+import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.StackPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -301,8 +305,17 @@ public class DefaultView implements View {
         sidePanel.setVisible(false);
 
         for (SidePanelSection sidePanelSection : sidePanelSections) {
-            sidePanel.add(sidePanelSection.getWidget(),
-                    sidePanelSection.getSectionTitle());
+            /*
+             * wrap widget to enable scrolling when there is not enough space on
+             * the y-axis.
+             */
+            SimplePanel wrapperPanel = new SimplePanel(
+                    sidePanelSection.getWidget());
+            Style style = wrapperPanel.getElement().getStyle();
+            style.setHeight(100, Unit.PCT);
+            style.setOverflowY(Overflow.AUTO);
+
+            sidePanel.add(wrapperPanel, sidePanelSection.getSectionTitle());
         }
     }
 
@@ -354,6 +367,7 @@ public class DefaultView implements View {
     }
 
     // XXX remove once content display lifecycle working
+    @Override
     public boolean isReady() {
         return contentDisplay.isReady();
     }
