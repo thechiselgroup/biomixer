@@ -17,8 +17,7 @@ package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
-
-import com.google.gwt.jsonp.client.TimeoutException;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.CallbackException;
 
 public abstract class TimeoutErrorHandlingAsyncCallback<T> extends
         ErrorHandlingAsyncCallback<T> {
@@ -31,8 +30,6 @@ public abstract class TimeoutErrorHandlingAsyncCallback<T> extends
 
     @Override
     protected final Throwable wrapException(Throwable caught) {
-        return new Exception(
-                ((caught instanceof TimeoutException) ? "server timeout - "
-                        : "") + getMessage(caught), caught);
+        return new CallbackException(getMessage(caught), caught);
     }
 }
