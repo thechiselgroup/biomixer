@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
@@ -28,7 +27,6 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
-import com.google.gwt.jsonp.client.TimeoutException;
 import com.google.inject.Inject;
 
 /**
@@ -65,36 +63,44 @@ public class HierarchyPathLoader {
     private void doLoadHierarchyData(final String virtualOntologyId,
             final String shortConceptId, final View graphView) {
 
-        hierarchyPathService.findHierarchyToRoot(virtualOntologyId,
-                shortConceptId, new ErrorHandlingAsyncCallback<Set<String>>(
-                        errorHandler) {
+        hierarchyPathService
+                .findHierarchyToRoot(virtualOntologyId, shortConceptId,
+                        new TimeoutErrorHandlingAsyncCallback<Set<String>>(
+                                errorHandler) {
 
-                    @Override
-                    protected void runOnSuccess(Set<String> shortIdsInHierarchy)
-                            throws Exception {
+                            @Override
+                            protected String getMessage(Throwable caught) {
+                                return "Could not retrieve hierarchy to root for "
+                                        + shortConceptId;
+                            }
 
-                        for (String shortId : shortIdsInHierarchy) {
-                            loadConcept(virtualOntologyId, shortId, graphView);
-                        }
-                    }
+                            @Override
+                            protected void runOnSuccess(
+                                    Set<String> shortIdsInHierarchy)
+                                    throws Exception {
 
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve hierarchy to root for "
-                                        + shortConceptId
-                                        + ((caught instanceof TimeoutException) ? " (server timeout)"
-                                                : ""), caught);
-                    }
-                });
+                                for (String shortId : shortIdsInHierarchy) {
+                                    loadConcept(virtualOntologyId, shortId,
+                                            graphView);
+                                }
+                            }
+
+                        });
     }
 
     private void loadConcept(final String virtualOntologyId,
             final String conceptShortId, final View graphView) {
 
         conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
-                conceptShortId, new ErrorHandlingAsyncCallback<Resource>(
-                        errorHandler) {
+                conceptShortId,
+                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve full term information for "
+                                + conceptShortId + " ontology "
+                                + virtualOntologyId;
+                    }
 
                     @Override
                     protected void runOnSuccess(Resource resource) {
@@ -102,16 +108,6 @@ public class HierarchyPathLoader {
                                 .add(resource);
                     }
 
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve full term information for "
-                                        + conceptShortId
-                                        + " ontology "
-                                        + virtualOntologyId
-                                        + ((caught instanceof TimeoutException) ? " (server timeout)"
-                                                : ""), caught);
-                    }
                 });
     }
 
@@ -133,7 +129,13 @@ public class HierarchyPathLoader {
         // need to look up short id since that is what the hierarchy service
         // requires as a parameter
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
-                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
+                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve basic information for "
+                                + fullConceptId;
+                    }
 
                     @Override
                     protected void runOnSuccess(Resource result)
@@ -142,15 +144,6 @@ public class HierarchyPathLoader {
                         String shortId = (String) result
                                 .getValue(Concept.SHORT_ID);
                         loadHierarchyData(virtualOntologyId, shortId, graphView);
-                    }
-
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve basic information for "
-                                        + fullConceptId
-                                        + ((caught instanceof TimeoutException) ? " (server timeout)"
-                                                : ""), caught);
                     }
 
                 });
