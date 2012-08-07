@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2009, 2010 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -76,7 +76,7 @@ public class ConceptMappingNeighbourhoodLoaderTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
                 eq(Concept.getOntologyId(concept)),
-                eq(Concept.getConceptId(concept)), captor.capture());
+                eq(Concept.getConceptId(concept)), eq(false), captor.capture());
         underTest.expand(visualItem, expansionCallback);
 
         return captor.getValue();

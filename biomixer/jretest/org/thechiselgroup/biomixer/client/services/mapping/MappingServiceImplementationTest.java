@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -82,7 +82,7 @@ public class MappingServiceImplementationTest {
         doNothing().when(urlFetchService).fetchURL(eq(URL), captor.capture());
 
         underTest.getMappings(Concept.getOntologyId(conceptUri),
-                Concept.getConceptId(conceptUri), callback);
+                Concept.getConceptId(conceptUri), false, callback);
 
         AsyncCallback<String> xmlResultCallback = captor.getValue();
 
@@ -169,7 +169,8 @@ public class MappingServiceImplementationTest {
         String ontologyId = "1ontologyId1";
         String conceptId = "1conceptId1";
 
-        underTest.getMappings(ontologyId, conceptId, mock(AsyncCallback.class));
+        underTest.getMappings(ontologyId, conceptId, false,
+                mock(AsyncCallback.class));
 
         verify(urlFetchService, times(1)).fetchURL(eq(URL),
                 any(AsyncCallback.class));

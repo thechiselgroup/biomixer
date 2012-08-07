@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -69,7 +69,7 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
                 .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
         String conceptId = (String) resource.getValue(Concept.FULL_ID);
 
-        mappingService.getMappings(ontologyId, conceptId, callback);
+        mappingService.getMappings(ontologyId, conceptId, false, callback);
     }
 
     @Override

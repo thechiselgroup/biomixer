@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 David Rusk 
+ * Copyright 2012 David Rusk, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -101,6 +101,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
                 final String otherOntologyId = Concept.getOntologyId(otherUri);
                 final String otherConceptId = Concept.getConceptId(otherUri);
+
                 termService.getBasicInformation(otherOntologyId,
                         otherConceptId, new BasicTermInfoCallback(errorHandler,
                                 otherConceptId));
@@ -148,7 +149,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
                         // TODO move to MappedConceptsServiceAsyncImpl
                         mappingService.getMappings(virtualOntologyId,
-                                fullConceptId, new MappingCallback(
+                                fullConceptId, true, new MappingCallback(
                                         errorHandler, targetResource,
                                         resourceSet, fullConceptId, graphView));
                     }

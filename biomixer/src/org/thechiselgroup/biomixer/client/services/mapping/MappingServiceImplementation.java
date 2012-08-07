@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -109,6 +109,7 @@ public class MappingServiceImplementation implements MappingServiceAsync {
 
     @Override
     public void getMappings(final String ontologyId, final String conceptId,
+            final boolean mappingNeighbourhood,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
         assert ontologyId != null;
@@ -122,6 +123,12 @@ public class MappingServiceImplementation implements MappingServiceAsync {
                     throws Exception {
 
                 List<Resource> mappings = responseParser.parseMapping(value);
+
+                if (mappingNeighbourhood == true && mappings.size() == 0) {
+                    com.google.gwt.user.client.Window
+                            .alert("This concept does not have any mappings.");
+                }
+
                 Map<String, Serializable> partialProperties = calculatePartialProperties(
                         Concept.toConceptURI(ontologyId, conceptId), mappings);
                 return new ResourceNeighbourhood(partialProperties, mappings);
