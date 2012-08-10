@@ -363,13 +363,13 @@ public class DefaultView implements View {
         viewPanel.add(topBar, DockPanel.NORTH);
         viewPanel.add(contentDisplay.asWidget(), DockPanel.CENTER);
         viewPanel.add(sidePanel, DockPanel.EAST);
-
-        Widget errorListBox = errorListBoxControl.asWidget();
-        errorListBox.setSize("100%", "");
-        errorListBox.setStyleName(CSS_VIEW_ERROR_LIST_BOX);
-        errorListBox.setVisible(false);
-        viewPanel.add(errorListBox, DockPanel.SOUTH);
-
+        /*
+         * removing error list box Widget errorListBox =
+         * errorListBoxControl.asWidget(); errorListBox.setSize("100%", "");
+         * errorListBox.setStyleName(CSS_VIEW_ERROR_LIST_BOX);
+         * errorListBox.setVisible(false); viewPanel.add(errorListBox,
+         * DockPanel.SOUTH);
+         */
         viewPanel.setCellHeight(contentDisplay.asWidget(), "100%");
     }
 
