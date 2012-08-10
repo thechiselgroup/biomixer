@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2009, 2010 Lars Grammel, Bo Fu 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -53,7 +53,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasAlignment;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.StackPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -309,13 +309,25 @@ public class DefaultView implements View {
              * wrap widget to enable scrolling when there is not enough space on
              * the y-axis.
              */
-            SimplePanel wrapperPanel = new SimplePanel(
-                    sidePanelSection.getWidget());
-            Style style = wrapperPanel.getElement().getStyle();
-            style.setHeight(100, Unit.PCT);
-            style.setOverflowY(Overflow.AUTO);
+            /*
+             * SimplePanel wrapperPanel = new SimplePanel(
+             * sidePanelSection.getWidget()); Style style =
+             * wrapperPanel.getElement().getStyle(); style.setHeight(100,
+             * Unit.PCT); style.setOverflowY(Overflow.AUTO);
+             * 
+             * sidePanel.add(wrapperPanel, sidePanelSection.getSectionTitle());
+             */
 
-            sidePanel.add(wrapperPanel, sidePanelSection.getSectionTitle());
+            ScrollPanel scrollPanel = new ScrollPanel(
+                    sidePanelSection.getWidget());
+            scrollPanel.setAlwaysShowScrollBars(false);
+            Style style = scrollPanel.getElement().getStyle();
+            com.google.gwt.user.client.Window.enableScrolling(true);
+            style.setHeight(100, Unit.PCT);
+            style.setOverflow(Overflow.AUTO);
+
+            sidePanel.add(scrollPanel, sidePanelSection.getSectionTitle());
+
         }
     }
 
