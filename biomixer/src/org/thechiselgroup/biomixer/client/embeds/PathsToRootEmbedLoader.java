@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 David Rusk 
+ * Copyright 2012 David Rusk, Bo Fu 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -24,6 +24,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 /**
@@ -91,6 +92,11 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
                     @Override
                     public void runOnSuccess(Resource resource) {
+
+                        // hide loading bar
+                        RootPanel rootPanel = RootPanel.get("loadingMessage");
+                        rootPanel.setVisible(false);
+
                         if (graphView.getResourceModel().getResources()
                                 .containsResourceWithUri(conceptUri)) {
                             return;

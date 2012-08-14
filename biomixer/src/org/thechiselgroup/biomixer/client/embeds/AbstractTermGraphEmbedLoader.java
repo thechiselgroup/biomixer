@@ -91,7 +91,7 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
 
-        // add a progress bar so the user knows the application is being loaded
+        // add a loading bar so the user knows the application is being loaded
         Image loadingMessage = new Image(GWT.getModuleBaseURL()
                 + "images/ajax-loader-bar.gif");
         graphView
@@ -103,6 +103,7 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         callback.onSuccess(graphView);
 
         loadData(virtualOntologyId, fullConceptId, graphView, errorHandler);
+
     }
 
     private void setLayoutAlgorithm(View graphView,

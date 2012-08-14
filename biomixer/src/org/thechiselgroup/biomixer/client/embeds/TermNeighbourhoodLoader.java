@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -27,6 +27,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -61,6 +62,11 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         @Override
         protected void runOnSuccess(ResourceNeighbourhood targetNeighbourhood)
                 throws Exception {
+
+            // hide loading bar
+            RootPanel rootPanel = RootPanel.get("loadingMessage");
+            rootPanel.setVisible(false);
+
             targetResource.applyPartialProperties(targetNeighbourhood
                     .getPartialProperties());
             resourceSet.addAll(targetNeighbourhood.getResources());
