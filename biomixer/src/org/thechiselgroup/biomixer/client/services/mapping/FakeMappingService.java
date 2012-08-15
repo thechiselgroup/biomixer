@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -97,7 +97,7 @@ public class FakeMappingService implements MappingServiceAsync {
     @SuppressWarnings("unused")
     @Override
     public void getMappings(final String ontologyId,
-            final String conceptFullId,
+            final String conceptFullId, final boolean mappingNeighbourhood,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
         if (RESPONSE_DELAY_MS <= 0) {

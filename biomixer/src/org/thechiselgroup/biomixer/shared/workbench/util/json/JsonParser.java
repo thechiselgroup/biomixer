@@ -17,14 +17,22 @@ package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
 public interface JsonParser {
 
-    JsonArray getArray(JsonItem jsonItem, String path);
+    int asInt(Object intObject);
 
-    JsonArray getArray(String json, String path);
+    double asNumber(Object numberObject);
 
-    JsonItem getItem(String json, String path);
+    String asString(Object text);
 
-    String getString(JsonItem jsonItem, String path);
+    Object get(Object array, int index);
 
-    String getString(String json, String path);
+    Object get(Object object, String property);
+
+    boolean has(Object object, String property);
+
+    boolean isArray(Object object);
+
+    int length(Object array);
+
+    Object parse(String json);
 
 }

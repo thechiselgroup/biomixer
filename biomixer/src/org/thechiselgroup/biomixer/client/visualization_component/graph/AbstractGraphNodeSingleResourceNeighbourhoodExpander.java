@@ -19,10 +19,10 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -73,7 +73,7 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
             List<Resource> neighbourhood);
 
     protected abstract String getErrorMessageWhenNeighbourhoodloadingFails(
-            Resource resource);
+            Resource resource, String additionalMessage);
 
     protected String getOntologyInfoForErrorMessage(Resource resource) {
         String ontologyName = (String) resource
@@ -108,8 +108,14 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
             final Resource resource, final GraphNodeExpansionCallback graph) {
 
         loadNeighbourhood(visualItem, resource,
-                new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
+                new TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                         errorHandler) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return getErrorMessageWhenNeighbourhoodloadingFails(
+                                resource, "");
+                    }
 
                     @Override
                     protected void runOnSuccess(ResourceNeighbourhood result)
@@ -123,13 +129,6 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
                                 .getPartialProperties());
                         expandNeighbourhood(visualItem, resource, graph,
                                 resourceManager.addAll(result.getResources()));
-                    }
-
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                getErrorMessageWhenNeighbourhoodloadingFails(resource),
-                                caught);
                     }
 
                 });

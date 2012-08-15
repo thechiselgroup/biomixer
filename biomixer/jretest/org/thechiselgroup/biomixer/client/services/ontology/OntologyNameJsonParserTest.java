@@ -23,15 +23,11 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class OntologyNameJsonParserTest extends AbstractJsonParserTest {
 
     private OntologyNameJsonParser underTest;
-
-    public OntologyNameJsonParserTest() {
-        super(OntologyNameJsonParserTest.class);
-    }
 
     @Test
     public void getOntologyName() throws IOException {
@@ -45,6 +41,6 @@ public class OntologyNameJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        this.underTest = new OntologyNameJsonParser(new JavaJsonParser());
+        this.underTest = new OntologyNameJsonParser(new JacksonJsonParser());
     }
 }

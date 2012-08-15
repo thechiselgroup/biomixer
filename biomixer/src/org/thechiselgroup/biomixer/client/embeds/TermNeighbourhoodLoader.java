@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -16,7 +16,6 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -28,9 +27,52 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
+
+    private class ConceptNeighbourhoodCallback extends
+            TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+
+        private final ResourceSet resourceSet;
+
+        private final String fullConceptId;
+
+        private final View graphView;
+
+        private final Resource targetResource;
+
+        private ConceptNeighbourhoodCallback(ErrorHandler errorHandler,
+                ResourceSet resourceSet, String fullConceptId, View graphView,
+                Resource targetResource) {
+            super(errorHandler);
+            this.resourceSet = resourceSet;
+            this.fullConceptId = fullConceptId;
+            this.graphView = graphView;
+            this.targetResource = targetResource;
+        }
+
+        @Override
+        protected String getMessage(Throwable caught) {
+            return "Could not expand concept neighbourhood for "
+                    + fullConceptId;
+        }
+
+        @Override
+        protected void runOnSuccess(ResourceNeighbourhood targetNeighbourhood)
+                throws Exception {
+
+            // hide loading bar
+            RootPanel rootPanel = RootPanel.get("loadingMessage");
+            rootPanel.setVisible(false);
+
+            targetResource.applyPartialProperties(targetNeighbourhood
+                    .getPartialProperties());
+            resourceSet.addAll(targetNeighbourhood.getResources());
+            graphView.getResourceModel().addResourceSet(resourceSet);
+        }
+    }
 
     public static final String EMBED_MODE = "concept_neighbourhood";
 
@@ -49,50 +91,25 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
-                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
+                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+
                     @Override
-                    protected void runOnSuccess(final Resource targetResource)
-                            throws Exception {
-                        final ResourceSet resourceSet = new DefaultResourceSet();
-                        resourceSet.add(targetResource);
-                        conceptNeighbourhoodService
-                                .getNeighbourhood(
-                                        virtualOntologyId,
-                                        fullConceptId,
-                                        new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
-                                                errorHandler) {
-
-                                            @Override
-                                            protected void runOnSuccess(
-                                                    ResourceNeighbourhood targetNeighbourhood)
-                                                    throws Exception {
-                                                targetResource
-                                                        .applyPartialProperties(targetNeighbourhood
-                                                                .getPartialProperties());
-                                                resourceSet
-                                                        .addAll(targetNeighbourhood
-                                                                .getResources());
-                                                graphView.getResourceModel()
-                                                        .addResourceSet(
-                                                                resourceSet);
-                                            }
-
-                                            @Override
-                                            protected Throwable wrapException(
-                                                    Throwable caught) {
-                                                return new Exception(
-                                                        "Could not expand concept neighbourhood for "
-                                                                + fullConceptId,
-                                                        caught);
-                                            }
-                                        });
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve basic information for "
+                                + fullConceptId;
                     }
 
                     @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve basic information for "
-                                        + fullConceptId, caught);
+                    protected void runOnSuccess(final Resource targetResource)
+                            throws Exception {
+
+                        final ResourceSet resourceSet = new DefaultResourceSet();
+                        resourceSet.add(targetResource);
+                        conceptNeighbourhoodService.getNeighbourhood(
+                                virtualOntologyId, fullConceptId,
+                                new ConceptNeighbourhoodCallback(errorHandler,
+                                        resourceSet, fullConceptId, graphView,
+                                        targetResource));
                     }
                 });
 

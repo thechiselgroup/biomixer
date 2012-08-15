@@ -23,15 +23,11 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class OntologyVersionJsonParserTest extends AbstractJsonParserTest {
 
     private OntologyVersionJsonParser underTest;
-
-    public OntologyVersionJsonParserTest() {
-        super(OntologyVersionJsonParserTest.class);
-    }
 
     @Test
     public void getOntologyVersionIdForVirtualId1148() throws IOException {
@@ -52,7 +48,7 @@ public class OntologyVersionJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        underTest = new OntologyVersionJsonParser(new JavaJsonParser());
+        underTest = new OntologyVersionJsonParser(new JacksonJsonParser());
     }
 
 }

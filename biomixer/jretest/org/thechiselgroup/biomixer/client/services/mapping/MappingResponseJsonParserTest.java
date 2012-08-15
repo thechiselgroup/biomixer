@@ -35,15 +35,11 @@ import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
 import org.thechiselgroup.biomixer.server.core.util.date.SimpleDateTimeFormatFactory;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
 
     private MappingResponseJsonParser underTest;
-
-    public MappingResponseJsonParserTest() {
-        super(MappingResponseJsonParserTest.class);
-    }
 
     private Resource getMappingWithUri(String uri, List<Resource> mappings) {
         for (Resource mapping : mappings) {
@@ -135,7 +131,7 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        underTest = new MappingResponseJsonParser(new JavaJsonParser(),
+        underTest = new MappingResponseJsonParser(new JacksonJsonParser(),
                 new SimpleDateTimeFormatFactory());
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Lars Grammel 
+ * Copyright 2012 Lars Grammel, Bo Fu 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -28,7 +28,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -88,11 +90,20 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         ErrorHandler errorHandler = graph.getErrorHandler();
 
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
+
+        // add a loading bar so the user knows the application is being loaded
+        Image loadingMessage = new Image(GWT.getModuleBaseURL()
+                + "images/ajax-loader-bar.gif");
+        graphView
+                .addTopBarExtension(new LeftViewTopBarExtension(loadingMessage));
+        loadingMessage.getElement().setId("loadingMessage");
+
         graphView.init();
         setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 
         loadData(virtualOntologyId, fullConceptId, graphView, errorHandler);
+
     }
 
     private void setLayoutAlgorithm(View graphView,

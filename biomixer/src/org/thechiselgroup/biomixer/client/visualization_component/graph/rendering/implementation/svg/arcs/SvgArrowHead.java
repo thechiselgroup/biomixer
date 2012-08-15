@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs;
 
+import static org.thechiselgroup.biomixer.shared.svg.SvgTransforms.rotate;
+import static org.thechiselgroup.biomixer.shared.svg.SvgTransforms.translate;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointUtils;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
@@ -22,7 +25,6 @@ import org.thechiselgroup.biomixer.shared.svg.PathExpressionBuilder;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
-import org.thechiselgroup.biomixer.shared.svg.SvgTransforms;
 
 /**
  * An SVG element that forms an arrowhead which is to be placed on a line to
@@ -35,16 +37,24 @@ public class SvgArrowHead {
 
     public final static double ARROW_WIDTH = 10.0;
 
+    private static final double HALF_ARROW_WIDTH = ARROW_WIDTH / 2;
+
     public final static double ARROW_HEIGHT = 10.0;
 
-    private SvgElement arrow;
+    private final static double HALF_ARROW_HEIGHT = ARROW_HEIGHT / 2;
 
-    private PointDouble centre;
+    private final static String PATH = new PathExpressionBuilder()
+            .moveTo(-HALF_ARROW_WIDTH, -HALF_ARROW_HEIGHT)
+            .lineTo(-HALF_ARROW_WIDTH, +HALF_ARROW_HEIGHT)
+            .lineTo(+HALF_ARROW_WIDTH, 0).close().toString();
+
+    private SvgElement arrow;
 
     public SvgArrowHead(SvgElementFactory svgElementFactory,
             PointDouble sourceLocation, PointDouble targetLocation) {
 
         this.arrow = svgElementFactory.createElement(Svg.PATH);
+        arrow.setAttribute(Svg.D, PATH);
         arrow.setAttribute(Svg.STROKE, Colors.BLACK);
         alignWithPoints(sourceLocation, targetLocation);
     }
@@ -60,32 +70,17 @@ public class SvgArrowHead {
      *            Arrow points towards target
      */
     public void alignWithPoints(PointDouble sourcePoint, PointDouble targetPoint) {
-        centre = PointUtils.getMidPoint(sourcePoint, targetPoint);
-        setPathData();
-        setRotation(sourcePoint, targetPoint);
+        PointDouble centre = PointUtils.getMidPoint(sourcePoint, targetPoint);
+        double angle = PointUtils.getRotationAngle(sourcePoint, targetPoint);
+        double x = centre.getX();
+        double y = centre.getY();
+
+        arrow.setAttribute(Svg.TRANSFORM,
+                translate(x, y) + " " + rotate(angle, 0, 0));
     }
 
     public SvgElement asSvgElement() {
         return arrow;
-    }
-
-    private String getPathData() {
-        double baseX = centre.getX() - ARROW_WIDTH / 2;
-        PathExpressionBuilder pathBuilder = new PathExpressionBuilder();
-        return pathBuilder.moveTo(baseX, centre.getY() - ARROW_HEIGHT / 2)
-                .lineTo(baseX, centre.getY() + ARROW_HEIGHT / 2)
-                .lineTo(centre.getX() + ARROW_WIDTH / 2, centre.getY()).close()
-                .toString();
-    }
-
-    private void setPathData() {
-        arrow.setAttribute(Svg.D, getPathData());
-    }
-
-    private void setRotation(PointDouble sourcePoint, PointDouble targetPoint) {
-        arrow.setAttribute(Svg.TRANSFORM, SvgTransforms.rotate(
-                PointUtils.getRotationAngle(sourcePoint, targetPoint),
-                centre.getX(), centre.getY()));
     }
 
 }

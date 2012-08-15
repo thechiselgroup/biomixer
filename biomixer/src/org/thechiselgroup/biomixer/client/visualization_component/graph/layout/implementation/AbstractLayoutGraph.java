@@ -120,13 +120,15 @@ public abstract class AbstractLayoutGraph implements LayoutGraph {
 
     public void shiftContentsHorizontally(int deltaX) {
         for (LayoutNode layoutNode : getAllNodes()) {
-            layoutNode.setX(layoutNode.getX() + deltaX);
+            layoutNode.setPosition(layoutNode.getX() + deltaX,
+                    layoutNode.getY());
         }
     }
 
     public void shiftContentsVertically(int deltaY) {
         for (LayoutNode layoutNode : getAllNodes()) {
-            layoutNode.setY(layoutNode.getY() + deltaY);
+            layoutNode.setPosition(layoutNode.getX(), layoutNode.getY()
+                    + deltaY);
         }
 
     }

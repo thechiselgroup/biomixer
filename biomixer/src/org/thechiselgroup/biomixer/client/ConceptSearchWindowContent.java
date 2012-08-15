@@ -21,6 +21,7 @@ import static org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemVa
 
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
@@ -113,6 +114,9 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
     private final ViewWindowContentProducer viewFactory;
 
     @Inject
+    private LoggingErrorHandler loggingErrorHandler;
+
+    @Inject
     public ConceptSearchWindowContent(ResourceSetFactory resourceSetFactory,
             ConceptSearchServiceAsync searchService,
             ViewWindowContentProducer viewFactory) {
@@ -166,6 +170,8 @@ public class ConceptSearchWindowContent extends AbstractWindowContent implements
                         infoLabel.setText("Search failed for '" + searchTerm
                                 + "'");
                         deckPanel.updateWindowSize();
+
+                        loggingErrorHandler.handleError(caught);
                     }
 
                     @Override

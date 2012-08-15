@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -33,13 +33,21 @@ public class DirectedAcyclicGraphNode {
 
     private final LayoutNode layoutNode;
 
-    private final List<DirectedAcyclicGraphNode> children = new ArrayList<DirectedAcyclicGraphNode>();
+    private final LightweightList<DirectedAcyclicGraphNode> children = CollectionFactory
+            .createLightweightList();
+
+    private HashSet<DirectedAcyclicGraphNode> cachedDescendants;
 
     public DirectedAcyclicGraphNode(LayoutNode layoutNode) {
         this.layoutNode = layoutNode;
     }
 
     public void addChild(DirectedAcyclicGraphNode child) {
+        if (cachedDescendants != null) {
+            throw new RuntimeException(
+                    "no more nodes should be added add this point");
+        }
+
         children.add(child);
     }
 
@@ -49,7 +57,7 @@ public class DirectedAcyclicGraphNode {
      *         path. It may return multiple nodes because the path may branch at
      *         this node.
      */
-    public List<DirectedAcyclicGraphNode> getChildren() {
+    public LightweightList<DirectedAcyclicGraphNode> getChildren() {
         return children;
     }
 
@@ -59,12 +67,14 @@ public class DirectedAcyclicGraphNode {
      *         on.
      */
     public Set<DirectedAcyclicGraphNode> getDescendants() {
-        Set<DirectedAcyclicGraphNode> descendants = new HashSet<DirectedAcyclicGraphNode>();
-        for (DirectedAcyclicGraphNode childNode : children) {
-            descendants.add(childNode);
-            descendants.addAll(childNode.getDescendants());
+        if (cachedDescendants == null) {
+            cachedDescendants = new HashSet<DirectedAcyclicGraphNode>();
+            for (DirectedAcyclicGraphNode childNode : children) {
+                cachedDescendants.add(childNode);
+                cachedDescendants.addAll(childNode.getDescendants());
+            }
         }
-        return descendants;
+        return cachedDescendants;
     }
 
     /**
@@ -89,17 +99,20 @@ public class DirectedAcyclicGraphNode {
             return 0;
         }
 
-        int maxDistance = -1;
         if (children.contains(targetNode)) {
-            maxDistance = 1;
+            return 1;
         }
+
+        int maxDistance = -1;
         for (DirectedAcyclicGraphNode child : children) {
-            if (child.getDescendants().contains(targetNode)
-                    && (child.getMaxDistance(targetNode) + 1) > maxDistance) {
-                maxDistance = child.getMaxDistance(targetNode) + 1;
+            int childDistance = child.getMaxDistance(targetNode);
+
+            if (childDistance > maxDistance) {
+                maxDistance = childDistance;
             }
         }
-        return maxDistance;
+
+        return maxDistance >= 0 ? maxDistance + 1 : -1;
     }
 
     /**

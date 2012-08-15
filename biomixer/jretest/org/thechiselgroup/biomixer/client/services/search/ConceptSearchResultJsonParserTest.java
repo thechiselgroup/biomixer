@@ -29,15 +29,11 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
 
     private ConceptSearchResultJsonParser underTest;
-
-    public ConceptSearchResultJsonParserTest() {
-        super(ConceptSearchResultJsonParserTest.class);
-    }
 
     public List<String> getValues(Set<Resource> resources, String key) {
         List<String> values = new ArrayList<String>();
@@ -68,7 +64,8 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        this.underTest = new ConceptSearchResultJsonParser(new JavaJsonParser());
+        this.underTest = new ConceptSearchResultJsonParser(
+                new JacksonJsonParser());
     }
 
 }

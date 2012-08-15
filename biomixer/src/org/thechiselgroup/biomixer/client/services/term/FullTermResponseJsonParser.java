@@ -24,10 +24,9 @@ import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -60,12 +59,24 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         /*
          * Note: only entries with a list attribute are retrieved
          */
-        JsonArray queriedResourceRelations = getArray(json,
-                "$.success.data[0].classBean.relations[0].entry[?(@.list)]");
-        for (int i = 0; i < queriedResourceRelations.size(); i++) {
-            JsonItem entry = queriedResourceRelations.get(i);
+        // "$.success.data[0].classBean.relations[0].entry[?(@.list)]");
+        Object queriedResourceRelationsObject = get(
+                get(get(get(
+                        get(get(get(super.parse(json), "success"), "data"), 0),
+                        "classBean"), "relations"), 0), "entry");
+        LightweightList<Object> queriedResourceRelations = CollectionFactory
+                .createLightweightList();
+        for (int i = 0; i < length(queriedResourceRelationsObject); i++) {
+            Object object = get(queriedResourceRelationsObject, i);
+            if (has(object, "list")) {
+                queriedResourceRelations.add(object);
+            }
+        }
 
-            String relationType = getString(entry, "$.string");
+        for (int i = 0; i < queriedResourceRelations.size(); i++) {
+            Object entry = queriedResourceRelations.get(i);
+
+            String relationType = asString(get(entry, "string"));
             if (relationType == null
                     || !("SubClass".equals(relationType) || "SuperClass"
                             .equals(relationType))) {
@@ -76,26 +87,29 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 continue;
             }
 
-            JsonArray entryListContents = getArray(entry, "$.list[0].classBean");
-            if (entryListContents == null) {
+            Object entryListContents = get(get(get(entry, "list"), 0),
+                    "classBean"); // "$.list[0].classBean"
+            if (entryListContents == null || !isArray(entryListContents)) {
                 // if there is just one classbean it is not stored in an array
                 // XXX CLEAN THIS UP
-                JsonItem item = getItem(entry.stringValue(),
-                        "$.list[0].classBean");
-                if (item == null || getString(item, "$.id").equals(OWL_THING)) {
+                // JsonItem item = getItem(entry.stringValue(),
+                // "$.list[0].classBean");
+                if (entryListContents == null // TODO ! isObject
+                        || asString(get(entryListContents, "id")).equals(
+                                OWL_THING)) {
                     continue;
                 }
-                Resource neighbour = process(item,
+                Resource neighbour = process(entryListContents,
                         "SuperClass".equals(relationType), ontologyId,
                         parentConcepts, childConcepts);
                 resources.add(neighbour);
                 continue;
             }
 
-            for (int j = 0; j < entryListContents.size(); j++) {
-                JsonItem relation = entryListContents.get(j);
+            for (int j = 0; j < length(entryListContents); j++) {
+                Object relation = get(entryListContents, j);
 
-                if (getString(relation, "$.id").equals(OWL_THING)) {
+                if (asString(get(relation, "id")).equals(OWL_THING)) {
                     // don't include owl:Thing as a neighbour
                     continue;
                 }
@@ -116,11 +130,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
     }
 
     public Resource parseResource(String ontologyId, String json) {
-        JsonItem queriedResource = getItem(json, "$.success.data[0].classBean");
+        Object queriedResource = get(
+                get(get(get(super.parse(json), "success"), "data"), 0),
+                "classBean");
 
-        String fullConceptId = getString(queriedResource, "$.fullId");
-        String shortConceptId = getString(queriedResource, "$.id");
-        String label = getString(queriedResource, "$.label");
+        String fullConceptId = asString(get(queriedResource, "fullId"));
+        String shortConceptId = asString(get(queriedResource, "id"));
+        String label = asString(get(queriedResource, "label"));
 
         Resource resource = new Resource(Concept.toConceptURI(ontologyId,
                 fullConceptId));
@@ -136,22 +152,21 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         return resource;
     }
 
-    private Resource process(JsonItem relation, boolean reversed,
+    private Resource process(Object relation, boolean reversed,
             String ontologyId, UriList parentConcepts, UriList childConcepts) {
 
-        String conceptId = getString(relation, "$.fullId");
-        String conceptShortId = getString(relation, "$.id");
-        String label = getString(relation, "$.label");
+        String conceptId = asString(get(relation, "fullId"));
+        String conceptShortId = asString(get(relation, "id"));
+        String label = asString(get(relation, "label"));
 
         int childCount = 0;
-        JsonItem relationsEntry = getItem(relation.stringValue(),
-                "$.relations[0].entry");
+        Object relationsEntry = get(get(get(relation, "relations"), 0), "entry");
 
         if (relationsEntry != null) {
-            String entryString = getString(relationsEntry, "$.string");
-            if (entryString != null && entryString.equals("ChildCount")) {
-                childCount = Integer
-                        .parseInt(getString(relationsEntry, "$.int"));
+            Object entryString = get(relationsEntry, "string");
+            if (entryString != null
+                    && asString(entryString).equals("ChildCount")) {
+                childCount = asInt(get(relationsEntry, "int"));
             }
         }
 

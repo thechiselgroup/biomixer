@@ -25,16 +25,12 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class TermWithoutRelationshipsJsonParserTest extends
         AbstractJsonParserTest {
 
     private TermWithoutRelationshipsJsonParser underTest;
-
-    public TermWithoutRelationshipsJsonParserTest() {
-        super(TermWithoutRelationshipsJsonParserTest.class);
-    }
 
     private Resource parseResource(String ontologyId, String jsonFilename)
             throws IOException {
@@ -60,7 +56,8 @@ public class TermWithoutRelationshipsJsonParserTest extends
 
     @Before
     public void setUp() {
-        underTest = new TermWithoutRelationshipsJsonParser(new JavaJsonParser());
+        underTest = new TermWithoutRelationshipsJsonParser(
+                new JacksonJsonParser());
     }
 
 }

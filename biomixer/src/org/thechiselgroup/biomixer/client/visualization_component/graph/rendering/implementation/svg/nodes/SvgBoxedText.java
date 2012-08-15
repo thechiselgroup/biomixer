@@ -79,6 +79,10 @@ public class SvgBoxedText implements IsSvg {
 
     private SvgElement container;
 
+    private double width;
+
+    private double height;
+
     public SvgBoxedText(String text, TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
         container = svgElementFactory.createElement(Svg.SVG);
@@ -140,7 +144,7 @@ public class SvgBoxedText implements IsSvg {
     }
 
     private double getBoxHeight() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.HEIGHT));
+        return height;
     }
 
     private double getBoxLeftX() {
@@ -148,7 +152,7 @@ public class SvgBoxedText implements IsSvg {
     }
 
     private double getBoxWidth() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.WIDTH));
+        return width;
     }
 
     private SizeInt getTextSize(String text) {
@@ -209,10 +213,20 @@ public class SvgBoxedText implements IsSvg {
     }
 
     public void setBoxHeight(double height) {
+        if (height == this.height) {
+            return;
+        }
+
+        this.height = height;
         boxElement.setAttribute(Svg.HEIGHT, height);
     }
 
     public void setBoxWidth(double width) {
+        if (width == this.width) {
+            return;
+        }
+
+        this.width = width;
         boxElement.setAttribute(Svg.WIDTH, width);
     }
 

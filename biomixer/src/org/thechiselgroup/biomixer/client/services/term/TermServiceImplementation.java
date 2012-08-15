@@ -17,11 +17,11 @@ package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
+import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 
@@ -65,8 +65,14 @@ public class TermServiceImplementation extends AbstractWebResourceService
         final String url = buildUrl(ontologyId, conceptFullId);
 
         ontologyNameService.getOntologyName(ontologyId,
-                new ErrorHandlingAsyncCallback<String>(
+                new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve ontology name for virtual ontology id: "
+                                + ontologyId;
+                    }
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
@@ -83,13 +89,6 @@ public class TermServiceImplementation extends AbstractWebResourceService
                                         return resource;
                                     }
                                 });
-                    }
-
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve ontology name for virtual ontology id: "
-                                        + ontologyId, caught);
                     }
 
                 });

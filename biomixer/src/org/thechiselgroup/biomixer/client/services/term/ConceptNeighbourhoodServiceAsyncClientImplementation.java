@@ -17,11 +17,11 @@ package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
+import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
@@ -74,8 +74,14 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         final String url = buildUrl(conceptId, ontologyId);
 
         ontologyNameService.getOntologyName(ontologyId,
-                new ErrorHandlingAsyncCallback<String>(
+                new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve concept neighbourhood for concept "
+                                + conceptId + " in ontology " + ontologyId;
+                    }
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
@@ -104,14 +110,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                 });
                     }
 
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve concept neighbourhood for concept "
-                                        + conceptId + " in ontology "
-                                        + ontologyId, caught);
-                    }
-
                 });
     }
 
@@ -125,8 +123,14 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         final String url = buildUrl(conceptId, ontologyId);
 
         ontologyNameService.getOntologyName(ontologyId,
-                new ErrorHandlingAsyncCallback<String>(
+                new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve concept neighbourhood for concept "
+                                + conceptId + " in ontology " + ontologyId;
+                    }
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
@@ -145,14 +149,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                         return resource;
                                     }
                                 });
-                    }
-
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve concept neighbourhood for concept "
-                                        + conceptId + " in ontology "
-                                        + ontologyId, caught);
                     }
 
                 });

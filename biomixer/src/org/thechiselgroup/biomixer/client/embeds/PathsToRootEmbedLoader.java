@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 David Rusk 
+ * Copyright 2012 David Rusk, Bo Fu 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
@@ -25,6 +24,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 /**
@@ -81,11 +81,22 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
         }
 
         conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
-                fullConceptId, new ErrorHandlingAsyncCallback<Resource>(
+                fullConceptId, new TimeoutErrorHandlingAsyncCallback<Resource>(
                         errorHandler) {
 
                     @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve full term information for "
+                                + fullConceptId;
+                    }
+
+                    @Override
                     public void runOnSuccess(Resource resource) {
+
+                        // hide loading bar
+                        RootPanel rootPanel = RootPanel.get("loadingMessage");
+                        rootPanel.setVisible(false);
+
                         if (graphView.getResourceModel().getResources()
                                 .containsResourceWithUri(conceptUri)) {
                             return;
@@ -102,13 +113,6 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                             loadTerm(virtualOntologyId, parentFullConceptId,
                                     graphView, errorHandler);
                         }
-                    }
-
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve full term information for "
-                                        + fullConceptId, caught);
                     }
                 });
     }

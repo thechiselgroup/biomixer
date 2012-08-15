@@ -30,15 +30,11 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.biomixer.server.workbench.util.json.JavaJsonParser;
+import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
 
     private FullTermResponseJsonParser underTest;
-
-    public FullTermResponseJsonParserTest() {
-        super(FullTermResponseJsonParserTest.class);
-    }
 
     @Test
     public void parseNeighbourhoodMultipleParentsMultipleChildrenOBO()
@@ -114,7 +110,7 @@ public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        underTest = new FullTermResponseJsonParser(new JavaJsonParser());
+        underTest = new FullTermResponseJsonParser(new JacksonJsonParser());
     }
 
 }

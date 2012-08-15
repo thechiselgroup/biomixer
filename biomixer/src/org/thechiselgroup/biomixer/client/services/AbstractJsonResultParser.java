@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services;
 
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonArray;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonItem;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public abstract class AbstractJsonResultParser implements JsonParser {
@@ -28,28 +26,52 @@ public abstract class AbstractJsonResultParser implements JsonParser {
     }
 
     @Override
-    public JsonArray getArray(JsonItem jsonItem, String path) {
-        return jsonParser.getArray(jsonItem, path);
+    public int asInt(Object intObject) {
+        return jsonParser.asInt(intObject);
     }
 
     @Override
-    public JsonArray getArray(String json, String path) {
-        return jsonParser.getArray(json, path);
+    public double asNumber(Object numberObject) {
+        return jsonParser.asNumber(numberObject);
     }
 
     @Override
-    public JsonItem getItem(String json, String path) {
-        return jsonParser.getItem(json, path);
+    public String asString(Object text) {
+        return jsonParser.asString(text);
     }
 
     @Override
-    public String getString(JsonItem jsonItem, String path) {
-        return jsonParser.getString(jsonItem, path);
+    public Object get(Object array, int index) {
+        return jsonParser.get(array, index);
     }
 
     @Override
-    public String getString(String json, String path) {
-        return jsonParser.getString(json, path);
+    public Object get(Object object, String property) {
+        return jsonParser.get(object, property);
+    }
+
+    protected String getOntologyIdAsString(Object object, String property) {
+        return Integer.toString(asInt(get(object, property)));
+    }
+
+    @Override
+    public boolean has(Object object, String property) {
+        return jsonParser.has(object, property);
+    }
+
+    @Override
+    public boolean isArray(Object object) {
+        return jsonParser.isArray(object);
+    }
+
+    @Override
+    public int length(Object array) {
+        return jsonParser.length(array);
+    }
+
+    @Override
+    public Object parse(String json) {
+        return jsonParser.parse(json);
     }
 
 }
