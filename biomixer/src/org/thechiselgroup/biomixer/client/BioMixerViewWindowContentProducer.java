@@ -190,18 +190,16 @@ public class BioMixerViewWindowContentProducer extends
 
         // code below removes the "Show Mapping Nodes" checkbox under the
         // "Nodes" view part in the vertical panel
-        final CheckBox mappingNodesCheckbox = new CheckBox("Show Mapping Nodes");
-        mappingNodesCheckbox.setValue(false);
-        mappingNodesCheckbox
-                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                    @Override
-                    public void onValueChange(ValueChangeEvent<Boolean> event) {
-                        updatePredicate(resourceModel,
-                                mappingNodesCheckbox.getValue(),
-                                ontologyToFilterBox);
-                    }
-                });
-
+        /*
+         * final CheckBox mappingNodesCheckbox = new
+         * CheckBox("Show Mapping Nodes"); mappingNodesCheckbox.setValue(false);
+         * mappingNodesCheckbox .addValueChangeHandler(new
+         * ValueChangeHandler<Boolean>() {
+         * 
+         * @Override public void onValueChange(ValueChangeEvent<Boolean> event)
+         * { updatePredicate(resourceModel, mappingNodesCheckbox.getValue(),
+         * ontologyToFilterBox); } });
+         */
         final CheckBox colorByOntologyCheckBox = new CheckBox(
                 "Color Concept Nodes by Ontology");
         colorByOntologyCheckBox.setValue(true);
@@ -264,11 +262,11 @@ public class BioMixerViewWindowContentProducer extends
                                             // "Show Mapping Nodes" checkbox
                                             // under "Nodes" view part in the
                                             // vertical panel
-                                            updatePredicate(resourceModel,
-                                                    mappingNodesCheckbox
-                                                            .getValue(),
-                                                    ontologyToFilterBox);
-                                        }
+                                            /*
+                                             * updatePredicate(resourceModel,
+                                             * mappingNodesCheckbox .getValue(),
+                                             * ontologyToFilterBox);
+                                             */}
                                     });
                                 }
                             }
@@ -278,8 +276,9 @@ public class BioMixerViewWindowContentProducer extends
 
         // next line commented out so the "Show Mapping Nodes" checkbox is not
         // added to the "Nodes" view part in the vertical panel
-        panel.add(mappingNodesCheckbox);
-        panel.add(colorByOntologyCheckBox);
+        /*
+         * panel.add(mappingNodesCheckbox);
+         */panel.add(colorByOntologyCheckBox);
 
         updatePredicate(resourceModel, false, ontologyToFilterBox);
 
