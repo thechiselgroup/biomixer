@@ -31,6 +31,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 /**
@@ -125,8 +126,11 @@ public class MappingServiceImplementation implements MappingServiceAsync {
                 List<Resource> mappings = responseParser.parseMapping(value);
 
                 if (mappingNeighbourhood == true && mappings.size() == 0) {
+                    // display a message to the user
                     com.google.gwt.user.client.Window
                             .alert("This concept does not have any mappings.");
+                    // hide the loading bar
+                    RootPanel.get("loadingMessage").setVisible(false);
                 }
 
                 Map<String, Serializable> partialProperties = calculatePartialProperties(
