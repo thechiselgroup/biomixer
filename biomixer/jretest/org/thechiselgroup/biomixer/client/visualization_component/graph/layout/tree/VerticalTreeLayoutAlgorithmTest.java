@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import static org.junit.Assert.assertFalse;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
@@ -29,6 +30,25 @@ public class VerticalTreeLayoutAlgorithmTest extends
     @Override
     protected void assertComputationRunningState(LayoutComputation computation) {
         assertFalse(computation.isRunning());
+    }
+
+    @Ignore("TODO handle cycles")
+    @Test
+    public void cyclicGraph() {
+        setTreeDirectionUp(true);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(3);
+        createArc(nodes[0], nodes[1]);
+        createArc(nodes[1], nodes[2]);
+        createArc(nodes[2], nodes[0]);
+
+        computeLayout(graph);
+        for (LayoutNode node : nodes) {
+            System.out.println(node.getX());
+        }
+        assertNodesHaveCentreX(200.0, nodes[0], nodes[1]);
+        assertNodesHaveCentreY(400.0 / 3, nodes[1]);
+        assertNodesHaveCentreY(800.0 / 3, nodes[0]);
     }
 
     @Test
