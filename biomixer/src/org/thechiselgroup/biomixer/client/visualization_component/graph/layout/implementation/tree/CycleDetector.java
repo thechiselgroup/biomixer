@@ -116,6 +116,56 @@ public class CycleDetector {
     }
 
     /**
+     * Retrieves sets of nodes which comprise cycles.
+     * 
+     * @return a list of sets of nodes. Each set contains the nodes of one
+     *         cycle.
+     */
+    public List<Set<LayoutNode>> getCycles() {
+        getStronglyConnectedComponents();
+        List<Set<LayoutNode>> cycles = new ArrayList<Set<LayoutNode>>();
+        for (Set<LayoutNode> stronglyConnectedComponent : stronglyConnectedComponents) {
+            if (stronglyConnectedComponent.size() > 1) {
+                cycles.add(stronglyConnectedComponent);
+            }
+        }
+        return cycles;
+    }
+
+    /**
+     * 
+     * @return a list of all nodes which are part of any cycle in the graph.
+     */
+    public List<LayoutNode> getNodesInCycles() {
+        List<LayoutNode> nodesInCycles = new ArrayList<LayoutNode>();
+        getStronglyConnectedComponents();
+
+        for (Set<LayoutNode> stronglyConnectedComponent : stronglyConnectedComponents) {
+            if (stronglyConnectedComponent.size() > 1) {
+                /* Nodes in this component form a cycle */
+                nodesInCycles.addAll(stronglyConnectedComponent);
+            }
+        }
+
+        return nodesInCycles;
+    }
+
+    /**
+     * 
+     * @return the number of cycles in the graph.
+     */
+    public int getNumberOfCycles() {
+        getStronglyConnectedComponents();
+        int numCycles = 0;
+        for (Set<LayoutNode> stronglyConnectedComponent : stronglyConnectedComponents) {
+            if (stronglyConnectedComponent.size() > 1) {
+                numCycles++;
+            }
+        }
+        return numCycles;
+    }
+
+    /**
      * Finds strongly connected components in a graph. These are sets of nodes
      * in which every node can be reached from every other node. In a directed
      * acyclic graph each node will be in its own strongly connected component.
@@ -156,8 +206,7 @@ public class CycleDetector {
      *         otherwise
      */
     public boolean hasCycles() {
-        getStronglyConnectedComponents();
-        return stronglyConnectedComponents.size() != graph.getAllNodes().size();
+        return getNumberOfCycles() != 0;
     }
 
     /**
