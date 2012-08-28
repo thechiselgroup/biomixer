@@ -15,27 +15,64 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
+import com.google.gwt.animation.client.Animation;
+
 /**
- * Used to animate a layout node.
+ * Manages the animations of {@link LayoutNode}s.
  * 
  * @author drusk
  * 
  */
 public class NodeAnimator {
 
-    private AnimationRunner animationRunner;
+    private Map<LayoutNode, Animation> currentAnimations = new HashMap<LayoutNode, Animation>();
 
-    public NodeAnimator(AnimationRunner animationRunner) {
-        this.animationRunner = animationRunner;
-    }
+    private void animateNodeTo(final LayoutNode node, double x, double y,
+            int duration) {
+        // 1. If the node has an animation running, cancel it.
+        if (currentAnimations.containsKey(node)) {
+            currentAnimations.get(node).cancel();
+        }
 
-    private void animateNodeTo(LayoutNode node, double x, double y, int duration) {
-        animationRunner.run(new LayoutNodeAnimation(node, x, y), duration);
+        // 2. Create the new requested animation
+        final LayoutNodeAnimation layoutNodeAnimation = new LayoutNodeAnimation(
+                node, x, y);
+        Animation animation = new Animation() {
+
+            @Override
+            public void cancel() {
+                /*
+                 * By default the node moves back to its original position if
+                 * the animation is cancelled. However, we want it to hold at
+                 * its current position.
+                 */
+                double cancelledX = node.getX();
+                double cancelledY = node.getY();
+
+                super.cancel();
+
+                node.setPosition(cancelledX, cancelledY);
+            }
+
+            @Override
+            protected void onUpdate(double progress) {
+                layoutNodeAnimation.update(progress);
+            }
+
+        };
+
+        // 3. Store animation for future reference
+        currentAnimations.put(node, animation);
+
+        // 4. Run it
+        animation.run(duration);
     }
 
     /**

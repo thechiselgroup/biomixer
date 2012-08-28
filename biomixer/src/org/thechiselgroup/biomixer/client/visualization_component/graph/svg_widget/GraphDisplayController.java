@@ -152,7 +152,7 @@ public class GraphDisplayController implements GraphDisplay,
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
 
         animationRunner = getAnimationRunner();
-        this.nodeAnimator = new NodeAnimator(animationRunner);
+        this.nodeAnimator = new NodeAnimator();
 
         initGraphLayoutManager(errorHandler);
     }

@@ -72,7 +72,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         this.errorHandler = errorHandler;
         this.executor = executor;
         this.graph = graph;
-        this.nodeAnimator = new NodeAnimator(animationRunner);
+        this.nodeAnimator = new NodeAnimator();
     }
 
     @Override
