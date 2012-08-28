@@ -99,7 +99,8 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             @Override
             public void onUncaughtException(Throwable e) {
-                errorHandler.handleError(e);
+                errorHandler.handleError(new Throwable(
+                        "An error has occurred in the application.", e));
             }
         });
     }
