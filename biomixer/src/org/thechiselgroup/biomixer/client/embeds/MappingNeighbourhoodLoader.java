@@ -21,13 +21,14 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
 import com.google.gwt.user.client.ui.RootPanel;
@@ -169,7 +170,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
          * problem is fixed, use the regular animation runner
          */
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
-                new NullAnimationRunner());
+                new NodeAnimator(new NullNodeAnimationFactory()));
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
         return layout;
     }

@@ -38,8 +38,6 @@ import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSet
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -53,6 +51,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
@@ -483,6 +482,11 @@ public class Graph extends AbstractViewContentDisplay implements
         return visualItem.<NodeItem> getDisplayObject().getNode();
     }
 
+    @Override
+    public NodeAnimator getNodeAnimator() {
+        return graphDisplay.getNodeAnimator();
+    }
+
     // TODO remove if not used
     private NodeItem[] getNodeItems() {
         LightweightCollection<VisualItem> visualItems = getVisualItems();
@@ -506,21 +510,22 @@ public class Graph extends AbstractViewContentDisplay implements
     public SidePanelSection[] getSidePanelSections() {
         List<ViewContentDisplayAction> actions = new ArrayList<ViewContentDisplayAction>();
         // TODO cleanup
-        AnimationRunner animationRunner = new GwtAnimationRunner();
+
+        NodeAnimator nodeAnimator = getNodeAnimator();
         actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
-                new CircleLayoutAlgorithm(errorHandler, animationRunner)));
+                new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
         actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
                 new HorizontalTreeLayoutAlgorithm(true, errorHandler,
-                        animationRunner)));
+                        nodeAnimator)));
         actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_TREE_LAYOUT,
                 new VerticalTreeLayoutAlgorithm(true, errorHandler,
-                        animationRunner)));
+                        nodeAnimator)));
         actions.add(new GraphLayoutAction(GraphLayouts.FORCE_DIRECTED_LAYOUT,
                 new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
                         new BoundsAwareAttractionCalculator(graphDisplay
                                 .getLayoutGraph()),
                         new BoundsAwareRepulsionCalculator(graphDisplay
-                                .getLayoutGraph())), 0.9, animationRunner,
+                                .getLayoutGraph())), 0.9, nodeAnimator,
                         new GwtDelayedExecutor(), errorHandler)));
 
         VerticalPanel layoutPanel = new VerticalPanel();

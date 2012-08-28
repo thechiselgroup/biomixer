@@ -22,7 +22,6 @@ import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimation;
 import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimationFactory;
-import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
@@ -33,9 +32,13 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  */
 public class NodeAnimator {
 
-    private NodeAnimationFactory nodeAnimationFactory = new NullNodeAnimationFactory();
+    private NodeAnimationFactory nodeAnimationFactory;
 
     private Map<LayoutNode, NodeAnimation> currentAnimations = new HashMap<LayoutNode, NodeAnimation>();
+
+    public NodeAnimator(NodeAnimationFactory nodeAnimationFactory) {
+        this.nodeAnimationFactory = nodeAnimationFactory;
+    }
 
     private void animateNodeTo(final LayoutNode node, double x, double y,
             int duration) {

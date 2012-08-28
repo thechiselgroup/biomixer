@@ -51,7 +51,7 @@ public class CircleLayoutAlgorithmTest extends AbstractLayoutAlgorithmTest {
 
     @Before
     public void setUp() {
-        underTest = new CircleLayoutAlgorithm(errorHandler, animationRunner);
+        underTest = new CircleLayoutAlgorithm(errorHandler, nodeAnimator);
     }
 
     @Test

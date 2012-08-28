@@ -51,8 +51,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
     @Override
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
-        return new VerticalTreeLayoutAlgorithm(true, errorHandler,
-                animationRunner);
+        return new VerticalTreeLayoutAlgorithm(true, errorHandler, nodeAnimator);
     }
 
     @Override

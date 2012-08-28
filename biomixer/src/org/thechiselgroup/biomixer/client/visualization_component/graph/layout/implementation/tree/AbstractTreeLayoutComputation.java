@@ -20,10 +20,10 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
 /**
@@ -50,8 +50,8 @@ public abstract class AbstractTreeLayoutComputation extends
      */
     protected AbstractTreeLayoutComputation(LayoutGraph graph,
             Executor executor, ErrorHandler errorHandler,
-            AnimationRunner animationRunner, boolean reversed) {
-        super(graph, executor, errorHandler, animationRunner);
+            NodeAnimator nodeAnimator, boolean reversed) {
+        super(graph, executor, errorHandler, nodeAnimator);
         this.reversed = reversed;
     }
 

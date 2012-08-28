@@ -16,8 +16,8 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimationFactory;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.TestDelayedExecutor;
@@ -47,11 +47,6 @@ public class TestGraphSvgDisplay extends GraphDisplayController {
     }
 
     @Override
-    protected AnimationRunner getAnimationRunner() {
-        return new NullAnimationRunner();
-    }
-
-    @Override
     protected DelayedExecutor getDelayedExecutor() {
         return new TestDelayedExecutor();
     }
@@ -64,6 +59,11 @@ public class TestGraphSvgDisplay extends GraphDisplayController {
     @Override
     public int getGraphAbsoluteTop() {
         return 0;
+    }
+
+    @Override
+    protected NodeAnimationFactory getNodeAnimationFactory() {
+        return new NullNodeAnimationFactory();
     }
 
     public TestAnimationRunner getTestAnimationRunner() {

@@ -22,6 +22,8 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 public abstract class AbstractLayoutAlgorithmTest extends
         AbstractLayoutGraphTest {
@@ -32,6 +34,9 @@ public abstract class AbstractLayoutAlgorithmTest extends
     protected ErrorHandler errorHandler;
 
     protected AnimationRunner animationRunner = new NullAnimationRunner();
+
+    protected NodeAnimator nodeAnimator = new NodeAnimator(
+            new NullNodeAnimationFactory());
 
     protected LayoutAlgorithm underTest;
 

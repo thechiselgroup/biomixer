@@ -16,10 +16,10 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
@@ -31,7 +31,7 @@ public class VerticalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private final boolean pointingUp;
 
-    private final AnimationRunner animationRunner;
+    private final NodeAnimator nodeAnimator;
 
     /**
      * 
@@ -40,15 +40,15 @@ public class VerticalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
      *            upwards. If <code>false</code> they will point downwards.
      */
     public VerticalTreeLayoutAlgorithm(boolean pointingUp,
-            ErrorHandler errorHandler, AnimationRunner animationRunner) {
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
         this.errorHandler = errorHandler;
         this.pointingUp = pointingUp;
-        this.animationRunner = animationRunner;
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
     protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
         return new VerticalTreeLayoutComputation(graph, executor, errorHandler,
-                animationRunner, pointingUp);
+                nodeAnimator, pointingUp);
     }
 }

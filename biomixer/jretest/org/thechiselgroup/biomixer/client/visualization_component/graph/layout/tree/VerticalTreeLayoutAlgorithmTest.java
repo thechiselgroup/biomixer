@@ -179,7 +179,7 @@ public class VerticalTreeLayoutAlgorithmTest extends
 
     private void setTreeDirectionUp(boolean up) {
         underTest = new VerticalTreeLayoutAlgorithm(up, errorHandler,
-                animationRunner);
+                nodeAnimator);
     }
 
     @Test
