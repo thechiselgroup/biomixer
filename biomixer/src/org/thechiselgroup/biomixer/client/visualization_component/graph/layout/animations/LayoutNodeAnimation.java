@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations;
 
-import org.thechiselgroup.biomixer.client.core.util.animation.Animation;
+import org.thechiselgroup.biomixer.client.core.util.animation.Animatable;
 import org.thechiselgroup.biomixer.client.core.util.animation.Interpolations;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
@@ -25,7 +25,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
  * @author drusk
  * 
  */
-public class LayoutNodeAnimation implements Animation {
+public class LayoutNodeAnimation implements Animatable {
 
     private final LayoutNode node;
 

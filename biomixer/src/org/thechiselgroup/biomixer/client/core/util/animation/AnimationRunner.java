@@ -17,6 +17,6 @@ package org.thechiselgroup.biomixer.client.core.util.animation;
 
 public interface AnimationRunner {
 
-    void run(Animation animation, int duration);
+    void run(Animatable animation, int duration);
 
 }

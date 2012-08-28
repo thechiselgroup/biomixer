@@ -18,11 +18,11 @@ package org.thechiselgroup.biomixer.client.core.util.animation;
 
 public class TestAnimationRunner implements AnimationRunner {
 
-    private Animation animation;
+    private Animatable animation;
 
     private int duration;
 
-    public Animation getAnimation() {
+    public Animatable getAnimation() {
         return animation;
     }
 
@@ -35,7 +35,7 @@ public class TestAnimationRunner implements AnimationRunner {
     }
 
     @Override
-    public void run(Animation animation, int duration) {
+    public void run(Animatable animation, int duration) {
         this.animation = animation;
         this.duration = duration;
     }

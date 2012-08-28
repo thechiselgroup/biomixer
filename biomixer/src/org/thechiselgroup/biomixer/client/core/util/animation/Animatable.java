@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util.animation;
 
-public interface Animation {
+public interface Animatable {
 
     void update(double progress);
 
