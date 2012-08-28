@@ -118,7 +118,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     private static final double MIN_ANGLE = 0.0;
 
-    private static final double MAX_ANGLE = 180.0;
+    private static final double MAX_ANGLE = 360.0;
 
     public static final String EMBED_MODE = "mapping_neighbourhood";
 

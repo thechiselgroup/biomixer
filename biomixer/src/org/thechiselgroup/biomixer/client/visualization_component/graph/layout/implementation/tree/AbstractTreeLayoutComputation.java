@@ -38,7 +38,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 public abstract class AbstractTreeLayoutComputation extends
         AbstractLayoutComputation {
 
-    private static final int animationDuration = 3000;
+    private static final int animationDuration = 1000;
 
     private final boolean reversed;
 

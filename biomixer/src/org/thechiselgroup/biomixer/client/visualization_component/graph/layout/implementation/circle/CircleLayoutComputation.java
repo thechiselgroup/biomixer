@@ -37,7 +37,7 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     private final double maxAngle;
 
-    private static final int animationDuration = 3000;
+    private static final int animationDuration = 1000;
 
     public CircleLayoutComputation(double minAngle, double maxAngle,
             LayoutGraph graph, Executor executor, ErrorHandler errorHandler,
