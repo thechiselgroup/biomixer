@@ -165,9 +165,9 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     @Override
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
         /*
-         * XXX using NullAnimationRunner for now due to excess lag issues with
-         * regular animations when the layout is triggered repeatedly. Once that
-         * problem is fixed, use the regular animation runner
+         * NOTE: we use null node animations for this embed because it is prone
+         * to performance problems when trying to animate so many highly
+         * interconnected nodes at the same time as loading the data.
          */
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
                 new NodeAnimator(new NullNodeAnimationFactory()));
