@@ -20,9 +20,10 @@ import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimation;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimationFactory;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
-
-import com.google.gwt.animation.client.Animation;
 
 /**
  * Manages the animations of {@link LayoutNode}s.
@@ -32,7 +33,9 @@ import com.google.gwt.animation.client.Animation;
  */
 public class NodeAnimator {
 
-    private Map<LayoutNode, Animation> currentAnimations = new HashMap<LayoutNode, Animation>();
+    private NodeAnimationFactory nodeAnimationFactory = new NullNodeAnimationFactory();
+
+    private Map<LayoutNode, NodeAnimation> currentAnimations = new HashMap<LayoutNode, NodeAnimation>();
 
     private void animateNodeTo(final LayoutNode node, double x, double y,
             int duration) {
@@ -42,37 +45,14 @@ public class NodeAnimator {
         }
 
         // 2. Create the new requested animation
-        final LayoutNodeAnimation layoutNodeAnimation = new LayoutNodeAnimation(
-                node, x, y);
-        Animation animation = new Animation() {
-
-            @Override
-            public void cancel() {
-                /*
-                 * By default the node moves back to its original position if
-                 * the animation is cancelled. However, we want it to hold at
-                 * its current position.
-                 */
-                double cancelledX = node.getX();
-                double cancelledY = node.getY();
-
-                super.cancel();
-
-                node.setPosition(cancelledX, cancelledY);
-            }
-
-            @Override
-            protected void onUpdate(double progress) {
-                layoutNodeAnimation.update(progress);
-            }
-
-        };
+        NodeAnimation nodeAnimation = nodeAnimationFactory
+                .createNodeAnimation(new LayoutNodeAnimatable(node, x, y));
 
         // 3. Store animation for future reference
-        currentAnimations.put(node, animation);
+        currentAnimations.put(node, nodeAnimation);
 
         // 4. Run it
-        animation.run(duration);
+        nodeAnimation.run(duration);
     }
 
     /**
