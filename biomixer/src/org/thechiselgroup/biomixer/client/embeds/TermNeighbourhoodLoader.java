@@ -27,7 +27,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -63,9 +62,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         protected void runOnSuccess(ResourceNeighbourhood targetNeighbourhood)
                 throws Exception {
 
-            // hide loading bar
-            RootPanel rootPanel = RootPanel.get("loadingMessage");
-            rootPanel.setVisible(false);
+            hideLoadingBar();
 
             targetResource.applyPartialProperties(targetNeighbourhood
                     .getPartialProperties());

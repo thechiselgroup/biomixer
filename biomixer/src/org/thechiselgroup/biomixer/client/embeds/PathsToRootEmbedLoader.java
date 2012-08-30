@@ -24,7 +24,6 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 /**
@@ -91,10 +90,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
                     @Override
                     public void runOnSuccess(Resource resource) {
-
-                        // hide loading bar
-                        RootPanel rootPanel = RootPanel.get("loadingMessage");
-                        rootPanel.setVisible(false);
+                        hideLoadingBar();
 
                         if (graphView.getResourceModel().getResources()
                                 .containsResourceWithUri(conceptUri)) {

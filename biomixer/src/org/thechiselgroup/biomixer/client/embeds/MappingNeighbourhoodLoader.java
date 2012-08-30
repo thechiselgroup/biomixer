@@ -31,7 +31,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -57,9 +56,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
             @Override
             protected void runOnSuccess(Resource result) throws Exception {
-                // hide loading bar
-                RootPanel rootPanel = RootPanel.get("loadingMessage");
-                rootPanel.setVisible(false);
+                hideLoadingBar();
 
                 resourceSet.add(result);
                 graphView.getResourceModel().addResourceSet(resourceSet);
