@@ -100,19 +100,9 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                         graphView.getResourceModel().getAutomaticResourceSet()
                                 .add(resource);
 
-                        // has-a relationship
-                        for (String composedUri : resource
-                                .getUriListValue(Concept.COMPOSITION_CONCEPTS)) {
-
-                            String composedFullConceptId = Concept
-                                    .getConceptId(composedUri);
-                            loadTerm(virtualOntologyId, composedFullConceptId,
-                                    graphView, errorHandler);
-                        }
-                        // is-a relationship
                         for (String parentUri : resource
                                 .getUriListValue(Concept.PARENT_CONCEPTS)) {
-
+                            // Filters out has_part relations, among others...
                             String parentFullConceptId = Concept
                                     .getConceptId(parentUri);
                             loadTerm(virtualOntologyId, parentFullConceptId,
