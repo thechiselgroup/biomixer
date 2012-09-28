@@ -54,6 +54,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
             String json) {
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
+        UriList compositeConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
 
         /*
@@ -102,8 +103,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
 
             String relationType = asString(get(entry, "string"));
             if (relationType == null
-                    || !("SubClass".equals(relationType) || "SuperClass"
-                            .equals(relationType))) {
+                    || !("SubClass".equals(relationType)
+                            || "SuperClass".equals(relationType) || "has_part"
+                                .equals(relationType))) {
                 /*
                  * XXX OBO relations (such as 'negatively_regulates', '[R]is_a')
                  * get ignored
@@ -124,8 +126,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                     continue;
                 }
                 Resource neighbour = process(entryListContents,
-                        "SuperClass".equals(relationType), ontologyId,
-                        parentConcepts, childConcepts);
+                        "SuperClass".equals(relationType),
+                        "has_part".equals(relationType), ontologyId,
+                        parentConcepts, childConcepts, compositeConcepts);
                 resources.add(neighbour);
                 continue;
             }
@@ -139,8 +142,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 }
 
                 Resource neighbour = process(relation,
-                        "SuperClass".equals(relationType), ontologyId,
-                        parentConcepts, childConcepts);
+                        "SuperClass".equals(relationType),
+                        "has_part".equals(relationType), ontologyId,
+                        parentConcepts, childConcepts, compositeConcepts);
                 resources.add(neighbour);
             }
         }
@@ -149,6 +153,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
+        partialProperties.put(Concept.COMPOSITION_CONCEPTS, compositeConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -177,7 +182,8 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource process(Object relation, boolean reversed,
-            String ontologyId, UriList parentConcepts, UriList childConcepts) {
+            boolean hasARelation, String ontologyId, UriList parentConcepts,
+            UriList childConcepts, UriList compositeConcepts) {
 
         String conceptId = asString(get(relation, "fullId"));
         String conceptShortId = asString(get(relation, "id"));
@@ -204,7 +210,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
 
-        if (reversed) {
+        if (hasARelation) {
+            compositeConcepts.add(concept.getUri());
+        } else if (reversed) {
             parentConcepts.add(concept.getUri());
         } else {
             childConcepts.add(concept.getUri());

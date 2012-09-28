@@ -54,6 +54,7 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
 
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
+        UriList compositionConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
 
         for (int i = 0; i < nodes.length; i++) {
@@ -70,7 +71,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
             for (int j = 0; j < relationships.length; j++) {
                 Object r = relationships[j];
 
-                if (!("SubClass".equals(name) || "SuperClass".equals(name))) {
+                if (!("SubClass".equals(name) || "SuperClass".equals(name) || "has_part"
+                        .equals(name))) {
                     // XXX OBO relations (such as 'negatively_regulates',
                     // '[R]is_a') get ignored
                     continue;
@@ -82,7 +84,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
                 }
 
                 Resource neighbour = process(r, "SuperClass".equals(name),
-                        ontologyId, parentConcepts, childConcepts);
+                        "has_part".equals(name), ontologyId, parentConcepts,
+                        childConcepts, compositionConcepts);
 
                 resources.add(neighbour);
             }
@@ -93,6 +96,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
+        partialProperties
+                .put(Concept.COMPOSITION_CONCEPTS, compositionConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -125,8 +130,9 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         return resource;
     }
 
-    private Resource process(Object node, boolean reversed, String ontologyId,
-            UriList parentConcepts, UriList childConcepts)
+    private Resource process(Object node, boolean reversed,
+            boolean hasARelation, String ontologyId, UriList parentConcepts,
+            UriList childConcepts, UriList compositionConcepts)
             throws XPathEvaluationException {
 
         String conceptId = getConceptId(node);
@@ -150,8 +156,9 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
-
-        if (reversed) {
+        if (hasARelation) {
+            compositionConcepts.add(concept.getUri());
+        } else if (reversed) {
             parentConcepts.add(concept.getUri());
         } else {
             childConcepts.add(concept.getUri());
@@ -159,4 +166,5 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
 
         return concept;
     }
+
 }

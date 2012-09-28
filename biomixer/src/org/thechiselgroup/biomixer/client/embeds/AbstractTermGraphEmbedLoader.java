@@ -31,7 +31,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -76,8 +75,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
     }
 
     protected void hideLoadingBar() {
-        RootPanel rootPanel = RootPanel.get("loadingMessage");
-        rootPanel.setVisible(false);
+        // RootPanel rootPanel = RootPanel.get("loadingMessage");
+        // rootPanel.setVisible(false);
     }
 
     protected abstract void loadData(String virtualOntologyId,

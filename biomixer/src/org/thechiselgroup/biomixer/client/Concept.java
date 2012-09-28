@@ -59,8 +59,12 @@ public final class Concept {
 
     public static final String CHILD_CONCEPTS = "childConcepts";
 
+    // is-a
     public static final String PARENT_CONCEPTS = "parentConcepts";
 
+    // has-a
+    public static final String COMPOSITION_CONCEPTS = "hasConcepts";
+    
     // TODO change to full id
     public static Resource createConceptResource(String ontologyId,
             String conceptId) {
@@ -109,7 +113,7 @@ public final class Concept {
 
     private Concept() {
     }
-
+    
     public static List<String> asUris(String virtualOntologyId,
             String... conceptIds) {
         List<String> uris = new ArrayList<String>();
@@ -118,5 +122,4 @@ public final class Concept {
         }
         return uris;
     }
-
 }
