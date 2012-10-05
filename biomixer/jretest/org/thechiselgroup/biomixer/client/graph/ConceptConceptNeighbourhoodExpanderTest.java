@@ -48,6 +48,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
@@ -78,6 +79,9 @@ public class ConceptConceptNeighbourhoodExpanderTest {
 
     @Mock
     private ErrorHandler errorHandler;
+
+    @Mock
+    private DialogManager dialogManager;
 
     @Mock
     private GraphNodeExpansionCallback expansionCallback;
@@ -188,7 +192,7 @@ public class ConceptConceptNeighbourhoodExpanderTest {
         visualItemResources.add(concept1);
 
         underTest = new ConceptConceptNeighbourhoodExpander(errorHandler,
-                resourceManager, neighbourhoodService);
+                resourceManager, neighbourhoodService, dialogManager);
 
         when(expansionCallback.isInitialized()).thenReturn(true);
     }
