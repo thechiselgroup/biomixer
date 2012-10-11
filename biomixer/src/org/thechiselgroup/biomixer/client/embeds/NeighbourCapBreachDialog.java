@@ -25,11 +25,11 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
 
     private static final String CSS_FEEDBACK_MESSAGE = "feedback-message";
 
-    private final String messageBeforeNum = "The concept neighbourhood includes ";
+    private final String messageBeforeNum = "There are "; // "The concept neighbourhood includes ";
 
-    private final String messageAfterNum = " concepts, which may take long to load and clutter your graph view. The screen may even appear to be frozen.<br/>Is it ok if we limit the number of neighbour concepts rendered to ";
+    private final String messageAfterNum = " terms in this neighborhood. Retrieving these may take several minutes, and it may appear frozen. Shall we load only "; // " concepts, which may take long to load and clutter your graph view. The screen may even appear to be frozen.<br/>Is it ok if we limit the number of neighbour concepts rendered to ";
 
-    private final String messageAfterMaximum = "?";
+    private final String messageAfterMaximum = " terms?";
 
     private final String message;
 
@@ -37,7 +37,13 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
 
     private final String header = "Very Large Concept Neighbourhood";
 
+    private int numberOfNeighbours;
+
+    private int maxDefault;
+
     public NeighbourCapBreachDialog(int numberOfNeighbours, int maxDefault) {
+        this.numberOfNeighbours = numberOfNeighbours;
+        this.maxDefault = maxDefault;
         this.message = messageBeforeNum + numberOfNeighbours + messageAfterNum
                 + maxDefault + messageAfterMaximum;
     }
@@ -60,12 +66,14 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
 
     @Override
     public String getOkayButtonLabel() {
-        return "Accept Neighbour Cap";
+        // return "Accept Neighbour Cap";
+        return "Load only " + maxDefault + " terms";
     }
 
     @Override
     public String getCancelButtonLabel() {
-        return "Reject Cap, Expand All Neighbours";
+        // return "Reject Cap, Expand All Neighbours";
+        return "Load all " + numberOfNeighbours + " terms";
     }
 
     @Override
