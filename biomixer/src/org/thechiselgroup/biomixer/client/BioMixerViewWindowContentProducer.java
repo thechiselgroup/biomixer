@@ -102,7 +102,7 @@ public class BioMixerViewWindowContentProducer extends
                 label = "Is-A Relationship";
                 panel.add(createArcTypeContainerControl(label, arcItemContainer));
             } else if (CompositionArcType.ID.equals(arcTypeId)) {
-                label = "Has-Part Relationship";
+                label = "Part-Of Relationship";
                 panel.add(createArcTypeContainerControl(label, arcItemContainer));
             }
 
