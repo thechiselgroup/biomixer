@@ -48,9 +48,6 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
 
     }
 
-    // TODO extract for i18n
-    final static String CANCEL_LABEL = "Cancel";
-
     private static final String DIALOG_STATUS_CODE = "__choosel_dialogs_button_status_code";
 
     /**
@@ -115,7 +112,7 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
     }
 
     protected void createCancelButton(DialogPanel dialogPanel) {
-        createButton(CANCEL, CANCEL_LABEL);
+        createButton(CANCEL, dialog.getCancelButtonLabel());
     }
 
     @Override
@@ -129,7 +126,7 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
         };
     }
 
-    protected void createOkayButton(final Dialog dialog, DialogPanel dialogPanel) {
+    protected void createOkayButton(DialogPanel dialogPanel) {
         createButton(OK, dialog.getOkayButtonLabel());
     }
 
@@ -165,7 +162,7 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
 
     @Override
     protected String getClosePopupLabel() {
-        return CANCEL_LABEL;
+        return dialog.getCancelButtonLabel();
     }
 
     /**
@@ -193,6 +190,7 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
         if (dialog instanceof DialogExtension) {
             ((DialogExtension) dialog).dialogCreated(this);
         }
+        this.dialog = dialog; // Used to occur after button initialization
         dialogPanel = new DialogPanel();
 
         Widget content = dialog.getContent();
@@ -200,11 +198,9 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
         dialogPanel.setHeader(dialog.getHeader());
 
         initButtons(dialog);
-
         init(windowController, dialog.getWindowTitle(), false, dialogPanel);
-
         setZIndex(ZIndex.DIALOG);
-        this.dialog = dialog;
+
         dialog.init(this);
     }
 
@@ -213,7 +209,7 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
         if (dialog instanceof DialogExtension) {
             ((DialogExtension) dialog).createButtons(this);
         } else {
-            createOkayButton(dialog, dialogPanel);
+            createOkayButton(dialogPanel);
             createCancelButton(dialogPanel);
         }
     }

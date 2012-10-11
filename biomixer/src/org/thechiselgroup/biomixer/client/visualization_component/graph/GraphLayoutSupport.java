@@ -16,8 +16,16 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 public interface GraphLayoutSupport {
+
+    /**
+     * 
+     * @return the graph's NodeAnimator which creates and keeps track of node
+     *         animations
+     */
+    NodeAnimator getNodeAnimator();
 
     /**
      * Registers a layout algorithm to be the default one run when the graph

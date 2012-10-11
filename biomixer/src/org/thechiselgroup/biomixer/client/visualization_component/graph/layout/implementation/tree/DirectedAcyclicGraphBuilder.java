@@ -49,7 +49,9 @@ public class DirectedAcyclicGraphBuilder {
         for (LayoutNode node : graph.getAllNodes()) {
             DirectedAcyclicGraphNode root = new DirectedAcyclicGraphNode(node);
             directedAcyclicGraphNodes.put(node, root);
-            potentialRoots.add(root);
+            if (!node.isAnchored()) {
+                potentialRoots.add(root);
+            }
         }
 
         for (LayoutArc arc : graph.getAllArcs()) {
@@ -66,6 +68,11 @@ public class DirectedAcyclicGraphBuilder {
                     .get(arc.getSourceNode());
             DirectedAcyclicGraphNode targetNode = directedAcyclicGraphNodes
                     .get(arc.getTargetNode());
+
+            if (sourceNode.getLayoutNode().isAnchored()
+                    || targetNode.getLayoutNode().isAnchored()) {
+                continue;
+            }
 
             targetNode.addChild(sourceNode);
             potentialRoots.remove(sourceNode);

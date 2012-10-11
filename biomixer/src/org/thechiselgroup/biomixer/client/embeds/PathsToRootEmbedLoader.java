@@ -24,7 +24,6 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 /**
@@ -51,8 +50,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
     @Override
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
-        return new VerticalTreeLayoutAlgorithm(true, errorHandler,
-                animationRunner);
+        return new VerticalTreeLayoutAlgorithm(true, errorHandler, nodeAnimator);
     }
 
     @Override
@@ -92,10 +90,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
                     @Override
                     public void runOnSuccess(Resource resource) {
-
-                        // hide loading bar
-                        RootPanel rootPanel = RootPanel.get("loadingMessage");
-                        rootPanel.setVisible(false);
+                        hideLoadingBar();
 
                         if (graphView.getResourceModel().getResources()
                                 .containsResourceWithUri(conceptUri)) {
@@ -107,7 +102,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
 
                         for (String parentUri : resource
                                 .getUriListValue(Concept.PARENT_CONCEPTS)) {
-
+                            // Filters out has_part relations, among others...
                             String parentFullConceptId = Concept
                                     .getConceptId(parentUri);
                             loadTerm(virtualOntologyId, parentFullConceptId,

@@ -15,17 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations;
 
+import org.thechiselgroup.biomixer.client.core.util.animation.Animatable;
 import org.thechiselgroup.biomixer.client.core.util.animation.Animation;
 import org.thechiselgroup.biomixer.client.core.util.animation.Interpolations;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
- * Animates the movement of a node.
+ * Determines the movement a node will experience when animated by an
+ * {@link Animation}.
  * 
  * @author drusk
  * 
  */
-public class LayoutNodeAnimation implements Animation {
+public class LayoutNodeAnimatable implements Animatable {
 
     private final LayoutNode node;
 
@@ -39,13 +41,17 @@ public class LayoutNodeAnimation implements Animation {
 
     // TODO easing function instead of plain interpolator
 
-    public LayoutNodeAnimation(LayoutNode node, double destinationX,
+    public LayoutNodeAnimatable(LayoutNode node, double destinationX,
             double destinationY) {
         this.node = node;
         this.startX = node.getX();
         this.startY = node.getY();
         this.destinationX = destinationX;
         this.destinationY = destinationY;
+    }
+
+    public LayoutNode getLayoutNode() {
+        return node;
     }
 
     @Override

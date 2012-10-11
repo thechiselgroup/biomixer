@@ -22,12 +22,10 @@
 	<classpathentry kind="lib" path="lib/totoe-0.5-SNAPSHOT.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
-<<<<<<< HEAD
-=======
 	<classpathentry kind="lib" path="lib/jackson-annotations-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-core-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.0.4.jar"/>
->>>>>>> master
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/appengine-java-sdk-1.6.1"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/"/>
+	<classpathentry kind="lib" path="lib/gwt-incubator-20101117-r1766.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

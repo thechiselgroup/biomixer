@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2009, 2010 Lars Grammel, Bo Fu 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -65,12 +65,27 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
     public Widget createDetailsWidget(VisualItem visualItem) {
         ResourceSet resourceSet = visualItem.getResources();
         VerticalPanel verticalPanel = GWT.create(VerticalPanel.class);
-        Resource resource = resourceSet.getFirstElement();
+        final Resource resource = resourceSet.getFirstElement();
 
         // FIXME use generic way to put in custom widgets
         if (Concept.isConcept(resource)) {
-            verticalPanel.add(createAvatar(
-                    ((String) resource.getValue(Concept.LABEL)), resourceSet));
+            /*
+             * verticalPanel.add(createAvatar( ((String)
+             * resource.getValue(Concept.LABEL)), resourceSet));
+             */
+
+            // making the concept label clickable
+            ResourceSetAvatar avatar = createAvatar(
+                    (String) resource.getValue(Concept.LABEL), resourceSet);
+            avatar.addClickHandler(new com.google.gwt.event.dom.client.ClickHandler() {
+                @Override
+                public void onClick(com.google.gwt.event.dom.client.ClickEvent e) {
+                    com.google.gwt.user.client.Window.open(
+                            (String) resource.getValue(Concept.FULL_ID),
+                            "_blank", "");
+                }
+            });
+            verticalPanel.add(avatar);
 
             addRow(resource, verticalPanel, "Ontology",
                     Concept.CONCEPT_ONTOLOGY_NAME);
@@ -119,5 +134,4 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
 
         return verticalPanel;
     }
-
 }

@@ -15,7 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.tree;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutAlgorithmTest;
@@ -29,6 +31,54 @@ public class VerticalTreeLayoutAlgorithmTest extends
     @Override
     protected void assertComputationRunningState(LayoutComputation computation) {
         assertFalse(computation.isRunning());
+    }
+
+    @Test
+    public void cyclePlusTree() {
+        setTreeDirectionUp(true);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(5);
+        createArc(nodes[0], nodes[1]);
+        createArc(nodes[1], nodes[2]);
+        createArc(nodes[2], nodes[0]);
+        createArc(nodes[3], nodes[0]);
+        createArc(nodes[4], nodes[3]);
+
+        computeLayout(graph);
+
+        if (nodes[0].getCentre().getX() == 300.0) {
+            assertNodesHaveCentreX(300.0, nodes[0], nodes[1], nodes[2]);
+            assertThat(
+                    nodes[0].getCentre().getY() + nodes[1].getCentre().getY()
+                            + nodes[2].getCentre().getY(), equalTo(600.0));
+
+            assertNodeHasCentre(100.0, 400.0 / 3, nodes[3]);
+            assertNodeHasCentre(100.0, 800.0 / 3, nodes[4]);
+        } else {
+            assertNodesHaveCentreX(100.0, nodes[0], nodes[1], nodes[2]);
+            assertThat(
+                    nodes[0].getCentre().getY() + nodes[1].getCentre().getY()
+                            + nodes[2].getCentre().getY(), equalTo(600.0));
+
+            assertNodeHasCentre(300.0, 400.0 / 3, nodes[3]);
+            assertNodeHasCentre(300.0, 800.0 / 3, nodes[4]);
+        }
+    }
+
+    @Test
+    public void cyclicGraph() {
+        setTreeDirectionUp(true);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(3);
+        createArc(nodes[0], nodes[1]);
+        createArc(nodes[1], nodes[2]);
+        createArc(nodes[2], nodes[0]);
+
+        computeLayout(graph);
+
+        assertNodesHaveCentreX(200.0, nodes[0], nodes[1], nodes[2]);
+        assertThat(nodes[0].getCentre().getY() + nodes[1].getCentre().getY()
+                + nodes[2].getCentre().getY(), equalTo(600.0));
     }
 
     @Test
@@ -129,7 +179,7 @@ public class VerticalTreeLayoutAlgorithmTest extends
 
     private void setTreeDirectionUp(boolean up) {
         underTest = new VerticalTreeLayoutAlgorithm(up, errorHandler,
-                animationRunner);
+                nodeAnimator);
     }
 
     @Test

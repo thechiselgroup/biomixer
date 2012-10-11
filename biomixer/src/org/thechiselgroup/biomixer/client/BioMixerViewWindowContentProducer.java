@@ -43,6 +43,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotM
 import org.thechiselgroup.biomixer.client.core.visualization.ui.NullVisualMappingsControl;
 import org.thechiselgroup.biomixer.client.core.visualization.ui.VisualMappingsControl;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
+import org.thechiselgroup.biomixer.client.graph.CompositionArcType;
 import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
 import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
@@ -88,7 +89,7 @@ public class BioMixerViewWindowContentProducer extends
             String arcTypeId = arcItemContainer.getArcType().getArcTypeID();
             String label = "unknown";
             if (DirectConceptMappingArcType.ID.equals(arcTypeId)) {
-                label = "Concept Mapping";
+                label = "Mapping Relationship";
                 panel.add(createArcTypeContainerControl(label, arcItemContainer));
             } else if (MappingArcType.ID.equals(arcTypeId)) {
                 label = "Mapping";
@@ -98,7 +99,10 @@ public class BioMixerViewWindowContentProducer extends
                 // panel.add(createArcTypeContainerControl(label,
                 // arcItemContainer));
             } else if (ConceptArcType.ID.equals(arcTypeId)) {
-                label = "Concept Relationship";
+                label = "Is-A Relationship";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
+            } else if (CompositionArcType.ID.equals(arcTypeId)) {
+                label = "Part-Of Relationship";
                 panel.add(createArcTypeContainerControl(label, arcItemContainer));
             }
 

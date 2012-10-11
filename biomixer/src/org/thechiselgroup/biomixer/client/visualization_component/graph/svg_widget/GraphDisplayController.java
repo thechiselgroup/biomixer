@@ -25,7 +25,8 @@ import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.GwtNodeAnimationFactory;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
@@ -151,8 +152,7 @@ public class GraphDisplayController implements GraphDisplay,
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
 
-        animationRunner = getAnimationRunner();
-        this.nodeAnimator = new NodeAnimator(animationRunner);
+        this.nodeAnimator = new NodeAnimator(getNodeAnimationFactory());
 
         initGraphLayoutManager(errorHandler);
     }
@@ -262,16 +262,6 @@ public class GraphDisplayController implements GraphDisplay,
         return nodes.containsKey(nodeId);
     }
 
-    /**
-     * Override in tests to get a test animation runner.
-     * 
-     * @return a GwtAnimationRunner which will not work in java unit tests
-     *         because it uses Javascript
-     */
-    protected AnimationRunner getAnimationRunner() {
-        return new GwtAnimationRunner();
-    }
-
     @Override
     public Arc getArc(String arcId) {
         assert arcId != null;
@@ -346,6 +336,21 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     /**
+     * Override in tests to get a non-Javascript-based NodeAnimationFactory
+     * 
+     * @return a GwtNodeAnimationFactory which will not work in java unit tests
+     *         because it uses Javascript
+     */
+    protected NodeAnimationFactory getNodeAnimationFactory() {
+        return new GwtNodeAnimationFactory();
+    }
+
+    @Override
+    public NodeAnimator getNodeAnimator() {
+        return nodeAnimator;
+    }
+
+    /**
      * Retrieves the <code>LayoutNodeType</code> for a node. Creates the node
      * type if it doesn't already exist.
      * 
@@ -404,8 +409,8 @@ public class GraphDisplayController implements GraphDisplay,
                 new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
                         new BoundsAwareAttractionCalculator(getLayoutGraph()),
                         new BoundsAwareRepulsionCalculator(getLayoutGraph())),
-                        0.9, animationRunner, getDelayedExecutor(),
-                        errorHandler), getLayoutGraph());
+                        0.9, nodeAnimator, getDelayedExecutor(), errorHandler),
+                getLayoutGraph());
     }
 
     private void initViewWideInteractionHandler() {

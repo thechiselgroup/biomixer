@@ -16,8 +16,6 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
-import org.thechiselgroup.biomixer.client.core.util.animation.GwtAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
@@ -25,6 +23,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
@@ -32,6 +31,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -44,11 +44,11 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
     @Inject
     protected DelayedExecutor executor;
 
-    protected AnimationRunner animationRunner = new GwtAnimationRunner();
-
     private final String id;
 
     private final String label;
+
+    protected NodeAnimator nodeAnimator;
 
     public AbstractTermGraphEmbedLoader(String label, String id) {
         assert label != null;
@@ -70,6 +70,15 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
     protected abstract LayoutAlgorithm getLayoutAlgorithm(
             ErrorHandler errorHandler);
+
+    private NodeAnimator getNodeAnimator(View graphView) {
+        return graphView.adaptTo(GraphLayoutSupport.class).getNodeAnimator();
+    }
+
+    protected void hideLoadingBar() {
+        RootPanel rootPanel = RootPanel.get("loadingMessage");
+        rootPanel.setVisible(false);
+    }
 
     protected abstract void loadData(String virtualOntologyId,
             String fullConceptId, View graphView, ErrorHandler errorHandler);
@@ -99,6 +108,7 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         loadingMessage.getElement().setId("loadingMessage");
 
         graphView.init();
+        nodeAnimator = getNodeAnimator(graphView);
         setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 

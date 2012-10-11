@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.core.util.animation;
 public class GwtAnimationRunner implements AnimationRunner {
 
     @Override
-    public void run(final Animation animation, int duration) {
+    public void run(final Animatable animation, int duration) {
         new com.google.gwt.animation.client.Animation() {
             @Override
             protected void onUpdate(double progress) {

@@ -16,10 +16,10 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
@@ -33,18 +33,18 @@ public class CircleLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private double maxAngle = 360.0;
 
-    private final AnimationRunner animationRunner;
+    private final NodeAnimator nodeAnimator;
 
     public CircleLayoutAlgorithm(ErrorHandler errorHandler,
-            AnimationRunner animationRunner) {
+            NodeAnimator nodeAnimator) {
         this.errorHandler = errorHandler;
-        this.animationRunner = animationRunner;
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
     protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
         return new CircleLayoutComputation(minAngle, maxAngle, graph, executor,
-                errorHandler, animationRunner);
+                errorHandler, nodeAnimator);
     }
 
     public void setAngleRange(double angle1, double angle2) {

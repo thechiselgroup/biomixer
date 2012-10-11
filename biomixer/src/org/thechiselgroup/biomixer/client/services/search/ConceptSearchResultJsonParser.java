@@ -58,8 +58,12 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
                 get(get(get(
                         get(get(get(super.parse(json), "success"), "data"), 0),
                         "page"), "contents"), "searchResultList"), "searchBean");
-        for (int i = 0; i < length(searchResults); i++) {
-            resources.add(analyzeItem(get(searchResults, i)));
+        if (isArray(searchResults)) {
+            for (int i = 0; i < length(searchResults); i++) {
+                resources.add(analyzeItem(get(searchResults, i)));
+            }
+        } else {
+            resources.add(analyzeItem(searchResults));
         }
         return resources;
     }

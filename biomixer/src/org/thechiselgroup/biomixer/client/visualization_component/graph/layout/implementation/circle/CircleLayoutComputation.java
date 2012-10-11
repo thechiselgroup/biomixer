@@ -19,11 +19,11 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.LayoutUtils;
 
@@ -37,12 +37,12 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     private final double maxAngle;
 
-    private static final int animationDuration = 3000;
+    private static final int animationDuration = 1000;
 
     public CircleLayoutComputation(double minAngle, double maxAngle,
             LayoutGraph graph, Executor executor, ErrorHandler errorHandler,
-            AnimationRunner animationRunner) {
-        super(graph, executor, errorHandler, animationRunner);
+            NodeAnimator nodeAnimator) {
+        super(graph, executor, errorHandler, nodeAnimator);
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
     }

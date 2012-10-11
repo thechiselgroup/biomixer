@@ -54,7 +54,33 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
             String json) {
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
+        UriList owningConcepts = new UriList();
+        UriList ownedConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
+
+        /*
+         * The code below should fix situations such as the one mentioned in
+         * issue #149. However, the mapping discussed in #149 has now been
+         * removed by BioPortal. // check if there is a "status" key in the JSON
+         * returned //Window.alert("original JSON: " + json); if
+         * (json.contains("status") == true) { // inform the user CharSequence
+         * s1 = "{"; CharSequence s2 = ");";
+         * 
+         * int location1 = json.indexOf(s1.toString()); int location2 =
+         * json.indexOf(s2.toString()); String finalJson =
+         * json.substring(location1, location2);
+         * Window.alert("substringed json: " + finalJson); Object statusKey =
+         * get(super.parse(finalJson), "status"); Window.alert("statusKey: " +
+         * statusKey); if (statusKey == "404") { Window.alert(
+         * "This mapping cannot be viewed because the target concept's id cannot be found in the most recent version of the target ontology."
+         * );
+         * 
+         * }
+         * 
+         * } else { // process JSON as usual
+         * 
+         * }
+         */
 
         /*
          * Note: only entries with a list attribute are retrieved
@@ -77,9 +103,15 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
             Object entry = queriedResourceRelations.get(i);
 
             String relationType = asString(get(entry, "string"));
-            if (relationType == null
-                    || !("SubClass".equals(relationType) || "SuperClass"
-                            .equals(relationType))) {
+            
+            boolean classRelation = "SubClass".equals(relationType)
+                    || "SuperClass".equals(relationType);
+            boolean compositeRelation = "has_part".equals(relationType)
+                    || "[R]has_part".equals(relationType);
+            boolean reversed = "SuperClass".equals(relationType)
+                    || "[R]has_part".equals(relationType);
+            
+            if (relationType == null || !(classRelation || compositeRelation)) {
                 /*
                  * XXX OBO relations (such as 'negatively_regulates', '[R]is_a')
                  * get ignored
@@ -99,9 +131,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                                 OWL_THING)) {
                     continue;
                 }
-                Resource neighbour = process(entryListContents,
-                        "SuperClass".equals(relationType), ontologyId,
-                        parentConcepts, childConcepts);
+                Resource neighbour = process(entryListContents, reversed,
+                        compositeRelation, ontologyId, parentConcepts,
+                        childConcepts, owningConcepts, ownedConcepts);
                 resources.add(neighbour);
                 continue;
             }
@@ -114,9 +146,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                     continue;
                 }
 
-                Resource neighbour = process(relation,
-                        "SuperClass".equals(relationType), ontologyId,
-                        parentConcepts, childConcepts);
+                Resource neighbour = process(relation, reversed,
+                        compositeRelation, ontologyId, parentConcepts,
+                        childConcepts, owningConcepts, ownedConcepts);
                 resources.add(neighbour);
             }
         }
@@ -125,6 +157,8 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
+        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -153,7 +187,8 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource process(Object relation, boolean reversed,
-            String ontologyId, UriList parentConcepts, UriList childConcepts) {
+            boolean hasARelation, String ontologyId, UriList parentConcepts,
+            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts) {
 
         String conceptId = asString(get(relation, "fullId"));
         String conceptShortId = asString(get(relation, "id"));
@@ -180,9 +215,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
 
-        if (reversed) {
+        if (hasARelation && reversed) {
+            owningConcepts.add(concept.getUri());
+        } else if (hasARelation && !reversed) {
+            ownedConcepts.add(concept.getUri());
+        } else if (!hasARelation && reversed) {
             parentConcepts.add(concept.getUri());
-        } else {
+        } else { // !hasARelation && !reversed
             childConcepts.add(concept.getUri());
         }
 

@@ -16,9 +16,9 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
@@ -34,7 +34,7 @@ public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private ForceCalculator forceCalculator;
 
-    private AnimationRunner animationRunner;
+    private NodeAnimator nodeAnimator;
 
     /**
      * 
@@ -45,7 +45,7 @@ public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
      * @param errorHandler
      */
     public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
-            double damping, AnimationRunner animationRunner,
+            double damping, NodeAnimator nodeAnimator,
             DelayedExecutor executor, ErrorHandler errorHandler) {
         this.forceCalculator = forceCalculator;
         this.damping = damping;
@@ -54,13 +54,13 @@ public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
         this.executor.setDelay(DELAY_BETWEEN_ITERATIONS);
 
         this.errorHandler = errorHandler;
-        this.animationRunner = animationRunner;
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
     protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
         return new ForceDirectedLayoutComputation(forceCalculator, damping,
-                graph, executor, errorHandler, animationRunner,
+                graph, executor, errorHandler, nodeAnimator,
                 DELAY_BETWEEN_ITERATIONS);
     }
 

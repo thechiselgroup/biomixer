@@ -33,7 +33,7 @@ public class HorizontalTreeLayoutAlgorithmTest extends
 
     private void setTreeDirectionRight(boolean right) {
         underTest = new HorizontalTreeLayoutAlgorithm(right, errorHandler,
-                animationRunner);
+                nodeAnimator);
     }
 
     @Test

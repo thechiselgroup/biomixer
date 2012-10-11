@@ -43,7 +43,6 @@ public class DialogManager {
     public DialogManager(
             @Named(ChooselInjectionConstants.ROOT_PANEL) AbsolutePanel parentPanel,
             ShadeManager shadeManager, PopupManagerFactory popupManagerFactory) {
-
         this.parentPanel = parentPanel;
         this.shadeManager = shadeManager;
         this.popupManagerFactory = popupManagerFactory;

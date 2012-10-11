@@ -15,27 +15,47 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimation;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
 /**
- * Used to animate a layout node.
+ * Manages the animations of {@link LayoutNode}s.
  * 
  * @author drusk
  * 
  */
 public class NodeAnimator {
 
-    private AnimationRunner animationRunner;
+    private NodeAnimationFactory nodeAnimationFactory;
 
-    public NodeAnimator(AnimationRunner animationRunner) {
-        this.animationRunner = animationRunner;
+    private Map<LayoutNode, NodeAnimation> currentAnimations = new HashMap<LayoutNode, NodeAnimation>();
+
+    public NodeAnimator(NodeAnimationFactory nodeAnimationFactory) {
+        this.nodeAnimationFactory = nodeAnimationFactory;
     }
 
-    private void animateNodeTo(LayoutNode node, double x, double y, int duration) {
-        animationRunner.run(new LayoutNodeAnimation(node, x, y), duration);
+    private void animateNodeTo(final LayoutNode node, double x, double y,
+            int duration) {
+        // 1. If the node has an animation running, cancel it.
+        if (currentAnimations.containsKey(node)) {
+            currentAnimations.get(node).cancel();
+        }
+
+        // 2. Create the new requested animation
+        NodeAnimation nodeAnimation = nodeAnimationFactory
+                .createNodeAnimation(new LayoutNodeAnimatable(node, x, y));
+
+        // 3. Store animation for future reference
+        currentAnimations.put(node, nodeAnimation);
+
+        // 4. Run it
+        nodeAnimation.run(duration);
     }
 
     /**

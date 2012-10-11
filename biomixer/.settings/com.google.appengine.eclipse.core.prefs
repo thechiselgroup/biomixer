@@ -8,3 +8,4 @@ gaeIsEclipseDefaultInstPath=false
 googleCloudSqlEnabled=false
 localDevMySqlEnabled=true
 ormEnhancementInclusions=src/org/thechiselgroup/biomixer/server/**
+validationExclusions=jretest/org/thechiselgroup/biomixer/client/services/term/FullTermResponseJsonParserHTTPSatatusTest.java

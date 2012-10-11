@@ -21,16 +21,16 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.util.animation.NullAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -56,9 +56,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
             @Override
             protected void runOnSuccess(Resource result) throws Exception {
-                // hide loading bar
-                RootPanel rootPanel = RootPanel.get("loadingMessage");
-                rootPanel.setVisible(false);
+                hideLoadingBar();
 
                 resourceSet.add(result);
                 graphView.getResourceModel().addResourceSet(resourceSet);
@@ -117,7 +115,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     private static final double MIN_ANGLE = 0.0;
 
-    private static final double MAX_ANGLE = 180.0;
+    private static final double MAX_ANGLE = 360.0;
 
     public static final String EMBED_MODE = "mapping_neighbourhood";
 
@@ -164,12 +162,12 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     @Override
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
         /*
-         * XXX using NullAnimationRunner for now due to excess lag issues with
-         * regular animations when the layout is triggered repeatedly. Once that
-         * problem is fixed, use the regular animation runner
+         * NOTE: we use null node animations for this embed because it is prone
+         * to performance problems when trying to animate so many highly
+         * interconnected nodes at the same time as loading the data.
          */
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
-                new NullAnimationRunner());
+                new NodeAnimator(new NullNodeAnimationFactory()));
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
         return layout;
     }

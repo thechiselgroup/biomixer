@@ -26,6 +26,7 @@ public class BioMixerArcTypeProvider extends DefaultArcTypeProvider {
     public BioMixerArcTypeProvider(ResourceManager resourceManager) {
         addArcType(new MappingArcType());
         addArcType(new ConceptArcType());
+        addArcType(new CompositionArcType());
         addArcType(new DirectConceptMappingArcType(resourceManager));
     }
 

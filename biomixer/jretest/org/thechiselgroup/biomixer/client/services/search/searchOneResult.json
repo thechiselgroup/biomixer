@@ -1,0 +1,43 @@
+{
+    "success": {
+        "accessedResource": "/bioportal/search/",
+        "accessDate": "2012-08-21 13:47:57.448 PDT",
+        "data": [
+            {
+                "page": {
+                    "pageNum": 1,
+                    "numPages": 1,
+                    "pageSize": 1,
+                    "numResultsPage": 1,
+                    "numResultsTotal": 1,
+                    "contents": {
+                        "@class": "org.ncbo.stanford.bean.search.SearchResultListBean",
+                        "searchResultList": {
+                            "searchBean": {
+                                "ontologyVersionId": 46896,
+                                "ontologyId": 1353,
+                                "ontologyDisplayLabel": "SNOMED Clinical Terms",
+                                "recordType": "apreferredname",
+                                "objectType": "class",
+                                "conceptId": "http://purl.bioontology.org/ontology/SNOMEDCT/128927009",
+                                "conceptIdShort": 128927009,
+                                "preferredName": "Procedure by method",
+                                "contents": "Procedure by method",
+                                "isObsolete": 0
+                            }
+                        },
+                        "ontologyHitList": {
+                            "ontologyHitBean": {
+                                "ontologyVersionId": 46896,
+                                "ontologyId": 1353,
+                                "ontologyDisplayLabel": "SNOMED Clinical Terms",
+                                "numHits": 1
+                            }
+                        },
+                        "numHitsTotal": 1
+                    }
+                }
+            }
+        ]
+    }
+}

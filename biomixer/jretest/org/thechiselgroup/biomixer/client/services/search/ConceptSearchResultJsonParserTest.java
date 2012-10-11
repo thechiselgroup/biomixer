@@ -44,6 +44,16 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
     }
 
     @Test
+    public void parseResultsWithOneHit() throws IOException {
+        Set<Resource> searchResults = parseSearchResults("searchOneResult.json");
+
+        assertThat(getValues(searchResults, Concept.VIRTUAL_ONTOLOGY_ID),
+                containsExactly(Arrays.asList("1353")));
+        assertThat(getValues(searchResults, Concept.SHORT_ID),
+                containsExactly(Arrays.asList("128927009")));
+    }
+
+    @Test
     public void parseSearchResults() throws IOException {
         Set<Resource> searchResults = parseSearchResults("searchResults.json");
 

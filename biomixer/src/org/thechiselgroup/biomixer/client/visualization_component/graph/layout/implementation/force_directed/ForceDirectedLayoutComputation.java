@@ -23,10 +23,10 @@ import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
 /**
@@ -60,9 +60,9 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     public ForceDirectedLayoutComputation(ForceCalculator forceCalculator,
             double dampingConstant, LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler, AnimationRunner animationRunner,
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator,
             int animationDuration) {
-        super(graph, executor, errorHandler, animationRunner);
+        super(graph, executor, errorHandler, nodeAnimator);
         this.forceCalculator = forceCalculator;
         this.dampingConstant = dampingConstant;
         this.boundsEnforcer = new LayoutNodeBoundsEnforcer(graph);
