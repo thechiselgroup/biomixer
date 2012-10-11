@@ -84,7 +84,9 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander extends
         neighbourhood.addAll(resourceManager.resolveResources(concept,
                 Concept.CHILD_CONCEPTS));
         neighbourhood.addAll(resourceManager.resolveResources(concept,
-                Concept.COMPOSITION_CONCEPTS));
+                Concept.OWNED_CONCEPTS));
+        neighbourhood.addAll(resourceManager.resolveResources(concept,
+                Concept.OWNING_CONCEPTS));
 
         return neighbourhood;
     }

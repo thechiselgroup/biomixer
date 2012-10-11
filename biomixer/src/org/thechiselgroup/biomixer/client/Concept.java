@@ -63,8 +63,10 @@ public final class Concept {
     public static final String PARENT_CONCEPTS = "parentConcepts";
 
     // has-a
-    public static final String COMPOSITION_CONCEPTS = "hasConcepts";
-    
+    public static final String OWNING_CONCEPTS = "ownerConcepts";
+
+    public static final String OWNED_CONCEPTS = "ownedConcepts";
+
     // TODO change to full id
     public static Resource createConceptResource(String ontologyId,
             String conceptId) {

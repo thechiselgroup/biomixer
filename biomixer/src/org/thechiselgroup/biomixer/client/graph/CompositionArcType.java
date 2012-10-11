@@ -60,8 +60,12 @@ public class CompositionArcType implements ArcType {
             Resource firstResource = resources.getFirstElement();
 
             for (String parentUri : firstResource
-                    .getUriListValue(Concept.COMPOSITION_CONCEPTS)) {
+                    .getUriListValue(Concept.OWNING_CONCEPTS)) {
                 arcItems.add(createArc(visualItemId, parentUri));
+            }
+            for (String childUri : firstResource
+                    .getUriListValue(Concept.OWNED_CONCEPTS)) {
+                arcItems.add(createArc(childUri, visualItemId));
             }
         }
 

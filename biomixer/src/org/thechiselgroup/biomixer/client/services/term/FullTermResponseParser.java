@@ -54,7 +54,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
 
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
-        UriList compositionConcepts = new UriList();
+        UriList owningConcepts = new UriList();
+        UriList ownedConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
 
         for (int i = 0; i < nodes.length; i++) {
@@ -66,13 +67,19 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
             if (relationships.length == 0) {
                 continue;
             }
-
-            String name = getText(node, "string/text()");
             for (int j = 0; j < relationships.length; j++) {
                 Object r = relationships[j];
 
-                if (!("SubClass".equals(name) || "SuperClass".equals(name) || "has_part"
-                        .equals(name))) {
+                String name = getText(node, "string/text()");
+                
+                boolean classRelation = "SubClass".equals(name)
+                        || "SuperClass".equals(name);
+                boolean compositeRelation = "has_part".equals(name)
+                        || "[R]has_part".equals(name);
+                boolean reversed = "SuperClass".equals(name)
+                        || "[R]has_part".equals(name);
+
+                if (name == null || !(classRelation || compositeRelation)) {
                     // XXX OBO relations (such as 'negatively_regulates',
                     // '[R]is_a') get ignored
                     continue;
@@ -83,9 +90,9 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
                     continue;
                 }
 
-                Resource neighbour = process(r, "SuperClass".equals(name),
-                        "has_part".equals(name), ontologyId, parentConcepts,
-                        childConcepts, compositionConcepts);
+                Resource neighbour = process(r, reversed, compositeRelation,
+                        ontologyId, parentConcepts, childConcepts,
+                        owningConcepts, ownedConcepts);
 
                 resources.add(neighbour);
             }
@@ -96,8 +103,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
-        partialProperties
-                .put(Concept.COMPOSITION_CONCEPTS, compositionConcepts);
+        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
+        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -132,7 +139,7 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
 
     private Resource process(Object node, boolean reversed,
             boolean hasARelation, String ontologyId, UriList parentConcepts,
-            UriList childConcepts, UriList compositionConcepts)
+            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts)
             throws XPathEvaluationException {
 
         String conceptId = getConceptId(node);
@@ -156,11 +163,14 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
-        if (hasARelation) {
-            compositionConcepts.add(concept.getUri());
-        } else if (reversed) {
+
+        if (hasARelation && reversed) {
+            owningConcepts.add(concept.getUri());
+        } else if (hasARelation && !reversed) {
+            ownedConcepts.add(concept.getUri());
+        } else if (!hasARelation && reversed) {
             parentConcepts.add(concept.getUri());
-        } else {
+        } else { // !hasARelation && !reversed
             childConcepts.add(concept.getUri());
         }
 
