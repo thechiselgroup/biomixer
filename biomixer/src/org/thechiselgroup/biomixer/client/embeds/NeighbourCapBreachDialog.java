@@ -27,9 +27,9 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
 
     private final String messageBeforeNum = "There are "; // "The concept neighbourhood includes ";
 
-    private final String messageAfterNum = " terms in this neighborhood. Retrieving these may take several minutes, and it may appear frozen. Shall we load only "; // " concepts, which may take long to load and clutter your graph view. The screen may even appear to be frozen.<br/>Is it ok if we limit the number of neighbour concepts rendered to ";
+    private final String messageAfterNum = " concepts to load. Retrieving these concepts may take several minutes, and things may appear to be frozen. Shall we load only "; // " concepts, which may take long to load and clutter your graph view. The screen may even appear to be frozen.<br/>Is it ok if we limit the number of neighbour concepts rendered to ";
 
-    private final String messageAfterMaximum = " terms?";
+    private final String messageAfterMaximum = " concepts?";
 
     private final String message;
 
@@ -67,13 +67,13 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
     @Override
     public String getOkayButtonLabel() {
         // return "Accept Neighbour Cap";
-        return "Load only " + maxDefault + " terms";
+        return "Load only " + maxDefault + " concepts";
     }
 
     @Override
     public String getCancelButtonLabel() {
         // return "Reject Cap, Expand All Neighbours";
-        return "Load all " + numberOfNeighbours + " terms";
+        return "Load all " + numberOfNeighbours + " concepts";
     }
 
     @Override
