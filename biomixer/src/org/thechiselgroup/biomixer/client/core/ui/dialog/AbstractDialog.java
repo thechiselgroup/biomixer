@@ -31,6 +31,21 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
 
     protected int height = 600;
 
+    // Allows for compression of this window if we don't need a header.
+    protected boolean useHeader = true;
+
+    protected boolean isCloseable = true;
+
+    @Override
+    public boolean useHeader() {
+        return useHeader;
+    }
+
+    @Override
+    public boolean isCloseable() {
+        return isCloseable;
+    }
+
     /**
      * Default implementation handles OK and Cancel button presses. Clients may
      * override, but are responsible for closing the window if they do.
