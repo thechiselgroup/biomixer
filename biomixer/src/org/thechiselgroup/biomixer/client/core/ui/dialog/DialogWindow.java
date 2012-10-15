@@ -191,14 +191,17 @@ public final class DialogWindow extends WindowPanel implements DialogCallback {
             ((DialogExtension) dialog).dialogCreated(this);
         }
         this.dialog = dialog; // Used to occur after button initialization
-        dialogPanel = new DialogPanel();
+        dialogPanel = new DialogPanel(dialog.useHeader());
 
         Widget content = dialog.getContent();
         dialogPanel.setContent(content);
-        dialogPanel.setHeader(dialog.getHeader());
+        if (dialog.useHeader()) {
+            dialogPanel.setHeader(dialog.getHeader());
+        }
 
         initButtons(dialog);
-        init(windowController, dialog.getWindowTitle(), false, dialogPanel);
+        init(windowController, dialog.getWindowTitle(),
+                false, dialog.isCloseable(), dialogPanel);
         setZIndex(ZIndex.DIALOG);
 
         dialog.init(this);

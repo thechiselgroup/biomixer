@@ -36,11 +36,32 @@ public interface Dialog {
 
     String getHeader();
 
+    /**
+     * Informs whether the header should be created for this dialog type. Some
+     * dialogs are better off compressed. If false, no such header panel should
+     * be created.
+     * 
+     * @return
+     */
+    public boolean useHeader();
+
+    /**
+     * Controls whether the window will have an 'X' displayed to close it
+     * without using a button response.
+     * 
+     * @return
+     */
+    public boolean isCloseable();
+
     String getOkayButtonLabel();
 
     String getCancelButtonLabel();
 
     String getWindowTitle();
+
+    public int getWidth();
+
+    public int getHeight();
 
     void handleException(Exception ex);
 

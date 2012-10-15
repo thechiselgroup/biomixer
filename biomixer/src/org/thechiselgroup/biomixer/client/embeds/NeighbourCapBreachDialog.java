@@ -33,8 +33,10 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
 
     private final String message;
 
-    private final String title = "Attention";
+    // Won't actually want to use the title at all.
+    private final String title = "";
 
+    // Won't actually want to use the header at all.
     private final String header = "Very Large Concept Neighbourhood";
 
     private int numberOfNeighbours;
@@ -46,6 +48,13 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
         this.maxDefault = maxDefault;
         this.message = messageBeforeNum + numberOfNeighbours + messageAfterNum
                 + maxDefault + messageAfterMaximum;
+        this.width = 400;
+        this.height = 100; // Will fit our text.
+        // We'll still set the header up above, but we don't actually want it
+        // displayed anymore. Leaving the string setting above is a good idea
+        // overall, even though it is not used.
+        this.useHeader = false;
+        this.isCloseable = false;
     }
 
     @Override

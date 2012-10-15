@@ -49,9 +49,13 @@ public class DialogPanel extends Panel {
 
     private Element contentTD;
 
-    public DialogPanel() {
+    private boolean useHeader = true;
+
+    public DialogPanel(boolean useHeader) {
         panelElement = DOM.createTable();
         panelElement.setClassName(CSS_DIALOG_PANEL);
+
+        this.useHeader = useHeader;
 
         initHeaderLabel();
         contentTD = createRow();
@@ -88,10 +92,12 @@ public class DialogPanel extends Panel {
     public void initHeaderLabel() {
         headerLabel = new Label();
         headerLabel.setStyleName(CSS_DIALOG_PANEL_HEADER);
-        Element td = createRow();
-        CSS.setHeight(td, HEADER_HEIGHT);
-        td.appendChild(headerLabel.getElement());
-        adopt(headerLabel);
+        if (this.useHeader) {
+            Element td = createRow();
+            CSS.setHeight(td, HEADER_HEIGHT);
+            td.appendChild(headerLabel.getElement());
+            adopt(headerLabel);
+        }
     }
 
     @Override
