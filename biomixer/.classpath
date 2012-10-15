@@ -26,6 +26,6 @@
 	<classpathentry kind="lib" path="lib/jackson-core-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-databind-2.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/gwt-incubator-20101117-r1766.jar"/>
-	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER/App Engine (1)"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
