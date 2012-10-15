@@ -42,6 +42,10 @@ public interface Dialog {
 
     String getWindowTitle();
 
+    public int getWidth();
+
+    public int getHeight();
+
     void handleException(Exception ex);
 
     public void init(DialogCallback callback);

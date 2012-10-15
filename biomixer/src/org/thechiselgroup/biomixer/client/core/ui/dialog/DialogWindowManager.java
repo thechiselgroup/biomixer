@@ -95,7 +95,7 @@ public class DialogWindowManager extends AbstractWindowManager {
 
             // TODO variable calculation of window size
             // XXX this fixes problem that dialog window takes up whole screen
-            dialogWindow.setPixelSize(500, 600);
+            dialogWindow.setPixelSize(dialog.getWidth(), dialog.getHeight());
 
             /*
              * display centered below action bar offsets are useless here --

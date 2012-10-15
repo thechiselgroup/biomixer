@@ -46,6 +46,8 @@ public class NeighbourCapBreachDialog extends AbstractDialog {
         this.maxDefault = maxDefault;
         this.message = messageBeforeNum + numberOfNeighbours + messageAfterNum
                 + maxDefault + messageAfterMaximum;
+        this.width = 400;
+        this.height = 200;
     }
 
     @Override

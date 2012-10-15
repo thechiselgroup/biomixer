@@ -22,10 +22,14 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
     private DialogCallback callback;
 
     private DialogExitCallback dialogExitCallback = null;
-    
+
     private Integer exitCode = null;
 
     private DialogWindow window;
+
+    protected int width = 500;
+
+    protected int height = 600;
 
     /**
      * Default implementation handles OK and Cancel button presses. Clients may
@@ -67,6 +71,16 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
     @Override
     public void dialogCreated(DialogWindow window) {
         this.window = window;
+    }
+
+    @Override
+    public int getWidth() {
+        return this.width;
+    }
+
+    @Override
+    public int getHeight() {
+        return this.height;
     }
 
     @Override
