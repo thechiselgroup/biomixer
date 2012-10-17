@@ -51,6 +51,8 @@
     <!--  super dev mode -->
   <add-linker name="xsiframe"/>
   <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+  <set-property name="compiler.useSourceMaps" value="true" />
+  
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 
