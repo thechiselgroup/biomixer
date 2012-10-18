@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -269,7 +269,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         verify(mappingService, times(1)).getMappings(
                 eq(Concept.getOntologyId(concept.getUri())),
-                eq(Concept.getConceptId(concept.getUri())),
+                eq(Concept.getConceptId(concept.getUri())), eq(false),
                 any(AsyncCallback.class));
     }
 
@@ -301,7 +301,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         underTest.expand(visualItem, expansionCallback);
 
         verify(mappingService, times(0)).getMappings(any(String.class),
-                any(String.class), any(AsyncCallback.class));
+                any(String.class), eq(true), any(AsyncCallback.class));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -312,7 +312,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
                 eq(Concept.getOntologyId(conceptUri)),
-                eq(Concept.getConceptId(conceptUri)), captor.capture());
+                eq(Concept.getConceptId(conceptUri)), eq(false), captor.capture());
 
         underTest.expand(visualItem, expansionCallback);
 

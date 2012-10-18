@@ -15,9 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
@@ -25,25 +22,17 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public class TestLayoutNode extends AbstractLayoutNode {
 
-    private double x = Double.NaN;
-
-    private double y = Double.NaN;
-
     private double labelX = Double.NaN;
 
     private double labelY = Double.NaN;
 
     private boolean hasLabel;
 
-    private boolean isAnchored;
-
     private LayoutNodeType type;
 
     private DefaultSizeDouble nodeSize;
 
     private DefaultSizeDouble labelSize;
-
-    List<LayoutArc> connectedArcs = new ArrayList<LayoutArc>();
 
     public TestLayoutNode(double width, double height, boolean isAnchored,
             double labelWidth, double LabelHeight, LayoutNodeType type) {
@@ -79,15 +68,6 @@ public class TestLayoutNode extends AbstractLayoutNode {
         this.labelSize = new DefaultSizeDouble(0, 0);
     }
 
-    public void addConnectedArc(LayoutArc arc) {
-        connectedArcs.add(arc);
-    }
-
-    @Override
-    public List<LayoutArc> getConnectedArcs() {
-        return connectedArcs;
-    }
-
     @Override
     public SizeDouble getLabelSize() {
         return labelSize;
@@ -114,28 +94,8 @@ public class TestLayoutNode extends AbstractLayoutNode {
     }
 
     @Override
-    public double getX() {
-        return x;
-    }
-
-    @Override
-    public double getY() {
-        return y;
-    }
-
-    @Override
     public boolean hasLabel() {
         return hasLabel;
-    }
-
-    @Override
-    public boolean isAnchored() {
-        return isAnchored;
-    }
-
-    @Override
-    public void setAnchored(boolean anchored) {
-        this.isAnchored = anchored;
     }
 
     @Override
@@ -155,24 +115,8 @@ public class TestLayoutNode extends AbstractLayoutNode {
     }
 
     @Override
-    public void setPosition(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-    @Override
     public void setPosition(PointDouble position) {
         setPosition(position.getX(), position.getY());
-    }
-
-    @Override
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    @Override
-    public void setY(double y) {
-        this.y = y;
     }
 
 }

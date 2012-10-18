@@ -17,10 +17,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
 
 public class GraphLayoutTest extends AbstractLayoutGraphTest {
@@ -31,7 +30,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
         LayoutArc arc1 = createArc(nodes[0], nodes[1]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
 
-        List<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
+        LightweightList<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
         assertThat(connectedArcs,
                 CollectionMatchers.containsExactly(arc1, arc2));
     }
@@ -42,7 +41,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
         LayoutArc arc1 = createArc(nodes[1], nodes[0]);
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
 
-        List<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
+        LightweightList<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
         assertThat(connectedArcs,
                 CollectionMatchers.containsExactly(arc1, arc2));
     }
@@ -54,7 +53,7 @@ public class GraphLayoutTest extends AbstractLayoutGraphTest {
         LayoutArc arc2 = createArc(nodes[0], nodes[2]);
         createArc(nodes[3], nodes[4]);
 
-        List<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
+        LightweightList<LayoutArc> connectedArcs = nodes[0].getConnectedArcs();
         assertThat(connectedArcs,
                 CollectionMatchers.containsExactly(arc1, arc2));
     }

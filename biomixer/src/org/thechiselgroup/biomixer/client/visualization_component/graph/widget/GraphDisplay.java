@@ -19,8 +19,8 @@ import java.util.Collection;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;
@@ -55,12 +55,6 @@ public interface GraphDisplay extends IsWidget {
     <T extends EventHandler> HandlerRegistration addEventHandler(Type<T> type,
             T handler);
 
-    HandlerRegistration addGraphDisplayLoadingFailureHandler(
-            GraphDisplayLoadingFailureEventHandler handler);
-
-    HandlerRegistration addGraphDisplayReadyHandler(
-            GraphDisplayReadyEventHandler handler);
-
     void addNode(Node node);
 
     void addNodeMenuItemHandler(String menuLabel,
@@ -80,15 +74,17 @@ public interface GraphDisplay extends IsWidget {
 
     Node getNode(String nodeId);
 
+    NodeAnimator getNodeAnimator();
+
+    void registerDefaultLayoutAlgorithm(LayoutAlgorithm layoutAlgorithm);
+
     void removeArc(Arc arc);
 
     void removeNode(Node node);
 
     void runLayout() throws LayoutException;
 
-    LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm);
-
-    void runLayout(String layout) throws LayoutException;
+    void runLayout(LayoutAlgorithm layoutAlgorithm);
 
     void runLayoutOnNodes(Collection<Node> nodes) throws LayoutException;
 

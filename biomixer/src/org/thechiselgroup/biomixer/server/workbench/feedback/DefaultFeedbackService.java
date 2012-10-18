@@ -27,7 +27,7 @@ import com.google.appengine.api.users.UserService;
 public class DefaultFeedbackService implements FeedbackService {
 
     // TODO use configuration file
-    private static final String ADMIN = "lars.grammel@googlemail.com";
+    private static final String ADMIN = "biomixer.chisel@gmail.com";
 
     private final MailService mailService;
 

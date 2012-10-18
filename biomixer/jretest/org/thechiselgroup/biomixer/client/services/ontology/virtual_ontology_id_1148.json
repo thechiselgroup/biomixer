@@ -1,0 +1,37 @@
+{"success":{
+	"accessedResource":"\/bioportal\/virtual\/ontology\/1148",
+	"accessDate":"2012-05-14 10:07:38.754 PDT",
+	"data":[
+		{"ontologyBean":
+			{"id":42948,
+			"ontologyId":1148,
+			"virtualViewIds":[""],
+			"internalVersionNumber":4,
+			"userIds":[{"int":38289}],
+			"versionNumber":"0.9.3",
+			"isRemote":0,
+			"statusId":3,
+			"dateCreated":"2010-06-18 16:02:02.0 PDT",
+			"dateReleased":"2009-09-01 00:00:00.0 PDT",
+			"isManual":1,
+			"displayLabel":"BioPortal Metadata",
+			"description":"This ontology represents the structure that BioPortal will use to represent all of its metadata (ontology details, mappings, notes, reviews, views)",
+			"abbreviation":"BPMetadata",
+			"format":"OWL",
+			"contactName":"Natasha Noy",
+			"contactEmail":"noy@stanford.edu",
+			"homepage":"http:\/\/www.bioontology.org\/wiki\/index.php\/BioPortal_Metadata",
+			"isFoundry":0,
+			"userAcl":[""],
+			"isView":false,
+			"categoryIds":[{"int":2801}],
+			"groupIds":[""],
+			"filenames":[{"string":["BioPortalMetadata_v0.9.3.zip","BioPortalMetadata_v0.9.3.owl"]}],
+			"filePath":"\/1148\/4",
+			"hasViews":[""],
+			"viewOnOntologyVersionId":[""]
+			}
+		}
+	]
+}
+}

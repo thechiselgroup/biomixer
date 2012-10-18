@@ -4,6 +4,7 @@ import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
 import org.thechiselgroup.biomixer.client.graph.AutomaticConceptExpander;
 import org.thechiselgroup.biomixer.client.graph.ConceptConceptNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.graph.ConceptConceptNeighbourhoodLoader;
@@ -17,6 +18,11 @@ import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import com.google.inject.Inject;
 
 public class GraphExpansionRegistryFactory {
+
+    @Inject
+    // Needed this here due to need for explicit constructor call; can't push
+    // field injection into receiving class below.
+    DialogManager dialogManager;
 
     @Inject
     private ResourceManager resourceManager;
@@ -42,7 +48,8 @@ public class GraphExpansionRegistryFactory {
 
         registry.putNodeMenuEntry(Concept.RESOURCE_URI_PREFIX, "Concepts",
                 new ConceptConceptNeighbourhoodExpander(errorHandler,
-                        resourceManager, conceptNeighbourhoodService));
+                        resourceManager, conceptNeighbourhoodService,
+                        dialogManager));
 
         registry.putNodeMenuEntry(Concept.RESOURCE_URI_PREFIX, "Mappings",
                 new ConceptMappingNeighbourhoodExpander(mappingService,

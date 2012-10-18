@@ -52,7 +52,7 @@ public class LayoutNodeAnimationTest {
 
     private void runAnimation(LayoutNode node, double destinationX,
             double destinationY) {
-        animationRunner.run(new LayoutNodeAnimation(node, destinationX,
+        animationRunner.run(new LayoutNodeAnimatable(node, destinationX,
                 destinationY), DURATION);
     }
 

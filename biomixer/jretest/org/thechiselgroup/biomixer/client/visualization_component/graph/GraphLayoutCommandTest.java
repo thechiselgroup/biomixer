@@ -28,6 +28,7 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
@@ -45,6 +46,9 @@ public class GraphLayoutCommandTest {
     private Node node2;
 
     @Mock
+    private LayoutAlgorithm layoutAlgorithm;
+
+    @Mock
     private Point location;
 
     @Mock
@@ -56,7 +60,7 @@ public class GraphLayoutCommandTest {
     public void setGraphLayoutOnExecute() {
         underTest.execute();
 
-        verify(graphDisplay, times(1)).runLayout(eq(layout));
+        verify(graphDisplay, times(1)).runLayout(eq(layoutAlgorithm));
     }
 
     @Test
@@ -77,8 +81,8 @@ public class GraphLayoutCommandTest {
         when(node.getId()).thenReturn("1");
         when(node2.getId()).thenReturn("2");
 
-        underTest = new GraphLayoutCommand(graphDisplay, layout,
-                CollectionUtils.toList(node, node2));
+        underTest = new GraphLayoutCommand(graphDisplay, layoutAlgorithm,
+                layout, CollectionUtils.toList(node, node2));
     }
 
     @After

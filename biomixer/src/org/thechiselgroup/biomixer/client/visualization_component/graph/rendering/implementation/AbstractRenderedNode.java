@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -28,6 +29,14 @@ public abstract class AbstractRenderedNode implements RenderedNode {
     protected List<RenderedArc> connectedArcs = new ArrayList<RenderedArc>();
 
     private Node node;
+
+    // cache
+    private double leftX;
+
+    // cache
+    private double topY;
+
+    private PointDouble topLeft;
 
     protected AbstractRenderedNode(Node node) {
         this.node = node;
@@ -40,13 +49,20 @@ public abstract class AbstractRenderedNode implements RenderedNode {
 
     @Override
     public PointDouble getCentre() {
-        return new PointDouble(getLeftX() + getSize().getWidth() / 2, getTopY()
-                + getSize().getHeight() / 2);
+        SizeDouble size = getSize(); // cache
+
+        return new PointDouble(getLeftX() + size.getWidth() / 2, getTopY()
+                + size.getHeight() / 2);
     }
 
     @Override
     public List<RenderedArc> getConnectedArcs() {
         return connectedArcs;
+    }
+
+    @Override
+    public final double getLeftX() {
+        return leftX;
     }
 
     @Override
@@ -56,7 +72,16 @@ public abstract class AbstractRenderedNode implements RenderedNode {
 
     @Override
     public PointDouble getTopLeft() {
-        return new PointDouble(getLeftX(), getTopY());
+        if (topLeft == null) {
+            topLeft = new PointDouble(getLeftX(), getTopY());
+        }
+
+        return topLeft;
+    }
+
+    @Override
+    public final double getTopY() {
+        return topY;
     }
 
     @Override
@@ -67,6 +92,18 @@ public abstract class AbstractRenderedNode implements RenderedNode {
     @Override
     public void removeConnectedArc(RenderedArc arc) {
         connectedArcs.remove(arc);
+    }
+
+    /*
+     * NOTE: setting x and y at the same time can significantly remove the
+     * number of required updates.
+     */
+    @Override
+    public void setPosition(double x, double y) {
+        this.leftX = x;
+        this.topY = y;
+
+        this.topLeft = null;
     }
 
     protected void updateConnectedArcs() {

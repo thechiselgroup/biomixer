@@ -65,31 +65,19 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
         return getNode().getId();
     }
 
-    @Override
-    public double getLeftX() {
-        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.X));
-    }
-
     /**
      * 
      * @return the coordinates of the top left corner of the node, using the
      *         base svg element's coordinate system
      */
     public PointDouble getLocation() {
-        return new PointDouble(Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.Y)));
+        return new PointDouble(getLeftX(), getTopY());
     }
 
     @Override
     public SizeDouble getSize() {
         return new DefaultSizeDouble(boxedText.getTotalWidth(),
                 boxedText.getTotalHeight());
-    }
-
-    @Override
-    public double getTopY() {
-        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
     }
 
     @Override
@@ -129,13 +117,9 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
     }
 
     @Override
-    public void setLeftX(double x) {
+    public void setPosition(double x, double y) {
+        super.setPosition(x, y);
         baseContainer.setAttribute(Svg.X, x);
-        updateConnectedArcs();
-    }
-
-    @Override
-    public void setTopY(double y) {
         baseContainer.setAttribute(Svg.Y, y);
         updateConnectedArcs();
     }

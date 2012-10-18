@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.workbench.workspace;
 
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
+import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.workbench.authentication.AuthenticationManager;
@@ -82,7 +83,7 @@ public class DefaultShareConfiguration implements ShareConfiguration {
 
     protected String createUrl(Long id, String applicationMode) {
         // TODO create url builder factory that creates same host urls
-        UrlBuilder urlBuilder = new UrlBuilder();
+        UrlBuilder urlBuilder = new DefaultUrlBuilder();
 
         urlBuilder.protocol(HTTP);
         urlBuilder.host(Window.Location.getHost());

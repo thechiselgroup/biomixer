@@ -18,17 +18,18 @@ package org.thechiselgroup.biomixer.client.services.ontology;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class OntologyTermCountServiceAsyncImpl extends
-        AbstractXMLWebResourceService implements OntologyTermCountServiceAsync {
+        AbstractWebResourceService implements OntologyTermCountServiceAsync {
 
-    private OntologyTermCountParser parser;
+    private OntologyTermCountJsonParser parser;
 
     public OntologyTermCountServiceAsyncImpl(UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory, OntologyTermCountParser parser) {
+            UrlBuilderFactory urlBuilderFactory,
+            OntologyTermCountJsonParser parser) {
         super(urlFetchService, urlBuilderFactory);
         this.parser = parser;
     }
@@ -51,8 +52,8 @@ public class OntologyTermCountServiceAsyncImpl extends
         fetchUrl(callback, url, new Transformer<String, String>() {
 
             @Override
-            public String transform(String xmlText) throws Exception {
-                return parser.parse(xmlText);
+            public String transform(String responseText) throws Exception {
+                return parser.parse(responseText);
             }
 
         });

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -31,6 +31,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 
 /**
@@ -44,12 +45,13 @@ public class MappingServiceImplementation implements MappingServiceAsync {
 
     private final UrlFetchService urlFetchService;
 
-    private final MappingResponseParser responseParser;
+    private final MappingResponseJsonParser responseParser;
 
     private final UrlBuilderFactory urlBuilderFactory;
 
     @Inject
-    public MappingServiceImplementation(MappingResponseParser responseParser,
+    public MappingServiceImplementation(
+            MappingResponseJsonParser responseParser,
             UrlFetchService urlFetchService, UrlBuilderFactory urlBuilderFactory) {
 
         this.urlFetchService = urlFetchService;
@@ -108,6 +110,7 @@ public class MappingServiceImplementation implements MappingServiceAsync {
 
     @Override
     public void getMappings(final String ontologyId, final String conceptId,
+            final boolean mappingNeighbourhood,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
         assert ontologyId != null;
@@ -121,6 +124,15 @@ public class MappingServiceImplementation implements MappingServiceAsync {
                     throws Exception {
 
                 List<Resource> mappings = responseParser.parseMapping(value);
+
+                if (mappingNeighbourhood == true && mappings.size() == 0) {
+                    // display a message to the user
+                    com.google.gwt.user.client.Window
+                            .alert("This concept does not have any mappings.");
+                    // hide the loading bar
+                    RootPanel.get("loadingMessage").setVisible(false);
+                }
+
                 Map<String, Serializable> partialProperties = calculatePartialProperties(
                         Concept.toConceptURI(ontologyId, conceptId), mappings);
                 return new ResourceNeighbourhood(partialProperties, mappings);

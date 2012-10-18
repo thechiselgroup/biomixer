@@ -16,15 +16,14 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class CircleLayoutAlgorithm implements LayoutAlgorithm {
+public class CircleLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private Executor executor = new DirectExecutor();
 
@@ -34,21 +33,18 @@ public class CircleLayoutAlgorithm implements LayoutAlgorithm {
 
     private double maxAngle = 360.0;
 
-    private final AnimationRunner animationRunner;
+    private final NodeAnimator nodeAnimator;
 
     public CircleLayoutAlgorithm(ErrorHandler errorHandler,
-            AnimationRunner animationRunner) {
+            NodeAnimator nodeAnimator) {
         this.errorHandler = errorHandler;
-        this.animationRunner = animationRunner;
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
-    public LayoutComputation computeLayout(LayoutGraph graph) {
-        AbstractLayoutComputation computation = new CircleLayoutComputation(
-                minAngle, maxAngle, graph, executor, errorHandler,
-                animationRunner);
-        computation.run();
-        return computation;
+    protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
+        return new CircleLayoutComputation(minAngle, maxAngle, graph, executor,
+                errorHandler, nodeAnimator);
     }
 
     public void setAngleRange(double angle1, double angle2) {

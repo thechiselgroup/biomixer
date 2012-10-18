@@ -18,6 +18,17 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
+/**
+ * Performs a modified version of Fruchterman and Reingold's repulsion force
+ * calculation. The ratio of number of arcs to number of nodes is taken into
+ * account in order to prevent excessive clumping among highly interconnected
+ * nodes.
+ * 
+ * @see BoundsAwareRepulsionCalculator
+ * 
+ * @author drusk
+ * 
+ */
 public class BoundsAwareAttractionCalculator extends BoundsAwareForceCalculator {
 
     public BoundsAwareAttractionCalculator(LayoutGraph graph) {
@@ -34,7 +45,8 @@ public class BoundsAwareAttractionCalculator extends BoundsAwareForceCalculator 
             return new Vector2D(0, 0);
         }
         double magnitude = Math.pow(getDistanceBetween(currentNode, otherNode),
-                2) / getOptimalEdgeLength();
+                2)
+                / (getNumberOfArcsOverNumberOfNodes() * getOptimalEdgeLength());
 
         /*
          * Note the force is directed towards the other node since it is an

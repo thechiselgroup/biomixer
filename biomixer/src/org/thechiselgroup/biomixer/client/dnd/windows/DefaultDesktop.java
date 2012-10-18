@@ -90,11 +90,12 @@ public class DefaultDesktop extends AbsolutePanel implements Desktop, SizeInt {
     }
 
     private WindowPanel createWindow(String title, boolean titleEditable,
-            Widget contentWidget, int x, int y) {
+            boolean isCloseable, Widget contentWidget, int x, int y) {
 
         WindowPanel window = new WindowPanel(popupManagerFactory);
 
-        window.init(windowController, title, titleEditable, contentWidget);
+        window.init(windowController, title, titleEditable, isCloseable,
+                contentWidget);
 
         addWindowInternal(window);
         add(window, x, y);
@@ -111,7 +112,7 @@ public class DefaultDesktop extends AbsolutePanel implements Desktop, SizeInt {
         Point point = positionManager.getNextLocation(500, 400);
 
         WindowPanel window = createWindow(content.getLabel(),
-                content instanceof ViewWindowContent, content.asWidget(),
+                content instanceof ViewWindowContent, true, content.asWidget(),
                 point.getX(), point.getY());
 
         window.setViewContent(content);
@@ -124,9 +125,10 @@ public class DefaultDesktop extends AbsolutePanel implements Desktop, SizeInt {
             int width, int height) {
 
         content.init();
-
+        
         WindowPanel window = createWindow(content.getLabel(),
-                content instanceof ViewWindowContent, content.asWidget(), x, y);
+                content instanceof ViewWindowContent, true, content.asWidget(),
+                x, y);
         window.setPixelSize(width, height);
         window.setViewContent(content);
 

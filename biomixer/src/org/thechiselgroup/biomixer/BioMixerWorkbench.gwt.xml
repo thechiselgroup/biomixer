@@ -46,7 +46,13 @@
   <inherits name='org.adamtacy.GWTEffects' /> 
   
   <!-- GWT SWF Bridge: gwt2swf -->
-  <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' /> 
+  <!-- <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' />  -->
+  
+    <!--  super dev mode -->
+  <add-linker name="xsiframe"/>
+  <set-configuration-property name="devModeRedirectEnabled" value="true"/>
+  <set-property name="compiler.useSourceMaps" value="true" />
+  
   
   <!-- client-side logging configuration -->
   <!-- TODO deactivate for deployment --> 
@@ -60,11 +66,14 @@
   <set-property name="gwt.logging.developmentModeHandler" value="ENABLED"/>  
   
   <!-- Client XPath/XSLT support via wrapping native browser support -->
+  <!--  Moved these scripts to to the host page, index.html -->
+  <!--
   <script src="js/lib/sarissa-0.9.9.4/sarissa-compressed.js"/>
   <script src="js/lib/sarissa-0.9.9.4/sarissa_ieemu_xpath-compressed.js"/>
 
   <script src="js/lib/simile-ajax-api-2.2.0/simile-ajax-api.js"/>
   <script src="js/lib/timeline-2.3.0/timeline-api.js"/>  
+  -->
 
   <source path='client'/>
   <source path='shared'/>

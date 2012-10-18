@@ -22,6 +22,7 @@ import org.thechiselgroup.biomixer.client.core.command.AbstractUndoableCommand;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.HasDescription;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
@@ -32,24 +33,28 @@ public class GraphLayoutCommand extends AbstractUndoableCommand implements
 
     private GraphDisplay display;
 
-    private String layout;
-
     private List<Node> nodes;
 
     private Map<String, Point> nodeLocations = CollectionFactory
             .createStringMap();
 
-    public GraphLayoutCommand(GraphDisplay display, String layout,
+    private final LayoutAlgorithm layoutAlgorithm;
+
+    private final String layoutLabel;
+
+    public GraphLayoutCommand(GraphDisplay display,
+            LayoutAlgorithm layoutAlgorithm, String layoutLabel,
             List<Node> nodes) {
 
         this.display = display;
-        this.layout = layout;
+        this.layoutAlgorithm = layoutAlgorithm;
+        this.layoutLabel = layoutLabel;
         this.nodes = nodes;
     }
 
     @Override
     public String getDescription() {
-        return "Graph layout " + layout;
+        return "Graph layout " + layoutLabel;
     }
 
     @Override
@@ -58,7 +63,7 @@ public class GraphLayoutCommand extends AbstractUndoableCommand implements
             nodeLocations.put(node.getId(), display.getLocation(node));
         }
 
-        display.runLayout(layout);
+        display.runLayout(layoutAlgorithm);
     }
 
     @Override

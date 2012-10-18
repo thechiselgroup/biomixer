@@ -45,10 +45,10 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander extends
 
     @Override
     protected String getErrorMessageWhenNeighbourhoodloadingFails(
-            Resource resource) {
-        return "Could not expand all parent and child concepts for \" "
-                + resource.getValue(Concept.LABEL) + "\""
-                + getOntologyInfoForErrorMessage(resource);
+            Resource resource, String additionalMessage) {
+        return "Could not expand all parent and child concepts for \""
+                + resource.getValue(Concept.LABEL) + "\" "
+                + getOntologyInfoForErrorMessage(resource) + additionalMessage;
     }
 
     @Override
@@ -83,6 +83,10 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander extends
                 Concept.PARENT_CONCEPTS));
         neighbourhood.addAll(resourceManager.resolveResources(concept,
                 Concept.CHILD_CONCEPTS));
+        neighbourhood.addAll(resourceManager.resolveResources(concept,
+                Concept.OWNED_CONCEPTS));
+        neighbourhood.addAll(resourceManager.resolveResources(concept,
+                Concept.OWNING_CONCEPTS));
 
         return neighbourhood;
     }

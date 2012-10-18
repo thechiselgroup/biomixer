@@ -42,6 +42,19 @@ public final class MathUtils {
     }
 
     /**
+     * Generates a random number in the range [min, max]
+     * 
+     * @param min
+     *            the minimum allowable number
+     * @param max
+     *            the maximum allowable number
+     * @return a random number in the specified range
+     */
+    public static int generateRandomNumber(int min, int max) {
+        return min + (int) (Math.random() * ((max - min) + 1));
+    }
+
+    /**
      * Deprecated - use NumberArray
      */
     @Deprecated

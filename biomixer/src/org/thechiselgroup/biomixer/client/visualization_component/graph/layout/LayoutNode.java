@@ -15,10 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
-import java.util.List;
-
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 
 /**
  * Node that is part of the graph that should be laid out. Each node can have an
@@ -39,7 +38,7 @@ public interface LayoutNode {
      * 
      * @return the arcs connected to this node
      */
-    List<LayoutArc> getConnectedArcs();
+    LightweightList<LayoutArc> getConnectedArcs();
 
     /**
      * @return size of the separate node label. Returns a SizeDouble(0,0) if
@@ -176,23 +175,5 @@ public interface LayoutNode {
      *            the top left corner of the node
      */
     void setPosition(PointDouble position);
-
-    /**
-     * Sets the x-position of this node. Only nodes that are not anchored can be
-     * positioned (can lead to assertion error otherwise).
-     * 
-     * @param x
-     *            left starting point of the node
-     */
-    void setX(double x);
-
-    /**
-     * Sets the y-position of this node. Only nodes that are not anchored can be
-     * positioned (can lead to assertion error otherwise).
-     * 
-     * @param y
-     *            top starting point of the node
-     */
-    void setY(double y);
 
 }

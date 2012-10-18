@@ -16,12 +16,16 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 public interface GraphLayoutSupport {
 
-    LayoutGraph getLayoutGraph();
+    /**
+     * 
+     * @return the graph's NodeAnimator which creates and keeps track of node
+     *         animations
+     */
+    NodeAnimator getNodeAnimator();
 
     /**
      * Registers a layout algorithm to be the default one run when the graph
@@ -37,22 +41,10 @@ public interface GraphLayoutSupport {
     void runLayout();
 
     /**
-     * Runs a customized graph layout.
-     */
-    void runLayout(GraphLayout layout);
-
-    /**
      * 
      * @param layoutAlgorithm
      *            the layout algorithm to be run
      */
     void runLayout(LayoutAlgorithm layoutAlgorithm);
 
-    /**
-     * Runs a graph layout that is defined in the graph widget. The constants
-     * are contained in {@link GraphLayouts}.
-     * 
-     * @see GraphLayouts
-     */
-    void runLayout(String layout);
 }

@@ -23,6 +23,10 @@ package org.thechiselgroup.biomixer.client.core.util.url;
  */
 public interface UrlBuilderFactory {
 
+    String BIO_MIXER_API_KEY = "6700f7bc-5209-43b6-95da-44336cbc0a3a";
+
     UrlBuilder createUrlBuilder();
+
+    void setUserApiKey(String apiKey);
 
 }

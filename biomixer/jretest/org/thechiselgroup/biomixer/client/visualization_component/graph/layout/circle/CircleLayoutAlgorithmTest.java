@@ -51,7 +51,28 @@ public class CircleLayoutAlgorithmTest extends AbstractLayoutAlgorithmTest {
 
     @Before
     public void setUp() {
-        underTest = new CircleLayoutAlgorithm(errorHandler, animationRunner);
+        underTest = new CircleLayoutAlgorithm(errorHandler, nodeAnimator);
+    }
+
+    @Test
+    public void singleNodeFullCircle() {
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(1);
+
+        computeLayout(graph);
+
+        assertNodeHasCentre(200, 200, nodes[0]);
+    }
+
+    @Test
+    public void singleNodeSemicircle() {
+        setAngleRange(0, 180);
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(1);
+
+        computeLayout(graph);
+
+        assertNodeHasCentre(200, 200, nodes[0]);
     }
 
     @Test

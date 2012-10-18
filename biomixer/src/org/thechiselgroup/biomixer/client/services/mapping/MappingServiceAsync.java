@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -26,6 +26,7 @@ public interface MappingServiceAsync {
      * for a given concept.
      */
     void getMappings(String ontologyId, String conceptFullId,
+            boolean mappingNeighbourhood,
             AsyncCallback<ResourceNeighbourhood> callback);
 
 }

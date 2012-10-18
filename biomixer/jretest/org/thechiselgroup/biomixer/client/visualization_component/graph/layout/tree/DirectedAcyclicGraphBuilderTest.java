@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.AbstractLayoutGraphTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
@@ -35,6 +36,21 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 public class DirectedAcyclicGraphBuilderTest extends AbstractLayoutGraphTest {
 
     private DirectedAcyclicGraphBuilder underTest;
+
+    @Ignore("TODO handle cycles")
+    @Test
+    public void cyclicGraph() {
+        createGraph(0, 0, 400, 400);
+        LayoutNode[] nodes = createNodes(3);
+        createArc(nodes[0], nodes[1]);
+        createArc(nodes[1], nodes[2]);
+        createArc(nodes[2], nodes[0]);
+
+        List<DirectedAcyclicGraph> dags = underTest
+                .getDirectedAcyclicGraphs(graph);
+        assertThat(dags.size(), equalTo(1));
+
+    }
 
     @Test
     public void dagSizeTestRootsShareAChildNode() {

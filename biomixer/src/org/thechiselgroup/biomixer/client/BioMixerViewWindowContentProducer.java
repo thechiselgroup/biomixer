@@ -43,6 +43,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotM
 import org.thechiselgroup.biomixer.client.core.visualization.ui.NullVisualMappingsControl;
 import org.thechiselgroup.biomixer.client.core.visualization.ui.VisualMappingsControl;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
+import org.thechiselgroup.biomixer.client.graph.CompositionArcType;
 import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
 import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
@@ -59,7 +60,6 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -89,14 +89,23 @@ public class BioMixerViewWindowContentProducer extends
             String arcTypeId = arcItemContainer.getArcType().getArcTypeID();
             String label = "unknown";
             if (DirectConceptMappingArcType.ID.equals(arcTypeId)) {
-                label = "Concept Mapping";
+                label = "Mapping Relationship";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
             } else if (MappingArcType.ID.equals(arcTypeId)) {
                 label = "Mapping";
+
+                // disabled the options to edit the style of the arcs of the
+                // Mapping Nodes - likely to be permanent
+                // panel.add(createArcTypeContainerControl(label,
+                // arcItemContainer));
             } else if (ConceptArcType.ID.equals(arcTypeId)) {
-                label = "Concept Relationship";
+                label = "Is-A Relationship";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
+            } else if (CompositionArcType.ID.equals(arcTypeId)) {
+                label = "Part-Of Relationship";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
             }
 
-            panel.add(createArcTypeContainerControl(label, arcItemContainer));
         }
 
         return new SidePanelSection("Arcs", panel);
@@ -182,17 +191,21 @@ public class BioMixerViewWindowContentProducer extends
 
         final Map<String, CheckBox> ontologyToFilterBox = CollectionFactory
                 .createStringMap();
-        final CheckBox mappingNodesCheckbox = new CheckBox("Show Mapping Nodes");
-        mappingNodesCheckbox.setValue(false);
-        mappingNodesCheckbox
-                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                    @Override
-                    public void onValueChange(ValueChangeEvent<Boolean> event) {
-                        updatePredicate(resourceModel,
-                                mappingNodesCheckbox.getValue(),
-                                ontologyToFilterBox);
-                    }
-                });
+
+        // code below removes the "Show Mapping Nodes" checkbox under the
+        // "Nodes" view part in the vertical panel
+        // final CheckBox mappingNodesCheckbox = new
+        // CheckBox("Show Mapping Nodes");
+        // mappingNodesCheckbox.setValue(false);
+        // mappingNodesCheckbox
+        // .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+        // @Override
+        // public void onValueChange(ValueChangeEvent<Boolean> event) {
+        // updatePredicate(resourceModel,
+        // mappingNodesCheckbox.getValue(),
+        // ontologyToFilterBox);
+        // }
+        // });
 
         final CheckBox colorByOntologyCheckBox = new CheckBox(
                 "Color Concept Nodes by Ontology");
@@ -250,9 +263,16 @@ public class BioMixerViewWindowContentProducer extends
                                         public void onValueChange(
                                                 ValueChangeEvent<Boolean> event) {
                                             updatePredicate(resourceModel,
-                                                    mappingNodesCheckbox
-                                                            .getValue(),
-                                                    ontologyToFilterBox);
+                                                    false, ontologyToFilterBox);
+
+                                            // the code below updates the
+                                            // "Show Mapping Nodes" checkbox
+                                            // under "Nodes" view part in the
+                                            // vertical panel
+                                            // updatePredicate(resourceModel,
+                                            // mappingNodesCheckbox
+                                            // .getValue(),
+                                            // ontologyToFilterBox);
                                         }
                                     });
                                 }
@@ -261,7 +281,9 @@ public class BioMixerViewWindowContentProducer extends
                     }
                 });
 
-        panel.add(mappingNodesCheckbox);
+        // next line commented out so the "Show Mapping Nodes" checkbox is not
+        // added to the "Nodes" view part in the vertical panel
+        // panel.add(mappingNodesCheckbox);
         panel.add(colorByOntologyCheckBox);
 
         updatePredicate(resourceModel, false, ontologyToFilterBox);
@@ -285,15 +307,17 @@ public class BioMixerViewWindowContentProducer extends
             sidePanelSections.add(createNodesSidePanelSection(resourceModel,
                     visualizationModel));
             sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
-            // sidePanelSections.addAll(contentDisplay.getSidePanelSections());
-            {
-                TextArea textArea = new TextArea();
-                textArea.setWidth("100%");
-                textArea.setHeight("100%");
+            sidePanelSections.addAll(contentDisplay.getSidePanelSections());
 
-                sidePanelSections
-                        .add(new SidePanelSection("Comments", textArea));
-            }
+            // temporarily removing the Comments view part
+            // {
+            // TextArea textArea = new TextArea();
+            // textArea.setWidth("100%");
+            // textArea.setHeight("100%");
+            //
+            // sidePanelSections
+            // .add(new SidePanelSection("Comments", textArea));
+            // }
 
             return sidePanelSections;
         }

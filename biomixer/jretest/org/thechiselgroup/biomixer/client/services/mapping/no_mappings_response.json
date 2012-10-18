@@ -1,0 +1,21 @@
+{
+    "success": {
+        "accessedResource": "/bioportal/virtual/mappings/concepts/1487",
+        "accessDate": "2012-05-29 13:53:50.207 PDT",
+        "data": [
+            {
+                "page": {
+                    "pageNum": 1,
+                    "numPages": 1,
+                    "pageSize": 5000,
+                    "numResultsPage": 0,
+                    "numResultsTotal": 0,
+                    "contents": {
+                        "@class": "org.ncbo.stanford.bean.mapping.MappingResultListBean",
+                        "mappings": ""
+                    }
+                }
+            }
+        ]
+    }
+}

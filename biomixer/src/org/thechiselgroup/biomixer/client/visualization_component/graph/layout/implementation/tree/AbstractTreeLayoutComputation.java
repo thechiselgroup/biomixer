@@ -16,13 +16,14 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
 import java.util.List;
+import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
 /**
@@ -37,7 +38,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 public abstract class AbstractTreeLayoutComputation extends
         AbstractLayoutComputation {
 
-    private static final int animationDuration = 3000;
+    private static final int animationDuration = 1000;
 
     private final boolean reversed;
 
@@ -49,19 +50,34 @@ public abstract class AbstractTreeLayoutComputation extends
      */
     protected AbstractTreeLayoutComputation(LayoutGraph graph,
             Executor executor, ErrorHandler errorHandler,
-            AnimationRunner animationRunner, boolean reversed) {
-        super(graph, executor, errorHandler, animationRunner);
+            NodeAnimator nodeAnimator, boolean reversed) {
+        super(graph, executor, errorHandler, nodeAnimator);
         this.reversed = reversed;
     }
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
+        /*
+         * XXX need to handle the case where there are cycles in the graph.
+         */
+        CycleDetector cycleDetector = new CycleDetector(graph);
+
+        /* Anchor the nodes in cycles */
+        for (LayoutNode node : cycleDetector.getNodesInCycles()) {
+            node.setAnchored(true);
+        }
+
+        /*
+         * Build up the directed acyclic graph structure from the remaining
+         * nodes
+         */
         List<DirectedAcyclicGraph> dagsOnGraph = new DirectedAcyclicGraphBuilder()
                 .getDirectedAcyclicGraphs(graph);
         int numDagsOnGraph = dagsOnGraph.size();
-        assert numDagsOnGraph >= 1;
+        assert numDagsOnGraph >= 1 || cycleDetector.hasCycles();
 
-        double availableSecondaryDimensionForEachTree = getAvailableSecondaryDimensionForEachTree(numDagsOnGraph);
+        double availableSecondaryDimensionForEachTree = getAvailableSecondaryDimensionForEachTree(numDagsOnGraph
+                + cycleDetector.getNumberOfCycles());
 
         // traverse each dag
         for (int i = 0; i < dagsOnGraph.size(); i++) {
@@ -90,6 +106,34 @@ public abstract class AbstractTreeLayoutComputation extends
                             currentPrimaryDimension);
                     currentPrimaryDimension += primaryDimensionSpacing;
                 }
+            }
+        }
+
+        /* Unanchor the nodes in cycles */
+        for (LayoutNode node : cycleDetector.getNodesInCycles()) {
+            node.setAnchored(false);
+        }
+
+        /* Place the nodes in cycles */
+        List<Set<LayoutNode>> cycles = cycleDetector.getCycles();
+        for (int i = 0; i < cycles.size(); i++) {
+            Set<LayoutNode> cycle = cycles.get(i);
+
+            /*
+             * XXX place these nodes in a straight line along the primary
+             * dimension
+             */
+            double secondaryDimension = availableSecondaryDimensionForEachTree
+                    * (numDagsOnGraph + i + 0.5);
+            double primaryDimensionSpacing = getPrimaryDimensionSpacing(cycle
+                    .size());
+            double currentPrimaryDimension = primaryDimensionSpacing;
+
+            for (LayoutNode node : cycle) {
+                PointDouble topLeft = getTopLeftForCentreAt(
+                        currentPrimaryDimension, secondaryDimension, node);
+                animateTo(node, topLeft, animationDuration);
+                currentPrimaryDimension += primaryDimensionSpacing;
             }
         }
 

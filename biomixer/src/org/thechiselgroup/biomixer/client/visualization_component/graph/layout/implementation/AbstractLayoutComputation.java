@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.util.animation.AnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedEvent;
@@ -63,7 +62,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
     private NodeAnimator nodeAnimator;
 
     public AbstractLayoutComputation(LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler, AnimationRunner animationRunner) {
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
 
         assert graph != null;
         assert executor != null;
@@ -72,7 +71,7 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         this.errorHandler = errorHandler;
         this.executor = executor;
         this.graph = graph;
-        this.nodeAnimator = new NodeAnimator(animationRunner);
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
@@ -119,11 +118,6 @@ public abstract class AbstractLayoutComputation implements LayoutComputation,
         for (LayoutComputationFinishedHandler handler : eventHandlers) {
             handler.onLayoutComputationFinished(event);
         }
-    }
-
-    @Override
-    public LayoutGraph getGraph() {
-        return graph;
     }
 
     @Override
