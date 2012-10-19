@@ -106,15 +106,10 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
     }
 
     @Override
-    public void setLeftX(double x) {
+    public void setPosition(double x, double y) {
         baseContainer.setAttribute(Svg.X, x);
-        updateConnectedArcs();
-    }
-
-    @Override
-    public void setTopY(double y) {
         baseContainer.setAttribute(Svg.Y, y);
+        // TODO Is this call necessary? Try commenting it out.
         updateConnectedArcs();
     }
-
 }

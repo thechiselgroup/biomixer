@@ -121,6 +121,7 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
         super.setPosition(x, y);
         baseContainer.setAttribute(Svg.X, x);
         baseContainer.setAttribute(Svg.Y, y);
+        // TODO Is this call necessary? Try commenting it out.
         updateConnectedArcs();
     }
 

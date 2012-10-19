@@ -61,7 +61,7 @@ public abstract class AbstractRenderedNode implements RenderedNode {
     }
 
     @Override
-    public final double getLeftX() {
+    public double getLeftX() {
         return leftX;
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractRenderedNode implements RenderedNode {
     }
 
     @Override
-    public final double getTopY() {
+    public double getTopY() {
         return topY;
     }
 

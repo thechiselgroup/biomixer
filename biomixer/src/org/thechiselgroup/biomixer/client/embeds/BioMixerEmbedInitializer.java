@@ -23,8 +23,11 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
 
     @SuppressWarnings("unused")
     @Inject
-    private void setConceptNeighbourhoodLoader(TermCentricEmbedLoader loader) {
-        registerLoader(loader);
+    private void setConceptNeighbourhoodLoader(
+            TermCentricEmbedLoader termLoader,
+            OntologyCentricEmbedLoader ontologyLoader) {
+        registerLoader(termLoader);
+        registerLoader(ontologyLoader);
     }
 
 }
