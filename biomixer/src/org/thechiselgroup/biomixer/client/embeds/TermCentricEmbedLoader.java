@@ -32,6 +32,15 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
 // TODO callback to change embeds...
+/**
+ * Loader for concept oriented embed views. Multiple options can be made
+ * available and can be changed between. Currently, there are term
+ * neighbourhood, path to root, and concept mapping options as pre-packaged
+ * graph initializations.
+ * 
+ * @author everbeek
+ * 
+ */
 public class TermCentricEmbedLoader implements EmbeddedViewLoader {
 
     private IdentifiablesList<TermEmbedLoader> embedLoaders = new IdentifiablesList<TermEmbedLoader>();

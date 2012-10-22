@@ -59,7 +59,7 @@ public class DirectConceptMappingArcType implements ArcType {
         this.resourceAccessor = resourceAccessor;
     }
 
-    private Arc createArcItem(String concept1Uri, String concept2Uri) {
+    private Arc createArc(String concept1Uri, String concept2Uri) {
         boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
         String firstUri = isConcept1First ? concept1Uri : concept2Uri;
         String secondUri = isConcept1First ? concept2Uri : concept1Uri;
@@ -87,7 +87,7 @@ public class DirectConceptMappingArcType implements ArcType {
                     Resource mapping = resourceAccessor.getByUri(uri);
                     String targetResource = (String) mapping
                             .getValue(Mapping.TARGET);
-                    arcItems.add(createArcItem(visualItem.getId(),
+                    arcItems.add(createArc(visualItem.getId(),
                             targetResource));
                 }
             }
@@ -97,7 +97,7 @@ public class DirectConceptMappingArcType implements ArcType {
                     Resource mapping = resourceAccessor.getByUri(uri);
                     String sourceResource = (String) mapping
                             .getValue(Mapping.SOURCE);
-                    arcItems.add(createArcItem(sourceResource,
+                    arcItems.add(createArc(sourceResource,
                             visualItem.getId()));
                 }
             }

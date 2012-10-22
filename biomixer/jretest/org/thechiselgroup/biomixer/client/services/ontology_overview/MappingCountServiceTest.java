@@ -20,9 +20,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
+import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
+import org.thechiselgroup.biomixer.client.services.NcboStageRestUrlBuilderFactory;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -34,14 +35,14 @@ public class MappingCountServiceTest {
     private UrlFetchService urlFetchService;
 
     @Mock
-    private UrlBuilderFactory urlBuilderFactory;
+    private NcboStageRestUrlBuilderFactory urlBuilderFactory;
 
     @Mock
     private OntologyMappingCountParser responseParser;
 
     private UrlBuilder urlBuilder;
 
-    private OntologyMappingCountServiceImplementation underTest;
+    private OntologyMappingCountServiceAsyncImplementation underTest;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private TotalMappingCount doGetMappingCount(List<String> ontologyIds,
@@ -99,10 +100,10 @@ public class MappingCountServiceTest {
         MockitoGWTBridge.setUp();
         MockitoAnnotations.initMocks(this);
 
-        underTest = new OntologyMappingCountServiceImplementation(
+        underTest = new OntologyMappingCountServiceAsyncImplementation(
                 urlFetchService, urlBuilderFactory, responseParser);
 
-        this.urlBuilder = Mockito.spy(new UrlBuilder());
+        this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 
         when(urlBuilderFactory.createUrlBuilder()).thenReturn(urlBuilder);
         when(urlBuilder.toString()).thenReturn(URL);

@@ -1,9 +1,13 @@
 package org.thechiselgroup.biomixer.client.embeds;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
-import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedLoader;
@@ -12,28 +16,28 @@ import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 
+/**
+ * Loader for ontology oriented embed views. Multiple options can be made
+ * available and can be changed between. Currently there is only a pre-packed
+ * view for showing the mappings amogn all of the pre-specified ontologies.
+ * 
+ * @author everbeek
+ * 
+ */
 public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
-
-    // public static final String EMBED_MODE = "ontology_overview";
-    //
-    // @Override
-    // public Iterable<String> getEmbedModes() {
-    // return new SingleItemIterable<String>(EMBED_MODE);
-    // }
 
     @Inject
     private ErrorHandler errorHandler;
 
-    private IdentifiablesList<OntologyOverviewLoader> embedLoaders = new IdentifiablesList<OntologyOverviewLoader>();
+    private IdentifiablesList<OntologyMappingOverviewLoader> embedLoaders = new IdentifiablesList<OntologyMappingOverviewLoader>();
 
     @Inject
     public OntologyCentricEmbedLoader(
-            OntologyOverviewLoader ontologyOverviewLoader) {
+            OntologyMappingOverviewLoader ontologyOverviewLoader) {
         registerLoader(ontologyOverviewLoader);
     }
 
@@ -50,21 +54,30 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
 
         OntologyEmbedLoader ontologyEmbedLoader = embedLoaders.get(embedMode);
 
-        Window.alert("This won't work");
-        String fullConceptId = UriUtils.decodeURIComponent(windowLocation
-                .getParameter("full_concept_id"));
+        // TODO This will be a series of ontology ids if this is set up for the
+        // embed. Probably. Mothballing. Sort this out later.
         String virtualOntologyId = windowLocation
                 .getParameter("virtual_ontology_id");
+        List<String> virtualOntologyIds = new ArrayList<String>();
+        virtualOntologyIds.add(virtualOntologyId);
 
-        // TODO pass in switch
+        // TODO Pulling ontolgoy ids from the current page url works for the
+        // embed only...and we are not aiming this feature in the embed version
+        // yet.
+        // I am mothballing the embed here, so I will pass an empty resource set
+        // in, and leave the gathering of relevant ontology resources for later.
 
-        // final ListBoxControl<OntologyEmbedLoader> selector = new
-        // ListBoxControl<OntologyEmbedLoader>(
-        // new ExtendedListBox(),
-        // new Transformer<OntologyEmbedLoader, String>() {
-        // }, errorHandler) {
+        // if (!resourceManager.contains(sourceUri)) {
+        // // XXX broken, might need to call to term service?
+        // // --> assume available via resource manager...
+        // // Resource concept = new Resource(sourceUri);
+        // // resourceManager2.add(concept);
+        // }
         //
-        // };
+        // Resource concept = resourceManager.getByUri(sourceUri);
+        // Resource ontology =
+        ResourceSet virtualOntologies = new DefaultResourceSet();
+        // virtualOntologies.add(ontology);
 
         final ListBoxControl<OntologyEmbedLoader> selector = new ListBoxControl<OntologyEmbedLoader>(
                 new ExtendedListBox(),
@@ -85,11 +98,12 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
             }
         });
 
-        ontologyEmbedLoader.loadView(virtualOntologyId, selector, callback);
+        ontologyEmbedLoader.loadView(virtualOntologies, virtualOntologyIds,
+                selector, callback);
 
     }
 
-    protected void registerLoader(OntologyOverviewLoader loader) {
+    protected void registerLoader(OntologyMappingOverviewLoader loader) {
         embedLoaders.add(loader);
     }
 
