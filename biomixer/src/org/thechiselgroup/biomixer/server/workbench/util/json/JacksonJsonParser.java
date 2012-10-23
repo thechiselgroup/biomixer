@@ -23,18 +23,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JacksonJsonParser implements JsonParser {
 
     @Override
-    public int asInt(Object jsonNode) {
-        return ((JsonNode) jsonNode).asInt();
+    public Integer asInt(Object jsonNode) {
+        if (null != jsonNode) {
+            return ((JsonNode) jsonNode).asInt();
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public double asNumber(Object jsonNode) {
-        return ((JsonNode) jsonNode).asDouble();
+    public Double asNumber(Object jsonNode) {
+        if (null != jsonNode) {
+            return ((JsonNode) jsonNode).asDouble();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public String asString(Object jsonNode) {
-        return ((JsonNode) jsonNode).asText();
+        if (null != jsonNode) {
+            return ((JsonNode) jsonNode).asText();
+        } else {
+            return null;
+        }
     }
 
     @Override

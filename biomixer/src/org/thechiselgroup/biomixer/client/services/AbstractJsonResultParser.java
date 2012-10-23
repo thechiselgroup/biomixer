@@ -26,12 +26,12 @@ public abstract class AbstractJsonResultParser implements JsonParser {
     }
 
     @Override
-    public int asInt(Object intObject) {
+    public Integer asInt(Object intObject) {
         return jsonParser.asInt(intObject);
     }
 
     @Override
-    public double asNumber(Object numberObject) {
+    public Double asNumber(Object numberObject) {
         return jsonParser.asNumber(numberObject);
     }
 

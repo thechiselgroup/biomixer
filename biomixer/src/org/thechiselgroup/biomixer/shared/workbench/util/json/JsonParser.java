@@ -17,9 +17,9 @@ package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
 public interface JsonParser {
 
-    int asInt(Object intObject);
+    Integer asInt(Object intObject);
 
-    double asNumber(Object numberObject);
+    Double asNumber(Object numberObject);
 
     String asString(Object text);
 

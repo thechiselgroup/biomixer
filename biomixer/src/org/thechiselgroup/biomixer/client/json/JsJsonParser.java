@@ -24,17 +24,28 @@ import com.google.gwt.json.client.JSONValue;
 public class JsJsonParser implements JsonParser {
 
     @Override
-    public int asInt(Object jsonValue) {
-        return (int) ((JSONValue) jsonValue).isNumber().doubleValue();
+    public Integer asInt(Object jsonValue) {
+        if (null != jsonValue) {
+            return (int) ((JSONValue) jsonValue).isNumber().doubleValue();
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public double asNumber(Object jsonValue) {
-        return ((JSONValue) jsonValue).isNumber().doubleValue();
+    public Double asNumber(Object jsonValue) {
+        if (null != jsonValue) {
+            return ((JSONValue) jsonValue).isNumber().doubleValue();
+        } else {
+            return null;
+        }
     }
 
     @Override
     public String asString(Object jsonValue) {
+        if (null == jsonValue) {
+            return null;
+        }
         JSONValue node = (JSONValue) jsonValue;
 
         if (node.isString() != null) {
