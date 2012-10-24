@@ -19,29 +19,29 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
-import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-public class ConceptSearchWindowContent extends AbstractSearchWindowContent {
+public class OntologySearchWindowContent extends AbstractSearchWindowContent {
 
-    private ConceptSearchServiceAsync searchService;
+    private OntologySearchServiceAsync searchService;
 
     @Inject
-    public ConceptSearchWindowContent(ResourceSetFactory resourceSetFactory,
-            ConceptSearchServiceAsync searchService,
+    public OntologySearchWindowContent(ResourceSetFactory resourceSetFactory,
+            OntologySearchServiceAsync searchService,
             ViewWindowContentProducer viewFactory) {
-        super(resourceSetFactory, Concept.CONCEPT_ONTOLOGY_NAME, viewFactory,
-                ConceptSearchCommand.NCBO_CONCEPT_SEARCH);
+        super(resourceSetFactory, Ontology.ONTOLOGY_NAME, viewFactory,
+                OntologySearchCommand.NCBO_ONTOLOGY_SEARCH);
         this.searchService = searchService;
     }
 
     @Override
-    protected void searchForTerm(String queryTerm,
+    protected void searchForTerm(String queryText,
             AsyncCallback<Set<Resource>> callBack) {
-        searchService.searchConcept(queryTerm, callBack);
-    }
+        searchService.searchOntologies(queryText, callBack);
 
+    }
 }

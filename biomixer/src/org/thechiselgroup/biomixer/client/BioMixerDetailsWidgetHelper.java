@@ -23,11 +23,14 @@ import org.thechiselgroup.biomixer.client.core.resources.ui.AbstractDetailsWidge
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarType;
+import org.thechiselgroup.biomixer.client.core.util.url.BioportalWebUrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.dnd.resources.DraggableResourceSetAvatar;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -69,11 +72,6 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
 
         // FIXME use generic way to put in custom widgets
         if (Concept.isConcept(resource)) {
-            /*
-             * verticalPanel.add(createAvatar( ((String)
-             * resource.getValue(Concept.LABEL)), resourceSet));
-             */
-
             // making the concept label clickable
             ResourceSetAvatar avatar = createAvatar(
                     (String) resource.getValue(Concept.LABEL), resourceSet);
@@ -92,6 +90,34 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
             addRow(resource, verticalPanel, "Ontology ID",
                     Concept.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
+
+        }
+        if (Ontology.isOntology(resource)) {
+            // making the concept label clickable
+            ResourceSetAvatar avatar = createAvatar(
+                    (String) resource.getValue(Ontology.ONTOLOGY_NAME),
+                    resourceSet);
+            final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
+                    .generateOntologySummaryUrl((String) resource
+                            .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
+            ClickHandler urlClickHandler = new ClickHandler() {
+                @Override
+                public void onClick(com.google.gwt.event.dom.client.ClickEvent e) {
+
+                    com.google.gwt.user.client.Window.open(
+                            ontologySummaryUrl.toString(), "_blank", "");
+                }
+            };
+            avatar.addClickHandler(urlClickHandler);
+            verticalPanel.add(avatar);
+
+            // The summary url is also clickable. Perhaps they can have
+            // different targets? Not sure...
+            addRow("Summary", ontologySummaryUrl, true, verticalPanel);
+            addRow(resource, verticalPanel, "Ontology Acronym", Ontology.LABEL);
+            addRow(resource, verticalPanel, "Ontology ID",
+                    Ontology.VIRTUAL_ONTOLOGY_ID);
+            addRow(resource, verticalPanel, "Description", Ontology.DESCRIPTION);
 
         } else if (Mapping.isMapping(resource)) {
             verticalPanel.add(createAvatar("Mapping", resourceSet));

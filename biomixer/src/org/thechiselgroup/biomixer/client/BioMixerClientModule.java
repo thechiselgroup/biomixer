@@ -42,8 +42,10 @@ import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServi
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsyncImplementation;
-import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
-import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
@@ -75,6 +77,9 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         // other bindings
         bind(ConceptSearchServiceAsync.class).to(
                 ConceptSearchServiceAsyncClientImplementation.class).in(
+                Singleton.class);
+        bind(OntologySearchServiceAsync.class).to(
+                OntologySearchServiceAsyncClientImplementation.class).in(
                 Singleton.class);
         bind(ConceptNeighbourhoodServiceAsync.class).to(
                 ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(

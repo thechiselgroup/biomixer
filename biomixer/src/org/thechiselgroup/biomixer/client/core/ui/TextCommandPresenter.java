@@ -35,6 +35,8 @@ public class TextCommandPresenter implements Initializable {
 
     private TextBox textBox;
 
+    private boolean allowEmptyText = false;
+
     public <T extends Command & HasTextParameter> TextCommandPresenter(
             T command, String buttonLabel) {
 
@@ -44,6 +46,10 @@ public class TextCommandPresenter implements Initializable {
         this.command = command;
         this.hasTextParameter = command;
         this.buttonLabel = buttonLabel;
+    }
+
+    public void setAllowEmpty(boolean allow) {
+        this.allowEmptyText = allow;
     }
 
     public Button getExecuteButton() {
@@ -62,9 +68,12 @@ public class TextCommandPresenter implements Initializable {
         TextBoxActionHandler handler = new TextBoxActionHandler() {
             @Override
             protected void execute() {
-                String query = textBox.getText().trim();
-                if (query.length() == 0) {
-                    return;
+                String query = textBox.getText();
+                query = query.trim();
+                if (!allowEmptyText) {
+                    if (query.length() == 0) {
+                        return;
+                    }
                 }
                 hasTextParameter.initParameter(query);
 

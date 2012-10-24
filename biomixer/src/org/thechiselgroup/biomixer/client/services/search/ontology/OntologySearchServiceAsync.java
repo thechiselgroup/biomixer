@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.search;
+package org.thechiselgroup.biomixer.client.services.search.ontology;
 
 import java.util.Set;
 
@@ -22,8 +22,8 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 // TODO generalize search interface
-public interface ConceptSearchServiceAsync {
+public interface OntologySearchServiceAsync {
 
-    void searchConcepts(String queryText, AsyncCallback<Set<Resource>> callback);
+    void searchOntologies(String queryText, AsyncCallback<Set<Resource>> callback);
 
 }

@@ -266,6 +266,15 @@ public class WindowPanel extends NEffectPanel implements WindowController {
         return windowTitle;
     }
 
+    public void setWindowTitle(String title) {
+        windowTitle = title;
+        if (this.headerWidget instanceof TextBox) {
+            ((TextBox) this.headerWidget).setText(windowTitle);
+        } else if (this.headerWidget instanceof Label) {
+            ((Label) this.headerWidget).setText(windowTitle);
+        }
+    }
+
     public int getZIndex() {
         return DOM.getIntStyleAttribute(getElement(), CSS.Z_INDEX);
     }

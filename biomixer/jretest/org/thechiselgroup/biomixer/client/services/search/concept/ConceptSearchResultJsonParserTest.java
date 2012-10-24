@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.search;
+package org.thechiselgroup.biomixer.client.services.search.concept;
 
 import static org.junit.Assert.assertThat;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
+import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchResultJsonParser;
 import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {

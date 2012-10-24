@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.core.resources.ui;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HTML;
@@ -59,4 +60,12 @@ public abstract class AbstractDetailsWidgetHelper implements
         verticalPanel.add(html);
     }
 
+    protected void addRow(String label, UrlBuilder value, boolean nowrap,
+            VerticalPanel verticalPanel) {
+        HTML html = GWT.create(HTML.class);
+        html.setHTML("<span " + (nowrap ? "style='white-space:nowrap;'" : "")
+                + "><b>" + label + ":</b> " + "<a target=_blank href=" + value
+                + ">" + value + "</a>" + " </span>");
+        verticalPanel.add(html);
+    }
 }

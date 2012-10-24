@@ -22,14 +22,14 @@ import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
 
 import com.google.inject.Inject;
 
-public class ConceptSearchCommand extends SearchCommand {
+public class OntologySearchCommand extends SearchCommand {
 
-    public static final String NCBO_CONCEPT_SEARCH = "ncbo-search-concepts";
+    public static final String NCBO_ONTOLOGY_SEARCH = "ncbo-search-ontologies";
 
     @Inject
-    public ConceptSearchCommand(CommandManager commandManager, Desktop desktop,
-            WindowContentProducer viewFactory) {
-        super(commandManager, desktop, viewFactory, NCBO_CONCEPT_SEARCH);
+    public OntologySearchCommand(CommandManager commandManager,
+            Desktop desktop, WindowContentProducer viewFactory) {
+        super(commandManager, desktop, viewFactory, NCBO_ONTOLOGY_SEARCH);
     }
 
 }

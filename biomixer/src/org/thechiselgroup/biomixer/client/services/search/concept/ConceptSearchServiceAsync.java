@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.services.search.concept;
 
-import org.thechiselgroup.biomixer.client.core.command.CommandManager;
-import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
-import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
+import java.util.Set;
 
-import com.google.inject.Inject;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
-public class ConceptSearchCommand extends SearchCommand {
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
-    public static final String NCBO_CONCEPT_SEARCH = "ncbo-search-concepts";
+// TODO generalize search interface
+public interface ConceptSearchServiceAsync {
 
-    @Inject
-    public ConceptSearchCommand(CommandManager commandManager, Desktop desktop,
-            WindowContentProducer viewFactory) {
-        super(commandManager, desktop, viewFactory, NCBO_CONCEPT_SEARCH);
-    }
+    void searchConcept(String queryText, AsyncCallback<Set<Resource>> callback);
 
 }

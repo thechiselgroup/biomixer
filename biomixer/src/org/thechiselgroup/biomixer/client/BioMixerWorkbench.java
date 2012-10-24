@@ -25,10 +25,11 @@ import com.google.inject.Inject;
 
 public class BioMixerWorkbench extends WorkbenchInitializer {
 
-    public static final String NCBO_SEARCH = "ncbo-search";
-
     @Inject
     private ConceptSearchCommand ncboConceptSearchCommand;
+
+    @Inject
+    private OntologySearchCommand ncboOntologySearchCommand;
 
     @Override
     protected void initActionBarContent() {
@@ -53,7 +54,8 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
 
     @Override
     protected void initCustomActions() {
-        initNCBOSearchField();
+        initNCBOSearchConceptsField();
+        initNCBOSearchOntologiesField();
 
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Graph", Graph.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
@@ -65,17 +67,36 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
 
     @Override
     protected void initCustomPanels() {
-        addToolbarPanel(NCBO_SEARCH, "BioPortal Concept Search");
+        addToolbarPanel(ncboConceptSearchCommand.getContentType(),
+                "BioPortal Concept Search");
+        addToolbarPanel(ncboOntologySearchCommand.getContentType(),
+                "BioPortal Ontology Search");
     }
 
-    private void initNCBOSearchField() {
+    private void initNCBOSearchConceptsField() {
         TextCommandPresenter presenter = new TextCommandPresenter(
-                ncboConceptSearchCommand, "Search");
+                ncboConceptSearchCommand, "Search for Concepts");
 
         presenter.init();
 
-        addWidget(NCBO_SEARCH, presenter.getTextBox());
-        addWidget(NCBO_SEARCH, presenter.getExecuteButton());
+        addWidget(ncboConceptSearchCommand.getContentType(),
+                presenter.getTextBox());
+        addWidget(ncboConceptSearchCommand.getContentType(),
+                presenter.getExecuteButton());
+    }
+
+    private void initNCBOSearchOntologiesField() {
+        TextCommandPresenter presenter = new TextCommandPresenter(
+                ncboOntologySearchCommand, "Search for Ontologies");
+
+        presenter.init();
+
+        presenter.setAllowEmpty(true);
+
+        addWidget(ncboOntologySearchCommand.getContentType(),
+                presenter.getTextBox());
+        addWidget(ncboOntologySearchCommand.getContentType(),
+                presenter.getExecuteButton());
     }
 
 }
