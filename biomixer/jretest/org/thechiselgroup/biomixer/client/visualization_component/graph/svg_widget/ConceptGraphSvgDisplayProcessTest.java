@@ -36,7 +36,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  * @author drusk
  * 
  */
-public class GraphSvgDisplayProcessTest extends AbstractGraphSvgDisplayTest {
+public class ConceptGraphSvgDisplayProcessTest extends AbstractConceptGraphSvgDisplayTest {
 
     @Test
     public void addArcShouldContainArc() {

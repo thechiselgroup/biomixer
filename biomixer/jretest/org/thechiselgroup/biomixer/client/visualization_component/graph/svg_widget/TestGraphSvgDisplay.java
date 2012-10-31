@@ -21,11 +21,9 @@ import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationF
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.TestDelayedExecutor;
-import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
-import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
  * This class provides default values for anything that would normally involve
@@ -38,8 +36,9 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 public class TestGraphSvgDisplay extends GraphDisplayController {
 
     public TestGraphSvgDisplay(int width, int height,
-            SvgElementFactory svgElementFactory, ErrorHandler errorHandler) {
-        super(width, height, svgElementFactory, errorHandler);
+            AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler) {
+        super(width, height, "Test Graph View", graphRenderer, errorHandler,
+                false);
     }
 
     public SvgElement asSvg() {
@@ -68,11 +67,6 @@ public class TestGraphSvgDisplay extends GraphDisplayController {
 
     public TestAnimationRunner getTestAnimationRunner() {
         return (TestAnimationRunner) animationRunner;
-    }
-
-    @Override
-    protected TextBoundsEstimator getTextBoundsEstimator() {
-        return new TestTextBoundsEstimator(10, 20);
     }
 
 }

@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.initializatio
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FixedValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver.StatusRule;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
@@ -35,6 +36,12 @@ public class BioMixerWorkbenchViewContentDisplaysConfigurationProvider extends
 
     @Inject
     public void graph(GraphViewContentDisplayFactory factory) {
+        add(factory);
+    }
+
+    @Inject
+    public void graphOntologyOverview(
+            GraphOntologyOverviewViewContentDisplayFactory factory) {
         add(factory);
     }
 

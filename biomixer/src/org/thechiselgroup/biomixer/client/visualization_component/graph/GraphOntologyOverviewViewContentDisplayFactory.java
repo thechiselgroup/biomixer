@@ -24,10 +24,10 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.initializatio
 
 import com.google.inject.Inject;
 
-public class GraphViewContentDisplayFactory implements
+public class GraphOntologyOverviewViewContentDisplayFactory implements
         ViewContentDisplayFactory {
 
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphViewContentDisplayFactory";
+    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory";
 
     @Inject
     private ArcTypeProvider arcStyleProvider;
@@ -45,7 +45,7 @@ public class GraphViewContentDisplayFactory implements
     private GraphExpansionRegistryFactory registryFactory;
 
     @Inject
-    public GraphViewContentDisplayFactory() {
+    public GraphOntologyOverviewViewContentDisplayFactory() {
     }
 
     @Override
@@ -53,13 +53,15 @@ public class GraphViewContentDisplayFactory implements
         GraphExpansionRegistry registry = registryFactory
                 .createRegistry(errorHandler);
 
-        return new Graph(new Graph.DefaultDisplay(errorHandler),
+        // This isn't going to be how it works, but...
+        Graph second = new Graph(new Graph.OntologyGraphDisplay(errorHandler),
                 commandManager, resourceManager, resourceCategorizer,
                 arcStyleProvider, registry, errorHandler);
+        return second;
     }
 
     @Override
     public String getViewContentTypeID() {
-        return GraphViewContentDisplayFactory.ID;
+        return GraphOntologyOverviewViewContentDisplayFactory.ID;
     }
 }

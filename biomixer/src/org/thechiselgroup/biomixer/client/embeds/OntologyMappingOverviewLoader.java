@@ -17,6 +17,7 @@ import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMap
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
@@ -192,7 +193,8 @@ public class OntologyMappingOverviewLoader implements OntologyEmbedLoader {
             AsyncCallback<IsWidget> callback) {
 
         View graphView = ((ViewWindowContent) viewContentProducer
-                .createWindowContent(Graph.ID)).getView();
+                .createWindowContent(GraphOntologyOverviewViewContentDisplayFactory.ID))
+                .getView();
 
         // XXX likely to break when view content setup changes
         // get the error handler from the view content display

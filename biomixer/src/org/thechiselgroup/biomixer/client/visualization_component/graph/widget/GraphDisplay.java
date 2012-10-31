@@ -97,4 +97,11 @@ public interface GraphDisplay extends IsWidget {
 
     void setNodeStyle(Node node, String styleProperty, String styleValue);
 
+    /**
+     * Returns human readable string for adorning windows.
+     * 
+     * @return
+     */
+    public String getGraphViewName();
+
 }

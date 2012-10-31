@@ -30,7 +30,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  * @author drusk
  * 
  */
-public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
+public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDisplayTest {
 
     @Test
     public void addNodePutsRectangleInSvg() throws Exception {

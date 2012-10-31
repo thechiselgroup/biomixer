@@ -33,12 +33,8 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
-import org.thechiselgroup.biomixer.client.core.util.text.CanvasTextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.core.util.text.SvgBBoxTextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
-import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElementFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutExecutionManager;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
@@ -62,10 +58,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularNodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
@@ -76,7 +69,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseDoubleClickEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
-import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.EventHandler;
@@ -87,8 +79,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class GraphDisplayController implements GraphDisplay,
         ViewResizeEventListener {
-
-    private SvgElementFactory svgElementFactory;
 
     private Map<String, Node> nodes = CollectionFactory.createStringMap();
 
@@ -114,6 +104,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     private static final int DEFAULT_NODE_OFFSET_RANGE = 5;
 
+    private final String viewName;
+
     /*
      * maps node types to their available menu item click handlers and those
      * handlers' associated labels
@@ -123,29 +115,26 @@ public class GraphDisplayController implements GraphDisplay,
 
     protected AnimationRunner animationRunner;
 
-    public GraphDisplayController(int width, int height,
-            ErrorHandler errorHandler) {
-        this(width, height, new JsDomSvgElementFactory(), errorHandler);
-        /* Don't want layouts to be run automatically in unit tests */
-        setLayoutGraphContentChangedListener();
-    }
-
-    public GraphDisplayController(int width, int height,
-            SvgElementFactory svgElementFactory, ErrorHandler errorHandler) {
+    /**
+     * 
+     * @param width
+     * @param height
+     * @param graphRenderer
+     * @param errorHandler
+     * @param runLayoutsAutomatically
+     *            Determines whether layouts are run right away. Send in false
+     *            for testing.
+     */
+    public GraphDisplayController(int width, int height, String viewName,
+            AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
+            boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
-        assert svgElementFactory != null;
-        this.svgElementFactory = svgElementFactory;
+        this.viewName = viewName;
 
         nodeInteractionManager = new NodeInteractionManager(this);
 
-        TextBoundsEstimator textBoundsEstimator = getTextBoundsEstimator();
-        this.graphRenderer = new SvgGraphRenderer(width, height,
-                svgElementFactory, new CircularNodeRenderer(svgElementFactory,
-                        textBoundsEstimator), new StraightLineSvgArcRenderer(
-                        svgElementFactory),
-                new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
-                        textBoundsEstimator));
+        this.graphRenderer = graphRenderer;
 
         initBackgroundListener();
         initViewWideInteractionHandler();
@@ -155,6 +144,16 @@ public class GraphDisplayController implements GraphDisplay,
         this.nodeAnimator = new NodeAnimator(getNodeAnimationFactory());
 
         initGraphLayoutManager(errorHandler);
+
+        if (runLayoutsAutomatically) {
+            // Don't want layouts to be run automatically in unit tests
+            setLayoutGraphContentChangedListener();
+        }
+    }
+
+    @Override
+    public String getGraphViewName() {
+        return this.viewName;
     }
 
     @Override
@@ -372,11 +371,6 @@ public class GraphDisplayController implements GraphDisplay,
     private int getRandomNodeOffset() {
         return MathUtils.generateRandomNumber(-DEFAULT_NODE_OFFSET_RANGE,
                 DEFAULT_NODE_OFFSET_RANGE);
-    }
-
-    protected TextBoundsEstimator getTextBoundsEstimator() {
-        return new CanvasTextBoundsEstimator(new SvgBBoxTextBoundsEstimator(
-                svgElementFactory));
     }
 
     /**

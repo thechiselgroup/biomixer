@@ -16,7 +16,8 @@
 package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.core.ui.TextCommandPresenter;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
@@ -57,7 +58,12 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
         initNCBOSearchConceptsField();
         initNCBOSearchOntologiesField();
 
-        addCreateWindowActionToToolbar(VIEWS_PANEL, "Graph", Graph.ID);
+        // TODO Why is this prepared with strings that are indexed into a
+        // registry when we can hard-code classes used or use injection?
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Graph",
+                GraphViewContentDisplayFactory.ID);
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Ontology Overview",
+                GraphOntologyOverviewViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
                 TextVisualization.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline", TimeLine.ID);
@@ -75,7 +81,7 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
 
     private void initNCBOSearchConceptsField() {
         TextCommandPresenter presenter = new TextCommandPresenter(
-                ncboConceptSearchCommand, "Search for Concepts");
+                ncboConceptSearchCommand, "Search Concepts");
 
         presenter.init();
 
@@ -87,7 +93,7 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
 
     private void initNCBOSearchOntologiesField() {
         TextCommandPresenter presenter = new TextCommandPresenter(
-                ncboOntologySearchCommand, "Search for Ontologies");
+                ncboOntologySearchCommand, "Search Ontologies");
 
         presenter.init();
 

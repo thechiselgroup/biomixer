@@ -33,8 +33,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  * @author drusk
  * 
  */
-public class GraphSvgDisplayInteractionOutputTest extends
-        AbstractGraphSvgDisplayTest {
+public class ConceptGraphSvgDisplayInteractionOutputTest extends
+        AbstractConceptGraphSvgDisplayTest {
 
     private void clickBackground(int x, int y) {
         underTest.onBackgroundClick(x, y);

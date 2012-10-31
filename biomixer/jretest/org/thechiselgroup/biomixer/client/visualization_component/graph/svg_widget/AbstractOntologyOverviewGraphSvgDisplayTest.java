@@ -24,6 +24,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphRendererOntologyOverviewGraphTestFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.parser.SvgResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -31,9 +32,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickHandler;
 import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;
 
-public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
+public abstract class AbstractOntologyOverviewGraphSvgDisplayTest extends
+        AbstractSvgTest {
 
     protected static final String TYPE1 = "type1";
 
@@ -71,6 +72,8 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
 
     @Mock
     protected NodeMenuItemClickedHandler menuItemHandler2;
+
+    GraphRendererOntologyOverviewGraphTestFactory factory = new GraphRendererOntologyOverviewGraphTestFactory();
 
     protected TestGraphSvgDisplay underTest;
 
@@ -130,7 +133,9 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     public void setUpGraphDisplay() {
         MockitoAnnotations.initMocks(this);
         underTest = new TestGraphSvgDisplay(400, 300,
-                new TextSvgElementFactory(), errorHandler);
+        // factory.createGraphRenderer(400, 300,
+        // new TextSvgElementFactory()), errorHandler);
+                factory.createGraphRenderer(400, 300), errorHandler);
         underTest.addEventHandler(NodeMouseClickEvent.TYPE,
                 nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,
@@ -140,5 +145,4 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
         underTest.addNodeMenuItemHandler(MENU_ITEM_2_LABEL, menuItemHandler2,
                 TYPE2);
     }
-
 }

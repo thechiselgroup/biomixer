@@ -49,6 +49,8 @@ import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcItemContainer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchViewWindowContentProducer;
 
@@ -298,7 +300,30 @@ public class BioMixerViewWindowContentProducer extends
             VisualMappingsControl visualMappingsControl,
             ResourceModel resourceModel, VisualizationModel visualizationModel) {
 
-        if (Graph.ID.equals(contentType)) {
+        if (GraphViewContentDisplayFactory.ID.equals(contentType)) {
+            assert contentDisplay != null;
+
+            LightweightList<SidePanelSection> sidePanelSections = CollectionFactory
+                    .createLightweightList();
+
+            sidePanelSections.add(createNodesSidePanelSection(resourceModel,
+                    visualizationModel));
+            sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
+            sidePanelSections.addAll(contentDisplay.getSidePanelSections());
+
+            // temporarily removing the Comments view part
+            // {
+            // TextArea textArea = new TextArea();
+            // textArea.setWidth("100%");
+            // textArea.setHeight("100%");
+            //
+            // sidePanelSections
+            // .add(new SidePanelSection("Comments", textArea));
+            // }
+
+            return sidePanelSections;
+        } else if (GraphOntologyOverviewViewContentDisplayFactory.ID
+                .equals(contentType)) {
             assert contentDisplay != null;
 
             LightweightList<SidePanelSection> sidePanelSections = CollectionFactory
@@ -330,7 +355,19 @@ public class BioMixerViewWindowContentProducer extends
     protected SlotMappingInitializer createSlotMappingInitializer(
             String contentType) {
 
-        if (Graph.ID.equals(contentType)) {
+        if (GraphViewContentDisplayFactory.ID.equals(contentType)) {
+            PresetSlotMappingInitializer initializer = new PresetSlotMappingInitializer();
+
+            initializer.putSlotMapping(Graph.NODE_LABEL_SLOT,
+                    GRAPH_LABEL_RESOLVER_FACTORY);
+            initializer.putSlotMapping(Graph.NODE_BACKGROUND_COLOR,
+                    CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY);
+            initializer.putSlotMapping(Graph.NODE_BORDER_COLOR,
+                    NODE_BORDER_COLOR_RESOLVER_FACTORY);
+
+            return initializer;
+        } else if (GraphOntologyOverviewViewContentDisplayFactory.ID
+                .equals(contentType)) {
             PresetSlotMappingInitializer initializer = new PresetSlotMappingInitializer();
 
             initializer.putSlotMapping(Graph.NODE_LABEL_SLOT,
@@ -351,7 +388,9 @@ public class BioMixerViewWindowContentProducer extends
             HasResourceCategorizer resourceGrouping,
             DefaultManagedSlotMappingConfiguration uiModel, String contentType) {
 
-        if (Graph.ID.equals(contentType)) {
+        if (GraphViewContentDisplayFactory.ID.equals(contentType)
+                || GraphOntologyOverviewViewContentDisplayFactory.ID
+                        .equals(contentType)) {
             return new NullVisualMappingsControl();
         }
 

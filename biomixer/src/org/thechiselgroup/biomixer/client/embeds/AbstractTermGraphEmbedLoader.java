@@ -22,6 +22,7 @@ import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDi
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
@@ -88,7 +89,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
             IsWidget topBarWidget, AsyncCallback<IsWidget> callback) {
 
         View graphView = ((ViewWindowContent) viewContentProducer
-                .createWindowContent(Graph.ID)).getView();
+                .createWindowContent(GraphViewContentDisplayFactory.ID))
+                .getView();
 
         // XXX likely to break when view content setup changes
         // get the error handler from the view content display

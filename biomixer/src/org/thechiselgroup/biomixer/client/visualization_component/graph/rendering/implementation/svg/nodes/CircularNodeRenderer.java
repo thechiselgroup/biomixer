@@ -18,6 +18,9 @@ public class CircularNodeRenderer implements NodeRenderer {
 
     private TextBoundsEstimator textBoundsEstimator;
 
+    // If we want expander tab rendered again, see commit:
+    // 8421ecef1062914cf6575bb9e00958ffa0cb1179
+
     public CircularNodeRenderer(SvgElementFactory svgElementFactory,
             TextBoundsEstimator textBoundsEstimator) {
         this.textBoundsEstimator = textBoundsEstimator;

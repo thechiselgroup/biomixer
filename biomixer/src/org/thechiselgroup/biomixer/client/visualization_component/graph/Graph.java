@@ -95,13 +95,46 @@ public class Graph extends AbstractViewContentDisplay implements
     public static class DefaultDisplay extends GraphDisplayController implements
             GraphDisplay {
 
-        // TODO why is size needed in the first place??
+        static final int defaultHeight = 400;
+
+        static final int defaultWidth = 300;
+
+        static final GraphRendererConceptGraphFactory factory = new GraphRendererConceptGraphFactory();
+
+        // // TODO why is size needed in the first place??
         public DefaultDisplay(ErrorHandler errorHandler) {
-            this(400, 300, errorHandler);
+            super(defaultHeight, defaultWidth, "Concept Graph", factory
+                    .createGraphRenderer(defaultHeight, defaultWidth),
+                    errorHandler, true);
         }
 
         public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
-            super(width, height, errorHandler);
+            super(width, height, "Concept Graph", factory.createGraphRenderer(
+                    width, height), errorHandler, true);
+        }
+
+    }
+
+    public static class OntologyGraphDisplay extends GraphDisplayController
+            implements GraphDisplay {
+
+        static final int defaultHeight = 400;
+
+        static final int defaultWidth = 300;
+
+        static final GraphRendererOntologyOverviewFactory factory = new GraphRendererOntologyOverviewFactory();
+
+        // // TODO why is size needed in the first place??
+        public OntologyGraphDisplay(ErrorHandler errorHandler) {
+            super(defaultHeight, defaultWidth, "Ontology Graph", factory
+                    .createGraphRenderer(defaultHeight, defaultWidth),
+                    errorHandler, true);
+        }
+
+        public OntologyGraphDisplay(int width, int height,
+                ErrorHandler errorHandler) {
+            super(width, height, "Ontology Graph", factory.createGraphRenderer(
+                    width, height), errorHandler, true);
         }
 
     }
@@ -203,8 +236,6 @@ public class Graph extends AbstractViewContentDisplay implements
 
     public static final Slot NODE_LABEL_SLOT = new Slot("nodeLabel",
             "Node Label", DataType.TEXT);
-
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.Graph";
 
     private static final String MEMENTO_ARC_ITEM_CONTAINERS_CHILD = "arcItemContainers";
 
@@ -475,7 +506,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public String getName() {
-        return "Graph";
+        return this.graphDisplay.getGraphViewName();
     }
 
     private Node getNode(VisualItem visualItem) {
