@@ -237,6 +237,7 @@ public class Graph extends AbstractViewContentDisplay implements
     public static final Slot NODE_LABEL_SLOT = new Slot("nodeLabel",
             "Node Label", DataType.TEXT);
 
+
     private static final String MEMENTO_ARC_ITEM_CONTAINERS_CHILD = "arcItemContainers";
 
     private static final String MEMENTO_NODE_LOCATIONS_CHILD = "nodeLocations";

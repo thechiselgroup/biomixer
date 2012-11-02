@@ -38,6 +38,10 @@ public class BioMixerNodeBorderColorResolver extends
             return new Color("#D4D4D4");
         }
 
+        if (Ontology.RESOURCE_URI_PREFIX.equals(type)) {
+            return new Color("#ffffff");
+        }
+
         // display unsupport elements in red
         return new Color("#ff0000");
     }

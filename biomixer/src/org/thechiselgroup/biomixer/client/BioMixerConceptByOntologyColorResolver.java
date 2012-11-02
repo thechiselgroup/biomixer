@@ -119,6 +119,19 @@ public class BioMixerConceptByOntologyColorResolver extends
             }
         }
 
+        if (Ontology.RESOURCE_URI_PREFIX.equals(type)) {
+            // XXX should be different ontologies in one node
+            if (visualItem.getResources().size() > 1) {
+                return new Color("#DAE5F3");
+            } else {
+                Resource resource = visualItem.getResources().getFirstElement();
+                String ontologyId = (String) resource
+                        .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
+
+                return getColor(ontologyId);
+            }
+        }
+
         if (Mapping.RESOURCE_URI_PREFIX.equals(type)) {
             return new Color("#E4E4E4");
         }

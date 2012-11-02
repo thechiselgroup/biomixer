@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY;
-import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.GRAPH_LABEL_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -220,7 +220,7 @@ public class BioMixerViewWindowContentProducer extends
 
                         VisualItemValueResolver resolver;
                         if (value) {
-                            resolver = CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY
+                            resolver = NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY
                                     .create();
                         } else {
                             resolver = NODE_BACKGROUND_COLOR_RESOLVER_FACTORY
@@ -359,9 +359,9 @@ public class BioMixerViewWindowContentProducer extends
             PresetSlotMappingInitializer initializer = new PresetSlotMappingInitializer();
 
             initializer.putSlotMapping(Graph.NODE_LABEL_SLOT,
-                    GRAPH_LABEL_RESOLVER_FACTORY);
+                    CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY);
             initializer.putSlotMapping(Graph.NODE_BACKGROUND_COLOR,
-                    CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY);
+                    NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
             initializer.putSlotMapping(Graph.NODE_BORDER_COLOR,
                     NODE_BORDER_COLOR_RESOLVER_FACTORY);
 
@@ -371,9 +371,9 @@ public class BioMixerViewWindowContentProducer extends
             PresetSlotMappingInitializer initializer = new PresetSlotMappingInitializer();
 
             initializer.putSlotMapping(Graph.NODE_LABEL_SLOT,
-                    GRAPH_LABEL_RESOLVER_FACTORY);
+                    CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY);
             initializer.putSlotMapping(Graph.NODE_BACKGROUND_COLOR,
-                    CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY);
+                    NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
             initializer.putSlotMapping(Graph.NODE_BORDER_COLOR,
                     NODE_BORDER_COLOR_RESOLVER_FACTORY);
 

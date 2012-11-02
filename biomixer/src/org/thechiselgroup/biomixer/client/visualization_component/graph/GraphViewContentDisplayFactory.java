@@ -27,7 +27,9 @@ import com.google.inject.Inject;
 public class GraphViewContentDisplayFactory implements
         ViewContentDisplayFactory {
 
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphViewContentDisplayFactory";
+//    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphViewContentDisplayFactory";
+    public final static String ID = GraphViewContentDisplayFactory.class.toString();
+
 
     @Inject
     private ArcTypeProvider arcStyleProvider;

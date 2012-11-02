@@ -38,11 +38,20 @@ public class BioMixerGraphLabelResolver extends FirstResourcePropertyResolver {
     public Object resolve(VisualItem visualItem,
             VisualItemValueResolverContext context, Subset subset) {
 
-        // prevents mapping nodes from showing lable
         String type = Resource.getTypeFromURI(visualItem.getId());
         if (Concept.RESOURCE_URI_PREFIX.equals(type)) {
             return super.resolve(visualItem, context, subset);
         }
+
+        // prevents mapping nodes from showing label
+        if (Mapping.RESOURCE_URI_PREFIX.equals(type)) {
+            return "";
+        }
+
+        if (Ontology.RESOURCE_URI_PREFIX.equals(type)) {
+            return super.resolve(visualItem, context, subset);
+        }
+
         return "";
     }
 }

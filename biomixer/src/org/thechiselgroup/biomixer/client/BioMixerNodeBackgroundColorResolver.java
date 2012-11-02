@@ -39,6 +39,10 @@ public class BioMixerNodeBackgroundColorResolver extends
             return new Color("#E4E4E4");
         }
 
+        if (Ontology.RESOURCE_URI_PREFIX.equals(type)) {
+            return new Color("#000000");
+        }
+
         // display unsupport elements in red
         return new Color("#ff0000");
     }

@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY;
-import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.GRAPH_LABEL_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
 import org.thechiselgroup.biomixer.client.workbench.ManagedSlotMappingConfigurationPersistenceProvider;
@@ -30,13 +30,13 @@ public class BioMixerManagedSlotMappingConfigurationPersistenceProvider extends
     public ManagedSlotMappingConfigurationPersistence get() {
         ManagedSlotMappingConfigurationPersistence persistence = super.get();
 
-        register(persistence, GRAPH_LABEL_RESOLVER_FACTORY);
+        register(persistence, CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY);
         register(persistence, NODE_BACKGROUND_COLOR_RESOLVER_FACTORY);
         register(persistence, NODE_BORDER_COLOR_RESOLVER_FACTORY);
 
         persistence
                 .registerResolverPersistence(new BioMixerConceptByOntologyColorResolver.Persistence(
-                        CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY));
+                        NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY));
 
         return persistence;
     }

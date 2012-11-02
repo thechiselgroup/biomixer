@@ -27,7 +27,9 @@ import com.google.inject.Inject;
 public class GraphOntologyOverviewViewContentDisplayFactory implements
         ViewContentDisplayFactory {
 
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory";
+//    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory";
+    public final static String ID = GraphOntologyOverviewViewContentDisplayFactory.class.toString();
+
 
     @Inject
     private ArcTypeProvider arcStyleProvider;

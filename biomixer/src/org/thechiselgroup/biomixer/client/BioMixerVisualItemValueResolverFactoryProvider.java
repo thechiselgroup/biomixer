@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 public class BioMixerVisualItemValueResolverFactoryProvider extends
         WorkbenchVisualItemValueResolverFactoryProvider {
 
-    public static final SingleSlotDependentVisualItemResolverFactory CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
+    public static final SingleSlotDependentVisualItemResolverFactory NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
             BioMixerConceptByOntologyColorResolver.FACTORY_ID,
             new BioMixerConceptByOntologyColorResolver(), "By Ontology",
             DataType.COLOR, Graph.NODE_BACKGROUND_COLOR);
@@ -43,7 +43,7 @@ public class BioMixerVisualItemValueResolverFactoryProvider extends
             new BioMixerNodeBackgroundColorResolver(), "Default",
             DataType.COLOR, Graph.NODE_BACKGROUND_COLOR);
 
-    public static final SingleSlotDependentVisualItemResolverFactory GRAPH_LABEL_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
+    public static final SingleSlotDependentVisualItemResolverFactory CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
             "biomixer.GraphLabelResolver", new BioMixerGraphLabelResolver(),
             "Default", DataType.TEXT, Graph.NODE_LABEL_SLOT) {
         @Override
@@ -58,9 +58,9 @@ public class BioMixerVisualItemValueResolverFactoryProvider extends
     public void registerFactories() {
         super.registerFactories();
 
-        register(GRAPH_LABEL_RESOLVER_FACTORY);
+        register(CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY);
         register(NODE_BORDER_COLOR_RESOLVER_FACTORY);
         register(NODE_BACKGROUND_COLOR_RESOLVER_FACTORY);
-        register(CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY);
+        register(NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
     }
 }
