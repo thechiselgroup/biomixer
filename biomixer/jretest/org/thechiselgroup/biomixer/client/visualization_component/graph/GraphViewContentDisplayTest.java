@@ -526,6 +526,49 @@ public class GraphViewContentDisplayTest {
     }
 
     @Test
+    public void setArcHeadOnContainerChangesStyleOfExistingArcs() {
+        arcStyleProviderReturnArcType();
+        init();
+
+        LightweightList<VisualItem> visualItems = VisualItemTestUtils
+                .createVisualItems(1, 2);
+        Arc arc = createArc("arcid", 1, 2);
+        arcTypeReturnsArcs(eq(visualItems.get(0)), arc);
+        arcTypeReturnsArcs(eq(visualItems.get(1)));
+
+        simulateAddVisualItems(visualItems);
+
+        verify(graphDisplay, times(1)).setArcStyle(eq(arc),
+                eq(ArcSettings.ARC_HEAD), eq(arcStyle));
+
+        String newStyle = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
+        underTest.getArcItemContainer(arcTypeId).setArcStyle(newStyle);
+
+        verify(graphDisplay, times(1)).setArcStyle(eq(arc),
+                eq(ArcSettings.ARC_HEAD), eq(newStyle));
+    }
+
+    @Test
+    public void setArcHeadOnContainerChangesStyleOfNewArcs() {
+        arcStyleProviderReturnArcType();
+        init();
+
+        LightweightList<VisualItem> visualItems = VisualItemTestUtils
+                .createVisualItems(1, 2);
+        String newStyle = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
+        underTest.getArcItemContainer(arcTypeId).setArcStyle(newStyle);
+
+        Arc arc = createArc("arcid", 1, 2);
+        arcTypeReturnsArcs(eq(visualItems.get(0)), arc);
+        arcTypeReturnsArcs(eq(visualItems.get(1)));
+
+        simulateAddVisualItems(visualItems);
+
+        verify(graphDisplay, times(1)).setArcStyle(eq(arc),
+                eq(ArcSettings.ARC_HEAD), eq(newStyle));
+    }
+
+    @Test
     public void setArcThicknessOnContainerChangesThicknessOfExistingArcs() {
         arcStyleProviderReturnArcType();
         init();

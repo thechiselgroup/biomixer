@@ -208,6 +208,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
             renderedArc.setArcStyle(styleValue);
         }
 
+        else if (styleProperty.equals(ArcSettings.ARC_HEAD)) {
+            renderedArc.setArcHead(styleValue);
+        }
+
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
             renderedArc.setThickness(styleValue);
         }

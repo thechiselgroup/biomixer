@@ -49,6 +49,8 @@ public class DirectConceptMappingArcType implements ArcType {
 
     public static final String ARC_STYLE = ArcSettings.ARC_STYLE_DASHED;
 
+    public static final String ARC_HEAD = ArcSettings.ARC_HEAD_NONE;
+
     public static final boolean ARC_DIRECTED = false;
 
     public static final int ARC_THICKNESS = 3;
@@ -119,6 +121,11 @@ public class DirectConceptMappingArcType implements ArcType {
     @Override
     public String getDefaultArcStyle() {
         return ARC_STYLE;
+    }
+
+    @Override
+    public String getDefaultArcHead() {
+        return ARC_HEAD;
     }
 
     @Override

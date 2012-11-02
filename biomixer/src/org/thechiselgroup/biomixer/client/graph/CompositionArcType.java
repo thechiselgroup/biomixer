@@ -34,7 +34,9 @@ public class CompositionArcType implements ArcType {
 
     public static final String ARC_COLOR = "#AFC600";
 
-    public static final String ARC_STYLE = ArcSettings.ARC_STYLE_SOLID;
+    public static final String ARC_STYLE = ArcSettings.ARC_STYLE_DOTTED;
+
+    public static final String ARC_HEAD = ArcSettings.ARC_HEAD_TRIANGLE_EMPTY;
 
     public static final boolean ARC_DIRECTED = true;
 
@@ -85,6 +87,11 @@ public class CompositionArcType implements ArcType {
     @Override
     public String getDefaultArcStyle() {
         return ARC_STYLE;
+    }
+
+    @Override
+    public String getDefaultArcHead() {
+        return ARC_HEAD;
     }
 
     @Override

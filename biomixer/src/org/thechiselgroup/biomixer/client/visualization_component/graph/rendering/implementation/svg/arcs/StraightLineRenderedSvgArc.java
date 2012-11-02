@@ -44,6 +44,8 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
             SvgElement arcLine, SvgArrowHead arrow, RenderedNode source,
             RenderedNode target) {
         super(arc, source, target);
+        assert (arcLine != null);
+        assert (arrow != null);
         this.baseContainer = container;
         this.arcLine = arcLine;
         this.arrow = arrow;
@@ -81,16 +83,38 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         } else if (arcStyle.equals(ArcSettings.ARC_STYLE_DASHED)) {
             // 10px dash, 5px gap
             arcLine.setAttribute(Svg.STROKE_DASHARRAY, "10, 5");
+        } else if (arcStyle.equals(ArcSettings.ARC_STYLE_DOTTED)) {
+            // 10px dash, 5px gap
+            arcLine.setAttribute(Svg.STROKE_DASHARRAY, "2, 2");
+        }
+    }
+
+    /**
+     * Sets the arc head as either full or empty triangle
+     * 
+     * @param arcHead
+     *            Use either ArcSettings.ARC_HEAD_TRIANGLE_EMPTY or
+     *            ArcSettings.ARC_HEAD_TRIANGLE_FULL
+     * 
+     */
+    @Override
+    public void setArcHead(String arcHead) {
+        if (arcHead.equals(ArcSettings.ARC_HEAD_TRIANGLE_FULL)) {
+            arrow.asSvgElement().setAttribute(Svg.FILL_OPACITY, "1.0");
+        } else if (arcHead.equals(ArcSettings.ARC_HEAD_TRIANGLE_EMPTY)) {
+            arrow.asSvgElement().setAttribute(Svg.FILL_OPACITY, "0.0");
+        } else {
+            arrow.asSvgElement().setAttribute(Svg.FILL_OPACITY, "0.0");
+            arrow.asSvgElement().setAttribute(Svg.STROKE_OPACITY, "0.0");
         }
     }
 
     @Override
     public void setColor(String color) {
         arcLine.setAttribute(Svg.STROKE, color);
-        if (isDirected()) {
-            arrow.asSvgElement().setAttribute(Svg.STROKE, color);
-            arrow.asSvgElement().setAttribute(Svg.FILL, color);
-        }
+        // Used to skip undirected arc heads
+        arrow.asSvgElement().setAttribute(Svg.STROKE, color);
+        arrow.asSvgElement().setAttribute(Svg.FILL, color);
     }
 
     @Override
@@ -111,10 +135,9 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         SvgUtils.setX1Y1(arcLine, sourceCentre);
         SvgUtils.setX2Y2(arcLine, targetCentre);
 
-        if (isDirected()) {
-            assert arrow != null;
-            arrow.alignWithPoints(sourceCentre, targetCentre);
-        }
+        // Used to skip undirected arc heads
+        assert arrow != null;
+        arrow.alignWithPoints(sourceCentre, targetCentre);
     }
 
 }

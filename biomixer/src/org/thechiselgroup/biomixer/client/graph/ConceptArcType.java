@@ -36,6 +36,8 @@ public class ConceptArcType implements ArcType {
 
     public static final String ARC_STYLE = ArcSettings.ARC_STYLE_SOLID;
 
+    public static final String ARC_HEAD = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
+
     public static final boolean ARC_DIRECTED = true;
 
     public static final int ARC_THICKNESS = 1;
@@ -85,6 +87,11 @@ public class ConceptArcType implements ArcType {
     @Override
     public String getDefaultArcStyle() {
         return ARC_STYLE;
+    }
+
+    @Override
+    public String getDefaultArcHead() {
+        return ARC_HEAD;
     }
 
     @Override

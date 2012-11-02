@@ -56,12 +56,10 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
         arcLine.setAttribute(Svg.STROKE, Colors.BLACK);
         container.appendChild(arcLine);
 
-        SvgArrowHead arrowHead = null;
-        if (arc.isDirected()) {
-            arrowHead = new SvgArrowHead(svgElementFactory, sourceNodeLocation,
-                    targetNodeLocation);
-            container.appendChild(arrowHead.asSvgElement());
-        }
+        // used to skip undirected arc heads
+        SvgArrowHead arrowHead = new SvgArrowHead(svgElementFactory, sourceNodeLocation,
+                targetNodeLocation);
+        container.appendChild(arrowHead.asSvgElement());
 
         return new StraightLineRenderedSvgArc(arc, container, arcLine,
                 arrowHead, source, target);

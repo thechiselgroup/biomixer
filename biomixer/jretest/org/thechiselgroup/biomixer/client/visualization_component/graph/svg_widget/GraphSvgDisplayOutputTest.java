@@ -130,6 +130,14 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     }
 
     @Test
+    public void setArcStyleDotted() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DASHED);
+        assertComponentWithIdEqualsFile(A1, "arc1Dotted");
+    }
+
+    @Test
     public void setArcStyleDashedThenSolid() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
@@ -140,10 +148,44 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     }
 
     @Test
+    public void setArcStyleDashedThenDotted() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DASHED);
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DOTTED);
+        assertComponentWithIdEqualsFile(A1, "arcDotted1");
+    }
+
+    @Test
     public void setArcStyleSolid() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
+        assertComponentWithIdEqualsFile(A1, "arc1");
+    }
+
+    @Test
+    public void setArcHeadFilled() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
+                ArcSettings.ARC_HEAD_TRIANGLE_FULL);
+        assertComponentWithIdEqualsFile(A1, "arc1");
+    }
+
+    @Test
+    public void setArcHeadEmpty() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
+                ArcSettings.ARC_HEAD_TRIANGLE_EMPTY);
+        assertComponentWithIdEqualsFile(A1, "arc1");
+    }
+
+    @Test
+    public void setArcHeadNone() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
+                ArcSettings.ARC_HEAD_NONE);
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
