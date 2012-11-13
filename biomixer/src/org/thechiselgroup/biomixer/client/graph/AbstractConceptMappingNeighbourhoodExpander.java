@@ -23,7 +23,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.AbstractGraphNodeSingleResourceNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
@@ -32,10 +32,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public abstract class AbstractConceptMappingNeighbourhoodExpander extends
         AbstractGraphNodeSingleResourceNeighbourhoodExpander {
 
-    private final MappingServiceAsync mappingService;
+    private final ConceptMappingServiceAsync mappingService;
 
     protected AbstractConceptMappingNeighbourhoodExpander(
-            MappingServiceAsync mappingService,
+            ConceptMappingServiceAsync mappingService,
             ResourceManager resourceManager, ErrorHandler errorHandler) {
 
         super(errorHandler, resourceManager);

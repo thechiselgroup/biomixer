@@ -16,6 +16,8 @@
 package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.core.ui.TextCommandPresenter;
+import org.thechiselgroup.biomixer.client.search.ConceptSearchCommand;
+import org.thechiselgroup.biomixer.client.search.OntologySearchCommand;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;

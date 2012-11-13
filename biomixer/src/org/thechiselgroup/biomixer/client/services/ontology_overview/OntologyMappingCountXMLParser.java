@@ -5,15 +5,15 @@ import org.thechiselgroup.biomixer.shared.workbench.util.xml.DocumentProcessor;
 
 import com.google.inject.Inject;
 
-public class OntologyMappingCountParser extends AbstractXMLResultParser {
+public class OntologyMappingCountXMLParser extends AbstractXMLResultParser {
 
     @Inject
-    public OntologyMappingCountParser(DocumentProcessor documentProcessor) {
+    public OntologyMappingCountXMLParser(DocumentProcessor documentProcessor) {
         super(documentProcessor);
 
     }
 
-    public TotalMappingCount parse(String xmlText) throws Exception {
+    public TotalMappingCount parseForCount(String xmlText) throws Exception {
         Object rootNode = parseDocument(xmlText);
         Object[] statistics = getNodes(rootNode,
                 "//success/data/set/ontologyPairMappingStatistics");

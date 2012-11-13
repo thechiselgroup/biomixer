@@ -22,9 +22,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class NcboJsonpRestUrlBuilderTest {
+public class NcboRestUrlBuilderTest {
 
-    private NcboJsonpRestUrlBuilderFactory urlBuilderFactory;
+    private NcboRestUrlBuilderFactory urlBuilderFactory;
 
     @Ignore("TODO: java implementation of uri encoding")
     @Test
@@ -33,7 +33,7 @@ public class NcboJsonpRestUrlBuilderTest {
                 .path("bioportal/virtual/ontology/1078/all").toString();
         assertThat(
                 url,
-                equalTo("http://bioportal.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1078%2Fall&userapikey=&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                equalTo("http://rest.bioontology.org/bioportal/virtual/ontology/1078/all?userapikey=&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
     @Ignore("TODO: java implementation of uri encoding")
@@ -46,12 +46,12 @@ public class NcboJsonpRestUrlBuilderTest {
                         "http://purl.org/obo/owl/GO#GO_0007569").toString();
         assertThat(
                 url,
-                equalTo("http://bioportal.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1070%3Fconceptid%3Dhttp%253A%252F%252Fpurl.org%252Fobo%252Fowl%252FGO%2523GO_0007569&userapikey=&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                equalTo("http://rest.bioontology.org/bioportal/virtual/ontology/1070?userapikey=&conceptid=http%3A%2F%2Fpurl.org%2Fobo%2Fowl%2FGO%23GO_0007569&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
     @Before
     public void setUp() {
-        urlBuilderFactory = new NcboJsonpRestUrlBuilderFactory();
+        urlBuilderFactory = new NcboRestUrlBuilderFactory();
     }
 
     @Ignore("TODO: java implementation of uri encoding")
@@ -63,7 +63,7 @@ public class NcboJsonpRestUrlBuilderTest {
                 .uriParameter("conceptid", "O80-O84.9").toString();
         assertThat(
                 url,
-                equalTo("http://bioportal.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1516%3Fconceptid%3DO80-O84.9%26light%3D1%26norelations%3D1&userapikey=&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                equalTo("http://rest.bioontology.org/bioportal/virtual/ontology/1516?userapikey=&conceptid=O80-O84.9&norelations=1&light=1&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
 }

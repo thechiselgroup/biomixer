@@ -19,6 +19,14 @@ import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
+/**
+ * We prefer the JSONP versions now, so that the client can handle requests
+ * rather than using the BioMixer server as a proxy.
+ * 
+ * @author everbeek
+ * 
+ */
+@Deprecated
 public class NcboRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public static final String PROTOCOL = "http";

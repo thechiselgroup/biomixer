@@ -38,7 +38,7 @@ import com.google.inject.Inject;
  * empty answers otherwise. Enables quicker manual UI testing without
  * dependencies on mapping REST service.
  */
-public class FakeMappingService implements MappingServiceAsync {
+public class FakeMappingService implements ConceptMappingServiceAsync {
 
     private static final String CONCEPT_1_ID = "http://purl.bioontology.org/ontology/GO/GO_0007569";
 

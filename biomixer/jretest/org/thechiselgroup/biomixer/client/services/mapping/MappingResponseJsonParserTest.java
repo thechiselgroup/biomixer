@@ -120,7 +120,7 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
 
     private List<Resource> parseMappings(String jsonFilename)
             throws IOException {
-        return underTest.parseMapping(getFileContentsAsString(jsonFilename));
+        return underTest.parseForConceptMapping(getFileContentsAsString(jsonFilename));
     }
 
     @Test

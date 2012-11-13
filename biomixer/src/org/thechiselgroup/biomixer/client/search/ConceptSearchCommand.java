@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.graph;
+package org.thechiselgroup.biomixer.client.search;
 
-import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.DefaultArcTypeProvider;
+import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
+import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
 
 import com.google.inject.Inject;
 
-public class BioMixerArcTypeProvider extends DefaultArcTypeProvider {
+public class ConceptSearchCommand extends SearchCommand {
+
+    public static final String NCBO_CONCEPT_SEARCH = "ncbo-search-concepts";
 
     @Inject
-    public BioMixerArcTypeProvider(ResourceManager resourceManager) {
-        addArcType(new MappingArcType());
-        addArcType(new ConceptArcType());
-        addArcType(new CompositionArcType());
-        addArcType(new DirectConceptMappingArcType(resourceManager));
-        addArcType(new OntologyMappingArcType());
+    public ConceptSearchCommand(CommandManager commandManager, Desktop desktop,
+            WindowContentProducer viewFactory) {
+        super(commandManager, desktop, viewFactory, NCBO_CONCEPT_SEARCH);
     }
 
 }

@@ -45,7 +45,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
                 .createDateTimeFormat(DATE_PATTERN);
     }
 
-    private Resource parseMapping(Object mapping) {
+    private Resource parseForConceptMapping(Object mapping) {
         String id = asString(get(mapping, "id"));
         Resource resource = new Resource(Mapping.toMappingURI(id));
         resource.putValue(Mapping.ID, id);
@@ -83,7 +83,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         return resource;
     }
 
-    public List<Resource> parseMapping(String json) {
+    public List<Resource> parseForConceptMapping(String json) {
         List<Resource> result = new ArrayList<Resource>();
 
         Object mappings = get(
@@ -95,7 +95,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         }
 
         for (int i = 0; i < length(mappings); i++) {
-            result.add(parseMapping(get(mappings, i)));
+            result.add(parseForConceptMapping(get(mappings, i)));
         }
 
         return result;

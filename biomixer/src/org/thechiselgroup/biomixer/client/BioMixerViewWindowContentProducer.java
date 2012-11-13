@@ -43,10 +43,12 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotM
 import org.thechiselgroup.biomixer.client.core.visualization.ui.NullVisualMappingsControl;
 import org.thechiselgroup.biomixer.client.core.visualization.ui.VisualMappingsControl;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
+import org.thechiselgroup.biomixer.client.graph.BioMixerConceptByOntologyColorResolver;
 import org.thechiselgroup.biomixer.client.graph.CompositionArcType;
 import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
 import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
+import org.thechiselgroup.biomixer.client.graph.OntologyMappingArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcItemContainer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
@@ -75,7 +77,32 @@ public class BioMixerViewWindowContentProducer extends
         }
     }
 
-    private SidePanelSection createArcsSidePanelSection(
+    private SidePanelSection createOntologyGraphArcsSidePanelSection(
+            ViewContentDisplay contentDisplay) {
+
+        assert ((DropEnabledViewContentDisplay) contentDisplay).getDelegate() instanceof Graph : "invalid content display type "
+                + contentDisplay;
+
+        Graph graphViewContentDisplay = (Graph) ((DropEnabledViewContentDisplay) contentDisplay)
+                .getDelegate();
+
+        VerticalPanel panel = new VerticalPanel();
+        Iterable<ArcItemContainer> arcItemContainers = graphViewContentDisplay
+                .getArcItemContainers();
+        for (final ArcItemContainer arcItemContainer : arcItemContainers) {
+            String arcTypeId = arcItemContainer.getArcType().getArcTypeID();
+            String label = "unknown";
+            if (OntologyMappingArcType.ID.equals(arcTypeId)) {
+                label = "Ontology Mapping";
+                panel.add(createArcTypeContainerControl(label, arcItemContainer));
+            }
+
+        }
+
+        return new SidePanelSection("Arcs", panel);
+    }
+
+    private SidePanelSection createConceptGraphArcsSidePanelSection(
             ViewContentDisplay contentDisplay) {
 
         assert ((DropEnabledViewContentDisplay) contentDisplay).getDelegate() instanceof Graph : "invalid content display type "
@@ -185,7 +212,88 @@ public class BioMixerViewWindowContentProducer extends
         return containerPanel;
     }
 
-    private SidePanelSection createNodesSidePanelSection(
+    private SidePanelSection createOntologyGraphNodesSidePanelSection(
+            final ResourceModel resourceModel,
+            final VisualizationModel visualizationModel) {
+
+        final VerticalPanel panel = new VerticalPanel();
+
+        final Map<String, CheckBox> ontologyToFilterBox = CollectionFactory
+                .createStringMap();
+
+        final CheckBox colorByOntologyCheckBox = new CheckBox(
+                "Color Nodes by Ontology");
+        colorByOntologyCheckBox.setValue(true);
+        colorByOntologyCheckBox
+                .addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                    @Override
+                    public void onValueChange(ValueChangeEvent<Boolean> event) {
+                        boolean value = colorByOntologyCheckBox.getValue();
+
+                        VisualItemValueResolver resolver;
+                        if (value) {
+                            resolver = NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY
+                                    .create();
+                        } else {
+                            resolver = NODE_BACKGROUND_COLOR_RESOLVER_FACTORY
+                                    .create();
+                        }
+
+                        visualizationModel.setResolver(
+                                Graph.NODE_BACKGROUND_COLOR, resolver);
+                    }
+                });
+
+        resourceModel.getResources().addEventHandler(
+                new ResourceSetChangedEventHandler() {
+                    @Override
+                    public void onResourceSetChanged(
+                            ResourceSetChangedEvent event) {
+                        LightweightCollection<Resource> addedResources = event
+                                .getAddedResources();
+                        for (Resource resource : addedResources) {
+                            if (Ontology.isOntology(resource)) {
+                                String ontologyId = (String) resource
+                                        .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
+                                if (!ontologyToFilterBox
+                                        .containsKey(ontologyId)) {
+
+                                    CheckBox checkBox = new CheckBox(
+                                            "<span style='color: "
+                                                    + BioMixerConceptByOntologyColorResolver
+                                                            .getColor(ontologyId)
+                                                    + "'>&#9609;</span>"
+                                                    + "&nbsp;"
+                                                    + "Show "
+                                                    + resource
+                                                            .getValue(Ontology.ONTOLOGY_NAME),
+                                            true);
+                                    checkBox.setValue(true);
+                                    ontologyToFilterBox.put(ontologyId,
+                                            checkBox);
+                                    panel.add(checkBox);
+                                    checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                                        @Override
+                                        public void onValueChange(
+                                                ValueChangeEvent<Boolean> event) {
+                                            updatePredicate(resourceModel,
+                                                    false, ontologyToFilterBox);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+
+        panel.add(colorByOntologyCheckBox);
+
+        updatePredicate(resourceModel, false, ontologyToFilterBox);
+
+        return new SidePanelSection("Nodes", panel);
+    }
+
+    private SidePanelSection createConceptGraphNodesSidePanelSection(
             final ResourceModel resourceModel,
             final VisualizationModel visualizationModel) {
 
@@ -306,9 +414,10 @@ public class BioMixerViewWindowContentProducer extends
             LightweightList<SidePanelSection> sidePanelSections = CollectionFactory
                     .createLightweightList();
 
-            sidePanelSections.add(createNodesSidePanelSection(resourceModel,
-                    visualizationModel));
-            sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
+            sidePanelSections.add(createConceptGraphNodesSidePanelSection(
+                    resourceModel, visualizationModel));
+            sidePanelSections
+                    .add(createConceptGraphArcsSidePanelSection(contentDisplay));
             sidePanelSections.addAll(contentDisplay.getSidePanelSections());
 
             // temporarily removing the Comments view part
@@ -329,9 +438,10 @@ public class BioMixerViewWindowContentProducer extends
             LightweightList<SidePanelSection> sidePanelSections = CollectionFactory
                     .createLightweightList();
 
-            sidePanelSections.add(createNodesSidePanelSection(resourceModel,
-                    visualizationModel));
-            sidePanelSections.add(createArcsSidePanelSection(contentDisplay));
+            sidePanelSections.add(createOntologyGraphNodesSidePanelSection(
+                    resourceModel, visualizationModel));
+            sidePanelSections
+                    .add(createOntologyGraphArcsSidePanelSection(contentDisplay));
             sidePanelSections.addAll(contentDisplay.getSidePanelSections());
 
             // temporarily removing the Comments view part

@@ -16,6 +16,7 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
@@ -103,5 +104,11 @@ public interface GraphDisplay extends IsWidget {
      * @return
      */
     public String getGraphViewName();
+
+    /**
+     * Returns an umodifiable collection of nodes in the graph at the time of
+     * the call.
+     */
+    public Map<String, Node> getNodes();
 
 }

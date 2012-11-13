@@ -13,23 +13,15 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
-import org.thechiselgroup.biomixer.client.core.command.CommandManager;
-import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
-import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
-import com.google.inject.Inject;
+public class NullGraphNodeBulkExpander implements GraphNodeBulkExpander {
 
-public class OntologySearchCommand extends SearchCommand {
-
-    public static final String NCBO_ONTOLOGY_SEARCH = "ncbo-search-ontologies";
-
-    @Inject
-    public OntologySearchCommand(CommandManager commandManager,
-            Desktop desktop, WindowContentProducer viewFactory) {
-        super(commandManager, desktop, viewFactory, NCBO_ONTOLOGY_SEARCH);
+    @Override
+    public void expand(LightweightCollection<VisualItem> visualItems,
+            GraphNodeExpansionCallback expansionCallback) {
     }
-
 }

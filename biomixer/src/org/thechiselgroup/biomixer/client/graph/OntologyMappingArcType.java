@@ -15,10 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.graph;
 
-import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -53,12 +51,6 @@ public class OntologyMappingArcType implements ArcType {
     // arcs use the same thickness it appears...
     public static final int ARC_THICKNESS = 1;
 
-    private final ResourceAccessor resourceAccessor;
-
-    public OntologyMappingArcType(ResourceAccessor resourceAccessor) {
-        this.resourceAccessor = resourceAccessor;
-    }
-
     private Arc createArc(String concept1Uri, String concept2Uri) {
         boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
         String firstUri = isConcept1First ? concept1Uri : concept2Uri;
@@ -68,8 +60,7 @@ public class OntologyMappingArcType implements ArcType {
                 secondUri, ID, ARC_DIRECTED);
     }
 
-    // Adapted from both undirected DirectConceptMapping and MappingArcType
-    // I don't yet understand arc usage enough to say if it is correct.
+    // Adapted mostly from MappingArcType, but also from DirectConceptMapping.
     @Override
     public LightweightCollection<Arc> getArcs(VisualItem visualItem,
             VisualItemContainer context) {
@@ -82,102 +73,23 @@ public class OntologyMappingArcType implements ArcType {
             ResourceSet resources = visualItem.getResources();
             assert resources.size() == 1;
             Resource resource = resources.getFirstElement();
+            String visualItemId = visualItem.getId();
 
-            for (String uri : resource
+            // From Mapping version
+            for (String targetUri : resource
                     .getUriListValue(Ontology.OUTGOING_MAPPINGS)) {
-                if (resourceAccessor.contains(uri)) {
-                    Resource mapping = resourceAccessor.getByUri(uri);
-                    String targetResource = (String) mapping
-                            .getValue(Mapping.TARGET);
-                    arcItems.add(createArc(visualItem.getId(), targetResource));
-                }
+                arcItems.add(createArc(visualItemId, targetUri));
             }
-            for (String uri : resource
+
+            for (String sourceUri : resource
                     .getUriListValue(Ontology.INCOMING_MAPPINGS)) {
-                if (resourceAccessor.contains(uri)) {
-                    Resource mapping = resourceAccessor.getByUri(uri);
-                    String sourceResource = (String) mapping
-                            .getValue(Mapping.SOURCE);
-                    arcItems.add(createArc(sourceResource, visualItem.getId()));
-                }
+                arcItems.add(createArc(sourceUri, visualItemId));
             }
+
         }
 
         return arcItems;
     }
-
-    // // From undirected DirectConceptMapping
-    // @Override
-    // public LightweightCollection<Arc> getArcs(VisualItem visualItem,
-    // VisualItemContainer context) {
-    //
-    // LightweightList<Arc> arcItems = CollectionFactory
-    // .createLightweightList();
-    //
-    // // TODO clean up filter code
-    // if (visualItem.getId().startsWith(Concept.RESOURCE_URI_PREFIX)) {
-    // ResourceSet resources = visualItem.getResources();
-    // assert resources.size() == 1;
-    // Resource resource = resources.getFirstElement();
-    //
-    // for (String uri : resource
-    // .getUriListValue(Concept.OUTGOING_MAPPINGS)) {
-    // if (resourceAccessor.contains(uri)) {
-    // Resource mapping = resourceAccessor.getByUri(uri);
-    // String targetResource = (String) mapping
-    // .getValue(Mapping.TARGET);
-    // arcItems.add(createArc(visualItem.getId(), targetResource));
-    // }
-    // }
-    // for (String uri : resource
-    // .getUriListValue(Concept.INCOMING_MAPPINGS)) {
-    // if (resourceAccessor.contains(uri)) {
-    // Resource mapping = resourceAccessor.getByUri(uri);
-    // String sourceResource = (String) mapping
-    // .getValue(Mapping.SOURCE);
-    // arcItems.add(createArc(sourceResource, visualItem.getId()));
-    // }
-    // }
-    // }
-    //
-    // return arcItems;
-    // }
-    //
-    // // From MappingArcType
-    // public LightweightCollection<Arc> getArcs1(VisualItem visualItem,
-    // VisualItemContainer context) {
-    //
-    // LightweightList<Arc> arcs = CollectionFactory.createLightweightList();
-    //
-    // String visualItemId = visualItem.getId();
-    // if (visualItemId.startsWith(Mapping.RESOURCE_URI_PREFIX)) {
-    // ResourceSet resources = visualItem.getResources();
-    // assert resources.size() == 1;
-    // Resource firstResource = resources.getFirstElement();
-    //
-    // String sourceUri = (String) firstResource.getValue(Mapping.SOURCE);
-    // String targetUri = (String) firstResource.getValue(Mapping.TARGET);
-    //
-    // arcs.add(createArc(sourceUri, visualItemId));
-    // arcs.add(createArc(visualItemId, targetUri));
-    // } else if (visualItemId.startsWith(Concept.RESOURCE_URI_PREFIX)) {
-    // ResourceSet resources = visualItem.getResources();
-    // assert resources.size() == 1;
-    // Resource firstResource = resources.getFirstElement();
-    //
-    // for (String mappingUri : firstResource
-    // .getUriListValue(Concept.OUTGOING_MAPPINGS)) {
-    // arcs.add(createArc(visualItemId, mappingUri));
-    // }
-    //
-    // for (String mappingUri : firstResource
-    // .getUriListValue(Concept.INCOMING_MAPPINGS)) {
-    // arcs.add(createArc(mappingUri, visualItemId));
-    // }
-    // }
-    //
-    // return arcs;
-    // }
 
     @Override
     public String getArcTypeID() {

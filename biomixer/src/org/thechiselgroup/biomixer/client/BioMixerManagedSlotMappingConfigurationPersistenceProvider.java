@@ -21,6 +21,7 @@ import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolver
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.persistence.ManagedSlotMappingConfigurationPersistence;
+import org.thechiselgroup.biomixer.client.graph.BioMixerConceptByOntologyColorResolver;
 import org.thechiselgroup.biomixer.client.workbench.ManagedSlotMappingConfigurationPersistenceProvider;
 
 public class BioMixerManagedSlotMappingConfigurationPersistenceProvider extends

@@ -16,12 +16,12 @@ public class TotalMappingCount implements Iterable<OntologyMappingCount> {
         int count = 0;
 
         for (OntologyMappingCount ontologyMappingCount : ontologyMappingCounts) {
-            if (ontologyMappingCount.getId1().equals(id1)
-                    && ontologyMappingCount.getId2().equals(id2)) {
+            if (ontologyMappingCount.getSourceId().equals(id1)
+                    && ontologyMappingCount.getTargetId().equals(id2)) {
                 count += Integer.parseInt(ontologyMappingCount.getCount());
             }
-            if (ontologyMappingCount.getId1().equals(id2)
-                    && ontologyMappingCount.getId2().equals(id1)) {
+            if (ontologyMappingCount.getSourceId().equals(id2)
+                    && ontologyMappingCount.getTargetId().equals(id1)) {
                 count += Integer.parseInt(ontologyMappingCount.getCount());
             }
         }

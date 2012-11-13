@@ -25,6 +25,9 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
  * built for us. Change things over for each case when BioPortal moves a given
  * service over to production.
  * 
+ * We prefer the JSONP versions now, so that the client can handle requests
+ * rather than using the BioMixer server as a proxy.
+ * 
  * @author everbeek
  * 
  */

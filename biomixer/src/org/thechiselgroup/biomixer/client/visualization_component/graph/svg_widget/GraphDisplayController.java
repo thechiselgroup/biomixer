@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -219,6 +220,11 @@ public class GraphDisplayController implements GraphDisplay,
                 node.getId(), renderedNode, getNodeLayoutType(node.getType()));
         setDefaultPosition(layoutNode);
         layoutGraph.addIdentifiableLayoutNode(layoutNode);
+    }
+
+    @Override
+    public Map<String, Node> getNodes() {
+        return Collections.unmodifiableMap(nodes);
     }
 
     @Override

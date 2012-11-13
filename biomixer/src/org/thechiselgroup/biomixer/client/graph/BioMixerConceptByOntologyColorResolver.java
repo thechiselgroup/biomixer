@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.graph;
 
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.persistence.IdentifiableCreatingPersistence;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;

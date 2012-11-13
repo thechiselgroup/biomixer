@@ -17,8 +17,6 @@ package org.thechiselgroup.biomixer.client.graph;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,28 +36,28 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
+import org.thechiselgroup.biomixer.client.embeds.OntologyMappingOverviewLoader;
+import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class ConceptMappingNeighbourhoodLoaderTest {
+public class OntologyMappingOverviewLoaderTest {
 
     @Mock
-    private ConceptMappingServiceAsync mappingService;
+    private OntologyMappingCountServiceAsync mappingService;
 
     @Mock
     private ErrorHandler errorHandler;
 
-    private ConceptMappingNeighbourhoodLoader underTest;
+    private OntologyMappingOverviewLoader underTest;
 
     @Mock
     private GraphNodeExpansionCallback expansionCallback;
@@ -68,16 +66,20 @@ public class ConceptMappingNeighbourhoodLoaderTest {
     private VisualItem visualItem;
 
     @Mock
+    private Iterable<VisualItem> visualItems;
+
+    @Mock
     private ResourceManager resourceManager;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private AsyncCallback<ResourceNeighbourhood> callExpand(Resource concept) {
+    private AsyncCallback<ResourceNeighbourhood> callExpand(Resource ontology) {
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        doNothing().when(mappingService).getMappings(
-                eq(Concept.getOntologyId(concept)),
-                eq(Concept.getConceptId(concept)), eq(false), captor.capture());
-        underTest.expand(visualItem, expansionCallback);
+        // TODO Compare to Concept loader. The ontology loader was incomplete
+        // when this was created, but I wanted a failing test in place.
+        // doNothing().when(mappingService).getMappingCounts(
+        // eq(Ontology.getOntologyId(ontology)), captor.capture());
+        // underTest.expand(visualItems, expansionCallback);
 
         return captor.getValue();
     }
@@ -137,8 +139,8 @@ public class ConceptMappingNeighbourhoodLoaderTest {
         MockitoGWTBridge.setUp();
         MockitoAnnotations.initMocks(this);
 
-        underTest = new ConceptMappingNeighbourhoodLoader(mappingService,
-                resourceManager, errorHandler);
+        underTest = new OntologyMappingOverviewLoader();
+        // (mappingService, resourceManager, errorHandler);
 
         when(resourceManager.add(any(Resource.class))).thenAnswer(
                 new FirstInvocationArgumentAnswer<Resource>());

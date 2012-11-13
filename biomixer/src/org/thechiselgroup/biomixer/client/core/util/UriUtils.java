@@ -44,6 +44,10 @@ public final class UriUtils {
     public static String encodeURIComponent(String uriComponent) {
         if (GWT.isClient()) {
             return nativeEncodeURIComponent(uriComponent);
+            // return
+            // com.google.gwt.http.client.URL.encodeQueryString(uriComponent);
+            // // "UTF-8");
+
         }
         // TODO java implementation for unit tests
         // try {

@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
@@ -123,7 +123,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     private TermServiceAsync termService;
 
     @Inject
-    private MappingServiceAsync mappingService;
+    private ConceptMappingServiceAsync mappingService;
 
     @Inject
     public MappingNeighbourhoodLoader() {

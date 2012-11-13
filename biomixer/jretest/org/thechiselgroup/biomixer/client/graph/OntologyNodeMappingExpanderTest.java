@@ -19,12 +19,10 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactlyLightweightCollection;
 
 import java.io.Serializable;
@@ -41,20 +39,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.thechiselgroup.biomixer.client.Concept;
-import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
-import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
@@ -62,23 +59,29 @@ import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgum
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public class ConceptMappingNeighbourhoodExpanderTest {
+/**
+ * TODO The expander test here is based off of the
+ * ConceptMappingNeighbourhoodExpanderTest. The expander goals are fairly
+ * different. I put this in place so we could have some failed tests, and things
+ * need to be tested properly. See that other test class for ideas.
+ * 
+ * @author everbeek
+ * 
+ */
+public class OntologyNodeMappingExpanderTest {
 
     @Mock
     private VisualItem visualItem;
 
     private ResourceSet visualItemResources;
 
-    private ConceptMappingNeighbourhoodExpander underTest;
+    private OntologyNodeMappingExpander underTest;
 
     @Mock
-    private ConceptMappingServiceAsync mappingService;
+    private OntologyMappingCountServiceAsync mappingService;
 
     @Mock
     private ResourceManager resourceManager;
-
-    @Mock
-    private TermServiceAsync termService;
 
     @Mock
     private GraphNodeExpansionCallback expansionCallback;
@@ -123,11 +126,11 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         mappings.add(outgoingMapping);
         mappings.add(incomingMapping);
 
-        Resource addedTargetResource = Concept.createConceptResource(
-                "otherOntologyId1", "targetConcept1");
+        Resource addedTargetResource = Ontology
+                .createOntologyResource("otherOntologyId1");
 
-        Resource addedSourceResource = Concept.createConceptResource(
-                "otherOntologyId2", "sourceConcept1");
+        Resource addedSourceResource = Ontology
+                .createOntologyResource("otherOntologyId2");
 
         when(resourceManager.add(sourceResource)).thenReturn(
                 addedSourceResource);
@@ -136,17 +139,17 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         ArgumentCaptor<AsyncCallback> sourceCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(sourceResource)),
-                eq(Concept.getConceptId(sourceResource)),
-                sourceCaptor.capture());
+        // doNothing().when(termService).getBasicInformation(
+        // eq(Ontology.getOntologyId(sourceResource)),
+        // eq(Ontology.getConceptId(sourceResource)),
+        // sourceCaptor.capture());
 
         ArgumentCaptor<AsyncCallback> targetCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(targetResource)),
-                eq(Concept.getConceptId(targetResource)),
-                targetCaptor.capture());
+        // doNothing().when(termService).getBasicInformation(
+        // eq(Ontology.getOntologyId(targetResource)),
+        // eq(Ontology.getConceptId(targetResource)),
+        // targetCaptor.capture());
 
         expandUnderTestWithMappings(concept.getUri(), mappings,
                 new HashMap<String, Serializable>());
@@ -178,17 +181,17 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         ArgumentCaptor<AsyncCallback> sourceCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(sourceResource)),
-                eq(Concept.getConceptId(sourceResource)),
-                sourceCaptor.capture());
+        // doNothing().when(termService).getBasicInformation(
+        // eq(Ontology.getOntologyId(sourceResource)),
+        // eq(Ontology.getConceptId(sourceResource)),
+        // sourceCaptor.capture());
 
         ArgumentCaptor<AsyncCallback> targetCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(targetResource)),
-                eq(Concept.getConceptId(targetResource)),
-                targetCaptor.capture());
+        // doNothing().when(termService).getBasicInformation(
+        // eq(Ontology.getOntologyId(targetResource)),
+        // eq(Ontology.getConceptId(targetResource)),
+        // targetCaptor.capture());
 
         expandUnderTestWithMappings(concept.getUri(), mappings,
                 new HashMap<String, Serializable>());
@@ -222,44 +225,44 @@ public class ConceptMappingNeighbourhoodExpanderTest {
                 outgoingMapping);
     }
 
-    @Test
-    public void addMappingsToResourceManagerAndUseReturnedVersion() {
-        final List<Resource> resultMappings = new ArrayList<Resource>();
-
-        underTest = new ConceptMappingNeighbourhoodExpander(mappingService,
-                errorHandler, resourceManager, termService) {
-            @Override
-            protected void expandNeighbourhood(VisualItem visualItem,
-                    Resource concept, GraphNodeExpansionCallback graph,
-                    List<Resource> mappings) {
-
-                resultMappings.addAll(mappings);
-            };
-        };
-
-        visualItemResources.add(concept);
-
-        List<Resource> mappings = new ArrayList<Resource>();
-        mappings.add(outgoingMapping);
-        mappings.add(incomingMapping);
-
-        Resource addedOutgoingMapping = Mapping.createMappingResource(
-                "mapping1", concept.getUri(), targetResource.getUri());
-        Resource addedIncomingMapping = Mapping.createMappingResource(
-                "mapping2", sourceResource.getUri(), concept.getUri());
-
-        when(resourceManager.add(incomingMapping)).thenReturn(
-                addedIncomingMapping);
-        when(resourceManager.add(outgoingMapping)).thenReturn(
-                addedOutgoingMapping);
-
-        expandUnderTestWithMappings(concept.getUri(), mappings,
-                new HashMap<String, Serializable>());
-
-        assertThat(resultMappings,
-                containsExactly(ResourceSetTestUtils.toResourceSet(
-                        addedIncomingMapping, addedOutgoingMapping)));
-    }
+    // @Test
+    // public void addMappingsToResourceManagerAndUseReturnedVersion() {
+    // final List<Resource> resultMappings = new ArrayList<Resource>();
+    //
+    // underTest = new OntologyNodeMappingExpander(mappingService,
+    // errorHandler, resourceManager) {
+    // @Override
+    // protected void expandNeighbourhood(VisualItem visualItem,
+    // Resource concept, GraphNodeExpansionCallback graph,
+    // List<Resource> mappings) {
+    //
+    // resultMappings.addAll(mappings);
+    // };
+    // };
+    //
+    // visualItemResources.add(concept);
+    //
+    // List<Resource> mappings = new ArrayList<Resource>();
+    // mappings.add(outgoingMapping);
+    // mappings.add(incomingMapping);
+    //
+    // Resource addedOutgoingMapping = Mapping.createMappingResource(
+    // "mapping1", concept.getUri(), targetResource.getUri());
+    // Resource addedIncomingMapping = Mapping.createMappingResource(
+    // "mapping2", sourceResource.getUri(), concept.getUri());
+    //
+    // when(resourceManager.add(incomingMapping)).thenReturn(
+    // addedIncomingMapping);
+    // when(resourceManager.add(outgoingMapping)).thenReturn(
+    // addedOutgoingMapping);
+    //
+    // expandUnderTestWithMappings(concept.getUri(), mappings,
+    // new HashMap<String, Serializable>());
+    //
+    // assertThat(resultMappings,
+    // containsExactly(ResourceSetTestUtils.toResourceSet(
+    // addedIncomingMapping, addedOutgoingMapping)));
+    // }
 
     @SuppressWarnings("unchecked")
     public void correctIdsPassedIntoMappingService() {
@@ -267,52 +270,58 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         underTest.expand(visualItem, expansionCallback);
 
-        verify(mappingService, times(1)).getMappings(
-                eq(Concept.getOntologyId(concept.getUri())),
-                eq(Concept.getConceptId(concept.getUri())), eq(false),
+        LightweightList<String> ontologyIdList = LightweightCollections
+                .toList(Ontology.getOntologyId(concept.getUri()));
+
+        verify(mappingService, times(1)).getMappingCounts(eq(ontologyIdList),
                 any(AsyncCallback.class));
     }
 
     @Test
     public void doNotLoadContainedConceptsWithLabel() {
-        String addedResourceUri = Concept.toConceptURI("ontologyId2",
-                "conceptId2");
+        String addedResourceUri = Ontology.toOntologyURI("ontologyId2");
         Resource addedResource = new Resource(addedResourceUri);
-        addedResource.putValue(Concept.LABEL, "label");
+        addedResource.putValue(Ontology.LABEL, "label");
 
         testLoadConcepts(0, addedResourceUri, addedResource);
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void doNotLoadMappingsIfUriListsSetAndMappingResourcesAvailable() {
-        visualItemResources.add(concept);
-
-        concept.putValue(Concept.OUTGOING_MAPPINGS,
-                new UriList(outgoingMapping.getUri()));
-        concept.putValue(Concept.INCOMING_MAPPINGS,
-                new UriList(incomingMapping.getUri()));
-
-        stubResourceManagerContains(incomingMapping);
-        stubResourceManagerContainsAllResources(Concept.INCOMING_MAPPINGS);
-        stubResourceManagerContains(outgoingMapping);
-        stubResourceManagerContainsAllResources(Concept.OUTGOING_MAPPINGS);
-
-        underTest.expand(visualItem, expansionCallback);
-
-        verify(mappingService, times(0)).getMappings(any(String.class),
-                any(String.class), eq(true), any(AsyncCallback.class));
-    }
+    // Don't think we need to prevent loading of arcs in the ontology
+    // mapper...arcs don't load like nodes do...
+    // @SuppressWarnings("unchecked")
+    // @Test
+    // public void doNotLoadMappingsIfUriListsSetAndMappingResourcesAvailable()
+    // {
+    // visualItemResources.add(concept);
+    //
+    // concept.putValue(Ontology.OUTGOING_MAPPINGS, new UriList(
+    // outgoingMapping.getUri()));
+    // concept.putValue(Ontology.INCOMING_MAPPINGS, new UriList(
+    // incomingMapping.getUri()));
+    //
+    // stubResourceManagerContains(incomingMapping);
+    // stubResourceManagerContainsAllResources(Ontology.INCOMING_MAPPINGS);
+    // stubResourceManagerContains(outgoingMapping);
+    // stubResourceManagerContainsAllResources(Ontology.OUTGOING_MAPPINGS);
+    //
+    // underTest.expand(visualItem, expansionCallback);
+    //
+    // verify(mappingService, times(0)).getMappings(
+    // any(LightweightList.class), any(AsyncCallback.class));
+    // }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void expandUnderTestWithMappings(String conceptUri,
             List<Resource> mappings, Map<String, Serializable> partialProperties) {
 
+        LightweightList<String> ontologyIdList = LightweightCollections
+                .toList(Ontology.getOntologyId(conceptUri));
+
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        doNothing().when(mappingService).getMappings(
-                eq(Concept.getOntologyId(conceptUri)),
-                eq(Concept.getConceptId(conceptUri)), eq(false), captor.capture());
+        // TODO Fix this call...argument issues
+        // doNothing().when(mappingService).getMappings(eq(ontologyIdList),
+        // captor.capture());
 
         underTest.expand(visualItem, expansionCallback);
 
@@ -327,20 +336,19 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         visualItemResources.add(concept);
 
         HashMap<String, Serializable> partialMappings = new HashMap<String, Serializable>();
-        partialMappings.put(Concept.INCOMING_MAPPINGS, new UriList(
+        partialMappings.put(Ontology.INCOMING_MAPPINGS, new UriList(
                 incomingMapping.getUri()));
 
         expandUnderTestWithMappings(concept.getUri(),
                 new ArrayList<Resource>(), partialMappings);
 
-        assertThat(concept.getUriListValue(Concept.INCOMING_MAPPINGS),
+        assertThat(concept.getUriListValue(Ontology.INCOMING_MAPPINGS),
                 CollectionMatchers.containsExactly(incomingMapping.getUri()));
     }
 
     @Test
     public void loadUncontainedConcepts() {
-        testLoadConcepts(1, Concept.toConceptURI("ontologyId2", "conceptId2"),
-                null);
+        testLoadConcepts(1, Ontology.toOntologyURI("ontologyId2"), null);
     }
 
     @SuppressWarnings("unchecked")
@@ -348,24 +356,24 @@ public class ConceptMappingNeighbourhoodExpanderTest {
     public void loadUncontainedSourceConceptWithoutMappingServiceCall() {
         visualItemResources.add(concept);
 
-        concept.putValue(Concept.OUTGOING_MAPPINGS, new UriList());
-        concept.putValue(Concept.INCOMING_MAPPINGS,
-                new UriList(incomingMapping.getUri()));
+        concept.putValue(Ontology.OUTGOING_MAPPINGS, new UriList());
+        concept.putValue(Ontology.INCOMING_MAPPINGS, new UriList(
+                incomingMapping.getUri()));
 
         stubResourceManagerContains(incomingMapping);
-        stubResourceManagerContainsAllResources(Concept.INCOMING_MAPPINGS);
-        stubResourceManagerContainsAllResources(Concept.OUTGOING_MAPPINGS);
-        stubResourceManagerResolveResources(Concept.INCOMING_MAPPINGS,
+        stubResourceManagerContainsAllResources(Ontology.INCOMING_MAPPINGS);
+        stubResourceManagerContainsAllResources(Ontology.OUTGOING_MAPPINGS);
+        stubResourceManagerResolveResources(Ontology.INCOMING_MAPPINGS,
                 incomingMapping);
-        stubResourceManagerResolveResources(Concept.OUTGOING_MAPPINGS,
+        stubResourceManagerResolveResources(Ontology.OUTGOING_MAPPINGS,
                 outgoingMapping);
 
         underTest.expand(visualItem, expansionCallback);
 
-        verify(termService, times(1)).getBasicInformation(
-                eq(Concept.getOntologyId(sourceResource.getUri())),
-                eq(Concept.getConceptId(sourceResource.getUri())),
-                any(AsyncCallback.class));
+        // verify(termService, times(1)).getBasicInformation(
+        // eq(Ontology.getOntologyId(sourceResource.getUri())),
+        // eq(Ontology.getConceptId(sourceResource.getUri())),
+        // any(AsyncCallback.class));
     }
 
     @SuppressWarnings("unchecked")
@@ -373,24 +381,24 @@ public class ConceptMappingNeighbourhoodExpanderTest {
     public void loadUncontainedTargetConceptWithoutMappingServiceCall() {
         visualItemResources.add(concept);
 
-        concept.putValue(Concept.OUTGOING_MAPPINGS,
-                new UriList(outgoingMapping.getUri()));
-        concept.putValue(Concept.INCOMING_MAPPINGS, new UriList());
+        concept.putValue(Ontology.OUTGOING_MAPPINGS, new UriList(
+                outgoingMapping.getUri()));
+        concept.putValue(Ontology.INCOMING_MAPPINGS, new UriList());
 
         stubResourceManagerContains(outgoingMapping);
-        stubResourceManagerContainsAllResources(Concept.INCOMING_MAPPINGS);
-        stubResourceManagerContainsAllResources(Concept.OUTGOING_MAPPINGS);
-        stubResourceManagerResolveResources(Concept.INCOMING_MAPPINGS,
+        stubResourceManagerContainsAllResources(Ontology.INCOMING_MAPPINGS);
+        stubResourceManagerContainsAllResources(Ontology.OUTGOING_MAPPINGS);
+        stubResourceManagerResolveResources(Ontology.INCOMING_MAPPINGS,
                 incomingMapping);
-        stubResourceManagerResolveResources(Concept.OUTGOING_MAPPINGS,
+        stubResourceManagerResolveResources(Ontology.OUTGOING_MAPPINGS,
                 outgoingMapping);
 
         underTest.expand(visualItem, expansionCallback);
 
-        verify(termService, times(1)).getBasicInformation(
-                eq(Concept.getOntologyId(targetResource.getUri())),
-                eq(Concept.getConceptId(targetResource.getUri())),
-                any(AsyncCallback.class));
+        // verify(termService, times(1)).getBasicInformation(
+        // eq(Ontology.getOntologyId(targetResource.getUri())),
+        // eq(Ontology.getConceptId(targetResource.getUri())),
+        // any(AsyncCallback.class));
     }
 
     @Test
@@ -398,13 +406,13 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         visualItemResources.add(concept);
 
         HashMap<String, Serializable> partialMappings = new HashMap<String, Serializable>();
-        partialMappings.put(Concept.OUTGOING_MAPPINGS, new UriList(
+        partialMappings.put(Ontology.OUTGOING_MAPPINGS, new UriList(
                 outgoingMapping.getUri()));
 
         expandUnderTestWithMappings(concept.getUri(),
                 new ArrayList<Resource>(), partialMappings);
 
-        assertThat(concept.getUriListValue(Concept.OUTGOING_MAPPINGS),
+        assertThat(concept.getUriListValue(Ontology.OUTGOING_MAPPINGS),
                 CollectionMatchers.containsExactly(outgoingMapping.getUri()));
     }
 
@@ -424,21 +432,19 @@ public class ConceptMappingNeighbourhoodExpanderTest {
             }
         };
 
-        underTest = new ConceptMappingNeighbourhoodExpander(mappingService,
-                errorHandler, resourceManager, termService);
+        underTest = new OntologyNodeMappingExpander(mappingService,
+                errorHandler);
 
-        concept = Concept.createConceptResource("ontologyId", "conceptId");
+        concept = Ontology.createOntologyResource("ontologyId");
 
-        targetResource = Concept.createConceptResource("otherOntologyId1",
-                "targetConcept1");
+        targetResource = Ontology.createOntologyResource("otherOntologyId1");
 
-        sourceResource = Concept.createConceptResource("otherOntologyId2",
-                "sourceConcept1");
+        sourceResource = Ontology.createOntologyResource("otherOntologyId2");
 
-        outgoingMapping = Mapping.createMappingResource("mapping1",
-                concept.getUri(), targetResource.getUri());
-        incomingMapping = Mapping.createMappingResource("mapping2",
-                sourceResource.getUri(), concept.getUri());
+        // outgoingMapping = Mapping.createMappingResource("mapping1",
+        // concept.getUri(), targetResource.getUri());
+        // incomingMapping = Mapping.createMappingResource("mapping2",
+        // sourceResource.getUri(), concept.getUri());
 
         when(expansionCallback.getResourceManager())
                 .thenReturn(resourceManager);
@@ -475,15 +481,14 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         assert addedResource == null
                 || addedResource.getUri().equals(addedResourceUri);
 
-        String concept1Uri = Concept.toConceptURI("ontologyId1", "conceptId1");
+        String concept1Uri = Ontology.toOntologyURI("ontologyId1");
 
-        visualItemResources.add(Concept.createConceptResource(
-                Concept.getOntologyId(concept1Uri),
-                Concept.getConceptId(concept1Uri)));
+        visualItemResources.add(Ontology.createOntologyResource(Ontology
+                .getOntologyId(concept1Uri)));
 
-        List<Resource> mappings = new ArrayList<Resource>();
-        mappings.add(Mapping.createMappingResource("mappingId1", concept1Uri,
-                addedResourceUri));
+        // List<Resource> mappings = new ArrayList<Resource>();
+        // mappings.add(Mapping.createMappingResource("mappingId1", concept1Uri,
+        // addedResourceUri));
 
         if (addedResource != null) {
             stubResourceManagerContains(addedResource);
@@ -491,14 +496,14 @@ public class ConceptMappingNeighbourhoodExpanderTest {
             when(resourceManager.contains(addedResourceUri)).thenReturn(false);
         }
 
-        expandUnderTestWithMappings(concept1Uri, mappings,
-                new HashMap<String, Serializable>());
+        // expandUnderTestWithMappings(concept1Uri, mappings,
+        // new HashMap<String, Serializable>());
 
-        verify(termService, times(expectedResourceManagerCalls))
-                .getBasicInformation(
-                        eq(Concept.getOntologyId(addedResourceUri)),
-                        eq(Concept.getConceptId(addedResourceUri)),
-                        any(AsyncCallback.class));
+        // verify(termService, times(expectedResourceManagerCalls))
+        // .getBasicInformation(
+        // eq(Ontology.getOntologyId(addedResourceUri)),
+        // eq(Ontology.getConceptId(addedResourceUri)),
+        // any(AsyncCallback.class));
     }
 
     @Test

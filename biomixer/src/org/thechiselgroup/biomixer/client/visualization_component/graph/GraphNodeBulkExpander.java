@@ -15,28 +15,18 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
-public interface GraphExpansionRegistry {
+/**
+ * Expands a set of graph nodes. For use with bulk operations, especially where
+ * a REST service exists that receives a set of entities.
+ * 
+ * @author Eric Verbeek
+ */
+public interface GraphNodeBulkExpander {
 
-    GraphNodeExpander getAutomaticExpander(String category);
-
-    GraphNodeBulkExpander getAutomaticBulkExpander(String category);
-
-    List<NodeMenuEntry> getNodeMenuEntries(String category);
-
-    Set<Entry<String, List<NodeMenuEntry>>> getNodeMenuEntriesByCategory();
-
-    void putAutomaticExpander(String category, GraphNodeExpander expander);
-
-    void putAutomaticBulkExpander(String category,
-            GraphNodeBulkExpander expander);
-
-    void putNodeMenuEntry(String category, NodeMenuEntry nodeMenuEntry);
-
-    void putNodeMenuEntry(String category, String label,
-            GraphNodeExpander expander);
+    void expand(LightweightCollection<VisualItem> visualItems,
+            GraphNodeExpansionCallback expansionCallback);
 
 }

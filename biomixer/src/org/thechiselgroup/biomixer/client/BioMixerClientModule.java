@@ -32,8 +32,8 @@ import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
 import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceImplementation;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
@@ -87,8 +87,8 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
 
         // bind(MappingServiceAsync.class).to(FakeMappingService.class).in(
         // Singleton.class);
-        bind(MappingServiceAsync.class).to(MappingServiceImplementation.class)
-                .in(Singleton.class);
+        bind(ConceptMappingServiceAsync.class).to(
+                ConceptMappingServiceImplementation.class).in(Singleton.class);
 
         bind(TermServiceAsync.class).to(TermServiceImplementation.class).in(
                 Singleton.class);

@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client;
+package org.thechiselgroup.biomixer.client.graph;
 
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.ui.Color;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;

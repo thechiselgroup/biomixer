@@ -16,9 +16,12 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
@@ -41,6 +44,8 @@ import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
@@ -237,7 +242,6 @@ public class Graph extends AbstractViewContentDisplay implements
     public static final Slot NODE_LABEL_SLOT = new Slot("nodeLabel",
             "Node Label", DataType.TEXT);
 
-
     private static final String MEMENTO_ARC_ITEM_CONTAINERS_CHILD = "arcItemContainers";
 
     private static final String MEMENTO_NODE_LOCATIONS_CHILD = "nodeLocations";
@@ -398,26 +402,25 @@ public class Graph extends AbstractViewContentDisplay implements
     private NodeItem createGraphNodeItem(VisualItem visualItem) {
         // TODO get from group id
         String type = getCategory(visualItem.getResources().getFirstElement());
-
-        NodeItem graphItem = new NodeItem(visualItem, type, graphDisplay);
+        NodeItem nodeItem = new NodeItem(visualItem, type, graphDisplay);
 
         /*
          * NOTE: When the node is added, a LayoutGraphContentChangedEvent will
          * be fired (see DefaultLayoutGraph), causing the current layout
          * algorithm to be run.
          */
-        graphDisplay.addNode(graphItem.getNode());
+        graphDisplay.addNode(nodeItem.getNode());
+        this.addNodeGraphItem(nodeItem);
 
         // TODO re-enable
         // TODO remove once new drag and drop mechanism works...
-        graphDisplay
-                .setNodeStyle(graphItem.getNode(), "showDragImage", "false");
+        graphDisplay.setNodeStyle(nodeItem.getNode(), "showDragImage", "false");
 
-        graphDisplay.setNodeStyle(graphItem.getNode(), "showArrow", registry
+        graphDisplay.setNodeStyle(nodeItem.getNode(), "showArrow", registry
                 .getNodeMenuEntries(type).isEmpty() ? "false" : "true");
 
         nodeResources.addResourceSet(visualItem.getResources());
-        visualItem.setDisplayObject(graphItem);
+        visualItem.setDisplayObject(nodeItem);
 
         /*
          * NOTE: all node configuration should be done when calling the
@@ -429,7 +432,29 @@ public class Graph extends AbstractViewContentDisplay implements
         registry.getAutomaticExpander(type).expand(visualItem,
                 expansionCallback);
 
-        return graphItem;
+        return nodeItem;
+    }
+
+    private final Set<NodeItem> nodeItems = new HashSet<NodeItem>();
+
+    /**
+     * Needed additional tracking, so that we could access visual items of all
+     * Nodes in the graph.
+     * 
+     * @param graphItem
+     */
+    private void addNodeGraphItem(NodeItem graphItem) {
+        this.nodeItems.add(graphItem);
+    }
+
+    /**
+     * Needed additional tracking, so that we could access visual items of all
+     * Nodes in the graph.
+     * 
+     * @param graphItem
+     */
+    private void removeNodeGraphItem(NodeItem graphItem) {
+        this.nodeItems.remove(graphItem);
     }
 
     // TODO encapsulate in display, use dependency injection
@@ -667,6 +692,7 @@ public class Graph extends AbstractViewContentDisplay implements
             arcItemContainer.removeVisualItem(visualItem);
         }
         graphDisplay.removeNode(getNode(visualItem));
+        this.removeNodeGraphItem((NodeItem) (visualItem.getDisplayObject()));
     }
 
     @Override
@@ -797,6 +823,42 @@ public class Graph extends AbstractViewContentDisplay implements
                 updateNode(visualItem);
             }
         }
+
+        /*
+         * Call any batch expanders (e.g. I needed to get mapping arcs from a
+         * service that could accept a full network as an argument)
+         * 
+         * See other expanders elsewhere like:
+         * registry.getAutomaticExpander(type)
+         * 
+         * Gather types, and run the bulk expanders. With this design, bulk
+         * expanders cannot work with multiple types, so they are bulk with
+         * regard to the type they are associated with. This was originally
+         * created to support ontology node mappings to eachother, since parsing
+         * those arcs in the original ontology parsing would result in too many
+         * arcs, and doing non-bulk was inefficient in terms of REST calls.
+         */
+        Map<String, LightweightList<VisualItem>> types = new HashMap<String, LightweightList<VisualItem>>();
+        for (NodeItem nodeItem : nodeItems) {
+            // Perhaps this could be more efficient if we stored the nodeItems
+            // keyed by type, but it's probably preferable to have this computed
+            // than to have the storage overhead.
+            VisualItem visualItem = nodeItem.getVisualItem();
+            String type = getCategory(visualItem.getResources()
+                    .getFirstElement());
+            if (null == types.get(type)) {
+                types.put(type, LightweightCollections.<VisualItem> toList());
+            }
+            types.get(type).add(visualItem);
+        }
+        if (!delta.getAddedElements().isEmpty()
+                || !delta.getRemovedElements().isEmpty()) {
+            for (String type : types.keySet()) {
+                registry.getAutomaticBulkExpander(type).expand(types.get(type),
+                        expansionCallback);
+            }
+        }
+
     }
 
     public void updateArcsForResources(Iterable<Resource> resources) {

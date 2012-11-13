@@ -82,7 +82,7 @@ public final class Ontology {
     }
 
     public static String toOntologyURI(String ontologyId) {
-        return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyId;
+        return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyId + "/";
     }
 
     private Ontology() {

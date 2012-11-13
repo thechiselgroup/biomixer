@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 
 import com.google.inject.Inject;
@@ -34,7 +34,7 @@ public class ConceptMappingNeighbourhoodLoader extends
 
     @Inject
     public ConceptMappingNeighbourhoodLoader(
-            MappingServiceAsync mappingService,
+            ConceptMappingServiceAsync mappingService,
             ResourceManager resourceManager, ErrorHandler errorHandler) {
 
         super(mappingService, resourceManager, errorHandler);

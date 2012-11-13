@@ -25,7 +25,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 
@@ -38,8 +38,9 @@ public class ConceptMappingNeighbourhoodExpander extends
 
     @Inject
     public ConceptMappingNeighbourhoodExpander(
-            MappingServiceAsync mappingService, ErrorHandler errorHandler,
-            ResourceManager resourceManager, TermServiceAsync termService) {
+            ConceptMappingServiceAsync mappingService,
+            ErrorHandler errorHandler, ResourceManager resourceManager,
+            TermServiceAsync termService) {
 
         super(mappingService, resourceManager, errorHandler);
 
@@ -48,7 +49,7 @@ public class ConceptMappingNeighbourhoodExpander extends
 
     @Override
     protected void expandNeighbourhood(VisualItem visualItem,
-            final Resource concept, final GraphNodeExpansionCallback graph,
+            final Resource concept, final GraphNodeExpansionCallback graphCallback,
             List<Resource> mappings) {
 
         final String conceptUri = concept.getUri();
@@ -67,8 +68,8 @@ public class ConceptMappingNeighbourhoodExpander extends
             assert !otherUri.equals(conceptUri);
 
             if (resourceManager.contains(otherUri)) {
-                graph.addAutomaticResource(resourceManager.getByUri(otherUri));
-                graph.addAutomaticResource(mapping);
+                graphCallback.addAutomaticResource(resourceManager.getByUri(otherUri));
+                graphCallback.addAutomaticResource(mapping);
                 continue;
             }
 
@@ -90,13 +91,13 @@ public class ConceptMappingNeighbourhoodExpander extends
 
                             Resource addedResource = resourceManager
                                     .add(result);
-                            graph.addAutomaticResource(mapping);
-                            graph.addAutomaticResource(addedResource);
+                            graphCallback.addAutomaticResource(mapping);
+                            graphCallback.addAutomaticResource(addedResource);
                         }
                     });
         }
 
-        graph.updateArcsForVisuaItems(LightweightCollections
+        graphCallback.updateArcsForVisuaItems(LightweightCollections
                 .toCollection(visualItem));
     }
 }

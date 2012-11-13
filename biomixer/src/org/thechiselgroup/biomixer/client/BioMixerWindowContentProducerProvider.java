@@ -19,6 +19,8 @@ import org.thechiselgroup.biomixer.client.dnd.windows.OverlayWindowContentProduc
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentFactory;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.search.ConceptSearchWindowContent;
+import org.thechiselgroup.biomixer.client.search.OntologySearchWindowContent;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 import org.thechiselgroup.biomixer.client.workbench.ui.CommentWindowContentFactory;
 import org.thechiselgroup.biomixer.client.workbench.ui.HelpWindowContentFactory;

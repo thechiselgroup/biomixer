@@ -41,7 +41,8 @@ import com.google.inject.Inject;
  * 
  * @see "http://www.bioontology.org/wiki/index.php/BioPortal_Mappings_Service"
  */
-public class MappingServiceImplementation implements MappingServiceAsync {
+public class ConceptMappingServiceImplementation implements
+        ConceptMappingServiceAsync {
 
     private final UrlFetchService urlFetchService;
 
@@ -50,7 +51,7 @@ public class MappingServiceImplementation implements MappingServiceAsync {
     private final UrlBuilderFactory urlBuilderFactory;
 
     @Inject
-    public MappingServiceImplementation(
+    public ConceptMappingServiceImplementation(
             MappingResponseJsonParser responseParser,
             UrlFetchService urlFetchService, UrlBuilderFactory urlBuilderFactory) {
 
@@ -102,6 +103,7 @@ public class MappingServiceImplementation implements MappingServiceAsync {
         }
         Map<String, Serializable> partialProperties = CollectionFactory
                 .createStringMap();
+
         partialProperties.put(Concept.INCOMING_MAPPINGS, incomingMappings);
         partialProperties.put(Concept.OUTGOING_MAPPINGS, outgoingMappings);
 
@@ -123,7 +125,8 @@ public class MappingServiceImplementation implements MappingServiceAsync {
             public ResourceNeighbourhood transform(String value)
                     throws Exception {
 
-                List<Resource> mappings = responseParser.parseMapping(value);
+                List<Resource> mappings = responseParser
+                        .parseForConceptMapping(value);
 
                 if (mappingNeighbourhood == true && mappings.size() == 0) {
                     // display a message to the user

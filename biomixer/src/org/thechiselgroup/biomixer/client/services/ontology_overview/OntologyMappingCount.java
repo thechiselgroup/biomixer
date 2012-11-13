@@ -1,15 +1,15 @@
 package org.thechiselgroup.biomixer.client.services.ontology_overview;
 
 public class OntologyMappingCount {
-    private String id1;
+    private String sourceId;
 
-    private String id2;
+    private String targetId;
 
     private String count;
 
-    public OntologyMappingCount(String id1, String id2, String count) {
-        this.id1 = id1;
-        this.id2 = id2;
+    public OntologyMappingCount(String sourceId, String targetId, String count) {
+        this.sourceId = sourceId;
+        this.targetId = targetId;
         this.count = count;
     }
 
@@ -17,12 +17,12 @@ public class OntologyMappingCount {
         return count;
     }
 
-    public String getId1() {
-        return id1;
+    public String getSourceId() {
+        return sourceId;
     }
 
-    public String getId2() {
-        return id2;
+    public String getTargetId() {
+        return targetId;
     }
 
 }

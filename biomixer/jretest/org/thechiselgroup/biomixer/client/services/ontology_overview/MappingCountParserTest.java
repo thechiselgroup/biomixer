@@ -16,7 +16,7 @@ import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocu
 
 public class MappingCountParserTest {
 
-    private OntologyMappingCountParser underTest;
+    private OntologyMappingCountXMLParser underTest;
 
     private TotalMappingCount getOntologyMappingCounts(String xmlFilename)
             throws Exception {
@@ -24,7 +24,7 @@ public class MappingCountParserTest {
                 .readIntoString(MappingCountParserTest.class
                         .getResourceAsStream(xmlFilename));
 
-        return underTest.parse(responseXml);
+        return underTest.parseForCount(responseXml);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class MappingCountParserTest {
 
     @Before
     public void setUp() throws Exception {
-        underTest = new OntologyMappingCountParser(
+        underTest = new OntologyMappingCountXMLParser(
                 new StandardJavaXMLDocumentProcessor());
     }
 

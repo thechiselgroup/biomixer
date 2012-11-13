@@ -57,7 +57,7 @@ public class MappingServiceImplementationTest {
     @Mock
     private UrlFetchService urlFetchService;
 
-    private MappingServiceImplementation underTest;
+    private ConceptMappingServiceImplementation underTest;
 
     @Mock
     private MappingResponseJsonParser responseParser;
@@ -74,7 +74,7 @@ public class MappingServiceImplementationTest {
 
         AsyncCallback callback = mock(AsyncCallback.class);
 
-        when(responseParser.parseMapping(xmlResultStub)).thenReturn(
+        when(responseParser.parseForConceptMapping(xmlResultStub)).thenReturn(
                 parsedMappings);
 
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
@@ -154,7 +154,7 @@ public class MappingServiceImplementationTest {
 
         conceptUri = Concept.toConceptURI("1ontologyId1", "1conceptId1");
 
-        underTest = new MappingServiceImplementation(responseParser,
+        underTest = new ConceptMappingServiceImplementation(responseParser,
                 urlFetchService, urlBuilderFactory);
 
         this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());

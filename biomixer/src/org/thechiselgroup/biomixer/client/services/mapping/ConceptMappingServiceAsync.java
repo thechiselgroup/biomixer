@@ -19,7 +19,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public interface MappingServiceAsync {
+public interface ConceptMappingServiceAsync {
 
     /**
      * Gets the mapping neighborhood (partial properties & mapping resources)

@@ -21,11 +21,10 @@ import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
 public class NcboStageRestUrlBuilderTest {
 
-    private UrlBuilderFactory urlBuilderFactory;
+    private NcboStageRestUrlBuilderFactory urlBuilderFactory;
 
     @Ignore("TODO: java implementation of uri encoding")
     @Test
@@ -34,7 +33,7 @@ public class NcboStageRestUrlBuilderTest {
                 .path("bioportal/virtual/ontology/1078/all").toString();
         assertThat(
                 url,
-                equalTo("http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1078%2Fall&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                equalTo("http://stagerest.bioontology.org/bioportal/virtual/ontology/1078/all?userapikey=&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
     @Ignore("TODO: java implementation of uri encoding")
@@ -47,7 +46,7 @@ public class NcboStageRestUrlBuilderTest {
                         "http://purl.org/obo/owl/GO#GO_0007569").toString();
         assertThat(
                 url,
-                equalTo("http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1070%3Fconceptid%3Dhttp%253A%252F%252Fpurl.org%252Fobo%252Fowl%252FGO%2523GO_0007569&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                equalTo("http://stagerest.bioontology.org/bioportal/virtual/ontology/1070?userapikey=&conceptid=http%3A%2F%2Fpurl.org%2Fobo%2Fowl%2FGO%23GO_0007569&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
     @Before
@@ -64,7 +63,7 @@ public class NcboStageRestUrlBuilderTest {
                 .uriParameter("conceptid", "O80-O84.9").toString();
         assertThat(
                 url,
-                equalTo("http://stage.bioontology.org/ajax/jsonp?path=%2Fvirtual%2Fontology%2F1516%3Fconceptid%3DO80-O84.9%26light%3D1%26norelations%3D1&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
+                equalTo("http://stagerest.bioontology.org/bioportal/virtual/ontology/1516?userapikey=&conceptid=O80-O84.9&norelations=1&light=1&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"));
     }
 
 }

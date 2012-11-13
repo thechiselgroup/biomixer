@@ -20,6 +20,10 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.managed.SingleSlotDependentVisualItemResolverFactory;
+import org.thechiselgroup.biomixer.client.graph.BioMixerConceptByOntologyColorResolver;
+import org.thechiselgroup.biomixer.client.graph.BioMixerGraphLabelResolver;
+import org.thechiselgroup.biomixer.client.graph.BioMixerNodeBackgroundColorResolver;
+import org.thechiselgroup.biomixer.client.graph.BioMixerNodeBorderColorResolver;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider;
 

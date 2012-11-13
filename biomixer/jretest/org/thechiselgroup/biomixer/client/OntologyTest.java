@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -15,21 +15,17 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import org.thechiselgroup.biomixer.client.core.command.CommandManager;
-import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
-import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
-import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
-import com.google.inject.Inject;
+import org.junit.Test;
 
-public class ConceptSearchCommand extends SearchCommand {
+public class OntologyTest {
 
-    public static final String NCBO_CONCEPT_SEARCH = "ncbo-search-concepts";
-
-    @Inject
-    public ConceptSearchCommand(CommandManager commandManager, Desktop desktop,
-            WindowContentProducer viewFactory) {
-        super(commandManager, desktop, viewFactory, NCBO_CONCEPT_SEARCH);
+    @Test
+    public void getOntologyIdFromConceptUri() {
+        String conceptURI = Ontology.toOntologyURI("1023");
+        assertThat(Ontology.getOntologyId(conceptURI), is("1023"));
     }
 
 }

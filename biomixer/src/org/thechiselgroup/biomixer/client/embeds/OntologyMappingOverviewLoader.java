@@ -111,12 +111,9 @@ public class OntologyMappingOverviewLoader implements OntologyEmbedLoader {
                 // TODO I think I want a map of ids to resources.
                 // Or is the uri argument from the ResourceSet the same as the
                 // ids I get from the count?
-                Resource first = resourceSet.getByUri(count.getId1());
-                Resource second = resourceSet.getByUri(count.getId2());
-                // TODO Do something to make an arc...what kind? This isn't
-                // really a MappingArcType arc...
-                // This is right. And we will be in a different graph view.
-                // So, make a new type!
+                Resource first = resourceSet.getByUri(count.getSourceId());
+                Resource second = resourceSet.getByUri(count.getTargetId());
+                // TODO wire this up with the system in place from the full version.
             }
 
             // targetResource.applyPartialProperties(targetNeighbourhood

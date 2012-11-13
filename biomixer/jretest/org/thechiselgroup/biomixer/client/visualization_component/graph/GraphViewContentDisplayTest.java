@@ -70,6 +70,9 @@ public class GraphViewContentDisplayTest {
     @Mock
     private GraphNodeExpander automaticExpander;
 
+    @Mock
+    private GraphNodeBulkExpander automaticBulkExpander;
+
     private TestViewContentDisplayCallback callback;
 
     @Mock
@@ -602,6 +605,9 @@ public class GraphViewContentDisplayTest {
 
         when(registry.getAutomaticExpander(any(String.class))).thenReturn(
                 automaticExpander);
+
+        when(registry.getAutomaticBulkExpander(any(String.class))).thenReturn(
+                automaticBulkExpander);
     }
 
     private void simulateAddVisualItems(
