@@ -149,7 +149,6 @@ public class ArcItem {
 
     public void setArcThickness(int arcThickness) {
         assert arcThickness > 0;
-
         this.arcThickness = arcThickness;
 
         if (visible) {

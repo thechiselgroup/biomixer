@@ -22,7 +22,8 @@ public class OntologyMappingCountXMLParser extends AbstractXMLResultParser {
 
             String sourceOntologyId = getText(statistic, "sourceOntologyId");
             String targetOntologyId = getText(statistic, "targetOntologyId");
-            String mappingCount = getText(statistic, "mappingCount");
+            int mappingCount = Integer.parseInt(getText(statistic,
+                    "mappingCount"));
 
             ontologyMappingCounts.add(new OntologyMappingCount(
                     sourceOntologyId, targetOntologyId, mappingCount));

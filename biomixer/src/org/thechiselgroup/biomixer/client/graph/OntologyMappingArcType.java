@@ -47,17 +47,18 @@ public class OntologyMappingArcType implements ArcType {
 
     public static final boolean ARC_DIRECTED = false;
 
-    // TODO This isn't right! I need to have the thickness vary by arc, but all
-    // arcs use the same thickness it appears...
     public static final int ARC_THICKNESS = 1;
 
-    private Arc createArc(String concept1Uri, String concept2Uri) {
-        boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
-        String firstUri = isConcept1First ? concept1Uri : concept2Uri;
-        String secondUri = isConcept1First ? concept2Uri : concept1Uri;
+    private Arc createArc(String ontology1Uri, String ontology2Uri,
+            int numberOfMappings) {
+        boolean isOntology1First = ontology1Uri.compareTo(ontology2Uri) < 0;
+        String firstUri = isOntology1First ? ontology1Uri : ontology2Uri;
+        String secondUri = isOntology1First ? ontology2Uri : ontology1Uri;
 
-        return new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
+        Arc arc = new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
                 secondUri, ID, ARC_DIRECTED);
+        arc.setSize(numberOfMappings);
+        return arc;
     }
 
     // Adapted mostly from MappingArcType, but also from DirectConceptMapping.
@@ -78,12 +79,18 @@ public class OntologyMappingArcType implements ArcType {
             // From Mapping version
             for (String targetUri : resource
                     .getUriListValue(Ontology.OUTGOING_MAPPINGS)) {
-                arcItems.add(createArc(visualItemId, targetUri));
+                int numberOfMappings = Ontology.getOntologyCount(targetUri);
+                String pureTargetUri = Ontology.getPureOntologyURI(targetUri);
+                arcItems.add(createArc(visualItemId, pureTargetUri,
+                        numberOfMappings));
             }
 
             for (String sourceUri : resource
                     .getUriListValue(Ontology.INCOMING_MAPPINGS)) {
-                arcItems.add(createArc(sourceUri, visualItemId));
+                int numberOfMappings = Ontology.getOntologyCount(sourceUri);
+                String pureSourceUri = Ontology.getPureOntologyURI(sourceUri);
+                arcItems.add(createArc(pureSourceUri, visualItemId,
+                        numberOfMappings));
             }
 
         }
@@ -109,5 +116,11 @@ public class OntologyMappingArcType implements ArcType {
     @Override
     public int getDefaultArcThickness() {
         return ARC_THICKNESS;
+    }
+
+    @Override
+    public int getArcThickness(Arc arc, Integer thicknessLevel) {
+        // Return number of concept mappings that are aggregated over
+        return (0 == thicknessLevel) ? arc.getSize() : thicknessLevel;
     }
 }

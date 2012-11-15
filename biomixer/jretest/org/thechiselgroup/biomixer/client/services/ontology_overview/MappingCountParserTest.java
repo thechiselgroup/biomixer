@@ -33,13 +33,13 @@ public class MappingCountParserTest {
 
         assertThat(ontologyMappingCounts.size(), equalTo(6));
 
-        List<String> counts = new ArrayList<String>();
+        List<Integer> counts = new ArrayList<Integer>();
 
         for (OntologyMappingCount mappingCount : ontologyMappingCounts) {
             counts.add(mappingCount.getCount());
         }
-        assertThat(counts, containsExactly(Arrays.asList("11", "100", "11",
-                "4828", "100", "10627")));
+        assertThat(counts,
+                containsExactly(Arrays.asList(11, 100, 11, 4828, 100, 10627)));
     }
 
     @Before

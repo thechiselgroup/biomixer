@@ -25,6 +25,21 @@ public class Arc {
 
     private String type;
 
+    /**
+     * This is a generic weight, and semantics depend on the arc semantics.
+     */
+    private double weight = 1.0;
+
+    /**
+     * The size of the arc is intended to mean the number of other arcs that are
+     * abstracted over by this arc. That is, if the arc represents a
+     * congregation of other relation information, then size is the number of
+     * relations aggregated over in that congregation. For example, ontology
+     * arcs would have a size corresponding to the number of concept mapping
+     * arcs between the two ontologies.
+     */
+    private int size = 1;
+
     private boolean directed;
 
     public Arc(String id, String sourceNodeId, String targetNodeId,
@@ -104,6 +119,35 @@ public class Arc {
         return type;
     }
 
+    /**
+     * Get this arc's weight.
+     * 
+     * @return
+     */
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    /**
+     * Get the number of lower level arcs that this arc aggregates over
+     * (representatively). For example, if the arc represents mappings between
+     * two ontologies, it might be actually aggregating conceptually over top of
+     * all the concept to concept mapping arcs.
+     * 
+     * @return
+     */
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -115,6 +159,7 @@ public class Arc {
         result = prime * result
                 + ((targetNodeId == null) ? 0 : targetNodeId.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
+        // Don't use weight or size in here, I don't think.
         return result;
     }
 
@@ -126,7 +171,8 @@ public class Arc {
     public String toString() {
         return "Arc [id=" + id + ", sourceNodeId=" + sourceNodeId
                 + ", targetNodeId=" + targetNodeId + ", type=" + type
-                + ", directed=" + directed + "]";
+                + ", directed=" + directed + ", weight=" + weight + ", size="
+                + size + "]";
     }
 
 }

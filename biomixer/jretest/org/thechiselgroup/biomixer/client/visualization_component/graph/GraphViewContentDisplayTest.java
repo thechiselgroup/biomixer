@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
@@ -545,7 +547,8 @@ public class GraphViewContentDisplayTest {
                 eq(ArcSettings.ARC_THICKNESS), eq("" + arcThickness));
 
         int newThickness = 4;
-        underTest.getArcItemContainer(arcTypeId).setArcThickness(newThickness);
+        underTest.getArcItemContainer(arcTypeId).setArcThicknessLevel(
+                newThickness);
 
         verify(graphDisplay, times(1)).setArcStyle(eq(arc),
                 eq(ArcSettings.ARC_THICKNESS), eq("" + newThickness));
@@ -559,7 +562,8 @@ public class GraphViewContentDisplayTest {
         LightweightList<VisualItem> visualItems = VisualItemTestUtils
                 .createVisualItems(1, 2);
         int newThickness = 4;
-        underTest.getArcItemContainer(arcTypeId).setArcThickness(newThickness);
+        underTest.getArcItemContainer(arcTypeId).setArcThicknessLevel(
+                newThickness);
 
         Arc arc = createArc("arcid", 1, 2);
         arcTypeReturnsArcs(eq(visualItems.get(0)), arc);
@@ -599,6 +603,20 @@ public class GraphViewContentDisplayTest {
         when(arcType.getDefaultArcColor()).thenReturn(arcColor.toHex());
         when(arcType.getDefaultArcStyle()).thenReturn(arcStyle);
         when(arcType.getDefaultArcThickness()).thenReturn(arcThickness);
+
+        final ArgumentCaptor<Integer> captor = ArgumentCaptor
+                .forClass(Integer.class);
+        // Mocks making me re-implement things for testing. This is not a good
+        // result of having tests.
+        Answer<Integer> answer = new Answer<Integer>() {
+            @Override
+            public Integer answer(InvocationOnMock invocation) throws Throwable {
+                return (0 == captor.getValue()) ? arcType
+                        .getDefaultArcThickness() : captor.getValue();
+            }
+        };
+        when(arcType.getArcThickness(any(Arc.class), captor.capture()))
+                .thenAnswer(answer);// thenReturn(captor.getValue());
 
         when(resourceCategorizer.getCategory(any(Resource.class))).thenReturn(
                 ResourceSetTestUtils.TYPE_1);

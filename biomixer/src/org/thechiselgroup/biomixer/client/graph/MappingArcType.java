@@ -101,4 +101,10 @@ public class MappingArcType implements ArcType {
     public int getDefaultArcThickness() {
         return ARC_THICKNESS;
     }
+
+    @Override
+    public int getArcThickness(Arc arc, Integer thicknessLevel) {
+        return (0 == thicknessLevel) ? this.getDefaultArcThickness()
+                : thicknessLevel;
+    }
 }

@@ -34,11 +34,11 @@ public class ArcItemContainer implements Persistable {
 
     private static final String MEMENTO_ARC_COLOR = "arcColor";
 
-    private static final String MEMENTO_ARC_STYLE = "arcStTyle";
+    private static final String MEMENTO_ARC_STYLE = "arcStyle";
 
     private static final String MEMENTO_VISIBLE = "visible";
 
-    private static final String MEMENTO_ARC_THICKNESS = "arcThickness";
+    private static final String MEMENTO_ARC_THICKNESS = "arcThicknessLevel";
 
     private final ArcType arcType;
 
@@ -51,7 +51,16 @@ public class ArcItemContainer implements Persistable {
 
     private String arcStyle;
 
-    private int arcThickness;
+    /**
+     * The override value for arc thickness. If it is equal to 0, then the
+     * ArcType default will be used, possibly resulting in different thicknesses
+     * per arc, if the ArcType defines those semantics. If it is any other
+     * number, then that value will be used for all arcs. It is best to think fo
+     * as a level the user has selected for arc thicknesses, rather than being a
+     * value of the thickness. This way it is comfortable to always look at the
+     * arc thickness as being managed by the arc type, ultimately.
+     */
+    private int arcThicknessLevel;
 
     private final VisualItemContainer context;
 
@@ -70,7 +79,8 @@ public class ArcItemContainer implements Persistable {
 
         arcStyle = arcType.getDefaultArcStyle();
         arcColor = arcType.getDefaultArcColor();
-        arcThickness = arcType.getDefaultArcThickness();
+        // Set so that we get the ArcType defaults right away
+        arcThicknessLevel = 0;
 
         visible = true;
     }
@@ -88,7 +98,7 @@ public class ArcItemContainer implements Persistable {
     }
 
     public int getArcThickness() {
-        return arcThickness;
+        return arcThicknessLevel;
     }
 
     public ArcType getArcType() {
@@ -117,7 +127,7 @@ public class ArcItemContainer implements Persistable {
         setVisible((Boolean) state.getValue(MEMENTO_VISIBLE));
         setArcColor((String) state.getValue(MEMENTO_ARC_COLOR));
         setArcStyle((String) state.getValue(MEMENTO_ARC_STYLE));
-        setArcThickness((Integer) state.getValue(MEMENTO_ARC_THICKNESS));
+        setArcThicknessLevel((Integer) state.getValue(MEMENTO_ARC_THICKNESS));
     }
 
     @Override
@@ -125,7 +135,7 @@ public class ArcItemContainer implements Persistable {
         Memento memento = new Memento();
 
         memento.setValue(MEMENTO_VISIBLE, visible);
-        memento.setValue(MEMENTO_ARC_THICKNESS, arcThickness);
+        memento.setValue(MEMENTO_ARC_THICKNESS, arcThicknessLevel);
         memento.setValue(MEMENTO_ARC_COLOR, arcColor);
         memento.setValue(MEMENTO_ARC_STYLE, arcStyle);
 
@@ -150,12 +160,23 @@ public class ArcItemContainer implements Persistable {
         }
     }
 
-    public void setArcThickness(int arcThickness) {
-        assert arcThickness > 0;
+    /**
+     * Passing a thickness of 0 or greater, where 0 indicates that the default
+     * arc thickness for the associated ArcType should be used. The default
+     * thickness might resolve to individual arc thicknesses rather than a
+     * single thickness for all arcs of that type.
+     * 
+     * @param arcThicknessLevel
+     */
+    public void setArcThicknessLevel(int arcThicknessLevel) {
+        assert arcThicknessLevel >= 0;
 
-        this.arcThickness = arcThickness;
+        this.arcThicknessLevel = arcThicknessLevel;
         for (ArcItem arcItem : getArcItems()) {
-            arcItem.setArcThickness(arcThickness);
+            // TODO Should this arc thickness stuff get pushed deeper, into
+            // ArcItem?
+            arcItem.setArcThickness(this.arcType.getArcThickness(
+                    arcItem.getArc(), this.arcThicknessLevel));
         }
     }
 
@@ -189,9 +210,9 @@ public class ArcItemContainer implements Persistable {
             if (!arcItemsById.containsKey(arc.getId())
                     && graphDisplay.containsNode(arc.getSourceNodeId())
                     && graphDisplay.containsNode(arc.getTargetNodeId())) {
-
                 ArcItem arcItem = new ArcItem(arc, arcColor, arcStyle,
-                        arcThickness, graphDisplay);
+                        arcType.getArcThickness(arc, this.arcThicknessLevel),
+                        graphDisplay);
                 arcItem.setVisible(visible);
 
                 arcItemsById.put(arc.getId(), arcItem);

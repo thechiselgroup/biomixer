@@ -148,6 +148,7 @@ public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
                                     .getSourceId());
                             Resource targetResource = itemIdMap.get(mapping
                                     .getTargetId());
+                            int mappingNumberOfConcepts = mapping.getCount();
 
                             if (null != sourceResource
                                     && null != targetResource) {
@@ -163,16 +164,17 @@ public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
                                 // updated here. But maybe that is not a
                                 // responsibility to be handled here?
                                 sourceOutgoing.add(Ontology
-                                        .toOntologyURI(Ontology
-                                                .getOntologyId(targetResource)));
+                                        .toOntologyURIWithCount(Ontology
+                                                .getOntologyId(targetResource),
+                                                mappingNumberOfConcepts));
                                 targetIncoming.add(Ontology
-                                        .toOntologyURI(Ontology
-                                                .getOntologyId(sourceResource)));
+                                        .toOntologyURIWithCount(Ontology
+                                                .getOntologyId(sourceResource),
+                                                mappingNumberOfConcepts));
 
                                 sourceResource.putValue(
                                         Ontology.OUTGOING_MAPPINGS,
                                         sourceOutgoing);
-
                                 targetResource.putValue(
                                         Ontology.INCOMING_MAPPINGS,
                                         targetIncoming);

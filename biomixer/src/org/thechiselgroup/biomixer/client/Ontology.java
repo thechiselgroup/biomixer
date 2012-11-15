@@ -45,12 +45,14 @@ public final class Ontology {
     // TODO Property that can be used to make link to ontology on bioportal
 
     /**
-     * URIs of mapping where this ontology is the source.
+     * URIs of mapping where this ontology is the source. Have the other
+     * ontology URI as well as the count in the URI value.
      */
     public static final String OUTGOING_MAPPINGS = "outgoingMappings";
 
     /**
-     * URIs of mapping where this ontology is the target.
+     * URIs of mapping where this ontology is the target. Have the other
+     * ontology URI as well as the count in the URI value.
      */
     public static String INCOMING_MAPPINGS = "incomingMappings";
 
@@ -72,9 +74,29 @@ public final class Ontology {
         return getOntologyId(resource.getUri());
     }
 
-    public static String getOntologyId(String ontologyURI) {
-        return ontologyURI.substring(RESOURCE_URI_PREFIX.length() + 1,
-                ontologyURI.indexOf('/'));
+    public static String getOntologyId(String ontologyArcURI) {
+        return ontologyArcURI.substring(RESOURCE_URI_PREFIX.length() + 1,
+                ontologyArcURI.indexOf('/'));
+    }
+
+    public static String getPureOntologyURI(String ontologyArcURI) {
+        // Only needed to add this because I needed to add the count to the URI
+        // of ontology mappings arcs. I do not like this.
+        return ontologyArcURI.substring(0, ontologyArcURI.indexOf('/') + 1);
+    }
+
+    public static int getOntologyCount(String ontologyArcURI) {
+        String count = ontologyArcURI
+                .substring(ontologyArcURI.indexOf('/') + 1);
+        if (null == count || count.isEmpty()) {
+            return 1;
+        } else {
+            try {
+                return Integer.parseInt(count);
+            } catch (Exception e) {
+                return 1;
+            }
+        }
     }
 
     public static boolean isOntology(Resource resource) {
@@ -83,6 +105,12 @@ public final class Ontology {
 
     public static String toOntologyURI(String ontologyId) {
         return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyId + "/";
+    }
+
+    public static String toOntologyURIWithCount(String ontologyId,
+            int relationCount) {
+        return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyId + "/"
+                + relationCount;
     }
 
     private Ontology() {

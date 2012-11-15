@@ -87,8 +87,7 @@ public class DirectConceptMappingArcType implements ArcType {
                     Resource mapping = resourceAccessor.getByUri(uri);
                     String targetResource = (String) mapping
                             .getValue(Mapping.TARGET);
-                    arcItems.add(createArc(visualItem.getId(),
-                            targetResource));
+                    arcItems.add(createArc(visualItem.getId(), targetResource));
                 }
             }
             for (String uri : resource
@@ -97,8 +96,7 @@ public class DirectConceptMappingArcType implements ArcType {
                     Resource mapping = resourceAccessor.getByUri(uri);
                     String sourceResource = (String) mapping
                             .getValue(Mapping.SOURCE);
-                    arcItems.add(createArc(sourceResource,
-                            visualItem.getId()));
+                    arcItems.add(createArc(sourceResource, visualItem.getId()));
                 }
             }
         }
@@ -124,5 +122,11 @@ public class DirectConceptMappingArcType implements ArcType {
     @Override
     public int getDefaultArcThickness() {
         return ARC_THICKNESS;
+    }
+
+    @Override
+    public int getArcThickness(Arc arc, Integer thicknessLevel) {
+        return (0 == thicknessLevel) ? this.getDefaultArcThickness()
+                : thicknessLevel;
     }
 }

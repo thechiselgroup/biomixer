@@ -5,15 +5,15 @@ public class OntologyMappingCount {
 
     private String targetId;
 
-    private String count;
+    private int count;
 
-    public OntologyMappingCount(String sourceId, String targetId, String count) {
+    public OntologyMappingCount(String sourceId, String targetId, int count) {
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.count = count;
     }
 
-    public String getCount() {
+    public int getCount() {
         return count;
     }
 

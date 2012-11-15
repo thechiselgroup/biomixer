@@ -47,7 +47,7 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
     private OntologyMappingCount analyzeItem(Object jsonItem) {
         String sourceOntologyId = "" + asInt(get(jsonItem, "sourceOntologyId"));
         String targetOntologyId = "" + asInt(get(jsonItem, "targetOntologyId"));
-        String mappingCount = "" + asInt(get(jsonItem, "mappingCount"));
+        int mappingCount = asInt(get(jsonItem, "mappingCount"));
 
         return new OntologyMappingCount(sourceOntologyId, targetOntologyId,
                 mappingCount);
