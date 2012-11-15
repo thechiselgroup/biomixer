@@ -242,6 +242,9 @@ public class SvgBoxedText implements IsSvg {
         boxElement.setAttribute(Svg.RX, cornerCurveWidth);
     }
 
+    /**
+     * Set default properties.
+     */
     private void setDefaultBoxValues(SvgElement boxElement) {
         boxElement.setAttribute(Svg.FILL, Colors.WHITE);
         boxElement.setAttribute(Svg.STROKE, Colors.BLACK);

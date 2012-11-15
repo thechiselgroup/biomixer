@@ -10,20 +10,29 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
+/**
+ * The modern rendering of a node as a circle with text outside of it.
+ * 
+ * @author elena
+ * 
+ */
 public class CircularRenderedNode extends AbstractSvgRenderedNode implements
         Identifiable {
 
+	// private final SvgRectangularExpansionTab expanderTab;
+	
     private final SvgCircleWithText boxedText;
 
     private final SvgElement baseContainer;
 
     public CircularRenderedNode(Node node, SvgElement baseContainer,
-            SvgCircleWithText boxedText2) {
+            SvgCircleWithText boxedText) {
         super(node);
         this.baseContainer = baseContainer;
-        baseContainer.appendChild(boxedText2.asSvgElement());
+        baseContainer.appendChild(boxedText.asSvgElement());
         // baseContainer.appendChild(expanderTab.asSvgElement());
-        this.boxedText = boxedText2;
+        this.boxedText = boxedText;
+        // this.expanderTab = expanderTab;
     }
 
     @Override
@@ -31,10 +40,9 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
         return baseContainer;
     }
 
-    // the following two methods are not used for ontology overview graph
     @Override
     public PointDouble getExpanderPopupLocation() {
-        // TODO Auto-generated method stub
+        // return getLocation().plus(expanderTab.getLocation());
         return null;
     }
 
@@ -43,20 +51,34 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
         return getNode().getId();
     }
 
-    @Override
-    public double getLeftX() {
-        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.X));
-    }
-
+//    @Override
+//    public double getLeftX() {
+//        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.X));
+//    }
+//
+//    @Override
+//    public double getTopY() {
+//        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
+//    }
+//    
+//    /**
+//     * 
+//     * @return the coordinates of the top left corner of the node, using the
+//     *         base svg element's coordinate system
+//     */
+//    public PointDouble getLocation() {
+//        return new PointDouble(Double.parseDouble(baseContainer
+//                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
+//                .getAttributeAsString(Svg.Y)));
+//    }
+    
     /**
      * 
      * @return the coordinates of the top left corner of the node, using the
      *         base svg element's coordinate system
      */
     public PointDouble getLocation() {
-        return new PointDouble(Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
-                .getAttributeAsString(Svg.Y)));
+        return new PointDouble(getLeftX(), getTopY());
     }
 
     @Override
@@ -65,10 +87,7 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
                 boxedText.getTotalHeight());
     }
 
-    @Override
-    public double getTopY() {
-        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
-    }
+
 
     @Override
     public void setBackgroundColor(String color) {
@@ -87,8 +106,8 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
 
     @Override
     public void setExpansionEventHandler(ChooselEventHandler handler) {
-        // TODO Auto-generated method stub
-
+        // expanderTab.setEventListener(handler);
+        // Do nothing, until we want expanders for circular nodes
     }
 
     @Override
@@ -107,6 +126,7 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
 
     @Override
     public void setPosition(double x, double y) {
+    	super.setPosition(x, y);
         baseContainer.setAttribute(Svg.X, x);
         baseContainer.setAttribute(Svg.Y, y);
         // TODO Is this call necessary? Try commenting it out.
