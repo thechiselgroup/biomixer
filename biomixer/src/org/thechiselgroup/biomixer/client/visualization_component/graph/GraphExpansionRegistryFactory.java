@@ -7,13 +7,16 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
 import org.thechiselgroup.biomixer.client.graph.AutomaticConceptExpander;
+import org.thechiselgroup.biomixer.client.graph.AutomaticOntologyExpander;
 import org.thechiselgroup.biomixer.client.graph.ConceptConceptNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.graph.ConceptConceptNeighbourhoodLoader;
 import org.thechiselgroup.biomixer.client.graph.ConceptMappingNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.graph.ConceptMappingNeighbourhoodLoader;
 import org.thechiselgroup.biomixer.client.graph.MappingExpander;
+import org.thechiselgroup.biomixer.client.graph.OntologyNodeMappingExpander;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 
@@ -36,6 +39,10 @@ public class GraphExpansionRegistryFactory {
     private OntologyMappingCountServiceAsync ontologyMappingService;
 
     @Inject
+    // Can't make this the interface despite binding...why not?
+    private OntologyMetricServiceAsyncClientImplementation ontologyMetricService;
+
+    @Inject
     private ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService;
 
     @Inject
@@ -46,8 +53,9 @@ public class GraphExpansionRegistryFactory {
 
         registry.putAutomaticExpander(Concept.RESOURCE_URI_PREFIX,
                 new AutomaticConceptExpander(
-                        new ConceptMappingNeighbourhoodLoader(conceptMappingService,
-                                resourceManager, errorHandler),
+                        new ConceptMappingNeighbourhoodLoader(
+                                conceptMappingService, resourceManager,
+                                errorHandler),
                         new ConceptConceptNeighbourhoodLoader(errorHandler,
                                 resourceManager, conceptNeighbourhoodService)));
 
@@ -63,10 +71,13 @@ public class GraphExpansionRegistryFactory {
         registry.putNodeMenuEntry(Mapping.RESOURCE_URI_PREFIX, "Concepts",
                 new MappingExpander(resourceManager));
 
-        registry.putAutomaticBulkExpander(
-                Ontology.RESOURCE_URI_PREFIX,
-                new org.thechiselgroup.biomixer.client.graph.OntologyNodeMappingExpander(
-                        ontologyMappingService, errorHandler));
+        registry.putAutomaticExpander(Ontology.RESOURCE_URI_PREFIX,
+                new AutomaticOntologyExpander(ontologyMetricService,
+                        errorHandler));
+
+        registry.putAutomaticBulkExpander(Ontology.RESOURCE_URI_PREFIX,
+                new OntologyNodeMappingExpander(ontologyMappingService,
+                        errorHandler));
 
         return registry;
     }

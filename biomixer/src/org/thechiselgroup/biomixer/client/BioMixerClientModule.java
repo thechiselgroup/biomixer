@@ -29,7 +29,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpStageRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
@@ -44,6 +44,8 @@ import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMap
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsyncImplementation;
 import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
@@ -85,8 +87,10 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
-        // bind(MappingServiceAsync.class).to(FakeMappingService.class).in(
-        // Singleton.class);
+        bind(OntologyMetricServiceAsync.class).to(
+                OntologyMetricServiceAsyncClientImplementation.class).in(
+                Singleton.class);
+
         bind(ConceptMappingServiceAsync.class).to(
                 ConceptMappingServiceImplementation.class).in(Singleton.class);
 
@@ -117,8 +121,8 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 OntologyMappingCountServiceAsyncImplementation.class).in(
                 Singleton.class);
 
-        bind(UrlBuilderFactory.class).to(NcboJsonpRestUrlBuilderFactory.class)
-                .in(Singleton.class);
+        bind(UrlBuilderFactory.class).to(
+                NcboJsonpStageRestUrlBuilderFactory.class).in(Singleton.class);
     }
 
     @Override

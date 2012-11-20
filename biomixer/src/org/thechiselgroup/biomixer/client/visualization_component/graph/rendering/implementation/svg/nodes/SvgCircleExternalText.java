@@ -19,7 +19,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
  * @author elena
  * 
  */
-public class SvgCircleWithText implements IsSvg {
+public class SvgCircleExternalText implements IsSvg {
     private static final double THRESHOLD_TEXT_LENGTH = 150.0;
 
     public static final String DEFAULT_FONT_FAMILY = "Arial, sans-serif";
@@ -30,7 +30,7 @@ public class SvgCircleWithText implements IsSvg {
 
     public static final String DEFAULT_FONT_WEIGHT = "normal";
 
-    public static final double TEXT_BUFFER_X = 12.0;
+    public static final double TEXT_BUFFER_X = 5.0;
 
     public static final double TEXT_BUFFER_Y = 5.0;
 
@@ -65,18 +65,15 @@ public class SvgCircleWithText implements IsSvg {
 
     private SvgElement container;
 
-    private double radius;
-
-    public SvgCircleWithText(String text,
+    public SvgCircleExternalText(String text,
             TextBoundsEstimator textBoundsEstimator,
-            SvgElementFactory svgElementFactory, double size) {
+            SvgElementFactory svgElementFactory, double radius) {
         container = svgElementFactory.createElement(Svg.SVG);
         container.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         this.textBoundsEstimator = textBoundsEstimator;
         this.svgElementFactory = svgElementFactory;
         this.text = text;
-        this.radius = size;
-        createCircleWithText();
+        createCircleWithText(radius);
     }
 
     @Override
@@ -84,22 +81,16 @@ public class SvgCircleWithText implements IsSvg {
         return container;
     }
 
-    private void centreTextElements() {
-        for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
-            double x = getCircleLeftX() + TEXT_BUFFER_X;
-            entry.getValue().setAttribute(Svg.X, x);
-        }
-    }
-
-    private void createCircleWithText() {
-        textElement = svgElementFactory.createElement(Svg.TEXT);
-        setTextContent();
-        setDefaultFontValues(textElement);
+    private void createCircleWithText(double radius) {
 
         circleElement = svgElementFactory.createElement(Svg.CIRCLE);
-        setDefaultCircleValues(circleElement);
+        initializeCircleElement(circleElement, radius);
 
-        setCircleWithText();
+        textElement = svgElementFactory.createElement(Svg.TEXT);
+        setTextContent();
+        initializeTextElementFontValues(textElement);
+
+        centreTextElements();
 
         container.appendChild(circleElement);
         container.appendChild(textElement);
@@ -127,17 +118,21 @@ public class SvgCircleWithText implements IsSvg {
     }
 
     private double getCircleHeight() {
-        // return Double.parseDouble(circleElement.getAttributeAsString(Svg.R)) * 2;
-    	return radius;
-    }
-
-    private double getCircleLeftX() {
-         return Double.parseDouble(circleElement.getAttributeAsString(Svg.CX));
+        return Double.parseDouble(circleElement.getAttributeAsString(Svg.R)) * 2;
     }
 
     private double getCircleWidth() {
-        // return Double.parseDouble(circleElement.getAttributeAsString(Svg.R)) * 2;
-    	return radius;
+        return Double.parseDouble(circleElement.getAttributeAsString(Svg.R)) * 2;
+    }
+
+    private double getCircleLeftX() {
+        return Double.parseDouble(circleElement.getAttributeAsString(Svg.CX))
+                - getCircleWidth();
+    }
+
+    private double getCircleTopY() {
+        return Double.parseDouble(circleElement.getAttributeAsString(Svg.CY))
+                - getCircleWidth();
     }
 
     private SizeInt getTextSize(String text) {
@@ -179,45 +174,60 @@ public class SvgCircleWithText implements IsSvg {
         circleElement.setAttribute(Svg.STROKE, color);
     }
 
-    private void setCircleWithText() {
-        setCircleRadius(Math.sqrt(radius * 100));
+    private void centreTextElements() {
         if (numberOfLines == 1) {
-            textElement.setAttribute(Svg.X, getCircleLeftX() + TEXT_BUFFER_X);
+            setTextElementXPosition(textElement);
         } else {
-            centreTextElements();
+            for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
+                setTextElementXPosition(entry.getValue());
+            }
         }
+    }
 
+    private void setTextElementXPosition(SvgElement textElement) {
+        textElement.setAttribute(Svg.X, getCircleLeftX() + 1.5
+                * getCircleWidth() + TEXT_BUFFER_X);
         /*
          * the y-position of the text refers to the bottom of the FIRST LINE of
          * text
          */
         textElement.setAttribute(Svg.Y, TEXT_BUFFER_Y);
     }
-    
+
     public void setCircleRadius(double radius) {
-    	if (radius == this.radius) {
-            return;
-        }
-
-        this.radius = radius;
         circleElement.setAttribute(Svg.R, radius);
+        centreTextElements();
     }
 
-    public void setCircleX(double x) {
-        circleElement.setAttribute(Svg.CX, x);
-    }
-    
+    // public void setCircleX(double x) {
+    // circleElement.setAttribute(Svg.CX, x - radius);
+    // }
+    //
+    // public void setCircleY(double y) {
+    // circleElement.setAttribute(Svg.CY, y - radius);
+    // }
+    //
+    // public void setY(double x) {
+    // container.setAttribute(Svg.X, x);
+    // }
+    // public void setY(double y) {
+    // container.setAttribute(Svg.Y, y);
+    // }
+
     /**
      * Set default properties.
+     * 
+     * @param radius
      */
-    private void setDefaultCircleValues(SvgElement circleElement) {
+    private void initializeCircleElement(SvgElement circleElement, double radius) {
         circleElement.setAttribute(Svg.FILL, Colors.WHITE);
         circleElement.setAttribute(Svg.STROKE, Colors.BLACK);
         circleElement.setAttribute(Svg.CX, 0.0);
         circleElement.setAttribute(Svg.CY, 0.0);
+        circleElement.setAttribute(Svg.R, radius);
     }
 
-    private void setDefaultFontValues(SvgElement textElement) {
+    private void initializeTextElementFontValues(SvgElement textElement) {
         textElement.setAttribute(Svg.FONT_FAMILY, DEFAULT_FONT_FAMILY);
         textElement.setAttribute(Svg.FONT_SIZE, DEFAULT_FONT_SIZE_PIXELS);
     }
@@ -231,13 +241,20 @@ public class SvgCircleWithText implements IsSvg {
     }
 
     public void setFontWeight(String fontWeight) {
-    	double oldWidth = getWidthOfLongestTextLine();
+        double oldWidth = getWidthOfLongestTextLine();
         this.fontWeight = fontWeight;
         textElement.setAttribute(Svg.FONT_WEIGHT, fontWeight);
         double newWidth = getWidthOfLongestTextLine();
         // Circle doesn't need resizing around text, so no need for this.
         // updateCircleWidthAndPositionAroundText(newWidth - oldWidth);
     }
+    
+    // Circle doesn't need resizing around text, so no need for this.
+    // private void updateCircleWidthAndPositionAroundText(double deltaWidth) {
+    // setCircleX(getCircleLeftX() - (deltaWidth / 2));
+    // setCircleWithText();
+    // centreTextElements();
+    // }
 
     private void setTextContent() {
         SizeInt textSize = getTextSize(text);
@@ -283,14 +300,4 @@ public class SvgCircleWithText implements IsSvg {
         }
     }
 
-    public void setY(double y) {
-        container.setAttribute(Svg.Y, y);
-    }
-    
-    // Circle doesn't need resizing around text, so no need for this.
-//    private void updateCircleWidthAndPositionAroundText(double deltaWidth) {
-//        setCircleX(getCircleLeftX() - (deltaWidth / 2));
-//        setCircleWithText();
-//        centreTextElements();
-//    }
 }

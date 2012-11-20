@@ -51,7 +51,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
@@ -68,17 +68,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * @author everbeek
  * 
  */
-public class OntologyNodeMappingExpanderTest {
+public class OntologyNodeMetricsExpanderTest {
 
     @Mock
     private VisualItem visualItem;
 
     private ResourceSet visualItemResources;
 
-    private OntologyNodeMappingExpander underTest;
+    private AutomaticOntologyExpander underTest;
 
     @Mock
-    private OntologyMappingCountServiceAsync mappingService;
+    private OntologyMetricServiceAsync mappingService;
 
     @Mock
     private ResourceManager resourceManager;
@@ -267,14 +267,11 @@ public class OntologyNodeMappingExpanderTest {
     @SuppressWarnings("unchecked")
     public void correctIdsPassedIntoMappingService() {
         visualItemResources.add(ontology);
-        LightweightList<VisualItem> ontologyList = LightweightCollections
-                .toList(visualItem);
-        underTest.expand(ontologyList, expansionCallback);
 
-        LightweightList<String> ontologyIdList = LightweightCollections
-                .toList(Ontology.getOntologyId(ontology.getUri()));
+        underTest.expand(visualItem, expansionCallback);
 
-        verify(mappingService, times(1)).getMappingCounts(eq(ontologyIdList),
+        verify(mappingService, times(1)).getMetrics(
+                eq(Ontology.getOntologyId(ontology.getUri())),
                 any(AsyncCallback.class));
     }
 
@@ -324,9 +321,7 @@ public class OntologyNodeMappingExpanderTest {
         // doNothing().when(mappingService).getMappings(eq(ontologyIdList),
         // captor.capture());
 
-        LightweightList<VisualItem> ontologyList = LightweightCollections
-                .toList(visualItem);
-        underTest.expand(ontologyList, expansionCallback);
+        underTest.expand(visualItem, expansionCallback);
 
         AsyncCallback<ResourceNeighbourhood> callback = captor.getValue();
 
@@ -371,9 +366,7 @@ public class OntologyNodeMappingExpanderTest {
         stubResourceManagerResolveResources(Ontology.OUTGOING_MAPPINGS,
                 outgoingMapping);
 
-        LightweightList<VisualItem> ontologyList = LightweightCollections
-                .toList(visualItem);
-        underTest.expand(ontologyList, expansionCallback);
+        underTest.expand(visualItem, expansionCallback);
 
         // verify(termService, times(1)).getBasicInformation(
         // eq(Ontology.getOntologyId(sourceResource.getUri())),
@@ -398,9 +391,7 @@ public class OntologyNodeMappingExpanderTest {
         stubResourceManagerResolveResources(Ontology.OUTGOING_MAPPINGS,
                 outgoingMapping);
 
-        LightweightList<VisualItem> ontologyList = LightweightCollections
-                .toList(visualItem);
-        underTest.expand(ontologyList, expansionCallback);
+        underTest.expand(visualItem, expansionCallback);
 
         // verify(termService, times(1)).getBasicInformation(
         // eq(Ontology.getOntologyId(targetResource.getUri())),
@@ -439,8 +430,7 @@ public class OntologyNodeMappingExpanderTest {
             }
         };
 
-        underTest = new OntologyNodeMappingExpander(mappingService,
-                errorHandler);
+        underTest = new AutomaticOntologyExpander(mappingService, errorHandler);
 
         ontology = Ontology.createOntologyResource("ontologyId");
 

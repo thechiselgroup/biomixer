@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.core.util.url;
 
 /**
  * This class serves as a utility to generate URLs for various types of
- * BioPortla Web URLs. This is not related to the BioPortal REST services.
+ * BioPortal Web URLs. This is not related to the BioPortal REST services.
  * 
  * @author everbeek
  * 

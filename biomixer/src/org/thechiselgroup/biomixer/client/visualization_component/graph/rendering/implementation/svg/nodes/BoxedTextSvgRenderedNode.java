@@ -31,7 +31,7 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author drusk
  * 
  */
-public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
+public class BoxedTextSvgRenderedNode extends AbstractSvgRenderedNode implements
         Identifiable {
 
     private final SvgRectangularExpansionTab expanderTab;
@@ -40,7 +40,7 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
 
     private final SvgElement baseContainer;
 
-    public BoxedTextRenderedSvgNode(Node node, SvgElement baseContainer,
+    public BoxedTextSvgRenderedNode(Node node, SvgElement baseContainer,
             SvgBoxedText boxedText, SvgRectangularExpansionTab expanderTab) {
         super(node);
         this.baseContainer = baseContainer;
@@ -65,6 +65,11 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
         return getNode().getId();
     }
 
+    @Override
+    public PointDouble getNodeShapeCentre() {
+        return getRenderedNodeCentre();
+    }
+
     /**
      * 
      * @return the coordinates of the top left corner of the node, using the
@@ -78,6 +83,12 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
     public SizeDouble getSize() {
         return new DefaultSizeDouble(boxedText.getTotalWidth(),
                 boxedText.getTotalHeight());
+    }
+
+    @Override
+    public void setSize(SizeDouble size) {
+        boxedText.setBoxWidth(size.getWidth());
+        boxedText.setBoxHeight(size.getHeight());
     }
 
     @Override
@@ -121,7 +132,6 @@ public class BoxedTextRenderedSvgNode extends AbstractSvgRenderedNode implements
         super.setPosition(x, y);
         baseContainer.setAttribute(Svg.X, x);
         baseContainer.setAttribute(Svg.Y, y);
-        // TODO Is this call necessary? Try commenting it out.
         updateConnectedArcs();
     }
 

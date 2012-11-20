@@ -37,7 +37,21 @@ public interface RenderedNode {
      */
     void addConnectedArc(RenderedArc arc);
 
-    PointDouble getCentre();
+    /**
+     * Returns the center of the node shape, excluding the label if it is not
+     * contained within the node.
+     * 
+     * @return
+     */
+    PointDouble getNodeShapeCentre();
+
+    /**
+     * Returns the center of the total rendered node, including the label if it
+     * is not contained within the node.
+     * 
+     * @return
+     */
+    PointDouble getRenderedNodeCentre();
 
     /**
      * 
@@ -57,6 +71,8 @@ public interface RenderedNode {
     Node getNode();
 
     SizeDouble getSize();
+
+    void setSize(SizeDouble size);
 
     PointDouble getTopLeft();
 

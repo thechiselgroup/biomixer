@@ -32,6 +32,8 @@ public interface GraphDisplay extends IsWidget {
 
     String DEFAULT_LAYOUT = GraphLayouts.FORCE_DIRECTED_LAYOUT;
 
+    String NODE_SIZE = "normalSize";
+
     String NODE_BACKGROUND_COLOR = "normalBackgroundColor";
 
     String NODE_BORDER_COLOR = "normalBorderColor";

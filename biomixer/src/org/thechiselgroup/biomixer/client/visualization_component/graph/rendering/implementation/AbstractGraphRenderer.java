@@ -23,6 +23,7 @@ import java.util.Set;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.SquareSizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.GraphRenderer;
@@ -241,6 +242,11 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
         else if (styleProperty.equals(GraphDisplay.NODE_BORDER_COLOR)) {
             renderedNode.setBorderColor(styleValue);
+        }
+
+        else if (styleProperty.equals(GraphDisplay.NODE_SIZE)) {
+            renderedNode.setSize(new SquareSizeDouble(Double
+                    .parseDouble(styleValue)));
         }
     }
 

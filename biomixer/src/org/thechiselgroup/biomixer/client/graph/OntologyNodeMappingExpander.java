@@ -34,8 +34,6 @@ import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeBulkExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 /**
  * Frame for expanding data on a collection of {@link VisualItem}s with a single
  * {@link Resource}. This is useful when we have REST calls that support passing
@@ -68,9 +66,13 @@ public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
                 + additionalMessage;
     }
 
-    protected void loadExpandedData(
-            LightweightCollection<VisualItem> visualItems,
-            AsyncCallback<TotalMappingCount> callback) {
+    @Override
+    public final void expand(
+            final LightweightCollection<VisualItem> visualItems,
+            final GraphNodeExpansionCallback expansionCallback) {
+
+        assert visualItems != null && visualItems.size() > 0;
+        assert expansionCallback != null;
 
         LightweightList<String> ontologyIds = LightweightCollections
                 .<String> toList();
@@ -81,41 +83,7 @@ public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
                     .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
         }
 
-        mappingService.getMappingCounts(ontologyIds, callback);
-    }
-
-    @Override
-    public final void expand(LightweightCollection<VisualItem> visualItems,
-            GraphNodeExpansionCallback expansionCallback) {
-
-        assert visualItems != null && visualItems.size() > 0;
-        assert expansionCallback != null;
-
-        loadExpandedData(visualItems, expansionCallback);
-    }
-
-    protected String getOntologyInfoForErrorMessage(Resource resource) {
-        String ontologyName = (String) resource
-                .getValue(Concept.CONCEPT_ONTOLOGY_NAME);
-        if (ontologyName != null) {
-            return "(" + ontologyName + ")";
-        } else {
-            String virtualOntologyId = (String) resource
-                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
-            return "(virtual ontology id: " + virtualOntologyId + ")";
-        }
-    }
-
-    protected final Resource getSingleResource(VisualItem visualItem) {
-        assert visualItem.getResources().size() == 1;
-        return visualItem.getResources().getFirstElement();
-    }
-
-    private void loadExpandedData(
-            final LightweightCollection<VisualItem> visualItems,
-            final GraphNodeExpansionCallback expansionCallback) {
-
-        loadExpandedData(visualItems,
+        mappingService.getMappingCounts(ontologyIds,
                 new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
                         errorHandler) {
 
@@ -187,11 +155,21 @@ public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
                 });
     }
 
-    public void expand(VisualItem visualItem,
-            GraphNodeExpansionCallback expansionCallback) {
-        // TODO Auto-generated method stub
-        // Stubbed until we find out if we need it for anything...referred to in
-        // unit tests.
+    protected String getOntologyInfoForErrorMessage(Resource resource) {
+        String ontologyName = (String) resource
+                .getValue(Concept.CONCEPT_ONTOLOGY_NAME);
+        if (ontologyName != null) {
+            return "(" + ontologyName + ")";
+        } else {
+            String virtualOntologyId = (String) resource
+                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+            return "(virtual ontology id: " + virtualOntologyId + ")";
+        }
+    }
+
+    protected final Resource getSingleResource(VisualItem visualItem) {
+        assert visualItem.getResources().size() == 1;
+        return visualItem.getResources().getFirstElement();
     }
 
 }

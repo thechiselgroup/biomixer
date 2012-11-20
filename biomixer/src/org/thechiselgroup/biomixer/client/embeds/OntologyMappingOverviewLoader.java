@@ -15,6 +15,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCount;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutSupport;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
@@ -113,7 +114,8 @@ public class OntologyMappingOverviewLoader implements OntologyEmbedLoader {
                 // ids I get from the count?
                 Resource first = resourceSet.getByUri(count.getSourceId());
                 Resource second = resourceSet.getByUri(count.getTargetId());
-                // TODO wire this up with the system in place from the full version.
+                // TODO wire this up with the system in place from the full
+                // version.
             }
 
             // targetResource.applyPartialProperties(targetNeighbourhood
@@ -136,6 +138,10 @@ public class OntologyMappingOverviewLoader implements OntologyEmbedLoader {
 
     @Inject
     private OntologyMappingCountServiceAsync ontologyMappingService;
+
+    @Inject
+    // Can't make this the interface despite binding...why not?
+    private OntologyMetricServiceAsyncClientImplementation ontologyMetricsService;
 
     // See PathToRootEmbed for how to refactor this if we have multiple
     // embed types
@@ -268,6 +274,7 @@ public class OntologyMappingOverviewLoader implements OntologyEmbedLoader {
         ontologyMappingService.getMappingCounts(virtualOntologyIds,
                 new OntologyMappingOverviewCallback(errorHandler,
                         virtualOntologies, virtualOntologyIds, graphView));
+        // TODO Add the use of the ontologyMetricsService here too
     };
 
 }

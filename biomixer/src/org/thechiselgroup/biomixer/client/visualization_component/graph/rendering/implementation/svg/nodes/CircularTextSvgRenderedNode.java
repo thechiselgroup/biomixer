@@ -16,22 +16,22 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
  * @author elena
  * 
  */
-public class CircularRenderedNode extends AbstractSvgRenderedNode implements
-        Identifiable {
+public class CircularTextSvgRenderedNode extends AbstractSvgRenderedNode
+        implements Identifiable {
 
-	// private final SvgRectangularExpansionTab expanderTab;
-	
-    private final SvgCircleWithText boxedText;
+    // private final SvgRectangularExpansionTab expanderTab;
+
+    private final SvgCircleExternalText circleAndText;
 
     private final SvgElement baseContainer;
 
-    public CircularRenderedNode(Node node, SvgElement baseContainer,
-            SvgCircleWithText boxedText) {
+    public CircularTextSvgRenderedNode(Node node, SvgElement baseContainer,
+            SvgCircleExternalText circleAndText) {
         super(node);
         this.baseContainer = baseContainer;
-        baseContainer.appendChild(boxedText.asSvgElement());
+        baseContainer.appendChild(circleAndText.asSvgElement());
         // baseContainer.appendChild(expanderTab.asSvgElement());
-        this.boxedText = boxedText;
+        this.circleAndText = circleAndText;
         // this.expanderTab = expanderTab;
     }
 
@@ -51,27 +51,39 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
         return getNode().getId();
     }
 
-//    @Override
-//    public double getLeftX() {
-//        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.X));
-//    }
-//
-//    @Override
-//    public double getTopY() {
-//        return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
-//    }
-//    
-//    /**
-//     * 
-//     * @return the coordinates of the top left corner of the node, using the
-//     *         base svg element's coordinate system
-//     */
-//    public PointDouble getLocation() {
-//        return new PointDouble(Double.parseDouble(baseContainer
-//                .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
-//                .getAttributeAsString(Svg.Y)));
-//    }
-    
+    @Override
+    public PointDouble getNodeShapeCentre() {
+        // Works without width adjustments...container must put circle on its
+        // top left corner. I know that the circle gets coordinates of (0,0)
+        // internally, so that makes sense.
+        return new PointDouble(getLeftX()
+        // - circleAndText.getTotalWidth() / 2
+                , getTopY()
+        // - circleAndText.getTotalHeight() / 2
+        );
+    }
+
+    // @Override
+    // public double getLeftX() {
+    // return Double.parseDouble(baseContainer.getAttributeAsString(Svg.X));
+    // }
+    //
+    // @Override
+    // public double getTopY() {
+    // return Double.parseDouble(baseContainer.getAttributeAsString(Svg.Y));
+    // }
+    //
+    // /**
+    // *
+    // * @return the coordinates of the top left corner of the node, using the
+    // * base svg element's coordinate system
+    // */
+    // public PointDouble getLocation() {
+    // return new PointDouble(Double.parseDouble(baseContainer
+    // .getAttributeAsString(Svg.X)), Double.parseDouble(baseContainer
+    // .getAttributeAsString(Svg.Y)));
+    // }
+
     /**
      * 
      * @return the coordinates of the top left corner of the node, using the
@@ -83,25 +95,28 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
 
     @Override
     public SizeDouble getSize() {
-        return new DefaultSizeDouble(boxedText.getTotalWidth(),
-                boxedText.getTotalHeight());
+        return new DefaultSizeDouble(circleAndText.getTotalWidth(),
+                circleAndText.getTotalHeight());
     }
 
-
+    @Override
+    public void setSize(SizeDouble size) {
+        circleAndText.setCircleRadius(size.getWidth() / 2);
+    }
 
     @Override
     public void setBackgroundColor(String color) {
-        boxedText.setBackgroundColor(color);
+        circleAndText.setBackgroundColor(color);
     }
 
     @Override
     public void setBodyEventHandler(ChooselEventHandler handler) {
-        boxedText.setEventListener(handler);
+        circleAndText.setEventListener(handler);
     }
 
     @Override
     public void setBorderColor(String color) {
-        boxedText.setBorderColor(color);
+        circleAndText.setBorderColor(color);
     }
 
     @Override
@@ -112,24 +127,23 @@ public class CircularRenderedNode extends AbstractSvgRenderedNode implements
 
     @Override
     public void setFontColor(String color) {
-        boxedText.setFontColor(color);
+        circleAndText.setFontColor(color);
     }
 
     @Override
     public void setFontWeight(String styleValue) {
         if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_NORMAL)) {
-            boxedText.setFontWeight(Svg.NORMAL);
+            circleAndText.setFontWeight(Svg.NORMAL);
         } else if (styleValue.equals(GraphDisplay.NODE_FONT_WEIGHT_BOLD)) {
-            boxedText.setFontWeight(Svg.BOLD);
+            circleAndText.setFontWeight(Svg.BOLD);
         }
     }
 
     @Override
     public void setPosition(double x, double y) {
-    	super.setPosition(x, y);
+        super.setPosition(x, y);
         baseContainer.setAttribute(Svg.X, x);
         baseContainer.setAttribute(Svg.Y, y);
-        // TODO Is this call necessary? Try commenting it out.
         updateConnectedArcs();
     }
 }

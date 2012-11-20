@@ -105,8 +105,8 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     @Override
     public void update() {
-        PointDouble sourceCentre = source.getCentre(); // cache
-        PointDouble targetCentre = target.getCentre(); // cache
+        PointDouble sourceCentre = source.getNodeShapeCentre(); // cache
+        PointDouble targetCentre = target.getNodeShapeCentre(); // cache
 
         SvgUtils.setX1Y1(arcLine, sourceCentre);
         SvgUtils.setX2Y2(arcLine, targetCentre);

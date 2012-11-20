@@ -56,9 +56,9 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemCon
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.TestViewContentDisplayCallback;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemTestUtils;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandler;
@@ -83,7 +83,7 @@ public class GraphViewContentDisplayTest {
     private Graph underTest;
 
     @Mock
-    private GraphDisplay graphDisplay;
+    private GraphDisplayController graphDisplay;
 
     @Mock
     private Node node;

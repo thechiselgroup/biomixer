@@ -10,7 +10,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularNodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.CircularTextSvgNodeRenderer;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 public class GraphRendererOntologyOverviewFactory implements
@@ -35,7 +35,7 @@ public class GraphRendererOntologyOverviewFactory implements
 
     @Override
     public NodeRenderer getNodeRenderer(SvgElementFactory svgElementFactory) {
-        return new CircularNodeRenderer(svgElementFactory,
+        return new CircularTextSvgNodeRenderer(svgElementFactory,
                 getTextBoundsEstimator(svgElementFactory));
     }
 

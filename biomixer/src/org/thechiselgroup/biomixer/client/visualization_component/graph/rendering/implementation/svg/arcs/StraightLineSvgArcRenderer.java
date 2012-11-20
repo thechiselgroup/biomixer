@@ -45,8 +45,8 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
         SvgElement container = svgElementFactory.createElement(Svg.G);
         container.setAttribute(Svg.ID, arc.getId());
 
-        PointDouble sourceNodeLocation = source.getCentre();
-        PointDouble targetNodeLocation = target.getCentre();
+        PointDouble sourceNodeLocation = source.getNodeShapeCentre();
+        PointDouble targetNodeLocation = target.getNodeShapeCentre();
 
         SvgElement arcLine = svgElementFactory.createElement(Svg.LINE);
         arcLine.setAttribute(Svg.X1, sourceNodeLocation.getX());
@@ -63,8 +63,11 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
             container.appendChild(arrowHead.asSvgElement());
         }
 
-        return new StraightLineRenderedSvgArc(arc, container, arcLine,
-                arrowHead, source, target);
+        StraightLineRenderedSvgArc renderedArc = new StraightLineRenderedSvgArc(
+                arc, container, arcLine, arrowHead, source, target);
+        // Ensures consistent setting of endpoints, since this is used later.
+        renderedArc.update();
+        return renderedArc;
     }
 
 }

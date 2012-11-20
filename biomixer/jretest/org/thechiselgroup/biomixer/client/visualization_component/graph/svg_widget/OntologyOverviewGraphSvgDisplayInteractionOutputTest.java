@@ -134,6 +134,9 @@ public class OntologyOverviewGraphSvgDisplayInteractionOutputTest extends
     public void mouseDownMouseMoveTwiceCausesNodeToMoveToFinalDestination()
             throws Exception {
         Node node = addNode(N1, LABEL1, TYPE1);
+        // TODO This test isn't as thorough as it could be. It doesn't assert
+        // before and after the move. Currently does not pass either. Check all
+        // the node moving tests in both graph display test classes.
         mouseDownOnNode(node, 5, 5);
         moveMouse(20, 20);
         moveMouse(10, 10);

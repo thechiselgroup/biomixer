@@ -65,7 +65,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
@@ -97,8 +96,7 @@ import com.google.inject.Inject;
 public class Graph extends AbstractViewContentDisplay implements
         RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
 
-    public static class DefaultDisplay extends GraphDisplayController implements
-            GraphDisplay {
+    public static class DefaultDisplay extends GraphDisplayController {
 
         static final int defaultHeight = 400;
 
@@ -120,8 +118,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     }
 
-    public static class OntologyGraphDisplay extends GraphDisplayController
-            implements GraphDisplay {
+    public static class OntologyGraphDisplay extends GraphDisplayController {
 
         static final int defaultHeight = 400;
 
@@ -263,7 +260,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     // advanced node class: (incoming, outgoing, expanded: state machine)
 
-    private final GraphDisplay graphDisplay;
+    private final GraphDisplayController graphDisplay;
 
     private final GraphExpansionRegistry registry;
 
@@ -303,7 +300,7 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         @Override
-        public GraphDisplay getDisplay() {
+        public GraphDisplayController getDisplay() {
             return Graph.this.getDisplay();
         }
 
@@ -348,7 +345,7 @@ public class Graph extends AbstractViewContentDisplay implements
     private ErrorHandler errorHandler;
 
     @Inject
-    public Graph(GraphDisplay display, CommandManager commandManager,
+    public Graph(GraphDisplayController display, CommandManager commandManager,
             ResourceManager resourceManager,
             ResourceCategorizer resourceCategorizer,
             ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry,
@@ -367,7 +364,7 @@ public class Graph extends AbstractViewContentDisplay implements
         graphDisplay = display;
         // didn't want to change GraphDisplay's interface yet
         if (graphDisplay instanceof GraphDisplayController) {
-            addResizeListener((GraphDisplayController) graphDisplay);
+            addResizeListener(graphDisplay);
         }
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
@@ -509,7 +506,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return resourceCategorizer.getCategory(resource);
     }
 
-    private GraphDisplay getDisplay() {
+    private GraphDisplayController getDisplay() {
         return graphDisplay;
     }
 

@@ -47,8 +47,14 @@ public abstract class AbstractRenderedNode implements RenderedNode {
         connectedArcs.add(arc);
     }
 
+    /**
+     * Returns the center of the total rendered node, including the label if it
+     * is nto contained within the node.
+     * 
+     * @return
+     */
     @Override
-    public PointDouble getCentre() {
+    public PointDouble getRenderedNodeCentre() {
         SizeDouble size = getSize(); // cache
 
         return new PointDouble(getLeftX() + size.getWidth() / 2, getTopY()
