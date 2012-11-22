@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
@@ -40,9 +41,6 @@ import com.google.gwt.user.client.ui.Widget;
 // XXX memento not implemented
 // XXX order does not update when description property changes
 public class TextVisualization extends AbstractViewContentDisplay {
-
-    // TODO move back into factory
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.Text";
 
     public final static Slot LABEL_SLOT = new Slot("label", "Label",
             DataType.TEXT);
@@ -70,12 +68,14 @@ public class TextVisualization extends AbstractViewContentDisplay {
         }
     };
 
-    public TextVisualization() {
-        this(new DefaultTextItemContainer());
+    public TextVisualization(DataTypeValidator dataTypeValidator) {
+        this(new DefaultTextItemContainer(), dataTypeValidator);
     }
 
     // for test: can change container
-    protected TextVisualization(TextItemContainer textItemContainer) {
+    protected TextVisualization(TextItemContainer textItemContainer,
+            DataTypeValidator dataValidator) {
+        super(dataValidator);
         assert textItemContainer != null;
 
         this.textItemContainer = textItemContainer;

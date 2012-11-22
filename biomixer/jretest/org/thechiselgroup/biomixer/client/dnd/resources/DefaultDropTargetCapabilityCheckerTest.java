@@ -16,21 +16,34 @@
 package org.thechiselgroup.biomixer.client.dnd.resources;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetUtils;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
 
 public class DefaultDropTargetCapabilityCheckerTest {
 
     private DefaultDropTargetCapabilityChecker underTest;
+
+    @Mock
+    VisualizationModel model;
+
+    @Mock
+    ViewContentDisplay viewContentDisplay;
 
     @Test
     public void dropNotPossibleIfRequiredDatePropertyNotAvailable() {
@@ -41,7 +54,7 @@ public class DefaultDropTargetCapabilityCheckerTest {
 
         Slot[] slots = new Slot[] { new Slot("1", "slot1", DataType.DATE) };
 
-        assertEquals(false, underTest.isValidDrop(slots, resourceSet));
+        assertEquals(false, underTest.isValidDrop(slots, resourceSet, model));
     }
 
     @Test
@@ -53,7 +66,7 @@ public class DefaultDropTargetCapabilityCheckerTest {
 
         Slot[] slots = new Slot[] { new Slot("1", "slot1", DataType.DATE) };
 
-        assertEquals(true, underTest.isValidDrop(slots, resourceSet));
+        assertEquals(true, underTest.isValidDrop(slots, resourceSet, model));
     }
 
     @Test
@@ -70,12 +83,16 @@ public class DefaultDropTargetCapabilityCheckerTest {
 
         Slot[] slots = new Slot[] { new Slot("1", "slot1", DataType.LOCATION) };
 
-        assertEquals(true, underTest.isValidDrop(slots, resourceSet));
+        assertEquals(true, underTest.isValidDrop(slots, resourceSet, model));
     }
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
+
+        doReturn(viewContentDisplay).when(model).getViewContentDisplay();
+        when(viewContentDisplay.validateDataTypes(any(ResourceSet.class)))
+                .thenReturn(true);
         underTest = new DefaultDropTargetCapabilityChecker();
     }
-
 }

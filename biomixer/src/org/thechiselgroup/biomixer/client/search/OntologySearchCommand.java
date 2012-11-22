@@ -18,13 +18,14 @@ package org.thechiselgroup.biomixer.client.search;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.dnd.windows.Desktop;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.visualization_component.text.OntologyListViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.workbench.ui.SearchCommand;
 
 import com.google.inject.Inject;
 
 public class OntologySearchCommand extends SearchCommand {
 
-    public static final String NCBO_ONTOLOGY_SEARCH = "ncbo-search-ontologies";
+    public static final String NCBO_ONTOLOGY_SEARCH = OntologyListViewContentDisplayFactory.ID; // "ncbo-search-ontologies";
 
     @Inject
     public OntologySearchCommand(CommandManager commandManager,

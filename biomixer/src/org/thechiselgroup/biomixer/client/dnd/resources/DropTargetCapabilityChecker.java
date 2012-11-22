@@ -17,10 +17,21 @@ package org.thechiselgroup.biomixer.client.dnd.resources;
 
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
 
 //TODO possible class name change
 public interface DropTargetCapabilityChecker {
 
-    boolean isValidDrop(Slot[] slots, ResourceSet resourceSet);
+    /**
+     * Check to see if resource set being dropped is appropriate for the
+     * {@link Slot}s available, and for the {@link VisualizationModel}.
+     * 
+     * @param slots
+     * @param resourceSet
+     * @param model
+     * @return
+     */
+    boolean isValidDrop(Slot[] slots, ResourceSet resourceSet,
+            VisualizationModel model);
 
 }

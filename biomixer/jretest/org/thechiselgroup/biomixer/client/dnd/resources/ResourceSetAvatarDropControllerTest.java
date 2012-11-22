@@ -170,7 +170,8 @@ public class ResourceSetAvatarDropControllerTest {
         when(commandFactory.createCommand(eq(dragAvatar))).thenReturn(command);
         when(
                 capabilityChecker.isValidDrop(any(Slot[].class),
-                        any(ResourceSet.class))).thenReturn(true);
+                        any(ResourceSet.class), any(VisualizationModel.class)))
+                .thenReturn(true);
         when(viewAccessor.findView(any(Widget.class))).thenReturn(view);
         when(view.getModel()).thenReturn(viewModel);
         resources = ResourceSetTestUtils.createResources(1, 2);

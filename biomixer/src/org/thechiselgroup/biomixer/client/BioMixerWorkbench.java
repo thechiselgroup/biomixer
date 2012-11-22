@@ -20,8 +20,8 @@ import org.thechiselgroup.biomixer.client.search.ConceptSearchCommand;
 import org.thechiselgroup.biomixer.client.search.OntologySearchCommand;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
-import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
-import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
+import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLineViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 
 import com.google.inject.Inject;
@@ -67,8 +67,9 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Ontology Overview",
                 GraphOntologyOverviewViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
-                TextVisualization.ID);
-        addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline", TimeLine.ID);
+                TextViewContentDisplayFactory.ID);
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline",
+                TimeLineViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Comment",
                 WorkbenchInitializer.WINDOW_CONTENT_COMMENT);
     }

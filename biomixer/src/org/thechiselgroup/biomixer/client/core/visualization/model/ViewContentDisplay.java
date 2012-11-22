@@ -16,9 +16,11 @@
 package org.thechiselgroup.biomixer.client.core.visualization.model;
 
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.Adaptable;
 import org.thechiselgroup.biomixer.client.core.util.Disposable;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
@@ -71,6 +73,15 @@ public interface ViewContentDisplay extends VisualItemRenderer, IsWidget,
      * @return {@link Slot}s that are supported by this view content display.
      */
     Slot[] getSlots();
+
+    /**
+     * Given a resource set (to be loaded), see if it fails to meet any
+     * restrictions of the underlying {@link GraphDisplayController}.
+     * 
+     * @param resourceSet
+     * @return
+     */
+    boolean validateDataTypes(ResourceSet resourceSet);
 
     /**
      * Sets callback objects.

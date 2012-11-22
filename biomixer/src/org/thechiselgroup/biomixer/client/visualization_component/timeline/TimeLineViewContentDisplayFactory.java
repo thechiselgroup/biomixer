@@ -15,20 +15,35 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
 public class TimeLineViewContentDisplayFactory implements
         ViewContentDisplayFactory {
 
+    public final static String ID = TimeLineViewContentDisplayFactory.class
+            .toString();
+
     @Override
     public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
-        return new TimeLine();
+        return new TimeLine(createDataTypeValidator());
     }
 
     @Override
     public String getViewContentTypeID() {
-        return TimeLine.ID;
+        return ID;
+    }
+
+    @Override
+    public DataTypeValidator createDataTypeValidator() {
+        return new DataTypeValidator() {
+            @Override
+            public boolean validateDataTypes(ResourceSet resourceSet) {
+                return true;
+            }
+        };
     }
 }

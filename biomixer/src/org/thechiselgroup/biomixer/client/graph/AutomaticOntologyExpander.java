@@ -86,13 +86,23 @@ public class AutomaticOntologyExpander implements GraphNodeExpander {
                         // node.setSize(size);
                         Node node = expansionCallback.getDisplay().getNode(
                                 visualItem.getId());
-                        // 2 * is for the radius conversion...added after changing stuff in circle.
+                        // 2 * is for the radius conversion...added after
+                        // changing stuff in circle.
                         // Rest of the formula is arbitrary for aesthetics.
-                        expansionCallback.getDisplay().setNodeStyle(
-                                node,
-                                GraphDisplay.NODE_SIZE,
-                                2 * (4 + Math.sqrt((results.numberOfClasses) / 10))
-                                        + "");
+                        expansionCallback
+                                .getDisplay()
+                                .setNodeStyle(
+                                        node,
+                                        GraphDisplay.NODE_SIZE,
+                                        2
+                                                * (4 + Math
+                                                        .sqrt((results.numberOfClasses) / 10))
+                                                + "");
+
+                        Resource resource = visualItem.getResources()
+                                .getFirstElement();
+                        resource.putValue(Ontology.DESCRIPTION,
+                                results.numberOfClasses);
                     }
 
                 });

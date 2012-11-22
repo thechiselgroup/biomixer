@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 
 /**
  * Ontology URIs are composed of the virtual ontology id. This utility class
@@ -41,6 +42,8 @@ public final class Ontology {
     public static final String VIRTUAL_ONTOLOGY_ID = "ontologyId";
 
     public static final String DESCRIPTION = "description";
+
+    public static final String NUMBER_OF_CONCEPTS = "numberOfConcepts";
 
     // TODO Property that can be used to make link to ontology on bioportal
 
@@ -122,5 +125,17 @@ public final class Ontology {
             uris.add(toOntologyURI(virtualOntologyId));
         }
         return uris;
+    }
+
+    static public class OntologyDataTypeValidator implements DataTypeValidator {
+        @Override
+        public boolean validateDataTypes(ResourceSet resourceSet) {
+            for (Resource resource : resourceSet) {
+                if (!Ontology.isOntology(resource)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

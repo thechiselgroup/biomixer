@@ -42,7 +42,6 @@ public class OntologyMappingCountServiceAsyncImplementation extends
         UrlBuilder parameter = urlBuilderFactory.createUrlBuilder()
                 .path("/mappings/stats/ontologies")
                 .parameter("ontologyids", sb.toString());
-        // Window.alert("URL Requested: " + parameter.toString());
         return parameter.toString();
     }
 

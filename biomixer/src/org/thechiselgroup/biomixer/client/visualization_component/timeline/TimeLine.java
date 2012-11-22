@@ -17,8 +17,10 @@ package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
 import java.util.Date;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
@@ -42,13 +44,15 @@ public class TimeLine extends AbstractViewContentDisplay {
 
     private static final Slot[] SLOTS = new Slot[] { BORDER_COLOR, COLOR, DATE };
 
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.Timeline";
-
     private static final String MEMENTO_DATE = "date";
 
     private static final String MEMENTO_ZOOM_PREFIX = "zoom-band-";
 
     private TimeLineWidget timelineWidget;
+
+    public TimeLine(DataTypeValidator dataValidation) {
+        super(dataValidation);
+    }
 
     private void addEventsToTimeline(
             LightweightCollection<VisualItem> addedResourceItems) {
@@ -99,6 +103,13 @@ public class TimeLine extends AbstractViewContentDisplay {
     @Override
     public Slot[] getSlots() {
         return SLOTS;
+    }
+
+    @Override
+    public boolean validateDataTypes(ResourceSet resourceSet) {
+        // TODO This was added at a time when no data requirements were
+        // recognized for this. Specialized visualizers should override this.
+        return true;
     }
 
     private JsTimeLineEvent[] getTimeLineEvents(

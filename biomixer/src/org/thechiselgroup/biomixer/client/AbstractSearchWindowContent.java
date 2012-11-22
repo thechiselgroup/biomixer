@@ -185,7 +185,7 @@ abstract public class AbstractSearchWindowContent extends AbstractWindowContent
     @Override
     public void init() {
         ViewWindowContent windowContent = (ViewWindowContent) viewFactory
-                .createWindowContent(TextVisualization.ID);
+                .createWindowContent(this.getContentType());
         resultView = (DefaultView) windowContent.getView();
 
         infoLabel = new Label("Searching...");

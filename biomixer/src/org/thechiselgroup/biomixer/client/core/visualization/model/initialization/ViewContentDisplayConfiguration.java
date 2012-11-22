@@ -23,29 +23,27 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 
-public class ViewContentDisplayConfiguration implements
-        ViewContentDisplayFactory {
+public class ViewContentDisplayConfiguration {
 
     private Map<Slot, VisualItemValueResolver> fixedSlotResolvers = new HashMap<Slot, VisualItemValueResolver>();
 
     private ViewContentDisplayFactory factory;
 
     public ViewContentDisplayConfiguration(ViewContentDisplayFactory factory) {
+        assert null != factory;
         this.factory = factory;
     }
 
-    @Override
     public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
         return factory.createViewContentDisplay(errorHandler);
     }
 
-    public Map<Slot, VisualItemValueResolver> getFixedSlotResolvers() {
-        return fixedSlotResolvers;
-    }
-
-    @Override
     public String getViewContentTypeID() {
         return factory.getViewContentTypeID();
+    }
+
+    public Map<Slot, VisualItemValueResolver> getFixedSlotResolvers() {
+        return fixedSlotResolvers;
     }
 
     public void setSlotResolver(Slot slot, VisualItemValueResolver resolver) {

@@ -118,6 +118,8 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
             addRow(resource, verticalPanel, "Ontology ID",
                     Ontology.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Description", Ontology.DESCRIPTION);
+            addRow(resource, verticalPanel, "Num Concepts",
+                    Ontology.NUMBER_OF_CONCEPTS);
 
         } else if (Mapping.isMapping(resource)) {
             verticalPanel.add(createAvatar("Mapping", resourceSet));

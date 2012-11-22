@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.model.initialization;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 
@@ -23,5 +24,14 @@ public interface ViewContentDisplayFactory {
     ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler);
 
     String getViewContentTypeID();
+
+    /**
+     * Varying structures in BioMixer necessitate that I make the creation of
+     * the {@link DataTypeValidator} inside the implementation of each
+     * {@link ViewContentDisplayFactory#createViewContentDisplay(ErrorHandler)}
+     * 
+     * @return
+     */
+    DataTypeValidator createDataTypeValidator();
 
 }

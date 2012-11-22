@@ -23,9 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.ui.CSS;
@@ -35,6 +37,7 @@ import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.AttachEvent.Handler;
@@ -58,6 +61,32 @@ public abstract class AbstractViewContentDisplay implements ViewContentDisplay,
     private State state = State.CREATED;
 
     private List<ViewResizeEventListener> resizeListeners = new ArrayList<ViewResizeEventListener>();
+
+    protected final DataTypeValidator dataTypeValidator;
+
+    public AbstractViewContentDisplay(DataTypeValidator dataTypeValidator) {
+        assert null != dataTypeValidator;
+        this.dataTypeValidator = dataTypeValidator;
+    }
+
+    /**
+     * Use to determine if incoming resources will work with the graph. Override
+     * for specialized controllers.
+     * 
+     * The {@link GraphDisplayController} used to be agnostic about data types,
+     * but we need to have the capacity to discriminate on types (e.g.
+     * Ontologies vs Concepts).
+     * 
+     * TODO Is this the best location for this responsibility?
+     * 
+     * @param resourceSet
+     * @return
+     */
+    @Override
+    public boolean validateDataTypes(ResourceSet resourceSet) {
+        assert null != this.dataTypeValidator;
+        return dataTypeValidator.validateDataTypes(resourceSet);
+    }
 
     @Override
     public <T> T adaptTo(Class<T> clazz) throws NoSuchAdapterException {

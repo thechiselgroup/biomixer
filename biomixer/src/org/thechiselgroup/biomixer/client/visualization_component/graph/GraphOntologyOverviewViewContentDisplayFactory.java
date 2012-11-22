@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
@@ -27,9 +29,8 @@ import com.google.inject.Inject;
 public class GraphOntologyOverviewViewContentDisplayFactory implements
         ViewContentDisplayFactory {
 
-//    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory";
-    public final static String ID = GraphOntologyOverviewViewContentDisplayFactory.class.toString();
-
+    public final static String ID = GraphOntologyOverviewViewContentDisplayFactory.class
+            .toString();
 
     @Inject
     private ArcTypeProvider arcStyleProvider;
@@ -58,12 +59,18 @@ public class GraphOntologyOverviewViewContentDisplayFactory implements
         // This isn't going to be how it works, but...
         Graph second = new Graph(new Graph.OntologyGraphDisplay(errorHandler),
                 commandManager, resourceManager, resourceCategorizer,
-                arcStyleProvider, registry, errorHandler);
+                arcStyleProvider, registry, errorHandler,
+                createDataTypeValidator());
         return second;
     }
 
     @Override
+    public DataTypeValidator createDataTypeValidator() {
+        return new Ontology.OntologyDataTypeValidator();
+    }
+
+    @Override
     public String getViewContentTypeID() {
-        return GraphOntologyOverviewViewContentDisplayFactory.ID;
+        return ID;
     }
 }

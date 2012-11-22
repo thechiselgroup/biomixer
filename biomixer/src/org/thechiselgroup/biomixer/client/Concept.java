@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 
 /**
  * Concept URIs are composed of the virtual ontology id and the encoded full id
@@ -115,7 +116,7 @@ public final class Concept {
 
     private Concept() {
     }
-    
+
     public static List<String> asUris(String virtualOntologyId,
             String... conceptIds) {
         List<String> uris = new ArrayList<String>();
@@ -123,5 +124,17 @@ public final class Concept {
             uris.add(toConceptURI(virtualOntologyId, conceptId));
         }
         return uris;
+    }
+
+    static public class ConceptDataTypeValidator implements DataTypeValidator {
+        @Override
+        public boolean validateDataTypes(ResourceSet resourceSet) {
+            for (Resource resource : resourceSet) {
+                if (!Concept.isConcept(resource)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

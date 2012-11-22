@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
@@ -349,7 +350,8 @@ public class Graph extends AbstractViewContentDisplay implements
             ResourceManager resourceManager,
             ResourceCategorizer resourceCategorizer,
             ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry,
-            ErrorHandler errorHandler) {
+            ErrorHandler errorHandler, DataTypeValidator dataTypeValidator) {
+        super(dataTypeValidator);
 
         assert display != null;
         assert commandManager != null;

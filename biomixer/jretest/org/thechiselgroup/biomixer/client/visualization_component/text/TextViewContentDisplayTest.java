@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
@@ -60,6 +61,9 @@ public class TextViewContentDisplayTest {
 
     @Mock
     private VisualItemContainer visualItemContainer;
+
+    @Mock
+    private DataTypeValidator dataTypeValidator;
 
     @Test
     public void partialSelectionShownCorrectly_Issue73() {
@@ -110,7 +114,7 @@ public class TextViewContentDisplayTest {
         when(textItemContainer.createTextItemLabel(any(VisualItem.class)))
                 .thenReturn(itemLabel);
 
-        underTest = new TextVisualization(textItemContainer);
+        underTest = new TextVisualization(textItemContainer, dataTypeValidator);
 
         underTest.init(visualItemContainer, callback);
 

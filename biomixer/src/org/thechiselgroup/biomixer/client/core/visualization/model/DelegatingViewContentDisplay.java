@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.core.visualization.model;
 
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
@@ -81,6 +82,11 @@ public class DelegatingViewContentDisplay implements ViewContentDisplay {
     @Override
     public Slot[] getSlots() {
         return delegate.getSlots();
+    }
+
+    @Override
+    public boolean validateDataTypes(ResourceSet resourceSet) {
+        return delegate.validateDataTypes(resourceSet);
     }
 
     @Override

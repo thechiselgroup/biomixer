@@ -34,6 +34,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
@@ -93,6 +94,9 @@ public class GraphViewContentDisplayTest {
 
     @Mock
     private ErrorHandler errorHandler;
+
+    @Mock
+    private DataTypeValidator dataTypeValidator;
 
     @Mock
     private ResourceCategorizer resourceCategorizer;
@@ -312,7 +316,8 @@ public class GraphViewContentDisplayTest {
 
     private void init() {
         underTest = new Graph(graphDisplay, commandManager, resourceManager,
-                resourceCategorizer, arcStyleProvider, registry, errorHandler);
+                resourceCategorizer, arcStyleProvider, registry, errorHandler,
+                dataTypeValidator);
         underTest.init(visualItemContainer, callback);
     }
 
