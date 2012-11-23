@@ -17,6 +17,8 @@ package org.thechiselgroup.biomixer.client.graph;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,9 +38,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.OntologyMappingOverviewLoader;
@@ -48,6 +52,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.IsWidget;
 
 public class OntologyMappingOverviewLoaderTest {
 
@@ -63,23 +68,36 @@ public class OntologyMappingOverviewLoaderTest {
     private GraphNodeExpansionCallback expansionCallback;
 
     @Mock
+    private AsyncCallback<IsWidget> isWidgetCallback;
+
+    @Mock
     private VisualItem visualItem;
 
     @Mock
     private Iterable<VisualItem> visualItems;
 
     @Mock
+    ResourceSet ontologyResourceSet;
+
+    @Mock
     private ResourceManager resourceManager;
+
+    @Mock
+    private IsWidget topBarWidget;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private AsyncCallback<ResourceNeighbourhood> callExpand(Resource ontology) {
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
+        List<String> virtualIdList = new ArrayList();
+        virtualIdList.add(Ontology.getOntologyId(ontology));
+
         // TODO Compare to Concept loader. The ontology loader was incomplete
         // when this was created, but I wanted a failing test in place.
-        // doNothing().when(mappingService).getMappingCounts(
-        // eq(Ontology.getOntologyId(ontology)), captor.capture());
-        // underTest.expand(visualItems, expansionCallback);
+        doNothing().when(mappingService).getMappingCounts(eq(virtualIdList),
+                captor.capture());
+        underTest.loadView(ontologyResourceSet, virtualIdList, topBarWidget,
+                isWidgetCallback);
 
         return captor.getValue();
     }

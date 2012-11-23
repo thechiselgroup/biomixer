@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,7 +64,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * TODO The expander test here is based off of the
  * ConceptMappingNeighbourhoodExpanderTest. The expander goals are fairly
  * different. I put this in place so we could have some failed tests, and things
- * need to be tested properly. See that other test class for ideas.
+ * need to be tested properly. See that other test class for ideas. None of this
+ * applies directly.
  * 
  * @author everbeek
  * 
@@ -225,45 +227,7 @@ public class OntologyNodeMappingExpanderTest {
                 outgoingMapping);
     }
 
-    // @Test
-    // public void addMappingsToResourceManagerAndUseReturnedVersion() {
-    // final List<Resource> resultMappings = new ArrayList<Resource>();
     //
-    // underTest = new OntologyNodeMappingExpander(mappingService,
-    // errorHandler, resourceManager) {
-    // @Override
-    // protected void expandNeighbourhood(VisualItem visualItem,
-    // Resource concept, GraphNodeExpansionCallback graph,
-    // List<Resource> mappings) {
-    //
-    // resultMappings.addAll(mappings);
-    // };
-    // };
-    //
-    // visualItemResources.add(concept);
-    //
-    // List<Resource> mappings = new ArrayList<Resource>();
-    // mappings.add(outgoingMapping);
-    // mappings.add(incomingMapping);
-    //
-    // Resource addedOutgoingMapping = Mapping.createMappingResource(
-    // "mapping1", concept.getUri(), targetResource.getUri());
-    // Resource addedIncomingMapping = Mapping.createMappingResource(
-    // "mapping2", sourceResource.getUri(), concept.getUri());
-    //
-    // when(resourceManager.add(incomingMapping)).thenReturn(
-    // addedIncomingMapping);
-    // when(resourceManager.add(outgoingMapping)).thenReturn(
-    // addedOutgoingMapping);
-    //
-    // expandUnderTestWithMappings(concept.getUri(), mappings,
-    // new HashMap<String, Serializable>());
-    //
-    // assertThat(resultMappings,
-    // containsExactly(ResourceSetTestUtils.toResourceSet(
-    // addedIncomingMapping, addedOutgoingMapping)));
-    // }
-
     @SuppressWarnings("unchecked")
     public void correctIdsPassedIntoMappingService() {
         visualItemResources.add(ontology);
@@ -287,17 +251,58 @@ public class OntologyNodeMappingExpanderTest {
         testLoadConcepts(0, addedResourceUri, addedResource);
     }
 
-    // Don't think we need to prevent loading of arcs in the ontology
-    // mapper...arcs don't load like nodes do...
+    // @Test
+    // public void addMappingsToResourceManagerAndUseReturnedVersion() {
+    // final List<Resource> resultMappings = new ArrayList<Resource>();
+    //
+    // underTest = new OntologyNodeMappingExpander(mappingService,
+    // errorHandler)
+    // // {
+    // // @Override
+    // // protected void expandNeighbourhood(VisualItem visualItem,
+    // // Resource concept, GraphNodeExpansionCallback graph,
+    // // List<Resource> mappings) {
+    // //
+    // // resultMappings.addAll(mappings);
+    // // };
+    // // }
+    // ;
+    //
+    // visualItemResources.add(ontology);
+    //
+    // List<Resource> mappings = new ArrayList<Resource>();
+    // mappings.add(outgoingMapping);
+    // mappings.add(incomingMapping);
+    //
+    // Resource addedOutgoingMapping = Mapping.createMappingResource(
+    // "mapping1", ontology.getUri(), targetResource.getUri());
+    // Resource addedIncomingMapping = Mapping.createMappingResource(
+    // "mapping2", sourceResource.getUri(), ontology.getUri());
+    //
+    // when(resourceManager.add(incomingMapping)).thenReturn(
+    // addedIncomingMapping);
+    // when(resourceManager.add(outgoingMapping)).thenReturn(
+    // addedOutgoingMapping);
+    //
+    // expandUnderTestWithMappings(ontology.getUri(), mappings,
+    // new HashMap<String, Serializable>());
+    //
+    // assertThat(resultMappings,
+    // containsExactly(ResourceSetTestUtils.toResourceSet(
+    // addedIncomingMapping, addedOutgoingMapping)));
+    // }
+
+    // // Don't think we need to prevent loading of arcs in the ontology
+    // // mapper...arcs don't load like nodes do...
     // @SuppressWarnings("unchecked")
     // @Test
     // public void doNotLoadMappingsIfUriListsSetAndMappingResourcesAvailable()
     // {
-    // visualItemResources.add(concept);
+    // visualItemResources.add(ontology);
     //
-    // concept.putValue(Ontology.OUTGOING_MAPPINGS, new UriList(
+    // ontology.putValue(Ontology.OUTGOING_MAPPINGS, new UriList(
     // outgoingMapping.getUri()));
-    // concept.putValue(Ontology.INCOMING_MAPPINGS, new UriList(
+    // ontology.putValue(Ontology.INCOMING_MAPPINGS, new UriList(
     // incomingMapping.getUri()));
     //
     // stubResourceManagerContains(incomingMapping);
@@ -321,12 +326,12 @@ public class OntologyNodeMappingExpanderTest {
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         // TODO Fix this call...argument issues
-        // doNothing().when(mappingService).getMappings(eq(ontologyIdList),
-        // captor.capture());
+        doNothing().when(mappingService).getMappingCounts(eq(ontologyIdList),
+                captor.capture());
 
-        LightweightList<VisualItem> ontologyList = LightweightCollections
-                .toList(visualItem);
-        underTest.expand(ontologyList, expansionCallback);
+        // LightweightList<VisualItem> ontologyList = LightweightCollections
+        // .toList(visualItem);
+        // underTest.expand(ontologyList, expansionCallback);
 
         AsyncCallback<ResourceNeighbourhood> callback = captor.getValue();
 

@@ -54,7 +54,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node2 = addNode(N2, LABEL2, TYPE1);
         addArc(A1, N1, N2, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1Circle");
     }
 
     @Test
@@ -63,7 +63,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
         assertComponentWithIdEqualsFile(N1, "circleNode1");
-        assertComponentWithIdEqualsFile(N2, "node2Moved");
+        assertComponentWithIdEqualsFile(N2, "circleNode2Moved");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node1 = addNode(N1, LABEL1, TYPE1);
         addNode(N2, LABEL2, TYPE1);
         underTest.removeNode(node1);
-        assertUnderTestAsSvgEqualsFile("addTwoNodesRemoveOne");
+        assertUnderTestAsSvgEqualsFile("addTwoCircleNodesRemoveOne");
     }
 
     @Test
@@ -80,7 +80,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
         addArc(A1, N1, N2, TYPE1, true);
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1Circle");
     }
 
     private Arc addTwoSeparatedNodesWithArc() {
@@ -95,14 +95,14 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
     public void animateToMovesOneNodeFinalDesinationShouldBeNewPoint() {
         Node node = addNode(N1, LABEL1, TYPE1);
         underTest.animateMoveTo(node, new Point(100, 100));
-        assertUnderTestAsSvgEqualsFile("animateMoveOneNode");
+        assertUnderTestAsSvgEqualsFile("animateMoveOneCircleNode");
     }
 
     @Test
     public void removeArcBetweenTwoNodes() {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.removeArc(arc);
-        assertUnderTestAsSvgEqualsFile("addTwoNodesSetLocation");
+        assertUnderTestAsSvgEqualsFile("addTwoCircleNodesSetLocation");
     }
 
     @Test
@@ -112,14 +112,14 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         addArc(A1, N1, N2, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
-        assertUnderTestAsSvgEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1");
+        assertUnderTestAsSvgEqualsFile("addTwoCircleNodesAddArcMoveNode2RemoveNode1");
     }
 
     @Test
     public void setArcColor() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_COLOR, "#AFC6E5");
-        assertComponentWithIdEqualsFile(A1, "arc1Colored");
+        assertComponentWithIdEqualsFile(A1, "arc1ColoredCircle");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_DASHED);
-        assertComponentWithIdEqualsFile(A1, "arc1Dashed");
+        assertComponentWithIdEqualsFile(A1, "arc1DashedCircle");
     }
 
     @Test
@@ -137,7 +137,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
                 ArcSettings.ARC_STYLE_DASHED);
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1Circle");
     }
 
     @Test
@@ -145,14 +145,14 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1Circle");
     }
 
     @Test
     public void setArcThickness() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_THICKNESS, "3");
-        assertComponentWithIdEqualsFile(A1, "arc1Thick");
+        assertComponentWithIdEqualsFile(A1, "arc1ThickCircle");
     }
 
     @Test
@@ -160,7 +160,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BACKGROUND_COLOR,
                 Colors.YELLOW_1);
-        assertComponentWithIdEqualsFile(N1, "node1BackgroundColored");
+        assertComponentWithIdEqualsFile(N1, "circleNode1BackgroundColored");
     }
 
     @Test
@@ -168,7 +168,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_BORDER_COLOR,
                 Colors.YELLOW_2);
-        assertComponentWithIdEqualsFile(N1, "node1BorderColored");
+        assertComponentWithIdEqualsFile(N1, "circleNode1BorderColored");
     }
 
     @Test
@@ -176,7 +176,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_COLOR,
                 Colors.ORANGE);
-        assertComponentWithIdEqualsFile(N1, "node1FontColored");
+        assertComponentWithIdEqualsFile(N1, "circleNode1FontColored");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         Node node = addNode(N1, LABEL1, TYPE1);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
-        assertComponentWithIdEqualsFile(N1, "node1BoldFont");
+        assertComponentWithIdEqualsFile(N1, "circleNode1BoldFont");
     }
 
     @Test
@@ -194,6 +194,6 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
                 GraphDisplay.NODE_FONT_WEIGHT_BOLD);
         underTest.setNodeStyle(node, GraphDisplay.NODE_FONT_WEIGHT,
                 GraphDisplay.NODE_FONT_WEIGHT_NORMAL);
-        assertComponentWithIdEqualsFile(N1, "node1NormalFont");
+        assertComponentWithIdEqualsFile(N1, "node1CircleNormalFont");
     }
 }

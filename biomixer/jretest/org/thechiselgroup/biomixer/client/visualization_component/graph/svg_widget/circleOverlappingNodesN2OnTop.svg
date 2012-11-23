@@ -4,16 +4,16 @@
   <g id="nodeGroup">
     <svg id="n1" overflow="visible" x="0.0" y="0.0">
       <svg overflow="visible">
-        <circle cx="0.0" cy="0.0" fill="#FFFFFF" r="10.0" stroke="#000000">
+        <circle cx="0.0" cy="0.0" fill="#FFFFFF" r="1.0" stroke="#000000">
 </circle>
-        <text font-family="Arial, sans-serif" font-size="12px" x="12.0" y="5.0">Concept1</text>
+        <text font-family="Arial, sans-serif" font-size="12px" x="6.0" y="5.0">Concept1</text>
     </svg>
     </svg>
     <svg id="n2" overflow="visible" x="0.0" y="20.0">
       <svg overflow="visible">
-        <circle cx="0.0" cy="0.0" fill="#FFFFFF" r="10.0" stroke="#000000">
+        <circle cx="0.0" cy="0.0" fill="#FFFFFF" r="1.0" stroke="#000000">
 </circle>
-        <text font-family="Arial, sans-serif" font-size="12px" x="12.0" y="5.0">Concept2</text>
+        <text font-family="Arial, sans-serif" font-size="12px" x="6.0" y="5.0">Concept2</text>
     </svg>
     </svg>
   </g>

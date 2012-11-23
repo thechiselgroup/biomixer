@@ -19,6 +19,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -48,8 +49,6 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
-import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
-import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
@@ -309,17 +308,21 @@ public class OntologyNodeMetricsExpanderTest {
     // }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void expandUnderTestWithMappings(String conceptUri,
+    private void expandUnderTestWithMappings(String ontologyUri,
             List<Resource> mappings, Map<String, Serializable> partialProperties) {
 
-        LightweightList<String> ontologyIdList = LightweightCollections
-                .toList(Ontology.getOntologyId(conceptUri));
+        // LightweightList<String> ontologyIdList = LightweightCollections
+        // .toList(Ontology.getOntologyId(ontologyUri));
 
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         // TODO Fix this call...argument issues
-        // doNothing().when(mappingService).getMappings(eq(ontologyIdList),
-        // captor.capture());
+        doNothing().when(mappingService).getMetrics(
+                eq(Ontology.getOntologyId(ontologyUri)), captor.capture());
+        doNothing().when(mappingService).getMetrics(eq(sourceResource),
+                captor.capture());
+        when(sourceResource.getValue(eq(Ontology.ONTOLOGY_VERSION_ID)))
+                .thenReturn((Ontology.getOntologyId(ontologyUri)));
 
         underTest.expand(visualItem, expansionCallback);
 

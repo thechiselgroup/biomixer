@@ -45,9 +45,9 @@ public class OntologyMetricsJsonParserTest extends AbstractJsonParserTest {
     public void parseMetricResults() throws IOException {
         OntologyMetrics metricResults = parseSearchResults("ontologyMetricResults.json");
 
-        assertThat(metricResults.maximumDepth, equalTo(4));
-        assertThat(metricResults.numberOfClasses, equalTo(4));
-        assertThat(metricResults.ontologyId, equalTo("4"));
+        assertThat(metricResults.maximumDepth, equalTo(11));
+        assertThat(metricResults.numberOfClasses, equalTo(913));
+        assertThat(metricResults.ontologyId, equalTo("40133"));
     }
 
     public OntologyMetrics parseSearchResults(String jsonFilename)

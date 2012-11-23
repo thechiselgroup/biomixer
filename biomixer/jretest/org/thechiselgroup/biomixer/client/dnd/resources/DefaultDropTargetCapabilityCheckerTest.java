@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.dnd.resources;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -90,7 +89,8 @@ public class DefaultDropTargetCapabilityCheckerTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        doReturn(viewContentDisplay).when(model).getViewContentDisplay();
+        // doReturn(viewContentDisplay).when(model).getViewContentDisplay();
+        when(model.getViewContentDisplay()).thenReturn(viewContentDisplay);
         when(viewContentDisplay.validateDataTypes(any(ResourceSet.class)))
                 .thenReturn(true);
         underTest = new DefaultDropTargetCapabilityChecker();
