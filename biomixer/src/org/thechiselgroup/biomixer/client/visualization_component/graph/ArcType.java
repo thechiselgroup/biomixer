@@ -56,6 +56,11 @@ public interface ArcType {
     String getArcTypeID();
 
     /**
+     * @return human readable label for the arc type
+     */
+    String getArcTypeLabel();
+
+    /**
      * @return default color for arcs of this type.
      */
     String getDefaultArcColor();

@@ -51,7 +51,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
             throws Exception {
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
@@ -78,7 +78,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
@@ -86,7 +86,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = addArc(A1, N1, N2, TYPE1, true);
+        Arc arc = addArc(A1, N1, N2, TYPE1, TYPE1, true);
         return arc;
     }
 
@@ -108,7 +108,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     public void removingNodeShouldRemoveArc() {
         Node node1 = addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1");
@@ -133,7 +133,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
     public void setArcStyleDotted() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
-                ArcSettings.ARC_STYLE_DASHED);
+                ArcSettings.ARC_STYLE_DOTTED);
         assertComponentWithIdEqualsFile(A1, "arc1Dotted");
     }
 
@@ -154,7 +154,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
                 ArcSettings.ARC_STYLE_DASHED);
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_DOTTED);
-        assertComponentWithIdEqualsFile(A1, "arcDotted1");
+        assertComponentWithIdEqualsFile(A1, "arc1Dotted");
     }
 
     @Test
@@ -170,7 +170,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
                 ArcSettings.ARC_HEAD_TRIANGLE_FULL);
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1TriangleFullHead");
     }
 
     @Test
@@ -178,7 +178,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
                 ArcSettings.ARC_HEAD_TRIANGLE_EMPTY);
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1TriangleEmptyHead");
     }
 
     @Test
@@ -186,7 +186,7 @@ public class GraphSvgDisplayOutputTest extends AbstractGraphSvgDisplayTest {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
                 ArcSettings.ARC_HEAD_NONE);
-        assertComponentWithIdEqualsFile(A1, "arc1");
+        assertComponentWithIdEqualsFile(A1, "arc1NoHead");
     }
 
     @Test

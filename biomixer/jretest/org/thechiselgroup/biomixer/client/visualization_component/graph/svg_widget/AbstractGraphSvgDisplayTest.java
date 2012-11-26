@@ -77,8 +77,9 @@ public abstract class AbstractGraphSvgDisplayTest extends AbstractSvgTest {
     protected SvgResultParser parser;
 
     protected Arc addArc(String arcId, String sourceNodeId,
-            String targetNodeId, String type, boolean directed) {
-        Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, directed);
+            String targetNodeId, String type, String arcLabel, boolean directed) {
+        Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, arcLabel,
+                directed);
         underTest.addArc(arc);
         return arc;
     }

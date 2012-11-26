@@ -15,11 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes;
 
+import static org.thechiselgroup.biomixer.shared.svg.SvgTransforms.rotate;
+import static org.thechiselgroup.biomixer.shared.svg.SvgTransforms.translate;
+
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
-import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
@@ -29,16 +30,14 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
- * An SVG element with text surrounded by a rectangle.
+ * An SVG element with text. Based off of {@link SvgBoxedText}.
  * 
- * TODO Refactor to extend {@link SvgBareText}.
- * 
- * @author drusk
+ * @author everbeek
  * 
  */
-public class SvgBoxedText implements IsSvg {
+public class SvgBareText implements IsSvg {
 
-    private static final double THRESHOLD_TEXT_LENGTH = 150.0;
+    protected static final double THRESHOLD_TEXT_LENGTH = 150.0;
 
     public static final String DEFAULT_FONT_FAMILY = "Arial, sans-serif";
 
@@ -50,49 +49,49 @@ public class SvgBoxedText implements IsSvg {
 
     public static final double TEXT_BUFFER = 10.0;
 
-    private SvgElement textElement;
+    protected SvgElement textElement;
 
-    private SvgElement boxElement;
+    protected TextBoundsEstimator textBoundsEstimator;
 
-    private TextBoundsEstimator textBoundsEstimator;
+    protected SizeInt cachedTextSize = null;
 
-    private SvgElementFactory svgElementFactory;
+    protected SvgElementFactory svgElementFactory;
 
-    private String fontFamily = DEFAULT_FONT_FAMILY;
+    protected String fontFamily = DEFAULT_FONT_FAMILY;
 
-    private String fontSize = DEFAULT_FONT_SIZE_PIXELS;
+    protected String fontSize = DEFAULT_FONT_SIZE_PIXELS;
 
-    private String fontStyle = DEFAULT_FONT_STYLE;
+    protected String fontStyle = DEFAULT_FONT_STYLE;
 
-    private String fontWeight = DEFAULT_FONT_WEIGHT;
+    protected String fontWeight = DEFAULT_FONT_WEIGHT;
 
-    private final String text;
+    protected final String text;
 
-    private int numberOfLines = 0;
+    protected int numberOfLines = 0;
 
     /*
      * Stores the tspan elements for multiple lines of text. Will be empty if
      * the text fits on one line and therefore doesn't need any tspans.
      */
-    private Map<String, SvgElement> tspanElements = CollectionFactory
+    protected Map<String, SvgElement> tspanElements = CollectionFactory
             .createStringMap();
 
-    private String longestTextLine;
+    protected String longestTextLine;
 
-    private SvgElement container;
+    protected SvgElement container;
 
-    private double width;
+    protected double width;
 
-    private double height;
+    protected double height;
 
-    public SvgBoxedText(String text, TextBoundsEstimator textBoundsEstimator,
+    public SvgBareText(String text, TextBoundsEstimator textBoundsEstimator,
             SvgElementFactory svgElementFactory) {
         container = svgElementFactory.createElement(Svg.SVG);
         container.setAttribute(Svg.OVERFLOW, Svg.VISIBLE);
         this.textBoundsEstimator = textBoundsEstimator;
         this.svgElementFactory = svgElementFactory;
         this.text = text;
-        createBoxedText();
+        init();
     }
 
     @Override
@@ -100,31 +99,15 @@ public class SvgBoxedText implements IsSvg {
         return container;
     }
 
-    private void centreTextElements() {
-        for (Entry<String, SvgElement> entry : tspanElements.entrySet()) {
-            double x = getBoxLeftX()
-                    + TEXT_BUFFER
-                    + (getWidthOfLongestTextLine() - getTextSize(entry.getKey())
-                            .getWidth()) / 2;
-            entry.getValue().setAttribute(Svg.X, x);
-        }
-    }
-
-    private void createBoxedText() {
+    protected void init() {
         textElement = svgElementFactory.createElement(Svg.TEXT);
         setTextContent();
         setDefaultFontValues(textElement);
 
-        boxElement = svgElementFactory.createElement(Svg.RECT);
-        setDefaultBoxValues(boxElement);
-
-        setBoxAroundText();
-
-        container.appendChild(boxElement);
         container.appendChild(textElement);
     }
 
-    private void finishLine(StringBuilder currentLine, int textHeight,
+    protected void finishLine(StringBuilder currentLine, int textHeight,
             int currentLineWidth) {
         SvgElement tspan = svgElementFactory.createElement(Svg.TSPAN);
 
@@ -145,19 +128,7 @@ public class SvgBoxedText implements IsSvg {
         numberOfLines++;
     }
 
-    private double getBoxHeight() {
-        return height;
-    }
-
-    private double getBoxLeftX() {
-        return Double.parseDouble(boxElement.getAttributeAsString(Svg.X));
-    }
-
-    private double getBoxWidth() {
-        return width;
-    }
-
-    private SizeInt getTextSize(String text) {
+    protected SizeInt getTextSize(String text) {
         try {
             textBoundsEstimator.setUp();
             textBoundsEstimator.configureFontStyle(fontStyle);
@@ -172,88 +143,43 @@ public class SvgBoxedText implements IsSvg {
 
     public double getTotalHeight() {
         // TODO use BBox on container?
-        return getBoxHeight();
+        // return height;
+        return getHeightOfLongestTextLine();
     }
 
     public double getTotalWidth() {
         // TODO use BBox on container?
-        return getBoxWidth();
+        // return width;
+        return getWidthOfLongestTextLine();
     }
 
-    private double getWidthOfLongestTextLine() {
+    protected double getWidthOfLongestTextLine() {
         if (longestTextLine == null) {
             return 0.0;
+        } else if (null == cachedTextSize) {
+            SizeInt cachedTextSize = getTextSize(longestTextLine);
+            return cachedTextSize.getWidth();
         } else {
-            return getTextSize(longestTextLine).getWidth();
+            return cachedTextSize.getWidth();
         }
     }
 
-    public void setBackgroundColor(String color) {
-        boxElement.setAttribute(Svg.FILL, color);
-    }
-
-    public void setBorderColor(String color) {
-        boxElement.setAttribute(Svg.STROKE, color);
-    }
-
-    private void setBoxAroundText() {
-        int lineHeight = getTextSize(text).getHeight();
-        setBoxWidth(getWidthOfLongestTextLine() + 2 * TEXT_BUFFER);
-        setBoxHeight((double) lineHeight * numberOfLines + 2 * TEXT_BUFFER);
-
-        if (numberOfLines == 1) {
-            textElement.setAttribute(Svg.X, getBoxLeftX() + TEXT_BUFFER);
+    protected double getHeightOfLongestTextLine() {
+        if (longestTextLine == null) {
+            return 0.0;
+        } else if (null == cachedTextSize) {
+            SizeInt cachedTextSize = getTextSize(longestTextLine);
+            return cachedTextSize.getHeight();
         } else {
-            centreTextElements();
+            return cachedTextSize.getHeight();
         }
-
-        /*
-         * the y-position of the text refers to the bottom of the FIRST LINE of
-         * text
-         */
-        textElement.setAttribute(Svg.Y, TEXT_BUFFER + lineHeight);
     }
 
-    public void setBoxHeight(double height) {
-        if (height == this.height) {
-            return;
-        }
-
-        this.height = height;
-        boxElement.setAttribute(Svg.HEIGHT, height);
-    }
-
-    public void setBoxWidth(double width) {
-        if (width == this.width) {
-            return;
-        }
-
-        this.width = width;
-        boxElement.setAttribute(Svg.WIDTH, width);
-    }
-
-    private void setBoxX(double x) {
-        boxElement.setAttribute(Svg.X, x);
-    }
-
-    public void setCornerCurveHeight(double cornerCurveHeight) {
-        boxElement.setAttribute(Svg.RY, cornerCurveHeight);
-    }
-
-    public void setCornerCurveWidth(double cornerCurveWidth) {
-        boxElement.setAttribute(Svg.RX, cornerCurveWidth);
-    }
-
-    private void setDefaultBoxValues(SvgElement boxElement) {
-        boxElement.setAttribute(Svg.FILL, Colors.WHITE);
-        boxElement.setAttribute(Svg.STROKE, Colors.BLACK);
-        boxElement.setAttribute(Svg.X, 0.0);
-        boxElement.setAttribute(Svg.Y, 0.0);
-    }
-
-    private void setDefaultFontValues(SvgElement textElement) {
+    protected void setDefaultFontValues(SvgElement textElement) {
+        cachedTextSize = null;
         textElement.setAttribute(Svg.FONT_FAMILY, DEFAULT_FONT_FAMILY);
         textElement.setAttribute(Svg.FONT_SIZE, DEFAULT_FONT_SIZE_PIXELS);
+
     }
 
     public void setEventListener(ChooselEventHandler listener) {
@@ -265,14 +191,13 @@ public class SvgBoxedText implements IsSvg {
     }
 
     public void setFontWeight(String fontWeight) {
-        double oldWidth = getWidthOfLongestTextLine();
         this.fontWeight = fontWeight;
         textElement.setAttribute(Svg.FONT_WEIGHT, fontWeight);
-        double newWidth = getWidthOfLongestTextLine();
-        updateBoxWidthAndPositionAroundText(newWidth - oldWidth);
+        cachedTextSize = null;
     }
 
-    private void setTextContent() {
+    protected void setTextContent() {
+        cachedTextSize = null;
         SizeInt textSize = getTextSize(text);
         if (textSize.getWidth() < THRESHOLD_TEXT_LENGTH) {
             textElement.setTextContent(text);
@@ -320,9 +245,10 @@ public class SvgBoxedText implements IsSvg {
         container.setAttribute(Svg.Y, y);
     }
 
-    private void updateBoxWidthAndPositionAroundText(double deltaWidth) {
-        setBoxX(getBoxLeftX() - (deltaWidth / 2));
-        setBoxAroundText();
-        centreTextElements();
+    public void setTranslateAndRotation(double x, double y, double angle) {
+        for (int i = 0; i < container.getChildCount(); i++) {
+            container.getChild(i).setAttribute(Svg.TRANSFORM,
+                    translate(x, y) + " " + rotate(angle, 0, 0));
+        }
     }
 }

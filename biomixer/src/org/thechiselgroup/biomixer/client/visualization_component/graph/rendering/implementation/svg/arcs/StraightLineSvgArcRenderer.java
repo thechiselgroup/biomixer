@@ -17,9 +17,11 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBareText;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
@@ -35,8 +37,12 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
 
     private SvgElementFactory svgElementFactory;
 
-    public StraightLineSvgArcRenderer(SvgElementFactory svgElementFactory) {
+    private TextBoundsEstimator textBoundsEstimator;
+
+    public StraightLineSvgArcRenderer(SvgElementFactory svgElementFactory,
+            TextBoundsEstimator textBoundsEstimator) {
         this.svgElementFactory = svgElementFactory;
+        this.textBoundsEstimator = textBoundsEstimator;
     }
 
     @Override
@@ -57,12 +63,16 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
         container.appendChild(arcLine);
 
         // used to skip undirected arc heads
-        SvgArrowHead arrowHead = new SvgArrowHead(svgElementFactory, sourceNodeLocation,
-                targetNodeLocation);
+        SvgArrowHead arrowHead = new SvgArrowHead(svgElementFactory,
+                sourceNodeLocation, targetNodeLocation);
         container.appendChild(arrowHead.asSvgElement());
 
+        // Create label
+        SvgBareText textLabel = new SvgBareText(arc.getLabel(),
+                textBoundsEstimator, svgElementFactory);
+
         return new StraightLineRenderedSvgArc(arc, container, arcLine,
-                arrowHead, source, target);
+                arrowHead, textLabel, source, target);
     }
 
 }

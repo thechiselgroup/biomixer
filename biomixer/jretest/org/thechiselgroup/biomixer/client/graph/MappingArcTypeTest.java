@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.graph;
 import static org.junit.Assert.assertThat;
 import static org.thechiselgroup.biomixer.client.Mapping.createMappingResource;
 import static org.thechiselgroup.biomixer.client.graph.MappingArcType.ARC_DIRECTED;
+import static org.thechiselgroup.biomixer.client.graph.MappingArcType.ARC_LABEL;
 import static org.thechiselgroup.biomixer.client.graph.MappingArcType.ID;
 
 import org.junit.Before;
@@ -47,7 +48,7 @@ public class MappingArcTypeTest {
 
     private Arc createExpectedArc(String fromUri, String toUri) {
         return new Arc(Graph.getArcId(ID, fromUri, toUri), fromUri, toUri, ID,
-                ARC_DIRECTED);
+                ARC_LABEL, ARC_DIRECTED);
     }
 
     @Test

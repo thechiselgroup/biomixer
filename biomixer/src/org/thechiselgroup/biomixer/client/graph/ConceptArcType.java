@@ -32,6 +32,8 @@ public class ConceptArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.ConceptArcType";
 
+    public static final String ARC_LABEL = "is a";
+
     public static final String ARC_COLOR = "#AFC6E5";
 
     public static final String ARC_STYLE = ArcSettings.ARC_STYLE_SOLID;
@@ -44,7 +46,7 @@ public class ConceptArcType implements ArcType {
 
     private Arc createArc(String sourceUri, String targetUri) {
         return new Arc(Graph.getArcId(ID, sourceUri, targetUri), sourceUri,
-                targetUri, ID, ARC_DIRECTED);
+                targetUri, ID, ARC_LABEL, ARC_DIRECTED);
     }
 
     @Override
@@ -97,5 +99,10 @@ public class ConceptArcType implements ArcType {
     @Override
     public int getDefaultArcThickness() {
         return ARC_THICKNESS;
+    }
+
+    @Override
+    public String getArcTypeLabel() {
+        return ARC_LABEL;
     }
 }

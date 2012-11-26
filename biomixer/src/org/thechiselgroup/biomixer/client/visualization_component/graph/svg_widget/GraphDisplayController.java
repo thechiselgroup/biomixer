@@ -143,7 +143,8 @@ public class GraphDisplayController implements GraphDisplay,
         this.graphRenderer = new SvgGraphRenderer(width, height,
                 svgElementFactory, new BoxedTextSvgNodeRenderer(
                         svgElementFactory, textBoundsEstimator),
-                new StraightLineSvgArcRenderer(svgElementFactory),
+                new StraightLineSvgArcRenderer(svgElementFactory,
+                        textBoundsEstimator),
                 new BoxedTextSvgNodeExpanderRenderer(svgElementFactory,
                         textBoundsEstimator));
 

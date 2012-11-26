@@ -25,10 +25,12 @@ public class Arc {
 
     private String type;
 
+    private String arcLabel;
+
     private boolean directed;
 
     public Arc(String id, String sourceNodeId, String targetNodeId,
-            String type, boolean directed) {
+            String type, String arcLabel, boolean directed) {
 
         assert id != null;
         assert sourceNodeId != null;
@@ -40,6 +42,7 @@ public class Arc {
         this.targetNodeId = targetNodeId;
         this.type = type;
         this.directed = directed;
+        this.arcLabel = arcLabel;
     }
 
     @Override
@@ -126,7 +129,11 @@ public class Arc {
     public String toString() {
         return "Arc [id=" + id + ", sourceNodeId=" + sourceNodeId
                 + ", targetNodeId=" + targetNodeId + ", type=" + type
-                + ", directed=" + directed + "]";
+                + ", directed=" + directed + ", arcLabel=" + arcLabel + "]";
+    }
+
+    public String getLabel() {
+        return this.arcLabel;
     }
 
 }

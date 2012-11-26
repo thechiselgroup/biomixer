@@ -33,6 +33,8 @@ public class MappingArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.MappingArcType";
 
+    public static final String ARC_LABEL = "mapping of";
+
     public static final String ARC_COLOR = "#D4D4D4";
 
     public static final String ARC_STYLE = ArcSettings.ARC_STYLE_DASHED;
@@ -45,7 +47,7 @@ public class MappingArcType implements ArcType {
 
     private Arc createArc(String sourceUri, String targetUri) {
         return new Arc(Graph.getArcId(ID, sourceUri, targetUri), sourceUri,
-                targetUri, ID, ARC_DIRECTED);
+                targetUri, ID, ARC_LABEL, ARC_DIRECTED);
     }
 
     @Override
@@ -107,5 +109,10 @@ public class MappingArcType implements ArcType {
     @Override
     public int getDefaultArcThickness() {
         return ARC_THICKNESS;
+    }
+
+    @Override
+    public String getArcTypeLabel() {
+        return this.ARC_LABEL;
     }
 }

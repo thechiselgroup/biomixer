@@ -104,6 +104,8 @@ public class GraphViewContentDisplayTest {
 
     private String arcTypeId;
 
+    private String arcLabel;
+
     private boolean arcDirected;
 
     private Color arcColor;
@@ -111,6 +113,8 @@ public class GraphViewContentDisplayTest {
     private int arcThickness;
 
     private String arcStyle;
+
+    private String arcHead;
 
     private Object borderColor;
 
@@ -224,7 +228,7 @@ public class GraphViewContentDisplayTest {
     }
 
     private Arc createArc(String arcId, String from, String to) {
-        return new Arc(arcId, from, to, arcTypeId, arcDirected);
+        return new Arc(arcId, from, to, arcTypeId, arcLabel, arcDirected);
     }
 
     /*
@@ -539,13 +543,13 @@ public class GraphViewContentDisplayTest {
         simulateAddVisualItems(visualItems);
 
         verify(graphDisplay, times(1)).setArcStyle(eq(arc),
-                eq(ArcSettings.ARC_HEAD), eq(arcStyle));
+                eq(ArcSettings.ARC_HEAD), eq(arcHead));
 
-        String newStyle = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
-        underTest.getArcItemContainer(arcTypeId).setArcStyle(newStyle);
+        String newHead = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
+        underTest.getArcItemContainer(arcTypeId).setArcStyle(newHead);
 
         verify(graphDisplay, times(1)).setArcStyle(eq(arc),
-                eq(ArcSettings.ARC_HEAD), eq(newStyle));
+                eq(ArcSettings.ARC_HEAD), eq(newHead));
     }
 
     @Test
@@ -624,10 +628,12 @@ public class GraphViewContentDisplayTest {
         targetLocation = new Point(20, 25);
 
         arcTypeId = "arcType";
+        arcLabel = "arcLabel";
         arcDirected = true;
         arcColor = new Color("#ffffff");
         arcThickness = 1;
         arcStyle = ArcSettings.ARC_STYLE_SOLID;
+        arcHead = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
 
         borderColor = new Color("#ff0000");
         backgroundColor = new Color("#ff0000");
@@ -636,9 +642,11 @@ public class GraphViewContentDisplayTest {
                 LightweightCollections.<ArcType> emptyCollection());
 
         when(arcType.getArcTypeID()).thenReturn(arcTypeId);
+        when(arcType.getArcTypeLabel()).thenReturn(arcLabel);
         when(arcType.getDefaultArcColor()).thenReturn(arcColor.toHex());
         when(arcType.getDefaultArcStyle()).thenReturn(arcStyle);
         when(arcType.getDefaultArcThickness()).thenReturn(arcThickness);
+        when(arcType.getDefaultArcHead()).thenReturn(arcHead);
 
         when(resourceCategorizer.getCategory(any(Resource.class))).thenReturn(
                 ResourceSetTestUtils.TYPE_1);
@@ -698,6 +706,7 @@ public class GraphViewContentDisplayTest {
         assertEquals(sourceNodeId, result.getSourceNodeId());
         assertEquals(targetNodeId, result.getTargetNodeId());
         assertEquals(arcTypeId, result.getType());
+        assertEquals(arcLabel, result.getLabel());
     }
 
     private void verifyArcShown(String arcId, int sourceNodeId, int targetNodeId) {
@@ -714,6 +723,7 @@ public class GraphViewContentDisplayTest {
         assertEquals(sourceNodeId, result.getSourceNodeId());
         assertEquals(targetNodeId, result.getTargetNodeId());
         assertEquals(arcTypeId, result.getType());
+        assertEquals(arcLabel, result.getLabel());
     }
 
     private void verifyNoArcAdded() {
