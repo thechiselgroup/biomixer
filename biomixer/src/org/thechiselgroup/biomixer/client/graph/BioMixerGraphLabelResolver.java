@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FirstReso
 public class BioMixerGraphLabelResolver extends FirstResourcePropertyResolver {
 
     public BioMixerGraphLabelResolver() {
+        // TODO This is not good. Made issue #220. Try fixing with another resolver, and also try adding enums instead of hard coded strings, if GWT allows this.
         super(Concept.LABEL, DataType.TEXT);
     }
 
