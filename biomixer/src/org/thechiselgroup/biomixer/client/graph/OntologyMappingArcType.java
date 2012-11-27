@@ -41,7 +41,7 @@ public class OntologyMappingArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.OntologyMappingArcType";
 
-    public static final String ARC_LABEL = "mapping of";
+    public static final String ARC_LABEL = "maps to";
 
     public static final String ARC_COLOR = "#D4D4D4";
 
