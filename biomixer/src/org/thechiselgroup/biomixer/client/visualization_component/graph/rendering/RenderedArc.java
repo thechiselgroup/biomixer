@@ -38,6 +38,8 @@ public interface RenderedArc {
 
     void setArcStyle(String arcStyle);
 
+    void setArcHead(String arcHead);
+
     void setColor(String color);
 
     void setEventListener(ChooselEventHandler handler);

@@ -36,6 +36,8 @@ public class ArcItemContainer implements Persistable {
 
     private static final String MEMENTO_ARC_STYLE = "arcStyle";
 
+    private static final String MEMENTO_ARC_HEAD = "arcHead";
+
     private static final String MEMENTO_VISIBLE = "visible";
 
     private static final String MEMENTO_ARC_THICKNESS = "arcThicknessLevel";
@@ -62,6 +64,8 @@ public class ArcItemContainer implements Persistable {
      */
     private int arcThicknessLevel;
 
+    private String arcHead;
+
     private final VisualItemContainer context;
 
     private boolean visible;
@@ -78,6 +82,7 @@ public class ArcItemContainer implements Persistable {
         this.context = context;
 
         arcStyle = arcType.getDefaultArcStyle();
+        arcHead = arcType.getDefaultArcHead();
         arcColor = arcType.getDefaultArcColor();
         // Set so that we get the ArcType defaults right away
         arcThicknessLevel = 0;
@@ -95,6 +100,10 @@ public class ArcItemContainer implements Persistable {
 
     public String getArcStyle() {
         return arcStyle;
+    }
+
+    public String getArcHead() {
+        return arcHead;
     }
 
     public int getArcThickness() {
@@ -127,7 +136,9 @@ public class ArcItemContainer implements Persistable {
         setVisible((Boolean) state.getValue(MEMENTO_VISIBLE));
         setArcColor((String) state.getValue(MEMENTO_ARC_COLOR));
         setArcStyle((String) state.getValue(MEMENTO_ARC_STYLE));
+        setArcHead((String) state.getValue(MEMENTO_ARC_HEAD));
         setArcThicknessLevel((Integer) state.getValue(MEMENTO_ARC_THICKNESS));
+
     }
 
     @Override
@@ -138,6 +149,7 @@ public class ArcItemContainer implements Persistable {
         memento.setValue(MEMENTO_ARC_THICKNESS, arcThicknessLevel);
         memento.setValue(MEMENTO_ARC_COLOR, arcColor);
         memento.setValue(MEMENTO_ARC_STYLE, arcStyle);
+        memento.setValue(MEMENTO_ARC_HEAD, arcHead);
 
         return memento;
     }
@@ -172,11 +184,21 @@ public class ArcItemContainer implements Persistable {
         assert arcThicknessLevel >= 0;
 
         this.arcThicknessLevel = arcThicknessLevel;
+
         for (ArcItem arcItem : getArcItems()) {
             // TODO Should this arc thickness stuff get pushed deeper, into
             // ArcItem?
             arcItem.setArcThickness(this.arcType.getArcThickness(
                     arcItem.getArc(), this.arcThicknessLevel));
+        }
+    }
+
+    public void setArcHead(String arcStyle) {
+        assert arcStyle != null;
+
+        this.arcHead = arcStyle;
+        for (ArcItem arcItem : getArcItems()) {
+            arcItem.setArcHead(arcStyle);
         }
     }
 
@@ -210,9 +232,11 @@ public class ArcItemContainer implements Persistable {
             if (!arcItemsById.containsKey(arc.getId())
                     && graphDisplay.containsNode(arc.getSourceNodeId())
                     && graphDisplay.containsNode(arc.getTargetNodeId())) {
-                ArcItem arcItem = new ArcItem(arc, arcColor, arcStyle,
+
+                ArcItem arcItem = new ArcItem(arc, arcColor, arcStyle, arcHead,
                         arcType.getArcThickness(arc, this.arcThicknessLevel),
                         graphDisplay);
+
                 arcItem.setVisible(visible);
 
                 arcItemsById.put(arc.getId(), arcItem);

@@ -53,6 +53,7 @@ public class OntologyMappingArcTypeTest {
         return new Arc(
                 Graph.getArcId(OntologyMappingArcType.ID, fromUri, toUri),
                 fromUri, toUri, OntologyMappingArcType.ID,
+                OntologyMappingArcType.ARC_LABEL,
                 OntologyMappingArcType.ARC_DIRECTED);
     }
 

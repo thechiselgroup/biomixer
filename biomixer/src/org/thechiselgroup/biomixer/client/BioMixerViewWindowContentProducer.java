@@ -151,11 +151,28 @@ public class BioMixerViewWindowContentProducer extends
         arcStyleDropDown.setVisibleItemCount(1);
         arcStyleDropDown.addItem(ArcSettings.ARC_STYLE_SOLID);
         arcStyleDropDown.addItem(ArcSettings.ARC_STYLE_DASHED);
+        arcStyleDropDown.addItem(ArcSettings.ARC_STYLE_DOTTED);
         String arcStyle = arcItemContainer.getArcStyle();
-        if (ArcSettings.ARC_STYLE_DASHED.equals(arcStyle)) {
+        if (ArcSettings.ARC_STYLE_DOTTED.equals(arcStyle)) {
+            arcStyleDropDown.setSelectedIndex(2);
+        } else if (ArcSettings.ARC_STYLE_DASHED.equals(arcStyle)) {
             arcStyleDropDown.setSelectedIndex(1);
         } else {
             arcStyleDropDown.setSelectedIndex(0);
+        }
+
+        final ListBox arcHeadDropDown = new ListBox();
+        arcHeadDropDown.setVisibleItemCount(1);
+        arcHeadDropDown.addItem(ArcSettings.ARC_HEAD_NONE);
+        arcHeadDropDown.addItem(ArcSettings.ARC_HEAD_TRIANGLE_EMPTY);
+        arcHeadDropDown.addItem(ArcSettings.ARC_HEAD_TRIANGLE_FULL);
+        String arcHead = arcItemContainer.getArcHead();
+        if (ArcSettings.ARC_HEAD_NONE.equals(arcHead)) {
+            arcHeadDropDown.setSelectedIndex(2);
+        } else if (ArcSettings.ARC_HEAD_TRIANGLE_FULL.equals(arcHead)) {
+            arcHeadDropDown.setSelectedIndex(1);
+        } else if (ArcSettings.ARC_HEAD_TRIANGLE_EMPTY.equals(arcHead)) {
+            arcHeadDropDown.setSelectedIndex(0);
         }
 
         final String defaultEntry = "Default";
@@ -176,13 +193,19 @@ public class BioMixerViewWindowContentProducer extends
                 arcItemContainer.setArcColor(arcColorText.getText());
                 arcItemContainer.setArcStyle(arcStyleDropDown
                         .getItemText(arcStyleDropDown.getSelectedIndex()));
+
                 String selectedThicknessText = arcThicknessDropDown
                         .getItemText(arcThicknessDropDown.getSelectedIndex());
                 if (selectedThicknessText.equals(defaultEntry)) {
                     arcItemContainer.setArcThicknessLevel(0);
                 } else {
-                    arcItemContainer.setArcThicknessLevel(Integer.parseInt(selectedThicknessText));
+                    arcItemContainer.setArcThicknessLevel(Integer
+                            .parseInt(selectedThicknessText));
                 }
+
+                arcItemContainer.setArcHead(arcHeadDropDown
+                        .getItemText(arcHeadDropDown.getSelectedIndex()));
+
             }
         });
 
@@ -195,6 +218,7 @@ public class BioMixerViewWindowContentProducer extends
                         boolean value = visibleCheckBox.getValue();
                         updateButton.setEnabled(value);
                         arcStyleDropDown.setEnabled(value);
+                        arcHeadDropDown.setEnabled(value);
                         arcThicknessDropDown.setEnabled(value);
                         arcColorText.setEnabled(value);
                         arcItemContainer.setVisible(value);
@@ -210,6 +234,8 @@ public class BioMixerViewWindowContentProducer extends
         containerPanel.add(arcColorText);
         containerPanel.add(new Label("Arc Style"));
         containerPanel.add(arcStyleDropDown);
+        containerPanel.add(new Label("Arc Head"));
+        containerPanel.add(arcHeadDropDown);
         containerPanel.add(new Label("Arc Thickness"));
         containerPanel.add(arcThicknessDropDown);
         containerPanel.add(updateButton);

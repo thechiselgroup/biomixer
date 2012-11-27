@@ -92,7 +92,6 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
      * 
      * @return
      */
-
     public SvgElement asSvg() {
         return rootSvgComponent.asSvgElement();
     }

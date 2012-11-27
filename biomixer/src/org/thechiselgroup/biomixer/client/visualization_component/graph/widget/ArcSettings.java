@@ -37,12 +37,22 @@ public interface ArcSettings {
     String ARC_ALPHA = "normalLineAlpha";
 
     /**
-     * Arc property that defines the style of the arc (solid or dashed).
+     * Arc property that defines the style of the arc.
      * 
      * @see #ARC_STYLE_DASHED
      * @see #ARC_STYLE_SOLID
+     * @see #ARC_STYLE_DOTTED
      */
     String ARC_STYLE = "normalLineStyle";
+
+    /**
+     * Arc property that defines the head of the arc.
+     * 
+     * @see #ARC_HEAD_TRIANGLE_FULL
+     * @see #ARC_HEAD_TRIANGLE_EMPTY
+     * @see #ARC_HEAD_NONE
+     */
+    String ARC_HEAD = "normalLineHead";
 
     /**
      * Style constant for dashed arcs.
@@ -57,5 +67,33 @@ public interface ArcSettings {
      * @see #ARC_STYLE
      */
     String ARC_STYLE_SOLID = "solid";
+
+    /**
+     * Style constant for dotted arcs.
+     * 
+     * @see #ARC_HEAD
+     */
+    String ARC_STYLE_DOTTED = "dotted";
+
+    /**
+     * Head constant for full triangles.
+     * 
+     * @see #ARC_HEAD
+     */
+    String ARC_HEAD_TRIANGLE_FULL = "triangle full";
+
+    /**
+     * Head constant for empty triangles.
+     * 
+     * @see #ARC_HEAD
+     */
+    String ARC_HEAD_TRIANGLE_EMPTY = "triangle empty";
+
+    /**
+     * Head constant for no head rendered.
+     * 
+     * @see #ARC_HEAD
+     */
+    String ARC_HEAD_NONE = "none";
 
 }

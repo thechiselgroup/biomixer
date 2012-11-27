@@ -42,7 +42,7 @@ public class ConceptGraphSvgDisplayProcessTest extends AbstractConceptGraphSvgDi
     public void addArcShouldContainArc() {
         addNode(N1, LABEL1, TYPE1);
         addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         assertTrue(underTest.containsArc(A1));
     }
 

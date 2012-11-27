@@ -51,7 +51,7 @@ public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDis
             throws Exception {
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
@@ -78,7 +78,7 @@ public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDis
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         assertComponentWithIdEqualsFile(A1, "arc1");
     }
 
@@ -86,7 +86,7 @@ public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDis
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = addArc(A1, N1, N2, TYPE1, true);
+        Arc arc = addArc(A1, N1, N2, TYPE1, TYPE1, true);
         return arc;
     }
 
@@ -108,7 +108,7 @@ public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDis
     public void removingNodeShouldRemoveArc() {
         Node node1 = addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, TYPE1, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoNodesAddArcMoveNode2RemoveNode1");
@@ -130,6 +130,14 @@ public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDis
     }
 
     @Test
+    public void setArcStyleDotted() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DOTTED);
+        assertComponentWithIdEqualsFile(A1, "arc1Dotted");
+    }
+
+    @Test
     public void setArcStyleDashedThenSolid() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
@@ -140,11 +148,45 @@ public class ConceptGraphSvgDisplayOutputTest extends AbstractConceptGraphSvgDis
     }
 
     @Test
+    public void setArcStyleDashedThenDotted() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DASHED);
+        underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
+                ArcSettings.ARC_STYLE_DOTTED);
+        assertComponentWithIdEqualsFile(A1, "arc1Dotted");
+    }
+
+    @Test
     public void setArcStyleSolid() throws Exception {
         Arc arc = addTwoSeparatedNodesWithArc();
         underTest.setArcStyle(arc, ArcSettings.ARC_STYLE,
                 ArcSettings.ARC_STYLE_SOLID);
         assertComponentWithIdEqualsFile(A1, "arc1");
+    }
+
+    @Test
+    public void setArcHeadFilled() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
+                ArcSettings.ARC_HEAD_TRIANGLE_FULL);
+        assertComponentWithIdEqualsFile(A1, "arc1TriangleFullHead");
+    }
+
+    @Test
+    public void setArcHeadEmpty() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
+                ArcSettings.ARC_HEAD_TRIANGLE_EMPTY);
+        assertComponentWithIdEqualsFile(A1, "arc1TriangleEmptyHead");
+    }
+
+    @Test
+    public void setArcHeadNone() throws Exception {
+        Arc arc = addTwoSeparatedNodesWithArc();
+        underTest.setArcStyle(arc, ArcSettings.ARC_HEAD,
+                ArcSettings.ARC_HEAD_NONE);
+        assertComponentWithIdEqualsFile(A1, "arc1NoHead");
     }
 
     @Test

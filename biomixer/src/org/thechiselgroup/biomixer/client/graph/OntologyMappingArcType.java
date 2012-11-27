@@ -41,6 +41,8 @@ public class OntologyMappingArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.OntologyMappingArcType";
 
+    public static final String ARC_LABEL = "mapping of";
+
     public static final String ARC_COLOR = "#D4D4D4";
 
     public static final String ARC_STYLE = ArcSettings.ARC_STYLE_DASHED;
@@ -49,6 +51,8 @@ public class OntologyMappingArcType implements ArcType {
 
     public static final int ARC_THICKNESS = 1;
 
+    public static final String ARC_HEAD = ArcSettings.ARC_HEAD_NONE;
+
     private Arc createArc(String ontology1Uri, String ontology2Uri,
             int numberOfMappings) {
         boolean isOntology1First = ontology1Uri.compareTo(ontology2Uri) < 0;
@@ -56,8 +60,9 @@ public class OntologyMappingArcType implements ArcType {
         String secondUri = isOntology1First ? ontology2Uri : ontology1Uri;
 
         Arc arc = new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
-                secondUri, ID, ARC_DIRECTED);
-        int scaledThickness = (int) Math.round((1 + Math.sqrt((numberOfMappings) / 1)));
+                secondUri, ID, getArcTypeLabel(), ARC_DIRECTED);
+        int scaledThickness = (int) Math.round((1 + Math
+                .sqrt((numberOfMappings) / 1)));
         arc.setSize(scaledThickness);
         return arc;
     }
@@ -123,5 +128,15 @@ public class OntologyMappingArcType implements ArcType {
     public int getArcThickness(Arc arc, Integer thicknessLevel) {
         // Return number of concept mappings that are aggregated over
         return (0 == thicknessLevel) ? arc.getSize() : thicknessLevel;
+    }
+
+    @Override
+    public String getDefaultArcHead() {
+        return ARC_HEAD;
+    }
+
+    @Override
+    public String getArcTypeLabel() {
+        return ARC_LABEL;
     }
 }

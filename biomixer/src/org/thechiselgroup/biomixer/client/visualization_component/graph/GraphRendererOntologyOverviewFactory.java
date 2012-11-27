@@ -41,7 +41,8 @@ public class GraphRendererOntologyOverviewFactory implements
 
     @Override
     public ArcRenderer getArcRenderer(SvgElementFactory svgElementFactory) {
-        return new StraightLineSvgArcRenderer(svgElementFactory);
+        return new StraightLineSvgArcRenderer(svgElementFactory,
+                getTextBoundsEstimator(svgElementFactory));
     }
 
     @Override

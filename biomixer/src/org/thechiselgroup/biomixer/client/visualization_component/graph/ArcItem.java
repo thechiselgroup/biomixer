@@ -25,12 +25,24 @@ public class ArcItem {
     private String arcColor;
 
     /**
-     * One of the valid arc styles (ARC_STYLE_DASHED or ARC_STYLE_SOLID).
+     * One of the valid arc styles (ARC_STYLE_DASHED or ARC_STYLE_SOLID or
+     * ARC_STYLE_DOTTED).
      * 
      * @see ArcSettings#ARC_STYLE_DASHED
      * @see ArcSettings#ARC_STYLE_SOLID
+     * @see ArcSettings#ARC_STYLE_DOTTED
      */
     private String arcStyle;
+
+    /**
+     * One of the valid arc styles (ARC_STYLE_DASHED or ARC_STYLE_SOLID or
+     * ARC_STYLE_DOTTED).
+     * 
+     * @see ArcSettings#ARC_HEAD_TRIANGLE_FULL
+     * @see ArcSettings#ARC_HEAD_TRIANGLE_EMPTY
+     * @see ArcSettings#ARC_HEAD_NONE
+     */
+    private String arcHead;
 
     private Arc arc;
 
@@ -40,18 +52,20 @@ public class ArcItem {
 
     private final GraphDisplay graphDisplay;
 
-    public ArcItem(Arc arc, String arcColor, String arcStyle, int arcThickness,
-            GraphDisplay graphDisplay) {
+    public ArcItem(Arc arc, String arcColor, String arcStyle, String arcHead,
+            int arcThickness, GraphDisplay graphDisplay) {
 
         assert arc != null;
         assert arcColor != null;
         assert arcStyle != null;
+        assert arcHead != null;
         assert arcThickness > 0;
         assert graphDisplay != null;
 
         this.arc = arc;
         this.arcColor = arcColor;
         this.arcStyle = arcStyle;
+        this.arcHead = arcHead;
         this.arcThickness = arcThickness;
         this.graphDisplay = graphDisplay;
     }
@@ -62,6 +76,10 @@ public class ArcItem {
 
     private void applyArcStyle() {
         graphDisplay.setArcStyle(arc, ArcSettings.ARC_STYLE, arcStyle);
+    }
+
+    private void applyArcHead() {
+        graphDisplay.setArcStyle(arc, ArcSettings.ARC_HEAD, arcHead);
     }
 
     private void applyArcThickness() {
@@ -102,6 +120,13 @@ public class ArcItem {
         } else if (!arcStyle.equals(other.arcStyle)) {
             return false;
         }
+        if (arcHead == null) {
+            if (other.arcHead != null) {
+                return false;
+            }
+        } else if (!arcHead.equals(other.arcHead)) {
+            return false;
+        }
         if (arcThickness != other.arcThickness) {
             return false;
         }
@@ -124,6 +149,10 @@ public class ArcItem {
         return arcStyle;
     }
 
+    public String getHead() {
+        return arcHead;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -133,6 +162,7 @@ public class ArcItem {
                 + ((arcColor == null) ? 0 : arcColor.hashCode());
         result = prime * result
                 + ((arcStyle == null) ? 0 : arcStyle.hashCode());
+        result = prime * result + ((arcHead == null) ? 0 : arcHead.hashCode());
         result = prime * result + arcThickness;
         return result;
     }
@@ -144,6 +174,16 @@ public class ArcItem {
 
         if (visible) {
             applyArcStyle();
+        }
+    }
+
+    public void setArcHead(String arcHead) {
+        assert arcHead != null;
+
+        this.arcHead = arcHead;
+
+        if (visible) {
+            applyArcHead();
         }
     }
 
@@ -177,6 +217,7 @@ public class ArcItem {
             graphDisplay.addArc(arc);
 
             applyArcStyle();
+            applyArcHead();
             applyArcColor();
             applyArcThickness();
         } else {
@@ -187,7 +228,8 @@ public class ArcItem {
     @Override
     public String toString() {
         return "ArcItem [arcColor=" + arcColor + ", arcStyle=" + arcStyle
-                + ", arc=" + arc + ", arcThickness=" + arcThickness + "]";
+                + ", arcHead=" + arcHead + ", arc=" + arc + ", arcThickness="
+                + arcThickness + "]";
     }
 
 }

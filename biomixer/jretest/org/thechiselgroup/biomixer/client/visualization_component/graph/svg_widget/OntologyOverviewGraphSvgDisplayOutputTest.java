@@ -52,7 +52,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
             throws Exception {
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, ARCLABEL1, true);
         underTest.setLocation(node2, new Point(130, 0));
         assertComponentWithIdEqualsFile(A1, "arc1Circle");
     }
@@ -79,7 +79,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, ARCLABEL1, true);
         assertComponentWithIdEqualsFile(A1, "arc1Circle");
     }
 
@@ -87,7 +87,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
         addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
         underTest.setLocation(node2, new Point(130, 0));
-        Arc arc = addArc(A1, N1, N2, TYPE1, true);
+        Arc arc = addArc(A1, N1, N2, TYPE1, ARCLABEL1, true);
         return arc;
     }
 
@@ -109,7 +109,7 @@ public class OntologyOverviewGraphSvgDisplayOutputTest extends
     public void removingNodeShouldRemoveArc() {
         Node node1 = addNode(N1, LABEL1, TYPE1);
         Node node2 = addNode(N2, LABEL2, TYPE1);
-        addArc(A1, N1, N2, TYPE1, true);
+        addArc(A1, N1, N2, TYPE1, ARCLABEL1, true);
         underTest.setLocation(node2, new Point(130, 0));
         underTest.removeNode(node1);
         assertUnderTestAsSvgEqualsFile("addTwoCircleNodesAddArcMoveNode2RemoveNode1");

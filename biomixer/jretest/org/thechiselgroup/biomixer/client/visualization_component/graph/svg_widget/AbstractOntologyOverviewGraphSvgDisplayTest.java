@@ -44,6 +44,8 @@ public abstract class AbstractOntologyOverviewGraphSvgDisplayTest extends
 
     protected static final String LABEL2 = "Concept2";
 
+    protected static final String ARCLABEL1 = "Arc1";
+
     protected static final String N1 = "n1";
 
     protected static final String N2 = "n2";
@@ -80,8 +82,9 @@ public abstract class AbstractOntologyOverviewGraphSvgDisplayTest extends
     protected SvgResultParser parser;
 
     protected Arc addArc(String arcId, String sourceNodeId,
-            String targetNodeId, String type, boolean directed) {
-        Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, directed);
+            String targetNodeId, String type, String label, boolean directed) {
+        Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, label,
+                directed);
         underTest.addArc(arc);
         return arc;
     }

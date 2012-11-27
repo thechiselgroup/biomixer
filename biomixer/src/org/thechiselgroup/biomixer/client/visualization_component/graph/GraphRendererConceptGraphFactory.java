@@ -40,7 +40,8 @@ public class GraphRendererConceptGraphFactory implements GraphRendererFactory {
 
     @Override
     public ArcRenderer getArcRenderer(SvgElementFactory svgElementFactory) {
-        return new StraightLineSvgArcRenderer(svgElementFactory);
+        return new StraightLineSvgArcRenderer(svgElementFactory,
+                getTextBoundsEstimator(svgElementFactory));
     }
 
     @Override

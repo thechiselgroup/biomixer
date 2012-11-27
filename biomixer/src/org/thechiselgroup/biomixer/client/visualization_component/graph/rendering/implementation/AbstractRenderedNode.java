@@ -49,7 +49,7 @@ public abstract class AbstractRenderedNode implements RenderedNode {
 
     /**
      * Returns the center of the total rendered node, including the label if it
-     * is nto contained within the node.
+     * is not contained within the node.
      * 
      * @return
      */

@@ -45,9 +45,13 @@ public class DirectConceptMappingArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType";
 
+    public static final String ARC_LABEL = "maps to";
+
     public static final String ARC_COLOR = "#D4D4D4";
 
     public static final String ARC_STYLE = ArcSettings.ARC_STYLE_DASHED;
+
+    public static final String ARC_HEAD = ArcSettings.ARC_HEAD_NONE;
 
     public static final boolean ARC_DIRECTED = false;
 
@@ -65,7 +69,7 @@ public class DirectConceptMappingArcType implements ArcType {
         String secondUri = isConcept1First ? concept2Uri : concept1Uri;
 
         return new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
-                secondUri, ID, ARC_DIRECTED);
+                secondUri, ID, ARC_LABEL, ARC_DIRECTED);
     }
 
     @Override
@@ -120,6 +124,11 @@ public class DirectConceptMappingArcType implements ArcType {
     }
 
     @Override
+    public String getDefaultArcHead() {
+        return ARC_HEAD;
+    }
+
+    @Override
     public int getDefaultArcThickness() {
         return ARC_THICKNESS;
     }
@@ -128,5 +137,11 @@ public class DirectConceptMappingArcType implements ArcType {
     public int getArcThickness(Arc arc, Integer thicknessLevel) {
         return (0 == thicknessLevel) ? this.getDefaultArcThickness()
                 : thicknessLevel;
+    }
+
+    @Override
+    public String getArcTypeLabel() {
+        return ARC_LABEL;
+
     }
 }
