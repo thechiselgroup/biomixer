@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 
 import com.google.gwt.user.client.Command;
 
-public class SearchCommand implements Command, HasTextParameter {
+abstract public class SearchCommand implements Command, HasTextParameter {
 
     private CommandManager commandManager;
 
@@ -59,6 +59,10 @@ public class SearchCommand implements Command, HasTextParameter {
     @Override
     public void initParameter(String parameter) {
         this.searchTerm = parameter;
+    }
+
+    public String getContentType() {
+        return contentType;
     }
 
 }

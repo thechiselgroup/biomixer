@@ -19,9 +19,11 @@ import org.thechiselgroup.biomixer.client.dnd.windows.OverlayWindowContentProduc
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContent;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentFactory;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
+import org.thechiselgroup.biomixer.client.search.ConceptSearchWindowContent;
+import org.thechiselgroup.biomixer.client.search.OntologySearchWindowContent;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
-import org.thechiselgroup.biomixer.client.workbench.ui.HelpWindowContentFactory;
 import org.thechiselgroup.biomixer.client.workbench.ui.CommentWindowContentFactory;
+import org.thechiselgroup.biomixer.client.workbench.ui.HelpWindowContentFactory;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.inject.Inject;
@@ -31,7 +33,10 @@ public class BioMixerWindowContentProducerProvider implements
         Provider<WindowContentProducer> {
 
     @Inject
-    protected ConceptSearchWindowContent ncboSearchViewContent;
+    protected ConceptSearchWindowContent ncboConceptSearchViewContent;
+
+    @Inject
+    protected OntologySearchWindowContent ncboOntologySearchViewContent;
 
     @Inject
     private ViewWindowContentProducer viewProducer;
@@ -46,11 +51,20 @@ public class BioMixerWindowContentProducerProvider implements
         contentProducer.register(WorkbenchInitializer.WINDOW_CONTENT_COMMENT,
                 new CommentWindowContentFactory());
 
-        contentProducer.register(ConceptSearchWindowContent.ID,
+        contentProducer.register(ncboConceptSearchViewContent.getContentType(),
                 new WindowContentFactory() {
                     @Override
                     public WindowContent createWindowContent() {
-                        return ncboSearchViewContent;
+                        return ncboConceptSearchViewContent;
+                    }
+                });
+
+        contentProducer.register(
+                ncboOntologySearchViewContent.getContentType(),
+                new WindowContentFactory() {
+                    @Override
+                    public WindowContent createWindowContent() {
+                        return ncboOntologySearchViewContent;
                     }
                 });
 

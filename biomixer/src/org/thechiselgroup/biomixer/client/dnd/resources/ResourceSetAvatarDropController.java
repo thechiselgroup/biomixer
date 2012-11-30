@@ -150,7 +150,7 @@ public class ResourceSetAvatarDropController extends SimpleDropController {
         assert model != null;
 
         return capabilityChecker.isValidDrop(model.getSlots(),
-                avatar.getResourceSet());
+                avatar.getResourceSet(), model);
     }
 
     // TODO support dragging multiple widgets?

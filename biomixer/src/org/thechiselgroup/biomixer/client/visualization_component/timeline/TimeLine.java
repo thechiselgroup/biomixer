@@ -17,16 +17,20 @@ package org.thechiselgroup.biomixer.client.visualization_component.timeline;
 
 import java.util.Date;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.persistence.Memento;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationService;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetAccessor;
 import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSetCollector;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.Widget;
 
@@ -42,13 +46,15 @@ public class TimeLine extends AbstractViewContentDisplay {
 
     private static final Slot[] SLOTS = new Slot[] { BORDER_COLOR, COLOR, DATE };
 
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.Timeline";
-
     private static final String MEMENTO_DATE = "date";
 
     private static final String MEMENTO_ZOOM_PREFIX = "zoom-band-";
 
     private TimeLineWidget timelineWidget;
+
+    public TimeLine(DataTypeValidator dataValidation) {
+        super(dataValidation);
+    }
 
     private void addEventsToTimeline(
             LightweightCollection<VisualItem> addedResourceItems) {
@@ -99,6 +105,13 @@ public class TimeLine extends AbstractViewContentDisplay {
     @Override
     public Slot[] getSlots() {
         return SLOTS;
+    }
+
+    @Override
+    public boolean validateDataTypes(ResourceSet resourceSet) {
+        // TODO This was added at a time when no data requirements were
+        // recognized for this. Specialized visualizers should override this.
+        return true;
     }
 
     private JsTimeLineEvent[] getTimeLineEvents(
@@ -213,6 +226,26 @@ public class TimeLine extends AbstractViewContentDisplay {
         for (VisualItem visualItem : visualItems) {
             visualItem.<TimeLineItem> getDisplayObject().setStatusStyling();
         }
+    }
+
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+        CompositeVisualItemBehavior composite = behaviorFactory
+                .createEmptyCompositeVisualItemBehavior();
+
+        composite.add(behaviorFactory
+                .createDefaultHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory.createDefaultDragVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultPopupWithHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultSwitchSelectionVisualItemBehavior());
+
+        return composite;
     }
 
 }

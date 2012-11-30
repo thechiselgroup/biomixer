@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
+
 /**
  * Keeps track of the node that is currently "mouse down", and manages its
  * movements.
@@ -36,33 +38,34 @@ public class NodeInteractionManager {
 
     private boolean movedSinceMouseDown = false;
 
-    private final GraphSvgDisplay graphDisplay;
+    private final GraphDisplayController graphDisplay;
 
-    public NodeInteractionManager(GraphSvgDisplay graphDisplay) {
+    public NodeInteractionManager(GraphDisplayController graphDisplay) {
         this.graphDisplay = graphDisplay;
     }
 
-    public void onMouseDown(String nodeId, int currentX, int currentY) {
+    public void onMouseDown(String nodeId, ChooselEvent event, int currentX,
+            int currentY) {
         mouseDownNodeId = nodeId;
         movedSinceMouseDown = false;
         lastMouseX = currentX;
         lastMouseY = currentY;
     }
 
-    public void onMouseMove(int currentX, int currentY) {
+    public void onMouseMove(ChooselEvent event, int currentX, int currentY) {
         if (mouseDownNodeId != null) {
             int deltaX = currentX - lastMouseX;
             int deltaY = currentY - lastMouseY;
-            graphDisplay.onNodeDrag(mouseDownNodeId, deltaX, deltaY);
+            graphDisplay.onNodeDrag(event, mouseDownNodeId, deltaX, deltaY);
             movedSinceMouseDown = true;
         }
         lastMouseX = currentX;
         lastMouseY = currentY;
     }
 
-    public void onMouseUp() {
+    public void onMouseUp(ChooselEvent event) {
         if (!movedSinceMouseDown) {
-            graphDisplay.onNodeMouseClick(mouseDownNodeId, lastMouseX,
+            graphDisplay.onNodeMouseClick(mouseDownNodeId, event, lastMouseX,
                     lastMouseY);
         }
         mouseDownNodeId = null;

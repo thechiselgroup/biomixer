@@ -57,7 +57,7 @@ public class VisualItemInteraction {
          * 
          * @see Event
          */
-        private static Type byCode(int eventCode) {
+        public static Type byCode(int eventCode) {
             if (!typesByCode.containsKey(eventCode)) {
                 return UNDEFINED;
             }
@@ -109,13 +109,26 @@ public class VisualItemInteraction {
     }
 
     public VisualItemInteraction(Type eventType) {
-        this(eventType, UNKNOWN, UNKNOWN);
+        this((NativeEvent) null, eventType, UNKNOWN, UNKNOWN);
     }
 
-    public VisualItemInteraction(Type eventType, int clientX, int clientY) {
+    /**
+     * We appear to need the ability to specify eventType because of the use of
+     * {@link Type.DRAG_START}. This is not a type reflected in the Event or
+     * NativeEvent class. Is there a solution to overriding event type is this
+     * way?
+     * 
+     * @param linkedEvent
+     * @param eventType
+     * @param clientX
+     * @param clientY
+     */
+    public VisualItemInteraction(NativeEvent linkedEvent, Type eventType,
+            int clientX, int clientY) {
         this.eventType = eventType;
         this.clientX = clientX;
         this.clientY = clientY;
+        this.nativeEvent = linkedEvent;
     }
 
     /**

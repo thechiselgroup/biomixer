@@ -22,6 +22,7 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetUtils;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
 
 public class DefaultDropTargetCapabilityChecker implements
         DropTargetCapabilityChecker {
@@ -37,9 +38,15 @@ public class DefaultDropTargetCapabilityChecker implements
     }
 
     @Override
-    public boolean isValidDrop(Slot[] slots, ResourceSet resourceSet) {
+    public boolean isValidDrop(Slot[] slots, ResourceSet resourceSet,
+            VisualizationModel model) {
         assert slots != null : "slots must not be null";
         assert resourceSet != null : "resourceSet must not be null";
+        assert model != null : "model must not be null";
+
+        if (!model.getViewContentDisplay().validateDataTypes(resourceSet)) {
+            return false;
+        }
 
         List<DataType> dataTypes = getDataTypes(slots);
 
@@ -57,5 +64,4 @@ public class DefaultDropTargetCapabilityChecker implements
 
         return true;
     }
-
 }

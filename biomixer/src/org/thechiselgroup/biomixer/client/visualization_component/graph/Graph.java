@@ -16,11 +16,16 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeInt;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeInt;
@@ -40,6 +45,10 @@ import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
+import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
@@ -49,12 +58,15 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphSvgDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayLoadingFailureEventHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
@@ -71,6 +83,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverHandler;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -86,16 +99,47 @@ import com.google.inject.Inject;
 public class Graph extends AbstractViewContentDisplay implements
         RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
 
-    public static class DefaultDisplay extends GraphSvgDisplay implements
-            GraphDisplay {
+    public static class DefaultDisplay extends GraphDisplayController {
 
-        // TODO why is size needed in the first place??
-        public DefaultDisplay() {
-            this(400, 300);
+        static final int defaultHeight = 400;
+
+        static final int defaultWidth = 300;
+
+        static final GraphRendererConceptGraphFactory factory = new GraphRendererConceptGraphFactory();
+
+        // // TODO why is size needed in the first place??
+        public DefaultDisplay(ErrorHandler errorHandler) {
+            super(defaultHeight, defaultWidth, "Concept Graph", factory
+                    .createGraphRenderer(defaultHeight, defaultWidth),
+                    errorHandler, true);
         }
 
-        public DefaultDisplay(int width, int height) {
-            super(width, height);
+        public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
+            super(width, height, "Concept Graph", factory.createGraphRenderer(
+                    width, height), errorHandler, true);
+        }
+
+    }
+
+    public static class OntologyGraphDisplay extends GraphDisplayController {
+
+        static final int defaultHeight = 400;
+
+        static final int defaultWidth = 300;
+
+        static final GraphRendererOntologyOverviewFactory factory = new GraphRendererOntologyOverviewFactory();
+
+        // // TODO why is size needed in the first place??
+        public OntologyGraphDisplay(ErrorHandler errorHandler) {
+            super(defaultHeight, defaultWidth, "Ontology Graph", factory
+                    .createGraphRenderer(defaultHeight, defaultWidth),
+                    errorHandler, true);
+        }
+
+        public OntologyGraphDisplay(int width, int height,
+                ErrorHandler errorHandler) {
+            super(width, height, "Ontology Graph", factory.createGraphRenderer(
+                    width, height), errorHandler, true);
         }
 
     }
@@ -117,6 +161,28 @@ public class Graph extends AbstractViewContentDisplay implements
                     .getNode(),
                     new Point(event.getStartX(), event.getStartY()), new Point(
                             event.getEndX(), event.getEndY())));
+
+            // Leverage the registered VisualItem framework with Popups. This
+            // helps hide the popup when we drag the node, so it doesn't
+            // interfere.
+            if (event.getNode() != null
+                    && (event.getEndX() != event.getStartX())
+                    || (event.getEndY() != event.getStartY())) {
+                // The DRAG_START event is used in the PopupVisualItemBehavior
+                // to hide the popup...
+                getVisualItem(event.getNode()).reportInteraction(
+                        new VisualItemInteraction(event.getChooselEvent()
+                                .getBrowserEvent(), Type.DRAG_START, event
+                                .getEndX(), event.getEndY()));
+
+                // ... but I need to pass the browser native event in order to
+                // cancel the text highlighting (which might happen through the
+                // createDefaultDragVisualItemBehavior() thing.
+                getVisualItem(event.getNode()).reportInteraction(
+                        new VisualItemInteraction(event.getChooselEvent()
+                                .getBrowserEvent()));
+            }
+
         }
 
         @Override
@@ -131,15 +197,20 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseMove(MouseMoveEvent event) {
+        	// TODO This doesn't get called currently. Is the code valuable for
+            // later?
+            // May not get called since some funny redispatching involving the DRAG_START event type occurs.
             if (currentNode != null) {
-                getVisualItem(currentNode).reportInteraction(
-                        new VisualItemInteraction(Type.MOUSE_MOVE, event
-                                .getClientX(), event.getClientY()));
+                VisualItemInteraction interaction = new VisualItemInteraction(
+                        event.getNativeEvent());
+                getVisualItem(currentNode).reportInteraction(interaction);
             }
         }
 
         @Override
         public void onMouseMove(NodeDragHandleMouseMoveEvent event) {
+            // TODO This doesn't get called currently. Is the code valuable for
+            // later?
             reportInteraction(Type.MOUSE_MOVE, event);
         }
 
@@ -156,32 +227,34 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         private void reportInteraction(Type eventType, NodeEvent<?> event) {
-            int clientX = event.getMouseX() + asWidget().getAbsoluteLeft();
-            int clientY = event.getMouseY() + asWidget().getAbsoluteTop();
-
             getVisualItem(event).reportInteraction(
-                    new VisualItemInteraction(eventType, clientX, clientY));
+                    new VisualItemInteraction(event.getChooselEvent()
+                            .getBrowserEvent()));
         }
 
     }
 
     public class GraphLayoutAction implements ViewContentDisplayAction {
 
-        private final String layout;
+        private final LayoutAlgorithm layoutAlgorithm;
 
-        public GraphLayoutAction(String layout) {
-            this.layout = layout;
+        private final String layoutLabel;
+
+        public GraphLayoutAction(String layoutLabel,
+                LayoutAlgorithm layoutAlgorithm) {
+            this.layoutLabel = layoutLabel;
+            this.layoutAlgorithm = layoutAlgorithm;
         }
 
         @Override
         public void execute() {
-            commandManager.execute(new GraphLayoutCommand(graphDisplay, layout,
-                    getAllNodes()));
+            commandManager.execute(new GraphLayoutCommand(graphDisplay,
+                    layoutAlgorithm, layoutLabel, getAllNodes()));
         }
 
         @Override
         public String getLabel() {
-            return layout;
+            return layoutLabel;
         }
     }
 
@@ -193,8 +266,6 @@ public class Graph extends AbstractViewContentDisplay implements
 
     public static final Slot NODE_LABEL_SLOT = new Slot("nodeLabel",
             "Node Label", DataType.TEXT);
-
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.graph.Graph";
 
     private static final String MEMENTO_ARC_ITEM_CONTAINERS_CHILD = "arcItemContainers";
 
@@ -217,9 +288,7 @@ public class Graph extends AbstractViewContentDisplay implements
 
     // advanced node class: (incoming, outgoing, expanded: state machine)
 
-    private final GraphDisplay graphDisplay;
-
-    private boolean ready = false;
+    private final GraphDisplayController graphDisplay;
 
     private final GraphExpansionRegistry registry;
 
@@ -259,7 +328,7 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         @Override
-        public GraphDisplay getDisplay() {
+        public GraphDisplayController getDisplay() {
             return Graph.this.getDisplay();
         }
 
@@ -301,11 +370,15 @@ public class Graph extends AbstractViewContentDisplay implements
         }
     };
 
+    private ErrorHandler errorHandler;
+
     @Inject
-    public Graph(GraphDisplay display, CommandManager commandManager,
+    public Graph(GraphDisplayController display, CommandManager commandManager,
             ResourceManager resourceManager,
             ResourceCategorizer resourceCategorizer,
-            ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry) {
+            ArcTypeProvider arcStyleProvider, GraphExpansionRegistry registry,
+            ErrorHandler errorHandler, DataTypeValidator dataTypeValidator) {
+        super(dataTypeValidator);
 
         assert display != null;
         assert commandManager != null;
@@ -313,13 +386,14 @@ public class Graph extends AbstractViewContentDisplay implements
         assert resourceCategorizer != null;
         assert arcStyleProvider != null;
         assert registry != null;
+        assert errorHandler != null;
 
         this.arcStyleProvider = arcStyleProvider;
         this.resourceCategorizer = resourceCategorizer;
         graphDisplay = display;
         // didn't want to change GraphDisplay's interface yet
-        if (graphDisplay instanceof GraphSvgDisplay) {
-            addResizeListener((GraphSvgDisplay) graphDisplay);
+        if (graphDisplay instanceof GraphDisplayController) {
+            addResizeListener(graphDisplay);
         }
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
@@ -330,6 +404,7 @@ public class Graph extends AbstractViewContentDisplay implements
          * customization in Choosel applications.
          */
         initArcTypeContainers();
+        this.errorHandler = errorHandler;
     }
 
     @SuppressWarnings("unchecked")
@@ -353,22 +428,25 @@ public class Graph extends AbstractViewContentDisplay implements
     private NodeItem createGraphNodeItem(VisualItem visualItem) {
         // TODO get from group id
         String type = getCategory(visualItem.getResources().getFirstElement());
+        NodeItem nodeItem = new NodeItem(visualItem, type, graphDisplay);
 
-        NodeItem graphItem = new NodeItem(visualItem, type, graphDisplay);
-
-        graphDisplay.addNode(graphItem.getNode());
-        positionNode(graphItem.getNode());
+        /*
+         * NOTE: When the node is added, a LayoutGraphContentChangedEvent will
+         * be fired (see DefaultLayoutGraph), causing the current layout
+         * algorithm to be run.
+         */
+        graphDisplay.addNode(nodeItem.getNode());
+        this.addNodeGraphItem(nodeItem);
 
         // TODO re-enable
         // TODO remove once new drag and drop mechanism works...
-        graphDisplay
-                .setNodeStyle(graphItem.getNode(), "showDragImage", "false");
+        graphDisplay.setNodeStyle(nodeItem.getNode(), "showDragImage", "false");
 
-        graphDisplay.setNodeStyle(graphItem.getNode(), "showArrow", registry
+        graphDisplay.setNodeStyle(nodeItem.getNode(), "showArrow", registry
                 .getNodeMenuEntries(type).isEmpty() ? "false" : "true");
 
         nodeResources.addResourceSet(visualItem.getResources());
-        visualItem.setDisplayObject(graphItem);
+        visualItem.setDisplayObject(nodeItem);
 
         /*
          * NOTE: all node configuration should be done when calling the
@@ -377,12 +455,32 @@ public class Graph extends AbstractViewContentDisplay implements
          * 
          * NOTE: we do not execute the expanders if we are restoring the graph
          */
-        if (ready) {
-            registry.getAutomaticExpander(type).expand(visualItem,
-                    expansionCallback);
-        }
+        registry.getAutomaticExpander(type).expand(visualItem,
+                expansionCallback);
 
-        return graphItem;
+        return nodeItem;
+    }
+
+    private final Set<NodeItem> nodeItems = new HashSet<NodeItem>();
+
+    /**
+     * Needed additional tracking, so that we could access visual items of all
+     * Nodes in the graph.
+     * 
+     * @param graphItem
+     */
+    private void addNodeGraphItem(NodeItem graphItem) {
+        this.nodeItems.add(graphItem);
+    }
+
+    /**
+     * Needed additional tracking, so that we could access visual items of all
+     * Nodes in the graph.
+     * 
+     * @param graphItem
+     */
+    private void removeNodeGraphItem(NodeItem graphItem) {
+        this.nodeItems.remove(graphItem);
     }
 
     // TODO encapsulate in display, use dependency injection
@@ -416,6 +514,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return arcItemContainersByArcTypeID.values();
     }
 
+    // TODO remove if not used
     private ArcItem[] getArcItems() {
         Iterable<ArcItemContainer> arcItemContainers = getArcItemContainers();
         int size = 0;
@@ -436,7 +535,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return resourceCategorizer.getCategory(resource);
     }
 
-    private GraphDisplay getDisplay() {
+    private GraphDisplayController getDisplay() {
         return graphDisplay;
     }
 
@@ -448,6 +547,10 @@ public class Graph extends AbstractViewContentDisplay implements
         return new DefaultSizeInt(width, height);
     }
 
+    public ErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
     @Override
     public Point getLocation(NodeItem nodeItem) {
         return graphDisplay.getLocation(nodeItem.getNode());
@@ -455,13 +558,19 @@ public class Graph extends AbstractViewContentDisplay implements
 
     @Override
     public String getName() {
-        return "Graph";
+        return this.graphDisplay.getGraphViewName();
     }
 
     private Node getNode(VisualItem visualItem) {
         return visualItem.<NodeItem> getDisplayObject().getNode();
     }
 
+    @Override
+    public NodeAnimator getNodeAnimator() {
+        return graphDisplay.getNodeAnimator();
+    }
+
+    // TODO remove if not used
     private NodeItem[] getNodeItems() {
         LightweightCollection<VisualItem> visualItems = getVisualItems();
         NodeItem[] nodeItems = new NodeItem[visualItems.size()];
@@ -480,24 +589,27 @@ public class Graph extends AbstractViewContentDisplay implements
         return resourceManager;
     }
 
-    // TODO cleanup
     @Override
     public SidePanelSection[] getSidePanelSections() {
         List<ViewContentDisplayAction> actions = new ArrayList<ViewContentDisplayAction>();
+        // TODO cleanup
 
-        actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_TREE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.SPRING_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.INDENTED_TREE_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_BY_NODE_ID));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_BY_NODE_TYPE));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_ALPHABETICAL));
-        actions.add(new GraphLayoutAction(GraphLayouts.GRID_LAYOUT_BY_ARC_COUNT));
-        actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_LAYOUT));
-        actions.add(new GraphLayoutAction(GraphLayouts.FORCE_DIRECTED_LAYOUT));
+        NodeAnimator nodeAnimator = getNodeAnimator();
+        actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
+                new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
+        actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
+                new HorizontalTreeLayoutAlgorithm(true, errorHandler,
+                        nodeAnimator)));
+        actions.add(new GraphLayoutAction(GraphLayouts.VERTICAL_TREE_LAYOUT,
+                new VerticalTreeLayoutAlgorithm(true, errorHandler,
+                        nodeAnimator)));
+        actions.add(new GraphLayoutAction(GraphLayouts.FORCE_DIRECTED_LAYOUT,
+                new ForceDirectedLayoutAlgorithm(new CompositeForceCalculator(
+                        new BoundsAwareAttractionCalculator(graphDisplay
+                                .getLayoutGraph()),
+                        new BoundsAwareRepulsionCalculator(graphDisplay
+                                .getLayoutGraph())), 0.9, nodeAnimator,
+                        new GwtDelayedExecutor(), errorHandler)));
 
         VerticalPanel layoutPanel = new VerticalPanel();
         for (final ViewContentDisplayAction action : actions) {
@@ -521,7 +633,7 @@ public class Graph extends AbstractViewContentDisplay implements
                 NODE_BACKGROUND_COLOR };
     }
 
-    private VisualItem getVisualItem(Node node) {
+    public VisualItem getVisualItem(Node node) {
         return getVisualItem(node.getId());
     }
 
@@ -558,38 +670,16 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void initStateChangeHandlers() {
+        GraphEventHandler handler = new GraphEventHandler();
         graphDisplay
-                .addGraphDisplayReadyHandler(new GraphDisplayReadyEventHandler() {
-                    @Override
-                    public void onWidgetReady(GraphDisplayReadyEvent event) {
-                        ready = true;
+                .addEventHandler(NodeDragHandleMouseDownEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeMouseOverEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeMouseOutEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE, handler);
+        graphDisplay.addEventHandler(NodeDragEvent.TYPE, handler);
+        graphDisplay.addEventHandler(MouseMoveEvent.getType(), handler);
 
-                        GraphEventHandler handler = new GraphEventHandler();
-
-                        graphDisplay.addEventHandler(
-                                NodeDragHandleMouseDownEvent.TYPE, handler);
-                        graphDisplay.addEventHandler(NodeMouseOverEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(NodeMouseOutEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(NodeDragEvent.TYPE,
-                                handler);
-                        graphDisplay.addEventHandler(MouseMoveEvent.getType(),
-                                handler);
-
-                        initNodeMenuItems();
-                    }
-                });
-        graphDisplay
-                .addGraphDisplayLoadingFailureHandler(new GraphDisplayLoadingFailureEventHandler() {
-                    @Override
-                    public void onLoadingFailure(
-                            GraphDisplayLoadingFailureEvent event) {
-                        // TODO handle loading failures
-                    }
-                });
+        initNodeMenuItems();
     }
 
     @Override
@@ -602,31 +692,8 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     @Override
-    public boolean isReady() {
-        return ready;
-    }
-
-    private void positionNode(Node node) {
-        // FIXME positioning: FlexVis takes care of positioning nodes into empty
-        // space except for first node - if the node is the first node, we put
-        // it in the center
-        // TODO improve interface to access all resources
-
-        assert node != null;
-
-        if (getVisualItems().size() > 1) {
-            return;
-        }
-
-        Widget displayWidget = graphDisplay.asWidget();
-        if (displayWidget == null) {
-            return; // for tests
-        }
-
-        int height = displayWidget.getOffsetHeight();
-        int width = displayWidget.getOffsetWidth();
-
-        graphDisplay.setLocation(node, new Point(width / 2, height / 2));
+    public void registerDefaultLayout(LayoutAlgorithm layoutAlgorithm) {
+        graphDisplay.registerDefaultLayoutAlgorithm(layoutAlgorithm);
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
@@ -636,10 +703,6 @@ public class Graph extends AbstractViewContentDisplay implements
                 new NodeMenuItemClickedHandler() {
                     @Override
                     public void onNodeMenuItemClicked(Node node) {
-                        if (!ready) {
-                            return;
-                        }
-
                         nodeExpander.expand(getVisualItem(node),
                                 expansionCallback);
                     }
@@ -655,6 +718,7 @@ public class Graph extends AbstractViewContentDisplay implements
             arcItemContainer.removeVisualItem(visualItem);
         }
         graphDisplay.removeNode(getNode(visualItem));
+        this.removeNodeGraphItem((NodeItem) (visualItem.getDisplayObject()));
     }
 
     @Override
@@ -689,24 +753,13 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     @Override
-    public void runLayout(GraphLayout layout) {
-        assert layout != null;
-        for (VisualItem visualItem : getVisualItems()) {
-            updateNode(visualItem);
-        }
-        updateArcsForVisuaItems(getVisualItems());
-        layout.run(getNodeItems(), getArcItems(), this);
+    public void runLayout() {
+        graphDisplay.runLayout();
     }
 
     @Override
     public void runLayout(LayoutAlgorithm layoutAlgorithm) {
         graphDisplay.runLayout(layoutAlgorithm);
-    }
-
-    @Override
-    public void runLayout(String layout) {
-        assert layout != null;
-        graphDisplay.runLayout(layout);
     }
 
     @Override
@@ -796,6 +849,42 @@ public class Graph extends AbstractViewContentDisplay implements
                 updateNode(visualItem);
             }
         }
+
+        /*
+         * Call any batch expanders (e.g. I needed to get mapping arcs from a
+         * service that could accept a full network as an argument)
+         * 
+         * See other expanders elsewhere like:
+         * registry.getAutomaticExpander(type)
+         * 
+         * Gather types, and run the bulk expanders. With this design, bulk
+         * expanders cannot work with multiple types, so they are bulk with
+         * regard to the type they are associated with. This was originally
+         * created to support ontology node mappings to eachother, since parsing
+         * those arcs in the original ontology parsing would result in too many
+         * arcs, and doing non-bulk was inefficient in terms of REST calls.
+         */
+        Map<String, LightweightList<VisualItem>> types = new HashMap<String, LightweightList<VisualItem>>();
+        for (NodeItem nodeItem : nodeItems) {
+            // Perhaps this could be more efficient if we stored the nodeItems
+            // keyed by type, but it's probably preferable to have this computed
+            // than to have the storage overhead.
+            VisualItem visualItem = nodeItem.getVisualItem();
+            String type = getCategory(visualItem.getResources()
+                    .getFirstElement());
+            if (null == types.get(type)) {
+                types.put(type, LightweightCollections.<VisualItem> toList());
+            }
+            types.get(type).add(visualItem);
+        }
+        if (!delta.getAddedElements().isEmpty()
+                || !delta.getRemovedElements().isEmpty()) {
+            for (String type : types.keySet()) {
+                registry.getAutomaticBulkExpander(type).expand(types.get(type),
+                        expansionCallback);
+            }
+        }
+
     }
 
     public void updateArcsForResources(Iterable<Resource> resources) {
@@ -814,4 +903,31 @@ public class Graph extends AbstractViewContentDisplay implements
         visualItem.<NodeItem> getDisplayObject().updateNode();
     }
 
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+
+        CompositeVisualItemBehavior composite = behaviorFactory
+                .createEmptyCompositeVisualItemBehavior();
+
+        // This both triggers shading, disables text drag, and gets rid of
+        // popups. Extend/replace.
+        // It does so because it triggers a DRAG_START event, which I need to do
+        // in a different way.
+        // composite.add(behaviorFactory.createDefaultDragVisualItemBehavior());
+
+        // It seems like the presence of the defaultHighlighting one affects the
+        // calling of the defaultPopupWithHighlighting...
+        // Why would they interact within the...
+        // Seems like the DRAG_START event is not triggered without the drag
+        // controller! That's the issue! A secret dependency!!!
+        // I can change the popup manager to detect drags in another way perhaps,
+        // rather than having this secret dependency. Or have the DRAG_START
+        // event fired off in a different place (as well)
+        // In any case, I have the popup-hide working and text select disabled.
+        composite.add(behaviorFactory
+                .createDefaultPopupWithHighlightingVisualItemBehavior());
+
+        return composite;
+    }
 }

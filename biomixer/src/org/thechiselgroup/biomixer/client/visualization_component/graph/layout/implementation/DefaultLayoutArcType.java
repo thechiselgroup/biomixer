@@ -53,4 +53,8 @@ public class DefaultLayoutArcType implements LayoutArcType, Identifiable {
         return typeId;
     }
 
+    public void remove(LayoutArc arc) {
+        arcs.remove(arc);
+    }
+
 }

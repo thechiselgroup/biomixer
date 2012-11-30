@@ -41,6 +41,7 @@ public abstract class ChooselEntryPoint implements EntryPoint {
 
     @Override
     public final void onModuleLoad() {
+
         ChooselGinjector injector = createChooselGinjector();
 
         try {
@@ -53,5 +54,4 @@ public abstract class ChooselEntryPoint implements EntryPoint {
              */
         }
     }
-
 }

@@ -26,7 +26,7 @@ import com.google.inject.Inject;
 
 /**
  * Retrieves the concepts mapped to a given concept, as opposed to retrieving
- * the mapping resources like {@link MappingServiceAsync} does.
+ * the mapping resources like {@link ConceptMappingServiceAsync} does.
  * 
  * This service is a bit different than most in that it does not fetch data
  * directly from the server. Instead it calls other services in order to
@@ -41,7 +41,7 @@ public class MappedConceptsServiceImpl implements MappedConceptsServiceAsync {
     private TermServiceAsync termService;
 
     @Inject
-    private MappingServiceAsync mappingService;
+    private ConceptMappingServiceAsync mappingService;
 
     private final ErrorHandler errorHandler;
 

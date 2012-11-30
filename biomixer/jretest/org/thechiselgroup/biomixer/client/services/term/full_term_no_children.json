@@ -1,0 +1,116 @@
+{
+    "success": {
+        "accessedResource": "/bioportal/virtual/ontology/1487",
+        "accessDate": "2012-05-29 09:23:42.605 PDT",
+        "data": [
+            {
+                "classBean": {
+                    "id": "VestibularSystem",
+                    "fullId": "http://who.int/bodysystem.owl#VestibularSystem",
+                    "label": "Vestibular System",
+                    "type": "class",
+                    "isObsolete": 0,
+                    "relations": [
+                        {
+                            "entry": [
+                                {
+                                    "string": "InstanceCount",
+                                    "int": 0
+                                },
+                                {
+                                    "string": "SubClass",
+                                    "list": [
+                                        ""
+                                    ]
+                                },
+                                {
+                                    "string": "RdfType",
+                                    "list": [
+                                        ""
+                                    ]
+                                },
+                                {
+                                    "string": "rdfs:label",
+                                    "list": [
+                                        {
+                                            "string": "Vestibular System"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "string": "rdfs:subClassOf",
+                                    "list": [
+                                        {
+                                            "classBean": {
+                                                "id": "BodySystem",
+                                                "fullId": "http://who.int/bodysystem.owl#BodySystem",
+                                                "label": "Body System",
+                                                "type": "class",
+                                                "isObsolete": 0,
+                                                "relations": [
+                                                    ""
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "string": "ChildCount",
+                                    "int": 0
+                                },
+                                {
+                                    "string": "SuperClass",
+                                    "list": [
+                                        {
+                                            "classBean": {
+                                                "id": "BodySystem",
+                                                "fullId": "http://who.int/bodysystem.owl#BodySystem",
+                                                "label": "Body System",
+                                                "type": "class",
+                                                "isObsolete": 0,
+                                                "relations": [
+                                                    {
+                                                        "entry": [
+                                                            {
+                                                                "string": "InstanceCount",
+                                                                "int": 0
+                                                            },
+                                                            {
+                                                                "string": "SubClass",
+                                                                "list": [
+                                                                    ""
+                                                                ]
+                                                            },
+                                                            {
+                                                                "string": "RdfType",
+                                                                "list": [
+                                                                    ""
+                                                                ]
+                                                            },
+                                                            {
+                                                                "string": "rdfs:label",
+                                                                "list": [
+                                                                    {
+                                                                        "string": "Body System"
+                                                                    }
+                                                                ]
+                                                            },
+                                                            {
+                                                                "string": "ChildCount",
+                                                                "int": 15
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

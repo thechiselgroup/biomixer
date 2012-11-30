@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
@@ -27,9 +28,11 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
 import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -40,9 +43,6 @@ import com.google.gwt.user.client.ui.Widget;
 // XXX memento not implemented
 // XXX order does not update when description property changes
 public class TextVisualization extends AbstractViewContentDisplay {
-
-    // TODO move back into factory
-    public final static String ID = "org.thechiselgroup.choosel.visualization_component.Text";
 
     public final static Slot LABEL_SLOT = new Slot("label", "Label",
             DataType.TEXT);
@@ -70,12 +70,14 @@ public class TextVisualization extends AbstractViewContentDisplay {
         }
     };
 
-    public TextVisualization() {
-        this(new DefaultTextItemContainer());
+    public TextVisualization(DataTypeValidator dataTypeValidator) {
+        this(new DefaultTextItemContainer(), dataTypeValidator);
     }
 
     // for test: can change container
-    protected TextVisualization(TextItemContainer textItemContainer) {
+    protected TextVisualization(TextItemContainer textItemContainer,
+            DataTypeValidator dataValidator) {
+        super(dataValidator);
         assert textItemContainer != null;
 
         this.textItemContainer = textItemContainer;
@@ -272,5 +274,25 @@ public class TextVisualization extends AbstractViewContentDisplay {
                 textItem.setFontSize("12px");
             }
         }
+    }
+
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+        CompositeVisualItemBehavior composite = behaviorFactory
+                .createEmptyCompositeVisualItemBehavior();
+
+        composite.add(behaviorFactory
+                .createDefaultHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory.createDefaultDragVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultPopupWithHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultSwitchSelectionVisualItemBehavior());
+
+        return composite;
     }
 }

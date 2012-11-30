@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -53,7 +53,7 @@ import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
@@ -72,7 +72,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
     private ConceptMappingNeighbourhoodExpander underTest;
 
     @Mock
-    private MappingServiceAsync mappingService;
+    private ConceptMappingServiceAsync mappingService;
 
     @Mock
     private ResourceManager resourceManager;
@@ -269,7 +269,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         verify(mappingService, times(1)).getMappings(
                 eq(Concept.getOntologyId(concept.getUri())),
-                eq(Concept.getConceptId(concept.getUri())),
+                eq(Concept.getConceptId(concept.getUri())), eq(false),
                 any(AsyncCallback.class));
     }
 
@@ -301,7 +301,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         underTest.expand(visualItem, expansionCallback);
 
         verify(mappingService, times(0)).getMappings(any(String.class),
-                any(String.class), any(AsyncCallback.class));
+                any(String.class), eq(true), any(AsyncCallback.class));
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -312,7 +312,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
                 eq(Concept.getOntologyId(conceptUri)),
-                eq(Concept.getConceptId(conceptUri)), captor.capture());
+                eq(Concept.getConceptId(conceptUri)), eq(false), captor.capture());
 
         underTest.expand(visualItem, expansionCallback);
 

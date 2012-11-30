@@ -46,7 +46,8 @@ public class NodeItem {
         this.visualItem = visualItem;
         this.display = display;
 
-        node = new Node(visualItem.getId(), getLabelValue(), type);
+        // TODO size resolver
+        node = new Node(visualItem.getId(), getLabelValue(), type, 1);
     }
 
     public String getLabelValue() {

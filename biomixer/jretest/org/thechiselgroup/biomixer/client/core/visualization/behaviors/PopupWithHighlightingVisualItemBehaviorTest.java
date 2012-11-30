@@ -41,6 +41,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInt
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction.Type;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.HighlightingModel;
 
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.MouseOverEvent;
 import com.google.gwt.event.dom.client.MouseOverHandler;
 
@@ -107,7 +108,7 @@ public class PopupWithHighlightingVisualItemBehaviorTest {
 
         underTest.onVisualItemCreated(visualItem);
         underTest.onInteraction(visualItem, new VisualItemInteraction(
-                Type.MOUSE_OVER, clientX, clientY));
+                ((NativeEvent) null), Type.MOUSE_OVER, clientX, clientY));
 
         verify(popupManager, times(1)).onMouseOver(clientX, clientY);
     }

@@ -56,6 +56,11 @@ public interface ArcType {
     String getArcTypeID();
 
     /**
+     * @return human readable label for the arc type
+     */
+    String getArcTypeLabel();
+
+    /**
      * @return default color for arcs of this type.
      */
     String getDefaultArcColor();
@@ -66,8 +71,32 @@ public interface ArcType {
     String getDefaultArcStyle();
 
     /**
+     * @return default arc head for arcs of this type.
+     */
+    String getDefaultArcHead();
+
+    /**
      * @return default arc thickness for arcs of this type.
      */
     int getDefaultArcThickness();
+
+    /**
+     * Gets thickness for an arc, if the ArcType and Arc have this defined
+     * semantically. Individual thickness will be overridden if the
+     * overridingThickness argument is greater than 0, or if the ArcType
+     * semantics do not allow for individual arc thicknesses.
+     * 
+     * Set up this way to allow simpler calls; could have left the logic
+     * outside, to be used by each caller, but have the override value passed
+     * in, pushing the logic into each implementor. Was this silly?
+     * 
+     * @param arc
+     * @param thicknessLevel
+     *            thickness to use instead of arc type default. If 0, use
+     *            default.
+     * @return arc thickness for provided arc, based on this arc type's
+     *         semantics.
+     */
+    int getArcThickness(Arc arc, Integer thicknessLevel);
 
 }

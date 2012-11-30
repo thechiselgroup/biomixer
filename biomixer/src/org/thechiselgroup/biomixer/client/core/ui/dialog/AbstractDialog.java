@@ -21,7 +21,30 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
 
     private DialogCallback callback;
 
+    private DialogExitCallback dialogExitCallback = null;
+
+    private Integer exitCode = null;
+
     private DialogWindow window;
+
+    protected int width = 500;
+
+    protected int height = 600;
+
+    // Allows for compression of this window if we don't need a header.
+    protected boolean useHeader = true;
+
+    protected boolean isCloseable = true;
+
+    @Override
+    public boolean useHeader() {
+        return useHeader;
+    }
+
+    @Override
+    public boolean isCloseable() {
+        return isCloseable;
+    }
 
     /**
      * Default implementation handles OK and Cancel button presses. Clients may
@@ -42,6 +65,11 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
             }
         } catch (Exception e) {
             handleException(e);
+        } finally {
+            setExitCode(code);
+            if (null != dialogExitCallback) {
+                dialogExitCallback.dialogExited();
+            }
         }
     }
 
@@ -52,12 +80,22 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
     @Override
     public void createButtons(DialogWindow window) {
         window.createButton(DialogWindow.OK, getOkayButtonLabel());
-        window.createButton(DialogWindow.CANCEL, DialogWindow.CANCEL_LABEL);
+        window.createButton(DialogWindow.CANCEL, getCancelButtonLabel());
     }
 
     @Override
     public void dialogCreated(DialogWindow window) {
         this.window = window;
+    }
+
+    @Override
+    public int getWidth() {
+        return this.width;
+    }
+
+    @Override
+    public int getHeight() {
+        return this.height;
     }
 
     @Override
@@ -71,6 +109,11 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
 
         this.callback = callback;
 
+    }
+
+    @Override
+    public void setDialogExitCallback(DialogExitCallback exitCallback) {
+        this.dialogExitCallback = exitCallback;
     }
 
     /**
@@ -90,6 +133,21 @@ public abstract class AbstractDialog implements Dialog, DialogExtension {
         }
 
         callback.setOkayButtonEnabled(enabled);
+    }
+
+    @Override
+    public void setExitCode(int exitCode) {
+        this.exitCode = exitCode;
+    }
+
+    @Override
+    public Integer getExitCode() {
+        return exitCode;
+    }
+
+    @Override
+    public String getCancelButtonLabel() {
+        return "Cancel";
     }
 
 }

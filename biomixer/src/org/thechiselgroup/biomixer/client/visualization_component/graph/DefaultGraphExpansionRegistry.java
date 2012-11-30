@@ -29,6 +29,9 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
     private Map<String, GraphNodeExpander> automaticExpandersByCategory = CollectionFactory
             .createStringMap();
 
+    private Map<String, GraphNodeBulkExpander> automaticBulkExpandersByCategory = CollectionFactory
+            .createStringMap();
+
     private Map<String, List<NodeMenuEntry>> menuEntriesByCategory = CollectionFactory
             .createStringMap();
 
@@ -41,6 +44,17 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
         }
 
         return automaticExpandersByCategory.get(category);
+    }
+
+    @Override
+    public GraphNodeBulkExpander getAutomaticBulkExpander(String category) {
+        assert category != null;
+
+        if (!automaticBulkExpandersByCategory.containsKey(category)) {
+            return new NullGraphNodeBulkExpander();
+        }
+
+        return automaticBulkExpandersByCategory.get(category);
     }
 
     @Override
@@ -65,6 +79,15 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
         assert expander != null;
 
         automaticExpandersByCategory.put(category, expander);
+    }
+
+    @Override
+    public void putAutomaticBulkExpander(String category,
+            GraphNodeBulkExpander expander) {
+        assert category != null;
+        assert expander != null;
+
+        automaticBulkExpandersByCategory.put(category, expander);
     }
 
     @Override

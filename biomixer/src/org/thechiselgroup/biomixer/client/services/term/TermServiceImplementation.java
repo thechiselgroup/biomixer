@@ -16,39 +16,35 @@
 package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.AbstractXMLWebResourceService;
+import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-public class TermServiceImplementation extends AbstractXMLWebResourceService
+public class TermServiceImplementation extends AbstractWebResourceService
         implements TermServiceAsync {
 
-    private final LightTermResponseWithoutRelationshipsParser responseParser;
+    private final TermWithoutRelationshipsJsonParser responseParser;
 
     private OntologyNameServiceAsync ontologyNameService;
-
-    private ErrorHandler errorHandler;
 
     @Inject
     public TermServiceImplementation(UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
             OntologyNameServiceAsync ontologyNameService,
-            ErrorHandler errorHandler,
-            LightTermResponseWithoutRelationshipsParser responseParser) {
+            TermWithoutRelationshipsJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
 
         this.responseParser = responseParser;
         this.ontologyNameService = ontologyNameService;
-        this.errorHandler = errorHandler;
     }
 
     protected String buildUrl(String ontologyId, String conceptFullId) {
@@ -69,7 +65,14 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
         final String url = buildUrl(ontologyId, conceptFullId);
 
         ontologyNameService.getOntologyName(ontologyId,
-                new ErrorHandlingAsyncCallback<String>(errorHandler) {
+                new TimeoutErrorHandlingAsyncCallback<String>(
+                        new AsyncCallbackErrorHandler(callback)) {
+
+                    @Override
+                    protected String getMessage(Throwable caught) {
+                        return "Could not retrieve ontology name for virtual ontology id: "
+                                + ontologyId;
+                    }
 
                     @Override
                     public void runOnSuccess(final String ontologyName) {
@@ -86,13 +89,6 @@ public class TermServiceImplementation extends AbstractXMLWebResourceService
                                         return resource;
                                     }
                                 });
-                    }
-
-                    @Override
-                    protected Throwable wrapException(Throwable caught) {
-                        return new Exception(
-                                "Could not retrieve ontology name for virtual ontology id: "
-                                        + ontologyId, caught);
                     }
 
                 });

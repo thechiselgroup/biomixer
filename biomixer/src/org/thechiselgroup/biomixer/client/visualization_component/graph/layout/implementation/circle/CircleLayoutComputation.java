@@ -23,7 +23,9 @@ import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.BoundsDouble;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.LayoutUtils;
 
 public class CircleLayoutComputation extends AbstractLayoutComputation {
 
@@ -35,17 +37,31 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     private final double maxAngle;
 
+    private static final int animationDuration = 1000;
+
     public CircleLayoutComputation(double minAngle, double maxAngle,
-            LayoutGraph graph, Executor executor, ErrorHandler errorHandler) {
-        super(graph, executor, errorHandler);
+            LayoutGraph graph, Executor executor, ErrorHandler errorHandler,
+            NodeAnimator nodeAnimator) {
+        super(graph, executor, errorHandler, nodeAnimator);
         this.minAngle = minAngle;
         this.maxAngle = maxAngle;
     }
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
-
         List<LayoutNode> allNodes = graph.getAllNodes();
+
+        assert allNodes.size() >= 1;
+
+        // special case if there is just one node
+        if (allNodes.size() == 1) {
+            LayoutNode singleNode = allNodes.get(0);
+            PointDouble topLeft = singleNode.getTopLeftForCentreAt(graph
+                    .getBounds().getCentre());
+            animateTo(singleNode, topLeft, animationDuration);
+            return false;
+        }
+
         double angleBetweenNodes = getAngleBetweenNodes(allNodes);
 
         // get radius
@@ -54,10 +70,10 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
         double graphHeight = graphBounds.getHeight();
 
         double radiusX = graphWidth / 2 - horizontalPaddingPercent * graphWidth
-                - getMaxNodeWidth(allNodes) / 2;
+                - LayoutUtils.getMaxNodeWidth(allNodes) / 2;
 
         double radiusY = graphHeight / 2 - verticalPaddingPercent * graphHeight
-                - getMaxNodeHeight(allNodes) / 2;
+                - LayoutUtils.getMaxNodeHeight(allNodes) / 2;
 
         // TODO: allow varying radius if radiusX and radiusY are not equal
         double radius = Math.min(radiusX, radiusY);
@@ -70,12 +86,12 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             double deltaXFromGraphCentre = radius * Math.sin(nodeAngleRadians);
             double deltaYFromGraphCentre = -radius * Math.cos(nodeAngleRadians);
 
-            PointDouble graphCentre = getGraphCentre();
+            PointDouble graphCentre = graphBounds.getCentre();
             double x = graphCentre.getX() + deltaXFromGraphCentre;
             double y = graphCentre.getY() + deltaYFromGraphCentre;
 
-            PointDouble topLeft = getTopLeftForCentreAt(x, y, layoutNode);
-            layoutNode.setPosition(topLeft.getX(), topLeft.getY());
+            PointDouble topLeft = layoutNode.getTopLeftForCentreAt(x, y);
+            animateTo(layoutNode, topLeft, animationDuration);
         }
 
         // this is not a continuous layout
@@ -92,32 +108,11 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             return angleSpread / (allNodes.size() - 1);
         } else {
             /*
-             * do not place a node at both maxAngle and minAngle becaues they
-             * definately will overlap
+             * do not place a node at both maxAngle and minAngle because they
+             * definitely will overlap
              */
             return angleSpread / allNodes.size();
         }
     }
 
-    private double getMaxNodeHeight(List<LayoutNode> nodes) {
-        double maxHeight = 0.0;
-        for (LayoutNode layoutNode : nodes) {
-            double height = layoutNode.getSize().getHeight();
-            if (height > maxHeight) {
-                maxHeight = height;
-            }
-        }
-        return maxHeight;
-    }
-
-    private double getMaxNodeWidth(List<LayoutNode> nodes) {
-        double maxWidth = 0.0;
-        for (LayoutNode layoutNode : nodes) {
-            double width = layoutNode.getSize().getWidth();
-            if (width > maxWidth) {
-                maxWidth = width;
-            }
-        }
-        return maxWidth;
-    }
 }

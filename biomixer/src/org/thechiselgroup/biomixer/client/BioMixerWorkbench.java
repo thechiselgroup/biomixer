@@ -16,19 +16,23 @@
 package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.core.ui.TextCommandPresenter;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
-import org.thechiselgroup.biomixer.client.visualization_component.text.TextVisualization;
-import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
+import org.thechiselgroup.biomixer.client.search.ConceptSearchCommand;
+import org.thechiselgroup.biomixer.client.search.OntologySearchCommand;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLineViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 
 import com.google.inject.Inject;
 
 public class BioMixerWorkbench extends WorkbenchInitializer {
 
-    public static final String NCBO_SEARCH = "ncbo-search";
-
     @Inject
     private ConceptSearchCommand ncboConceptSearchCommand;
+
+    @Inject
+    private OntologySearchCommand ncboOntologySearchCommand;
 
     @Override
     protected void initActionBarContent() {
@@ -53,29 +57,55 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
 
     @Override
     protected void initCustomActions() {
-        initNCBOSearchField();
+        initNCBOSearchConceptsField();
+        initNCBOSearchOntologiesField();
 
-        addCreateWindowActionToToolbar(VIEWS_PANEL, "Graph", Graph.ID);
+        // TODO Why is this prepared with strings that are indexed into a
+        // registry when we can hard-code classes used or use injection?
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Graph",
+                GraphViewContentDisplayFactory.ID);
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Ontology Overview",
+                GraphOntologyOverviewViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
-                TextVisualization.ID);
-        addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline", TimeLine.ID);
+                TextViewContentDisplayFactory.ID);
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline",
+                TimeLineViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Comment",
                 WorkbenchInitializer.WINDOW_CONTENT_COMMENT);
     }
 
     @Override
     protected void initCustomPanels() {
-        addToolbarPanel(NCBO_SEARCH, "BioPortal Concept Search");
+        addToolbarPanel(ncboConceptSearchCommand.getContentType(),
+                "BioPortal Concept Search");
+        addToolbarPanel(ncboOntologySearchCommand.getContentType(),
+                "BioPortal Ontology Search");
     }
 
-    private void initNCBOSearchField() {
+    private void initNCBOSearchConceptsField() {
         TextCommandPresenter presenter = new TextCommandPresenter(
-                ncboConceptSearchCommand, "Search");
+                ncboConceptSearchCommand, "Search Concepts");
 
         presenter.init();
 
-        addWidget(NCBO_SEARCH, presenter.getTextBox());
-        addWidget(NCBO_SEARCH, presenter.getExecuteButton());
+        addWidget(ncboConceptSearchCommand.getContentType(),
+                presenter.getTextBox());
+        addWidget(ncboConceptSearchCommand.getContentType(),
+                presenter.getExecuteButton());
+    }
+
+    private void initNCBOSearchOntologiesField() {
+        TextCommandPresenter presenter = new TextCommandPresenter(
+                ncboOntologySearchCommand, "Search Ontologies");
+
+        presenter.init();
+
+        presenter.setAllowEmpty(true);
+
+        addWidget(ncboOntologySearchCommand.getContentType(),
+                presenter.getTextBox());
+        addWidget(ncboOntologySearchCommand.getContentType(),
+                presenter.getExecuteButton());
     }
 
 }

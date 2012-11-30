@@ -253,6 +253,17 @@ public class DefaultResourceSetAvatarDragController extends
         removeDragProxy();
 
         super.dragEnd();
+
+        if (null != context && null != context.dropController) {
+            // Added through fortuitous and specious reasoning to fix an
+            // AssertError being thrown when a rejected drop was performed, and
+            // subsequent drags were attempted. The onLeave() method cleans up a
+            // list of draggables within in, whereas the steps above don't. I
+            // believe this to be a bug of sorts in the underlying library
+            // classes, or at least a design flaw requiring us to perform
+            // additional operations manually.
+            context.dropController.onLeave(context);
+        }
     }
 
     @Override
@@ -260,6 +271,70 @@ public class DefaultResourceSetAvatarDragController extends
         updateCacheAndBoundary();
         moveDragProxy();
         updateDropController();
+    }
+
+    private void updateCacheAndBoundary() {
+        // may have changed due to scrollIntoView(), developer driven changes
+        // or manual user scrolling
+        if (System.currentTimeMillis() - lastResetCacheTimeMillis >= CACHE_TIME_MILLIS) {
+            updateLastCacheResetTime();
+            resetCache();
+            calculateBoundaryOffset();
+        }
+    }
+
+    private void updateDropController() {
+        try {
+            DropController newDropController = getDropControllerForLocation(
+                    context.mouseX, context.mouseY);
+
+            if (context.dropController != newDropController) {
+                if (context.dropController != null) {
+                    context.dropController.onLeave(context);
+                }
+                context.dropController = newDropController;
+                if (context.dropController != null) {
+                    context.dropController.onEnter(context);
+                }
+            }
+
+            if (context.dropController != null) {
+                context.dropController.onMove(context);
+            }
+        } catch (Exception ex) {
+            // abort drop operation and show dialog if exception occurs
+            // TODO abort drop operation
+            errorHandler.handleError(ex);
+        }
+    }
+
+    private void moveDragProxy() {
+        Style style = dragProxy.getElement().getStyle();
+
+        style.setPropertyPx(CSS.LEFT, getDesiredLeft());
+        style.setPropertyPx(CSS.TOP, getDesiredTop());
+    }
+
+    private int getDesiredLeft() {
+        int desiredLeft = context.desiredDraggableX - boundaryRectangle.getX();
+        if (getBehaviorConstrainedToBoundaryPanel()) {
+            desiredLeft = MathUtils.restrictToInterval(
+                    boundaryRectangle.getWidth()
+                            - context.draggable.getOffsetWidth(), 0,
+                    desiredLeft);
+        }
+        return desiredLeft;
+    }
+
+    private int getDesiredTop() {
+        int desiredTop = context.desiredDraggableY - boundaryRectangle.getY();
+        if (getBehaviorConstrainedToBoundaryPanel()) {
+            desiredTop = MathUtils.restrictToInterval(
+                    boundaryRectangle.getHeight()
+                            - context.draggable.getOffsetHeight(), 0,
+                    desiredTop);
+        }
+        return desiredTop;
     }
 
     @Override
@@ -302,28 +377,6 @@ public class DefaultResourceSetAvatarDragController extends
         assert context.draggable != null;
         assert context.draggable instanceof DraggableResourceSetAvatar : "context.draggable is not of type DraggableResourceSetAvatar";
         return (DraggableResourceSetAvatar) context.draggable;
-    }
-
-    private int getDesiredLeft() {
-        int desiredLeft = context.desiredDraggableX - boundaryRectangle.getX();
-        if (getBehaviorConstrainedToBoundaryPanel()) {
-            desiredLeft = MathUtils.restrictToInterval(
-                    boundaryRectangle.getWidth()
-                            - context.draggable.getOffsetWidth(), 0,
-                    desiredLeft);
-        }
-        return desiredLeft;
-    }
-
-    private int getDesiredTop() {
-        int desiredTop = context.desiredDraggableY - boundaryRectangle.getY();
-        if (getBehaviorConstrainedToBoundaryPanel()) {
-            desiredTop = MathUtils.restrictToInterval(
-                    boundaryRectangle.getHeight()
-                            - context.draggable.getOffsetHeight(), 0,
-                    desiredTop);
-        }
-        return desiredTop;
     }
 
     /**
@@ -426,15 +479,9 @@ public class DefaultResourceSetAvatarDragController extends
         }
     }
 
-    private void moveDragProxy() {
-        Style style = dragProxy.getElement().getStyle();
-
-        style.setPropertyPx(CSS.LEFT, getDesiredLeft());
-        style.setPropertyPx(CSS.TOP, getDesiredTop());
-    }
-
     private void notifyDropControllerOnDragEnd() {
         assert (context.finalDropController == null) != (context.vetoException == null);
+
         if (context.vetoException == null) {
             context.dropController.onDrop(context);
             context.dropController.onLeave(context);
@@ -513,42 +560,6 @@ public class DefaultResourceSetAvatarDragController extends
     @Override
     public void unregisterDropControllerFor(Widget dropTarget) {
         unregisterDropController(dropControllers.get(dropTarget));
-    }
-
-    private void updateCacheAndBoundary() {
-        // may have changed due to scrollIntoView(), developer driven changes
-        // or manual user scrolling
-        if (System.currentTimeMillis() - lastResetCacheTimeMillis >= CACHE_TIME_MILLIS) {
-            updateLastCacheResetTime();
-            resetCache();
-            calculateBoundaryOffset();
-        }
-    }
-
-    private void updateDropController() {
-        try {
-            DropController newDropController = getDropControllerForLocation(
-                    context.mouseX, context.mouseY);
-
-            if (context.dropController != newDropController) {
-                if (context.dropController != null) {
-                    context.dropController.onLeave(context);
-                }
-                context.dropController = newDropController;
-                if (context.dropController != null) {
-                    context.dropController.onEnter(context);
-                }
-            }
-
-            if (context.dropController != null) {
-                context.dropController.onMove(context);
-            }
-        } catch (Exception ex) {
-            // abort drop operation and show dialog if exception occurs
-            // TODO abort drop operation
-
-            errorHandler.handleError(ex);
-        }
     }
 
     private void updateLastCacheResetTime() {

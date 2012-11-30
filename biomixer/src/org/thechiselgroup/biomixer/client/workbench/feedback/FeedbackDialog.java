@@ -81,9 +81,20 @@ public class FeedbackDialog extends AbstractDialog {
 
     public FeedbackDialog(Throwable error, AsyncCommandExecutor executor,
             FeedbackServiceAsync feedbackService) {
+    	// String stackTrace = getTraceString(error);
         this("Error", "An error occurred", error.getMessage() + "<br/></br>"
                 + "<b>Please describe the circumstances of this error:</b>",
                 error, executor, feedbackService);
+    }
+
+    @SuppressWarnings("unused")
+    static private String getTraceString(Throwable error) {
+        StackTraceElement[] stack = ((AssertionError) error).getStackTrace();
+        String trace = "";
+        for (int i = 0; i <= stack.length; i++) {
+            trace += "<br/>" + stack[i];
+        }
+        return trace;
     }
 
     @Override

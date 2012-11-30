@@ -16,21 +16,17 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
+import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutNode;
 
-public class TestLayoutNode implements LayoutNode {
-
-    private double x = Double.NaN;
-
-    private double y = Double.NaN;
+public class TestLayoutNode extends AbstractLayoutNode {
 
     private double labelX = Double.NaN;
 
     private double labelY = Double.NaN;
 
     private boolean hasLabel;
-
-    private boolean isAnchored;
 
     private LayoutNodeType type;
 
@@ -51,6 +47,20 @@ public class TestLayoutNode implements LayoutNode {
     public TestLayoutNode(double width, double height, boolean isAnchored,
             LayoutNodeType type) {
 
+        this.nodeSize = new DefaultSizeDouble(width, height);
+        this.isAnchored = isAnchored;
+        this.type = type;
+        this.hasLabel = false;
+        this.labelSize = new DefaultSizeDouble(0, 0);
+    }
+
+    /**
+     * Also sets default position.
+     */
+    public TestLayoutNode(double x, double y, double width, double height,
+            boolean isAnchored, LayoutNodeType type) {
+        this.x = x;
+        this.y = y;
         this.nodeSize = new DefaultSizeDouble(width, height);
         this.isAnchored = isAnchored;
         this.type = type;
@@ -84,23 +94,8 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
-    public double getX() {
-        return x;
-    }
-
-    @Override
-    public double getY() {
-        return y;
-    }
-
-    @Override
     public boolean hasLabel() {
         return hasLabel;
-    }
-
-    @Override
-    public boolean isAnchored() {
-        return isAnchored;
     }
 
     @Override
@@ -120,19 +115,8 @@ public class TestLayoutNode implements LayoutNode {
     }
 
     @Override
-    public void setPosition(double x, double y) {
-        setX(x);
-        setY(y);
-    }
-
-    @Override
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    @Override
-    public void setY(double y) {
-        this.y = y;
+    public void setPosition(PointDouble position) {
+        setPosition(position.getX(), position.getY());
     }
 
 }

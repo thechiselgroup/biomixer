@@ -31,7 +31,6 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.managed.SlotM
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.VisualItemValueResolverFactoryProvider;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.client.workbench.workspace.ShareConfigurationFactory;
-import org.thechiselgroup.biomixer.client.workbench.workspace.ShareConfigurationViewPart;
 
 import com.google.inject.Inject;
 
@@ -76,9 +75,11 @@ public class ChooselWorkbenchViewWindowContentProducer extends
     protected LightweightList<ViewPart> createViewParts(String contentType) {
         LightweightList<ViewPart> parts = super.createViewParts(contentType);
 
-        parts.add(new ShareConfigurationViewPart(shareConfigurationFactory
-                .createShareConfiguration()));
-
+        // temporarily removing the Share view part
+        /*
+         * parts.add(new ShareConfigurationViewPart(shareConfigurationFactory
+         * .createShareConfiguration()));
+         */
         return parts;
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -23,7 +23,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.AbstractGraphNodeSingleResourceNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
@@ -32,10 +32,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public abstract class AbstractConceptMappingNeighbourhoodExpander extends
         AbstractGraphNodeSingleResourceNeighbourhoodExpander {
 
-    private final MappingServiceAsync mappingService;
+    private final ConceptMappingServiceAsync mappingService;
 
     protected AbstractConceptMappingNeighbourhoodExpander(
-            MappingServiceAsync mappingService,
+            ConceptMappingServiceAsync mappingService,
             ResourceManager resourceManager, ErrorHandler errorHandler) {
 
         super(errorHandler, resourceManager);
@@ -45,10 +45,10 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
 
     @Override
     protected String getErrorMessageWhenNeighbourhoodloadingFails(
-            Resource resource) {
+            Resource resource, String additionalMessage) {
         return "Could not expand all mappings for \""
                 + resource.getValue(Concept.LABEL) + "\" "
-                + getOntologyInfoForErrorMessage(resource);
+                + getOntologyInfoForErrorMessage(resource) + additionalMessage;
     }
 
     @Override
@@ -69,7 +69,7 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander extends
                 .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
         String conceptId = (String) resource.getValue(Concept.FULL_ID);
 
-        mappingService.getMappings(ontologyId, conceptId, callback);
+        mappingService.getMappings(ontologyId, conceptId, false, callback);
     }
 
     @Override

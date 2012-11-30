@@ -32,8 +32,12 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.command.UndoableCommand;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
@@ -47,21 +51,22 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.DefaultVisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.TestViewContentDisplayCallback;
 import org.thechiselgroup.biomixer.client.core.visualization.model.implementation.VisualItemTestUtils;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEvent;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplayReadyEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandler;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
+
+import com.google.gwt.user.client.Event;
 
 public class GraphViewContentDisplayTest {
 
@@ -71,6 +76,9 @@ public class GraphViewContentDisplayTest {
     @Mock
     private GraphNodeExpander automaticExpander;
 
+    @Mock
+    private GraphNodeBulkExpander automaticBulkExpander;
+
     private TestViewContentDisplayCallback callback;
 
     @Mock
@@ -79,13 +87,22 @@ public class GraphViewContentDisplayTest {
     private Graph underTest;
 
     @Mock
-    private GraphDisplay graphDisplay;
+    private GraphDisplayController graphDisplay;
+
+    @Mock
+    VisualItem visualItem;
 
     @Mock
     private Node node;
 
     @Mock
     private GraphExpansionRegistry registry;
+
+    @Mock
+    private ErrorHandler errorHandler;
+
+    @Mock
+    private DataTypeValidator dataTypeValidator;
 
     @Mock
     private ResourceCategorizer resourceCategorizer;
@@ -98,9 +115,17 @@ public class GraphViewContentDisplayTest {
     private Point targetLocation;
 
     @Mock
+    ChooselEvent chooselEvent;
+
+    @Mock
+    Event browserEvent;
+
+    @Mock
     private ArcType arcType;
 
     private String arcTypeId;
+
+    private String arcLabel;
 
     private boolean arcDirected;
 
@@ -109,6 +134,8 @@ public class GraphViewContentDisplayTest {
     private int arcThickness;
 
     private String arcStyle;
+
+    private String arcHead;
 
     private Object borderColor;
 
@@ -222,7 +249,7 @@ public class GraphViewContentDisplayTest {
     }
 
     private Arc createArc(String arcId, String from, String to) {
-        return new Arc(arcId, from, to, arcTypeId, arcDirected);
+        return new Arc(arcId, from, to, arcTypeId, arcLabel, arcDirected);
     }
 
     /*
@@ -240,9 +267,19 @@ public class GraphViewContentDisplayTest {
                 argument1.capture());
 
         NodeDragHandler nodeDragHandler = argument1.getValue();
-        nodeDragHandler.onDrag(new NodeDragEvent(node, sourceLocation.getX(),
-                sourceLocation.getY(), targetLocation.getX(), targetLocation
-                        .getY()));
+
+        NodeDragEvent event = new NodeDragEvent(node, chooselEvent,
+                sourceLocation.getX(), sourceLocation.getY(),
+                targetLocation.getX(), targetLocation.getY());
+
+        // when(underTest.getVisualItem(node)).thenReturn(visualItem);
+        // when(chooselEvent.getBrowserEvent()).thenReturn(browserEvent);
+
+        try {
+            nodeDragHandler.onDrag(event);
+        } catch (NullPointerException e) {
+            // Do nothing; cannot mock deep enough here, resulting in this.
+        }
 
         ArgumentCaptor<UndoableCommand> argument2 = ArgumentCaptor
                 .forClass(UndoableCommand.class);
@@ -305,12 +342,9 @@ public class GraphViewContentDisplayTest {
 
     private void init() {
         underTest = new Graph(graphDisplay, commandManager, resourceManager,
-                resourceCategorizer, arcStyleProvider, registry);
+                resourceCategorizer, arcStyleProvider, registry, errorHandler,
+                dataTypeValidator);
         underTest.init(visualItemContainer, callback);
-        ArgumentCaptor<GraphDisplayReadyEventHandler> argument = ArgumentCaptor
-                .forClass(GraphDisplayReadyEventHandler.class);
-        verify(graphDisplay).addGraphDisplayReadyHandler(argument.capture());
-        argument.getValue().onWidgetReady(new GraphDisplayReadyEvent(null));
     }
 
     @Test
@@ -528,6 +562,49 @@ public class GraphViewContentDisplayTest {
     }
 
     @Test
+    public void setArcHeadOnContainerChangesStyleOfExistingArcs() {
+        arcStyleProviderReturnArcType();
+        init();
+
+        LightweightList<VisualItem> visualItems = VisualItemTestUtils
+                .createVisualItems(1, 2);
+        Arc arc = createArc("arcid", 1, 2);
+        arcTypeReturnsArcs(eq(visualItems.get(0)), arc);
+        arcTypeReturnsArcs(eq(visualItems.get(1)));
+
+        simulateAddVisualItems(visualItems);
+
+        verify(graphDisplay, times(1)).setArcStyle(eq(arc),
+                eq(ArcSettings.ARC_HEAD), eq(arcHead));
+
+        String newHead = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
+        underTest.getArcItemContainer(arcTypeId).setArcStyle(newHead);
+
+        verify(graphDisplay, times(1)).setArcStyle(eq(arc),
+                eq(ArcSettings.ARC_HEAD), eq(newHead));
+    }
+
+    @Test
+    public void setArcHeadOnContainerChangesStyleOfNewArcs() {
+        arcStyleProviderReturnArcType();
+        init();
+
+        LightweightList<VisualItem> visualItems = VisualItemTestUtils
+                .createVisualItems(1, 2);
+        String newStyle = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
+        underTest.getArcItemContainer(arcTypeId).setArcStyle(newStyle);
+
+        Arc arc = createArc("arcid", 1, 2);
+        arcTypeReturnsArcs(eq(visualItems.get(0)), arc);
+        arcTypeReturnsArcs(eq(visualItems.get(1)));
+
+        simulateAddVisualItems(visualItems);
+
+        verify(graphDisplay, times(1)).setArcStyle(eq(arc),
+                eq(ArcSettings.ARC_HEAD), eq(newStyle));
+    }
+
+    @Test
     public void setArcThicknessOnContainerChangesThicknessOfExistingArcs() {
         arcStyleProviderReturnArcType();
         init();
@@ -544,7 +621,8 @@ public class GraphViewContentDisplayTest {
                 eq(ArcSettings.ARC_THICKNESS), eq("" + arcThickness));
 
         int newThickness = 4;
-        underTest.getArcItemContainer(arcTypeId).setArcThickness(newThickness);
+        underTest.getArcItemContainer(arcTypeId).setArcThicknessLevel(
+                newThickness);
 
         verify(graphDisplay, times(1)).setArcStyle(eq(arc),
                 eq(ArcSettings.ARC_THICKNESS), eq("" + newThickness));
@@ -558,7 +636,8 @@ public class GraphViewContentDisplayTest {
         LightweightList<VisualItem> visualItems = VisualItemTestUtils
                 .createVisualItems(1, 2);
         int newThickness = 4;
-        underTest.getArcItemContainer(arcTypeId).setArcThickness(newThickness);
+        underTest.getArcItemContainer(arcTypeId).setArcThicknessLevel(
+                newThickness);
 
         Arc arc = createArc("arcid", 1, 2);
         arcTypeReturnsArcs(eq(visualItems.get(0)), arc);
@@ -583,10 +662,12 @@ public class GraphViewContentDisplayTest {
         targetLocation = new Point(20, 25);
 
         arcTypeId = "arcType";
+        arcLabel = "arcLabel";
         arcDirected = true;
         arcColor = new Color("#ffffff");
         arcThickness = 1;
         arcStyle = ArcSettings.ARC_STYLE_SOLID;
+        arcHead = ArcSettings.ARC_HEAD_TRIANGLE_FULL;
 
         borderColor = new Color("#ff0000");
         backgroundColor = new Color("#ff0000");
@@ -595,15 +676,36 @@ public class GraphViewContentDisplayTest {
                 LightweightCollections.<ArcType> emptyCollection());
 
         when(arcType.getArcTypeID()).thenReturn(arcTypeId);
+        when(arcType.getArcTypeLabel()).thenReturn(arcLabel);
         when(arcType.getDefaultArcColor()).thenReturn(arcColor.toHex());
         when(arcType.getDefaultArcStyle()).thenReturn(arcStyle);
         when(arcType.getDefaultArcThickness()).thenReturn(arcThickness);
+        when(arcType.getDefaultArcHead()).thenReturn(arcHead);
+
+        final ArgumentCaptor<Integer> captor = ArgumentCaptor
+                .forClass(Integer.class);
+        // Mocks making me re-implement things for testing. This is not a good
+        // result of having tests.
+        Answer<Integer> answer = new Answer<Integer>() {
+            @Override
+            public Integer answer(InvocationOnMock invocation) throws Throwable {
+                return (0 == captor.getValue()) ? arcType
+                        .getDefaultArcThickness() : captor.getValue();
+            }
+        };
+        when(arcType.getArcThickness(any(Arc.class), captor.capture()))
+                .thenAnswer(answer);// thenReturn(captor.getValue());
 
         when(resourceCategorizer.getCategory(any(Resource.class))).thenReturn(
                 ResourceSetTestUtils.TYPE_1);
 
         when(registry.getAutomaticExpander(any(String.class))).thenReturn(
                 automaticExpander);
+
+        when(registry.getAutomaticBulkExpander(any(String.class))).thenReturn(
+                automaticBulkExpander);
+
+        when(node.getId()).thenReturn("node1");
     }
 
     private void simulateAddVisualItems(
@@ -657,6 +759,7 @@ public class GraphViewContentDisplayTest {
         assertEquals(sourceNodeId, result.getSourceNodeId());
         assertEquals(targetNodeId, result.getTargetNodeId());
         assertEquals(arcTypeId, result.getType());
+        assertEquals(arcLabel, result.getLabel());
     }
 
     private void verifyArcShown(String arcId, int sourceNodeId, int targetNodeId) {
@@ -673,6 +776,7 @@ public class GraphViewContentDisplayTest {
         assertEquals(sourceNodeId, result.getSourceNodeId());
         assertEquals(targetNodeId, result.getTargetNodeId());
         assertEquals(arcTypeId, result.getType());
+        assertEquals(arcLabel, result.getLabel());
     }
 
     private void verifyNoArcAdded() {

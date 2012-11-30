@@ -18,28 +18,39 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class HorizontalTreeLayoutAlgorithm implements LayoutAlgorithm {
+public class HorizontalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private Executor executor = new DirectExecutor();
 
     private ErrorHandler errorHandler;
 
-    public HorizontalTreeLayoutAlgorithm(ErrorHandler errorHandler) {
-        this.errorHandler = errorHandler;
+    private final boolean pointingRight;
 
+    private final NodeAnimator nodeAnimator;
+
+    /**
+     * 
+     * @param pointingRight
+     *            if <code>true</code>, arrows on directed arcs will be pointing
+     *            to the right. If <code>false</code> they will point to the
+     *            left.
+     */
+    public HorizontalTreeLayoutAlgorithm(boolean pointingRight,
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
+        this.errorHandler = errorHandler;
+        this.pointingRight = pointingRight;
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
-    public LayoutComputation computeLayout(LayoutGraph graph) {
-        AbstractLayoutComputation computation = new HorizontalTreeLayoutComputation(
-                graph, executor, errorHandler);
-        computation.run();
-        return computation;
+    protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
+        return new HorizontalTreeLayoutComputation(graph, executor,
+                errorHandler, nodeAnimator, pointingRight);
     }
 
 }

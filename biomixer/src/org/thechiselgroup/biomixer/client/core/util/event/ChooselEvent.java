@@ -106,16 +106,20 @@ public class ChooselEvent {
         assert e != null;
 
         this.browserEvent = e;
+        // This next call is almost certainly a horrid mistake...but it seems to
+        // do really well at preventing text selection in Chrome when I don't
+        // want to select text! Let's try it out here. It can be pushed lower
+        // into listeners later if necessary, after forcing the native event
+        // into all ChooselEvent constructors.
+        e.preventDefault();
         this.clientX = e.getClientX();
         this.clientY = e.getClientY();
         this.eventType = Type.byCode(Event.as(e).getTypeInt());
     }
 
-    public ChooselEvent(Type eventType) {
-        this(eventType, UNKNOWN, UNKNOWN);
-    }
-
-    public ChooselEvent(Type eventType, int clientX, int clientY) {
+    public ChooselEvent(Event e, Type eventType, int clientX, int clientY) {
+        // For testing, when we will indeed use a null event. Maybe useful
+        // elsewhere? I doubt it!
         this.eventType = eventType;
         this.clientX = clientX;
         this.clientY = clientY;

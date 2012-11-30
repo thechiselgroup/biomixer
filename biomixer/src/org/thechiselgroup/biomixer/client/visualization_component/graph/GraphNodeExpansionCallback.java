@@ -19,7 +19,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 
 // TODO better separation of concern - introduce factories for the expanders
 // TODO use resource items instead of single resources
@@ -33,7 +33,7 @@ public interface GraphNodeExpansionCallback {
 
     String getCategory(Resource resource);
 
-    GraphDisplay getDisplay();
+    GraphDisplayController getDisplay();
 
     Resource getResourceByUri(String value);
 

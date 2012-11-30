@@ -266,12 +266,21 @@ public class WindowPanel extends NEffectPanel implements WindowController {
         return windowTitle;
     }
 
+    public void setWindowTitle(String title) {
+        windowTitle = title;
+        if (this.headerWidget instanceof TextBox) {
+            ((TextBox) this.headerWidget).setText(windowTitle);
+        } else if (this.headerWidget instanceof Label) {
+            ((Label) this.headerWidget).setText(windowTitle);
+        }
+    }
+
     public int getZIndex() {
         return DOM.getIntStyleAttribute(getElement(), CSS.Z_INDEX);
     }
 
     public void init(WindowManager windowManager, String title,
-            boolean titleEditable, Widget contentWidget) {
+            boolean titleEditable, boolean isCloseable, Widget contentWidget) {
 
         this.controller = new DefaultWindowController(new WindowCallback() {
             @Override
@@ -315,7 +324,7 @@ public class WindowPanel extends NEffectPanel implements WindowController {
         rootPanel.addStyleName(CSS_WINDOW);
 
         this.contentWidget = contentWidget;
-        initHeader(windowManager, titleEditable, title);
+        initHeader(windowManager, titleEditable, isCloseable, title);
 
         rootPanel.addClickHandler(new ClickHandler() {
             @Override
@@ -477,14 +486,16 @@ public class WindowPanel extends NEffectPanel implements WindowController {
     }
 
     private void initHeader(WindowManager windowManager, boolean editableTitle,
-            String title) {
+            boolean isCloseable, String title) {
 
         headerBar = new HorizontalPanel();
         headerBar.setSize("100%", "");
 
         initTitleWidget(title, editableTitle, windowManager);
         initMoveLabel(windowManager);
-        initCloseImage();
+        if (isCloseable) {
+            initCloseImage();
+        }
     }
 
     private void initMoveLabel(WindowManager windowManager) {
@@ -539,6 +550,7 @@ public class WindowPanel extends NEffectPanel implements WindowController {
         headerBar.add(headerWidget);
         headerBar.setCellHorizontalAlignment(headerWidget,
                 HasAlignment.ALIGN_LEFT);
+
     }
 
     @Override

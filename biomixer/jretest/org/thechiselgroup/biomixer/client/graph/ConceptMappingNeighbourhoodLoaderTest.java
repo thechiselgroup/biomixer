@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2009, 2010 Lars Grammel 
+ * Copyright 2009, 2010 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -44,7 +44,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
@@ -54,7 +54,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class ConceptMappingNeighbourhoodLoaderTest {
 
     @Mock
-    private MappingServiceAsync mappingService;
+    private ConceptMappingServiceAsync mappingService;
 
     @Mock
     private ErrorHandler errorHandler;
@@ -76,7 +76,7 @@ public class ConceptMappingNeighbourhoodLoaderTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
                 eq(Concept.getOntologyId(concept)),
-                eq(Concept.getConceptId(concept)), captor.capture());
+                eq(Concept.getConceptId(concept)), eq(false), captor.capture());
         underTest.expand(visualItem, expansionCallback);
 
         return captor.getValue();

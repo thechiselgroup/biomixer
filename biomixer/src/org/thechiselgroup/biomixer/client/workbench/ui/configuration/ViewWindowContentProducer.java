@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
+import org.thechiselgroup.biomixer.client.core.error_handling.CompositeErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowableCaught;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainer;
 import org.thechiselgroup.biomixer.client.core.error_handling.ThrowablesContainerErrorHandler;
@@ -49,17 +51,18 @@ import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
-import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
-import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.CenterRightViewTopBarExtension;
+import org.thechiselgroup.biomixer.client.core.visualization.DefaultView;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewPart;
+import org.thechiselgroup.biomixer.client.core.visualization.ViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.HighlightingVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.PopupWithHighlightingVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.SwitchSelectionOnClickVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.DefaultResourceModel;
@@ -109,15 +112,27 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private ResourceSetAvatarFactory dropTargetFactory;
 
     @Inject
-    private ResourceSetFactory resourceSetFactory;
-
-    @Inject
     @Named(AVATAR_FACTORY_SELECTION)
     private ResourceSetAvatarFactory selectionDragAvatarFactory;
 
     @Inject
+    private ResourceSetFactory resourceSetFactory;
+
+    @Inject
     @Named(LABEL_PROVIDER_SELECTION_SET)
     private LabelProvider selectionModelLabelFactory;
+
+    // Lazy load for ordered construction. Otherwise I'd inject...
+    // Is there another way to control injection order?
+    private DefaultSelectionModel selectionModel = null;
+
+    private DefaultSelectionModel getSelectionModel() {
+        if (null == selectionModel) {
+            selectionModel = new DefaultSelectionModel(
+                    selectionModelLabelFactory, resourceSetFactory);
+        }
+        return selectionModel;
+    }
 
     @Inject
     @Named(AVATAR_FACTORY_SET)
@@ -128,6 +143,9 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
     @Inject
     private HighlightingModel hoverModel;
+
+    @Inject
+    private LoggingErrorHandler loggingErrorHandler;
 
     @Inject
     protected VisualItemValueResolverUIControllerFactoryProvider uiProvider;
@@ -157,20 +175,6 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     @Inject
     private ManagedSlotMappingConfigurationPersistence slotMappingConfigurationPersistence;
 
-    /**
-     * Hook for overriding.
-     */
-    protected List<ViewTopBarExtension> createViewTopBarExtensions(
-            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
-
-        List<ViewTopBarExtension> extensions = new ArrayList<ViewTopBarExtension>();
-
-        extensions.add(createResourceModelPresenterExtension(resourceModel));
-        extensions.add(createSelectionModelPresenterExtension(selectionModel));
-
-        return extensions;
-    }
-
     protected ResourceMultiCategorizer createDefaultCategorizer(
             String contentType) {
         return new ResourceByUriMultiCategorizer();
@@ -179,12 +183,11 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private ViewTopBarExtension createResourceModelPresenterExtension(
             ResourceModel resourceModel) {
 
-        return new LeftViewTopBarExtension(
-                new DefaultResourceModelPresenter(
-                        new ResourceSetAvatarResourceSetsPresenter(
-                                allResourcesDragAvatarFactory),
-                        new ResourceSetAvatarResourceSetsPresenter(
-                                userSetsDragAvatarFactory), resourceModel));
+        return new LeftViewTopBarExtension(new DefaultResourceModelPresenter(
+                new ResourceSetAvatarResourceSetsPresenter(
+                        allResourcesDragAvatarFactory),
+                new ResourceSetAvatarResourceSetsPresenter(
+                        userSetsDragAvatarFactory), resourceModel));
     }
 
     private ViewTopBarExtension createSelectionModelPresenterExtension(
@@ -226,6 +229,20 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         return CollectionFactory.createLightweightList();
     }
 
+    /**
+     * Hook for overriding.
+     */
+    protected List<ViewTopBarExtension> createViewTopBarExtensions(
+            ResourceModel resourceModel, DefaultSelectionModel selectionModel) {
+
+        List<ViewTopBarExtension> extensions = new ArrayList<ViewTopBarExtension>();
+
+        extensions.add(createResourceModelPresenterExtension(resourceModel));
+        extensions.add(createSelectionModelPresenterExtension(selectionModel));
+
+        return extensions;
+    }
+
     protected VisualMappingsControl createVisualMappingsControl(
             HasResourceCategorizer resourceGrouping,
             DefaultManagedSlotMappingConfiguration uiModel, String contentType) {
@@ -235,13 +252,53 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                 this.uiProvider, resolverFactoryProvider, errorHandler);
     }
 
+    protected CompositeVisualItemBehavior initializeCompositeVisualItemBehavior(
+            DefaultSelectionModel selectionModel,
+            ViewContentDisplay contentDisplay) {
+        // Let the content display decide how its visual items act.
+    	// The behavior currently relies on members of the current class,
+    	// so the VisualItemBehaviorFactory resides nested here.
+        return contentDisplay
+                .createVisualItemBehaviors(new VisualItemBehaviorFactory());
+    }
+
+    public class VisualItemBehaviorFactory {
+        // TODO Would it be nicer if the composite stayed in here as a member,
+        // then we called "add_()" methods which filled it internally??
+
+        public CompositeVisualItemBehavior createEmptyCompositeVisualItemBehavior() {
+            return new CompositeVisualItemBehavior();
+        }
+
+        public VisualItemBehavior createDefaultHighlightingVisualItemBehavior() {
+            return new HighlightingVisualItemBehavior(hoverModel, disposeUtil);
+        }
+
+        public VisualItemBehavior createDefaultDragVisualItemBehavior() {
+            return new DragVisualItemBehavior(dragEnablerFactory, disposeUtil);
+        }
+
+        public VisualItemBehavior createDefaultPopupWithHighlightingVisualItemBehavior() {
+            return new PopupWithHighlightingVisualItemBehavior(
+                    detailsWidgetHelper, popupManagerFactory, hoverModel,
+                    disposeUtil);
+        }
+
+        public VisualItemBehavior createDefaultSwitchSelectionVisualItemBehavior() {
+            return new SwitchSelectionOnClickVisualItemBehavior(
+                    getSelectionModel(), commandManager);
+        }
+    }
+
     @Override
     public WindowContent createWindowContent(String contentType) {
         assert contentType != null;
 
         ThrowablesContainer throwablesContainer = new ThrowablesContainer();
-        ErrorHandler throwablesContainerErrorHandler = new ThrowablesContainerErrorHandler(
-                throwablesContainer);
+        CompositeErrorHandler throwablesContainerErrorHandler = new CompositeErrorHandler();
+        throwablesContainerErrorHandler
+                .add(new ThrowablesContainerErrorHandler(throwablesContainer));
+        throwablesContainerErrorHandler.add(loggingErrorHandler);
         ViewContentDisplay viewContentDisplay = viewContentDisplayConfiguration
                 .createDisplay(contentType, throwablesContainerErrorHandler);
 
@@ -257,24 +314,11 @@ public class ViewWindowContentProducer implements WindowContentProducer {
                             .getAutomaticResourceSet());
         }
 
-        DefaultSelectionModel selectionModel = new DefaultSelectionModel(
-                selectionModelLabelFactory, resourceSetFactory);
-
         Map<Slot, VisualItemValueResolver> fixedSlotResolvers = viewContentDisplayConfiguration
                 .getFixedSlotResolvers(contentType);
 
-        CompositeVisualItemBehavior visualItemBehaviors = new CompositeVisualItemBehavior();
-
-        // visualItemBehaviors.add(new ViewInteractionLogger(logger));
-        visualItemBehaviors.add(new HighlightingVisualItemBehavior(hoverModel,
-                disposeUtil));
-        visualItemBehaviors.add(new DragVisualItemBehavior(dragEnablerFactory,
-                disposeUtil));
-        visualItemBehaviors.add(new PopupWithHighlightingVisualItemBehavior(
-                detailsWidgetHelper, popupManagerFactory, hoverModel,
-                disposeUtil));
-        visualItemBehaviors.add(new SwitchSelectionOnClickVisualItemBehavior(
-                selectionModel, commandManager));
+        CompositeVisualItemBehavior visualItemBehaviors = initializeCompositeVisualItemBehavior(
+                getSelectionModel(), contentDisplay);
 
         SlotMappingInitializer slotMappingInitializer = createSlotMappingInitializer(contentType);
 
@@ -282,7 +326,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
         VisualizationModel visualizationModel = new FixedSlotResolversVisualizationModelDecorator(
                 new DefaultVisualizationModel(contentDisplay,
-                        selectionModel.getSelectionProxy(),
+                        getSelectionModel().getSelectionProxy(),
                         hoverModel.getResources(), visualItemBehaviors,
                         throwablesContainerErrorHandler,
                         new DefaultResourceSetFactory(), categorizer,
@@ -333,12 +377,12 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
         DefaultView view = new DefaultView(contentDisplay, label, contentType,
                 visualMappingsControl, sidePanelSections, visualizationModel,
-                resourceModel, selectionModel, managedConfiguration,
+                resourceModel, getSelectionModel(), managedConfiguration,
                 slotMappingConfigurationPersistence, disposeUtil,
                 listBoxControl);
 
         for (ViewTopBarExtension extension : createViewTopBarExtensions(
-                resourceModel, selectionModel)) {
+                resourceModel, getSelectionModel())) {
             view.addTopBarExtension(extension);
         }
 

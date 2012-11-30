@@ -33,16 +33,18 @@ public interface LayoutComputation {
     HandlerRegistration addEventHandler(LayoutComputationFinishedHandler handler);
 
     /**
-     * @return graph structure that this layout computation is changing.
-     */
-    LayoutGraph getGraph();
-
-    /**
      * @return <code>true</code> when the layout algorithm is still calculating
      *         the layout (e.g. if it is a continuous layout algorithm such as
      *         force directed layout).
      */
     boolean isRunning();
+
+    /**
+     * Forces the layout to compute another iteration. For a continuous layout,
+     * this may revive the state of a computation that had finished but now has
+     * new nodes.
+     */
+    void restart();
 
     /**
      * <p>

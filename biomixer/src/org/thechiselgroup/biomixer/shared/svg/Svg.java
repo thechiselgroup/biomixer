@@ -141,6 +141,10 @@ public final class Svg {
 
     public static final String NORMAL = "normal";
 
+    public static final String OVERFLOW = "overflow";
+
+    public static final String VISIBLE = "visible";
+
     public static String localUrl(String id) {
         return "url(#" + id + ")";
     }

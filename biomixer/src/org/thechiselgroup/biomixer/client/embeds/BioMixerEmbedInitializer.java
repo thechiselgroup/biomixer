@@ -23,8 +23,11 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
 
     @SuppressWarnings("unused")
     @Inject
-    private void setConceptNeighbourhoodLoader(TermCentricEmbedLoader loader) {
-        registerLoader(loader);
+    private void setConceptNeighbourhoodLoader(
+            TermCentricEmbedLoader termLoader,
+            OntologyCentricEmbedLoader ontologyLoader) {
+        registerLoader(termLoader);
+        registerLoader(ontologyLoader);
     }
 
     @SuppressWarnings("unused")
@@ -39,4 +42,5 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
     private void setJavascriptBasedVisualizationLoader(MatrixLayoutLoader loader) {
         registerLoader(loader);
     }
+
 }

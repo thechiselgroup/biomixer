@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.DataTypeValidator;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
@@ -26,6 +28,9 @@ import com.google.inject.Inject;
 
 public class GraphViewContentDisplayFactory implements
         ViewContentDisplayFactory {
+
+    public final static String ID = GraphViewContentDisplayFactory.class
+            .toString();
 
     @Inject
     private ArcTypeProvider arcStyleProvider;
@@ -51,13 +56,19 @@ public class GraphViewContentDisplayFactory implements
         GraphExpansionRegistry registry = registryFactory
                 .createRegistry(errorHandler);
 
-        return new Graph(new Graph.DefaultDisplay(), commandManager,
-                resourceManager, resourceCategorizer, arcStyleProvider,
-                registry);
+        return new Graph(new Graph.DefaultDisplay(errorHandler),
+                commandManager, resourceManager, resourceCategorizer,
+                arcStyleProvider, registry, errorHandler,
+                createDataTypeValidator());
+    }
+
+    @Override
+    public DataTypeValidator createDataTypeValidator() {
+        return new Concept.ConceptDataTypeValidator();
     }
 
     @Override
     public String getViewContentTypeID() {
-        return Graph.ID;
+        return ID;
     }
 }

@@ -42,6 +42,19 @@ public final class MathUtils {
     }
 
     /**
+     * Generates a random number in the range [min, max]
+     * 
+     * @param min
+     *            the minimum allowable number
+     * @param max
+     *            the maximum allowable number
+     * @return a random number in the specified range
+     */
+    public static int generateRandomNumber(int min, int max) {
+        return min + (int) (Math.random() * ((max - min) + 1));
+    }
+
+    /**
      * Deprecated - use NumberArray
      */
     @Deprecated
@@ -79,6 +92,30 @@ public final class MathUtils {
             result *= base;
         }
         return result;
+    }
+
+    /**
+     * Takes a requested value, and if it is not within the range [min, max]
+     * then it gets set to the boundary value which it has crossed.
+     * 
+     * @param value
+     *            the input value. If it is within the bounds, it is returned
+     *            unchanged. If it is outside them, it will be 'clipped' to
+     *            <code>minimum</code> or <code>maximum</code>.
+     * @param minimum
+     *            the minimum acceptable value
+     * @param maximum
+     *            the maximum acceptable value
+     * @return the requested value 'clipped' to be in the specified range
+     */
+    public static double restrictToInterval(double value, double minimum,
+            double maximum) {
+        if (value < minimum) {
+            return minimum;
+        } else if (value > maximum) {
+            return maximum;
+        }
+        return value;
     }
 
     // TODO change / refactor

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2011 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel, Bo Fu
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -40,7 +40,7 @@ import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
-import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
@@ -57,14 +57,14 @@ public class MappingServiceImplementationTest {
     @Mock
     private UrlFetchService urlFetchService;
 
-    private MappingServiceImplementation underTest;
+    private ConceptMappingServiceImplementation underTest;
 
     @Mock
-    private MappingResponseParser responseParser;
+    private MappingResponseJsonParser responseParser;
 
     private String conceptUri;
 
-    private UrlBuilder urlBuilder;
+    private DefaultUrlBuilder urlBuilder;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private ResourceNeighbourhood doGetMappings(List<Resource> parsedMappings)
@@ -74,7 +74,7 @@ public class MappingServiceImplementationTest {
 
         AsyncCallback callback = mock(AsyncCallback.class);
 
-        when(responseParser.parseMapping(xmlResultStub)).thenReturn(
+        when(responseParser.parseForConceptMapping(xmlResultStub)).thenReturn(
                 parsedMappings);
 
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
@@ -82,7 +82,7 @@ public class MappingServiceImplementationTest {
         doNothing().when(urlFetchService).fetchURL(eq(URL), captor.capture());
 
         underTest.getMappings(Concept.getOntologyId(conceptUri),
-                Concept.getConceptId(conceptUri), callback);
+                Concept.getConceptId(conceptUri), false, callback);
 
         AsyncCallback<String> xmlResultCallback = captor.getValue();
 
@@ -154,10 +154,10 @@ public class MappingServiceImplementationTest {
 
         conceptUri = Concept.toConceptURI("1ontologyId1", "1conceptId1");
 
-        underTest = new MappingServiceImplementation(responseParser,
+        underTest = new ConceptMappingServiceImplementation(responseParser,
                 urlFetchService, urlBuilderFactory);
 
-        this.urlBuilder = Mockito.spy(new UrlBuilder());
+        this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 
         when(urlBuilderFactory.createUrlBuilder()).thenReturn(urlBuilder);
         when(urlBuilder.toString()).thenReturn(URL);
@@ -169,7 +169,8 @@ public class MappingServiceImplementationTest {
         String ontologyId = "1ontologyId1";
         String conceptId = "1conceptId1";
 
-        underTest.getMappings(ontologyId, conceptId, mock(AsyncCallback.class));
+        underTest.getMappings(ontologyId, conceptId, false,
+                mock(AsyncCallback.class));
 
         verify(urlFetchService, times(1)).fetchURL(eq(URL),
                 any(AsyncCallback.class));

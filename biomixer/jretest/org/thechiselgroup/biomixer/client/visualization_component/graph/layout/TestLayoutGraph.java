@@ -18,7 +18,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestLayoutGraph implements LayoutGraph {
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
+
+public class TestLayoutGraph extends AbstractLayoutGraph {
 
     private BoundsDouble graphBounds;
 
@@ -48,8 +50,9 @@ public class TestLayoutGraph implements LayoutGraph {
         this.graphBounds = graphBounds;
     }
 
-    public LayoutArc createArc(LayoutNode sourceNode, LayoutNode targetNode,
-            double thickness, boolean isDirected, TestLayoutArcType type) {
+    public LayoutArc createArc(TestLayoutNode sourceNode,
+            TestLayoutNode targetNode, double thickness, boolean isDirected,
+            TestLayoutArcType type) {
         assert getAllNodes().contains(sourceNode);
         assert getAllNodes().contains(sourceNode);
         TestLayoutArc arc = new TestLayoutArc(sourceNode, targetNode,

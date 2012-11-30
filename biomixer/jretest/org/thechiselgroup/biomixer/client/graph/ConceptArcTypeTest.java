@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.graph;
 import static org.junit.Assert.assertThat;
 import static org.thechiselgroup.biomixer.client.Concept.createConceptResource;
 import static org.thechiselgroup.biomixer.client.graph.ConceptArcType.ARC_DIRECTED;
+import static org.thechiselgroup.biomixer.client.graph.ConceptArcType.ARC_LABEL;
 import static org.thechiselgroup.biomixer.client.graph.ConceptArcType.ID;
 import static org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers.containsExactly;
 
@@ -52,7 +53,7 @@ public class ConceptArcTypeTest {
 
     private Arc createExpectedArc(String fromUri, String toUri) {
         return new Arc(Graph.getArcId(ID, fromUri, toUri), fromUri, toUri, ID,
-                ARC_DIRECTED);
+                ARC_LABEL, ARC_DIRECTED);
     }
 
     @Test

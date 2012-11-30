@@ -23,7 +23,10 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.initializatio
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.FixedValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver.StatusRule;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.text.ConceptListViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.text.OntologyListViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLine;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLineViewContentDisplayFactory;
@@ -39,7 +42,23 @@ public class BioMixerWorkbenchViewContentDisplaysConfigurationProvider extends
     }
 
     @Inject
+    public void graphOntologyOverview(
+            GraphOntologyOverviewViewContentDisplayFactory factory) {
+        add(factory);
+    }
+
+    @Inject
     public void text(TextViewContentDisplayFactory factory) {
+        add(factory);
+    }
+
+    @Inject
+    public void conceptList(ConceptListViewContentDisplayFactory factory) {
+        add(factory);
+    }
+
+    @Inject
+    public void ontologyList(OntologyListViewContentDisplayFactory factory) {
         add(factory);
     }
 
@@ -59,5 +78,4 @@ public class BioMixerWorkbenchViewContentDisplaysConfigurationProvider extends
 
         add(configuration);
     }
-
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-    <application>bio-mixer</application>
-    <version>20120302-1-svg</version>
+    <application>bio-mixer-hrd</application>
+    <version>20120814-1</version>
     
     <!-- Configure java.util.logging -->
     <system-properties>

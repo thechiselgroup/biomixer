@@ -15,10 +15,10 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
-import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY;
-import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.GRAPH_LABEL_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemResolverUIFactoryProvider;
@@ -38,9 +38,9 @@ public class BioMixerVisualItemValueResolverUIControllerFactoryProvider extends
     public void registerFactories() {
         super.registerFactories();
 
-        register(GRAPH_LABEL_RESOLVER_FACTORY);
+        register(CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY);
         register(NODE_BACKGROUND_COLOR_RESOLVER_FACTORY);
         register(NODE_BORDER_COLOR_RESOLVER_FACTORY);
-        register(CONCEPT_BY_ONTOLOGY_RESOLVER_FACTORY);
+        register(NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
     }
 }

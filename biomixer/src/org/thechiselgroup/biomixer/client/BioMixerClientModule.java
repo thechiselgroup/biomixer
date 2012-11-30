@@ -19,7 +19,6 @@ import org.thechiselgroup.biomixer.client.core.label.CategoryLabelProvider;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationServiceProvider;
 import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
-import org.thechiselgroup.biomixer.client.core.util.url.ProfilingUrlFetchServiceDecorator;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplaysConfiguration;
@@ -30,19 +29,25 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
-import org.thechiselgroup.biomixer.client.services.NcboRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpStageRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceAsync;
-import org.thechiselgroup.biomixer.client.services.mapping.MappingServiceImplementation;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsync;
-import org.thechiselgroup.biomixer.client.services.search.ConceptSearchServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsyncImplementation;
+import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
@@ -54,7 +59,7 @@ import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchClientModule
 import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
-import org.thechiselgroup.biomixer.client.workbench.util.url.FlashUrlFetchService;
+import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormatFactory;
 
 import com.google.inject.Provider;
@@ -75,14 +80,19 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         bind(ConceptSearchServiceAsync.class).to(
                 ConceptSearchServiceAsyncClientImplementation.class).in(
                 Singleton.class);
+        bind(OntologySearchServiceAsync.class).to(
+                OntologySearchServiceAsyncClientImplementation.class).in(
+                Singleton.class);
         bind(ConceptNeighbourhoodServiceAsync.class).to(
                 ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
-        // bind(MappingServiceAsync.class).to(FakeMappingService.class).in(
-        // Singleton.class);
-        bind(MappingServiceAsync.class).to(MappingServiceImplementation.class)
-                .in(Singleton.class);
+        bind(OntologyMetricServiceAsync.class).to(
+                OntologyMetricServiceAsyncClientImplementation.class).in(
+                Singleton.class);
+
+        bind(ConceptMappingServiceAsync.class).to(
+                ConceptMappingServiceImplementation.class).in(Singleton.class);
 
         bind(TermServiceAsync.class).to(TermServiceImplementation.class).in(
                 Singleton.class);
@@ -107,16 +117,20 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 OntologyStatusServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
-        bind(UrlBuilderFactory.class).to(NcboRestUrlBuilderFactory.class).in(
+        bind(OntologyMappingCountServiceAsync.class).to(
+                OntologyMappingCountServiceAsyncImplementation.class).in(
                 Singleton.class);
+
+        bind(UrlBuilderFactory.class).to(
+                NcboJsonpStageRestUrlBuilderFactory.class).in(Singleton.class);
     }
 
     @Override
     protected void bindUrlFetchService() {
         bind(UrlFetchService.class).annotatedWith(Names.named("delegate"))
-                .to(FlashUrlFetchService.class).in(Singleton.class);
-        bind(UrlFetchService.class).to(ProfilingUrlFetchServiceDecorator.class)
-                .in(Singleton.class);
+                .to(JsonpUrlFetchService.class).in(Singleton.class);
+        bind(UrlFetchService.class).to(JsonpUrlFetchService.class).in(
+                Singleton.class);
     }
 
     @Override

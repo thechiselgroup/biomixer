@@ -24,6 +24,14 @@ import java.util.List;
 public interface LayoutGraph {
 
     /**
+     * Adds a listener which acts upon changes to the graph.
+     * 
+     * @param listener
+     *            listens for changes to the graph
+     */
+    void addContentChangedListener(LayoutGraphContentChangedListener listener);
+
+    /**
      * NOTE: we return a list to guarantee arc order for testing purposes. There
      * must be no duplicate arcs in this list.
      * 
@@ -53,11 +61,23 @@ public interface LayoutGraph {
     BoundsDouble getBounds();
 
     /**
+     * 
+     * @return the outer bounds of the nodes on the graph
+     */
+    BoundsDouble getNodeBounds();
+
+    /**
      * NOTE: we return a list to guarantee node order for testing purposes.
      * There must be no duplicate nodes in this list.
      * 
      * @return all node types in this graph
      */
     List<LayoutNodeType> getNodeTypes();
+
+    /**
+     * 
+     * @return all nodes on the graph which have not been anchored.
+     */
+    List<LayoutNode> getUnanchoredNodes();
 
 }

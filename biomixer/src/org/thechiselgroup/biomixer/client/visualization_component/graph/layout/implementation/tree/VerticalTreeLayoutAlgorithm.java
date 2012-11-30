@@ -18,26 +18,37 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
 
-public class VerticalTreeLayoutAlgorithm implements LayoutAlgorithm {
+public class VerticalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     private Executor executor = new DirectExecutor();
 
     private ErrorHandler errorHandler;
 
-    public VerticalTreeLayoutAlgorithm(ErrorHandler errorHandler) {
+    private final boolean pointingUp;
+
+    private final NodeAnimator nodeAnimator;
+
+    /**
+     * 
+     * @param pointingUp
+     *            if <code>true</code>, arrows on directed arcs will be pointing
+     *            upwards. If <code>false</code> they will point downwards.
+     */
+    public VerticalTreeLayoutAlgorithm(boolean pointingUp,
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
         this.errorHandler = errorHandler;
+        this.pointingUp = pointingUp;
+        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
-    public LayoutComputation computeLayout(LayoutGraph graph) {
-        AbstractLayoutComputation computation = new VerticalTreeLayoutComputation(
-                graph, executor, errorHandler);
-        computation.run();
-        return computation;
+    protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
+        return new VerticalTreeLayoutComputation(graph, executor, errorHandler,
+                nodeAnimator, pointingUp);
     }
 }

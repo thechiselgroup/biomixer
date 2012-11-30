@@ -15,11 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
-import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
-import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
-import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.animation.NodeAnimationFactory;
+import org.thechiselgroup.biomixer.client.core.util.animation.NullNodeAnimationFactory;
+import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.util.executor.TestDelayedExecutor;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
+import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
 /**
  * This class provides default values for anything that would normally involve
@@ -29,36 +33,21 @@ import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElement;
  * @author drusk
  * 
  */
-public class TestGraphSvgDisplay extends GraphSvgDisplay {
+public class TestGraphSvgDisplay extends GraphDisplayController {
 
     public TestGraphSvgDisplay(int width, int height,
-            SvgElementFactory svgElementFactory) {
-        super(width, height, svgElementFactory);
+            AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler) {
+        super(width, height, "Test Graph View", graphRenderer, errorHandler,
+                false);
     }
 
-    public void fireNodeTabTestEvent(Node node, ChooselEvent event) {
-        TextSvgElement tabContainer = (TextSvgElement) getNodeComponent(node)
-                .getExpanderTab().getSvgElement();
-        tabContainer.getEventListener().onEvent(event);
+    public SvgElement asSvg() {
+        return ((SvgGraphRenderer) graphRenderer).asSvg();
     }
 
-    public void fireNodeTestEvent(Node node, ChooselEvent event) {
-        TextSvgElement nodeContainer = (TextSvgElement) getNodeComponent(node)
-                .getNodeContainer();
-        nodeContainer.getEventListener().onEvent(event);
-    }
-
-    public void fireTabMenuItemTestEvent(String expanderLabel, ChooselEvent event) {
-        // XXX better way of firing these events?
-        PopupExpanderSvgComponent popupExpanderList = (PopupExpanderSvgComponent) popupGroup
-                .getCompositeSubComponents().get(0);
-        TextSvgElement menuItemContainer = (TextSvgElement) popupExpanderList
-                .getEntryByExpanderLabel(expanderLabel).getSvgElement();
-        menuItemContainer.getEventListener().onEvent(event);
-    }
-
-    public void fireViewWideTestEvent(ChooselEvent chooselEvent) {
-        getTextRootSvgElement().getEventListener().onEvent(chooselEvent);
+    @Override
+    protected DelayedExecutor getDelayedExecutor() {
+        return new TestDelayedExecutor();
     }
 
     @Override
@@ -71,13 +60,13 @@ public class TestGraphSvgDisplay extends GraphSvgDisplay {
         return 0;
     }
 
-    private TextSvgElement getTextRootSvgElement() {
-        return (TextSvgElement) rootSvgComponent.getSvgElement();
+    @Override
+    protected NodeAnimationFactory getNodeAnimationFactory() {
+        return new NullNodeAnimationFactory();
     }
 
-    @Override
-    protected void initTextBoundsEstimator() {
-        textBoundsEstimator = new TestTextBoundsEstimator(10, 20);
+    public TestAnimationRunner getTestAnimationRunner() {
+        return (TestAnimationRunner) animationRunner;
     }
 
 }

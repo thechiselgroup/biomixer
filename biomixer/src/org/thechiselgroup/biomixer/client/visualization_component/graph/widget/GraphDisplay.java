@@ -16,10 +16,12 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent.Type;
@@ -29,6 +31,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 public interface GraphDisplay extends IsWidget {
 
     String DEFAULT_LAYOUT = GraphLayouts.FORCE_DIRECTED_LAYOUT;
+
+    String NODE_SIZE = "normalSize";
 
     String NODE_BACKGROUND_COLOR = "normalBackgroundColor";
 
@@ -54,12 +58,6 @@ public interface GraphDisplay extends IsWidget {
     <T extends EventHandler> HandlerRegistration addEventHandler(Type<T> type,
             T handler);
 
-    HandlerRegistration addGraphDisplayLoadingFailureHandler(
-            GraphDisplayLoadingFailureEventHandler handler);
-
-    HandlerRegistration addGraphDisplayReadyHandler(
-            GraphDisplayReadyEventHandler handler);
-
     void addNode(Node node);
 
     void addNodeMenuItemHandler(String menuLabel,
@@ -73,9 +71,15 @@ public interface GraphDisplay extends IsWidget {
 
     Arc getArc(String arcId);
 
+    LayoutGraph getLayoutGraph();
+
     Point getLocation(Node node);
 
     Node getNode(String nodeId);
+
+    NodeAnimator getNodeAnimator();
+
+    void registerDefaultLayoutAlgorithm(LayoutAlgorithm layoutAlgorithm);
 
     void removeArc(Arc arc);
 
@@ -83,9 +87,7 @@ public interface GraphDisplay extends IsWidget {
 
     void runLayout() throws LayoutException;
 
-    LayoutComputation runLayout(LayoutAlgorithm layoutAlgorithm);
-
-    void runLayout(String layout) throws LayoutException;
+    void runLayout(LayoutAlgorithm layoutAlgorithm);
 
     void runLayoutOnNodes(Collection<Node> nodes) throws LayoutException;
 
@@ -97,5 +99,18 @@ public interface GraphDisplay extends IsWidget {
     void setLocation(Node node, Point location);
 
     void setNodeStyle(Node node, String styleProperty, String styleValue);
+
+    /**
+     * Returns human readable string for adorning windows.
+     * 
+     * @return
+     */
+    public String getGraphViewName();
+
+    /**
+     * Returns an umodifiable collection of nodes in the graph at the time of
+     * the call.
+     */
+    public Map<String, Node> getNodes();
 
 }

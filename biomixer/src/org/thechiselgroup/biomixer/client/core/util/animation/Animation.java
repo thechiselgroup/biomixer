@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2012 Lars Grammel 
+ * Copyright 2012 David Rusk 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -15,8 +15,24 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.util.animation;
 
+/**
+ * 
+ * An interface which can be used in place of the GWT Animation class which
+ * contains JSNI and therefore cannot be used in JRE tests.
+ * 
+ * See GWT animation JavaDoc:
+ * http://google-web-toolkit.googlecode.com/svn/javadoc/2.0/com/google/gwt/
+ * animation/client/Animation.html
+ * 
+ * @author drusk
+ * 
+ */
 public interface Animation {
 
-    void update(double progress);
+    void cancel();
+
+    void onUpdate(double progress);
+
+    void run(int duration);
 
 }

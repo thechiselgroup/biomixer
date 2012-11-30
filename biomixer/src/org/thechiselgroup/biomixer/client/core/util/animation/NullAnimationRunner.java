@@ -18,7 +18,7 @@ package org.thechiselgroup.biomixer.client.core.util.animation;
 public class NullAnimationRunner implements AnimationRunner {
 
     @Override
-    public void run(Animation animation, int duration) {
+    public void run(Animatable animation, int duration) {
         animation.update(1d);
     }
 

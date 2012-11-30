@@ -16,9 +16,14 @@
 package org.thechiselgroup.biomixer.client.core.visualization.model;
 
 import org.thechiselgroup.biomixer.client.core.persistence.Persistable;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.Adaptable;
 import org.thechiselgroup.biomixer.client.core.util.Disposable;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.IsWidget;
 
@@ -73,6 +78,15 @@ public interface ViewContentDisplay extends VisualItemRenderer, IsWidget,
     Slot[] getSlots();
 
     /**
+     * Given a resource set (to be loaded), see if it fails to meet any
+     * restrictions of the underlying {@link GraphDisplayController}.
+     * 
+     * @param resourceSet
+     * @return
+     */
+    boolean validateDataTypes(ResourceSet resourceSet);
+
+    /**
      * Sets callback objects.
      */
     void init(VisualItemContainer container, ViewContentDisplayCallback callback);
@@ -93,5 +107,17 @@ public interface ViewContentDisplay extends VisualItemRenderer, IsWidget,
     void setSize(int width, int height);
 
     void startRestore();
+
+    /**
+     * Used for customizing the visual item interactions. The provided factory
+     * contains the options available from the {@link ViewWindowContentProducer}
+     * context. Individual {@link ViewContentDisplay} classes can make use of
+     * those as appropriate.
+     * 
+     * @param behaviorFactory
+     * @return
+     */
+    CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory);
 
 }
