@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
+
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 
@@ -26,10 +28,18 @@ public abstract class NodeEvent<T extends EventHandler> extends GwtEvent<T> {
 
     private final Node node;
 
-    public NodeEvent(Node node, int mouseX, int mouseY) {
+    private final ChooselEvent event;
+
+    public NodeEvent(Node node, ChooselEvent chooselEvent, int mouseX,
+            int mouseY) {
         this.node = node;
+        this.event = chooselEvent;
         this.mouseX = mouseX;
         this.mouseY = mouseY;
+    }
+
+    public ChooselEvent getChooselEvent() {
+        return event;
     }
 
     public int getMouseX() {

@@ -65,6 +65,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.G
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandleMouseDownEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMenuItemClickedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseDoubleClickEvent;
@@ -418,7 +419,8 @@ public class GraphDisplayController implements GraphDisplay,
             @Override
             public void onEvent(ChooselEvent event) {
                 if (event.getEventType().equals(ChooselEvent.Type.MOUSE_MOVE)) {
-                    onViewMouseMove(event.getClientX(), event.getClientY());
+                    onViewMouseMove(event, event.getClientX(),
+                            event.getClientY());
                 }
             }
         };
@@ -436,7 +438,8 @@ public class GraphDisplayController implements GraphDisplay,
         graphRenderer.removeAllNodeExpanders();
     }
 
-    public void onNodeDrag(String nodeId, int deltaX, int deltaY) {
+    public void onNodeDrag(ChooselEvent event, String nodeId, int deltaX,
+            int deltaY) {
         Node node = nodes.get(nodeId);
         Point startLocation = graphRenderer.getRenderedNode(node).getTopLeft()
                 .toPointInt();
@@ -446,7 +449,8 @@ public class GraphDisplayController implements GraphDisplay,
         int endY = startY + deltaY;
 
         setLocation(node, new Point(endX, endY));
-        eventBus.fireEvent(new NodeDragEvent(node, startX, startY, endX, endY));
+        eventBus.fireEvent(new NodeDragEvent(node, event, startX, startY, endX,
+                endY));
         graphRenderer.removeAllNodeExpanders();
     }
 
@@ -470,45 +474,61 @@ public class GraphDisplayController implements GraphDisplay,
         expander.setOptionBackgroundColor(optionId, Colors.BLUE_1);
     }
 
-    public void onNodeMouseClick(String nodeId, int mouseX, int mouseY) {
+    public void onNodeMouseClick(String nodeId, ChooselEvent chooselEvent,
+            int mouseX, int mouseY) {
         int x = mouseX - getGraphAbsoluteLeft();
         int y = mouseY - getGraphAbsoluteTop();
 
-        eventBus.fireEvent(new NodeMouseClickEvent(getNode(nodeId), x, y));
+        eventBus.fireEvent(new NodeMouseClickEvent(getNode(nodeId),
+                chooselEvent, x, y));
         graphRenderer.removeAllNodeExpanders();
     }
 
-    public void onNodeMouseDoubleClick(String nodeId, int mouseX, int mouseY) {
+    public void onNodeMouseDoubleClick(String nodeId,
+            ChooselEvent chooselEvent, int mouseX, int mouseY) {
         int x = getGraphAbsoluteLeft() + mouseX;
         int y = getGraphAbsoluteTop() + mouseY;
 
-        eventBus.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId), x, y));
+        eventBus.fireEvent(new NodeMouseDoubleClickEvent(getNode(nodeId),
+                chooselEvent, x, y));
     }
 
-    public void onNodeMouseDown(Node node, int clientX, int clientY) {
-        nodeInteractionManager.onMouseDown(node.getId(), clientX, clientY);
+    public void onNodeMouseDown(Node node, ChooselEvent event, int clientX,
+            int clientY) {
+    	// Why do/did some methods have nodeInteractionManager, others eventBus.fireEvent()??
+        nodeInteractionManager.onMouseDown(node.getId(), event, clientX,
+                clientY);
+        eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, event,
+                clientX, clientY));
     }
 
-    public void onNodeMouseOut(RenderedNode renderedNode, int mouseX, int mouseY) {
+    public void onNodeMouseOut(RenderedNode renderedNode,
+            ChooselEvent chooselEvent, int mouseX, int mouseY) {
         int x = mouseX - getGraphAbsoluteLeft();
         int y = mouseY - getGraphAbsoluteTop();
 
-        eventBus.fireEvent(new NodeMouseOutEvent(renderedNode.getNode(), x, y));
+        eventBus.fireEvent(new NodeMouseOutEvent(renderedNode.getNode(),
+                chooselEvent, x, y));
     }
 
-    public void onNodeMouseOver(RenderedNode renderedNode, int mouseX,
-            int mouseY) {
+    public void onNodeMouseOver(RenderedNode renderedNode,
+            ChooselEvent chooselEvent, int mouseX, int mouseY) {
         int x = mouseX - getGraphAbsoluteLeft()
                 - (int) getHorizontalScrollDistance();
         int y = mouseY - getGraphAbsoluteTop()
                 - (int) getVerticalScrollDistance();
 
-        eventBus.fireEvent(new NodeMouseOverEvent(renderedNode.getNode(), x, y));
+        eventBus.fireEvent(new NodeMouseOverEvent(renderedNode.getNode(),
+                chooselEvent, x, y));
         graphRenderer.bringToForeground(renderedNode);
     }
 
-    public void onNodeMouseUp() {
-        nodeInteractionManager.onMouseUp();
+    public void onNodeMouseUp(ChooselEvent event) {
+        nodeInteractionManager.onMouseUp(event);
+        // Whyd idn't this have an eventBus.fireEvent() like commented below?
+        // eventBus.fireEvent(new NodeDragHandleMouseUpEvent(node, event,
+        // startX,
+        // startY, endX, endY));
     }
 
     public void onNodeTabClick(final RenderedNode renderedNode) {
@@ -574,8 +594,8 @@ public class GraphDisplayController implements GraphDisplay,
         graphRenderer.checkIfScrollbarsNeeded();
     }
 
-    public void onViewMouseMove(int mouseX, int mouseY) {
-        nodeInteractionManager.onMouseMove(mouseX, mouseY);
+    public void onViewMouseMove(ChooselEvent event, int mouseX, int mouseY) {
+        nodeInteractionManager.onMouseMove(event, mouseX, mouseY);
     }
 
     public void panBackground(int deltaX, int deltaY) {
@@ -754,19 +774,20 @@ public class GraphDisplayController implements GraphDisplay,
 
                 switch (event.getEventType()) {
                 case MOUSE_OVER:
-                    onNodeMouseOver(renderedNode, clientX, clientY);
+                    onNodeMouseOver(renderedNode, event, clientX, clientY);
                     break;
 
                 case MOUSE_OUT:
-                    onNodeMouseOut(renderedNode, clientX, clientY);
+                    onNodeMouseOut(renderedNode, event, clientX, clientY);
                     break;
 
                 case MOUSE_UP:
-                    onNodeMouseUp();
+                    onNodeMouseUp(event);
                     break;
 
                 case MOUSE_DOWN:
-                    onNodeMouseDown(renderedNode.getNode(), clientX, clientY);
+                    onNodeMouseDown(renderedNode.getNode(), event, clientX,
+                            clientY);
                     break;
 
                 default:

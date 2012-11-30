@@ -18,26 +18,31 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_wid
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent.Type;
 
+import com.google.gwt.user.client.Event;
+
 public class TestEventFactory {
 
     public static ChooselEvent createMouseclickEvent() {
-        return new ChooselEvent(Type.CLICK);
+        return new ChooselEvent(((Event) null), Type.CLICK,
+                ChooselEvent.UNKNOWN, ChooselEvent.UNKNOWN);
     }
 
     public static ChooselEvent createMouseDownEvent(int x, int y) {
-        return new ChooselEvent(Type.MOUSE_DOWN, x, y);
+        return new ChooselEvent(((Event) null), Type.MOUSE_DOWN, x, y);
     }
 
     public static ChooselEvent createMouseMoveEvent(int x, int y) {
-        return new ChooselEvent(Type.MOUSE_MOVE, x, y);
+        return new ChooselEvent(((Event) null), Type.MOUSE_MOVE, x, y);
     }
 
     public static ChooselEvent createMouseOutEvent() {
-        return new ChooselEvent(Type.MOUSE_OUT);
+        return new ChooselEvent(((Event) null), Type.MOUSE_OUT,
+                ChooselEvent.UNKNOWN, ChooselEvent.UNKNOWN);
     }
 
     public static ChooselEvent createMouseOverEvent() {
-        return new ChooselEvent(Type.MOUSE_OVER);
+        return new ChooselEvent(((Event) null), Type.MOUSE_OVER,
+                ChooselEvent.UNKNOWN, ChooselEvent.UNKNOWN);
     }
 
 }

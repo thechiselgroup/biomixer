@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
+
 import com.google.gwt.event.shared.GwtEvent;
 
 public class NodeDragEvent extends GwtEvent<NodeDragHandler> {
@@ -31,15 +33,24 @@ public class NodeDragEvent extends GwtEvent<NodeDragHandler> {
 
     private final int startY;
 
-    public NodeDragEvent(Node node, int startX, int startY, int endX, int endY) {
-        assert node != null;
+    private final ChooselEvent event;
 
+    public NodeDragEvent(Node node, ChooselEvent event, int startX, int startY,
+            int endX, int endY) {
+        assert node != null;
+        assert event != null;
+
+        this.event = event;
         this.node = node;
         this.startX = startX;
         this.startY = startY;
         this.endX = endX;
         this.endY = endY;
 
+    }
+
+    public ChooselEvent getChooselEvent() {
+        return event;
     }
 
     @Override

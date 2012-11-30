@@ -35,6 +35,7 @@ import java.util.Map;
 import junit.framework.AssertionFailedError;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -67,6 +68,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * @author everbeek
  * 
  */
+@Ignore
+// Ignore until it is fleshed out
 public class OntologyNodeMetricsExpanderTest {
 
     @Mock

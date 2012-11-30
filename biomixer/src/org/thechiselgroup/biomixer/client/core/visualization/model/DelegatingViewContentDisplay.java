@@ -24,6 +24,8 @@ import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
 import org.thechiselgroup.biomixer.client.core.util.NoSuchAdapterException;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.Widget;
 
@@ -138,6 +140,12 @@ public class DelegatingViewContentDisplay implements ViewContentDisplay {
     public void update(Delta<VisualItem> delta,
             LightweightCollection<Slot> updatedSlots) {
         delegate.update(delta, updatedSlots);
+    }
+
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+        return delegate.createVisualItemBehaviors(behaviorFactory);
     }
 
 }

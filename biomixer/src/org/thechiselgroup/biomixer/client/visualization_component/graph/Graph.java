@@ -48,6 +48,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
@@ -82,6 +83,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverHandler;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -159,6 +161,28 @@ public class Graph extends AbstractViewContentDisplay implements
                     .getNode(),
                     new Point(event.getStartX(), event.getStartY()), new Point(
                             event.getEndX(), event.getEndY())));
+
+            // Leverage the registered VisualItem framework with Popups. This
+            // helps hide the popup when we drag the node, so it doesn't
+            // interfere.
+            if (event.getNode() != null
+                    && (event.getEndX() != event.getStartX())
+                    || (event.getEndY() != event.getStartY())) {
+                // The DRAG_START event is used in the PopupVisualItemBehavior
+                // to hide the popup...
+                getVisualItem(event.getNode()).reportInteraction(
+                        new VisualItemInteraction(event.getChooselEvent()
+                                .getBrowserEvent(), Type.DRAG_START, event
+                                .getEndX(), event.getEndY()));
+
+                // ... but I need to pass the browser native event in order to
+                // cancel the text highlighting (which might happen through the
+                // createDefaultDragVisualItemBehavior() thing.
+                getVisualItem(event.getNode()).reportInteraction(
+                        new VisualItemInteraction(event.getChooselEvent()
+                                .getBrowserEvent()));
+            }
+
         }
 
         @Override
@@ -173,15 +197,20 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseMove(MouseMoveEvent event) {
+        	// TODO This doesn't get called currently. Is the code valuable for
+            // later?
+            // May not get called since some funny redispatching involving the DRAG_START event type occurs.
             if (currentNode != null) {
-                getVisualItem(currentNode).reportInteraction(
-                        new VisualItemInteraction(Type.MOUSE_MOVE, event
-                                .getClientX(), event.getClientY()));
+                VisualItemInteraction interaction = new VisualItemInteraction(
+                        event.getNativeEvent());
+                getVisualItem(currentNode).reportInteraction(interaction);
             }
         }
 
         @Override
         public void onMouseMove(NodeDragHandleMouseMoveEvent event) {
+            // TODO This doesn't get called currently. Is the code valuable for
+            // later?
             reportInteraction(Type.MOUSE_MOVE, event);
         }
 
@@ -198,11 +227,9 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         private void reportInteraction(Type eventType, NodeEvent<?> event) {
-            int clientX = event.getMouseX() + asWidget().getAbsoluteLeft();
-            int clientY = event.getMouseY() + asWidget().getAbsoluteTop();
-
             getVisualItem(event).reportInteraction(
-                    new VisualItemInteraction(eventType, clientX, clientY));
+                    new VisualItemInteraction(event.getChooselEvent()
+                            .getBrowserEvent()));
         }
 
     }
@@ -606,7 +633,7 @@ public class Graph extends AbstractViewContentDisplay implements
                 NODE_BACKGROUND_COLOR };
     }
 
-    private VisualItem getVisualItem(Node node) {
+    public VisualItem getVisualItem(Node node) {
         return getVisualItem(node.getId());
     }
 
@@ -876,4 +903,31 @@ public class Graph extends AbstractViewContentDisplay implements
         visualItem.<NodeItem> getDisplayObject().updateNode();
     }
 
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+
+        CompositeVisualItemBehavior composite = behaviorFactory
+                .createEmptyCompositeVisualItemBehavior();
+
+        // This both triggers shading, disables text drag, and gets rid of
+        // popups. Extend/replace.
+        // It does so because it triggers a DRAG_START event, which I need to do
+        // in a different way.
+        // composite.add(behaviorFactory.createDefaultDragVisualItemBehavior());
+
+        // It seems like the presence of the defaultHighlighting one affects the
+        // calling of the defaultPopupWithHighlighting...
+        // Why would they interact within the...
+        // Seems like the DRAG_START event is not triggered without the drag
+        // controller! That's the issue! A secret dependency!!!
+        // I can change the popup manager to detect drags in another way perhaps,
+        // rather than having this secret dependency. Or have the DRAG_START
+        // event fired off in a different place (as well)
+        // In any case, I have the popup-hide working and text select disabled.
+        composite.add(behaviorFactory
+                .createDefaultPopupWithHighlightingVisualItemBehavior());
+
+        return composite;
+    }
 }

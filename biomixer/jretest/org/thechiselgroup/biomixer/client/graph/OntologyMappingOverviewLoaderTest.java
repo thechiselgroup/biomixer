@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -54,6 +55,8 @@ import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgum
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 
+@Ignore
+// Ignore until it is fleshed out
 public class OntologyMappingOverviewLoaderTest {
 
     @Mock

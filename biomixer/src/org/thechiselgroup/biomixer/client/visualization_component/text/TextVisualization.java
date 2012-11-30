@@ -28,9 +28,11 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
 import org.thechiselgroup.biomixer.client.core.util.math.NumberArray;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -272,5 +274,25 @@ public class TextVisualization extends AbstractViewContentDisplay {
                 textItem.setFontSize("12px");
             }
         }
+    }
+
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+        CompositeVisualItemBehavior composite = behaviorFactory
+                .createEmptyCompositeVisualItemBehavior();
+
+        composite.add(behaviorFactory
+                .createDefaultHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory.createDefaultDragVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultPopupWithHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultSwitchSelectionVisualItemBehavior());
+
+        return composite;
     }
 }

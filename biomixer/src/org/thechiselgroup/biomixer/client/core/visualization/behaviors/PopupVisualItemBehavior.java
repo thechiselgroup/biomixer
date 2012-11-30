@@ -57,6 +57,7 @@ public class PopupVisualItemBehavior extends
 
         switch (interaction.getEventType()) {
         case DRAG_START:
+        	// Tried fixing up Chrome dragging here with preventDefault() and stopPropagation(), but had success more generally elsewhere.
             popupManager.hidePopup();
             break;
         case MOUSE_MOVE:

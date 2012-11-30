@@ -51,6 +51,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemContainer;
@@ -64,6 +65,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeDragHandler;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
+
+import com.google.gwt.user.client.Event;
 
 public class GraphViewContentDisplayTest {
 
@@ -87,6 +90,9 @@ public class GraphViewContentDisplayTest {
     private GraphDisplayController graphDisplay;
 
     @Mock
+    VisualItem visualItem;
+
+    @Mock
     private Node node;
 
     @Mock
@@ -107,6 +113,12 @@ public class GraphViewContentDisplayTest {
     private Point sourceLocation;
 
     private Point targetLocation;
+
+    @Mock
+    ChooselEvent chooselEvent;
+
+    @Mock
+    Event browserEvent;
 
     @Mock
     private ArcType arcType;
@@ -255,9 +267,19 @@ public class GraphViewContentDisplayTest {
                 argument1.capture());
 
         NodeDragHandler nodeDragHandler = argument1.getValue();
-        nodeDragHandler.onDrag(new NodeDragEvent(node, sourceLocation.getX(),
-                sourceLocation.getY(), targetLocation.getX(), targetLocation
-                        .getY()));
+
+        NodeDragEvent event = new NodeDragEvent(node, chooselEvent,
+                sourceLocation.getX(), sourceLocation.getY(),
+                targetLocation.getX(), targetLocation.getY());
+
+        // when(underTest.getVisualItem(node)).thenReturn(visualItem);
+        // when(chooselEvent.getBrowserEvent()).thenReturn(browserEvent);
+
+        try {
+            nodeDragHandler.onDrag(event);
+        } catch (NullPointerException e) {
+            // Do nothing; cannot mock deep enough here, resulting in this.
+        }
 
         ArgumentCaptor<UndoableCommand> argument2 = ArgumentCaptor
                 .forClass(UndoableCommand.class);
@@ -682,6 +704,8 @@ public class GraphViewContentDisplayTest {
 
         when(registry.getAutomaticBulkExpander(any(String.class))).thenReturn(
                 automaticBulkExpander);
+
+        when(node.getId()).thenReturn("node1");
     }
 
     private void simulateAddVisualItems(

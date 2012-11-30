@@ -26,9 +26,11 @@ import org.thechiselgroup.biomixer.client.core.resources.persistence.ResourceSet
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.Widget;
 
@@ -224,6 +226,26 @@ public class TimeLine extends AbstractViewContentDisplay {
         for (VisualItem visualItem : visualItems) {
             visualItem.<TimeLineItem> getDisplayObject().setStatusStyling();
         }
+    }
+
+    @Override
+    public CompositeVisualItemBehavior createVisualItemBehaviors(
+            VisualItemBehaviorFactory behaviorFactory) {
+        CompositeVisualItemBehavior composite = behaviorFactory
+                .createEmptyCompositeVisualItemBehavior();
+
+        composite.add(behaviorFactory
+                .createDefaultHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory.createDefaultDragVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultPopupWithHighlightingVisualItemBehavior());
+
+        composite.add(behaviorFactory
+                .createDefaultSwitchSelectionVisualItemBehavior());
+
+        return composite;
     }
 
 }

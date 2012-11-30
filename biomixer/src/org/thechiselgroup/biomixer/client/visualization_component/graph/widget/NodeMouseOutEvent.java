@@ -15,12 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
+
 public class NodeMouseOutEvent extends NodeEvent<NodeMouseOutHandler> {
 
     public static final Type<NodeMouseOutHandler> TYPE = new Type<NodeMouseOutHandler>();
 
-    public NodeMouseOutEvent(Node node, int mouseX, int mouseY) {
-        super(node, mouseX, mouseY);
+    public NodeMouseOutEvent(Node node, ChooselEvent chooselEvent, int mouseX,
+            int mouseY) {
+        super(node, chooselEvent, mouseX, mouseY);
     }
 
     @Override

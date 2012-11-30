@@ -16,7 +16,9 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget;
 
 import org.junit.Test;
+import org.mockito.Mock;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
+import org.thechiselgroup.biomixer.client.core.util.event.ChooselEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -31,12 +33,15 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 public class OntologyOverviewGraphSvgDisplayInteractionOutputTest extends
         AbstractOntologyOverviewGraphSvgDisplayTest {
 
+    @Mock
+    ChooselEvent chooselEvent;
+
     private void clickBackground(int x, int y) {
         underTest.onBackgroundClick(x, y);
     }
 
     private void clickNode(Node node, int x, int y) {
-        underTest.onNodeMouseClick(node.getId(), x, y);
+        underTest.onNodeMouseClick(node.getId(), chooselEvent, x, y);
     }
 
     private void clickNodeExpanderItem(Node node, String itemId) {
@@ -144,7 +149,7 @@ public class OntologyOverviewGraphSvgDisplayInteractionOutputTest extends
     }
 
     private void mouseDownOnNode(Node node, int x, int y) {
-        underTest.onNodeMouseDown(node, x, y);
+        underTest.onNodeMouseDown(node, chooselEvent, x, y);
     }
 
     private void mouseOutNodeExpanderItem(Node node, String itemId) {
@@ -152,7 +157,7 @@ public class OntologyOverviewGraphSvgDisplayInteractionOutputTest extends
     }
 
     private void mouseOverNode(Node node, int x, int y) {
-        underTest.onNodeMouseOver(getRenderedNode(node), x, y);
+        underTest.onNodeMouseOver(getRenderedNode(node), chooselEvent, x, y);
     }
 
     private void mouseOverNodeExpanderItem(Node node, String itemId) {
@@ -172,7 +177,7 @@ public class OntologyOverviewGraphSvgDisplayInteractionOutputTest extends
     }
 
     private void moveMouse(int x, int y) {
-        underTest.onViewMouseMove(x, y);
+        underTest.onViewMouseMove(chooselEvent, x, y);
     }
 
 }
