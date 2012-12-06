@@ -14,20 +14,25 @@
  * limitations under the License.  
  *******************************************************************************/
 
-function initMatrixLayout(div){
-	
-}
 
 function updateMatrixLayout(div, json){
 	matrixLayout(div, json);
 }
 
-function matrixLayout(div, json){
-	// Refactoring into an init and update section...keep original for the embed for now.
+function initMatrixLayout(div){
+	var refObj = {};
+	initGui(div, refObj);
+	initMatrix(div, refObj);
+	
+} // end of initMatrixLayout
+
+
+function initGui(div, refObj){
+	var x = refObj.x;
 	
 	d3.select(div).append("p")
-		.text("Order: ");
-	
+	.text("Order: ");
+
 	// add a selection menu
 	var menu = d3.select(div).append("select")
 		.attr("id", "order");
@@ -40,15 +45,21 @@ function matrixLayout(div, json){
 	  .text("by Ontology")
 	  .attr("value", "group");
 	
-	var jsonObject = eval('(' + json + ')');
-		
+	  menu.on("change", order(x));
+}
+
+function initMatrix(div, refObj){
 	var margin = {top: 200, right: 50, bottom: 50, left: 200}
-		width = 2000,
-	    height = 2000;
-	
+	width = 2000,
+    height = 2000;
+
 	var x = d3.scale.ordinal().rangeBands([0, width]),
 	    z = d3.scale.linear().domain([0, 4]).clamp(true),
 	    c = d3.scale.category10().domain(d3.range(10));
+	
+	refObj.x = x;
+	refObj.z = z;
+	refObj.c = c;
 	
 	var svg = d3.select(div).append("svg")
 	    .attr("width", width + margin.left + margin.right)
@@ -60,19 +71,67 @@ function matrixLayout(div, json){
 	  .append('svg:g')
 	    .call(d3.behavior.zoom().on("zoom", redraw))
 	  .append('svg:g');
+	
+	refObj.svg = svg;
 		
 	svg.append('svg:rect')
 	    .attr('width',width)
 	    .attr('height', height)
 	    .attr('fill', 'white');
 	
-	
+	// Some context nested functions:
 	function redraw() {
-	  console.log("here", d3.event.translate, d3.event.scale);
-	  svg.attr("transform",
-	      "translate(" + d3.event.translate + ")"
-	      + " scale(" + d3.event.scale + ")");
+		// Context nested
+		console.log("here", d3.event.translate, d3.event.scale);
+		
+		svg.attr("transform",
+		"translate(" + d3.event.translate + ")"
+		+ " scale(" + d3.event.scale + ")");
 	};
+	
+} // end of initMatrix()
+
+
+function order(x) {
+  	return function(d, i){
+  		x.domain(orders[this.value]);
+
+  		var t = svg.transition().duration(2500);
+
+  		t.selectAll(".row")
+	      	.delay(function(d, i) { return x(i) * 4; })
+	      	.attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+	      .selectAll(".cell")
+	      	.delay(function(d) { return x(d.x) * 4; })
+	      	.attr("x", function(d) { return x(d.x); }); 
+
+  		t.selectAll(".empty")
+  			.delay(function(d) { return x(d.x) * 4; })
+  			.attr("x", function(d) { return x(d.x); });
+
+  		t.selectAll(".column")
+  			.delay(function(d, i) { return x(i) * 4; })
+  			.attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+  		
+  	}
+} // end of order()
+
+
+function matrixLayout(div, json){
+	// Refactoring into an init and update section...keep original for the embed for now.
+	var refObj = {};
+
+	initGui(div, refObj);
+	initMatrix(div, refObj);
+	
+}
+
+function updateMatrixLayout(div, json, refObj){
+	var x = refObj.x;
+	var c = refObj.c;
+	var svg = refObj.svg;
+	
+	var jsonObject = eval('(' + json + ')');
 	
 	drawLayout(jsonObject);
 	
@@ -311,32 +370,9 @@ function matrixLayout(div, json){
 		d3.selectAll(".empty")
 			.filter(function(f){return f.y==i})
 			.style("fill", "#F4F3D7");	
-	  }
-	  
-	  menu.on("change", order());
-	
-	  function order() {
-		  	return function(d, i){
-		  		x.domain(orders[this.value]);
-
-		  		var t = svg.transition().duration(2500);
-
-		  		t.selectAll(".row")
-			      	.delay(function(d, i) { return x(i) * 4; })
-			      	.attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
-			      .selectAll(".cell")
-			      	.delay(function(d) { return x(d.x) * 4; })
-			      	.attr("x", function(d) { return x(d.x); }); 
-
-		  		t.selectAll(".empty")
-		  			.delay(function(d) { return x(d.x) * 4; })
-		  			.attr("x", function(d) { return x(d.x); });
-
-		  		t.selectAll(".column")
-		  			.delay(function(d, i) { return x(i) * 4; })
-		  			.attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-		  		
-		  	}
-	  	}
-	}
+	   }
+	} // end of drawLayout()
 }
+	
+
+
