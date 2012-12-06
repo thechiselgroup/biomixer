@@ -144,6 +144,66 @@ public class Graph extends AbstractViewContentDisplay implements
 
     }
 
+    private final class DefaultGraphNodeExpansionCallback implements
+            GraphNodeExpansionCallback {
+        @Override
+        public void addAutomaticResource(Resource resource) {
+            Graph.this.addAutomaticResource(resource);
+        }
+
+        @Override
+        public boolean containsResourceWithUri(String resourceUri) {
+            return Graph.this.containsResourceWithUri(resourceUri);
+        }
+
+        @Override
+        public String getCategory(Resource resource) {
+            return Graph.this.getCategory(resource);
+        }
+
+        @Override
+        public GraphDisplayController getDisplay() {
+            return Graph.this.getDisplay();
+        }
+
+        @Override
+        public Resource getResourceByUri(String value) {
+            return Graph.this.getResourceByUri(value);
+        }
+
+        @Override
+        public ResourceManager getResourceManager() {
+            return Graph.this.getResourceManager();
+        }
+
+        @Override
+        public LightweightCollection<VisualItem> getVisualItems(
+                Iterable<Resource> resources) {
+            return Graph.this.getVisualItems(resources);
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return Graph.this.isInitialized();
+        }
+
+        @Override
+        public boolean isRestoring() {
+            return Graph.this.isRestoring();
+        }
+
+        @Override
+        public void updateArcsForResources(Iterable<Resource> resources) {
+            Graph.this.updateArcsForResources(resources);
+        }
+
+        @Override
+        public void updateArcsForVisuaItems(
+                LightweightCollection<VisualItem> visualItems) {
+            Graph.this.updateArcsForVisuaItems(visualItems);
+        }
+    }
+
     private class GraphEventHandler implements NodeMouseOverHandler,
             NodeMouseOutHandler, NodeMouseClickHandler, MouseMoveHandler,
             NodeDragHandler, NodeDragHandleMouseDownHandler,
@@ -197,9 +257,9 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseMove(MouseMoveEvent event) {
-        	// TODO This doesn't get called currently. Is the code valuable for
-            // later?
-            // May not get called since some funny redispatching involving the DRAG_START event type occurs.
+            // TODO This doesn't get called currently. Is the code valuable?
+            // May not get called since some funny redispatching involving the
+            // DRAG_START event type occurs.
             if (currentNode != null) {
                 VisualItemInteraction interaction = new VisualItemInteraction(
                         event.getNativeEvent());
@@ -310,65 +370,7 @@ public class Graph extends AbstractViewContentDisplay implements
      * callbacks that return after the graph has been disposed or before it has
      * been initialized).
      */
-    private final GraphNodeExpansionCallback expansionCallback = new GraphNodeExpansionCallback() {
-
-        @Override
-        public void addAutomaticResource(Resource resource) {
-            Graph.this.addAutomaticResource(resource);
-        }
-
-        @Override
-        public boolean containsResourceWithUri(String resourceUri) {
-            return Graph.this.containsResourceWithUri(resourceUri);
-        }
-
-        @Override
-        public String getCategory(Resource resource) {
-            return Graph.this.getCategory(resource);
-        }
-
-        @Override
-        public GraphDisplayController getDisplay() {
-            return Graph.this.getDisplay();
-        }
-
-        @Override
-        public Resource getResourceByUri(String value) {
-            return Graph.this.getResourceByUri(value);
-        }
-
-        @Override
-        public ResourceManager getResourceManager() {
-            return Graph.this.getResourceManager();
-        }
-
-        @Override
-        public LightweightCollection<VisualItem> getVisualItems(
-                Iterable<Resource> resources) {
-            return Graph.this.getVisualItems(resources);
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return Graph.this.isInitialized();
-        }
-
-        @Override
-        public boolean isRestoring() {
-            return Graph.this.isRestoring();
-        }
-
-        @Override
-        public void updateArcsForResources(Iterable<Resource> resources) {
-            Graph.this.updateArcsForResources(resources);
-        }
-
-        @Override
-        public void updateArcsForVisuaItems(
-                LightweightCollection<VisualItem> visualItems) {
-            Graph.this.updateArcsForVisuaItems(visualItems);
-        }
-    };
+    private final GraphNodeExpansionCallback expansionCallback = new DefaultGraphNodeExpansionCallback();
 
     private ErrorHandler errorHandler;
 
@@ -921,7 +923,8 @@ public class Graph extends AbstractViewContentDisplay implements
         // Why would they interact within the...
         // Seems like the DRAG_START event is not triggered without the drag
         // controller! That's the issue! A secret dependency!!!
-        // I can change the popup manager to detect drags in another way perhaps,
+        // I can change the popup manager to detect drags in another way
+        // perhaps,
         // rather than having this secret dependency. Or have the DRAG_START
         // event fired off in a different place (as well)
         // In any case, I have the popup-hide working and text select disabled.

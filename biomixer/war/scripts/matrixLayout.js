@@ -14,7 +14,16 @@
  * limitations under the License.  
  *******************************************************************************/
 
+function initMatrixLayout(div){
+	
+}
+
+function updateMatrixLayout(div, json){
+	matrixLayout(div, json);
+}
+
 function matrixLayout(div, json){
+	// Refactoring into an init and update section...keep original for the embed for now.
 	
 	d3.select(div).append("p")
 		.text("Order: ");

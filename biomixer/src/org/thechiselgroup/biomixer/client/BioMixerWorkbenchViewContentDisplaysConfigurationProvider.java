@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualIte
 import org.thechiselgroup.biomixer.client.core.visualization.resolvers.VisualItemStatusResolver.StatusRule;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ConceptMatrixViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.ConceptListViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.OntologyListViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
@@ -44,6 +45,12 @@ public class BioMixerWorkbenchViewContentDisplaysConfigurationProvider extends
     @Inject
     public void graphOntologyOverview(
             GraphOntologyOverviewViewContentDisplayFactory factory) {
+        add(factory);
+    }
+
+    @Inject
+    public void matrixOntologyOverview(
+            ConceptMatrixViewContentDisplayFactory factory) {
         add(factory);
     }
 

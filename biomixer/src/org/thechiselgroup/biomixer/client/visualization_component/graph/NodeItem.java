@@ -30,6 +30,12 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem.Su
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
+/**
+ * I think that this can be merged with the Node class. Am I wrong?
+ * 
+ * @author everbeek
+ * 
+ */
 public class NodeItem {
 
     private GraphDisplay display;

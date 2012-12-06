@@ -20,6 +20,7 @@ import org.thechiselgroup.biomixer.client.search.ConceptSearchCommand;
 import org.thechiselgroup.biomixer.client.search.OntologySearchCommand;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ConceptMatrixViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.text.TextViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.timeline.TimeLineViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.workbench.init.WorkbenchInitializer;
@@ -66,6 +67,8 @@ public class BioMixerWorkbench extends WorkbenchInitializer {
                 GraphViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Ontology Overview",
                 GraphOntologyOverviewViewContentDisplayFactory.ID);
+        addCreateWindowActionToToolbar(VIEWS_PANEL, "Mapping Matrix",
+                ConceptMatrixViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Text",
                 TextViewContentDisplayFactory.ID);
         addCreateWindowActionToToolbar(VIEWS_PANEL, "Timeline",

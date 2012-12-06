@@ -48,18 +48,18 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
 
     @Override
     public final void expand(VisualItem visualItem,
-            GraphNodeExpansionCallback graph) {
+            GraphNodeExpansionCallback graphExpansionCallback) {
 
         assert visualItem != null;
-        assert graph != null;
+        assert graphExpansionCallback != null;
 
         Resource resource = getSingleResource(visualItem);
 
         if (isNeighbourhoodLoaded(visualItem, resource)) {
-            expandNeighbourhood(visualItem, resource, graph,
+            expandNeighbourhood(visualItem, resource, graphExpansionCallback,
                     reconstructNeighbourhood(visualItem, resource));
         } else {
-            loadNeighbourhood(visualItem, resource, graph);
+            loadNeighbourhood(visualItem, resource, graphExpansionCallback);
         }
     }
 
