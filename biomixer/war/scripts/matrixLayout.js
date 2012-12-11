@@ -14,21 +14,20 @@
  * limitations under the License.  
  *******************************************************************************/
 
+var defaultWidth = 200;
+var defaultHeight = 200;
 
-function updateMatrixLayout(div, json){
-	matrixLayout(div, json);
-}
 
 function initMatrixLayout(div){
 	var refObj = {};
-	initGui(div, refObj);
-	initMatrix(div, refObj);
+	_initGui(div, refObj);
+	_initMatrix(div, refObj);
+	return refObj;
 	
 } // end of initMatrixLayout
 
 
-function initGui(div, refObj){
-	var x = refObj.x;
+function _initGui(div, refObj){
 	
 	d3.select(div).append("p")
 	.text("Order: ");
@@ -45,13 +44,16 @@ function initGui(div, refObj){
 	  .text("by Ontology")
 	  .attr("value", "group");
 	
-	  menu.on("change", order(x));
+	  menu.on("change", _order(refObj));
 }
 
-function initMatrix(div, refObj){
+
+function _initMatrix(div, refObj){
+	// TODO The margins need to be computed to account for label size,
+	// rather than being an arbitrary number.
 	var margin = {top: 200, right: 50, bottom: 50, left: 200}
-	width = 2000,
-    height = 2000;
+	width = defaultHeight,
+    height = defaultWidth;
 
 	var x = d3.scale.ordinal().rangeBands([0, width]),
 	    z = d3.scale.linear().domain([0, 4]).clamp(true),
@@ -62,25 +64,35 @@ function initMatrix(div, refObj){
 	refObj.c = c;
 	
 	var svg = d3.select(div).append("svg")
-	    .attr("width", width + margin.left + margin.right)
-	    .attr("height", height + margin.top + margin.bottom)
-	    .style("margin-left", margin.left + " px")
+	    .attr("width", width 
+	    		+ margin.left + margin.right
+	    		)
+	    .attr("height", height
+	    		+ margin.top + margin.bottom
+	    		)
+//	    .style("margin-left", margin.left + " px")
 	  .append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 		.attr("pointer-events", "all")
 	  .append('svg:g')
-	    .call(d3.behavior.zoom().on("zoom", redraw))
+	    .call(d3.behavior.zoom().on("zoom", _redraw))
 	  .append('svg:g');
 	
 	refObj.svg = svg;
 		
-	svg.append('svg:rect')
-	    .attr('width',width)
-	    .attr('height', height)
-	    .attr('fill', 'white');
+	// This essentially gets hidden behind everything in the matrix, so maybe we don't need it.
+//	svg.append('svg:rect')
+//	    .attr('width',width)
+//	    .attr('height', height)
+//	    .attr('fill', 'white');
 	
 	// Some context nested functions:
-	function redraw() {
+	function _redraw() {
+		// TODO This allows the user to zoom until the SVG is too small to
+		// find with the mouse, and thus the user is unable to zoom back in.
+		// Also, it doesn't adjust the gap between the dropdown box and the svg,
+		// making for an increase in dead space.
+		
 		// Context nested
 		console.log("here", d3.event.translate, d3.event.scale);
 		
@@ -92,8 +104,12 @@ function initMatrix(div, refObj){
 } // end of initMatrix()
 
 
-function order(x) {
+function _order(refObj) {
   	return function(d, i){
+  		var x = refObj.x;
+  		var svg = refObj.svg;
+  		var orders = refObj.orders;
+  		
   		x.domain(orders[this.value]);
 
   		var t = svg.transition().duration(2500);
@@ -117,21 +133,24 @@ function order(x) {
 } // end of order()
 
 
-function matrixLayout(div, json){
+function matrixLayoutForEmbed(div, json){
 	// Refactoring into an init and update section...keep original for the embed for now.
 	var refObj = {};
 
-	initGui(div, refObj);
-	initMatrix(div, refObj);
-	
+	_initGui(div, refObj);
+	_initMatrix(div, refObj);
+	updateMatrixLayout(div, refObj, json);
 }
 
-function updateMatrixLayout(div, json, refObj){
+function updateMatrixLayoutString(div, refObj, jsonString){
+	var jsonObject = eval('(' + jsonString + ')');
+	return updateMatrixLayout(div, refObj, jsonObject);
+}
+
+function updateMatrixLayout(div, refObj, jsonObject){
 	var x = refObj.x;
 	var c = refObj.c;
 	var svg = refObj.svg;
-	
-	var jsonObject = eval('(' + json + ')');
 	
 	drawLayout(jsonObject);
 	
@@ -140,6 +159,21 @@ function updateMatrixLayout(div, json, refObj){
 	      nodes = data.nodes,
 	      n = nodes.length;
 	
+	  // TODO Get links prepped with node name indices. Move from arrays to associative arrays or something.
+	  // Or prepare links/cells such that they have functions on their target and source to return their
+	  // positions, and these functions can be called to re-order things. So nodes can still have positions
+	  // assigned like this, but links shouldn't have positions...meh...
+	  // TODO Really what I want is to be able to mirror the Java structure more closely in the JSON
+	  // passed in. That's not hard. Will it be hard to modify this code to respond to that format
+	  // instead?
+	  // TODO Or looking further, can I pass some serialized version of the Java data in, which is
+	  // handled here as the same object, saving on memory...OverlayTypes?
+	  // Part of using the Java-BioMixer data format is that it makes links strongly dependent on nodes
+	  // which is a good thing, because they are useless without nodes, and in updating links, we can iterate
+	  // over nodes. Is this good D3 practice?
+	  // TODO I should focus on getting this working first. The Java to convert to JSON is not hard, and is
+	  // easy to change, whereas getting this modified requires me to understand the code well. Moving forward.
+	  
 	  // Compute index per node.
 	  nodes.forEach(function(node, i) {
 	      node.index = i;
@@ -163,6 +197,8 @@ function updateMatrixLayout(div, json, refObj){
 	    count: d3.range(n).sort(function(a, b) { return nodes[b].count - nodes[a].count; }),
 	    group: d3.range(n).sort(function(a, b) { return nodes[b].group - nodes[a].group; })
 	  };
+	  
+	  refObj.orders = orders;
 	
 	  // The default sort order.
 	  x.domain(orders.name);
@@ -178,7 +214,7 @@ function updateMatrixLayout(div, json, refObj){
 	    .enter().append("g")
 	      .attr("class", "row")
 	      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
-	      .each(row);
+	      .each(_row);
 	
 	  row.append("line")
 	      .attr("x2", width)
@@ -233,7 +269,7 @@ function updateMatrixLayout(div, json, refObj){
 		  .on("mouseout", mouseout);
 	
 	  //create cells (mappings and empty cells) in every row
-	  function row(row) {
+	  function _row(row) {
 	    var empty = d3.select(this).selectAll(".cell")
 	        .data(row)
 	      .enter().append("rect")
@@ -349,7 +385,7 @@ function updateMatrixLayout(div, json, refObj){
 			.style("fill", "#F4F3D7");	
 	  }
 	  
-	   function sideTextMouseover(g, i){
+	  function sideTextMouseover(g, i){
 	    d3.select(this)
 	    	.style("fill", "red")
 	    	.style("font-size", "20px");
@@ -373,6 +409,3 @@ function updateMatrixLayout(div, json, refObj){
 	   }
 	} // end of drawLayout()
 }
-	
-
-

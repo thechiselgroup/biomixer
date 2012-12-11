@@ -46,7 +46,7 @@ public class MatrixLayoutLoader implements EmbeddedViewLoader {
     private MatrixLayoutServiceAsync matrixLayoutService;
 
     private native void applyD3Layout(Element div, String json)/*-{
-		$wnd.matrixLayout(div, json);
+		$wnd.matrixLayoutForEmbed(div, json);
     }-*/;
 
     @Override

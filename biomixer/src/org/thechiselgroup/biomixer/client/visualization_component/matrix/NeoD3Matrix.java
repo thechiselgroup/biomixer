@@ -186,7 +186,7 @@ public class NeoD3Matrix extends AbstractViewContentDisplay
             }
         }
 
-        this.matrixWidget.updateView();
+        this.matrixWidget.updateView(this.concepts);
     }
 
     // private void updateStatusStyling(

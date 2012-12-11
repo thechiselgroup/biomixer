@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
 public class ConceptMatrixItem {
@@ -62,6 +64,35 @@ public class ConceptMatrixItem {
         // TICK_ELEMENT,
         // timeLineEvent);
     }
+
+    public String getLabel() {
+        return Concept.getLabel(visualItem.getResources().getFirstElement());
+    }
+
+    public String getConceptFullId() {
+        return Concept.getFullId(visualItem.getResources().getFirstElement());
+    }
+
+    public String getConceptId() {
+        return Concept
+                .getConceptId(visualItem.getResources().getFirstElement());
+    }
+
+    public String getOntologyId() {
+        return Concept.getOntologyId(visualItem.getResources()
+                .getFirstElement());
+    }
+
+    public UriList getIncomingMappings() {
+        return (UriList) visualItem.getResources().getFirstElement()
+                .getValue(Concept.INCOMING_MAPPINGS);
+    }
+
+    public UriList getOutgoingMappings() {
+        return (UriList) visualItem.getResources().getFirstElement()
+                .getValue(Concept.OUTGOING_MAPPINGS);
+    }
+
     //
     // private Color getBorderColor() {
     // return (Color) visualItem.getValue(TimeLine.BORDER_COLOR);

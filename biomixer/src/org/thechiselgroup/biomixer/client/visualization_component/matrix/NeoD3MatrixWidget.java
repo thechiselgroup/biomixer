@@ -15,8 +15,20 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,6 +36,8 @@ import com.google.gwt.user.client.ui.Widget;
 public class NeoD3MatrixWidget extends Widget {
 
     private HandlerManager handlerManager = new HandlerManager(this);
+
+    JSONObject matrixJSONContextObject;
 
     // private JsTimeLineEventSource eventSource;
     //
@@ -51,32 +65,166 @@ public class NeoD3MatrixWidget extends Widget {
     }
 
     private void initializeView() {
-        initD3Layout(this.getElement());
+        matrixJSONContextObject = initD3Layout(this.getElement());
 
     }
 
-    public void updateView() {
-        // Pass in something...container of concepts and the mappings between
-        // them?
+    public void updateView(HashSet<VisualItem> concepts) {
+        // @formatter:off
+        /*-
+         * (Trick: this dash prevents code formatting from clobbering my layout below!)
+         * (Or one can use the commented out @ formatter stuff above and below the comment...)
+         * 
+         * We need to convert our Java structures to json.
+         * The D3 will want the concepts as "nodes" and the mappings as "links".
+         * The links will have numerically addressed "source" and "target" each,
+         * relative to the index of the nodes in question.
+         * The data format expected by D3 is like below:
+         * 
+         * {
+         *      "nodes":[
+         *         {"name":"CHEBI_48961","group":0}, 
+         *         {"name":"GO_0009493","group":1}, 
+         *         {"name":"CHEBI_38553","group":0}, 
+         *         {"name":"GO_0005489","group":1}, 
+         *         {"name":"D000456","group":2}, 
+         *         {"name":"Alga","group":4}
+         *     ],
+         *     "links":[
+         *         {"source":0, "target":1, "value": 1},
+         *         {"source":2, "target":3, "value": 1},
+         *         {"source":120, "target":119, "value": 1},
+         *         {"source":126, "target":125, "value": 1},
+         *         {"source":94, "target":118, "value": 1}
+         *     ]
+         *  }
+         * 
+         */
+        // @formatter: on
 
-        // TODO Convert the data to the format desired by the view. It is right
-        // to do it here and not above here? We could try to use the json
-        // directly from the service...
-        String json = "";
-        applyD3Layout(this.getElement(), json);
+        // Converting this is horrible. Part of the problem is that the links use
+        // array indices rather than the string reference.
+        // The other problem is that the links are separated from their nodes.
+        // In the original RESTreturn values, the links are embedded in the nodes, essentially.
+        
+        HashMap<String, Integer> conceptIndices = new HashMap<String, Integer>();
+        
+        // Start of json
+//        StringBuilderImpl jsonStrBuilder = new StringBuilderImpl();
+//        jsonStrBuilder.append("{");
+        JSONObject jsonObj = new JSONObject();
+        
+        MatrixJsonData matrixJsonData = MatrixJsonData.createMatrixJsonData();
+        
+//        jsonStrBuilder.append("\"nodes\":[");
+        
+        JSONArray jsonNodeArray = new JSONArray();
+        jsonObj.put("nodes", jsonNodeArray);
+        
+         JsArray<JavaScriptObject> jsNodeArray = JavaScriptObject.createArray().cast();
+        
+         for(VisualItem visItem: concepts){
+             ConceptMatrixItem displayObject = visItem.getDisplayObject();
+             
+//             jsonStrBuilder.append("{\"name\":"+displayObject.getConceptFullId()+",");
+//             jsonStrBuilder.append("\"group\":"+getGroupForOntology(displayObject.getOntologyId()));
+//             jsonStrBuilder.append("},");
+             
+             JSONObject nodeObject = new JSONObject();
+             nodeObject.put("name", new JSONString(displayObject.getLabel()));
+             nodeObject.put("uri", new JSONString(displayObject.getConceptFullId()));
+             nodeObject.put("group", new JSONNumber(getGroupForOntology(displayObject.getOntologyId())));
+             int index = jsonNodeArray.size();
+             jsonNodeArray.set(index, nodeObject);
+             
+             int addedIndex = matrixJsonData.pushNode(displayObject.getLabel(), displayObject.getConceptFullId(), getGroupForOntology(displayObject.getOntologyId()));
+             
+             assert(addedIndex == index);
+             
+             conceptIndices.put(visItem.getResources().getFirstElement().getUri(), index);
+         }
+//         jsonStrBuilder.append("], ");
+         
+//         jsonStrBuilder.append("\"links\":[");
+         
+         JSONArray jsonLinkArray = new JSONArray();
+         jsonObj.put("links", jsonLinkArray);
+         
+         for(VisualItem visItem: concepts){
+             // Combine arrays to avoid two code blocks with nearly identicle code to maintain.
+             UriList sourceUris = visItem.getResources().getFirstElement().getUriListValue(Concept.INCOMING_MAPPINGS);
+             UriList targetUris = visItem.getResources().getFirstElement().getUriListValue(Concept.OUTGOING_MAPPINGS);
+             UriList[] uris = {sourceUris, targetUris};
+             
+             String centralUri = visItem.getResources().getFirstElement().getUri();
+             
+             for(int ioIndex = 0; ioIndex <=1; ioIndex++){
+                 UriList otherUris = uris[ioIndex];
+                 for(String loopedUri: otherUris){
+                     String sourceUri = (ioIndex == 0) ? loopedUri : centralUri; //Incoming? Looped is source, else central is source.
+                     String targetUri = (ioIndex == 0) ?  centralUri : loopedUri; // Incoming? Central is target, looped is target.
+                     
+                     JSONObject linkObject = new JSONObject();
+                     linkObject.put("source", new JSONNumber(conceptIndices.get(sourceUri)));//new JSONString(sourceUri));
+                     linkObject.put("target", new JSONNumber(conceptIndices.get(targetUri)));//new JSONString(targetUri));
+                     linkObject.put("target", new JSONNumber(1));
+                     jsonLinkArray.set(jsonLinkArray.size(), linkObject);
 
+                     
+                     int addedIndex = matrixJsonData.pushLink(conceptIndices.get(sourceUri), conceptIndices.get(targetUri), 1);
+                     
+//                     jsonStrBuilder.append("{");
+//                     jsonStrBuilder.append("\"source\":"+sourceUri+",");
+//                     jsonStrBuilder.append("\"target\":"+targetUri+",");
+//                     jsonStrBuilder.append("\"value\":1");
+//                     jsonStrBuilder.append("},");
+                 }
+             }
+         }
+//         jsonStrBuilder.append("]");
+         
+         // End of json
+//         jsonStrBuilder.append("}");
+
+         // TODO matrixJsonData doesn't seem to work right now. Fix it. I prefer that to jsonObj and to using a string builder.
+        applyD3Layout(this.getElement(), matrixJSONContextObject,
+        		matrixJsonData);
+//                jsonObj.toString());
+//                jsonStrBuilder.toString());
+
+    }
+
+    private HashMap<String, Integer> ontologyGroupNumbers = new HashMap<String, Integer>();
+
+    private int getGroupForOntology(String ontologyId) {
+        if (!ontologyGroupNumbers.containsKey(ontologyId)) {
+            ontologyGroupNumbers.put(ontologyId, ontologyGroupNumbers.size());
+        }
+        return ontologyGroupNumbers.get(ontologyId);
     }
 
     // This was the very simple way to load data from the prototype. The data is
     // already prepared, and there was no way to change it. The prototype
     // demonstrated the graphics and the mouse interaction, but not data
     // swapping.
-    private native void applyD3Layout(Element div, String json)/*-{
-		$wnd.updateMatrixLayout(div, json);
+    private native void applyD3Layout(Element div,
+            JSONObject matrixJSONContextObject, String jsonString)/*-{
+		$wnd.updateMatrixLayoutString(div, matrixJSONContextObject, jsonString);
+    }-*/;
+    
+    // Uses the same method as the less cool JSONObject receiving version
+private native void applyD3Layout(Element div,
+            JSONObject matrixJSONContextObject, MatrixJsonData jsonMatrixData)/*-{
+	$wnd.updateMatrixLayout(div, matrixJSONContextObject, jsonMatrixData);
+}-*/;
+
+    private native void applyD3Layout(Element div,
+            JSONObject matrixJSONContextObject, JSONObject jsonObject)/*-{
+		$wnd.updateMatrixLayout(div, matrixJSONContextObject, jsonObject);
     }-*/;
 
-    private native void initD3Layout(Element div)/*-{
-		$wnd.initMatrixLayout(div);
+    private native JSONObject initD3Layout(Element div)/*-{
+		return $wnd.initMatrixLayout(div);
     }-*/;
 
     // public void addEvents(JsTimeLineEvent[] events) {

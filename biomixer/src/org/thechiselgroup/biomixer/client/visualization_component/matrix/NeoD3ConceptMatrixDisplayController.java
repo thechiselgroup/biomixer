@@ -132,8 +132,11 @@ public class NeoD3ConceptMatrixDisplayController implements
         // In fact, maybe this is the *only* method that the renderer knows, in
         // the case of D3!!
         // Or does the matrixRenderer indeed know what data to convert? I think
-        // it might...it currently gets cocnept additions and whatnot.
-        this.matrixWidget.updateView();
+        // it might...it currently gets concept additions and whatnot.
+
+        // TODO My data origins and method call requirements are in conflict!
+        // How do I get at the NeoD3Matrix concept field?
+        this.matrixWidget.updateView(null);
     }
 
     // static final int defaultHeight = 400;
