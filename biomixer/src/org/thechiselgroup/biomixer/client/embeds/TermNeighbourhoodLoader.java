@@ -27,7 +27,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.radial_tree.RadialTreeLayoutAlgorithm;
 
 import com.google.inject.Inject;
 
@@ -208,8 +208,9 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     @Override
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
-        return new HorizontalTreeLayoutAlgorithm(true, errorHandler,
-                nodeAnimator);
+        // return new HorizontalTreeLayoutAlgorithm(true, errorHandler,
+        // nodeAnimator);
+        return new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator);
     }
 
     @Override

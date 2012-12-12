@@ -79,8 +79,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
     protected void hideLoadingBar() {
         // http://turbomanage.wordpress.com/2010/01/12/gwt-layout-gotcha/
         // http://stackoverflow.com/questions/6183181/how-to-add-a-custom-widget-to-an-element
-         RootPanel rootPanel = RootPanel.get("loadingMessage");
-         rootPanel.setVisible(false);
+        RootPanel rootPanel = RootPanel.get("loadingMessage");
+        rootPanel.setVisible(false);
     }
 
     protected abstract void loadData(String virtualOntologyId,
