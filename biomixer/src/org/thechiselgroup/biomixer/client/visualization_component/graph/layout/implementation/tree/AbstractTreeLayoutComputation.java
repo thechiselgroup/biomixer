@@ -42,6 +42,8 @@ public abstract class AbstractTreeLayoutComputation extends
 
     private final boolean reversed;
 
+    private final boolean radial;
+
     /**
      * Traversing the dag normally results in a vertical tree with arrows
      * pointing up or horizontal tree with arrows pointing left. To get a
@@ -53,6 +55,23 @@ public abstract class AbstractTreeLayoutComputation extends
             NodeAnimator nodeAnimator, boolean reversed) {
         super(graph, executor, errorHandler, nodeAnimator);
         this.reversed = reversed;
+        this.radial = false;
+    }
+
+    /**
+     * Convenience constructor for radial tree
+     * 
+     * @param graph
+     * @param executor
+     * @param errorHandler
+     * @param nodeAnimator
+     */
+    protected AbstractTreeLayoutComputation(LayoutGraph graph,
+            Executor executor, ErrorHandler errorHandler,
+            NodeAnimator nodeAnimator) {
+        super(graph, executor, errorHandler, nodeAnimator);
+        this.reversed = false;
+        this.radial = true;
     }
 
     @Override
@@ -87,6 +106,20 @@ public abstract class AbstractTreeLayoutComputation extends
                     .getNumberOfNodesOnLongestPath());
             double currentPrimaryDimension = primaryDimensionSpacing;
 
+            PointDouble viewCenter = getViewCenter();
+
+            /*
+             * We have to traverse from the center outwards for the radial case.
+             * We will complete each layer of this 2D onion as we go.
+             */
+            if (radial) {
+                for (int j = 0; j < dag.getNumberOfNodesOnLongestPath(); j++) {
+                    processNodesAlongSecondaryDimensionRadially(i, j, dag,
+                            availableSecondaryDimensionForEachTree,
+                            currentPrimaryDimension, viewCenter);
+                    currentPrimaryDimension += primaryDimensionSpacing;
+                }
+            } else
             /*
              * Traverse primary dimension, but process along secondary dimension
              * at each step. For a vertical tree that is not reversed, this will
@@ -141,6 +174,11 @@ public abstract class AbstractTreeLayoutComputation extends
         return false;
     }
 
+    private PointDouble getViewCenter() {
+        return new PointDouble(graph.getBounds().getWidth() / 2, graph
+                .getBounds().getHeight() / 2);
+    }
+
     protected abstract double getAvailableSecondaryDimensionForEachTree(
             int numDagsOnGraph);
 
@@ -175,5 +213,59 @@ public abstract class AbstractTreeLayoutComputation extends
             currentSecondaryDimension += secondaryDimensionSpacing;
         }
 
+    }
+
+    private void processNodesAlongSecondaryDimensionRadially(int i, int j,
+            DirectedAcyclicGraph dag,
+            double availableSecondaryDimensionForEachTree,
+            double currentPrimaryDimension, PointDouble viewCenter) {
+
+        int maxDepth = dag.getNumberOfNodesOnLongestPath();
+
+        // Rename these while leaving args named for caller
+        double radianSlicePerTree = availableSecondaryDimensionForEachTree;
+
+        // TODO I feel like it could improve things to change the radiusDepth
+        // from being based on the current position to being based on the
+        // previous level's actual position radius (of some node therein). The
+        // number of nodes on the outside should affect the radius (which maybe
+        // it doesn't right now). This would determine the radius...I need to
+        // rework this.
+        double radiusDepth = currentPrimaryDimension * ((j == 0) ? 0 : 1);
+
+        // TODO This is also vital to the radial tree version
+        // We need to interpret the availableSecondaryDimensionForEachTree as
+        // angle, and currentPrimaryDimension as radius distance.
+
+        List<DirectedAcyclicGraphNode> nodesAtDepth = dag
+                .getNodesAtDistanceFromRoot(j);
+
+        double radianSlicePerNode = radianSlicePerTree
+                / (nodesAtDepth.size() + 1);
+
+        double currentRadianPosition = i * radianSlicePerTree
+                + radianSlicePerNode;
+
+        for (DirectedAcyclicGraphNode dagNode : nodesAtDepth) {
+            LayoutNode layoutNode = dagNode.getLayoutNode();
+
+            // Compute (x,y) from (radiusDepth,currentRadianPosition)
+            PointDouble coord = polarToCartesian(radiusDepth,
+                    currentRadianPosition, viewCenter);
+
+            PointDouble topLeft = getTopLeftForCentreAt(coord.getX(),
+                    coord.getY(), layoutNode);
+            animateTo(layoutNode, topLeft, animationDuration);
+            currentRadianPosition += radianSlicePerNode;
+        }
+    }
+
+    private final PointDouble polarToCartesian(double radius, double azimuth,
+            PointDouble origin) {
+        double x = Math.cos(azimuth) * radius;
+        double y = Math.sin(azimuth) * radius;
+        PointDouble coords = new PointDouble(x + origin.getX(), y
+                + origin.getY());
+        return coords;
     }
 }

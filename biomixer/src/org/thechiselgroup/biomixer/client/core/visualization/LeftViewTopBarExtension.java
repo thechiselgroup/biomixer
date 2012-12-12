@@ -26,6 +26,7 @@ public class LeftViewTopBarExtension extends AbstractIsWidgetTopBarExtension {
         super(widget);
     }
 
+    @Override
     protected void addWidgetToTopBar(Widget realWidget, DockPanel topBar) {
         topBar.add(realWidget, DockPanel.WEST);
         topBar.setCellHorizontalAlignment(realWidget, HasAlignment.ALIGN_LEFT);
