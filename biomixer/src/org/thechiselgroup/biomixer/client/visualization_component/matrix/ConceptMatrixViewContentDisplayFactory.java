@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.DataTypeValidator;
-import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
@@ -45,8 +44,8 @@ public class ConceptMatrixViewContentDisplayFactory implements
     // @Inject
     // private ArcTypeProvider arcStyleProvider;
 
-    @Inject
-    private CommandManager commandManager;
+    // @Inject
+    // private CommandManager commandManager;
 
     @Inject
     private ResourceCategorizer resourceCategorizer;
@@ -55,7 +54,7 @@ public class ConceptMatrixViewContentDisplayFactory implements
     ResourceManager resourceManager;
 
     @Inject
-    private ConceptMappingNeighbourhoodLoader mappingLoader;
+    private ConceptMappingNeighbourhoodLoader<NeoD3Matrix> mappingLoader;
 
     @Inject
     public ConceptMatrixViewContentDisplayFactory() {
@@ -63,7 +62,11 @@ public class ConceptMatrixViewContentDisplayFactory implements
 
     @Override
     public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
-        return new NeoD3Matrix(createDataTypeValidator());
+        return new NeoD3Matrix(createDataTypeValidator(), mappingLoader,
+                resourceManager, resourceCategorizer);
+        // return new NeoD3Matrix(createDataTypeValidator(), mappingLoader,
+        // new ConceptResourceManager(resourceManager,
+        // resourceCategorizer, automaticResources));
     }
 
     // TODO Trying the Timeline approach instead.

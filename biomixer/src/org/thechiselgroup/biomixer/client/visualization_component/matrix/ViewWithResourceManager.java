@@ -3,7 +3,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 
 /**
  * Stumbled upon this as a solution around multiple inheritance when refactoring
@@ -22,14 +22,14 @@ public interface ViewWithResourceManager {
 
         final protected ResourceManager resourceManager;
 
-        private ResourceSet automaticResources;
+        private RequiresAutomaticResourceSet automaticResourceOwner;
 
         public SpecializedResourceManager(ResourceManager resourceManager,
                 ResourceCategorizer resourceCategorizer,
-                ResourceSet automaticResources) {
+                RequiresAutomaticResourceSet automaticResourceOwner) {
             this.resourceManager = resourceManager;
             this.resourceCategorizer = resourceCategorizer;
-            this.automaticResources = automaticResources;
+            this.automaticResourceOwner = automaticResourceOwner;
         }
 
         abstract public boolean containsResourceWithUri(String resourceUri);
@@ -37,7 +37,7 @@ public interface ViewWithResourceManager {
         abstract public Resource getResourceByUri(String value);
 
         public void addAutomaticResource(Resource resource) {
-            automaticResources.add(resource);
+            automaticResourceOwner.getAutomaticResources().add(resource);
         }
 
         public String getCategory(Resource resource) {

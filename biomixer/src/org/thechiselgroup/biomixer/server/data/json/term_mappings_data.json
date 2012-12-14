@@ -1,4 +1,6 @@
-{"nodes":[{"name":"CHEBI_48961","group":0}, 
+{
+"nodes":[
+{"name":"CHEBI_48961","group":0}, 
 {"name":"GO_0009493","group":1}, 
 {"name":"CHEBI_38553","group":0}, 
 {"name":"GO_0005489","group":1}, 
@@ -124,7 +126,10 @@
 {"name":"D000595","group":2}, 
 {"name":"AminoAcidSequence","group":4}, 
 {"name":"D000456","group":2}, 
-{"name":"Alga","group":4}], "links":[{"source":0, "target":1, "value": 1},
+{"name":"Alga","group":4}
+], 
+"links":[
+{"source":0, "target":1, "value": 1},
 {"source":2, "target":3, "value": 1},
 {"source":4, "target":3, "value": 1},
 {"source":5, "target":6, "value": 1},
@@ -283,4 +288,6 @@
 {"source":116, "target":115, "value": 1},
 {"source":120, "target":119, "value": 1},
 {"source":126, "target":125, "value": 1},
-{"source":94, "target":118, "value": 1}]}
+{"source":94, "target":118, "value": 1}
+]
+}

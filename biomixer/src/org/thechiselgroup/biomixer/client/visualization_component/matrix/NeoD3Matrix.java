@@ -37,7 +37,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpa
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
 
 public class NeoD3Matrix extends AbstractViewContentDisplay implements
         ViewWithResourceManager, RequiresAutomaticResourceSet {
@@ -67,22 +66,19 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
     private final UnionResourceSet conceptResources = new UnionResourceSet(
             new DefaultResourceSet());
 
-    @Inject
-    ConceptMappingNeighbourhoodLoader mappingLoader;
+    private final ConceptMappingNeighbourhoodLoader<NeoD3Matrix> mappingLoader;
 
     // = new ConceptMappingNeighbourhoodLoader(conceptMappingService,
     // resourceManager, errorHandler);
 
     private ResourceSet automaticResources;
 
-    @Inject
     private final ConceptResourceManager conceptResourceManager;
 
-    @Inject
-    private ResourceCategorizer resourceCategorizer;
+    // private final ResourceCategorizer resourceCategorizer;
 
-    @Inject
-    private ResourceManager resourceManager;
+    // @Inject
+    // private final ResourceManager resourceManager;
 
     /*
      * TODO The callback is meant to check whether the graph is initialized (and
@@ -92,11 +88,22 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
      */
     private final NodeExpansionCallback<NeoD3Matrix> expansionCallback;
 
-    public NeoD3Matrix(DataTypeValidator dataValidation) {
+    public NeoD3Matrix(DataTypeValidator dataValidation,
+            ConceptMappingNeighbourhoodLoader<NeoD3Matrix> mappingLoader,
+            // ResourceCategorizer resourceCategorizer,
+            ResourceManager resourceManager,
+            ResourceCategorizer resourceCategorizer) {
         super(dataValidation);
-        conceptResourceManager = new ConceptResourceManager(resourceManager,
-                resourceCategorizer, automaticResources);
+
         this.expansionCallback = new MatrixExpansionCallback(this);
+        // this.mappingLoader = new
+        // ConceptMappingNeighbourhoodLoader(conceptMappingService,
+        // resourceManager, errorHandler);
+        this.mappingLoader = mappingLoader;
+        // this.resourceCategorizer = resourceCategorizer;
+        conceptResourceManager = new ConceptResourceManager(resourceManager,
+                resourceCategorizer, this);
+
     }
 
     @Override
@@ -107,6 +114,11 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
     @Override
     public void setAutomaticResources(ResourceSet automaticResources) {
         this.automaticResources = automaticResources;
+    }
+
+    @Override
+    public ResourceSet getAutomaticResources() {
+        return this.automaticResources;
     }
 
     private void addConceptsToMatrix(
@@ -286,8 +298,8 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
 
         public ConceptResourceManager(ResourceManager resourceManager,
                 ResourceCategorizer resourceCategorizer,
-                ResourceSet automaticResources) {
-            super(resourceManager, resourceCategorizer, automaticResources);
+                RequiresAutomaticResourceSet automaticResourceOwner) {
+            super(resourceManager, resourceCategorizer, automaticResourceOwner);
 
         }
 

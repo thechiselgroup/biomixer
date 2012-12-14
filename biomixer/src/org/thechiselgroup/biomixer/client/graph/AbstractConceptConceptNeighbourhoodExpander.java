@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Abstract
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public abstract class AbstractConceptConceptNeighbourhoodExpander<T extends ViewWithResourceManager>
@@ -55,6 +56,7 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander<T extends View
     @Override
     protected boolean isNeighbourhoodLoaded(VisualItem visualItem,
             Resource resource) {
+        Window.alert(resource.getUri());
         assert Concept.isConcept(resource);
         return resourceManager.containsAllReferencedResources(resource,
                 Concept.CHILD_CONCEPTS)

@@ -14,8 +14,15 @@
  * limitations under the License.  
  *******************************************************************************/
 
-var defaultWidth = 200;
-var defaultHeight = 200;
+var defaultWidth = 500;
+var defaultHeight = 500;
+
+// Keep this value live on update
+var numNodes = 0;
+
+var rectSize = 10;
+
+var margin = {top: 200, right: 50, bottom: 50, left: 200};
 
 
 function initMatrixLayout(div){
@@ -51,27 +58,24 @@ function _initGui(div, refObj){
 function _initMatrix(div, refObj){
 	// TODO The margins need to be computed to account for label size,
 	// rather than being an arbitrary number.
-	var margin = {top: 200, right: 50, bottom: 50, left: 200}
-	width = defaultHeight,
-    height = defaultWidth;
-
+	
+	width = _computeHeight(),
+    height = _computeWidth();
+	
 	var x = d3.scale.ordinal().rangeBands([0, width]),
 	    z = d3.scale.linear().domain([0, 4]).clamp(true),
 	    c = d3.scale.category10().domain(d3.range(10));
-	
+		
 	refObj.x = x;
 	refObj.z = z;
 	refObj.c = c;
 	
 	var svg = d3.select(div).append("svg")
-	    .attr("width", width 
-	    		+ margin.left + margin.right
-	    		)
-	    .attr("height", height
-	    		+ margin.top + margin.bottom
-	    		)
-//	    .style("margin-left", margin.left + " px")
-	  .append("g")
+    .style("margin-left", margin.left + " px")
+	
+	_resize(div, refObj);
+	
+	 svg.append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 		.attr("pointer-events", "all")
 	  .append('svg:g')
@@ -102,6 +106,39 @@ function _initMatrix(div, refObj){
 	};
 	
 } // end of initMatrix()
+
+function _resize(div, refObj){
+	// Set all the sizes
+	
+	var height = _computeHeight(numNodes);
+	var width = _computeWidth(numNodes);
+	
+	d3.select(div).select("svg")
+	.attr("width", width 
+    		+ margin.left + margin.right
+	)
+	.attr("height", height
+			+ margin.top + margin.bottom
+	);
+
+	refObj.x.rangeBands([0, width]);
+}
+
+function _computeHeight(){
+	if(numNodes > 0){
+		return rectSize * numNodes;
+	} else {
+		return defaultHeight;
+	}
+}
+
+function _computeWidth(){
+	if(numNodes > 0){
+		return rectSize * numNodes;
+	} else {
+		return defaultWidth;
+	}
+}
 
 
 function _order(refObj) {
@@ -139,7 +176,7 @@ function matrixLayoutForEmbed(div, json){
 
 	_initGui(div, refObj);
 	_initMatrix(div, refObj);
-	updateMatrixLayout(div, refObj, json);
+	updateMatrixLayoutString(div, refObj, json);
 }
 
 function updateMatrixLayoutString(div, refObj, jsonString){
@@ -152,12 +189,16 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	var c = refObj.c;
 	var svg = refObj.svg;
 	
+	numNodes = jsonObject.nodes.length;
+	
 	drawLayout(jsonObject);
 	
 	function drawLayout(data){
 	  var matrix = [],
 	      nodes = data.nodes,
 	      n = nodes.length;
+	  
+	  _resize(div, refObj);
 	
 	  // TODO Get links prepped with node name indices. Move from arrays to associative arrays or something.
 	  // Or prepare links/cells such that they have functions on their target and source to return their
@@ -205,8 +246,8 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	
 	  svg.append("rect")
 	      .attr("class", "background")
-	      .attr("width", width)
-	      .attr("height", height)
+	      .attr("width", _computeWidth())
+	      .attr("height", _computeHeight())
 	      .style("fill", "#eee");
 	
 	  var row = svg.selectAll(".row")
@@ -217,7 +258,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .each(_row);
 	
 	  row.append("line")
-	      .attr("x2", width)
+	      .attr("x2", _computeWidth())
 	      .style("stroke", "white")
 	      .style("stroke-width", 2);
 		  
@@ -246,7 +287,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 	
 	  column.append("line")
-	      .attr("x1", -width)
+	      .attr("x1", -_computeWidth())
 	      .style("stroke", "white")
 	      .style("stroke-width", 2);
 		  
@@ -258,6 +299,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		  .style("stroke-width", 5)
 		  .style("stroke", function(d, i){return c(nodes[i].group)});
 		  
+	  // Add the row/col headers
 	  column.append("text")
 	      .attr("x", 6)
 	      .attr("y", x.rangeBand() / 2)

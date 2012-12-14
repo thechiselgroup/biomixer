@@ -157,8 +157,8 @@ public class Graph extends AbstractViewContentDisplay implements
 
         public ConceptResourceManager(ResourceManager resourceManager,
                 ResourceCategorizer resourceCategorizer,
-                ResourceSet automaticResources) {
-            super(resourceManager, resourceCategorizer, automaticResources);
+                RequiresAutomaticResourceSet automaticResourceOwner) {
+            super(resourceManager, resourceCategorizer, automaticResourceOwner);
 
         }
 
@@ -407,7 +407,7 @@ public class Graph extends AbstractViewContentDisplay implements
         this.registry = registry;
 
         this.conceptResourceManager = new ConceptResourceManager(
-                resourceManager, resourceCategorizer, automaticResources);
+                resourceManager, resourceCategorizer, this);
         /*
          * we init the arc type containers early so they are available for UI
          * customization in Choosel applications.
@@ -833,6 +833,11 @@ public class Graph extends AbstractViewContentDisplay implements
     @Override
     public void setAutomaticResources(ResourceSet automaticResources) {
         this.automaticResources = automaticResources;
+    }
+
+    @Override
+    public ResourceSet getAutomaticResources() {
+        return this.automaticResources;
     }
 
     @Override

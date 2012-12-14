@@ -171,6 +171,11 @@ public class NeoD3MatrixWidget extends Widget {
             for (int ioIndex = 0; ioIndex <= 1; ioIndex++) {
                 UriList otherUris = uris[ioIndex];
                 for (String loopedUri : otherUris) {
+                    // We only keep connections for nodes in the view.
+                    if (!conceptIndices.containsKey(loopedUri)) {
+                        continue;
+                    }
+
                     // Incoming? Looped is source, else central is source.
                     String sourceUri = (ioIndex == 0) ? loopedUri : centralUri;
                     // Incoming? Central is target, looped is target.
