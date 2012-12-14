@@ -22,14 +22,15 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetrics;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 import com.google.inject.Inject;
 
-public class AutomaticOntologyExpander implements GraphNodeExpander {
+public class AutomaticOntologyExpander implements NodeExpander<Graph> {
 
     private final OntologyMetricServiceAsync ontologyMetricService;
 
@@ -56,7 +57,7 @@ public class AutomaticOntologyExpander implements GraphNodeExpander {
 
     @Override
     public final void expand(final VisualItem visualItem,
-            final GraphNodeExpansionCallback expansionCallback) {
+            final NodeExpansionCallback<Graph> expansionCallback) {
 
         assert visualItem != null;
         assert expansionCallback != null;

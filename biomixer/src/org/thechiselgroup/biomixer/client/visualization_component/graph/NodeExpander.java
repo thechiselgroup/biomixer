@@ -16,15 +16,16 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
 /**
  * Expands a graph node.
  * 
  * @author Lars Grammel
  */
-public interface GraphNodeExpander {
+public interface NodeExpander<T extends ViewWithResourceManager> {
 
     void expand(VisualItem visualItem,
-            GraphNodeExpansionCallback expansionCallback);
+            NodeExpansionCallback<T> expansionCallback);
 
 }

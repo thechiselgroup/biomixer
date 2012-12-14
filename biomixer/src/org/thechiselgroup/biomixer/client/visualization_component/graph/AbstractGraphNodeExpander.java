@@ -21,15 +21,17 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
 /**
  * @deprecated Use {@link AbstractGraphNodeSingleResourceNeighbourhoodExpander}
  *             instead.
  */
 @Deprecated
-public abstract class AbstractGraphNodeExpander implements GraphNodeExpander {
+public abstract class AbstractGraphNodeExpander<T extends ViewWithResourceManager>
+        implements NodeExpander<T> {
 
-    protected void addResources(GraphNodeExpansionCallback expansionCallback,
+    protected void addResources(NodeExpansionCallback<Graph> expansionCallback,
             List<String> resourceUrisToAdd, Resource resource) {
 
         List<String> added = new ArrayList<String>();
@@ -53,17 +55,19 @@ public abstract class AbstractGraphNodeExpander implements GraphNodeExpander {
         // TODO extract + refactor layout (have method layout on node)
         Node inputNode = expansionCallback.getDisplay().getNode(
                 resource.getUri());
-        Point inputLocation = expansionCallback.getDisplay().getLocation(
-                inputNode);
+        Point inputLocation = expansionCallback.getDisplay()
+                .getDisplayController().getLocation(inputNode);
 
         List<Node> nodesToLayout = new ArrayList<Node>();
         for (String uri : added) {
             Node node = expansionCallback.getDisplay().getNode(uri);
-            expansionCallback.getDisplay().setLocation(node, inputLocation);
+            expansionCallback.getDisplay().getDisplayController()
+                    .setLocation(node, inputLocation);
             nodesToLayout.add(node);
         }
 
-        expansionCallback.getDisplay().runLayoutOnNodes(nodesToLayout);
+        expansionCallback.getDisplay().getDisplayController()
+                .runLayoutOnNodes(nodesToLayout);
     }
 
     // TODO do not ask for a uri list

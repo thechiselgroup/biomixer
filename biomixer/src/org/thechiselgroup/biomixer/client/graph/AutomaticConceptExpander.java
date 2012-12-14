@@ -16,12 +16,13 @@
 package org.thechiselgroup.biomixer.client.graph;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 
 import com.google.inject.Inject;
 
-public class AutomaticConceptExpander implements GraphNodeExpander {
+public class AutomaticConceptExpander implements NodeExpander<Graph> {
 
     private final ConceptMappingNeighbourhoodLoader conceptMappingNeighbourhoodLoader;
 
@@ -37,7 +38,7 @@ public class AutomaticConceptExpander implements GraphNodeExpander {
     }
 
     @Override
-    public void expand(VisualItem item, GraphNodeExpansionCallback graph) {
+    public void expand(VisualItem item, NodeExpansionCallback<Graph> graph) {
         conceptMappingNeighbourhoodLoader.expand(item, graph);
         conceptConceptNeighbourhoodLoader.expand(item, graph);
     }

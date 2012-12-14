@@ -31,8 +31,9 @@ import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallba
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCount;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeBulkExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeBulkExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 
 /**
  * Frame for expanding data on a collection of {@link VisualItem}s with a single
@@ -45,7 +46,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNod
  * 
  * @author Eric Verbeek
  */
-public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
+public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
 
     private final OntologyMappingCountServiceAsync mappingService;
 
@@ -69,7 +70,7 @@ public class OntologyNodeMappingExpander implements GraphNodeBulkExpander {
     @Override
     public final void expand(
             final LightweightCollection<VisualItem> visualItems,
-            final GraphNodeExpansionCallback expansionCallback) {
+            final NodeExpansionCallback<Graph> expansionCallback) {
 
         assert visualItems != null && visualItems.size() > 0;
         assert expansionCallback != null;

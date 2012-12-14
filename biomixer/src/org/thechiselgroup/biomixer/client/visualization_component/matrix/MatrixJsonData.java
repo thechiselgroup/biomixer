@@ -92,16 +92,16 @@ public class MatrixJsonData extends JavaScriptObject {
 			"target" : targetIndex,
 			"value" : 1
 		});
-		return this.nodes.length - 1;
+		return this.links.length - 1;
     }-*/;
 
     public final native int pushNode(String nodeName, String uri, int groupForOntology) /*-{
-		this.links.push({
+		this.nodes.push({
 			"name" : nodeName,
 			"uri" : uri,
 			"group" : groupForOntology,
 		});
-		return this.links.length - 1;
+		return this.nodes.length - 1;
     }-*/;
 
 }

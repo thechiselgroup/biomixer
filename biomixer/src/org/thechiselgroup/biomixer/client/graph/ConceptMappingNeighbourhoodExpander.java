@@ -27,12 +27,13 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
 import com.google.inject.Inject;
 
-public class ConceptMappingNeighbourhoodExpander extends
-        AbstractConceptMappingNeighbourhoodExpander {
+public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>
+        extends AbstractConceptMappingNeighbourhoodExpander<T> {
 
     private final TermServiceAsync termService;
 
@@ -49,7 +50,7 @@ public class ConceptMappingNeighbourhoodExpander extends
 
     @Override
     protected void expandNeighbourhood(VisualItem visualItem,
-            final Resource concept, final GraphNodeExpansionCallback graphCallback,
+            final Resource concept, final NodeExpansionCallback<T> callback,
             List<Resource> mappings) {
 
         final String conceptUri = concept.getUri();
@@ -68,8 +69,9 @@ public class ConceptMappingNeighbourhoodExpander extends
             assert !otherUri.equals(conceptUri);
 
             if (resourceManager.contains(otherUri)) {
-                graphCallback.addAutomaticResource(resourceManager.getByUri(otherUri));
-                graphCallback.addAutomaticResource(mapping);
+                callback.addAutomaticResource(resourceManager
+                        .getByUri(otherUri));
+                callback.addAutomaticResource(mapping);
                 continue;
             }
 
@@ -91,13 +93,13 @@ public class ConceptMappingNeighbourhoodExpander extends
 
                             Resource addedResource = resourceManager
                                     .add(result);
-                            graphCallback.addAutomaticResource(mapping);
-                            graphCallback.addAutomaticResource(addedResource);
+                            callback.addAutomaticResource(mapping);
+                            callback.addAutomaticResource(addedResource);
                         }
                     });
         }
 
-        graphCallback.updateArcsForVisuaItems(LightweightCollections
+        callback.updateArcsForVisuaItems(LightweightCollections
                 .toCollection(visualItem));
     }
 }

@@ -74,10 +74,10 @@ public class GraphViewContentDisplayTest {
     private ArcTypeProvider arcStyleProvider;
 
     @Mock
-    private GraphNodeExpander automaticExpander;
+    private NodeExpander automaticExpander;
 
     @Mock
-    private GraphNodeBulkExpander automaticBulkExpander;
+    private NodeBulkExpander automaticBulkExpander;
 
     private TestViewContentDisplayCallback callback;
 
@@ -347,6 +347,7 @@ public class GraphViewContentDisplayTest {
         underTest.init(visualItemContainer, callback);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void loadNeighbourhoodWhenAddingConcept() {
         init();
@@ -363,7 +364,7 @@ public class GraphViewContentDisplayTest {
         ArgumentCaptor<DefaultVisualItem> argument = ArgumentCaptor
                 .forClass(DefaultVisualItem.class);
         verify(automaticExpander, times(1)).expand(argument.capture(),
-                any(GraphNodeExpansionCallback.class));
+                any(NodeExpansionCallback.class));
 
         VisualItem result = argument.getValue();
         assertEquals(1, result.getResources().size());

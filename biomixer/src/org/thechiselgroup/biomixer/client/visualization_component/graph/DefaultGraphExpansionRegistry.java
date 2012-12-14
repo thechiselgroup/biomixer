@@ -26,17 +26,17 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactor
 
 public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
 
-    private Map<String, GraphNodeExpander> automaticExpandersByCategory = CollectionFactory
+    private Map<String, NodeExpander> automaticExpandersByCategory = CollectionFactory
             .createStringMap();
 
-    private Map<String, GraphNodeBulkExpander> automaticBulkExpandersByCategory = CollectionFactory
+    private Map<String, NodeBulkExpander> automaticBulkExpandersByCategory = CollectionFactory
             .createStringMap();
 
     private Map<String, List<NodeMenuEntry>> menuEntriesByCategory = CollectionFactory
             .createStringMap();
 
     @Override
-    public GraphNodeExpander getAutomaticExpander(String category) {
+    public NodeExpander getAutomaticExpander(String category) {
         assert category != null;
 
         if (!automaticExpandersByCategory.containsKey(category)) {
@@ -47,7 +47,7 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
     }
 
     @Override
-    public GraphNodeBulkExpander getAutomaticBulkExpander(String category) {
+    public NodeBulkExpander getAutomaticBulkExpander(String category) {
         assert category != null;
 
         if (!automaticBulkExpandersByCategory.containsKey(category)) {
@@ -74,7 +74,7 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
     }
 
     @Override
-    public void putAutomaticExpander(String category, GraphNodeExpander expander) {
+    public void putAutomaticExpander(String category, NodeExpander expander) {
         assert category != null;
         assert expander != null;
 
@@ -83,7 +83,7 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
 
     @Override
     public void putAutomaticBulkExpander(String category,
-            GraphNodeBulkExpander expander) {
+            NodeBulkExpander expander) {
         assert category != null;
         assert expander != null;
 
@@ -104,7 +104,7 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
 
     @Override
     public void putNodeMenuEntry(String category, String label,
-            GraphNodeExpander expander) {
+            NodeExpander expander) {
 
         assert category != null;
         assert label != null;

@@ -21,22 +21,22 @@ import java.util.Set;
 
 public interface GraphExpansionRegistry {
 
-    GraphNodeExpander getAutomaticExpander(String category);
+    NodeExpander getAutomaticExpander(String category);
 
-    GraphNodeBulkExpander getAutomaticBulkExpander(String category);
+    NodeBulkExpander getAutomaticBulkExpander(String category);
 
     List<NodeMenuEntry> getNodeMenuEntries(String category);
 
     Set<Entry<String, List<NodeMenuEntry>>> getNodeMenuEntriesByCategory();
 
-    void putAutomaticExpander(String category, GraphNodeExpander expander);
+    void putAutomaticExpander(String category, NodeExpander expander);
 
     void putAutomaticBulkExpander(String category,
-            GraphNodeBulkExpander expander);
+            NodeBulkExpander expander);
 
     void putNodeMenuEntry(String category, NodeMenuEntry nodeMenuEntry);
 
     void putNodeMenuEntry(String category, String label,
-            GraphNodeExpander expander);
+            NodeExpander expander);
 
 }

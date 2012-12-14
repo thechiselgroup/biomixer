@@ -55,7 +55,8 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
@@ -69,7 +70,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
     private ResourceSet visualItemResources;
 
-    private ConceptMappingNeighbourhoodExpander underTest;
+    private ConceptMappingNeighbourhoodExpander<Graph> underTest;
 
     @Mock
     private ConceptMappingServiceAsync mappingService;
@@ -81,7 +82,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
     private TermServiceAsync termService;
 
     @Mock
-    private GraphNodeExpansionCallback expansionCallback;
+    private NodeExpansionCallback<Graph> expansionCallback;
 
     private Resource outgoingMapping;
 
@@ -226,11 +227,11 @@ public class ConceptMappingNeighbourhoodExpanderTest {
     public void addMappingsToResourceManagerAndUseReturnedVersion() {
         final List<Resource> resultMappings = new ArrayList<Resource>();
 
-        underTest = new ConceptMappingNeighbourhoodExpander(mappingService,
-                errorHandler, resourceManager, termService) {
+        underTest = new ConceptMappingNeighbourhoodExpander<Graph>(
+                mappingService, errorHandler, resourceManager, termService) {
             @Override
             protected void expandNeighbourhood(VisualItem visualItem,
-                    Resource concept, GraphNodeExpansionCallback graph,
+                    Resource concept, NodeExpansionCallback<Graph> graph,
                     List<Resource> mappings) {
 
                 resultMappings.addAll(mappings);
@@ -312,7 +313,8 @@ public class ConceptMappingNeighbourhoodExpanderTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
                 eq(Concept.getOntologyId(conceptUri)),
-                eq(Concept.getConceptId(conceptUri)), eq(false), captor.capture());
+                eq(Concept.getConceptId(conceptUri)), eq(false),
+                captor.capture());
 
         underTest.expand(visualItem, expansionCallback);
 

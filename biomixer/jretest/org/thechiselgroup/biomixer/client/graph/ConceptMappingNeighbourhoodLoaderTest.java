@@ -45,7 +45,8 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
 
@@ -62,7 +63,7 @@ public class ConceptMappingNeighbourhoodLoaderTest {
     private ConceptMappingNeighbourhoodLoader underTest;
 
     @Mock
-    private GraphNodeExpansionCallback expansionCallback;
+    private NodeExpansionCallback<Graph> expansionCallback;
 
     @Mock
     private VisualItem visualItem;

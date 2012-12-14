@@ -28,12 +28,13 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.NeighbourCapBreachDialog;
 import org.thechiselgroup.biomixer.client.embeds.TermNeighbourhoodLoader;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
 import com.google.inject.Inject;
 
-public class ConceptConceptNeighbourhoodExpander extends
-        AbstractConceptConceptNeighbourhoodExpander {
+public class ConceptConceptNeighbourhoodExpander<T extends ViewWithResourceManager>
+        extends AbstractConceptConceptNeighbourhoodExpander<T> {
 
     @Inject
     protected DialogManager dialogManager;
@@ -42,7 +43,7 @@ public class ConceptConceptNeighbourhoodExpander extends
 
     private List<Resource> neighbourhood;
 
-    private GraphNodeExpansionCallback graph;
+    private NodeExpansionCallback<T> callback;
 
     private VisualItem visualItem;
 
@@ -65,11 +66,11 @@ public class ConceptConceptNeighbourhoodExpander extends
 
     @Override
     protected void expandNeighbourhood(VisualItem visualItem,
-            Resource resource, GraphNodeExpansionCallback graph,
+            Resource resource, NodeExpansionCallback<T> callback,
             List<Resource> neighbourhood) {
         // Set members so we can easily use the callback.
         this.neighbourhood = neighbourhood;
-        this.graph = graph;
+        this.callback = callback;
         this.visualItem = visualItem;
 
         if (neighbourhood.size() > TermNeighbourhoodLoader.MAX_NUMBER_OF_NEIGHBOURS) {
@@ -94,11 +95,11 @@ public class ConceptConceptNeighbourhoodExpander extends
         // two different approaches...
         // graphView.getResourceModel().addResourceSet(setToRender);
         for (Resource neighbour : setToRender) {
-            if (!graph.containsResourceWithUri(neighbour.getUri())) {
-                graph.addAutomaticResource(neighbour);
+            if (!callback.containsResourceWithUri(neighbour.getUri())) {
+                callback.addAutomaticResource(neighbour);
             }
         }
-        graph.updateArcsForVisuaItems(LightweightCollections
+        callback.updateArcsForVisuaItems(LightweightCollections
                 .toCollection(visualItem));
     }
 

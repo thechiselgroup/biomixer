@@ -18,6 +18,12 @@ package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 import java.util.HashSet;
 
 import org.thechiselgroup.biomixer.client.DataTypeValidator;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+import org.thechiselgroup.biomixer.client.core.resources.UnionResourceSet;
 import org.thechiselgroup.biomixer.client.core.util.DataType;
 import org.thechiselgroup.biomixer.client.core.util.collections.Delta;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
@@ -25,15 +31,16 @@ import org.thechiselgroup.biomixer.client.core.visualization.behaviors.Composite
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
+import org.thechiselgroup.biomixer.client.graph.ConceptMappingNeighbourhoodLoader;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
 
-// TODO The zoom levels of the different bands should be configurable 
-public class NeoD3Matrix extends AbstractViewContentDisplay
-// implements
-// MatrixRenderer
-{
+public class NeoD3Matrix extends AbstractViewContentDisplay implements
+        ViewWithResourceManager, RequiresAutomaticResourceSet {
 
     public final static Slot COLOR = new Slot("color", "Color", DataType.COLOR);
 
@@ -52,15 +59,62 @@ public class NeoD3Matrix extends AbstractViewContentDisplay
 
     private NeoD3MatrixWidget matrixWidget;
 
-    private HashSet<VisualItem> concepts = new HashSet<VisualItem>();
+    // Have this because VisualItems go well with the matrix update method
+    private HashSet<VisualItem> conceptVisualItems = new HashSet<VisualItem>();
+
+    // TODO which container? one for VisualItem or one for Resource?
+    // The UnionResourceSet is used in graph, and might be better here...
+    private final UnionResourceSet conceptResources = new UnionResourceSet(
+            new DefaultResourceSet());
+
+    @Inject
+    ConceptMappingNeighbourhoodLoader mappingLoader;
+
+    // = new ConceptMappingNeighbourhoodLoader(conceptMappingService,
+    // resourceManager, errorHandler);
+
+    private ResourceSet automaticResources;
+
+    @Inject
+    private final ConceptResourceManager conceptResourceManager;
+
+    @Inject
+    private ResourceCategorizer resourceCategorizer;
+
+    @Inject
+    private ResourceManager resourceManager;
+
+    /*
+     * TODO The callback is meant to check whether the graph is initialized (and
+     * not disposed) when methods are called (to prevent errors in asynchronous
+     * callbacks that return after the graph has been disposed or before it has
+     * been initialized).
+     */
+    private final NodeExpansionCallback<NeoD3Matrix> expansionCallback;
 
     public NeoD3Matrix(DataTypeValidator dataValidation) {
         super(dataValidation);
+        conceptResourceManager = new ConceptResourceManager(resourceManager,
+                resourceCategorizer, automaticResources);
+        this.expansionCallback = new MatrixExpansionCallback(this);
+    }
+
+    @Override
+    public SpecializedResourceManager getSpecificResourceManager() {
+        return this.conceptResourceManager;
+    }
+
+    @Override
+    public void setAutomaticResources(ResourceSet automaticResources) {
+        this.automaticResources = automaticResources;
     }
 
     private void addConceptsToMatrix(
-            LightweightCollection<VisualItem> addedResourceItems) {
-        this.concepts.addAll(addedResourceItems.toList());
+            LightweightCollection<VisualItem> addedVisualItems) {
+        this.conceptVisualItems.addAll(addedVisualItems.toList());
+        for (VisualItem item : addedVisualItems) {
+            this.conceptResources.addAll(item.getResources());
+        }
         // matrixWidget.addEvents(getTimeLineEvents(addedResourceItems));
     }
 
@@ -69,6 +123,18 @@ public class NeoD3Matrix extends AbstractViewContentDisplay
 
         for (VisualItem visualItem : addedVisualItems) {
             visualItem.setDisplayObject(new ConceptMatrixItem(visualItem));
+
+            /*
+             * NOTE: all node configuration should be done when calling the
+             * automatic expanders, since they rely on returning the correct
+             * graph contents etc.
+             * 
+             * NOTE: we do not execute the expanders if we are restoring the
+             * graph
+             */
+            // registry.getAutomaticExpander(type).expand(visualItem,
+            // expansionCallback);
+            mappingLoader.expand(visualItem, expansionCallback);
         }
     }
 
@@ -109,8 +175,11 @@ public class NeoD3Matrix extends AbstractViewContentDisplay
     }
 
     private void removeConceptsFromMatrix(
-            LightweightCollection<VisualItem> removedResourceItems) {
-        this.concepts.removeAll(removedResourceItems.toList());
+            LightweightCollection<VisualItem> removedVisualItems) {
+        this.conceptVisualItems.removeAll(removedVisualItems.toList());
+        for (VisualItem item : removedVisualItems) {
+            this.conceptResources.removeAll(item.getResources());
+        }
         // matrixWidget.removeConceptFromMatrix(getTimeLineEvents(removedResourceItems));
     }
 
@@ -186,16 +255,12 @@ public class NeoD3Matrix extends AbstractViewContentDisplay
             }
         }
 
-        this.matrixWidget.updateView(this.concepts);
+        updateView();
     }
 
-    // private void updateStatusStyling(
-    // LightweightCollection<VisualItem> visualItems) {
-    //
-    // for (VisualItem visualItem : visualItems) {
-    // visualItem.<TimeLineItem> getDisplayObject().setStatusStyling();
-    // }
-    // }
+    public void updateView() {
+        this.matrixWidget.updateView(this.conceptVisualItems);
+    }
 
     @Override
     public CompositeVisualItemBehavior createVisualItemBehaviors(
@@ -217,4 +282,24 @@ public class NeoD3Matrix extends AbstractViewContentDisplay
         return composite;
     }
 
+    private class ConceptResourceManager extends SpecializedResourceManager {
+
+        public ConceptResourceManager(ResourceManager resourceManager,
+                ResourceCategorizer resourceCategorizer,
+                ResourceSet automaticResources) {
+            super(resourceManager, resourceCategorizer, automaticResources);
+
+        }
+
+        @Override
+        public boolean containsResourceWithUri(String resourceUri) {
+            return NeoD3Matrix.this.conceptResources
+                    .containsResourceWithUri(resourceUri);
+        }
+
+        @Override
+        public Resource getResourceByUri(String value) {
+            return NeoD3Matrix.this.conceptResources.getByUri(value);
+        }
+    }
 }

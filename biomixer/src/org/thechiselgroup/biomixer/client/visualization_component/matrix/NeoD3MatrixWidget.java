@@ -31,6 +31,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 public class NeoD3MatrixWidget extends Widget {
@@ -70,10 +71,9 @@ public class NeoD3MatrixWidget extends Widget {
     }
 
     public void updateView(HashSet<VisualItem> concepts) {
-        // @formatter:off
         /*-
          * (Trick: this dash prevents code formatting from clobbering my layout below!)
-         * (Or one can use the commented out @ formatter stuff above and below the comment...)
+         * (The @ formatter stuff I tried malfunctioned...)
          * 
          * We need to convert our Java structures to json.
          * The D3 will want the concepts as "nodes" and the mappings as "links".
@@ -100,97 +100,117 @@ public class NeoD3MatrixWidget extends Widget {
          *  }
          * 
          */
-        // @formatter: on
 
-        // Converting this is horrible. Part of the problem is that the links use
-        // array indices rather than the string reference.
+        // Converting this is horrible. Part of the problem is that the links
+        // use array indices rather than the string reference.
         // The other problem is that the links are separated from their nodes.
-        // In the original RESTreturn values, the links are embedded in the nodes, essentially.
-        
+        // In the original RESTreturn values, the links are embedded in the
+        // nodes, essentially.
+
         HashMap<String, Integer> conceptIndices = new HashMap<String, Integer>();
-        
+
         // Start of json
-//        StringBuilderImpl jsonStrBuilder = new StringBuilderImpl();
-//        jsonStrBuilder.append("{");
+        // StringBuilderImpl jsonStrBuilder = new StringBuilderImpl();
+        // jsonStrBuilder.append("{");
         JSONObject jsonObj = new JSONObject();
-        
+
         MatrixJsonData matrixJsonData = MatrixJsonData.createMatrixJsonData();
-        
-//        jsonStrBuilder.append("\"nodes\":[");
-        
+
+        // jsonStrBuilder.append("\"nodes\":[");
+
         JSONArray jsonNodeArray = new JSONArray();
         jsonObj.put("nodes", jsonNodeArray);
-        
-         JsArray<JavaScriptObject> jsNodeArray = JavaScriptObject.createArray().cast();
-        
-         for(VisualItem visItem: concepts){
-             ConceptMatrixItem displayObject = visItem.getDisplayObject();
-             
-//             jsonStrBuilder.append("{\"name\":"+displayObject.getConceptFullId()+",");
-//             jsonStrBuilder.append("\"group\":"+getGroupForOntology(displayObject.getOntologyId()));
-//             jsonStrBuilder.append("},");
-             
-             JSONObject nodeObject = new JSONObject();
-             nodeObject.put("name", new JSONString(displayObject.getLabel()));
-             nodeObject.put("uri", new JSONString(displayObject.getConceptFullId()));
-             nodeObject.put("group", new JSONNumber(getGroupForOntology(displayObject.getOntologyId())));
-             int index = jsonNodeArray.size();
-             jsonNodeArray.set(index, nodeObject);
-             
-             int addedIndex = matrixJsonData.pushNode(displayObject.getLabel(), displayObject.getConceptFullId(), getGroupForOntology(displayObject.getOntologyId()));
-             
-             assert(addedIndex == index);
-             
-             conceptIndices.put(visItem.getResources().getFirstElement().getUri(), index);
-         }
-//         jsonStrBuilder.append("], ");
-         
-//         jsonStrBuilder.append("\"links\":[");
-         
-         JSONArray jsonLinkArray = new JSONArray();
-         jsonObj.put("links", jsonLinkArray);
-         
-         for(VisualItem visItem: concepts){
-             // Combine arrays to avoid two code blocks with nearly identicle code to maintain.
-             UriList sourceUris = visItem.getResources().getFirstElement().getUriListValue(Concept.INCOMING_MAPPINGS);
-             UriList targetUris = visItem.getResources().getFirstElement().getUriListValue(Concept.OUTGOING_MAPPINGS);
-             UriList[] uris = {sourceUris, targetUris};
-             
-             String centralUri = visItem.getResources().getFirstElement().getUri();
-             
-             for(int ioIndex = 0; ioIndex <=1; ioIndex++){
-                 UriList otherUris = uris[ioIndex];
-                 for(String loopedUri: otherUris){
-                     String sourceUri = (ioIndex == 0) ? loopedUri : centralUri; //Incoming? Looped is source, else central is source.
-                     String targetUri = (ioIndex == 0) ?  centralUri : loopedUri; // Incoming? Central is target, looped is target.
-                     
-                     JSONObject linkObject = new JSONObject();
-                     linkObject.put("source", new JSONNumber(conceptIndices.get(sourceUri)));//new JSONString(sourceUri));
-                     linkObject.put("target", new JSONNumber(conceptIndices.get(targetUri)));//new JSONString(targetUri));
-                     linkObject.put("target", new JSONNumber(1));
-                     jsonLinkArray.set(jsonLinkArray.size(), linkObject);
 
-                     
-                     int addedIndex = matrixJsonData.pushLink(conceptIndices.get(sourceUri), conceptIndices.get(targetUri), 1);
-                     
-//                     jsonStrBuilder.append("{");
-//                     jsonStrBuilder.append("\"source\":"+sourceUri+",");
-//                     jsonStrBuilder.append("\"target\":"+targetUri+",");
-//                     jsonStrBuilder.append("\"value\":1");
-//                     jsonStrBuilder.append("},");
-                 }
-             }
-         }
-//         jsonStrBuilder.append("]");
-         
-         // End of json
-//         jsonStrBuilder.append("}");
+        JsArray<JavaScriptObject> jsNodeArray = JavaScriptObject.createArray()
+                .cast();
 
-         // TODO matrixJsonData doesn't seem to work right now. Fix it. I prefer that to jsonObj and to using a string builder.
+        for (VisualItem visItem : concepts) {
+            ConceptMatrixItem displayObject = visItem.getDisplayObject();
+
+            // jsonStrBuilder.append("{\"name\":"+displayObject.getConceptFullId()+",");
+            // jsonStrBuilder.append("\"group\":"+getGroupForOntology(displayObject.getOntologyId()));
+            // jsonStrBuilder.append("},");
+
+            JSONObject nodeObject = new JSONObject();
+            nodeObject.put("name", new JSONString(displayObject.getLabel()));
+            nodeObject.put("uri",
+                    new JSONString(displayObject.getConceptFullId()));
+            nodeObject.put("group", new JSONNumber(
+                    getGroupForOntology(displayObject.getOntologyId())));
+            int index = jsonNodeArray.size();
+            jsonNodeArray.set(index, nodeObject);
+
+            int addedIndex = matrixJsonData.pushNode(displayObject.getLabel(),
+                    displayObject.getConceptFullId(),
+                    getGroupForOntology(displayObject.getOntologyId()));
+
+            assert (addedIndex == index);
+
+            conceptIndices.put(visItem.getResources().getFirstElement()
+                    .getUri(), index);
+        }
+        // jsonStrBuilder.append("], ");
+
+        // jsonStrBuilder.append("\"links\":[");
+
+        JSONArray jsonLinkArray = new JSONArray();
+        jsonObj.put("links", jsonLinkArray);
+
+        for (VisualItem visItem : concepts) {
+            // Combine arrays to avoid two code blocks with nearly identicle
+            // code to maintain.
+            UriList sourceUris = visItem.getResources().getFirstElement()
+                    .getUriListValue(Concept.INCOMING_MAPPINGS);
+            UriList targetUris = visItem.getResources().getFirstElement()
+                    .getUriListValue(Concept.OUTGOING_MAPPINGS);
+            UriList[] uris = { sourceUris, targetUris };
+
+            String centralUri = visItem.getResources().getFirstElement()
+                    .getUri();
+
+            for (int ioIndex = 0; ioIndex <= 1; ioIndex++) {
+                UriList otherUris = uris[ioIndex];
+                for (String loopedUri : otherUris) {
+                    // Incoming? Looped is source, else central is source.
+                    String sourceUri = (ioIndex == 0) ? loopedUri : centralUri;
+                    // Incoming? Central is target, looped is target.
+                    String targetUri = (ioIndex == 0) ? centralUri : loopedUri;
+
+                    JSONObject linkObject = new JSONObject();
+                    linkObject.put("source",
+                            new JSONNumber(conceptIndices.get(sourceUri)));
+                    // new JSONString(sourceUri));
+                    linkObject.put("target",
+                            new JSONNumber(conceptIndices.get(targetUri)));
+                    // new JSONString(targetUri));
+
+                    linkObject.put("target", new JSONNumber(1));
+                    jsonLinkArray.set(jsonLinkArray.size(), linkObject);
+
+                    int addedIndex = matrixJsonData.pushLink(
+                            conceptIndices.get(sourceUri),
+                            conceptIndices.get(targetUri), 1);
+
+                    // jsonStrBuilder.append("{");
+                    // jsonStrBuilder.append("\"source\":"+sourceUri+",");
+                    // jsonStrBuilder.append("\"target\":"+targetUri+",");
+                    // jsonStrBuilder.append("\"value\":1");
+                    // jsonStrBuilder.append("},");
+                }
+            }
+        }
+        // jsonStrBuilder.append("]");
+
+        // End of json
+        // jsonStrBuilder.append("}");
+
+        // TODO matrixJsonData doesn't seem to work right now. Fix it. I prefer
+        // that to jsonObj and to using a string builder.
+        Window.alert(new JSONObject(matrixJsonData).toString());
         applyD3Layout(this.getElement(), matrixJSONContextObject,
-        		matrixJsonData);
-//                jsonObj.toString());
-//                jsonStrBuilder.toString());
+                matrixJsonData);
+        // jsonObj.toString());
+        // jsonStrBuilder.toString());
 
     }
 
@@ -211,12 +231,12 @@ public class NeoD3MatrixWidget extends Widget {
             JSONObject matrixJSONContextObject, String jsonString)/*-{
 		$wnd.updateMatrixLayoutString(div, matrixJSONContextObject, jsonString);
     }-*/;
-    
+
     // Uses the same method as the less cool JSONObject receiving version
-private native void applyD3Layout(Element div,
+    private native void applyD3Layout(Element div,
             JSONObject matrixJSONContextObject, MatrixJsonData jsonMatrixData)/*-{
-	$wnd.updateMatrixLayout(div, matrixJSONContextObject, jsonMatrixData);
-}-*/;
+		$wnd.updateMatrixLayout(div, matrixJSONContextObject, jsonMatrixData);
+    }-*/;
 
     private native void applyD3Layout(Element div,
             JSONObject matrixJSONContextObject, JSONObject jsonObject)/*-{

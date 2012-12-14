@@ -83,6 +83,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverHandler;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -97,7 +98,8 @@ import com.google.inject.Inject;
 // TODO separate out ncbo specific stuff and service calls
 // TODO register listener for double click on node --> change expansion state
 public class Graph extends AbstractViewContentDisplay implements
-        RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
+        RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback,
+        ViewWithResourceManager {
 
     public static class DefaultDisplay extends GraphDisplayController {
 
@@ -144,11 +146,20 @@ public class Graph extends AbstractViewContentDisplay implements
 
     }
 
-    private final class DefaultGraphNodeExpansionCallback implements
-            GraphNodeExpansionCallback {
-        @Override
-        public void addAutomaticResource(Resource resource) {
-            Graph.this.addAutomaticResource(resource);
+    private final ConceptResourceManager conceptResourceManager;
+
+    @Override
+    public SpecializedResourceManager getSpecificResourceManager() {
+        return this.conceptResourceManager;
+    }
+
+    private class ConceptResourceManager extends SpecializedResourceManager {
+
+        public ConceptResourceManager(ResourceManager resourceManager,
+                ResourceCategorizer resourceCategorizer,
+                ResourceSet automaticResources) {
+            super(resourceManager, resourceCategorizer, automaticResources);
+
         }
 
         @Override
@@ -157,23 +168,17 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         @Override
-        public String getCategory(Resource resource) {
-            return Graph.this.getCategory(resource);
-        }
-
-        @Override
-        public GraphDisplayController getDisplay() {
-            return Graph.this.getDisplay();
-        }
-
-        @Override
         public Resource getResourceByUri(String value) {
             return Graph.this.getResourceByUri(value);
         }
+    }
+
+    private final class DefaultGraphNodeExpansionCallback extends
+            NodeExpansionCallback<Graph> {
 
         @Override
-        public ResourceManager getResourceManager() {
-            return Graph.this.getResourceManager();
+        public Graph getDisplay() {
+            return Graph.this;
         }
 
         @Override
@@ -370,7 +375,7 @@ public class Graph extends AbstractViewContentDisplay implements
      * callbacks that return after the graph has been disposed or before it has
      * been initialized).
      */
-    private final GraphNodeExpansionCallback expansionCallback = new DefaultGraphNodeExpansionCallback();
+    private final NodeExpansionCallback<Graph> expansionCallback = new DefaultGraphNodeExpansionCallback();
 
     private ErrorHandler errorHandler;
 
@@ -401,6 +406,8 @@ public class Graph extends AbstractViewContentDisplay implements
         this.resourceManager = resourceManager;
         this.registry = registry;
 
+        this.conceptResourceManager = new ConceptResourceManager(
+                resourceManager, resourceCategorizer, automaticResources);
         /*
          * we init the arc type containers early so they are available for UI
          * customization in Choosel applications.
@@ -417,10 +424,6 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         return super.adaptTo(clazz);
-    }
-
-    private void addAutomaticResource(Resource resource) {
-        automaticResources.add(resource);
     }
 
     private boolean containsResourceWithUri(String resourceUri) {
@@ -496,7 +499,7 @@ public class Graph extends AbstractViewContentDisplay implements
     List<Node> getAllNodes() {
         List<Node> result = new ArrayList<Node>();
         for (VisualItem visualItem : getVisualItems()) {
-            result.add(getNode(visualItem));
+            result.add(getNodeInGraph(visualItem));
         }
         return result;
     }
@@ -537,7 +540,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return resourceCategorizer.getCategory(resource);
     }
 
-    private GraphDisplayController getDisplay() {
+    public GraphDisplayController getDisplayController() {
         return graphDisplay;
     }
 
@@ -563,8 +566,18 @@ public class Graph extends AbstractViewContentDisplay implements
         return this.graphDisplay.getGraphViewName();
     }
 
-    private Node getNode(VisualItem visualItem) {
+    private Node getNodeInGraph(VisualItem visualItem) {
         return visualItem.<NodeItem> getDisplayObject().getNode();
+    }
+
+    /**
+     * For code that originally asked the graphDisplay directly, but now has to
+     * be routed through here. Seems redundant?
+     * 
+     * @param id
+     */
+    public Node getNode(String nodeId) {
+        return this.graphDisplay.getNode(nodeId);
     }
 
     @Override
@@ -699,7 +712,7 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
-            final GraphNodeExpander nodeExpander) {
+            final NodeExpander nodeExpander) {
 
         graphDisplay.addNodeMenuItemHandler(menuLabel,
                 new NodeMenuItemClickedHandler() {
@@ -719,7 +732,7 @@ public class Graph extends AbstractViewContentDisplay implements
                 .values()) {
             arcItemContainer.removeVisualItem(visualItem);
         }
-        graphDisplay.removeNode(getNode(visualItem));
+        graphDisplay.removeNode(getNodeInGraph(visualItem));
         this.removeNodeGraphItem((NodeItem) (visualItem.getDisplayObject()));
     }
 
@@ -932,5 +945,9 @@ public class Graph extends AbstractViewContentDisplay implements
                 .createDefaultPopupWithHighlightingVisualItemBehavior());
 
         return composite;
+    }
+
+    public void setNodeStyle(Node node, String nodeSize, String styleValue) {
+        this.graphDisplay.setNodeStyle(node, nodeSize, styleValue);
     }
 }

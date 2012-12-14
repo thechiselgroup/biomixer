@@ -17,16 +17,16 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 public class NodeMenuEntry {
 
-    private GraphNodeExpander expander;
+    private NodeExpander expander;
 
     private String label;
 
-    public NodeMenuEntry(String label, GraphNodeExpander expander) {
+    public NodeMenuEntry(String label, NodeExpander expander) {
         this.label = label;
         this.expander = expander;
     }
 
-    public GraphNodeExpander getExpander() {
+    public NodeExpander getExpander() {
         return expander;
     }
 
