@@ -18,12 +18,43 @@ var defaultWidth = 500;
 var defaultHeight = 500;
 
 // Keep this value live on update
-var numNodes = 0;
+var _numNodes = 0;
 
-var rectSize = 10;
+var _rectSize = 10;
 
 var margin = {top: 200, right: 50, bottom: 50, left: 200};
 
+function _computeHeight(){
+	return 2000;
+	if(_numNodes > 0){
+		return _rectSize * _numNodes;
+	} else {
+		return defaultHeight;
+	}
+}
+
+function _computeWidth(){
+	return 2000;
+	if(_numNodes > 0){
+		return _rectSize * _numNodes;
+	} else {
+		return defaultWidth;
+	}
+}
+
+function matrixLayoutForEmbed(div, json){
+	// Refactoring into an init and update section...keep original for the embed for now.
+	var refObj = {};
+
+	_initGui(div, refObj);
+	_initMatrix(div, refObj);
+	updateMatrixLayoutString(div, refObj, json);
+}
+
+function updateMatrixLayoutString(div, refObj, jsonString){
+	var jsonObject = eval('(' + jsonString + ')');
+	return updateMatrixLayout(div, refObj, jsonObject);
+}
 
 function initMatrixLayout(div){
 	var refObj = {};
@@ -54,6 +85,25 @@ function _initGui(div, refObj){
 	  menu.on("change", _order(refObj));
 }
 
+function _resize(div, refObj){
+	// _resize expects the svg appended in _initMatrix
+	// Set all the sizes
+	
+	var height = _computeHeight(_numNodes);
+	var width = _computeWidth(_numNodes);
+	
+	d3.select(div).select("svg")
+	// refObj.svg
+	.attr("width", width 
+    		+ margin.left + margin.right
+	)
+	.attr("height", height
+			+ margin.top + margin.bottom
+	);
+
+	refObj.x.rangeBands([0, width]);
+}
+
 
 function _initMatrix(div, refObj){
 	// TODO The margins need to be computed to account for label size,
@@ -70,25 +120,30 @@ function _initMatrix(div, refObj){
 	refObj.z = z;
 	refObj.c = c;
 	
-	var svg = d3.select(div).append("svg")
-    .style("margin-left", margin.left + " px")
+	var svg = d3.select(div).append("svg");
+	// Store away for _resize method calls in the future.
+	refObj.svg = svg;
 	
+	// _resize expects the svg appended in _initMatrix
 	_resize(div, refObj);
 	
-	 svg.append("g")
+	// Store away innermost g for many uses later on. This is delicate!!
+	var inner_g = svg
+	    .style("margin-left", margin.left + " px")
+	  .append("g")
 	    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 		.attr("pointer-events", "all")
 	  .append('svg:g')
 	    .call(d3.behavior.zoom().on("zoom", _redraw))
 	  .append('svg:g');
-	
-	refObj.svg = svg;
-		
+	  
 	// This essentially gets hidden behind everything in the matrix, so maybe we don't need it.
-//	svg.append('svg:rect')
-//	    .attr('width',width)
-//	    .attr('height', height)
-//	    .attr('fill', 'white');
+	inner_g.append('svg:rect')
+	    .attr('width',width)
+	    .attr('height', height)
+	    .attr('fill', 'white');
+	    
+	refObj.inner_g = inner_g;
 	
 	// Some context nested functions:
 	function _redraw() {
@@ -100,96 +155,20 @@ function _initMatrix(div, refObj){
 		// Context nested
 		console.log("here", d3.event.translate, d3.event.scale);
 		
-		svg.attr("transform",
+		inner_g.attr("transform",
 		"translate(" + d3.event.translate + ")"
 		+ " scale(" + d3.event.scale + ")");
 	};
 	
 } // end of initMatrix()
 
-function _resize(div, refObj){
-	// Set all the sizes
-	
-	var height = _computeHeight(numNodes);
-	var width = _computeWidth(numNodes);
-	
-	d3.select(div).select("svg")
-	.attr("width", width 
-    		+ margin.left + margin.right
-	)
-	.attr("height", height
-			+ margin.top + margin.bottom
-	);
-
-	refObj.x.rangeBands([0, width]);
-}
-
-function _computeHeight(){
-	if(numNodes > 0){
-		return rectSize * numNodes;
-	} else {
-		return defaultHeight;
-	}
-}
-
-function _computeWidth(){
-	if(numNodes > 0){
-		return rectSize * numNodes;
-	} else {
-		return defaultWidth;
-	}
-}
-
-
-function _order(refObj) {
-  	return function(d, i){
-  		var x = refObj.x;
-  		var svg = refObj.svg;
-  		var orders = refObj.orders;
-  		
-  		x.domain(orders[this.value]);
-
-  		var t = svg.transition().duration(2500);
-
-  		t.selectAll(".row")
-	      	.delay(function(d, i) { return x(i) * 4; })
-	      	.attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
-	      .selectAll(".cell")
-	      	.delay(function(d) { return x(d.x) * 4; })
-	      	.attr("x", function(d) { return x(d.x); }); 
-
-  		t.selectAll(".empty")
-  			.delay(function(d) { return x(d.x) * 4; })
-  			.attr("x", function(d) { return x(d.x); });
-
-  		t.selectAll(".column")
-  			.delay(function(d, i) { return x(i) * 4; })
-  			.attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
-  		
-  	}
-} // end of order()
-
-
-function matrixLayoutForEmbed(div, json){
-	// Refactoring into an init and update section...keep original for the embed for now.
-	var refObj = {};
-
-	_initGui(div, refObj);
-	_initMatrix(div, refObj);
-	updateMatrixLayoutString(div, refObj, json);
-}
-
-function updateMatrixLayoutString(div, refObj, jsonString){
-	var jsonObject = eval('(' + jsonString + ')');
-	return updateMatrixLayout(div, refObj, jsonObject);
-}
-
 function updateMatrixLayout(div, refObj, jsonObject){
 	var x = refObj.x;
 	var c = refObj.c;
-	var svg = refObj.svg;
+	// var svg = refObj.svg;
+	var inner_g = refObj.inner_g; // original code obfuscated as the "svg" variable
 	
-	numNodes = jsonObject.nodes.length;
+	_numNodes = jsonObject.nodes.length;
 	
 	drawLayout(jsonObject);
 	
@@ -244,13 +223,13 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	  // The default sort order.
 	  x.domain(orders.name);
 	
-	  svg.append("rect")
+	  inner_g.append("rect")
 	      .attr("class", "background")
 	      .attr("width", _computeWidth())
 	      .attr("height", _computeHeight())
 	      .style("fill", "#eee");
 	
-	  var row = svg.selectAll(".row")
+	  var row = inner_g.selectAll(".row")
 	      .data(matrix)
 	    .enter().append("g")
 	      .attr("class", "row")
@@ -270,6 +249,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		  .style("stroke-width", 5)
 		  .style("stroke", function(d, i){return c(nodes[i].group)});
 	  
+	  // Add the row headers
 	  row.append("text")
 	      .attr("x", -6)
 	      .attr("y", x.rangeBand() / 2)
@@ -280,7 +260,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		 .on ("mouseover", sideTextMouseover)
 		  .on("mouseout", mouseout);
 	
-	  var column = svg.selectAll(".column")
+	  var column = inner_g.selectAll(".column")
 	      .data(matrix)
 	    .enter().append("g")
 	      .attr("class", "column")
@@ -299,7 +279,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		  .style("stroke-width", 5)
 		  .style("stroke", function(d, i){return c(nodes[i].group)});
 		  
-	  // Add the row/col headers
+	  // Add the col headers
 	  column.append("text")
 	      .attr("x", 6)
 	      .attr("y", x.rangeBand() / 2)
@@ -343,7 +323,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	
 	  //compute cell colors
 	  function gradient(index1, index2, colour1, colour2){
-		  var gradient = svg.append("svg:defs")
+		  var gradient = inner_g.append("svg:defs")
 		  .append("svg:linearGradient")
 			.attr("id", "gradient"+index1+index2)
 			.attr("x1", "0%")
@@ -451,3 +431,31 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	   }
 	} // end of drawLayout()
 }
+
+function _order(refObj) {
+  	return function(d, i){
+  		var x = refObj.x;
+  		var inner_g = refObj.inner_g;
+  		var orders = refObj.orders;
+  		
+  		x.domain(orders[this.value]);
+
+  		var t = inner_g.transition().duration(2500);
+
+  		t.selectAll(".row")
+	      	.delay(function(d, i) { return x(i) * 4; })
+	      	.attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
+	      .selectAll(".cell")
+	      	.delay(function(d) { return x(d.x) * 4; })
+	      	.attr("x", function(d) { return x(d.x); }); 
+
+  		t.selectAll(".empty")
+  			.delay(function(d) { return x(d.x) * 4; })
+  			.attr("x", function(d) { return x(d.x); });
+
+  		t.selectAll(".column")
+  			.delay(function(d, i) { return x(i) * 4; })
+  			.attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
+  		
+  	}
+} // end of order()
