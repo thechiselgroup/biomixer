@@ -77,6 +77,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
     }
 
     protected void hideLoadingBar() {
+        // http://turbomanage.wordpress.com/2010/01/12/gwt-layout-gotcha/
+        // http://stackoverflow.com/questions/6183181/how-to-add-a-custom-widget-to-an-element
         RootPanel rootPanel = RootPanel.get("loadingMessage");
         rootPanel.setVisible(false);
     }
@@ -105,8 +107,10 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         // add a loading bar so the user knows the application is being loaded
         Image loadingMessage = new Image(GWT.getModuleBaseURL()
                 + "images/ajax-loader-bar.gif");
-        graphView
-                .addTopBarExtension(new LeftViewTopBarExtension(loadingMessage));
+
+        LeftViewTopBarExtension leftViewTopBarExtension = new LeftViewTopBarExtension(
+                loadingMessage);
+        graphView.addTopBarExtension(leftViewTopBarExtension);
         loadingMessage.getElement().setId("loadingMessage");
 
         graphView.init();

@@ -122,18 +122,6 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     @Named(LABEL_PROVIDER_SELECTION_SET)
     private LabelProvider selectionModelLabelFactory;
 
-    // Lazy load for ordered construction. Otherwise I'd inject...
-    // Is there another way to control injection order?
-    private DefaultSelectionModel selectionModel = null;
-
-    private DefaultSelectionModel getSelectionModel() {
-        if (null == selectionModel) {
-            selectionModel = new DefaultSelectionModel(
-                    selectionModelLabelFactory, resourceSetFactory);
-        }
-        return selectionModel;
-    }
-
     @Inject
     @Named(AVATAR_FACTORY_SET)
     private ResourceSetAvatarFactory userSetsDragAvatarFactory;
@@ -256,15 +244,22 @@ public class ViewWindowContentProducer implements WindowContentProducer {
             DefaultSelectionModel selectionModel,
             ViewContentDisplay contentDisplay) {
         // Let the content display decide how its visual items act.
-    	// The behavior currently relies on members of the current class,
-    	// so the VisualItemBehaviorFactory resides nested here.
+        // The behavior currently relies on members of the current class,
+        // so the VisualItemBehaviorFactory resides nested here.
         return contentDisplay
-                .createVisualItemBehaviors(new VisualItemBehaviorFactory());
+                .createVisualItemBehaviors(new VisualItemBehaviorFactory(
+                        selectionModel));
     }
 
     public class VisualItemBehaviorFactory {
+        private DefaultSelectionModel selectionModel;
+
         // TODO Would it be nicer if the composite stayed in here as a member,
         // then we called "add_()" methods which filled it internally??
+
+        public VisualItemBehaviorFactory(DefaultSelectionModel selectionModel) {
+            this.selectionModel = selectionModel;
+        }
 
         public CompositeVisualItemBehavior createEmptyCompositeVisualItemBehavior() {
             return new CompositeVisualItemBehavior();
@@ -285,8 +280,8 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         }
 
         public VisualItemBehavior createDefaultSwitchSelectionVisualItemBehavior() {
-            return new SwitchSelectionOnClickVisualItemBehavior(
-                    getSelectionModel(), commandManager);
+            return new SwitchSelectionOnClickVisualItemBehavior(selectionModel,
+                    commandManager);
         }
     }
 
@@ -317,8 +312,11 @@ public class ViewWindowContentProducer implements WindowContentProducer {
         Map<Slot, VisualItemValueResolver> fixedSlotResolvers = viewContentDisplayConfiguration
                 .getFixedSlotResolvers(contentType);
 
+        DefaultSelectionModel selectionModel = new DefaultSelectionModel(
+                selectionModelLabelFactory, resourceSetFactory);
+
         CompositeVisualItemBehavior visualItemBehaviors = initializeCompositeVisualItemBehavior(
-                getSelectionModel(), contentDisplay);
+                selectionModel, contentDisplay);
 
         SlotMappingInitializer slotMappingInitializer = createSlotMappingInitializer(contentType);
 
@@ -326,7 +324,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
         VisualizationModel visualizationModel = new FixedSlotResolversVisualizationModelDecorator(
                 new DefaultVisualizationModel(contentDisplay,
-                        getSelectionModel().getSelectionProxy(),
+                        selectionModel.getSelectionProxy(),
                         hoverModel.getResources(), visualItemBehaviors,
                         throwablesContainerErrorHandler,
                         new DefaultResourceSetFactory(), categorizer,
@@ -377,12 +375,12 @@ public class ViewWindowContentProducer implements WindowContentProducer {
 
         DefaultView view = new DefaultView(contentDisplay, label, contentType,
                 visualMappingsControl, sidePanelSections, visualizationModel,
-                resourceModel, getSelectionModel(), managedConfiguration,
+                resourceModel, selectionModel, managedConfiguration,
                 slotMappingConfigurationPersistence, disposeUtil,
                 listBoxControl);
 
         for (ViewTopBarExtension extension : createViewTopBarExtensions(
-                resourceModel, getSelectionModel())) {
+                resourceModel, selectionModel)) {
             view.addTopBarExtension(extension);
         }
 

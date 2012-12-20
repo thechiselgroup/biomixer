@@ -64,6 +64,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.ForceDirectedLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.radial_tree.RadialTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.HorizontalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
@@ -262,7 +263,8 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseMove(MouseMoveEvent event) {
-            // TODO This doesn't get called currently. Is the code valuable?
+            // TODO This doesn't get called currently. Is the code valuable for
+            // later?
             // May not get called since some funny redispatching involving the
             // DRAG_START event type occurs.
             if (currentNode != null) {
@@ -612,6 +614,8 @@ public class Graph extends AbstractViewContentDisplay implements
         NodeAnimator nodeAnimator = getNodeAnimator();
         actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
                 new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
+        actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
+                new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
         actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
                 new HorizontalTreeLayoutAlgorithm(true, errorHandler,
                         nodeAnimator)));
@@ -942,9 +946,8 @@ public class Graph extends AbstractViewContentDisplay implements
         // Seems like the DRAG_START event is not triggered without the drag
         // controller! That's the issue! A secret dependency!!!
         // I can change the popup manager to detect drags in another way
-        // perhaps,
-        // rather than having this secret dependency. Or have the DRAG_START
-        // event fired off in a different place (as well)
+        // perhaps, rather than having this secret dependency.
+        // Or have the DRAG_START event fired off in a different place (as well)
         // In any case, I have the popup-hide working and text select disabled.
         composite.add(behaviorFactory
                 .createDefaultPopupWithHighlightingVisualItemBehavior());
