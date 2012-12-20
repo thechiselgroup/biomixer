@@ -14,31 +14,22 @@
  * limitations under the License.  
  *******************************************************************************/
 
-var defaultWidth = 500;
-var defaultHeight = 500;
+var defaultSize = 300;
+
+var _matrixLineSeparatorColor = "#DDDDDD"; // Light grey
 
 // Keep this value live on update
 var _numNodes = 0;
 
-var _rectSize = 10;
+var _rectSize = 15; // This could be tied to header font sizes. It'd be smart!
 
 var margin = {top: 200, right: 50, bottom: 50, left: 200};
 
-function _computeHeight(){
-	return 2000;
+function _computeSize(){
 	if(_numNodes > 0){
 		return _rectSize * _numNodes;
 	} else {
-		return defaultHeight;
-	}
-}
-
-function _computeWidth(){
-	return 2000;
-	if(_numNodes > 0){
-		return _rectSize * _numNodes;
-	} else {
-		return defaultWidth;
+		return defaultSize;
 	}
 }
 
@@ -89,19 +80,18 @@ function _resize(div, refObj){
 	// _resize expects the svg appended in _initMatrix
 	// Set all the sizes
 	
-	var height = _computeHeight(_numNodes);
-	var width = _computeWidth(_numNodes);
+	var size = _computeSize(_numNodes);
 	
 	d3.select(div).select("svg")
 	// refObj.svg
-	.attr("width", width 
+	.attr("width", size 
     		+ margin.left + margin.right
 	)
-	.attr("height", height
+	.attr("height", size
 			+ margin.top + margin.bottom
 	);
 
-	refObj.x.rangeBands([0, width]);
+	refObj.x.rangeBands([0, size]);
 }
 
 
@@ -109,10 +99,9 @@ function _initMatrix(div, refObj){
 	// TODO The margins need to be computed to account for label size,
 	// rather than being an arbitrary number.
 	
-	width = _computeHeight(),
-    height = _computeWidth();
+	var size = _computeSize();
 	
-	var x = d3.scale.ordinal().rangeBands([0, width]),
+	var x = d3.scale.ordinal().rangeBands([0, size]),
 	    z = d3.scale.linear().domain([0, 4]).clamp(true),
 	    c = d3.scale.category10().domain(d3.range(10));
 		
@@ -138,10 +127,10 @@ function _initMatrix(div, refObj){
 	  .append('svg:g');
 	  
 	// This essentially gets hidden behind everything in the matrix, so maybe we don't need it.
-	inner_g.append('svg:rect')
-	    .attr('width',width)
-	    .attr('height', height)
-	    .attr('fill', 'white');
+//	inner_g.append('svg:rect')
+//	    .attr('width',size)
+//	    .attr('height', size)
+//	    .attr('fill', 'white');
 	    
 	refObj.inner_g = inner_g;
 	
@@ -223,89 +212,123 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	  // The default sort order.
 	  x.domain(orders.name);
 	
-	  inner_g.append("rect")
-	      .attr("class", "background")
-	      .attr("width", _computeWidth())
-	      .attr("height", _computeHeight())
-	      .style("fill", "#eee");
+//	  inner_g.append("rect")
+//	      .attr("class", "background")
+//	      .attr("width", _computeSize())
+//	      .attr("height", _computeSize())
+//	      .style("fill", "#eee");
 	
-	  var row = inner_g.selectAll(".row")
-	      .data(matrix)
-	    .enter().append("g")
+	  // TODO I believe I need to grab the enter, update and exit selections here,
+	  // and carry out most of the following only for enter, and make new actions for exit.
+	  // Luckily, I think all the elements I need to add and remove are indeed tied to the bound
+	  // elements of columns, rows and cells. Anything that isn't will be annoying to cope with...
+	  
+	  var rowsUpdating = inner_g.selectAll(".row")
+	      .data(matrix);
+	  var rowsEntering = rowsUpdating.enter();
+	  var rowsExiting = rowsUpdating.exit();
+	  
+	  var newRows = rowsEntering.append("g")
 	      .attr("class", "row")
 	      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
 	      .each(_row);
 	
-	  row.append("line")
-	      .attr("x2", _computeWidth())
-	      .style("stroke", "white")
+	  newRows.append("line")
+	  	  .attr("class", "matrixSeparatorLine")
+	      .attr("x2", _computeSize())
+	      .attr("y1", _rectSize)
+		  .attr("y2", _rectSize)
+	      .style("stroke", _matrixLineSeparatorColor)
 	      .style("stroke-width", 2);
 		  
-	  row.append("line")
+	  newRows.append("line")
+	  	  .attr("class", "headerColorLine")
 		  .attr("x1", -3)
 		  .attr("x2", -3)
 		  .attr("y1", 0)
-		  .attr("y2", 16)
+		  .attr("y2", _rectSize) // used to be literal 16
 		  .style("stroke-width", 5)
 		  .style("stroke", function(d, i){return c(nodes[i].group)});
 	  
 	  // Add the row headers
-	  row.append("text")
+	  newRows.append("text")
+	      .attr("class", "headerText")
 	      .attr("x", -6)
 	      .attr("y", x.rangeBand() / 2)
 	      .attr("dy", ".32em")
 	      .attr("text-anchor", "end")
-		  .style("font-size", "15px")
+		  .style("font-size", _rectSize+"px") // used to be 15px literal
 	      .text(function(d, i) { return nodes[i].name; })
 		 .on ("mouseover", sideTextMouseover)
 		  .on("mouseout", mouseout);
 	
-	  var column = inner_g.selectAll(".column")
-	      .data(matrix)
-	    .enter().append("g")
+	  var columnsUpdating = inner_g.selectAll(".column")
+      	.data(matrix);
+	  var columnsEntering = columnsUpdating.enter();
+	  var columnsExiting = columnsUpdating.exit();
+	  
+	  var newCols = columnsEntering.append("g")
 	      .attr("class", "column")
 	      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 	
-	  column.append("line")
-	      .attr("x1", -_computeWidth())
-	      .style("stroke", "white")
+	  newCols.append("line")
+	  	  .attr("class", "matrixSeparatorLine")
+	      .attr("x1", -_computeSize())
+	      .attr("y1", _rectSize)
+		  .attr("y2", _rectSize)
+	      .style("stroke", _matrixLineSeparatorColor)
 	      .style("stroke-width", 2);
 		  
-	  column.append("line")
+	  newCols.append("line")
+	      .attr("class", "headerColorLine")
 		  .attr("x1", 3)
 		  .attr("x2", 3)
 		  .attr("y1", 0)
-		  .attr("y2", 16)
+		  .attr("y2", _rectSize) // used to be literal 16
 		  .style("stroke-width", 5)
 		  .style("stroke", function(d, i){return c(nodes[i].group)});
 		  
 	  // Add the col headers
-	  column.append("text")
+	  newCols.append("text")
+	      .attr("class", "headerText")
 	      .attr("x", 6)
 	      .attr("y", x.rangeBand() / 2)
 	      .attr("dy", ".32em")
 	      .attr("text-anchor", "start")
-		  .style("font-size", "15px")
+		  .style("font-size", _rectSize+"px") // used to be 15px literal
 	      .text(function(d, i) { return nodes[i].name; })
 		  .on ("mouseover", topTextMouseover)
 		  .on("mouseout", mouseout);
 	
 	  //create cells (mappings and empty cells) in every row
-	  function _row(row) {
-	    var empty = d3.select(this).selectAll(".cell")
-	        .data(row)
-	      .enter().append("rect")
-			.attr("class", "empty")
-	        .attr("x", function(d) { return x(d.x); })
-	        .attr("width", x.rangeBand())
-	        .attr("height", x.rangeBand())
-			.style("fill", "#eee");
-		empty.append("title").text(function(d, i){return d.x + ", "+ d.y});
+	  function _row(rowData) {
+		  // 'this' will be a new row <g class="row"/> element.
+		  // The 'rowData' function argument will be the data associated with that row.
+		  var emptyUpdate = d3.select(this).selectAll(".cell")
+		  	.data(rowData);
+		  var emptyNew = emptyUpdate.enter();
+		  var emptyExit = emptyUpdate.exit();
+      
+		  // If we want mouse overs, we need empty cells.
+		  // There is a performance hit, so I have not added them, for now.
+		  // TODO If I want mouse overs for empty cells, use some columns and rows with listeners instead.
+		  // That works out to 2*n elements instead of n*n.
+			//	      emptyNew
+			//	      .append("rect")
+			//			.attr("class", "empty")
+			//	        .attr("x", function(d) { return x(d.x); })
+			//	        .attr("width", x.rangeBand())
+			//	        .attr("height", x.rangeBand())
+			//			.style("fill", "#eee")
+			//	      .append("title")
+			//	        .text(function(d, i){return d.x + ", "+ d.y});
 		
-		
-	    var cell = d3.select(this).selectAll(".cell")
-	        .data(row.filter(function(d) { return d.z; }))
-	      .enter().append("rect")
+	      // Deal with cells that have data
+	      // TODO This is rebinding data with a filter...what does that end up doing?
+	      d3.select(this).selectAll(".cell")
+	        .data(rowData.filter(function(d) { return d.z; }))
+	      .enter()
+	      .append("rect")
 		    .filter(function(d){return d.x!=d.y})
 	        .attr("class", "cell")
 	        .attr("x", function(d) { return x(d.x); })
@@ -369,7 +392,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		  d3.selectAll("text").classed("active", false)
 			.style("fill", "black")
 			.style("font-weight", "normal")
-			.style("font-size", "15px");
+			.style("font-size", _rectSize+"px"); // used to be 15px literal
 		  
 		  d3.selectAll(".cell")
 		  	.filter(function(d){return d.x!=d.y})
