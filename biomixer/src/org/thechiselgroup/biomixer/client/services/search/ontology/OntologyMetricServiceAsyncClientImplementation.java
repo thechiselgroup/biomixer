@@ -20,7 +20,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpStageRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpLiveRestUrlBuilderFactory;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -40,9 +40,8 @@ public class OntologyMetricServiceAsyncClientImplementation extends
     @Inject
     public OntologyMetricServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            NcboJsonpStageRestUrlBuilderFactory urlBuilderFactory,
+            NcboJsonpLiveRestUrlBuilderFactory urlBuilderFactory,
             OntologyMetricJsonParser responseParser) {
-
         super(urlFetchService, urlBuilderFactory);
 
         this.responseParser = responseParser;

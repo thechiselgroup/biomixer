@@ -23,7 +23,7 @@ import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpStageRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpLiveRestUrlBuilderFactory;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -35,7 +35,7 @@ public class MappingCountServiceTest {
     private UrlFetchService urlFetchService;
 
     @Mock
-    private NcboJsonpStageRestUrlBuilderFactory urlBuilderFactory;
+    private NcboJsonpLiveRestUrlBuilderFactory urlBuilderFactory;
 
     @Mock
     private OntologyMappingCountJSONParser responseParser;

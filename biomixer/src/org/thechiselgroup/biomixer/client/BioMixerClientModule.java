@@ -29,7 +29,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpStageRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpLiveRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
@@ -122,7 +122,7 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 Singleton.class);
 
         bind(UrlBuilderFactory.class).to(
-                NcboJsonpStageRestUrlBuilderFactory.class).in(Singleton.class);
+                NcboJsonpLiveRestUrlBuilderFactory.class).in(Singleton.class);
     }
 
     @Override
