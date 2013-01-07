@@ -141,7 +141,8 @@ public class GraphDisplayController implements GraphDisplay,
         initBackgroundListener();
         initViewWideInteractionHandler();
 
-        this.layoutGraph = new IdentifiableLayoutGraph(width, height);
+        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width,
+                height);
 
         this.nodeAnimator = new NodeAnimator(getNodeAnimationFactory());
 
@@ -495,7 +496,7 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onNodeMouseDown(Node node, ChooselEvent event, int clientX,
             int clientY) {
-    	// Why do/did some methods have nodeInteractionManager, others eventBus.fireEvent()??
+        // Why do/did some methods have nodeInteractionManager, others eventBus.fireEvent()??
         nodeInteractionManager.onMouseDown(node.getId(), event, clientX,
                 clientY);
         eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, event,

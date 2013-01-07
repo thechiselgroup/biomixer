@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutGraph;
 
+import com.google.gwt.user.client.ui.Widget;
+
 public class TestLayoutGraph extends AbstractLayoutGraph {
 
     private BoundsDouble graphBounds;
@@ -114,6 +116,11 @@ public class TestLayoutGraph extends AbstractLayoutGraph {
 
     public TestLayoutNodeType[] getTestLayoutNodeTypes() {
         return testLayoutNodeTypes;
+    }
+
+    @Override
+    public Widget getGraphWidget() {
+        return null;
     }
 
 }

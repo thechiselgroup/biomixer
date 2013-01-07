@@ -393,10 +393,7 @@ public class Graph extends AbstractViewContentDisplay implements
         this.arcStyleProvider = arcStyleProvider;
         this.resourceCategorizer = resourceCategorizer;
         graphDisplay = display;
-        // didn't want to change GraphDisplay's interface yet
-        if (graphDisplay instanceof GraphDisplayController) {
-            addResizeListener(graphDisplay);
-        }
+        addResizeListener(graphDisplay);
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
         this.registry = registry;

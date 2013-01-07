@@ -98,6 +98,11 @@ public abstract class AbstractTreeLayoutComputation extends
         double availableSecondaryDimensionForEachTree = getAvailableSecondaryDimensionForEachTree(numDagsOnGraph
                 + cycleDetector.getNumberOfCycles());
 
+        // PointDouble viewCenter = getViewCenter();
+        // This didn't work because the values are virtually identical...but
+        // maybe not necessarily so.
+        PointDouble viewCenter = getRenderedViewCenter();
+
         // traverse each dag
         for (int i = 0; i < dagsOnGraph.size(); i++) {
             DirectedAcyclicGraph dag = dagsOnGraph.get(i);
@@ -105,8 +110,6 @@ public abstract class AbstractTreeLayoutComputation extends
             double primaryDimensionSpacing = getPrimaryDimensionSpacing(dag
                     .getNumberOfNodesOnLongestPath());
             double currentPrimaryDimension = primaryDimensionSpacing;
-
-            PointDouble viewCenter = getViewCenter();
 
             /*
              * We have to traverse from the center outwards for the radial case.
@@ -174,9 +177,21 @@ public abstract class AbstractTreeLayoutComputation extends
         return false;
     }
 
+    /**
+     * This gives the graph limits, which are not necessarily the same as the
+     * browser rendered limits. But it appears to be the same...
+     * 
+     * @see AbstractTreeLayoutComputation#getRenderedViewCenter()
+     * @return
+     */
     private PointDouble getViewCenter() {
-        return new PointDouble(graph.getBounds().getWidth() / 2, graph
-                .getBounds().getHeight() / 2);
+        return graph.getBounds().getCentre();
+    }
+
+    private PointDouble getRenderedViewCenter() {
+        return new PointDouble(graph.getGraphWidget().getElement()
+                .getClientWidth() / 2, graph.getGraphWidget().getElement()
+                .getClientHeight() / 2);
     }
 
     protected abstract double getAvailableSecondaryDimensionForEachTree(
@@ -240,8 +255,7 @@ public abstract class AbstractTreeLayoutComputation extends
         List<DirectedAcyclicGraphNode> nodesAtDepth = dag
                 .getNodesAtDistanceFromRoot(j);
 
-        double radianSlicePerNode = radianSlicePerTree
-                / (nodesAtDepth.size() + 1);
+        double radianSlicePerNode = radianSlicePerTree / (nodesAtDepth.size());
 
         double currentRadianPosition = i * radianSlicePerTree
                 + radianSlicePerNode;
@@ -251,21 +265,20 @@ public abstract class AbstractTreeLayoutComputation extends
 
             // Compute (x,y) from (radiusDepth,currentRadianPosition)
             PointDouble coord = polarToCartesian(radiusDepth,
-                    currentRadianPosition, viewCenter);
+                    currentRadianPosition);
 
             PointDouble topLeft = getTopLeftForCentreAt(coord.getX(),
                     coord.getY(), layoutNode);
+            topLeft = topLeft.plus(viewCenter);
             animateTo(layoutNode, topLeft, animationDuration);
             currentRadianPosition += radianSlicePerNode;
         }
     }
 
-    private final PointDouble polarToCartesian(double radius, double azimuth,
-            PointDouble origin) {
+    private final PointDouble polarToCartesian(double radius, double azimuth) {
         double x = Math.cos(azimuth) * radius;
         double y = Math.sin(azimuth) * radius;
-        PointDouble coords = new PointDouble(x + origin.getX(), y
-                + origin.getY());
+        PointDouble coords = new PointDouble(x, y);
         return coords;
     }
 }
