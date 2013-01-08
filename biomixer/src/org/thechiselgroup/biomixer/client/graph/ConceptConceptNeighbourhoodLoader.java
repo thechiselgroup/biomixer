@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
 import com.google.inject.Inject;
 

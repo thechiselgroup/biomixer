@@ -29,7 +29,7 @@ import org.thechiselgroup.biomixer.client.embeds.NeighbourCapBreachDialog;
 import org.thechiselgroup.biomixer.client.embeds.TermNeighbourhoodLoader;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
 import com.google.inject.Inject;
 

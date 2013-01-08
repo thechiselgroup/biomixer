@@ -16,6 +16,9 @@
 package org.thechiselgroup.biomixer.client;
 
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_BORDER_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_LABEL_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
@@ -54,6 +57,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.ConceptMatrixViewContentDisplayFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.NeoD3Matrix;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchViewWindowContentProducer;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -516,6 +521,18 @@ public class BioMixerViewWindowContentProducer extends
                     NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
             initializer.putSlotMapping(Graph.NODE_BORDER_COLOR,
                     NODE_BORDER_COLOR_RESOLVER_FACTORY);
+
+            return initializer;
+        } else if (ConceptMatrixViewContentDisplayFactory.ID
+                .equals(contentType)) {
+            PresetSlotMappingInitializer initializer = new PresetSlotMappingInitializer();
+
+            initializer.putSlotMapping(NeoD3Matrix.LABEL_SLOT,
+                    MATRIX_LABEL_RESOLVER_FACTORY);
+            initializer.putSlotMapping(NeoD3Matrix.COLOR,
+                    MATRIX_COLOR_RESOLVER_FACTORY);
+            initializer.putSlotMapping(NeoD3Matrix.BORDER_COLOR,
+                    MATRIX_BORDER_COLOR_RESOLVER_FACTORY);
 
             return initializer;
         }

@@ -21,7 +21,8 @@ var _matrixLineSeparatorColor = "#DDDDDD"; // Light grey
 // Keep this value live on update
 var _numNodes = 0;
 
-var _rectSize = 15; // This could be tied to header font sizes. It'd be smart!
+var _rectSize = 16; // Determines row/column size as well as their header font sizes
+var _textSizeAdjustment = 0; // May want to shrink text relative to cell size later.
 
 var margin = {top: 200, right: 50, bottom: 50, left: 200};
 
@@ -73,14 +74,16 @@ function _initGui(div, refObj){
 	  .text("by Ontology")
 	  .attr("value", "group");
 	
-	  menu.on("change", _order(refObj));
+	menu.on("change", _order(refObj));
+
+	refObj.menu = menu[0][0];
 }
 
 function _resize(div, refObj){
 	// _resize expects the svg appended in _initMatrix
 	// Set all the sizes
 	
-	var size = _computeSize(_numNodes);
+	var size = _computeSize();
 	
 	d3.select(div).select("svg")
 	// refObj.svg
@@ -92,6 +95,25 @@ function _resize(div, refObj){
 	);
 
 	refObj.x.rangeBands([0, size]);
+	
+}
+
+function _resizeAllScalableElements(){
+	// Uses both D3 and JQuery
+	// Want this as a voluntary function rather than some listener,
+	// so I can control when it gets called.
+	// Experimental approach to updating the size of all elements that
+	// have properties set based on the size.
+	// Each one may have one or more non-trivial property-to-size relations
+	// that can be expressed as a closure.
+	// Such objects will carry a particular class that I can grab a hold of,
+	// and call their stored size-property function here.
+	
+	d3.selectAll(".resizeCallback").each(
+			function(){
+				$(this).data("resizeCallback")(this);
+				}
+			);
 }
 
 
@@ -99,9 +121,7 @@ function _initMatrix(div, refObj){
 	// TODO The margins need to be computed to account for label size,
 	// rather than being an arbitrary number.
 	
-	var size = _computeSize();
-	
-	var x = d3.scale.ordinal().rangeBands([0, size]),
+	var x = d3.scale.ordinal().rangeBands([0, _computeSize()]),
 	    z = d3.scale.linear().domain([0, 4]).clamp(true),
 	    c = d3.scale.category10().domain(d3.range(10));
 		
@@ -142,7 +162,7 @@ function _initMatrix(div, refObj){
 		// making for an increase in dead space.
 		
 		// Context nested
-		console.log("here", d3.event.translate, d3.event.scale);
+		// console.log("here", d3.event.translate, d3.event.scale);
 		
 		inner_g.attr("transform",
 		"translate(" + d3.event.translate + ")"
@@ -157,6 +177,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	// var svg = refObj.svg;
 	var inner_g = refObj.inner_g; // original code obfuscated as the "svg" variable
 	
+	// Very important to update this for resizing purposes at various points
 	_numNodes = jsonObject.nodes.length;
 	
 	drawLayout(jsonObject);
@@ -210,13 +231,18 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	  refObj.orders = orders;
 	
 	  // The default sort order.
-	  x.domain(orders.name);
+	  x.domain(refObj.menu.options[refObj.menu.selectedIndex].value);
 	
-//	  inner_g.append("rect")
+//	  inner_g.append("rect resizeCallback")
 //	      .attr("class", "background")
 //	      .attr("width", _computeSize())
 //	      .attr("height", _computeSize())
-//	      .style("fill", "#eee");
+//	      .style("fill", "#eee")
+//	  	  .each(function(){
+//    	  		$(this).data("resizeCallback", 
+//    					  function(that){	d3.select(that).attr("width", _computeSize()).attr("height", _computeSize())	}
+//    	  		)
+//        });
 	
 	  // TODO I believe I need to grab the enter, update and exit selections here,
 	  // and carry out most of the following only for enter, and make new actions for exit.
@@ -233,13 +259,19 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .attr("transform", function(d, i) { return "translate(0," + x(i) + ")"; })
 	      .each(_row);
 	
+	  // Add the resizeCallback function via jquery
 	  newRows.append("line")
-	  	  .attr("class", "matrixSeparatorLine")
+	  	  .attr("class", "matrixSeparatorLine resizeCallback")
 	      .attr("x2", _computeSize())
 	      .attr("y1", _rectSize)
 		  .attr("y2", _rectSize)
 	      .style("stroke", _matrixLineSeparatorColor)
-	      .style("stroke-width", 2);
+	      .style("stroke-width", 2)
+	      .each(function(){
+	    	  $(this).data("resizeCallback", 
+	    			  function(that){	d3.select(that).attr("x2", _computeSize())	}
+	    	  )
+	      });
 		  
 	  newRows.append("line")
 	  	  .attr("class", "headerColorLine")
@@ -257,10 +289,12 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .attr("y", x.rangeBand() / 2)
 	      .attr("dy", ".32em")
 	      .attr("text-anchor", "end")
-		  .style("font-size", _rectSize+"px") // used to be 15px literal
+		  .style("font-size", _rectSize-_textSizeAdjustment+"px") // used to be 15px literal
 	      .text(function(d, i) { return nodes[i].name; })
 		 .on ("mouseover", sideTextMouseover)
 		  .on("mouseout", mouseout);
+	  
+	  rowsExiting.remove();
 	
 	  var columnsUpdating = inner_g.selectAll(".column")
       	.data(matrix);
@@ -271,13 +305,19 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .attr("class", "column")
 	      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 	
+	  // Add thje resizeCallback function via jquery
 	  newCols.append("line")
-	  	  .attr("class", "matrixSeparatorLine")
+	  	  .attr("class", "matrixSeparatorLine resizeCallback")
 	      .attr("x1", -_computeSize())
 	      .attr("y1", _rectSize)
 		  .attr("y2", _rectSize)
 	      .style("stroke", _matrixLineSeparatorColor)
-	      .style("stroke-width", 2);
+	      .style("stroke-width", 2)
+	      .each(function(){
+	    	  $(this).data("resizeCallback", 
+	    			  function(that){	d3.select(that).attr("x1", -_computeSize())	}
+	    	  )
+	      });
 		  
 	  newCols.append("line")
 	      .attr("class", "headerColorLine")
@@ -295,10 +335,18 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .attr("y", x.rangeBand() / 2)
 	      .attr("dy", ".32em")
 	      .attr("text-anchor", "start")
-		  .style("font-size", _rectSize+"px") // used to be 15px literal
+		  .style("font-size", _rectSize-_textSizeAdjustment+"px") // used to be 15px literal
 	      .text(function(d, i) { return nodes[i].name; })
 		  .on ("mouseover", topTextMouseover)
 		  .on("mouseout", mouseout);
+	  
+	  columnsExiting.remove();
+	  
+	  // Now, we need all the orderings sorted back out. Removals created gaps,
+	  // and new ones appear to be inserted willy nilly (due to usage of indices,
+	  // in my opinion).
+	  _resizeAllScalableElements();
+	  _order(refObj)(); // Returns a closure, so call it now.
 	
 	  //create cells (mappings and empty cells) in every row
 	  function _row(rowData) {
@@ -392,7 +440,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		  d3.selectAll("text").classed("active", false)
 			.style("fill", "black")
 			.style("font-weight", "normal")
-			.style("font-size", _rectSize+"px"); // used to be 15px literal
+			.style("font-size", _rectSize-_textSizeAdjustment+"px"); // used to be 15px literal
 		  
 		  d3.selectAll(".cell")
 		  	.filter(function(d){return d.x!=d.y})
@@ -456,14 +504,21 @@ function updateMatrixLayout(div, refObj, jsonObject){
 }
 
 function _order(refObj) {
-  	return function(d, i){
+	// I only want one call to this to run at a time, so I have a flag for this.
+	// the extraCall flag makes sure that if multiple calls are made, on last extra one always gets through.
+	// This ensures we have a valid layout after skipping additional calls.
+	var running;
+	var extraCall;
+  	return function(){ // d, i were here, but unused
+
   		var x = refObj.x;
   		var inner_g = refObj.inner_g;
   		var orders = refObj.orders;
   		
-  		x.domain(orders[this.value]);
+  		// x.domain(orders[this.value]);
+  		x.domain(orders[refObj.menu.value]);
 
-  		var t = inner_g.transition().duration(2500);
+  		var t = inner_g.transition().duration(500); // originally 2500
 
   		t.selectAll(".row")
 	      	.delay(function(d, i) { return x(i) * 4; })

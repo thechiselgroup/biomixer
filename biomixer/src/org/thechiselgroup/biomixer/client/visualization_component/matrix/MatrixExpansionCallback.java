@@ -36,20 +36,16 @@ public class MatrixExpansionCallback extends NodeExpansionCallback<NeoD3Matrix> 
 
     @Override
     public void updateArcsForResources(Iterable<Resource> resources) {
-        // OntologyMatrix.this.updateArcsForResources(resources);
-        // TODO This needs to call the method that triggers updates in D3,
+        // This calls the method that triggers updates in D3,
         // after it has added the new mappings
-        // ConceptMatrix.this.matrixDisplay.updateView();
         this.matrix.updateView();
     }
 
     @Override
     public void updateArcsForVisuaItems(
             LightweightCollection<VisualItem> visualItems) {
-        // OntologyMatrix.this.updateArcsForVisuaItems(visualItems);
-        // TODO This needs to call the method that triggers updates in D3,
+    	// This calls the method that triggers updates in D3,
         // after it has added the new mappings
-        // ConceptMatrix.matrixDisplay.updateView();
         this.matrix.updateView();
     }
 }

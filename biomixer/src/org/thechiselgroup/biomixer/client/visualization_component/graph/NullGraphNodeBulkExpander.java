@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
 public class NullGraphNodeBulkExpander<T extends ViewWithResourceManager>
         implements NodeBulkExpander<T> {

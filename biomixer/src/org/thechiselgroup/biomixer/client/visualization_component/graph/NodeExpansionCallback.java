@@ -19,8 +19,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager.SpecializedResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager.SpecializedResourceManager;
 
 // TODO better separation of concern - introduce factories for the expanders
 // TODO use resource items instead of single resources

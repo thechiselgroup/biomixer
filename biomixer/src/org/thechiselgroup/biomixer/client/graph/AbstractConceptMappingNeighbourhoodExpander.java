@@ -26,7 +26,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.AbstractGraphNodeSingleResourceNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 

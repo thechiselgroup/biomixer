@@ -18,8 +18,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.thechiselgroup.biomixer.client.Concept;
-import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.Mapping;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UnionResourceSet;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -31,7 +32,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 public class NeoD3MatrixWidget extends Widget {
@@ -40,21 +40,7 @@ public class NeoD3MatrixWidget extends Widget {
 
     JSONObject matrixJSONContextObject;
 
-    // private JsTimeLineEventSource eventSource;
-    //
-    // private DateTimeFormat inputFormat = DateTimeFormat
-    // .getFormat("MMM d yyyy HH:mm:ss z");
-
-    // // TODO http://code.google.com/p/google-web-toolkit/issues/detail?id=3415
-    // // wait for fix to switch to "EEE, dd MMM yyyy HH:mm:ss z"
-    // public final static DateTimeFormat GMT_FORMAT = DateTimeFormat
-    // .getFormat("dd MMM yyyy HH:mm:ss z");
-
-    // private JsTimeLine jsTimeLine;
-
-    // private String mainBandWidth = "80%";
-    //
-    // private String overviewBandWidth = "20%";
+    private final NeoD3MatrixJavascriptInterface jsInterface = new NeoD3MatrixJavascriptInterface();
 
     public NeoD3MatrixWidget() {
         Element d3Div = DOM.createDiv();
@@ -66,11 +52,12 @@ public class NeoD3MatrixWidget extends Widget {
     }
 
     private void initializeView() {
-        matrixJSONContextObject = initD3Layout(this.getElement());
+        matrixJSONContextObject = jsInterface.initD3Layout(this.getElement());
 
     }
 
-    public void updateView(HashSet<VisualItem> concepts) {
+    public void updateView(HashSet<VisualItem> concepts,
+            UnionResourceSet mappingResources) {
         /*-
          * (Trick: this dash prevents code formatting from clobbering my layout below!)
          * (The @ formatter stuff I tried malfunctioned...)
@@ -125,6 +112,10 @@ public class NeoD3MatrixWidget extends Widget {
                 .cast();
 
         for (VisualItem visItem : concepts) {
+            if (!(visItem.getDisplayObject() instanceof ConceptMatrixItem)) {
+            	// Remove when concepts are the only things coming through, not mappings
+                continue;
+            }
             ConceptMatrixItem displayObject = visItem.getDisplayObject();
 
             // jsonStrBuilder.append("{\"name\":"+displayObject.getConceptFullId()+",");
@@ -156,66 +147,44 @@ public class NeoD3MatrixWidget extends Widget {
         JSONArray jsonLinkArray = new JSONArray();
         jsonObj.put("links", jsonLinkArray);
 
-        for (VisualItem visItem : concepts) {
-            // Combine arrays to avoid two code blocks with nearly identicle
-            // code to maintain.
-            UriList sourceUris = visItem.getResources().getFirstElement()
-                    .getUriListValue(Concept.INCOMING_MAPPINGS);
-            UriList targetUris = visItem.getResources().getFirstElement()
-                    .getUriListValue(Concept.OUTGOING_MAPPINGS);
-            UriList[] uris = { sourceUris, targetUris };
+        for (Resource mappingResource : mappingResources) {
+            assert Mapping.isMapping(mappingResource);
+            String sourceUri = (String) mappingResource
+                    .getValue(Mapping.SOURCE);
+            String targetUri = (String) mappingResource
+                    .getValue(Mapping.TARGET);
 
-            String centralUri = visItem.getResources().getFirstElement()
-                    .getUri();
+            JSONObject linkObject = new JSONObject();
+            linkObject.put("source",
+                    new JSONNumber(conceptIndices.get(sourceUri)));
+            // new JSONString(sourceUri));
+            linkObject.put("target",
+                    new JSONNumber(conceptIndices.get(targetUri)));
+            // new JSONString(targetUri));
 
-            for (int ioIndex = 0; ioIndex <= 1; ioIndex++) {
-                UriList otherUris = uris[ioIndex];
-                for (String loopedUri : otherUris) {
-                    // We only keep connections for nodes in the view.
-                    if (!conceptIndices.containsKey(loopedUri)) {
-                        continue;
-                    }
+            linkObject.put("target", new JSONNumber(1));
+            jsonLinkArray.set(jsonLinkArray.size(), linkObject);
 
-                    // Incoming? Looped is source, else central is source.
-                    String sourceUri = (ioIndex == 0) ? loopedUri : centralUri;
-                    // Incoming? Central is target, looped is target.
-                    String targetUri = (ioIndex == 0) ? centralUri : loopedUri;
+            int addedIndex = matrixJsonData.pushLink(
+                    conceptIndices.get(sourceUri),
+                    conceptIndices.get(targetUri), 1);
 
-                    JSONObject linkObject = new JSONObject();
-                    linkObject.put("source",
-                            new JSONNumber(conceptIndices.get(sourceUri)));
-                    // new JSONString(sourceUri));
-                    linkObject.put("target",
-                            new JSONNumber(conceptIndices.get(targetUri)));
-                    // new JSONString(targetUri));
-
-                    linkObject.put("target", new JSONNumber(1));
-                    jsonLinkArray.set(jsonLinkArray.size(), linkObject);
-
-                    int addedIndex = matrixJsonData.pushLink(
-                            conceptIndices.get(sourceUri),
-                            conceptIndices.get(targetUri), 1);
-
-                    // jsonStrBuilder.append("{");
-                    // jsonStrBuilder.append("\"source\":"+sourceUri+",");
-                    // jsonStrBuilder.append("\"target\":"+targetUri+",");
-                    // jsonStrBuilder.append("\"value\":1");
-                    // jsonStrBuilder.append("},");
-                }
-            }
+            // jsonStrBuilder.append("{");
+            // jsonStrBuilder.append("\"source\":"+sourceUri+",");
+            // jsonStrBuilder.append("\"target\":"+targetUri+",");
+            // jsonStrBuilder.append("\"value\":1");
+            // jsonStrBuilder.append("},");
         }
         // jsonStrBuilder.append("]");
 
         // End of json
         // jsonStrBuilder.append("}");
 
-        // TODO matrixJsonData doesn't seem to work right now. Fix it. I prefer
-        // that to jsonObj and to using a string builder.
-        Window.alert(new JSONObject(matrixJsonData).toString());
-        applyD3Layout(this.getElement(), matrixJSONContextObject,
+        // matrixJsonData is preferable to jsonObj and to using a string builder.
+        jsInterface.applyD3Layout(this.getElement(), matrixJSONContextObject,
                 matrixJsonData);
-        // jsonObj.toString());
-        // jsonStrBuilder.toString());
+        // jsonObj.toString()); // Old way
+        // jsonStrBuilder.toString()); // Yet older way
 
     }
 
@@ -227,196 +196,4 @@ public class NeoD3MatrixWidget extends Widget {
         }
         return ontologyGroupNumbers.get(ontologyId);
     }
-
-    // This was the very simple way to load data from the prototype. The data is
-    // already prepared, and there was no way to change it. The prototype
-    // demonstrated the graphics and the mouse interaction, but not data
-    // swapping.
-    private native void applyD3Layout(Element div,
-            JSONObject matrixJSONContextObject, String jsonString)/*-{
-		$wnd.updateMatrixLayoutString(div, matrixJSONContextObject, jsonString);
-    }-*/;
-
-    // Uses the same method as the less cool JSONObject receiving version
-    private native void applyD3Layout(Element div,
-            JSONObject matrixJSONContextObject, MatrixJsonData jsonMatrixData)/*-{
-		$wnd.updateMatrixLayout(div, matrixJSONContextObject, jsonMatrixData);
-    }-*/;
-
-    private native void applyD3Layout(Element div,
-            JSONObject matrixJSONContextObject, JSONObject jsonObject)/*-{
-		$wnd.updateMatrixLayout(div, matrixJSONContextObject, jsonObject);
-    }-*/;
-
-    private native JSONObject initD3Layout(Element div)/*-{
-		return $wnd.initMatrixLayout(div);
-    }-*/;
-
-    // public void addEvents(JsTimeLineEvent[] events) {
-    // // eventSource.addEvents(events);
-    // // jsTimeLine.paint();
-    // updateView();
-    // }
-
-    // public void removeConceptFromMatrix(JsTimeLineEvent[] events) {
-    // // eventSource.removeEvents(events);
-    // // jsTimeLine.paint();
-    // updateView();
-    // }
-
-    // public HandlerRegistration addScrollHandler(
-    // TimelineInteractionEventHandler handler) {
-    // return handlerManager
-    // .addHandler(TimelineInteractionEvent.TYPE, handler);
-    // }
-
-    // private BandInformation createBandInformation(int bandIndex) {
-    // return new BandInformation(bandIndex,
-    // jsTimeLine.getZoomIndex(bandIndex),
-    // jsTimeLine.getMinVisibleDateAsGMTString(bandIndex),
-    // jsTimeLine.getMaxVisibleDateAsGMTString(bandIndex));
-    // }
-    //
-    // private BandInformation createBandInformation(int bandIndex,
-    // JavaScriptObject centerDate) {
-    //
-    // return new BandInformation(bandIndex,
-    // jsTimeLine.getZoomIndex(bandIndex),
-    // jsTimeLine.getMinVisibleDateAsGMTString(bandIndex, centerDate),
-    // jsTimeLine.getMaxVisibleDateAsGMTString(bandIndex, centerDate));
-    // }
-
-    // private void eventPainted(int bandIndex, JsTimeLineEvent event) {
-    // String labelElementID = getEventElementID(bandIndex, "label", event);
-    // String iconElementID = getEventElementID(bandIndex, "icon", event);
-    // event.getTimeLineItem().onPainted(labelElementID, iconElementID);
-    //
-    // // TODO use just one listener instead of one per item (for
-    // // performance)
-    // // 1. get the id of the element
-    // // ((Element) e.getCurrentEventTarget().cast()).getId()
-    // // 2. resolve timeline event from id
-    // }
-
-    // public Date getCenterVisibleDate() {
-    // // TODO
-    // // http://code.google.com/p/google-web-toolkit/issues/detail?id=3415
-    // // wait for fix to switch to "EEE, dd MMM yyyy HH:mm:ss z"
-    // return GMT_FORMAT.parse(jsTimeLine.getCenterVisibleDateAsGMTString()
-    // .substring(5));
-    // }
-
-    // public final String getEventElementID(int bandIndex, String elementType,
-    // JsTimeLineEvent event) {
-    // return jsTimeLine.getEventElementID(bandIndex, elementType, event);
-    // }
-
-    // public String getMainBandWidth() {
-    // return mainBandWidth;
-    // }
-
-    // public String getOverviewBandWidth() {
-    // return overviewBandWidth;
-    // }
-
-    // public JsTimeLine getTimeLine() {
-    // return jsTimeLine;
-    // }
-
-    // public final int getZoomIndex(int bandNumber) {
-    // return jsTimeLine.getZoomIndex(bandNumber);
-    // }
-
-    // public void layout() {
-    // if (jsTimeLine != null) {
-    // jsTimeLine.layout();
-    // }
-    // }
-
-    @Override
-    protected void onAttach() {
-        super.onAttach();
-        //
-        // if (jsTimeLine == null) {
-        // eventSource = JsTimeLineEventSource.create();
-        //
-        // jsTimeLine = JsTimeLine.create(getElement(), eventSource,
-        // inputFormat.format(new Date()), mainBandWidth,
-        // overviewBandWidth);
-        //
-        // jsTimeLine.disableBubbles();
-        // jsTimeLine.registerPaintListener(new JsTimelinePaintCallback() {
-        // @Override
-        // public void eventPainted(int bandIndex, JsTimeLineEvent event) {
-        // NeoD3MatrixWidget.this.eventPainted(bandIndex, event);
-        // }
-        // });
-        // jsTimeLine
-        // .registerInteractionHandler(new JsTimelineInteractionCallback() {
-        // @Override
-        // public void onInteraction(String interaction,
-        // int bandIndex) {
-        // NeoD3MatrixWidget.this.onInteraction(interaction,
-        // bandIndex);
-        // }
-        //
-        // @Override
-        // public void onInteraction(String interaction,
-        // int bandIndex, JavaScriptObject newCenterDate) {
-        // NeoD3MatrixWidget.this.onInteraction(interaction,
-        // bandIndex, newCenterDate);
-        // }
-        // });
-        // }
-    }
-
-    private void onInteraction(String interaction, int bandIndex) {
-        // event construction is expensive so we check if there are any handlers
-        // if (handlerManager.getHandlerCount(TimelineInteractionEvent.TYPE) ==
-        // 0) {
-        // return;
-        // }
-
-        // handlerManager.fireEvent(new TimelineInteractionEvent(this,
-        // bandIndex,
-        // interaction, new BandInformation[] { createBandInformation(0),
-        // createBandInformation(1) }));
-    }
-
-    protected void onInteraction(String interaction, int bandIndex,
-            JavaScriptObject newCenterDate) {
-
-        // event construction is expensive so we check if there are any handlers
-        // if (handlerManager.getHandlerCount(TimelineInteractionEvent.TYPE) ==
-        // 0) {
-        // return;
-        // }
-
-        // handlerManager.fireEvent(new TimelineInteractionEvent(this,
-        // bandIndex,
-        // interaction, new BandInformation[] {
-        // createBandInformation(0, newCenterDate),
-        // createBandInformation(1, newCenterDate) }));
-    }
-
-    // public void setCenterVisibleDate(Date date) {
-    // assert date != null;
-    // // TODO use output format once
-    // // http://code.google.com/p/google-web-toolkit/issues/detail?id=3415
-    // // is fixed.
-    // jsTimeLine.setCenterVisibleDate(DateTimeFormat.getFormat(
-    // "EEE, dd MMM yyyy HH:mm:ss z").format(date));
-    // }
-
-    // public void setMainBandWidth(String mainBandWidth) {
-    // this.mainBandWidth = mainBandWidth;
-    // }
-
-    // public void setOverviewBandWidth(String overviewBandWidth) {
-    // this.overviewBandWidth = overviewBandWidth;
-    // }
-
-    // public final void setZoomIndex(int bandNumber, int zoomIndex) {
-    // jsTimeLine.setZoomIndex(bandNumber, zoomIndex);
-    // }
 }

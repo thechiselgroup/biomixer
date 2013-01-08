@@ -21,7 +21,6 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 
 /**
  * @deprecated Use {@link AbstractGraphNodeSingleResourceNeighbourhoodExpander}

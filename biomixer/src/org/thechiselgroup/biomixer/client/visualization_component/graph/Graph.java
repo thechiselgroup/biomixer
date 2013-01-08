@@ -84,7 +84,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverHandler;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.dom.client.ClickEvent;

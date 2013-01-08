@@ -28,8 +28,9 @@ import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallba
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>

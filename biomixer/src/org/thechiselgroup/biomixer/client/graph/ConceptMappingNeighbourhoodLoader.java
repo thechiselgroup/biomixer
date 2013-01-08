@@ -26,8 +26,8 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager.SpecializedResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager.SpecializedResourceManager;
 
 import com.google.inject.Inject;
 
@@ -47,6 +47,8 @@ public class ConceptMappingNeighbourhoodLoader<T extends ViewWithResourceManager
             Resource resource, NodeExpansionCallback<T> callback,
             List<Resource> neighbourhood) {
 
+        // I set it up so that the mapping resources mingle with the concept
+        // resources in the D3 Matrix view. Is that ok?
         SpecializedResourceManager specificResourceManager = callback
                 .getDisplay().getSpecificResourceManager();
 

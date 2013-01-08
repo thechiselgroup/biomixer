@@ -56,6 +56,8 @@ public class Resource implements Serializable {
         addChildren(newChild);
     }
 
+    // TODO This is not cool. Not all resources are concepts. Not causing a
+    // problem at the moment.
     public void addChildren(UriList additionalChildren) {
         UriList currentChildren = getUriListValue(Concept.CHILD_CONCEPTS);
         currentChildren.addAllNew(additionalChildren);

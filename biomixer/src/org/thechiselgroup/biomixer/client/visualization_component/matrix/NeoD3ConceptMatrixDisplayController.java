@@ -16,16 +16,20 @@
 package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.resources.NullResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UnionResourceSet;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.GraphDisplayController;
 
 import com.google.gwt.event.shared.EventBus;
@@ -136,7 +140,8 @@ public class NeoD3ConceptMatrixDisplayController implements
 
         // TODO My data origins and method call requirements are in conflict!
         // How do I get at the NeoD3Matrix concept field?
-        this.matrixWidget.updateView(null);
+        this.matrixWidget.updateView(new HashSet<VisualItem>(),
+                new UnionResourceSet(NullResourceSet.NULL_RESOURCE_SET));
     }
 
     // static final int defaultHeight = 400;

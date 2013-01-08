@@ -25,10 +25,18 @@ import org.thechiselgroup.biomixer.client.graph.BioMixerGraphLabelResolver;
 import org.thechiselgroup.biomixer.client.graph.BioMixerNodeBackgroundColorResolver;
 import org.thechiselgroup.biomixer.client.graph.BioMixerNodeBorderColorResolver;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.matrix.NeoD3Matrix;
 import org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemValueResolverFactoryProvider;
 
 import com.google.inject.Inject;
 
+/**
+ * When modifying, see also
+ * {@link BioMixerVisualItemValueResolverUIControllerFactoryProvider}
+ * 
+ * @author everbeek
+ * 
+ */
 public class BioMixerVisualItemValueResolverFactoryProvider extends
         WorkbenchVisualItemValueResolverFactoryProvider {
 
@@ -57,6 +65,26 @@ public class BioMixerVisualItemValueResolverFactoryProvider extends
         }
     };
 
+    // For matrix view
+    public static final SingleSlotDependentVisualItemResolverFactory MATRIX_BORDER_COLOR_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
+            "BioMixerMatrixBorderColorResolver",
+            new BioMixerNodeBorderColorResolver(), "Default", DataType.COLOR,
+            NeoD3Matrix.BORDER_COLOR);
+
+    public static final SingleSlotDependentVisualItemResolverFactory MATRIX_COLOR_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
+            "biomixerMatrixColor", new BioMixerNodeBackgroundColorResolver(),
+            "Default", DataType.COLOR, NeoD3Matrix.COLOR);
+
+    public static final SingleSlotDependentVisualItemResolverFactory MATRIX_LABEL_RESOLVER_FACTORY = new SingleSlotDependentVisualItemResolverFactory(
+            "biomixer.MatrixLabelResolver", new BioMixerGraphLabelResolver(),
+            "Default", DataType.TEXT, NeoD3Matrix.LABEL_SLOT) {
+        @Override
+        public boolean canCreateApplicableResolver(Slot slot,
+                LightweightCollection<VisualItem> visualItems) {
+            return true;
+        }
+    };
+
     @Override
     @Inject
     public void registerFactories() {
@@ -66,5 +94,9 @@ public class BioMixerVisualItemValueResolverFactoryProvider extends
         register(NODE_BORDER_COLOR_RESOLVER_FACTORY);
         register(NODE_BACKGROUND_COLOR_RESOLVER_FACTORY);
         register(NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
+
+        register(MATRIX_LABEL_RESOLVER_FACTORY);
+        register(MATRIX_BORDER_COLOR_RESOLVER_FACTORY);
+        register(MATRIX_COLOR_RESOLVER_FACTORY);
     }
 }

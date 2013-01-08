@@ -17,7 +17,9 @@ package org.thechiselgroup.biomixer.client.visualization_component.matrix;
 
 import java.util.HashSet;
 
+import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.DataTypeValidator;
+import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
@@ -33,7 +35,9 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.RequiresAutomaticResourceSet;
 import org.thechiselgroup.biomixer.client.graph.ConceptMappingNeighbourhoodLoader;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.user.client.ui.Widget;
@@ -46,7 +50,7 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
     public final static Slot BORDER_COLOR = new Slot("borderColor",
             "Border Color", DataType.COLOR);
 
-    public static final Slot LABEL_SLOT = new Slot("nodeLabel", "Label",
+    public static final Slot LABEL_SLOT = new Slot("label", "Label",
             DataType.TEXT);
 
     private static final Slot[] SLOTS = new Slot[] { BORDER_COLOR, COLOR,
@@ -66,41 +70,32 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
     private final UnionResourceSet conceptResources = new UnionResourceSet(
             new DefaultResourceSet());
 
-    private final ConceptMappingNeighbourhoodLoader<NeoD3Matrix> mappingLoader;
+    private final UnionResourceSet mappingResources = new UnionResourceSet(
+            new DefaultResourceSet());
 
-    // = new ConceptMappingNeighbourhoodLoader(conceptMappingService,
-    // resourceManager, errorHandler);
+    private final NodeExpander<NeoD3Matrix> mappingLoader;
 
     private ResourceSet automaticResources;
 
     private final ConceptResourceManager conceptResourceManager;
 
-    // private final ResourceCategorizer resourceCategorizer;
-
-    // @Inject
-    // private final ResourceManager resourceManager;
-
     /*
-     * TODO The callback is meant to check whether the graph is initialized (and
+     * The callback is meant to check whether the graph is initialized (and
      * not disposed) when methods are called (to prevent errors in asynchronous
      * callbacks that return after the graph has been disposed or before it has
      * been initialized).
      */
     private final NodeExpansionCallback<NeoD3Matrix> expansionCallback;
 
-    public NeoD3Matrix(DataTypeValidator dataValidation,
+    public NeoD3Matrix(
+            DataTypeValidator dataValidation,
             ConceptMappingNeighbourhoodLoader<NeoD3Matrix> mappingLoader,
-            // ResourceCategorizer resourceCategorizer,
             ResourceManager resourceManager,
             ResourceCategorizer resourceCategorizer) {
         super(dataValidation);
 
         this.expansionCallback = new MatrixExpansionCallback(this);
-        // this.mappingLoader = new
-        // ConceptMappingNeighbourhoodLoader(conceptMappingService,
-        // resourceManager, errorHandler);
         this.mappingLoader = mappingLoader;
-        // this.resourceCategorizer = resourceCategorizer;
         conceptResourceManager = new ConceptResourceManager(resourceManager,
                 resourceCategorizer, this);
 
@@ -125,28 +120,48 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
             LightweightCollection<VisualItem> addedVisualItems) {
         this.conceptVisualItems.addAll(addedVisualItems.toList());
         for (VisualItem item : addedVisualItems) {
-            this.conceptResources.addAll(item.getResources());
+            if (Concept.isConcept(item.getResources().getFirstElement())) {
+                this.conceptResources.addAll(item.getResources());
+            } else if (Mapping.isMapping(item.getResources().getFirstElement())) {
+                this.mappingResources.addAll(item.getResources());
+            }
+
         }
-        // matrixWidget.addEvents(getTimeLineEvents(addedResourceItems));
     }
 
-    private void createConceptItems(
+    private void removeConceptsFromMatrix(
+            LightweightCollection<VisualItem> removedVisualItems) {
+        this.conceptVisualItems.removeAll(removedVisualItems.toList());
+        for (VisualItem item : removedVisualItems) {
+            ResourceSet resources = item.getResources();
+            this.conceptResources.removeAll(resources);
+            // TODO I think we really want to remove mappings that no longer
+            // have both ends in the resource set too.
+            // This is the problem with using the resource set to track them,
+            // rather than using a proper Map object with simple concept URIs...
+            for (String mappingURI : resources.getFirstElement()
+                    .getUriListValue(Concept.INCOMING_MAPPINGS)) {
+                mappingResources.remove(mappingResources.getByUri(mappingURI));
+            }
+            for (String mappingURI : resources.getFirstElement()
+                    .getUriListValue(Concept.OUTGOING_MAPPINGS)) {
+                mappingResources.remove(mappingResources.getByUri(mappingURI));
+            }
+        }
+    }
+
+    private void createConceptDisplayObjects(
             LightweightCollection<VisualItem> addedVisualItems) {
 
         for (VisualItem visualItem : addedVisualItems) {
-            visualItem.setDisplayObject(new ConceptMatrixItem(visualItem));
-
-            /*
-             * NOTE: all node configuration should be done when calling the
-             * automatic expanders, since they rely on returning the correct
-             * graph contents etc.
-             * 
-             * NOTE: we do not execute the expanders if we are restoring the
-             * graph
-             */
-            // registry.getAutomaticExpander(type).expand(visualItem,
-            // expansionCallback);
-            mappingLoader.expand(visualItem, expansionCallback);
+            if (Concept.isConcept(visualItem.getResources().getFirstElement())) {
+                visualItem.setDisplayObject(new ConceptMatrixItem(visualItem));
+                mappingLoader.expand(visualItem, expansionCallback);
+                // The expander callback leads to mapping objects being created.
+            } else if (Mapping.isMapping(visualItem.getResources()
+                    .getFirstElement())) {
+                visualItem.setDisplayObject(new MappingMatrixItem(visualItem));
+            }
         }
     }
 
@@ -170,29 +185,8 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
         return SLOTS;
     }
 
-    // private JsTimeLineEvent[] getTimeLineEvents(
-    // LightweightCollection<VisualItem> resourceItems) {
-    //
-    // JsTimeLineEvent[] events = new JsTimeLineEvent[resourceItems.size()];
-    // int counter = 0;
-    // for (VisualItem item : resourceItems) {
-    // TimeLineItem timelineItem = (TimeLineItem) item.getDisplayObject();
-    // events[counter++] = timelineItem.getTimeLineEvent();
-    // }
-    // return events;
-    // }
-
     public NeoD3MatrixWidget getMatrixWidget() {
         return matrixWidget;
-    }
-
-    private void removeConceptsFromMatrix(
-            LightweightCollection<VisualItem> removedVisualItems) {
-        this.conceptVisualItems.removeAll(removedVisualItems.toList());
-        for (VisualItem item : removedVisualItems) {
-            this.conceptResources.removeAll(item.getResources());
-        }
-        // matrixWidget.removeConceptFromMatrix(getTimeLineEvents(removedResourceItems));
     }
 
     // @Override
@@ -235,7 +229,10 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
         LightweightCollection<VisualItem> addedVisualItems = delta
                 .getAddedElements();
         if (!addedVisualItems.isEmpty()) {
-            createConceptItems(addedVisualItems);
+            // TODO Mapping VisualItems go through here too, so I have to filter
+            // between the two. I decided to do that within the loop inside
+            // createConceptItems().
+            createConceptDisplayObjects(addedVisualItems);
             addConceptsToMatrix(addedVisualItems);
             // updateStatusStyling(addedVisualItems);
         }
@@ -271,7 +268,8 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
     }
 
     public void updateView() {
-        this.matrixWidget.updateView(this.conceptVisualItems);
+        this.matrixWidget.updateView(this.conceptVisualItems,
+                this.mappingResources);
     }
 
     @Override
@@ -305,13 +303,32 @@ public class NeoD3Matrix extends AbstractViewContentDisplay implements
 
         @Override
         public boolean containsResourceWithUri(String resourceUri) {
-            return NeoD3Matrix.this.conceptResources
-                    .containsResourceWithUri(resourceUri);
+            boolean isConcept = isResourceConcept(resourceUri);
+            if (isConcept) {
+                return NeoD3Matrix.this.conceptResources
+                        .containsResourceWithUri(resourceUri);
+            } else { // if (isMapping) {
+                return NeoD3Matrix.this.mappingResources
+                        .containsResourceWithUri(resourceUri);
+            }
         }
 
         @Override
-        public Resource getResourceByUri(String value) {
-            return NeoD3Matrix.this.conceptResources.getByUri(value);
+        public Resource getResourceByUri(String resourceUri) {
+            boolean isConcept = isResourceConcept(resourceUri);
+            if (isConcept) {
+                return NeoD3Matrix.this.conceptResources.getByUri(resourceUri);
+            } else { // if (isMapping) {
+                return NeoD3Matrix.this.mappingResources.getByUri(resourceUri);
+            }
+        }
+
+        private boolean isResourceConcept(String resourceUri) {
+            String category = resourceCategorizer.getCategory(resourceUri);
+            boolean isConcept = category.equals(Concept.RESOURCE_URI_PREFIX);
+            boolean isMapping = category.equals(Mapping.RESOURCE_URI_PREFIX);
+            assert isConcept || isMapping;
+            return isConcept;
         }
     }
 }

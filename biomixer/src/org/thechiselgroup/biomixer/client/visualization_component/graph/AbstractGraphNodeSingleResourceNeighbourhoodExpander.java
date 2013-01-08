@@ -23,8 +23,6 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
-import org.thechiselgroup.biomixer.client.visualization_component.matrix.ViewWithResourceManager;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**

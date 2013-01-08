@@ -28,25 +28,14 @@ public class RadialTreeLayoutComputation extends AbstractTreeLayoutComputation {
     @Override
     protected double getAvailableSecondaryDimensionForEachTree(
             int numDagsOnGraph) {
-        // This is width or height for vertical or horizontal trees, but
-        // needs to be azimuth or angular coordinate.
-        // TODO This might be tricky with the inheritance I am trying to use,
-        // but an angle is not the same as a width distance...it makes it harder
-        // to increment it.
+        // This is azimuth or angular coordinate.
         // return graph.getBounds().getWidth() / numDagsOnGraph;
         return (Math.PI * 2) / numDagsOnGraph;
     }
 
     @Override
     protected double getPrimaryDimensionSpacing(int numberOfNodesOnLongestPath) {
-        // This is height or width for vertical or horizontal trees, but
-        // needs to be radius or radial coordinate.
-
-        // Right now, this is radius...I think. But it gets
-        // interpreted as y-axis.
-        // TODO This gets applied as the y-axis. I was thinking waaay too
-        // abstractly before. I will need to respond to this differentially for
-        // the radial tree layout than in the regular tree layouts.
+        // This isthe radial coordinate.
 
         // return graph.getBounds().getHeight() / (numberOfNodesOnLongestPath +
         // 1);
@@ -61,10 +50,6 @@ public class RadialTreeLayoutComputation extends AbstractTreeLayoutComputation {
     @Override
     protected PointDouble getTopLeftForCentreAt(double currentPrimaryDimension,
             double currentSecondaryDimension, LayoutNode node) {
-        // TODO Compute the coordinate for the node at the specified dimension
-        // index.
-        // TODO These are essentially position indices, right? And not on a
-        // proper metric?
         return node.getTopLeftForCentreAt(currentSecondaryDimension,
                 currentPrimaryDimension);
     }

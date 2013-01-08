@@ -64,23 +64,7 @@ public class ConceptMatrixViewContentDisplayFactory implements
     public ViewContentDisplay createViewContentDisplay(ErrorHandler errorHandler) {
         return new NeoD3Matrix(createDataTypeValidator(), mappingLoader,
                 resourceManager, resourceCategorizer);
-        // return new NeoD3Matrix(createDataTypeValidator(), mappingLoader,
-        // new ConceptResourceManager(resourceManager,
-        // resourceCategorizer, automaticResources));
     }
-
-    // TODO Trying the Timeline approach instead.
-    // @Override
-    // public ViewContentDisplay createViewContentDisplay(ErrorHandler
-    // errorHandler) {
-    //
-    // return new ConceptMatrix(new ConceptMatrixDisplayController(
-    // defaultWidth, defaultHeight, viewName, rendererFactory,
-    // errorHandler), commandManager, resourceManager,
-    // resourceCategorizer,
-    // // arcStyleProvider,
-    // mappingLoader, errorHandler, createDataTypeValidator());
-    // }
 
     @Override
     public DataTypeValidator createDataTypeValidator() {
