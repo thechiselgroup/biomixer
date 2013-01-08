@@ -305,7 +305,7 @@ function updateMatrixLayout(div, refObj, jsonObject){
 	      .attr("class", "column")
 	      .attr("transform", function(d, i) { return "translate(" + x(i) + ")rotate(-90)"; });
 	
-	  // Add thje resizeCallback function via jquery
+	  // Add the resizeCallback function via jquery
 	  newCols.append("line")
 	  	  .attr("class", "matrixSeparatorLine resizeCallback")
 	      .attr("x1", -_computeSize())
@@ -380,8 +380,8 @@ function updateMatrixLayout(div, refObj, jsonObject){
 		    .filter(function(d){return d.x!=d.y})
 	        .attr("class", "cell")
 	        .attr("x", function(d) { return x(d.x); })
-	        .attr("width", x.rangeBand())
-	        .attr("height", x.rangeBand())
+	        .attr("width", _rectSize)
+	        .attr("height", _rectSize)
 			.style("fill-opacity", 1)
 			.style("fill", function(g,i) { 
 				colour1 = c(nodes[g.x].group);
