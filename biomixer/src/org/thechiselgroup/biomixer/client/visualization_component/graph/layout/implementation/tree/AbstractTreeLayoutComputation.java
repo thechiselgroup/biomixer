@@ -117,7 +117,8 @@ public abstract class AbstractTreeLayoutComputation extends
              */
             if (radial) {
                 for (int j = 0; j < dag.getNumberOfNodesOnLongestPath(); j++) {
-                    processNodesAlongSecondaryDimensionRadially(i, j, dag,
+                    processNodesAlongSecondaryDimensionRadially(i, j,
+                            dagsOnGraph.size(), dag,
                             availableSecondaryDimensionForEachTree,
                             currentPrimaryDimension, viewCenter);
                     currentPrimaryDimension += primaryDimensionSpacing;
@@ -231,7 +232,7 @@ public abstract class AbstractTreeLayoutComputation extends
     }
 
     private void processNodesAlongSecondaryDimensionRadially(int i, int j,
-            DirectedAcyclicGraph dag,
+            int numDags, DirectedAcyclicGraph dag,
             double availableSecondaryDimensionForEachTree,
             double currentPrimaryDimension, PointDouble viewCenter) {
 
@@ -246,7 +247,8 @@ public abstract class AbstractTreeLayoutComputation extends
         // number of nodes on the outside should affect the radius (which maybe
         // it doesn't right now). This would determine the radius...I need to
         // rework this.
-        double radiusDepth = currentPrimaryDimension * ((j == 0) ? 0 : 1);
+        double radiusDepth = currentPrimaryDimension
+                * ((j == 0 & numDags == 1) ? 0 : 1);
 
         // TODO This is also vital to the radial tree version
         // We need to interpret the availableSecondaryDimensionForEachTree as
