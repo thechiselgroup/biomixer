@@ -33,6 +33,7 @@ public class JsonpUrlFetchService implements UrlFetchService {
     public void fetchURL(final String url, final AsyncCallback<String> callback) {
 
         JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
+        jsonp.setTimeout(15000); // normally defaults to 10000 (10 seconds)
         jsonp.requestObject(url,
                 new ErrorHandlingAsyncCallback<JavaScriptObject>(
                         new AsyncCallbackErrorHandler(callback)) {

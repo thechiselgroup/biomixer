@@ -15,6 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -58,6 +61,8 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
         private final Resource targetResource;
 
+        private ResourceNeighbourhood originalTargetNeighbourhood;
+
         private ConceptNeighbourhoodCallback(ErrorHandler errorHandler,
                 ResourceSet resourceSet, String fullConceptId, View graphView,
                 Resource targetResource) {
@@ -79,10 +84,6 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                 throws Exception {
 
             hideLoadingBar();
-
-            targetResource.applyPartialProperties(targetNeighbourhood
-                    .getPartialProperties());
-            resourceSet.addAll(targetNeighbourhood.getResources());
 
             // This is where the really slow stuff happens. One result,
             // with 381 children, took about 3 or 4 seconds to parse (just prior
@@ -107,24 +108,29 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             // additional REST call if the user triggers expansion again?
             // Answer: Perhaps later.
 
-            if (resourceSet.size() > MAX_NUMBER_OF_NEIGHBOURS) {
+            // Memorize this to make the callbacks easier and cleaner to use.
+            // Maybe not cool?
+            ConceptNeighbourhoodCallback.this.originalTargetNeighbourhood = targetNeighbourhood;
+
+            if (targetNeighbourhood.getResources().size() > MAX_NUMBER_OF_NEIGHBOURS) {
                 // Callback will perform setGraphViewResources() for us.
                 // setGraphViewResources(true);
-                userPromptForNeighbourCap(resourceSet.size(),
-                        MAX_NUMBER_OF_NEIGHBOURS);
+                userPromptForNeighbourCap(targetNeighbourhood.getResources()
+                        .size(), MAX_NUMBER_OF_NEIGHBOURS);
             } else {
                 setGraphViewResources(false);
             }
         }
 
         private void setGraphViewResources(boolean capNodes) {
-            ResourceSet setToRender = resourceSet;
+            ResourceNeighbourhood targetNeighbourhood = this.originalTargetNeighbourhood;
             if (capNodes) {
-                setToRender = updateRenderedNeighboursWithMaximumNumber();
-            } else {
-                setToRender = resourceSet;
+                targetNeighbourhood = updateRenderedNeighboursWithMaximumNumber(targetNeighbourhood);
             }
-            graphView.getResourceModel().addResourceSet(setToRender);
+            targetResource.applyPartialProperties(targetNeighbourhood
+                    .getPartialProperties());
+            resourceSet.addAll(targetNeighbourhood.getResources());
+            graphView.getResourceModel().addResourceSet(resourceSet);
         }
 
         /**
@@ -146,22 +152,29 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
          * Updates the graph view with the neighborhood, with a maximum number
          * of neighbors to enhance performance with large neighborhoods.
          * 
+         * @param originalTargetNeighbourhood
+         * 
          * @return
          * 
          */
-        private ResourceSet updateRenderedNeighboursWithMaximumNumber() {
+        private ResourceNeighbourhood updateRenderedNeighboursWithMaximumNumber(
+                ResourceNeighbourhood originalTargetNeighbourhood) {
             long i = 0;
-            ResourceSet cappedSet = new DefaultResourceSet();
+            List<Resource> cappedSet = new ArrayList<Resource>(
+                    TermNeighbourhoodLoader.MAX_NUMBER_OF_NEIGHBOURS);
 
-            for (Resource res : resourceSet) {
+            for (Resource res : originalTargetNeighbourhood.getResources()) {
                 cappedSet.add(res);
                 i++;
                 // Put break here, so we have a minimum of 1, in case max is 0.
-                if (i >= MAX_NUMBER_OF_NEIGHBOURS) {
+                if (i >= TermNeighbourhoodLoader.MAX_NUMBER_OF_NEIGHBOURS) {
                     break;
                 }
             }
-            return cappedSet;
+            ResourceNeighbourhood cappedNeighbourhood = new ResourceNeighbourhood(
+                    originalTargetNeighbourhood.getPartialProperties(),
+                    cappedSet);
+            return cappedNeighbourhood;
         }
     }
 
