@@ -37,9 +37,14 @@ import com.google.inject.name.Named;
  * Largely similar to the {@link AbstractTermGraphEmbedLoader}. Significantly
  * different data requirements. Could possibly get refactored a fair bit.
  * 
+ * Could be useful later, when we want to load multiple target ontologies, rather
+ * than getting the neighbourhood of an ontology as in the OntologyMappingNeighbourhood
+ * version of this.
+ * 
  * @author everbeek
  * 
  */
+@Deprecated
 public class OntologyMappingOverviewLoader implements OntologyEmbedLoader {
 
     // For the parallel term system, these embed mode parts are in the multiple

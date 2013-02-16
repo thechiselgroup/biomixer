@@ -64,8 +64,44 @@ public class OntologySearchServiceAsyncClientImplementation extends
             @Override
             public Set<Resource> transform(String responseText)
                     throws Exception {
-                resultParser.setFilterPropertyAndContainedText(Ontology.ONTOLOGY_NAME,
-                        queryText);
+                resultParser.setFilterPropertyAndContainedText(
+                        Ontology.ONTOLOGY_NAME, queryText);
+                return resultParser.parse(responseText);
+            }
+        });
+    }
+
+    private String buildUrlForPredeterminedSet(
+            Iterable<String> virtualOntologyIds) {
+        StringBuilder sb = new StringBuilder();
+        for (String id : virtualOntologyIds) {
+            sb.append(id).append(",");
+        }
+        // http://rest.bioontology.org/bioportal/ontologies?apikey=YourAPIKey
+        // provides all ontologies.
+        // We can do client side filtering on the returned ontology names,
+        // rather than requesting a REST service that does so.
+        // If we decide to, we can later request a REST service that filters the
+        // results.
+        String searchUrl = urlBuilderFactory.createUrlBuilder()
+                .path("/bioportal/ontologies/")
+                .parameter("ontologyids", sb.toString()).toString();
+        return searchUrl;
+    }
+
+    @Override
+    public void searchOntologiesPredeterminedSet(
+            Iterable<String> virtualOntologyIds,
+            final AsyncCallback<Set<Resource>> callback) {
+
+        String url = buildUrlForPredeterminedSet(virtualOntologyIds);
+
+        fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
+            @Override
+            public Set<Resource> transform(String responseText)
+                    throws Exception {
+                resultParser.setFilterPropertyAndContainedText(
+                        Ontology.ONTOLOGY_NAME, "");
                 return resultParser.parse(responseText);
             }
         });

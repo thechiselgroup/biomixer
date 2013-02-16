@@ -117,7 +117,7 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
                                     .getSourceId());
                             Resource targetResource = itemIdMap.get(mapping
                                     .getTargetId());
-                            int mappingNumberOfConcepts = mapping.getCount();
+                            int mappingNumberOfConcepts = mapping.getSourceMappingCount();
 
                             if (null != sourceResource
                                     && null != targetResource) {

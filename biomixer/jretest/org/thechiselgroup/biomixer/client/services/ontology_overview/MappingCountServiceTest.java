@@ -78,9 +78,9 @@ public class MappingCountServiceTest {
         ontologyIds.add("1099");
 
         OntologyMappingCount testMappingCount1 = new OntologyMappingCount(
-                "1009", "1099", 11);
+                "1009", "1099", 11, 11);
         OntologyMappingCount testMappingCount2 = new OntologyMappingCount(
-                "1099", "1009", 11);
+                "1099", "1009", 11, 11);
 
         TotalMappingCount testMappingCount = new TotalMappingCount();
         testMappingCount.add(testMappingCount1);

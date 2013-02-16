@@ -19,14 +19,16 @@ public class OntologyMappingCountXMLParser extends AbstractXMLResultParser {
                 "//success/data/set/ontologyPairMappingStatistics");
         TotalMappingCount ontologyMappingCounts = new TotalMappingCount();
         for (Object statistic : statistics) {
-
+            // XXX The JSON output appears to be changed relative to this
+            // one...different server/URL used?
             String sourceOntologyId = getText(statistic, "sourceOntologyId");
             String targetOntologyId = getText(statistic, "targetOntologyId");
             int mappingCount = Integer.parseInt(getText(statistic,
                     "mappingCount"));
 
             ontologyMappingCounts.add(new OntologyMappingCount(
-                    sourceOntologyId, targetOntologyId, mappingCount));
+                    sourceOntologyId, targetOntologyId, mappingCount,
+                    mappingCount));
         }
 
         return ontologyMappingCounts;

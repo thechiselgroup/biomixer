@@ -32,7 +32,8 @@ public class OntologyMappingCountServiceAsyncImplementation extends
         this.countParser = parser;
     }
 
-    private String buildUrl(Iterable<String> virtualOntologyIds) {
+    private String buildUrlForSpecifiedNeighbourhoodQuery(
+            Iterable<String> virtualOntologyIds) {
         StringBuilder sb = new StringBuilder();
         for (String id : virtualOntologyIds) {
             sb.append(id).append(",");
@@ -40,7 +41,7 @@ public class OntologyMappingCountServiceAsyncImplementation extends
         // Stage Rest service only, at the moment. No on-line documentation of
         // this.
         UrlBuilder parameter = urlBuilderFactory.createUrlBuilder()
-                .path("/mappings/stats/ontologies")
+                .path("/virtual/mappings/stats/ontologies")
                 .parameter("ontologyids", sb.toString());
         return parameter.toString();
     }
@@ -48,9 +49,32 @@ public class OntologyMappingCountServiceAsyncImplementation extends
     @Override
     public void getMappingCounts(Iterable<String> virtualOntologyIds,
             AsyncCallback<TotalMappingCount> callback) {
+        String url = buildUrlForSpecifiedNeighbourhoodQuery(virtualOntologyIds);
+        fetchUrl(callback, url, new Transformer<String, TotalMappingCount>() {
+            @Override
+            public TotalMappingCount transform(String responseText)
+                    throws Exception {
+                TotalMappingCount parse = countParser.parse(responseText);
+
+                return parse;
+            }
+
+        });
+    }
+
+    private String buildUrlForCentralOntologyQuery(String virtualOntologyId) {
         // Stage Rest service only, at the moment. No on-line documentation of
         // this.
-        String url = buildUrl(virtualOntologyIds);
+        UrlBuilder parameter = urlBuilderFactory.createUrlBuilder().path(
+                "/virtual/mappings/stats/ontologies/" + virtualOntologyId);
+        return parameter.toString();
+    }
+
+    @Override
+    public void getAllMappingCountsForCentralOntology(
+            final String virtualOntologyId,
+            AsyncCallback<TotalMappingCount> callback) {
+        String url = buildUrlForCentralOntologyQuery(virtualOntologyId);
         fetchUrl(callback, url, new Transformer<String, TotalMappingCount>() {
             @Override
             public TotalMappingCount transform(String responseText)

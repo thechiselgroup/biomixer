@@ -38,6 +38,9 @@ import com.google.inject.Inject;
  */
 public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
+    // XXX Is this a cruft class? Refers to D3 for a graph.. I think I moved
+    // away from that. It's a good example of loading static data to a graph...
+
     @Inject
     private ErrorHandler errorHandler;
 
