@@ -79,6 +79,11 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                             return;
                         }
 
+                        int numClasses = 0;
+                        if (results.numberOfClasses != null) {
+                            numClasses = results.numberOfClasses;
+                        }
+
                         // TODO There must be a smarter way to do this rather
                         // than setting the node size directly...but for now...
                         // Set the node's size property.
@@ -90,20 +95,14 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                         // 2 * is for the radius conversion...added after
                         // changing stuff in circle.
                         // Rest of the formula is arbitrary for aesthetics.
-                        expansionCallback
-                                .getDisplay()
-                                .setNodeStyle(
-                                        node,
-                                        GraphDisplay.NODE_SIZE,
-                                        2
-                                                * (4 + Math
-                                                        .sqrt((results.numberOfClasses) / 10))
-                                                + "");
+                        expansionCallback.getDisplay().setNodeStyle(node,
+                                GraphDisplay.NODE_SIZE,
+                                2 * (4 + Math.sqrt((numClasses) / 10)) + "");
 
                         Resource resource = visualItem.getResources()
                                 .getFirstElement();
-                        resource.putValue(Ontology.DESCRIPTION,
-                                results.numberOfClasses);
+                        resource.putValue(Ontology.NUMBER_OF_CONCEPTS,
+                                numClasses);
                     }
 
                 });
