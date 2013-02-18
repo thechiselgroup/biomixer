@@ -2,9 +2,9 @@ package org.thechiselgroup.biomixer.client.services.ontology_overview;
 
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpStageRestUrlBuilderFactory;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -26,7 +26,7 @@ public class OntologyMappingCountServiceAsyncImplementation extends
     @Inject
     public OntologyMappingCountServiceAsyncImplementation(
             UrlFetchService urlFetchService,
-            NcboJsonpStageRestUrlBuilderFactory urlBuilderFactory,
+            UrlBuilderFactory urlBuilderFactory,
             OntologyMappingCountJSONParser parser) {
         super(urlFetchService, urlBuilderFactory);
         this.countParser = parser;
