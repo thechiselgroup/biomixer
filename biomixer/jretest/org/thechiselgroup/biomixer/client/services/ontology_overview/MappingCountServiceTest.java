@@ -40,6 +40,9 @@ public class MappingCountServiceTest {
     @Mock
     private OntologyMappingCountJSONParser responseParser;
 
+    @Mock
+    private OntologyNeighbourhoodMappingCountJSONParser responseParser2;
+
     private UrlBuilder urlBuilder;
 
     private OntologyMappingCountServiceAsyncImplementation underTest;
@@ -101,7 +104,8 @@ public class MappingCountServiceTest {
         MockitoAnnotations.initMocks(this);
 
         underTest = new OntologyMappingCountServiceAsyncImplementation(
-                urlFetchService, urlBuilderFactory, responseParser);
+                urlFetchService, urlBuilderFactory, responseParser,
+                responseParser2);
 
         this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 

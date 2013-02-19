@@ -12,7 +12,9 @@ import com.google.inject.Inject;
 public class OntologyMappingCountServiceAsyncImplementation extends
         AbstractWebResourceService implements OntologyMappingCountServiceAsync {
 
-    private OntologyMappingCountJSONParser countParser;
+    private OntologyNeighbourhoodMappingCountJSONParser specifiedNeighbourhoodCountParser;
+
+    private OntologyMappingCountJSONParser mappingsForCentralOntologyCountParser;
 
     /**
      * Note that the rest call used here is currently only available at
@@ -27,9 +29,11 @@ public class OntologyMappingCountServiceAsyncImplementation extends
     public OntologyMappingCountServiceAsyncImplementation(
             UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
-            OntologyMappingCountJSONParser parser) {
+            OntologyMappingCountJSONParser parser,
+            OntologyNeighbourhoodMappingCountJSONParser parser2) {
         super(urlFetchService, urlBuilderFactory);
-        this.countParser = parser;
+        this.mappingsForCentralOntologyCountParser = parser;
+        this.specifiedNeighbourhoodCountParser = parser2;
     }
 
     private String buildUrlForSpecifiedNeighbourhoodQuery(
@@ -41,7 +45,7 @@ public class OntologyMappingCountServiceAsyncImplementation extends
         // Stage Rest service only, at the moment. No on-line documentation of
         // this.
         UrlBuilder parameter = urlBuilderFactory.createUrlBuilder()
-                .path("/virtual/mappings/stats/ontologies")
+                .path("/mappings/stats/ontologies")
                 .parameter("ontologyids", sb.toString());
         return parameter.toString();
     }
@@ -54,7 +58,8 @@ public class OntologyMappingCountServiceAsyncImplementation extends
             @Override
             public TotalMappingCount transform(String responseText)
                     throws Exception {
-                TotalMappingCount parse = countParser.parse(responseText);
+                TotalMappingCount parse = specifiedNeighbourhoodCountParser
+                        .parse(responseText);
 
                 return parse;
             }
@@ -79,7 +84,8 @@ public class OntologyMappingCountServiceAsyncImplementation extends
             @Override
             public TotalMappingCount transform(String responseText)
                     throws Exception {
-                TotalMappingCount parse = countParser.parse(responseText);
+                TotalMappingCount parse = mappingsForCentralOntologyCountParser
+                        .parse(responseText);
 
                 return parse;
             }
