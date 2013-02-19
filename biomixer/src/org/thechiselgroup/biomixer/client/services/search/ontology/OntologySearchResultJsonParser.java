@@ -51,10 +51,10 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
 
         resource.putValue(Ontology.ONTOLOGY_VERSION_ID,
                 asString(get(jsonItem, "id")));
-        resource.putValue(Ontology.LABEL,
+        resource.putValue(Ontology.ONTOLOGY_ABBREVIATION,
                 asString(get(jsonItem, "abbreviation")));
         resource.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
-        resource.putValue(Ontology.ONTOLOGY_NAME,
+        resource.putValue(Ontology.LABEL,
                 asString(get(jsonItem, "displayLabel")));
         resource.putValue(Ontology.DESCRIPTION,
                 asString(get(jsonItem, "description")));

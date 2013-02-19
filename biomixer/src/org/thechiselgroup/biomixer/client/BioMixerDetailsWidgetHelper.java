@@ -95,8 +95,7 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         if (Ontology.isOntology(resource)) {
             // making the concept label clickable
             ResourceSetAvatar avatar = createAvatar(
-                    (String) resource.getValue(Ontology.ONTOLOGY_NAME),
-                    resourceSet);
+                    (String) resource.getValue(Ontology.LABEL), resourceSet);
             final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
                     .generateOntologySummaryUrl((String) resource
                             .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));

@@ -64,8 +64,8 @@ public class OntologySearchServiceAsyncClientImplementation extends
             @Override
             public Set<Resource> transform(String responseText)
                     throws Exception {
-                resultParser.setFilterPropertyAndContainedText(
-                        Ontology.ONTOLOGY_NAME, queryText);
+                resultParser.setFilterPropertyAndContainedText(Ontology.LABEL,
+                        queryText);
                 return resultParser.parse(responseText);
             }
         });
@@ -100,8 +100,8 @@ public class OntologySearchServiceAsyncClientImplementation extends
             @Override
             public Set<Resource> transform(String responseText)
                     throws Exception {
-                resultParser.setFilterPropertyAndContainedText(
-                        Ontology.ONTOLOGY_NAME, "");
+                resultParser.setFilterPropertyAndContainedText(Ontology.LABEL,
+                        "");
                 return resultParser.parse(responseText);
             }
         });
