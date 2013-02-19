@@ -37,6 +37,8 @@ public final class Ontology {
 
     public static final String LABEL = "label";
 
+    public static final String ONTOLOGY_ABBREVIATION = "ontologyAbbreviation";
+
     public static final String TYPE = "type";
 
     public static final String VIRTUAL_ONTOLOGY_ID = "ontologyId";
@@ -60,8 +62,6 @@ public final class Ontology {
     public static String INCOMING_MAPPINGS = "incomingMappings";
 
     public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
-
-    public static final String ONTOLOGY_NAME = "ontologyName";
 
     public static Resource createOntologyResource(String ontologyId) {
 
