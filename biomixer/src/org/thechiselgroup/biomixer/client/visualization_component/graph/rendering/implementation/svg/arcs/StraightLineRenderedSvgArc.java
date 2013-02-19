@@ -44,9 +44,11 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     private SvgBareText label;
 
+    private boolean labelRendering = true;
+
     public StraightLineRenderedSvgArc(Arc arc, SvgElement container,
             SvgElement arcLine, SvgArrowHead arrow, SvgBareText label,
-            RenderedNode source, RenderedNode target) {
+            boolean renderLabel, RenderedNode source, RenderedNode target) {
         super(arc, source, target);
         assert (arcLine != null);
         assert (arrow != null);
@@ -54,7 +56,22 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         this.arcLine = arcLine;
         this.arrow = arrow;
         this.label = label;
-        this.baseContainer.appendChild(this.label.asSvgElement());
+        this.setLabelRendering(renderLabel);
+    }
+
+    @Override
+    public void setLabelRendering(boolean newValue) {
+        labelRendering = newValue;
+        if (labelRendering) {
+            this.baseContainer.appendChild(this.label.asSvgElement());
+        } else {
+            this.baseContainer.removeChild(this.label.asSvgElement());
+        }
+    }
+
+    @Override
+    public boolean getLabelRendering() {
+        return labelRendering;
     }
 
     @Override
@@ -146,7 +163,9 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         arrow.alignWithPoints(sourceCentre, targetCentre);
 
         assert label != null;
-        alignLabelPoints(sourceCentre, targetCentre);
+        if (labelRendering) {
+            alignLabelPoints(sourceCentre, targetCentre);
+        }
     }
 
     /**

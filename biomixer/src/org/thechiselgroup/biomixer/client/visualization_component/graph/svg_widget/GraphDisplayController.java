@@ -495,7 +495,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onNodeMouseDown(Node node, ChooselEvent event, int clientX,
             int clientY) {
-    	// Why do/did some methods have nodeInteractionManager, others eventBus.fireEvent()??
+        // Why do/did some methods have nodeInteractionManager, others
+        // eventBus.fireEvent()??
         nodeInteractionManager.onMouseDown(node.getId(), event, clientX,
                 clientY);
         eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, event,
@@ -722,6 +723,16 @@ public class GraphDisplayController implements GraphDisplay,
                     }
                 });
         runLayout();
+    }
+
+    @Override
+    public void setRenderArcLabels(boolean newValue) {
+        this.graphRenderer.setArcRenderLabels(newValue);
+    }
+
+    @Override
+    public boolean getRenderArcLabels() {
+        return this.graphRenderer.getArcRenderLabels();
     }
 
     @Override

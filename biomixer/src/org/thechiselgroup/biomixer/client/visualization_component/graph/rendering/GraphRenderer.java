@@ -67,6 +67,10 @@ public interface GraphRenderer {
 
     void removeNodeExpander(RenderedNodeExpander expander);
 
+    void setArcRenderLabels(boolean newValue);
+
+    boolean getArcRenderLabels();
+
     RenderedArc renderArc(Arc arc);
 
     RenderedNode renderNode(Node node);

@@ -65,6 +65,8 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private Map<Node, RenderedNodeExpander> renderedNodeExpanders = new HashMap<Node, RenderedNodeExpander>();
 
+    private boolean renderLabels = true;
+
     /*
      * Keep track of any node currently in the process of being removed so that
      * concurrent modifications can be detected and avoided.
@@ -132,6 +134,22 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     }
 
     @Override
+    public void setArcRenderLabels(boolean newValue) {
+        boolean different = renderLabels == newValue;
+        renderLabels = newValue;
+        if (different) {
+            for (RenderedArc arc : renderedArcs.values()) {
+                arc.setLabelRendering(newValue);
+            }
+        }
+    }
+
+    @Override
+    public boolean getArcRenderLabels() {
+        return renderLabels;
+    }
+
+    @Override
     public void removeNode(Node node) {
         assert renderedNodes.containsKey(node) : "Cannot remove a node which has not been rendered";
         nodeBeingRemoved = node;
@@ -171,7 +189,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         RenderedNode renderedTarget = renderedNodesById.get(arc
                 .getTargetNodeId());
         RenderedArc renderedArc = arcRenderer.createRenderedArc(arc,
-                renderedSource, renderedTarget);
+                this.renderLabels, renderedSource, renderedTarget);
         renderedArcs.put(arc, renderedArc);
         addArcToGraph(renderedArc);
         return renderedArc;

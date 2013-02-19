@@ -85,6 +85,10 @@ public interface GraphDisplay extends IsWidget {
 
     void removeNode(Node node);
 
+    void setRenderArcLabels(boolean newValue);
+
+    boolean getRenderArcLabels();
+
     void runLayout() throws LayoutException;
 
     void runLayout(LayoutAlgorithm layoutAlgorithm);

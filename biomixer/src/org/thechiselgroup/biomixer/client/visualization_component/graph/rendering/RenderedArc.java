@@ -46,6 +46,10 @@ public interface RenderedArc {
 
     void setThickness(String thickness);
 
+    void setLabelRendering(boolean newValue);
+
+    boolean getLabelRendering();
+
     /**
      * Updates the arc to match new source or target node locations.
      */

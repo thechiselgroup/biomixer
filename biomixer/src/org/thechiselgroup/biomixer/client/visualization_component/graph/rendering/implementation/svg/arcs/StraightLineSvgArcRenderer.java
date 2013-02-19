@@ -46,8 +46,8 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
     }
 
     @Override
-    public RenderedArc createRenderedArc(Arc arc, RenderedNode source,
-            RenderedNode target) {
+    public RenderedArc createRenderedArc(Arc arc, boolean renderLabel,
+            RenderedNode source, RenderedNode target) {
         SvgElement container = svgElementFactory.createElement(Svg.G);
         container.setAttribute(Svg.ID, arc.getId());
 
@@ -72,7 +72,8 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
                 textBoundsEstimator, svgElementFactory);
 
         StraightLineRenderedSvgArc renderedArc = new StraightLineRenderedSvgArc(
-                arc, container, arcLine, arrowHead, textLabel, source, target);
+                arc, container, arcLine, arrowHead, textLabel, renderLabel,
+                source, target);
         // Ensures consistent setting of endpoints, since this is used later.
         renderedArc.update();
         return renderedArc;
