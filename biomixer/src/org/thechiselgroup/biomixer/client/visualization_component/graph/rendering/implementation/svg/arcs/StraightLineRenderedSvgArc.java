@@ -44,7 +44,7 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     private SvgBareText label;
 
-    private boolean labelRendering = true;
+    private Boolean labelRendering = null;
 
     public StraightLineRenderedSvgArc(Arc arc, SvgElement container,
             SvgElement arcLine, SvgArrowHead arrow, SvgBareText label,
@@ -61,12 +61,15 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     @Override
     public void setLabelRendering(boolean newValue) {
-        labelRendering = newValue;
-        if (labelRendering) {
+        if (newValue) {
             this.baseContainer.appendChild(this.label.asSvgElement());
         } else {
-            this.baseContainer.removeChild(this.label.asSvgElement());
+            // If in constructor, don't try to remove it...
+            if (null != labelRendering) {
+                this.baseContainer.removeChild(this.label.asSvgElement());
+            }
         }
+        labelRendering = newValue;
     }
 
     @Override
