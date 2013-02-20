@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.AbstractSvgRenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.AbstractSvgRenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.AbstractSvgRenderedNode;
@@ -62,8 +63,10 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     public SvgGraphRenderer(int width, int height,
             SvgElementFactory svgElementFactory, NodeRenderer nodeRenderer,
-            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
-        super(nodeRenderer, arcRenderer, nodeExpanderRenderer);
+            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer,
+            NodeSizeTransformer nodeSizeTransformer) {
+        super(nodeRenderer, arcRenderer, nodeExpanderRenderer,
+                nodeSizeTransformer);
         this.graphWidth = width;
         this.graphHeight = height;
         this.svgElementFactory = svgElementFactory;

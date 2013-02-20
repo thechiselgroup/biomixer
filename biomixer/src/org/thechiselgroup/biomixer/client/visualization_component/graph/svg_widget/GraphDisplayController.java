@@ -60,6 +60,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
@@ -117,6 +118,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     protected AnimationRunner animationRunner;
 
+    private NodeSizeTransformer nodeSizeTransformer;
+
     /**
      * 
      * @param width
@@ -129,6 +132,7 @@ public class GraphDisplayController implements GraphDisplay,
      */
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
+            NodeSizeTransformer nodeSizeTransformer,
             boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -140,6 +144,8 @@ public class GraphDisplayController implements GraphDisplay,
 
         initBackgroundListener();
         initViewWideInteractionHandler();
+
+        this.nodeSizeTransformer = nodeSizeTransformer;
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
 
@@ -218,7 +224,8 @@ public class GraphDisplayController implements GraphDisplay,
         setNodeEventHandlers(renderedNode);
 
         IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(
-                node.getId(), renderedNode, getNodeLayoutType(node.getType()));
+                node.getId(), renderedNode, getNodeLayoutType(node.getType()),
+                nodeSizeTransformer);
         setDefaultPosition(layoutNode);
         layoutGraph.addIdentifiableLayoutNode(layoutNode);
     }
@@ -820,6 +827,11 @@ public class GraphDisplayController implements GraphDisplay,
     @Override
     public void setNodeStyle(Node node, String styleProperty, String styleValue) {
         graphRenderer.setNodeStyle(node, styleProperty, styleValue);
+    }
+
+    // @Override
+    public NodeSizeTransformer getNodeSizeTransformer() {
+        return this.nodeSizeTransformer;
     }
 
 }

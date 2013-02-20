@@ -67,6 +67,8 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private boolean renderLabels = true;
 
+    protected final NodeSizeTransformer nodeSizeTransformer;
+
     /*
      * Keep track of any node currently in the process of being removed so that
      * concurrent modifications can be detected and avoided.
@@ -74,10 +76,12 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     private Node nodeBeingRemoved = null;
 
     protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
-            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
+            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer,
+            NodeSizeTransformer nodeSizeTransformer) {
         this.nodeRenderer = nodeRenderer;
         this.arcRenderer = arcRenderer;
         this.nodeExpanderRenderer = nodeExpanderRenderer;
+        this.nodeSizeTransformer = nodeSizeTransformer;
     }
 
     protected abstract void addArcToGraph(RenderedArc arc);
@@ -267,9 +271,30 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
 
         else if (styleProperty.equals(GraphDisplay.NODE_SIZE)) {
-            renderedNode.setSize(new SquareSizeDouble(Double
-                    .parseDouble(styleValue)));
+            try {
+                renderedNode.setSize(nodeSizeTransformer
+                        .transform(new SquareSizeDouble(Double
+                                .parseDouble(styleValue))));
+            } catch (Exception e) {
+                // This is for the transformation, which shouldn't have a
+                // problem. Still could be double parse issues, which was never
+                // handled
+                e.printStackTrace();
+            }
         }
     }
 
+    @Override
+    public void updateTransformedNodeSizes() {
+        for (Node node : renderedNodes.keySet()) {
+            RenderedNode renderedNode = renderedNodes.get(node);
+            try {
+                renderedNode.setSize(nodeSizeTransformer
+                        .transform(new SquareSizeDouble(node.getSize())));
+            } catch (Exception e) {
+                // Won't happen.
+                e.printStackTrace();
+            }
+        }
+    }
 }

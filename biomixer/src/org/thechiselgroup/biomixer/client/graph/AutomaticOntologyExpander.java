@@ -96,8 +96,11 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                         // changing stuff in circle.
                         // Rest of the formula is arbitrary for aesthetics.
                         expansionCallback.getDisplay().setNodeStyle(node,
-                                GraphDisplay.NODE_SIZE,
-                                2 * (4 + Math.sqrt((numClasses) / 10)) + "");
+                                GraphDisplay.NODE_SIZE, numClasses + "");
+                        // Refactored so that transformers are used per graph to
+                        // control
+                        // node sizing. This can be a raw number.
+                        // 2 * (4 + Math.sqrt((numClasses) / 10)) + "");
 
                         Resource resource = visualItem.getResources()
                                 .getFirstElement();

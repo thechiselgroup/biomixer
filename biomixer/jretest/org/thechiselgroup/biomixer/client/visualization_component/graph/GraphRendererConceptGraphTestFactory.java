@@ -14,12 +14,15 @@ public class GraphRendererConceptGraphTestFactory extends
      */
     final TextSvgElementFactory svgElementFactory = new TextSvgElementFactory();
 
+    final NodeSizeTransformerFactory sizeTransformerFactory = new NodeSizeTransformerFactory();
+
     @Override
     public SvgGraphRenderer createGraphRenderer(int width, int height) {
         return new SvgGraphRenderer(width, height, svgElementFactory,
                 getNodeRenderer(svgElementFactory),
                 getArcRenderer(svgElementFactory),
-                getNodeExpanderRenderer(svgElementFactory));
+                getNodeExpanderRenderer(svgElementFactory),
+                sizeTransformerFactory.createConceptNodeSizeTransformer());
     }
 
     /**

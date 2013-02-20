@@ -18,12 +18,36 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
+import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutComputationFinishedHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 
 public abstract class AbstractLayoutAlgorithm implements LayoutAlgorithm {
+
+    protected final ErrorHandler errorHandler;
+
+    protected final NodeAnimator nodeAnimator;
+
+    protected Executor executor;
+
+    public AbstractLayoutAlgorithm(ErrorHandler errorHandler,
+            NodeAnimator nodeAnimator) {
+        this.errorHandler = errorHandler;
+        this.nodeAnimator = nodeAnimator;
+        this.executor = new DirectExecutor();
+    }
+
+    public AbstractLayoutAlgorithm(ErrorHandler errorHandler,
+            NodeAnimator nodeAnimator, Executor executor) {
+        this.errorHandler = errorHandler;
+        this.nodeAnimator = nodeAnimator;
+        this.executor = executor;
+    }
 
     @Override
     public LayoutComputation computeLayout(LayoutGraph graph) {

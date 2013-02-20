@@ -26,15 +26,9 @@ public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
     protected static final int DELAY_BETWEEN_ITERATIONS = 1;
 
-    private ErrorHandler errorHandler;
-
-    private DelayedExecutor executor;
-
     private final double damping;
 
     private ForceCalculator forceCalculator;
-
-    private NodeAnimator nodeAnimator;
 
     /**
      * 
@@ -47,14 +41,12 @@ public class ForceDirectedLayoutAlgorithm extends AbstractLayoutAlgorithm {
     public ForceDirectedLayoutAlgorithm(ForceCalculator forceCalculator,
             double damping, NodeAnimator nodeAnimator,
             DelayedExecutor executor, ErrorHandler errorHandler) {
+        super(errorHandler, nodeAnimator, executor);
         this.forceCalculator = forceCalculator;
         this.damping = damping;
 
-        this.executor = executor;
-        this.executor.setDelay(DELAY_BETWEEN_ITERATIONS);
+        executor.setDelay(DELAY_BETWEEN_ITERATIONS);
 
-        this.errorHandler = errorHandler;
-        this.nodeAnimator = nodeAnimator;
     }
 
     @Override
