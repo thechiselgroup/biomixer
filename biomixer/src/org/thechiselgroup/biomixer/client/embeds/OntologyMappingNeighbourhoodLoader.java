@@ -46,7 +46,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -101,7 +100,6 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
     private void doLoadData(final String centralOntologyVirtualId,
             final View graphView, final ErrorHandler errorHandler) {
-
         mappingService.getAllMappingCountsForCentralOntology(
                 centralOntologyVirtualId,
                 new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
@@ -119,7 +117,6 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                         // if (!graphView.isInitialized()) {
                         // return;
                         // }
-
                         // Create resources for each ontology, including target
                         // and mapped ontologies.
                         Set<String> ontologyIds = new HashSet<String>();
@@ -159,7 +156,6 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
         @Override
         public void onFailure(Throwable caught) {
-            // Do nothing. The user cannot really do anything about this!
             // infoLabel.setText("Search failed for '" + searchTerm + "'");
             loggingErrorHandler.handleError(caught);
         }
@@ -176,22 +172,26 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 return;
             }
 
+            // For use with scaling system, which is incomplete, in branch issue240.
+//            int minRawSize = 0;
+//            int maxRawSize = 0;
+//            for (Resource nodeResource : results) {
+//                Integer size = (Integer) nodeResource
+//                        .getValue(Ontology.NUMBER_OF_CONCEPTS);
+//                if (size > maxRawSize) {
+//                    maxRawSize = size;
+//                } else if (size < minRawSize) {
+//                    minRawSize = size;
+//                }
+//            }
+//            graph.getDisplayController().getNodeSizeTransformer()
+//                    .setScalingContextRange(minRawSize, maxRawSize);
+
             // // TODO add convenience method to
             // // resourceSetFactory
             ResourceSet resourceSet = resourceSetFactory.createResourceSet();
             resourceSet.addAll(results);
             graphView.getResourceModel().addResourceSet(resourceSet);
-
-            // Is this the right way to deal with the edges?
-            // Do something with mapping counts to make edges here
-            // this.mappingCounts;
-            // DropEnabledViewContentDisplay cd1 =
-            // (DropEnabledViewContentDisplay) graphView
-            // .getModel().getViewContentDisplay();
-            // Graph graph = (Graph) cd1.getDelegate();
-            // graph.updateArcsForResources(resourceSet);
-
-            Window.alert("Good to here? Get arcs now?");
 
             // Now that all of the resources exist for the
             // neighbourhood,
@@ -204,6 +204,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 itemIdMap.put(Ontology.getOntologyId(ontologyResource),
                         ontologyResource);
             }
+
             for (OntologyMappingCount mapping : mappingCounts) {
                 Resource sourceResource = itemIdMap.get(mapping.getSourceId());
                 Resource targetResource = itemIdMap.get(mapping.getTargetId());
@@ -235,13 +236,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 }
             }
 
-            // resultView.getModel().setResolver(
-            // LABEL_SLOT,
-            // TEXT_PROPERTY_RESOLVER_FACTORY
-            // .create(textPropertyForResolver));
-            // resultView.getModel().setResolver(TextVisualization.FONT_SIZE_SLOT,
-            // // was: size 12
-            // FIXED_NUMBER_1_RESOLVER_FACTORY.create());
+            graph.updateArcsForResources(results);
         }
     }
 
@@ -251,6 +246,8 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
          * to performance problems when trying to animate so many highly
          * interconnected nodes at the same time as loading the data.
          */
+        // RadialTreeLayoutAlgorithm layout = new RadialTreeLayoutAlgorithm(
+        // errorHandler, nodeAnimator);
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
         // new NodeAnimator(new NullNodeAnimationFactory()));
                 this.nodeAnimator);
@@ -270,6 +267,8 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
     private NodeAnimator nodeAnimator;
 
+    private Graph graph;
+
     @Override
     public void loadView(ResourceSet virtualOntologies,
             List<String> virtualOntologyIds, IsWidget topBarWidget,
@@ -284,8 +283,12 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
         // to show the errors in the view-specific error box (ListBox)
         DropEnabledViewContentDisplay cd1 = (DropEnabledViewContentDisplay) graphView
                 .getModel().getViewContentDisplay();
-        Graph graph = (Graph) cd1.getDelegate();
+        this.graph = (Graph) cd1.getDelegate();
         ErrorHandler errorHandler = graph.getErrorHandler();
+
+        // Turn off labels. These graphs tend ot have many nodes and arcs, and
+        // the labels slow down rendering to problematic levels.
+        graph.getDisplayController().setRenderArcLabels(false);
 
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
 
