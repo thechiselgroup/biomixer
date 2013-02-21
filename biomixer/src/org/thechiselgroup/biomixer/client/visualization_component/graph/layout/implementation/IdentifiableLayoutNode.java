@@ -31,7 +31,7 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
 
     private final String id;
 
-    private SizeDouble size;
+    // private SizeDouble size;
 
     private final NodeSizeTransformer nodeSizeTransformer;
 
@@ -50,7 +50,7 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
         // passed into the getSize() method...
         // XXX I think that these are indeed owned by a graph, or at least a
         // layout.
-        size = renderedNode.getSize();
+        // size = renderedNode.getSize();
         // XXX assumption: x,y managed through this class
         super.setPosition(renderedNode.getLeftX(), renderedNode.getTopY());
     }
@@ -89,14 +89,15 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
 
     @Override
     public SizeDouble getSize() {
-        SizeDouble transformedSize = size;
-        try {
-            // Do I transform here?
-            transformedSize = nodeSizeTransformer.transform(size);
-        } catch (Exception e) {
-            // There won't be problems, right?
-        }
-        return transformedSize;
+        // SizeDouble transformedSize = size;
+        // // try {
+        // // // Do I transform here?
+        // // transformedSize = nodeSizeTransformer.transform(size);
+        // // } catch (Exception e) {
+        // // // There won't be problems, right?
+        // // }
+        // return transformedSize;
+        return renderedNode.getSize();
     }
 
     @Override

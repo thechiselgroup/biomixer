@@ -114,15 +114,17 @@ public class Graph extends AbstractViewContentDisplay implements
         // // TODO why is size needed in the first place??
         public DefaultDisplay(ErrorHandler errorHandler) {
             super(defaultHeight, defaultWidth, "Concept Graph", factory
-                    .createGraphRenderer(defaultHeight, defaultWidth),
-                    errorHandler, nodeSizeTransformerFactory
-                            .createConceptNodeSizeTransformer(), true);
+                    .createGraphRenderer(defaultHeight, defaultWidth,
+                            nodeSizeTransformerFactory
+                                    .createConceptNodeSizeTransformer()),
+                    errorHandler, true);
         }
 
         public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
             super(width, height, "Concept Graph", factory.createGraphRenderer(
-                    width, height), errorHandler, nodeSizeTransformerFactory
-                    .createConceptNodeSizeTransformer(), true);
+                    width, height, nodeSizeTransformerFactory
+                            .createConceptNodeSizeTransformer()), errorHandler,
+                    true);
         }
 
     }
@@ -140,16 +142,18 @@ public class Graph extends AbstractViewContentDisplay implements
         // // TODO why is size needed in the first place??
         public OntologyGraphDisplay(ErrorHandler errorHandler) {
             super(defaultHeight, defaultWidth, "Ontology Graph", factory
-                    .createGraphRenderer(defaultHeight, defaultWidth),
-                    errorHandler, nodeSizeTransformerFactory
-                            .createOntologyNodeSizeTransformer(), true);
+                    .createGraphRenderer(defaultHeight, defaultWidth,
+                            nodeSizeTransformerFactory
+                                    .createOntologyNodeSizeTransformer()),
+                    errorHandler, true);
         }
 
         public OntologyGraphDisplay(int width, int height,
                 ErrorHandler errorHandler) {
             super(width, height, "Ontology Graph", factory.createGraphRenderer(
-                    width, height), errorHandler, nodeSizeTransformerFactory
-                    .createOntologyNodeSizeTransformer(), true);
+                    width, height, nodeSizeTransformerFactory
+                            .createOntologyNodeSizeTransformer()),
+                    errorHandler, true);
         }
 
     }

@@ -15,10 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
@@ -36,6 +38,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
+
+import com.google.gwt.user.client.Window;
 
 /**
  * Manages construction and deletion of graph visualization elements. Also
@@ -57,6 +61,8 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     private NodeExpanderRenderer nodeExpanderRenderer;
 
     private Map<Node, RenderedNode> renderedNodes = new HashMap<Node, RenderedNode>();
+
+    private final TreeSet<Node> nodeSortedSet;
 
     private Map<String, RenderedNode> renderedNodesById = CollectionFactory
             .createStringMap();
@@ -82,6 +88,19 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         this.arcRenderer = arcRenderer;
         this.nodeExpanderRenderer = nodeExpanderRenderer;
         this.nodeSizeTransformer = nodeSizeTransformer;
+        nodeSortedSet = new TreeSet<Node>(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                if (o1.getSize() > o2.getSize()) {
+                    return 1;
+                } else if (o1.getSize() < o2.getSize()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        this.nodeSizeTransformer.addGraphRenderingListener(this);
     }
 
     protected abstract void addArcToGraph(RenderedArc arc);
@@ -164,7 +183,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
         renderedNodes.remove(node);
         renderedNodesById.remove(node.getId());
+        nodeSortedSet.remove(node);
         removeNodeFromGraph(renderedNode);
+        updateTransformedNodeSizes(node, true);
         nodeBeingRemoved = null;
     }
 
@@ -205,7 +226,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         RenderedNode renderedNode = nodeRenderer.createRenderedNode(node);
         renderedNodes.put(node, renderedNode);
         renderedNodesById.put(node.getId(), renderedNode);
+        nodeSortedSet.add(node);
         addNodeToGraph(renderedNode);
+        updateTransformedNodeSizes(node, false);
         return renderedNode;
     }
 
@@ -285,7 +308,23 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     }
 
     @Override
-    public void updateTransformedNodeSizes() {
+    public void updateTransformedNodeSizes(Node changedNode, boolean removing) {
+        boolean changed = false;
+        if (removing) {
+            changed = nodeSizeTransformer.removingScalingContextRange(
+                    changedNode, nodeSortedSet);
+        } else {
+            changed = nodeSizeTransformer
+                    .addingScalingContextRange(changedNode);
+        }
+
+        if (changed) {
+            Window.alert("Changed size");
+            refreshAllNodeSizes();
+        }
+    }
+
+    protected void refreshAllNodeSizes() {
         for (Node node : renderedNodes.keySet()) {
             RenderedNode renderedNode = renderedNodes.get(node);
             try {
@@ -296,5 +335,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
                 e.printStackTrace();
             }
         }
+    }
+
+    public NodeSizeTransformer getNodeSizeTransformer() {
+        return nodeSizeTransformer;
     }
 }

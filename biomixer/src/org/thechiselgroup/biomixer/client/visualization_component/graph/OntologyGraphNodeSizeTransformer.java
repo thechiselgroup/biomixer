@@ -10,8 +10,22 @@ public class OntologyGraphNodeSizeTransformer extends NodeSizeTransformer {
     public SizeDouble transform(SizeDouble value) throws Exception {
         // Originally in the AutomaticOntologyExpander, setting for
         // GraphDisplay.NODE_SIZE
-        double width = 2 * (4 + Math.sqrt((value.getWidth()) / 10));
-        double height = 2 * (4 + Math.sqrt((value.getHeight()) / 10));
-        return new DefaultSizeDouble(height, width);
+
+        // Assume we are using SquareSizeDouble for now...
+        // ontology is set that way, after all.
+        double width = scaleForContextRange(value.getWidth());
+        // double width = logFunction(value.getHeight());
+        // double width = linearFunction(value.getHeight());
+        return new DefaultSizeDouble(width, width);
+
     }
+
+    private double linearFunction(double value) {
+        return 2 * (4 + Math.sqrt((value) / 10));
+    }
+
+    private double logFunction(double value) {
+        return 4 + Math.log(value) * 10;
+    }
+
 }

@@ -22,7 +22,6 @@ import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunne
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.TestDelayedExecutor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
@@ -37,10 +36,9 @@ import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 public class TestGraphSvgDisplay extends GraphDisplayController {
 
     public TestGraphSvgDisplay(int width, int height,
-            AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
-            NodeSizeTransformer nodeSizeTransformer) {
+            AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler) {
         super(width, height, "Test Graph View", graphRenderer, errorHandler,
-                nodeSizeTransformer, false);
+                false);
     }
 
     public SvgElement asSvg() {

@@ -132,7 +132,6 @@ public class GraphDisplayController implements GraphDisplay,
      */
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
-            NodeSizeTransformer nodeSizeTransformer,
             boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -145,7 +144,7 @@ public class GraphDisplayController implements GraphDisplay,
         initBackgroundListener();
         initViewWideInteractionHandler();
 
-        this.nodeSizeTransformer = nodeSizeTransformer;
+        this.nodeSizeTransformer = graphRenderer.getNodeSizeTransformer();
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
 

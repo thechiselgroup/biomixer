@@ -141,8 +141,8 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends
                 300,
                 // factory.createGraphRenderer(400, 300,
                 // new TextSvgElementFactory()), errorHandler);
-                factory.createGraphRenderer(400, 300), errorHandler,
-                nodeSizeTransformer);
+                factory.createGraphRenderer(400, 300, nodeSizeTransformer),
+                errorHandler);
         underTest.addEventHandler(NodeMouseClickEvent.TYPE,
                 nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,

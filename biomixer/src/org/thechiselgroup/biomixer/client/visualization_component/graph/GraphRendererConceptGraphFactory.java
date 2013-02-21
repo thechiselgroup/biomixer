@@ -7,6 +7,7 @@ import org.thechiselgroup.biomixer.client.svg.javascript_renderer.JsDomSvgElemen
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeExpanderRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.NodeRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs.StraightLineSvgArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.expanders.BoxedTextSvgNodeExpanderRenderer;
@@ -20,12 +21,12 @@ public class GraphRendererConceptGraphFactory implements GraphRendererFactory {
     final NodeSizeTransformerFactory sizeTransformerFactory = new NodeSizeTransformerFactory();
 
     @Override
-    public SvgGraphRenderer createGraphRenderer(int width, int height) {
+    public SvgGraphRenderer createGraphRenderer(int width, int height,
+            NodeSizeTransformer nodeSizeTransformer) {
         return new SvgGraphRenderer(width, height, svgElementFactory,
                 getNodeRenderer(svgElementFactory),
                 getArcRenderer(svgElementFactory),
-                getNodeExpanderRenderer(svgElementFactory),
-                sizeTransformerFactory.createConceptNodeSizeTransformer());
+                getNodeExpanderRenderer(svgElementFactory), nodeSizeTransformer);
     }
 
     @Override
