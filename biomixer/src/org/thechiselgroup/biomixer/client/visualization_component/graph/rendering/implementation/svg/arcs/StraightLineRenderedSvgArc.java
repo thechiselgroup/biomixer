@@ -149,7 +149,7 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
     }
 
     @Override
-    public void setThickness(String thickness) {
+    public void setThickness(Double thickness) {
         arcLine.setAttribute(Svg.STROKE_WIDTH, thickness);
     }
 

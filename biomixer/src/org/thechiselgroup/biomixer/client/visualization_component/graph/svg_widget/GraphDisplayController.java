@@ -60,6 +60,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
@@ -120,6 +121,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     private NodeSizeTransformer nodeSizeTransformer;
 
+    private ArcSizeTransformer arcSizeTransformer;
+
     /**
      * 
      * @param width
@@ -129,10 +132,12 @@ public class GraphDisplayController implements GraphDisplay,
      * @param runLayoutsAutomatically
      *            Determines whether layouts are run right away. Send in false
      *            for testing.
+     * @param arcSizeTransformer
      */
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
             NodeSizeTransformer nodeSizeTransformer,
+            ArcSizeTransformer arcSizeTransformer,
             boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -146,6 +151,8 @@ public class GraphDisplayController implements GraphDisplay,
         initViewWideInteractionHandler();
 
         this.nodeSizeTransformer = nodeSizeTransformer;
+
+        this.arcSizeTransformer = arcSizeTransformer;
 
         this.layoutGraph = new IdentifiableLayoutGraph(width, height);
 
@@ -197,7 +204,7 @@ public class GraphDisplayController implements GraphDisplay,
 
         IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(
                 arc.getId(), renderedArc, getArcType(arc.getType()),
-                sourceNode, targetNode);
+                sourceNode, targetNode, arcSizeTransformer);
         layoutGraph.addIdentifiableLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);

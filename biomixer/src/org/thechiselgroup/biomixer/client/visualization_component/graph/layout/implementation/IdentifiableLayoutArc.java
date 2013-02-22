@@ -20,6 +20,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
 
 public class IdentifiableLayoutArc implements LayoutArc, Identifiable {
 
@@ -33,13 +34,17 @@ public class IdentifiableLayoutArc implements LayoutArc, Identifiable {
 
     private final String id;
 
+    private final ArcSizeTransformer arcSizeTransformer;
+
     public IdentifiableLayoutArc(String id, RenderedArc renderedArc,
-            LayoutArcType arcType, LayoutNode sourceNode, LayoutNode targetNode) {
+            LayoutArcType arcType, LayoutNode sourceNode,
+            LayoutNode targetNode, ArcSizeTransformer arcSizeTransformer) {
         this.id = id;
         this.renderedArc = renderedArc;
         this.arcType = arcType;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
+        this.arcSizeTransformer = arcSizeTransformer;
     }
 
     @Override
@@ -63,7 +68,14 @@ public class IdentifiableLayoutArc implements LayoutArc, Identifiable {
 
     @Override
     public double getThickness() {
-        return renderedArc.getThickness();
+        double transformedSize = renderedArc.getThickness();
+        try {
+            // Do I transform here?
+            transformedSize = arcSizeTransformer.transform(transformedSize);
+        } catch (Exception e) {
+            // There won't be problems, right?
+        }
+        return transformedSize;
     }
 
     @Override

@@ -12,7 +12,8 @@ public class OntologyGraphNodeSizeTransformer extends NodeSizeTransformer {
 
     {
         double stepSize = 20.0;
-        int i = 0;
+        int i = 1;
+        // These scales merely copied from the node size transformer.
         discreteRawSizeToRenderSizeMap.put(0.0, stepSize * i++);
         discreteRawSizeToRenderSizeMap.put(1000.0, stepSize * i++);
         discreteRawSizeToRenderSizeMap.put(5000.0, stepSize * i++);

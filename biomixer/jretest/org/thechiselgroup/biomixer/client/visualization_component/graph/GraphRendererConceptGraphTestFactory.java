@@ -14,7 +14,7 @@ public class GraphRendererConceptGraphTestFactory extends
      */
     final TextSvgElementFactory svgElementFactory = new TextSvgElementFactory();
 
-    final NodeSizeTransformerFactory sizeTransformerFactory = new NodeSizeTransformerFactory();
+    final GraphElementSizeTransformerFactory sizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
     @Override
     public SvgGraphRenderer createGraphRenderer(int width, int height) {
@@ -22,7 +22,8 @@ public class GraphRendererConceptGraphTestFactory extends
                 getNodeRenderer(svgElementFactory),
                 getArcRenderer(svgElementFactory),
                 getNodeExpanderRenderer(svgElementFactory),
-                sizeTransformerFactory.createConceptNodeSizeTransformer());
+                sizeTransformerFactory.createConceptNodeSizeTransformer(),
+                sizeTransformerFactory.createConceptArcSizeTransformer());
     }
 
     /**

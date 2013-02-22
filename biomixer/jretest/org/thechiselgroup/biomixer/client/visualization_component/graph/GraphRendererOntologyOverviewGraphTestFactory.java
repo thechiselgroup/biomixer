@@ -14,7 +14,7 @@ public class GraphRendererOntologyOverviewGraphTestFactory extends
      */
     final TextSvgElementFactory svgElementFactory = new TextSvgElementFactory();
 
-    final NodeSizeTransformerFactory sizeTransformerFactory = new NodeSizeTransformerFactory();
+    final GraphElementSizeTransformerFactory sizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
     @Override
     public SvgGraphRenderer createGraphRenderer(int width, int height) {
@@ -22,7 +22,9 @@ public class GraphRendererOntologyOverviewGraphTestFactory extends
                 getNodeRenderer(svgElementFactory),
                 getArcRenderer(svgElementFactory),
                 getNodeExpanderRenderer(svgElementFactory),
-                sizeTransformerFactory.createOntologyNodeSizeTransformer());
+                sizeTransformerFactory.createOntologyNodeSizeTransformer(),
+                sizeTransformerFactory
+                        .createOntologyMappingArcSizeTransformer());
     }
 
     /**

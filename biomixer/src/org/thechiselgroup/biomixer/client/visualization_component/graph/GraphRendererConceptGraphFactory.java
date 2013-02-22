@@ -17,7 +17,7 @@ public class GraphRendererConceptGraphFactory implements GraphRendererFactory {
 
     final JsDomSvgElementFactory svgElementFactory = new JsDomSvgElementFactory();
 
-    final NodeSizeTransformerFactory sizeTransformerFactory = new NodeSizeTransformerFactory();
+    final GraphElementSizeTransformerFactory sizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
     @Override
     public SvgGraphRenderer createGraphRenderer(int width, int height) {
@@ -25,7 +25,8 @@ public class GraphRendererConceptGraphFactory implements GraphRendererFactory {
                 getNodeRenderer(svgElementFactory),
                 getArcRenderer(svgElementFactory),
                 getNodeExpanderRenderer(svgElementFactory),
-                sizeTransformerFactory.createConceptNodeSizeTransformer());
+                sizeTransformerFactory.createConceptNodeSizeTransformer(),
+                sizeTransformerFactory.createConceptArcSizeTransformer());
     }
 
     @Override

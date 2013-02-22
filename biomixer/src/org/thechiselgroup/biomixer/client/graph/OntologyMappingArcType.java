@@ -61,9 +61,10 @@ public class OntologyMappingArcType implements ArcType {
 
         Arc arc = new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
                 secondUri, ID, getArcTypeLabel(), ARC_DIRECTED);
-        int scaledThickness = (int) Math.round((1 + Math
-                .sqrt((numberOfMappings) / 1)));
-        arc.setSize(scaledThickness);
+        // int scaledThickness =
+        // (int) Math.round((1 + Math.sqrt((numberOfMappings) / 1)));
+        // arc.setSize(scaledThickness);
+        arc.setSize(numberOfMappings);
         return arc;
     }
 

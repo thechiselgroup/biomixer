@@ -25,6 +25,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphRendererConceptGraphTestFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.parser.SvgResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -64,6 +65,9 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends
 
     @Mock
     NodeSizeTransformer nodeSizeTransformer;
+
+    @Mock
+    ArcSizeTransformer arcSizeTransformer;
 
     @Mock
     protected NodeMouseClickHandler nodeMouseClickHandler;
@@ -142,7 +146,7 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends
                 // factory.createGraphRenderer(400, 300,
                 // new TextSvgElementFactory()), errorHandler);
                 factory.createGraphRenderer(400, 300), errorHandler,
-                nodeSizeTransformer);
+                nodeSizeTransformer, arcSizeTransformer);
         underTest.addEventHandler(NodeMouseClickEvent.TYPE,
                 nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,
