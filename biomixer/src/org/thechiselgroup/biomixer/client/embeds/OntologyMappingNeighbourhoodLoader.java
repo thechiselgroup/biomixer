@@ -43,7 +43,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLay
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutWithCentralNodeAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.gwt.core.client.GWT;
@@ -99,6 +99,10 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
     public OntologyMappingNeighbourhoodLoader() {
     }
 
+    private Resource targetOntologyResource;
+
+    private String centralOntologyUri;
+
     private void doLoadData(final String centralOntologyVirtualId,
             final View graphView, final ErrorHandler errorHandler) {
         mappingService.getAllMappingCountsForCentralOntology(
@@ -124,8 +128,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                         ontologyIds.add(centralOntologyVirtualId);
                         Map<String, Resource> itemIdMap = new HashMap<String, Resource>();
                         List<Resource> ontologyResources = new ArrayList<Resource>();
-                        // Add target resource
-                        Resource targetOntologyResource = new Resource(Ontology
+                        targetOntologyResource = new Resource(Ontology
                                 .toOntologyURI(centralOntologyVirtualId));
                         ontologyResources.add(targetOntologyResource);
                         // Iterate through the neighbourhood
@@ -248,9 +251,10 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
          * interconnected nodes at the same time as loading the data.
          */
         // Radial and Force layouts can't run with typical ontology expansions.
-    	// Too many nodes! So use circle, then place the central node after the layout is done.
-        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
-                this.nodeAnimator);
+        // Too many nodes! So use circle, then place the central node after the
+        // layout is done.
+        CircleLayoutWithCentralNodeAlgorithm layout = new CircleLayoutWithCentralNodeAlgorithm(
+                errorHandler, this.nodeAnimator, centralOntologyUri);
         // new NodeAnimator(new NullNodeAnimationFactory()));
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
 
@@ -275,6 +279,11 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
     public void loadView(ResourceSet virtualOntologies,
             List<String> virtualOntologyIds, IsWidget topBarWidget,
             AsyncCallback<IsWidget> callback) {
+
+        String centralOntologyVirtualId = virtualOntologyIds.get(0);
+
+        this.centralOntologyUri = Ontology
+                .toOntologyURI(centralOntologyVirtualId);
 
         View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(GraphOntologyOverviewViewContentDisplayFactory.ID))
@@ -313,6 +322,6 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
         setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 
-        doLoadData(virtualOntologyIds.get(0), graphView, errorHandler);
+        doLoadData(centralOntologyVirtualId, graphView, errorHandler);
     }
 }
