@@ -965,4 +965,8 @@ public class Graph extends AbstractViewContentDisplay implements
     public void setNodeStyle(Node node, String nodeSize, String styleValue) {
         this.graphDisplay.setNodeStyle(node, nodeSize, styleValue);
     }
+
+    public GraphExpansionRegistry getExpanderRegistry() {
+        return this.registry;
+    }
 }

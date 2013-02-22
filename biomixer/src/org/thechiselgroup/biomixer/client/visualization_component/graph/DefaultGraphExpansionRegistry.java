@@ -112,4 +112,20 @@ public class DefaultGraphExpansionRegistry implements GraphExpansionRegistry {
 
         putNodeMenuEntry(category, new NodeMenuEntry(label, expander));
     }
+
+    @Override
+    public void removeAutomaticExpander(String category, Class expanderClass) {
+        if (automaticExpandersByCategory.get(category).getClass()
+                .equals(expanderClass)) {
+            automaticExpandersByCategory.remove(category);
+        }
+    }
+
+    @Override
+    public void removeAutomaticBulkExpander(String category, Class expanderClass) {
+        if (automaticBulkExpandersByCategory.get(category).getClass()
+                .equals(expanderClass)) {
+            automaticBulkExpandersByCategory.remove(category);
+        }
+    }
 }
