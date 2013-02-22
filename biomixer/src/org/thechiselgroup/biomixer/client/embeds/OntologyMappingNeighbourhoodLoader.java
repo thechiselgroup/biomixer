@@ -33,6 +33,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExten
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
+import org.thechiselgroup.biomixer.client.graph.OntologyNodeMappingExpander;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCount;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
@@ -172,23 +173,23 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 return;
             }
 
-            // For use with scaling system, which is incomplete, in branch issue240.
-//            int minRawSize = 0;
-//            int maxRawSize = 0;
-//            for (Resource nodeResource : results) {
-//                Integer size = (Integer) nodeResource
-//                        .getValue(Ontology.NUMBER_OF_CONCEPTS);
-//                if (size > maxRawSize) {
-//                    maxRawSize = size;
-//                } else if (size < minRawSize) {
-//                    minRawSize = size;
-//                }
-//            }
-//            graph.getDisplayController().getNodeSizeTransformer()
-//                    .setScalingContextRange(minRawSize, maxRawSize);
+            // For use with scaling system, which is incomplete, in branch
+            // issue240.
+            // int minRawSize = 0;
+            // int maxRawSize = 0;
+            // for (Resource nodeResource : results) {
+            // Integer size = (Integer) nodeResource
+            // .getValue(Ontology.NUMBER_OF_CONCEPTS);
+            // if (size > maxRawSize) {
+            // maxRawSize = size;
+            // } else if (size < minRawSize) {
+            // minRawSize = size;
+            // }
+            // }
+            // graph.getDisplayController().getNodeSizeTransformer()
+            // .setScalingContextRange(minRawSize, maxRawSize);
 
-            // // TODO add convenience method to
-            // // resourceSetFactory
+            // TODO add convenience method to resourceSetFactory
             ResourceSet resourceSet = resourceSetFactory.createResourceSet();
             resourceSet.addAll(results);
             graphView.getResourceModel().addResourceSet(resourceSet);
@@ -246,12 +247,13 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
          * to performance problems when trying to animate so many highly
          * interconnected nodes at the same time as loading the data.
          */
-        // RadialTreeLayoutAlgorithm layout = new RadialTreeLayoutAlgorithm(
-        // errorHandler, nodeAnimator);
+        // Radial and Force layouts can't run with typical ontology expansions.
+    	// Too many nodes! So use circle, then place the central node after the layout is done.
         CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
-        // new NodeAnimator(new NullNodeAnimationFactory()));
                 this.nodeAnimator);
+        // new NodeAnimator(new NullNodeAnimationFactory()));
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
+
         return layout;
     }
 
@@ -285,6 +287,11 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 .getModel().getViewContentDisplay();
         this.graph = (Graph) cd1.getDelegate();
         ErrorHandler errorHandler = graph.getErrorHandler();
+
+        // Disable some automatic expanders
+        graph.getExpanderRegistry()
+                .removeAutomaticBulkExpander(Ontology.RESOURCE_URI_PREFIX,
+                        OntologyNodeMappingExpander.class);
 
         // Turn off labels. These graphs tend ot have many nodes and arcs, and
         // the labels slow down rendering to problematic levels.
