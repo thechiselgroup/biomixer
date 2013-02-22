@@ -37,7 +37,7 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
 
     private final double maxAngle;
 
-    private static final int animationDuration = 1000;
+    protected static final int animationDuration = 1000;
 
     public CircleLayoutComputation(double minAngle, double maxAngle,
             LayoutGraph graph, Executor executor, ErrorHandler errorHandler,
@@ -62,6 +62,13 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             return false;
         }
 
+        placeNodes(allNodes);
+
+        // this is not a continuous layout
+        return false;
+    }
+
+    protected void placeNodes(List<LayoutNode> allNodes) {
         double angleBetweenNodes = getAngleBetweenNodes(allNodes);
 
         // get radius
@@ -93,9 +100,6 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             PointDouble topLeft = layoutNode.getTopLeftForCentreAt(x, y);
             animateTo(layoutNode, topLeft, animationDuration);
         }
-
-        // this is not a continuous layout
-        return false;
     }
 
     private double getAngleBetweenNodes(List<LayoutNode> allNodes) {
