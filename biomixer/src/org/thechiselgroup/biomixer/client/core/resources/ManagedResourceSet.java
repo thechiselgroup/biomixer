@@ -32,7 +32,9 @@ public class ManagedResourceSet extends AbstractUriMapBasedResourceSet {
     @Override
     protected void doAdd(Resource resource,
             LightweightList<Resource> addedResources) {
-
+        // XXX Allowing one by one addition here makes things slow when we have
+        // many resources to add.
+        // Should the interface try to support only bulk adds?
         resourceManager.add(resource);
         Resource realResource = resourceManager.allocate(resource.getUri());
         addResourceToMap(realResource);

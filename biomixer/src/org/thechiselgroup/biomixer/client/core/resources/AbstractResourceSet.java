@@ -52,6 +52,7 @@ public abstract class AbstractResourceSet implements ResourceSet {
 
     @Override
     public boolean addAll(Iterable<Resource> resources) {
+        // // XXX This is pretty slow...can it be sped up in any way?
         return change(resources, NullIterable.<Resource> nullIterable());
     }
 
@@ -105,6 +106,7 @@ public abstract class AbstractResourceSet implements ResourceSet {
 
         LightweightList<Resource> addedResources = CollectionFactory
                 .createLightweightList();
+        // XXX It seems to take much longer due to adding resources individually
         for (Resource resource : resourcesToAdd) {
             if (!contains(resource)) {
                 doAdd(resource, addedResources);
