@@ -45,6 +45,15 @@ public class DefaultDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
     @Override
     public Widget createDetailsWidget(VisualItem visualItem) {
         VerticalPanel verticalPanel = GWT.create(VerticalPanel.class);
+        return refreshDetailsWidget(visualItem, verticalPanel);
+    }
+
+    @Override
+    public Widget refreshDetailsWidget(VisualItem visualItem,
+            Widget existingWidget) {
+        VerticalPanel verticalPanel = (VerticalPanel) existingWidget;
+        verticalPanel.clear();
+
         ResourceSetAvatar avatar = avatarFactory.createAvatar(visualItem
                 .getResources());
         avatar.setText(visualItem.getId());
@@ -78,4 +87,5 @@ public class DefaultDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
 
         return verticalPanel;
     }
+
 }

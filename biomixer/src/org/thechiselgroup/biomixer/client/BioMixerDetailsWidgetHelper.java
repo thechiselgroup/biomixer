@@ -63,12 +63,45 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         return avatar;
     }
 
+    public class VisualItemVerticalPanel extends VerticalPanel {
+        private VisualItem visualItem;
+
+        public VisualItemVerticalPanel() {
+            // Zero arg for deferred binding, as set up before when we used
+            // VerticalPanel directly for popups.
+            super();
+        }
+
+        public void setVisualItem(VisualItem visualItem) {
+            this.visualItem = visualItem;
+        }
+
+        public VisualItem getVisualItem() {
+            return this.visualItem;
+        }
+    }
+
     // TODO use dragAvatarFactory (injection)
     @Override
     public Widget createDetailsWidget(VisualItem visualItem) {
+        // XXX Used to use deferred bindign via GWT.create(), but had trouble
+        // when extending the VerticalPanel. Could extend Composite from GWT ui
+        // package, but using "new" seems to work fine...do we really need to
+        // use create() to begin with?
+        // VisualItemVerticalPanel verticalPanel = GWT.create(VisualItemVerticalPanel.class);
+        VisualItemVerticalPanel verticalPanel = new VisualItemVerticalPanel();
+        verticalPanel.setVisualItem(visualItem);
+        return refreshDetailsWidget(visualItem, verticalPanel);
+    }
+
+    // TODO use dragAvatarFactory (injection)
+    @Override
+    public Widget refreshDetailsWidget(VisualItem visualItem,
+            Widget existingWidget) {
+        VerticalPanel verticalPanel = (VerticalPanel) existingWidget;
         ResourceSet resourceSet = visualItem.getResources();
-        VerticalPanel verticalPanel = GWT.create(VerticalPanel.class);
         final Resource resource = resourceSet.getFirstElement();
+        verticalPanel.clear();
 
         // FIXME use generic way to put in custom widgets
         if (Concept.isConcept(resource)) {

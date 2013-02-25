@@ -24,4 +24,6 @@ public interface DetailsWidgetHelper {
 
     Widget createDetailsWidget(VisualItem visualItem);
 
+    Widget refreshDetailsWidget(VisualItem visualItem, Widget existingWidget);
+
 }
