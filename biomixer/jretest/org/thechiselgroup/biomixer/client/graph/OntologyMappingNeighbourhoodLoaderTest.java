@@ -46,9 +46,10 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.OntologyMappingOverviewLoader;
+import org.thechiselgroup.biomixer.client.embeds.OntologyMappingNeighbourhoodLoader;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
 
@@ -57,7 +58,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 
 @Ignore
 // Ignore until it is fleshed out
-public class OntologyMappingOverviewLoaderTest {
+public class OntologyMappingNeighbourhoodLoaderTest {
 
     @Mock
     private OntologyMappingCountServiceAsync mappingService;
@@ -65,10 +66,10 @@ public class OntologyMappingOverviewLoaderTest {
     @Mock
     private ErrorHandler errorHandler;
 
-    private OntologyMappingOverviewLoader underTest;
+    private OntologyMappingNeighbourhoodLoader underTest;
 
     @Mock
-    private GraphNodeExpansionCallback expansionCallback;
+    private NodeExpansionCallback<Graph> expansionCallback;
 
     @Mock
     private AsyncCallback<IsWidget> isWidgetCallback;
@@ -160,7 +161,7 @@ public class OntologyMappingOverviewLoaderTest {
         MockitoGWTBridge.setUp();
         MockitoAnnotations.initMocks(this);
 
-        underTest = new OntologyMappingOverviewLoader();
+        underTest = new OntologyMappingNeighbourhoodLoader();
         // (mappingService, resourceManager, errorHandler);
 
         when(resourceManager.add(any(Resource.class))).thenAnswer(

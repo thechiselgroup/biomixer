@@ -25,12 +25,14 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager.SpecializedResourceManager;
 
 import com.google.inject.Inject;
 
-public class ConceptMappingNeighbourhoodLoader extends
-        AbstractConceptMappingNeighbourhoodExpander {
+public class ConceptMappingNeighbourhoodLoader<T extends ViewWithResourceManager>
+        extends AbstractConceptMappingNeighbourhoodExpander<T> {
 
     @Inject
     public ConceptMappingNeighbourhoodLoader(
@@ -42,8 +44,13 @@ public class ConceptMappingNeighbourhoodLoader extends
 
     @Override
     protected void expandNeighbourhood(VisualItem visualItem,
-            Resource resource, GraphNodeExpansionCallback graph,
+            Resource resource, NodeExpansionCallback<T> callback,
             List<Resource> neighbourhood) {
+
+        // I set it up so that the mapping resources mingle with the concept
+        // resources in the D3 Matrix view. Is that ok?
+        SpecializedResourceManager specificResourceManager = callback
+                .getDisplay().getSpecificResourceManager();
 
         /*
          * Adds mappings for which both concept ends are contained in graph (if
@@ -56,19 +63,21 @@ public class ConceptMappingNeighbourhoodLoader extends
             String sourceUri = (String) mapping.getValue(Mapping.SOURCE);
             String targetUri = (String) mapping.getValue(Mapping.TARGET);
 
-            if (graph.containsResourceWithUri(sourceUri)
-                    && graph.containsResourceWithUri(targetUri)
-                    && !graph.containsResourceWithUri(mapping.getUri())) {
+            if (specificResourceManager.containsResourceWithUri(sourceUri)
+                    && specificResourceManager
+                            .containsResourceWithUri(targetUri)
+                    && !specificResourceManager.containsResourceWithUri(mapping
+                            .getUri())) {
 
                 displayableMappings.add(mapping);
             }
         }
 
         for (Resource mapping : displayableMappings) {
-            graph.addAutomaticResource(mapping);
+            specificResourceManager.addAutomaticResource(mapping);
         }
 
-        graph.updateArcsForVisuaItems(LightweightCollections
+        callback.updateArcsForVisuaItems(LightweightCollections
                 .toCollection(visualItem));
     }
 }

@@ -23,7 +23,6 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
@@ -32,8 +31,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * 
  * @author Lars Grammel
  */
-public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
-        implements GraphNodeExpander {
+public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander<T extends ViewWithResourceManager>
+        implements NodeExpander<T> {
 
     protected final ErrorHandler errorHandler;
 
@@ -48,18 +47,18 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
 
     @Override
     public final void expand(VisualItem visualItem,
-            GraphNodeExpansionCallback graph) {
+            NodeExpansionCallback<T> graphExpansionCallback) {
 
         assert visualItem != null;
-        assert graph != null;
+        assert graphExpansionCallback != null;
 
         Resource resource = getSingleResource(visualItem);
 
         if (isNeighbourhoodLoaded(visualItem, resource)) {
-            expandNeighbourhood(visualItem, resource, graph,
+            expandNeighbourhood(visualItem, resource, graphExpansionCallback,
                     reconstructNeighbourhood(visualItem, resource));
         } else {
-            loadNeighbourhood(visualItem, resource, graph);
+            loadNeighbourhood(visualItem, resource, graphExpansionCallback);
         }
     }
 
@@ -69,7 +68,7 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
      *            resource manager already) already
      */
     protected abstract void expandNeighbourhood(VisualItem visualItem,
-            Resource resource, GraphNodeExpansionCallback graph,
+            Resource resource, NodeExpansionCallback<T> graph,
             List<Resource> neighbourhood);
 
     protected abstract String getErrorMessageWhenNeighbourhoodloadingFails(
@@ -105,7 +104,7 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander
             Resource resource, AsyncCallback<ResourceNeighbourhood> callback);
 
     private void loadNeighbourhood(final VisualItem visualItem,
-            final Resource resource, final GraphNodeExpansionCallback graph) {
+            final Resource resource, final NodeExpansionCallback<T> graph) {
 
         loadNeighbourhood(visualItem, resource,
                 new TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood>(

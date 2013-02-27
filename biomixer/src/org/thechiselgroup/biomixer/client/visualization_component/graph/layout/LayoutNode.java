@@ -57,7 +57,8 @@ public interface LayoutNode {
     double getLabelY();
 
     /**
-     * @return size of this node
+     * @return size of this node, scaled or otherwise transformed size of this
+     *         node
      */
     SizeDouble getSize();
 

@@ -38,6 +38,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
  * @author drusk
  * 
  */
+
 public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     private double averageNodeDisplacementThreshold = 2.0;
@@ -72,6 +73,7 @@ public class ForceDirectedLayoutComputation extends AbstractLayoutComputation {
 
     @Override
     protected boolean computeIteration() throws RuntimeException {
+
         double totalDisplacement = 0;
         List<LayoutNode> mobileNodes = graph.getUnanchoredNodes();
         for (LayoutNode currentNode : mobileNodes) {

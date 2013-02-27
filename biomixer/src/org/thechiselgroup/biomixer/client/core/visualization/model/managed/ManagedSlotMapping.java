@@ -174,9 +174,10 @@ public class ManagedSlotMapping {
         }
 
         ManagedVisualItemValueResolver managedResolver = (ManagedVisualItemValueResolver) resolver;
-        assert managedResolver.getId() != null;
+        String id = managedResolver.getId();
+        assert id != null;
 
-        if (!allowableResolverFactories.containsKey(managedResolver.getId())) {
+        if (!allowableResolverFactories.containsKey(id)) {
             // Not an allowable resolver
             return false;
         }

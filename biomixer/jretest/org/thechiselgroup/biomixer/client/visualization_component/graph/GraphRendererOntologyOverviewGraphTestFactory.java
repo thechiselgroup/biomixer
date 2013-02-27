@@ -14,12 +14,17 @@ public class GraphRendererOntologyOverviewGraphTestFactory extends
      */
     final TextSvgElementFactory svgElementFactory = new TextSvgElementFactory();
 
+    final GraphElementSizeTransformerFactory sizeTransformerFactory = new GraphElementSizeTransformerFactory();
+
     @Override
     public SvgGraphRenderer createGraphRenderer(int width, int height) {
         return new SvgGraphRenderer(width, height, svgElementFactory,
                 getNodeRenderer(svgElementFactory),
                 getArcRenderer(svgElementFactory),
-                getNodeExpanderRenderer(svgElementFactory));
+                getNodeExpanderRenderer(svgElementFactory),
+                sizeTransformerFactory.createOntologyNodeSizeTransformer(),
+                sizeTransformerFactory
+                        .createOntologyMappingArcSizeTransformer());
     }
 
     /**

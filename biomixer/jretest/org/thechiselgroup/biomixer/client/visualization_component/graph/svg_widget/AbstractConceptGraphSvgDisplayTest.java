@@ -23,8 +23,11 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphRendererConceptGraphTestFactory;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.svg_widget.parser.SvgResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
@@ -33,7 +36,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseClickHandler;
 import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
 
-public abstract class AbstractConceptGraphSvgDisplayTest extends AbstractSvgTest {
+public abstract class AbstractConceptGraphSvgDisplayTest extends
+        AbstractSvgTest {
 
     protected static final String TYPE1 = "type1";
 
@@ -59,6 +63,15 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends AbstractSvgTest
 
     @Mock
     protected ErrorHandler errorHandler;
+
+    @Mock
+    RenderedItemPopupManager renderedArcPopupManager;
+
+    @Mock
+    NodeSizeTransformer nodeSizeTransformer;
+
+    @Mock
+    ArcSizeTransformer arcSizeTransformer;
 
     @Mock
     protected NodeMouseClickHandler nodeMouseClickHandler;
@@ -132,10 +145,14 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends AbstractSvgTest
     @Before
     public void setUpGraphDisplay() {
         MockitoAnnotations.initMocks(this);
-        underTest = new TestGraphSvgDisplay(400, 300,
-        // factory.createGraphRenderer(400, 300,
-        // new TextSvgElementFactory()), errorHandler);
-                factory.createGraphRenderer(400, 300), errorHandler);
+        underTest = new TestGraphSvgDisplay(
+                400,
+                300,
+                // factory.createGraphRenderer(400, 300,
+                // new TextSvgElementFactory()), errorHandler);
+                factory.createGraphRenderer(400, 300), errorHandler,
+                renderedArcPopupManager, nodeSizeTransformer,
+                arcSizeTransformer);
         underTest.addEventHandler(NodeMouseClickEvent.TYPE,
                 nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,

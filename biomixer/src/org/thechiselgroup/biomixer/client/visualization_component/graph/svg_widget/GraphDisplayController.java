@@ -34,6 +34,8 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager.ArcChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutExecutionManager;
@@ -60,6 +62,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.renderin
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNodeExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.LayoutException;
@@ -98,6 +102,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     private NodeInteractionManager nodeInteractionManager;
 
+    private RenderedItemPopupManager renderedArcPopupManager;
+
     private NodeAnimator nodeAnimator;
 
     private GraphLayoutExecutionManager layoutManager;
@@ -117,6 +123,10 @@ public class GraphDisplayController implements GraphDisplay,
 
     protected AnimationRunner animationRunner;
 
+    private NodeSizeTransformer nodeSizeTransformer;
+
+    private ArcSizeTransformer arcSizeTransformer;
+
     /**
      * 
      * @param width
@@ -126,9 +136,14 @@ public class GraphDisplayController implements GraphDisplay,
      * @param runLayoutsAutomatically
      *            Determines whether layouts are run right away. Send in false
      *            for testing.
+     * @param arcSizeTransformer
+     * @param renderedArcPopupManager
      */
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
+            RenderedItemPopupManager renderedArcPopupManager,
+            NodeSizeTransformer nodeSizeTransformer,
+            ArcSizeTransformer arcSizeTransformer,
             boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -136,13 +151,18 @@ public class GraphDisplayController implements GraphDisplay,
 
         nodeInteractionManager = new NodeInteractionManager(this);
 
+        this.renderedArcPopupManager = renderedArcPopupManager;
+
         this.graphRenderer = graphRenderer;
 
         initBackgroundListener();
         initViewWideInteractionHandler();
 
-        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width,
-                height);
+        this.nodeSizeTransformer = nodeSizeTransformer;
+
+        this.arcSizeTransformer = arcSizeTransformer;
+
+        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width, height);
 
         this.nodeAnimator = new NodeAnimator(getNodeAnimationFactory());
 
@@ -176,14 +196,8 @@ public class GraphDisplayController implements GraphDisplay,
 
         final RenderedArc renderedArc = graphRenderer.renderArc(arc);
 
-        renderedArc.setEventListener(new ChooselEventHandler() {
-            @Override
-            public void onEvent(ChooselEvent event) {
-                if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)) {
-                    onArcMouseOver(renderedArc);
-                }
-            }
-        });
+        renderedArc.setEventListener(new ArcChooselEventHandler(renderedArc,
+                renderedArcPopupManager, this));
 
         IdentifiableLayoutNode sourceNode = layoutGraph
                 .getIdentifiableLayoutNode(sourceNodeId);
@@ -192,12 +206,13 @@ public class GraphDisplayController implements GraphDisplay,
 
         IdentifiableLayoutArc layoutArc = new IdentifiableLayoutArc(
                 arc.getId(), renderedArc, getArcType(arc.getType()),
-                sourceNode, targetNode);
+                sourceNode, targetNode, arcSizeTransformer);
         layoutGraph.addIdentifiableLayoutArc(layoutArc);
 
         sourceNode.addConnectedArc(layoutArc);
         targetNode.addConnectedArc(layoutArc);
     }
+
 
     @Override
     public <T extends EventHandler> HandlerRegistration addEventHandler(
@@ -219,7 +234,8 @@ public class GraphDisplayController implements GraphDisplay,
         setNodeEventHandlers(renderedNode);
 
         IdentifiableLayoutNode layoutNode = new IdentifiableLayoutNode(
-                node.getId(), renderedNode, getNodeLayoutType(node.getType()));
+                node.getId(), renderedNode, getNodeLayoutType(node.getType()),
+                nodeSizeTransformer);
         setDefaultPosition(layoutNode);
         layoutGraph.addIdentifiableLayoutNode(layoutNode);
     }
@@ -433,6 +449,13 @@ public class GraphDisplayController implements GraphDisplay,
         // bring connected nodes to front
         graphRenderer.bringToForeground(arc.getSource());
         graphRenderer.bringToForeground(arc.getTarget());
+        // This gets called by the popup manager listener...
+        // renderedArcPopupManager.addArcDelayedPopup(arc);
+    }
+
+    public void onArcMouseOut(RenderedArc arc) {
+    	// This gets called by the popup manager listener...
+        // renderedArcPopupManager.removeArcDelayedPopup(arc);
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {
@@ -496,7 +519,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onNodeMouseDown(Node node, ChooselEvent event, int clientX,
             int clientY) {
-        // Why do/did some methods have nodeInteractionManager, others eventBus.fireEvent()??
+        // Why do/did some methods have nodeInteractionManager, others
+        // eventBus.fireEvent()??
         nodeInteractionManager.onMouseDown(node.getId(), event, clientX,
                 clientY);
         eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, event,
@@ -726,6 +750,16 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     @Override
+    public void setRenderArcLabels(boolean newValue) {
+        this.graphRenderer.setArcRenderLabels(newValue);
+    }
+
+    @Override
+    public boolean getRenderArcLabels() {
+        return this.graphRenderer.getArcRenderLabels();
+    }
+
+    @Override
     public void setArcStyle(Arc arc, String styleProperty, String styleValue) {
         graphRenderer.setArcStyle(arc, styleProperty, styleValue);
     }
@@ -810,6 +844,11 @@ public class GraphDisplayController implements GraphDisplay,
     @Override
     public void setNodeStyle(Node node, String styleProperty, String styleValue) {
         graphRenderer.setNodeStyle(node, styleProperty, styleValue);
+    }
+
+    // @Override
+    public NodeSizeTransformer getNodeSizeTransformer() {
+        return this.nodeSizeTransformer;
     }
 
 }

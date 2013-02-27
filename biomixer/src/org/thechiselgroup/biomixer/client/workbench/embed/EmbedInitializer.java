@@ -65,8 +65,14 @@ public class EmbedInitializer implements ApplicationInitializer {
 
     private void loadEmbed(String embedMode) {
         if (!embedLoaders.containsKey(embedMode)) {
+
+            String allEmbeds = "";
+            for (String key : embedLoaders.keySet()) {
+                allEmbeds += " " + key;
+            }
+
             embedContainer.setInfoText("Embed mode '" + embedMode
-                    + "' is invalid.");
+                    + "' is invalid." + allEmbeds);
             return;
         }
 

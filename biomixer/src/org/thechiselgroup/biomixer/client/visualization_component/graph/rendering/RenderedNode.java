@@ -28,7 +28,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  * @author drusk
  * 
  */
-public interface RenderedNode {
+public interface RenderedNode extends RenderedItem {
 
     /**
      * 

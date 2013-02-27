@@ -44,9 +44,11 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     private SvgBareText label;
 
+    private Boolean labelRendering = null;
+
     public StraightLineRenderedSvgArc(Arc arc, SvgElement container,
             SvgElement arcLine, SvgArrowHead arrow, SvgBareText label,
-            RenderedNode source, RenderedNode target) {
+            boolean renderLabel, RenderedNode source, RenderedNode target) {
         super(arc, source, target);
         assert (arcLine != null);
         assert (arrow != null);
@@ -54,7 +56,25 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         this.arcLine = arcLine;
         this.arrow = arrow;
         this.label = label;
-        this.baseContainer.appendChild(this.label.asSvgElement());
+        this.setLabelRendering(renderLabel);
+    }
+
+    @Override
+    public void setLabelRendering(boolean newValue) {
+        if (newValue) {
+            this.baseContainer.appendChild(this.label.asSvgElement());
+        } else {
+            // If in constructor, don't try to remove it...
+            if (null != labelRendering) {
+                this.baseContainer.removeChild(this.label.asSvgElement());
+            }
+        }
+        labelRendering = newValue;
+    }
+
+    @Override
+    public boolean getLabelRendering() {
+        return labelRendering;
     }
 
     @Override
@@ -129,7 +149,7 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
     }
 
     @Override
-    public void setThickness(String thickness) {
+    public void setThickness(Double thickness) {
         arcLine.setAttribute(Svg.STROKE_WIDTH, thickness);
     }
 
@@ -146,7 +166,9 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         arrow.alignWithPoints(sourceCentre, targetCentre);
 
         assert label != null;
-        alignLabelPoints(sourceCentre, targetCentre);
+        if (labelRendering) {
+            alignLabelPoints(sourceCentre, targetCentre);
+        }
     }
 
     /**

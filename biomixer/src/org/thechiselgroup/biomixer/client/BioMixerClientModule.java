@@ -17,7 +17,6 @@ package org.thechiselgroup.biomixer.client;
 
 import org.thechiselgroup.biomixer.client.core.label.CategoryLabelProvider;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationServiceProvider;
-import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
@@ -29,7 +28,7 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpLiveRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
@@ -121,8 +120,8 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 OntologyMappingCountServiceAsyncImplementation.class).in(
                 Singleton.class);
 
-        bind(UrlBuilderFactory.class).to(
-                NcboJsonpLiveRestUrlBuilderFactory.class).in(Singleton.class);
+        bind(UrlBuilderFactory.class).to(NcboJsonpRestUrlBuilderFactory.class)
+                .in(Singleton.class);
     }
 
     @Override
@@ -157,10 +156,11 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         return BioMixerMappingCategoryLabelProvider.class;
     }
 
-    @Override
-    protected Class<? extends DetailsWidgetHelper> getDetailsWidgetHelperClass() {
-        return BioMixerDetailsWidgetHelper.class;
-    }
+    // @Override
+    // protected Class<? extends DetailsWidgetHelper<VisualItem>>
+    // getDetailsWidgetHelperClass() {
+    // return BioMixerDetailsWidgetHelper.class;
+    // }
 
     @Override
     protected Class<? extends EmbedInitializer> getEmbedInitializer() {

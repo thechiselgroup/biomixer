@@ -65,6 +65,12 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private Map<Node, RenderedNodeExpander> renderedNodeExpanders = new HashMap<Node, RenderedNodeExpander>();
 
+    private boolean renderLabels = true;
+
+    protected final NodeSizeTransformer nodeSizeTransformer;
+
+    protected final ArcSizeTransformer arcSizeTransformer;
+
     /*
      * Keep track of any node currently in the process of being removed so that
      * concurrent modifications can be detected and avoided.
@@ -72,10 +78,14 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     private Node nodeBeingRemoved = null;
 
     protected AbstractGraphRenderer(NodeRenderer nodeRenderer,
-            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer) {
+            ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer,
+            NodeSizeTransformer nodeSizeTransformer,
+            ArcSizeTransformer arcSizeTransformer) {
         this.nodeRenderer = nodeRenderer;
         this.arcRenderer = arcRenderer;
         this.nodeExpanderRenderer = nodeExpanderRenderer;
+        this.nodeSizeTransformer = nodeSizeTransformer;
+        this.arcSizeTransformer = arcSizeTransformer;
     }
 
     protected abstract void addArcToGraph(RenderedArc arc);
@@ -132,6 +142,22 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     }
 
     @Override
+    public void setArcRenderLabels(boolean newValue) {
+        boolean different = renderLabels == newValue;
+        renderLabels = newValue;
+        if (different) {
+            for (RenderedArc arc : renderedArcs.values()) {
+                arc.setLabelRendering(newValue);
+            }
+        }
+    }
+
+    @Override
+    public boolean getArcRenderLabels() {
+        return renderLabels;
+    }
+
+    @Override
     public void removeNode(Node node) {
         assert renderedNodes.containsKey(node) : "Cannot remove a node which has not been rendered";
         nodeBeingRemoved = node;
@@ -171,7 +197,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         RenderedNode renderedTarget = renderedNodesById.get(arc
                 .getTargetNodeId());
         RenderedArc renderedArc = arcRenderer.createRenderedArc(arc,
-                renderedSource, renderedTarget);
+                this.renderLabels, renderedSource, renderedTarget);
         renderedArcs.put(arc, renderedArc);
         addArcToGraph(renderedArc);
         return renderedArc;
@@ -214,7 +240,16 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
 
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
-            renderedArc.setThickness(styleValue);
+            // renderedArc.setThickness(styleValue);
+            try {
+                renderedArc.setThickness(arcSizeTransformer.transform(Double
+                        .parseDouble(styleValue)));
+            } catch (Exception e) {
+                // This is for the transformation, which shouldn't have a
+                // problem. Still could be double parse issues, which was never
+                // handled
+                e.printStackTrace();
+            }
         }
     }
 
@@ -249,9 +284,31 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
 
         else if (styleProperty.equals(GraphDisplay.NODE_SIZE)) {
-            renderedNode.setSize(new SquareSizeDouble(Double
-                    .parseDouble(styleValue)));
+            try {
+                renderedNode.setSize(nodeSizeTransformer
+                        .transform(new SquareSizeDouble(Double
+                                .parseDouble(styleValue))));
+            } catch (Exception e) {
+                // This is for the transformation, which shouldn't have a
+                // problem. Still could be double parse issues, which was never
+                // handled
+                e.printStackTrace();
+            }
         }
     }
 
+    @Override
+    public void updateTransformedNodeSizes() {
+        // See issue240. This might be used along those lines.
+        for (Node node : renderedNodes.keySet()) {
+            RenderedNode renderedNode = renderedNodes.get(node);
+            try {
+                renderedNode.setSize(nodeSizeTransformer
+                        .transform(new SquareSizeDouble(node.getSize())));
+            } catch (Exception e) {
+                // Won't happen.
+                e.printStackTrace();
+            }
+        }
+    }
 }

@@ -29,4 +29,6 @@ public interface RequiresAutomaticResourceSet {
 
     void setAutomaticResources(ResourceSet automaticResources);
 
+    public ResourceSet getAutomaticResources();
+
 }

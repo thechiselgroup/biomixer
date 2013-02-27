@@ -17,10 +17,10 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
-public class NullGraphNodeExpander implements GraphNodeExpander {
+public class NullGraphNodeExpander implements NodeExpander<Graph> {
 
     @Override
     public void expand(VisualItem resource,
-            GraphNodeExpansionCallback expansionCallback) {
+            NodeExpansionCallback<Graph> expansionCallback) {
     }
 }

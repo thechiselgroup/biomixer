@@ -15,27 +15,35 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.behaviors;
 
-import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
+import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper;
+import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper.VisualItemVerticalPanel;
+import org.thechiselgroup.biomixer.client.core.fx.Opacity;
+import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupOpacityChangedEvent;
+import org.thechiselgroup.biomixer.client.core.ui.popup.PopupOpacityChangedEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
 import org.thechiselgroup.biomixer.client.core.visualization.model.MappedHandlerVisualItemBehavior;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Manages {@link VisualItem} popups in a single view.
  */
 public class PopupVisualItemBehavior extends
-        MappedHandlerVisualItemBehavior<PopupManager> {
+        MappedHandlerVisualItemBehavior<PopupManager> implements
+        PopupOpacityChangedEventHandler {
 
-    private DetailsWidgetHelper detailsWidgetHelper;
+    private BioMixerDetailsWidgetHelper detailsWidgetHelper;
 
     private PopupManagerFactory popupManagerFactory;
 
-    public PopupVisualItemBehavior(DetailsWidgetHelper detailsWidgetHelper,
+    public PopupVisualItemBehavior(
+            BioMixerDetailsWidgetHelper detailsWidgetHelper,
             PopupManagerFactory popupManagerFactory, DisposeUtil disposeUtil) {
         super(disposeUtil);
         assert detailsWidgetHelper != null;
@@ -47,8 +55,45 @@ public class PopupVisualItemBehavior extends
 
     @Override
     protected PopupManager createHandler(VisualItem visualItem) {
-        return popupManagerFactory.createPopupManager(detailsWidgetHelper
-                .createDetailsWidget(visualItem));
+        // The contents of the widget will get refreshed via the opacity change
+        // listener
+        Widget detailsWidget = detailsWidgetHelper
+                .createDetailsWidget(visualItem);
+        PopupManager popupManager = popupManagerFactory
+                .createPopupManager(detailsWidget);
+        
+        Popup popup = popupManager.getPopup();
+        popup.addHandler(this, PopupOpacityChangedEvent.TYPE);
+        VisualItemVerticalPanel contentWidget = (VisualItemVerticalPanel) (popup
+                .getContentWidget());
+        contentWidget.setVisualItem(visualItem);
+
+        return popupManager;
+    }
+
+    @Override
+    public void onOpacityChangeStarted(PopupOpacityChangedEvent event) {
+        // When the tool tip has become completely visible, and only then, we
+        // want to ensure that the most up to date info is loaded. This was
+        // motivated by the number of concepts for an ontology being loaded
+        // after the tool tip has already been constructed.
+        if (event.getOpacity() == Opacity.SEMI_TRANSPARENT) {
+            // This triggers as the opacity animation ends, because the
+            // SEMI_TRANSPARENT is the end point.
+            // The event is currently only fired at three opacity levels (those
+            // defined as constants within the Opacity class), so it's not
+            // wasteful.
+            Popup popup = event.getPopup();
+
+            VisualItemVerticalPanel contentWidget = (VisualItemVerticalPanel) (popup
+                    .getContentWidget());
+            VisualItem visualItem = contentWidget.getVisualItem();
+            detailsWidgetHelper.refreshDetailsWidget(visualItem, contentWidget);
+        } else if (event.getOpacity() == Opacity.OPAQUE) {
+            // Nothing right now...
+        } else if (event.getOpacity() == Opacity.TRANSPARENT) {
+            // Nothing right now...
+        }
     }
 
     @Override
@@ -57,7 +102,8 @@ public class PopupVisualItemBehavior extends
 
         switch (interaction.getEventType()) {
         case DRAG_START:
-        	// Tried fixing up Chrome dragging here with preventDefault() and stopPropagation(), but had success more generally elsewhere.
+            // Tried fixing up Chrome dragging here with preventDefault() and
+            // stopPropagation(), but had success more generally elsewhere.
             popupManager.hidePopup();
             break;
         case MOUSE_MOVE:

@@ -16,6 +16,9 @@
 package org.thechiselgroup.biomixer.client;
 
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_BORDER_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_COLOR_RESOLVER_FACTORY;
+import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_LABEL_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
@@ -25,6 +28,13 @@ import org.thechiselgroup.biomixer.client.workbench.WorkbenchVisualItemResolverU
 
 import com.google.inject.Inject;
 
+/**
+ * When modifying, see also
+ * {@link BioMixerVisualItemValueResolverFactoryProvider}
+ * 
+ * @author everbeek
+ * 
+ */
 public class BioMixerVisualItemValueResolverUIControllerFactoryProvider extends
         WorkbenchVisualItemResolverUIFactoryProvider {
 
@@ -42,5 +52,9 @@ public class BioMixerVisualItemValueResolverUIControllerFactoryProvider extends
         register(NODE_BACKGROUND_COLOR_RESOLVER_FACTORY);
         register(NODE_BORDER_COLOR_RESOLVER_FACTORY);
         register(NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY);
+
+        register(MATRIX_LABEL_RESOLVER_FACTORY);
+        register(MATRIX_BORDER_COLOR_RESOLVER_FACTORY);
+        register(MATRIX_COLOR_RESOLVER_FACTORY);
     }
 }

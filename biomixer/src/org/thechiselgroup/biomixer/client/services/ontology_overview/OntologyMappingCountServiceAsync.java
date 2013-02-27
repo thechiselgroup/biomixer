@@ -6,4 +6,7 @@ public interface OntologyMappingCountServiceAsync {
     void getMappingCounts(Iterable<String> virtualOntologyIds,
             AsyncCallback<TotalMappingCount> callback);
 
+    void getAllMappingCountsForCentralOntology(String virtualOntologyId,
+            AsyncCallback<TotalMappingCount> callback);
+
 }

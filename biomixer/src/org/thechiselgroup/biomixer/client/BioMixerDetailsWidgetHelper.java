@@ -18,7 +18,6 @@ package org.thechiselgroup.biomixer.client;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.resources.ui.AbstractDetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
@@ -36,19 +35,20 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
-public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
+public class BioMixerDetailsWidgetHelper extends
+        AbstractDetailsWidgetHelper<VisualItem> {
 
     private final ResourceSetAvatarDragController dragController;
 
     private final ResourceManager resourceManager;
 
     @Inject
-    public BioMixerDetailsWidgetHelper(ResourceSetFactory resourceSetFactory,
+    public BioMixerDetailsWidgetHelper(
             ResourceSetAvatarFactory dragAvatarFactory,
             ResourceSetAvatarDragController dragController,
             ResourceManager resourceManager) {
 
-        super(resourceSetFactory, dragAvatarFactory);
+        super(dragAvatarFactory);
 
         this.dragController = dragController;
         this.resourceManager = resourceManager;
@@ -63,12 +63,46 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         return avatar;
     }
 
+    static public class VisualItemVerticalPanel extends VerticalPanel {
+        private VisualItem visualItem;
+
+        public VisualItemVerticalPanel() {
+            // Zero arg for deferred binding, as set up before when we used
+            // VerticalPanel directly for popups.
+            super();
+        }
+
+        public void setVisualItem(VisualItem visualItem) {
+            this.visualItem = visualItem;
+        }
+
+        public VisualItem getVisualItem() {
+            return this.visualItem;
+        }
+    }
+
     // TODO use dragAvatarFactory (injection)
     @Override
     public Widget createDetailsWidget(VisualItem visualItem) {
+        // XXX Used to use deferred bindign via GWT.create(), but had trouble
+        // when extending the VerticalPanel. Could extend Composite from GWT ui
+        // package, but using "new" seems to work fine...do we really need to
+        // use create() to begin with?
+        // VisualItemVerticalPanel verticalPanel =
+        // GWT.create(VisualItemVerticalPanel.class);
+        VisualItemVerticalPanel verticalPanel = new VisualItemVerticalPanel();
+        verticalPanel.setVisualItem(visualItem);
+        return refreshDetailsWidget(visualItem, verticalPanel);
+    }
+
+    // TODO use dragAvatarFactory (injection)
+    @Override
+    public Widget refreshDetailsWidget(VisualItem visualItem,
+            Widget existingWidget) {
+        VerticalPanel verticalPanel = (VerticalPanel) existingWidget;
         ResourceSet resourceSet = visualItem.getResources();
-        VerticalPanel verticalPanel = GWT.create(VerticalPanel.class);
         final Resource resource = resourceSet.getFirstElement();
+        verticalPanel.clear();
 
         // FIXME use generic way to put in custom widgets
         if (Concept.isConcept(resource)) {
@@ -95,8 +129,7 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         if (Ontology.isOntology(resource)) {
             // making the concept label clickable
             ResourceSetAvatar avatar = createAvatar(
-                    (String) resource.getValue(Ontology.ONTOLOGY_NAME),
-                    resourceSet);
+                    (String) resource.getValue(Ontology.LABEL), resourceSet);
             final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
                     .generateOntologySummaryUrl((String) resource
                             .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));

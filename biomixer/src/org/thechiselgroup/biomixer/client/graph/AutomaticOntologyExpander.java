@@ -22,14 +22,15 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetrics;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
 import com.google.inject.Inject;
 
-public class AutomaticOntologyExpander implements GraphNodeExpander {
+public class AutomaticOntologyExpander implements NodeExpander<Graph> {
 
     private final OntologyMetricServiceAsync ontologyMetricService;
 
@@ -56,7 +57,7 @@ public class AutomaticOntologyExpander implements GraphNodeExpander {
 
     @Override
     public final void expand(final VisualItem visualItem,
-            final GraphNodeExpansionCallback expansionCallback) {
+            final NodeExpansionCallback<Graph> expansionCallback) {
 
         assert visualItem != null;
         assert expansionCallback != null;
@@ -78,6 +79,11 @@ public class AutomaticOntologyExpander implements GraphNodeExpander {
                             return;
                         }
 
+                        int numClasses = 0;
+                        if (results.numberOfClasses != null) {
+                            numClasses = results.numberOfClasses;
+                        }
+
                         // TODO There must be a smarter way to do this rather
                         // than setting the node size directly...but for now...
                         // Set the node's size property.
@@ -89,28 +95,24 @@ public class AutomaticOntologyExpander implements GraphNodeExpander {
                         // 2 * is for the radius conversion...added after
                         // changing stuff in circle.
                         // Rest of the formula is arbitrary for aesthetics.
-                        expansionCallback
-                                .getDisplay()
-                                .setNodeStyle(
-                                        node,
-                                        GraphDisplay.NODE_SIZE,
-                                        2
-                                                * (4 + Math
-                                                        .sqrt((results.numberOfClasses) / 10))
-                                                + "");
+                        expansionCallback.getDisplay().setNodeStyle(node,
+                                GraphDisplay.NODE_SIZE, numClasses + "");
+                        // Refactored so that transformers are used per graph to
+                        // control
+                        // node sizing. This can be a raw number.
+                        // 2 * (4 + Math.sqrt((numClasses) / 10)) + "");
 
                         Resource resource = visualItem.getResources()
                                 .getFirstElement();
-                        resource.putValue(Ontology.DESCRIPTION,
-                                results.numberOfClasses);
+                        resource.putValue(Ontology.NUMBER_OF_CONCEPTS,
+                                numClasses);
                     }
 
                 });
     }
 
     protected String getOntologyInfoForErrorMessage(Resource resource) {
-        String ontologyName = (String) resource
-                .getValue(Ontology.ONTOLOGY_NAME);
+        String ontologyName = (String) resource.getValue(Ontology.LABEL);
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {

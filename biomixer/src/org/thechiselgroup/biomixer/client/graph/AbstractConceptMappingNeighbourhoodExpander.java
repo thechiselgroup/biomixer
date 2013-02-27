@@ -26,11 +26,12 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.AbstractGraphNodeSingleResourceNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public abstract class AbstractConceptMappingNeighbourhoodExpander extends
-        AbstractGraphNodeSingleResourceNeighbourhoodExpander {
+public abstract class AbstractConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>
+        extends AbstractGraphNodeSingleResourceNeighbourhoodExpander<T> {
 
     private final ConceptMappingServiceAsync mappingService;
 

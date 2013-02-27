@@ -23,7 +23,7 @@ import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpLiveRestUrlBuilderFactory;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
@@ -35,10 +35,13 @@ public class MappingCountServiceTest {
     private UrlFetchService urlFetchService;
 
     @Mock
-    private NcboJsonpLiveRestUrlBuilderFactory urlBuilderFactory;
+    private NcboJsonpRestUrlBuilderFactory urlBuilderFactory;
 
     @Mock
     private OntologyMappingCountJSONParser responseParser;
+
+    @Mock
+    private OntologyNeighbourhoodMappingCountJSONParser responseParser2;
 
     private UrlBuilder urlBuilder;
 
@@ -78,9 +81,9 @@ public class MappingCountServiceTest {
         ontologyIds.add("1099");
 
         OntologyMappingCount testMappingCount1 = new OntologyMappingCount(
-                "1009", "1099", 11);
+                "1009", "1099", 11, 11);
         OntologyMappingCount testMappingCount2 = new OntologyMappingCount(
-                "1099", "1009", 11);
+                "1099", "1009", 11, 11);
 
         TotalMappingCount testMappingCount = new TotalMappingCount();
         testMappingCount.add(testMappingCount1);
@@ -101,7 +104,8 @@ public class MappingCountServiceTest {
         MockitoAnnotations.initMocks(this);
 
         underTest = new OntologyMappingCountServiceAsyncImplementation(
-                urlFetchService, urlBuilderFactory, responseParser);
+                urlFetchService, urlBuilderFactory, responseParser,
+                responseParser2);
 
         this.urlBuilder = Mockito.spy(new DefaultUrlBuilder());
 

@@ -24,9 +24,9 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
  * 
  * @author Eric Verbeek
  */
-public interface GraphNodeBulkExpander {
+public interface NodeBulkExpander<T extends ViewWithResourceManager> {
 
     void expand(LightweightCollection<VisualItem> visualItems,
-            GraphNodeExpansionCallback expansionCallback);
+            NodeExpansionCallback<T> expansionCallback);
 
 }

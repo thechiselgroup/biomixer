@@ -22,9 +22,9 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
  * 
  * @author Lars Grammel
  */
-public interface GraphNodeExpander {
+public interface NodeExpander<T extends ViewWithResourceManager> {
 
     void expand(VisualItem visualItem,
-            GraphNodeExpansionCallback expansionCallback);
+            NodeExpansionCallback<T> expansionCallback);
 
 }

@@ -33,12 +33,12 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
     @Inject
     private ErrorHandler errorHandler;
 
-    private IdentifiablesList<OntologyMappingOverviewLoader> embedLoaders = new IdentifiablesList<OntologyMappingOverviewLoader>();
+    private IdentifiablesList<OntologyEmbedLoader> embedLoaders = new IdentifiablesList<OntologyEmbedLoader>();
 
     @Inject
     public OntologyCentricEmbedLoader(
-            OntologyMappingOverviewLoader ontologyOverviewLoader) {
-        registerLoader(ontologyOverviewLoader);
+            OntologyMappingNeighbourhoodLoader ontologyMappingLoader) {
+        registerLoader(ontologyMappingLoader);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
 
     }
 
-    protected void registerLoader(OntologyMappingOverviewLoader loader) {
+    protected void registerLoader(OntologyEmbedLoader loader) {
         embedLoaders.add(loader);
     }
 

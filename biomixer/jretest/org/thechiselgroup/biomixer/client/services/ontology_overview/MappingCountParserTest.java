@@ -36,7 +36,7 @@ public class MappingCountParserTest {
         List<Integer> counts = new ArrayList<Integer>();
 
         for (OntologyMappingCount mappingCount : ontologyMappingCounts) {
-            counts.add(mappingCount.getCount());
+            counts.add(mappingCount.getSourceMappingCount());
         }
         assertThat(counts,
                 containsExactly(Arrays.asList(11, 100, 11, 4828, 100, 10627)));

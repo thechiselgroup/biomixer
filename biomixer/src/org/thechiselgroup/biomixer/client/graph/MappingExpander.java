@@ -19,8 +19,9 @@ import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpander;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpander;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 
 import com.google.inject.Inject;
 
@@ -30,7 +31,7 @@ import com.google.inject.Inject;
  * a concept node as in the ConceptMappingNeighbourhoodExpander.
  * 
  */
-public class MappingExpander implements GraphNodeExpander {
+public class MappingExpander implements NodeExpander<Graph> {
 
     private final ResourceManager resourceManager;
 
@@ -41,7 +42,7 @@ public class MappingExpander implements GraphNodeExpander {
 
     @Override
     public void expand(VisualItem resourceItem,
-            GraphNodeExpansionCallback expansionCallback) {
+            NodeExpansionCallback<Graph> expansionCallback) {
 
         Resource mapping = resourceItem.getResources().getFirstElement();
 

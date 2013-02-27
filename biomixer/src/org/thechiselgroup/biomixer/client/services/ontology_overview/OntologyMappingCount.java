@@ -5,16 +5,42 @@ public class OntologyMappingCount {
 
     private String targetId;
 
-    private int count;
+    private int sourceMappingCount;
 
-    public OntologyMappingCount(String sourceId, String targetId, int count) {
+    private int targetMappingCount;
+
+    public OntologyMappingCount(String sourceId, String targetId,
+            int sourceMappingCount, int targetMappingCount) {
         this.sourceId = sourceId;
         this.targetId = targetId;
-        this.count = count;
+        this.sourceMappingCount = sourceMappingCount;
+        this.targetMappingCount = targetMappingCount;
     }
 
-    public int getCount() {
-        return count;
+    /**
+     * Sometimes only the total mapping count is available from the REST
+     * service.
+     * 
+     * @param sourceId
+     * @param targetId
+     * @param totalMappingCount
+     */
+    public OntologyMappingCount(String sourceId, String targetId,
+            int totalMappingCount) {
+        this.sourceId = sourceId;
+        this.targetId = targetId;
+        // Ensure that they sum (rather than dividing by 2 for both)
+        int sourceMapCount = totalMappingCount - totalMappingCount / 2;
+        this.sourceMappingCount = sourceMapCount;
+        this.targetMappingCount = totalMappingCount - sourceMapCount;
+    }
+
+    public int getSourceMappingCount() {
+        return sourceMappingCount;
+    }
+
+    public int getTargetMappingCount() {
+        return targetMappingCount;
     }
 
     public String getSourceId() {

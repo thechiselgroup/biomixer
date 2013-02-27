@@ -26,7 +26,12 @@ public class ResourceByUriTypeCategorizer implements ResourceCategorizer {
 
     @Override
     public String getCategory(Resource resource) {
-        return Resource.getTypeFromURI(resource.getUri());
+        return getCategory(resource.getUri());
+    }
+
+    @Override
+    public String getCategory(String resourceUri) {
+        return Resource.getTypeFromURI(resourceUri);
     }
 
 }

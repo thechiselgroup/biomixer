@@ -22,6 +22,8 @@ import com.google.inject.Inject;
 
 public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
 
+    private String sourceOntologyId;
+
     @Inject
     public OntologyMappingCountJSONParser(JsonParser jsonParser) {
         super(jsonParser);
@@ -30,9 +32,21 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
     @Override
     public TotalMappingCount parse(String json) {
         TotalMappingCount result = new TotalMappingCount();
+        // Grab source ontology id...they removed form list:
+        // Like:
+        // "accessedResource":"\/bioportal\/virtual\/mappings\/stats\/ontologies\/1032"
+        String resourceString = asString(get(get(super.parse(json), "success"),
+                "accessedResource"));
+        String ontologyIdCutoffString = "ontologies/";
+        int indexOfOntologyId = resourceString
+                .lastIndexOf(ontologyIdCutoffString);
+        this.sourceOntologyId = resourceString.substring(indexOfOntologyId
+                + ontologyIdCutoffString.length());
+
         Object jsonArray = get(
                 get(get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "set"), 0), "ontologyPairMappingStatistics");
+                        "list"), 0), "ontologyMappingStatistics");
+
         if (isArray(jsonArray)) {
             for (int i = 0; i < length(jsonArray); i++) {
                 result.add(analyzeItem(get(jsonArray, i)));
@@ -45,12 +59,14 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
     }
 
     private OntologyMappingCount analyzeItem(Object jsonItem) {
-        String sourceOntologyId = "" + asInt(get(jsonItem, "sourceOntologyId"));
-        String targetOntologyId = "" + asInt(get(jsonItem, "targetOntologyId"));
-        int mappingCount = asInt(get(jsonItem, "mappingCount"));
+    	// They appear to have changed the REST service since the previous version
+    	// of this class.
+        String targetOntologyId = "" + asInt(get(jsonItem, "ontologyId"));
+        int sourceMappings = asInt(get(jsonItem, "sourceMappings"));
+        int targetMappings = asInt(get(jsonItem, "targetMappings"));
 
         return new OntologyMappingCount(sourceOntologyId, targetOntologyId,
-                mappingCount);
+                sourceMappings, targetMappings);
     }
 
 }

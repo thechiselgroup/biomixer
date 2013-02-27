@@ -16,8 +16,6 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
-import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
@@ -25,13 +23,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public class HorizontalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
-    private Executor executor = new DirectExecutor();
-
-    private ErrorHandler errorHandler;
-
     private final boolean pointingRight;
-
-    private final NodeAnimator nodeAnimator;
 
     /**
      * 
@@ -42,9 +34,8 @@ public class HorizontalTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
      */
     public HorizontalTreeLayoutAlgorithm(boolean pointingRight,
             ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
-        this.errorHandler = errorHandler;
+        super(errorHandler, nodeAnimator);
         this.pointingRight = pointingRight;
-        this.nodeAnimator = nodeAnimator;
     }
 
     @Override

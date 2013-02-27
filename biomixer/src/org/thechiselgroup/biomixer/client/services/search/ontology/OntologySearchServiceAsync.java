@@ -24,6 +24,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 // TODO generalize search interface
 public interface OntologySearchServiceAsync {
 
-    void searchOntologies(String queryText, AsyncCallback<Set<Resource>> callback);
+    void searchOntologies(String queryText,
+            AsyncCallback<Set<Resource>> callback);
+
+    public void searchOntologiesPredeterminedSet(
+            Iterable<String> virtualOntologyIds,
+            AsyncCallback<Set<Resource>> callback);
 
 }

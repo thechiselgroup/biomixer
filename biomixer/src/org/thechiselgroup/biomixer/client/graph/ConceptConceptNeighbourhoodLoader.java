@@ -23,12 +23,13 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
 import com.google.inject.Inject;
 
-public class ConceptConceptNeighbourhoodLoader extends
-        AbstractConceptConceptNeighbourhoodExpander {
+public class ConceptConceptNeighbourhoodLoader<T extends ViewWithResourceManager>
+        extends AbstractConceptConceptNeighbourhoodExpander<T> {
 
     @Inject
     public ConceptConceptNeighbourhoodLoader(ErrorHandler errorHandler,
@@ -40,14 +41,14 @@ public class ConceptConceptNeighbourhoodLoader extends
 
     @Override
     protected void expandNeighbourhood(VisualItem visualItem,
-            Resource resource, GraphNodeExpansionCallback graph,
+            Resource resource, NodeExpansionCallback<T> callback,
             List<Resource> neighbourhood) {
 
         /*
          * We do not add the resources in the neighbourhood to the graph as this
          * would cause recursive neighbourhood expansion.
          */
-        graph.updateArcsForVisuaItems(LightweightCollections
+        callback.updateArcsForVisuaItems(LightweightCollections
                 .toCollection(visualItem));
     }
 }

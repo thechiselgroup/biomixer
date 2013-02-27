@@ -29,9 +29,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetTestUtils;
-import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
@@ -125,7 +125,7 @@ public class PopupWithHighlightingVisualItemBehaviorTest {
         when(popupManager.getPopup()).thenReturn(popup);
 
         underTest = new PopupWithHighlightingVisualItemBehavior(
-                mock(DetailsWidgetHelper.class),
+                mock(BioMixerDetailsWidgetHelper.class),
                 mock(PopupManagerFactory.class), hoverModel,
                 mock(DisposeUtil.class)) {
             @Override

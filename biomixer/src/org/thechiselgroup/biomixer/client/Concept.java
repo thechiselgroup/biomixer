@@ -96,6 +96,11 @@ public final class Concept {
         return (String) concept.getValue(FULL_ID);
     }
 
+    public static String getLabel(Resource concept) {
+        assert isConcept(concept);
+        return (String) concept.getValue(LABEL);
+    }
+
     public static String getOntologyId(Resource resource) {
         return getOntologyId(resource.getUri());
     }

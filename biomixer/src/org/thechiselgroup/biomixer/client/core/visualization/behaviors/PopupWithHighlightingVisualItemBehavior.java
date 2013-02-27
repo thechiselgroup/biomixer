@@ -17,8 +17,8 @@ package org.thechiselgroup.biomixer.client.core.visualization.behaviors;
 
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.fx.Opacity;
-import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupOpacityChangedEvent;
@@ -45,7 +45,7 @@ public class PopupWithHighlightingVisualItemBehavior extends
     private HighlightingModel hoverModel;
 
     public PopupWithHighlightingVisualItemBehavior(
-            DetailsWidgetHelper detailsWidgetHelper,
+            BioMixerDetailsWidgetHelper detailsWidgetHelper,
             PopupManagerFactory popupManagerFactory,
             HighlightingModel hoverModel, DisposeUtil disposeUtil) {
 

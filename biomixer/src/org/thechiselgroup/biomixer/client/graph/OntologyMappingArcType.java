@@ -45,7 +45,9 @@ public class OntologyMappingArcType implements ArcType {
 
     public static final String ARC_COLOR = "#D4D4D4";
 
-    public static final String ARC_STYLE = ArcSettings.ARC_STYLE_DASHED;
+    // Used to be dashed but embed with central ontology looked better with
+    // solid line
+    public static final String ARC_STYLE = ArcSettings.ARC_STYLE_SOLID;
 
     public static final boolean ARC_DIRECTED = false;
 
@@ -61,9 +63,10 @@ public class OntologyMappingArcType implements ArcType {
 
         Arc arc = new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
                 secondUri, ID, getArcTypeLabel(), ARC_DIRECTED);
-        int scaledThickness = (int) Math.round((1 + Math
-                .sqrt((numberOfMappings) / 1)));
-        arc.setSize(scaledThickness);
+        // int scaledThickness =
+        // (int) Math.round((1 + Math.sqrt((numberOfMappings) / 1)));
+        // arc.setSize(scaledThickness);
+        arc.setSize(numberOfMappings);
         return arc;
     }
 

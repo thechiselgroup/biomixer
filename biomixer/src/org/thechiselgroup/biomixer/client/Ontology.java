@@ -37,6 +37,8 @@ public final class Ontology {
 
     public static final String LABEL = "label";
 
+    public static final String ONTOLOGY_ABBREVIATION = "ontologyAbbreviation";
+
     public static final String TYPE = "type";
 
     public static final String VIRTUAL_ONTOLOGY_ID = "ontologyId";
@@ -60,8 +62,6 @@ public final class Ontology {
     public static String INCOMING_MAPPINGS = "incomingMappings";
 
     public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
-
-    public static final String ONTOLOGY_NAME = "ontologyName";
 
     public static Resource createOntologyResource(String ontologyId) {
 
@@ -106,6 +106,14 @@ public final class Ontology {
         return resource.getUri().startsWith(Ontology.RESOURCE_URI_PREFIX);
     }
 
+    /**
+     * Given the virtual ontology id, get the unique ontology URI. Remember that
+     * the virtual id isn't always referred to as a virtual id in the REST
+     * service results.
+     * 
+     * @param ontologyId
+     * @return
+     */
     public static String toOntologyURI(String ontologyId) {
         return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyId + "/";
     }

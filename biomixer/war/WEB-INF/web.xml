@@ -76,4 +76,23 @@
     <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/remote_logging</url-pattern>
   </servlet-mapping>
  
+  <!-- preprocessed data retrieval services -->
+  <servlet>
+    <servlet-name>ontologyOverview</servlet-name>
+    <servlet-class>org.thechiselgroup.biomixer.server.data.json.OntologyOverviewServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ontologyOverview</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/ontologyOverview</url-pattern>
+  </servlet-mapping>
+  
+   <servlet>
+    <servlet-name>matrixLayout</servlet-name>
+    <servlet-class>org.thechiselgroup.biomixer.server.data.json.MatrixLayoutServiceImpl</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>matrixLayout</servlet-name>
+    <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/matrixLayout</url-pattern>
+  </servlet-mapping>
+ 
 </web-app>

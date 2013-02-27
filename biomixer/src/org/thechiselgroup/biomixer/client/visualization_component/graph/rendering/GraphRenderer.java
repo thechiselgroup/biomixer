@@ -67,6 +67,10 @@ public interface GraphRenderer {
 
     void removeNodeExpander(RenderedNodeExpander expander);
 
+    void setArcRenderLabels(boolean newValue);
+
+    boolean getArcRenderLabels();
+
     RenderedArc renderArc(Arc arc);
 
     RenderedNode renderNode(Node node);
@@ -85,5 +89,7 @@ public interface GraphRenderer {
     void setNodeStyle(Node node, String styleProperty, String styleValue);
 
     void setViewWideInteractionHandler(ChooselEventHandler handler);
+
+    public void updateTransformedNodeSizes();
 
 }

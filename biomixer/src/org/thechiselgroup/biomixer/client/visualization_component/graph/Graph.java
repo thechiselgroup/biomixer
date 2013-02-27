@@ -49,6 +49,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
@@ -98,7 +99,8 @@ import com.google.inject.Inject;
 // TODO separate out ncbo specific stuff and service calls
 // TODO register listener for double click on node --> change expansion state
 public class Graph extends AbstractViewContentDisplay implements
-        RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback {
+        RequiresAutomaticResourceSet, GraphLayoutSupport, GraphLayoutCallback,
+        ViewWithResourceManager {
 
     public static class DefaultDisplay extends GraphDisplayController {
 
@@ -108,16 +110,28 @@ public class Graph extends AbstractViewContentDisplay implements
 
         static final GraphRendererConceptGraphFactory factory = new GraphRendererConceptGraphFactory();
 
+        static final GraphElementSizeTransformerFactory nodeSizeTransformerFactory = new GraphElementSizeTransformerFactory();
+
         // // TODO why is size needed in the first place??
-        public DefaultDisplay(ErrorHandler errorHandler) {
+        public DefaultDisplay(ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(defaultHeight, defaultWidth, "Concept Graph", factory
                     .createGraphRenderer(defaultHeight, defaultWidth),
-                    errorHandler, true);
+                    errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createConceptNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createConceptArcSizeTransformer(), true);
         }
 
-        public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
+        public DefaultDisplay(int width, int height, ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Concept Graph", factory.createGraphRenderer(
-                    width, height), errorHandler, true);
+                    width, height), errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createConceptNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createConceptArcSizeTransformer(), true);
         }
 
     }
@@ -130,19 +144,94 @@ public class Graph extends AbstractViewContentDisplay implements
 
         static final GraphRendererOntologyOverviewFactory factory = new GraphRendererOntologyOverviewFactory();
 
+        static final GraphElementSizeTransformerFactory nodeSizeTransformerFactory = new GraphElementSizeTransformerFactory();
+
         // // TODO why is size needed in the first place??
-        public OntologyGraphDisplay(ErrorHandler errorHandler) {
+        public OntologyGraphDisplay(ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(defaultHeight, defaultWidth, "Ontology Graph", factory
                     .createGraphRenderer(defaultHeight, defaultWidth),
-                    errorHandler, true);
+                    errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createOntologyNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createOntologyMappingArcSizeTransformer(), true);
         }
 
         public OntologyGraphDisplay(int width, int height,
-                ErrorHandler errorHandler) {
+                ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Ontology Graph", factory.createGraphRenderer(
-                    width, height), errorHandler, true);
+                    width, height), errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createOntologyNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createOntologyMappingArcSizeTransformer(), true);
         }
 
+    }
+
+    private final ConceptResourceManager conceptResourceManager;
+
+    @Override
+    public SpecializedResourceManager getSpecificResourceManager() {
+        return this.conceptResourceManager;
+    }
+
+    private class ConceptResourceManager extends SpecializedResourceManager {
+
+        public ConceptResourceManager(ResourceManager resourceManager,
+                ResourceCategorizer resourceCategorizer,
+                RequiresAutomaticResourceSet automaticResourceOwner) {
+            super(resourceManager, resourceCategorizer, automaticResourceOwner);
+
+        }
+
+        @Override
+        public boolean containsResourceWithUri(String resourceUri) {
+            return Graph.this.containsResourceWithUri(resourceUri);
+        }
+
+        @Override
+        public Resource getResourceByUri(String value) {
+            return Graph.this.getResourceByUri(value);
+        }
+    }
+
+    private final class DefaultGraphNodeExpansionCallback extends
+            NodeExpansionCallback<Graph> {
+
+        @Override
+        public Graph getDisplay() {
+            return Graph.this;
+        }
+
+        @Override
+        public LightweightCollection<VisualItem> getVisualItems(
+                Iterable<Resource> resources) {
+            return Graph.this.getVisualItems(resources);
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return Graph.this.isInitialized();
+        }
+
+        @Override
+        public boolean isRestoring() {
+            return Graph.this.isRestoring();
+        }
+
+        @Override
+        public void updateArcsForResources(Iterable<Resource> resources) {
+            Graph.this.updateArcsForResources(resources);
+        }
+
+        @Override
+        public void updateArcsForVisuaItems(
+                LightweightCollection<VisualItem> visualItems) {
+            Graph.this.updateArcsForVisuaItems(visualItems);
+        }
     }
 
     private class GraphEventHandler implements NodeMouseOverHandler,
@@ -312,65 +401,7 @@ public class Graph extends AbstractViewContentDisplay implements
      * callbacks that return after the graph has been disposed or before it has
      * been initialized).
      */
-    private final GraphNodeExpansionCallback expansionCallback = new GraphNodeExpansionCallback() {
-
-        @Override
-        public void addAutomaticResource(Resource resource) {
-            Graph.this.addAutomaticResource(resource);
-        }
-
-        @Override
-        public boolean containsResourceWithUri(String resourceUri) {
-            return Graph.this.containsResourceWithUri(resourceUri);
-        }
-
-        @Override
-        public String getCategory(Resource resource) {
-            return Graph.this.getCategory(resource);
-        }
-
-        @Override
-        public GraphDisplayController getDisplay() {
-            return Graph.this.getDisplay();
-        }
-
-        @Override
-        public Resource getResourceByUri(String value) {
-            return Graph.this.getResourceByUri(value);
-        }
-
-        @Override
-        public ResourceManager getResourceManager() {
-            return Graph.this.getResourceManager();
-        }
-
-        @Override
-        public LightweightCollection<VisualItem> getVisualItems(
-                Iterable<Resource> resources) {
-            return Graph.this.getVisualItems(resources);
-        }
-
-        @Override
-        public boolean isInitialized() {
-            return Graph.this.isInitialized();
-        }
-
-        @Override
-        public boolean isRestoring() {
-            return Graph.this.isRestoring();
-        }
-
-        @Override
-        public void updateArcsForResources(Iterable<Resource> resources) {
-            Graph.this.updateArcsForResources(resources);
-        }
-
-        @Override
-        public void updateArcsForVisuaItems(
-                LightweightCollection<VisualItem> visualItems) {
-            Graph.this.updateArcsForVisuaItems(visualItems);
-        }
-    };
+    private final NodeExpansionCallback<Graph> expansionCallback = new DefaultGraphNodeExpansionCallback();
 
     private ErrorHandler errorHandler;
 
@@ -398,6 +429,8 @@ public class Graph extends AbstractViewContentDisplay implements
         this.resourceManager = resourceManager;
         this.registry = registry;
 
+        this.conceptResourceManager = new ConceptResourceManager(
+                resourceManager, resourceCategorizer, this);
         /*
          * we init the arc type containers early so they are available for UI
          * customization in Choosel applications.
@@ -414,10 +447,6 @@ public class Graph extends AbstractViewContentDisplay implements
         }
 
         return super.adaptTo(clazz);
-    }
-
-    private void addAutomaticResource(Resource resource) {
-        automaticResources.add(resource);
     }
 
     private boolean containsResourceWithUri(String resourceUri) {
@@ -493,7 +522,7 @@ public class Graph extends AbstractViewContentDisplay implements
     List<Node> getAllNodes() {
         List<Node> result = new ArrayList<Node>();
         for (VisualItem visualItem : getVisualItems()) {
-            result.add(getNode(visualItem));
+            result.add(getNodeInGraph(visualItem));
         }
         return result;
     }
@@ -534,7 +563,7 @@ public class Graph extends AbstractViewContentDisplay implements
         return resourceCategorizer.getCategory(resource);
     }
 
-    private GraphDisplayController getDisplay() {
+    public GraphDisplayController getDisplayController() {
         return graphDisplay;
     }
 
@@ -560,8 +589,18 @@ public class Graph extends AbstractViewContentDisplay implements
         return this.graphDisplay.getGraphViewName();
     }
 
-    private Node getNode(VisualItem visualItem) {
+    private Node getNodeInGraph(VisualItem visualItem) {
         return visualItem.<NodeItem> getDisplayObject().getNode();
+    }
+
+    /**
+     * For code that originally asked the graphDisplay directly, but now has to
+     * be routed through here. Seems redundant?
+     * 
+     * @param id
+     */
+    public Node getNode(String nodeId) {
+        return this.graphDisplay.getNode(nodeId);
     }
 
     @Override
@@ -698,7 +737,7 @@ public class Graph extends AbstractViewContentDisplay implements
     }
 
     private void registerNodeMenuItem(String category, String menuLabel,
-            final GraphNodeExpander nodeExpander) {
+            final NodeExpander nodeExpander) {
 
         graphDisplay.addNodeMenuItemHandler(menuLabel,
                 new NodeMenuItemClickedHandler() {
@@ -718,7 +757,7 @@ public class Graph extends AbstractViewContentDisplay implements
                 .values()) {
             arcItemContainer.removeVisualItem(visualItem);
         }
-        graphDisplay.removeNode(getNode(visualItem));
+        graphDisplay.removeNode(getNodeInGraph(visualItem));
         this.removeNodeGraphItem((NodeItem) (visualItem.getDisplayObject()));
     }
 
@@ -819,6 +858,11 @@ public class Graph extends AbstractViewContentDisplay implements
     @Override
     public void setAutomaticResources(ResourceSet automaticResources) {
         this.automaticResources = automaticResources;
+    }
+
+    @Override
+    public ResourceSet getAutomaticResources() {
+        return this.automaticResources;
     }
 
     @Override
@@ -930,5 +974,13 @@ public class Graph extends AbstractViewContentDisplay implements
                 .createDefaultPopupWithHighlightingVisualItemBehavior());
 
         return composite;
+    }
+
+    public void setNodeStyle(Node node, String nodeSize, String styleValue) {
+        this.graphDisplay.setNodeStyle(node, nodeSize, styleValue);
+    }
+
+    public GraphExpansionRegistry getExpanderRegistry() {
+        return this.registry;
     }
 }

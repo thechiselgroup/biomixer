@@ -27,9 +27,10 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
  *             instead.
  */
 @Deprecated
-public abstract class AbstractGraphNodeExpander implements GraphNodeExpander {
+public abstract class AbstractGraphNodeExpander<T extends ViewWithResourceManager>
+        implements NodeExpander<T> {
 
-    protected void addResources(GraphNodeExpansionCallback expansionCallback,
+    protected void addResources(NodeExpansionCallback<Graph> expansionCallback,
             List<String> resourceUrisToAdd, Resource resource) {
 
         List<String> added = new ArrayList<String>();
@@ -53,17 +54,19 @@ public abstract class AbstractGraphNodeExpander implements GraphNodeExpander {
         // TODO extract + refactor layout (have method layout on node)
         Node inputNode = expansionCallback.getDisplay().getNode(
                 resource.getUri());
-        Point inputLocation = expansionCallback.getDisplay().getLocation(
-                inputNode);
+        Point inputLocation = expansionCallback.getDisplay()
+                .getDisplayController().getLocation(inputNode);
 
         List<Node> nodesToLayout = new ArrayList<Node>();
         for (String uri : added) {
             Node node = expansionCallback.getDisplay().getNode(uri);
-            expansionCallback.getDisplay().setLocation(node, inputLocation);
+            expansionCallback.getDisplay().getDisplayController()
+                    .setLocation(node, inputLocation);
             nodesToLayout.add(node);
         }
 
-        expansionCallback.getDisplay().runLayoutOnNodes(nodesToLayout);
+        expansionCallback.getDisplay().getDisplayController()
+                .runLayoutOnNodes(nodesToLayout);
     }
 
     // TODO do not ask for a uri list

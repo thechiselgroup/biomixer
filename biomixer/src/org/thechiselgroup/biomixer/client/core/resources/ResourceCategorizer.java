@@ -21,6 +21,8 @@ package org.thechiselgroup.biomixer.client.core.resources;
  */
 public interface ResourceCategorizer {
 
-    String getCategory(Resource resource);
+    public String getCategory(Resource resource);
+
+    public String getCategory(String resourceUri);
 
 }

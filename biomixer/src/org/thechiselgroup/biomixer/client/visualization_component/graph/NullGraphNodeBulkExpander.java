@@ -18,10 +18,11 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 
-public class NullGraphNodeBulkExpander implements GraphNodeBulkExpander {
+public class NullGraphNodeBulkExpander<T extends ViewWithResourceManager>
+        implements NodeBulkExpander<T> {
 
     @Override
     public void expand(LightweightCollection<VisualItem> visualItems,
-            GraphNodeExpansionCallback expansionCallback) {
+            NodeExpansionCallback<T> expansionCallback) {
     }
 }

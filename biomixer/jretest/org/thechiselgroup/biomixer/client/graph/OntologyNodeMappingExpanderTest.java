@@ -54,7 +54,8 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphNodeExpansionCallback;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.core.test.matchers.collections.CollectionMatchers;
 import org.thechiselgroup.biomixer.shared.core.test.mockito.FirstInvocationArgumentAnswer;
@@ -89,7 +90,7 @@ public class OntologyNodeMappingExpanderTest {
     private ResourceManager resourceManager;
 
     @Mock
-    private GraphNodeExpansionCallback expansionCallback;
+    private NodeExpansionCallback<Graph> expansionCallback;
 
     private Resource outgoingMapping;
 

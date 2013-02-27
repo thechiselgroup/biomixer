@@ -30,4 +30,17 @@ public class BioMixerEmbedInitializer extends EmbedInitializer {
         registerLoader(ontologyLoader);
     }
 
+    @SuppressWarnings("unused")
+    @Inject
+    private void setJavascriptBasedVisualizationLoader(
+            ForceDirectedOntologyOverviewLoader loader) {
+        registerLoader(loader);
+    }
+
+    @SuppressWarnings("unused")
+    @Inject
+    private void setJavascriptBasedVisualizationLoader(MatrixLayoutLoader loader) {
+        registerLoader(loader);
+    }
+
 }

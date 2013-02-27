@@ -35,7 +35,7 @@ public class OntologySearchWindowContent extends AbstractSearchWindowContent {
     public OntologySearchWindowContent(ResourceSetFactory resourceSetFactory,
             OntologySearchServiceAsync searchService,
             ViewWindowContentProducer viewFactory) {
-        super(resourceSetFactory, Ontology.ONTOLOGY_NAME, viewFactory,
+        super(resourceSetFactory, Ontology.LABEL, viewFactory,
                 OntologySearchCommand.NCBO_ONTOLOGY_SEARCH);
         this.searchService = searchService;
     }

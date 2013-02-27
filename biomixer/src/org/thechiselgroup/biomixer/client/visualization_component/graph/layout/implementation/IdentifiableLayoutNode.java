@@ -20,6 +20,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 
 public class IdentifiableLayoutNode extends AbstractLayoutNode implements
         Identifiable {
@@ -32,13 +33,23 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
 
     private SizeDouble size;
 
+    private final NodeSizeTransformer nodeSizeTransformer;
+
     public IdentifiableLayoutNode(String id, RenderedNode svgComponent,
-            LayoutNodeType nodeType) {
+            LayoutNodeType nodeType, NodeSizeTransformer nodeSizeTransformer) {
         this.id = id;
         this.renderedNode = svgComponent;
         this.nodeType = nodeType;
+        this.nodeSizeTransformer = nodeSizeTransformer;
 
         // XXX assumption: size does not change
+        // TODO This assumption might not be broken by changes I am making,
+        // so that there is a transformation prior to *using* the size...
+        // TODO Is a renderedNode *owned* by a particular graph? If so, it can
+        // be told its size transformer in advance. Otherwise, it should be
+        // passed into the getSize() method...
+        // XXX I think that these are indeed owned by a graph, or at least a
+        // layout.
         size = renderedNode.getSize();
         // XXX assumption: x,y managed through this class
         super.setPosition(renderedNode.getLeftX(), renderedNode.getTopY());
@@ -78,7 +89,14 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
 
     @Override
     public SizeDouble getSize() {
-        return size;
+        SizeDouble transformedSize = size;
+        try {
+            // Do I transform here?
+            transformedSize = nodeSizeTransformer.transform(size);
+        } catch (Exception e) {
+            // There won't be problems, right?
+        }
+        return transformedSize;
     }
 
     @Override

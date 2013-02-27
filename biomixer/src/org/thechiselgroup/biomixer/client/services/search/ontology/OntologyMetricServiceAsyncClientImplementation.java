@@ -18,9 +18,9 @@ package org.thechiselgroup.biomixer.client.services.search.ontology;
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
+import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpLiveRestUrlBuilderFactory;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -40,7 +40,8 @@ public class OntologyMetricServiceAsyncClientImplementation extends
     @Inject
     public OntologyMetricServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            NcboJsonpLiveRestUrlBuilderFactory urlBuilderFactory,
+            UrlBuilderFactory urlBuilderFactory,
+
             OntologyMetricJsonParser responseParser) {
         super(urlFetchService, urlBuilderFactory);
 

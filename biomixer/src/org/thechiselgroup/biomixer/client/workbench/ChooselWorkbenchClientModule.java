@@ -54,6 +54,7 @@ import org.thechiselgroup.biomixer.client.core.util.HandlerManagerProvider;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultViewAccessor;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewAccessor;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.HighlightingModel;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplaysConfiguration;
 import org.thechiselgroup.biomixer.client.core.visualization.model.managed.DefaultVisualItemResolverFactoryProvider;
@@ -302,8 +303,8 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
         bindDragAvatarDropTargetManagers();
         bindDragAvatarFactories();
 
-        bind(DetailsWidgetHelper.class).to(getDetailsWidgetHelperClass()).in(
-                Singleton.class);
+        // bind(DetailsWidgetHelper<VisualItem>.class).to(getDetailsWidgetHelperClass()).in(
+        // Singleton.class);
 
         bind(HandlerManager.class).toProvider(HandlerManagerProvider.class).in(
                 Singleton.class);
@@ -409,8 +410,9 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
         return MappingCategoryLabelProvider.class;
     }
 
-    protected Class<? extends DetailsWidgetHelper> getDetailsWidgetHelperClass() {
+    protected Class<? extends DetailsWidgetHelper<VisualItem>> getDetailsWidgetHelperClass() {
         return DefaultDetailsWidgetHelper.class;
+        // TODO Really need this? It's causing me a problem...removed call anyway...
     }
 
     protected Class<? extends DropTargetCapabilityChecker> getDropTargetCapabilityCheckerClass() {

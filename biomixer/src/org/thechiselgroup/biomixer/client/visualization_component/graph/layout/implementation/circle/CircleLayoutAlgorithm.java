@@ -16,8 +16,6 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
-import org.thechiselgroup.biomixer.client.core.util.executor.DirectExecutor;
-import org.thechiselgroup.biomixer.client.core.util.executor.Executor;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
@@ -25,20 +23,13 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public class CircleLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
-    private Executor executor = new DirectExecutor();
+    protected double minAngle = 0.0;
 
-    private final ErrorHandler errorHandler;
-
-    private double minAngle = 0.0;
-
-    private double maxAngle = 360.0;
-
-    private final NodeAnimator nodeAnimator;
+    protected double maxAngle = 360.0;
 
     public CircleLayoutAlgorithm(ErrorHandler errorHandler,
             NodeAnimator nodeAnimator) {
-        this.errorHandler = errorHandler;
-        this.nodeAnimator = nodeAnimator;
+        super(errorHandler, nodeAnimator);
     }
 
     @Override
