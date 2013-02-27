@@ -37,9 +37,7 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
 
     @Inject
     public OntologyCentricEmbedLoader(
-            OntologyMappingOverviewLoader ontologyOverviewLoader,
             OntologyMappingNeighbourhoodLoader ontologyMappingLoader) {
-        registerLoader(ontologyOverviewLoader);
         registerLoader(ontologyMappingLoader);
     }
 

@@ -22,6 +22,8 @@ import org.thechiselgroup.biomixer.server.core.util.IOUtils;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+// Prototype D3 view support
+@Deprecated
 public class OntologyOverviewServiceImpl extends RemoteServiceServlet implements
         OntologyOverviewService {
 
