@@ -50,6 +50,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -241,7 +242,16 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             }
 
             graph.updateArcsForResources(results);
+
+            hideLoadingBar();
         }
+    }
+
+    protected void hideLoadingBar() {
+        // http://turbomanage.wordpress.com/2010/01/12/gwt-layout-gotcha/
+        // http://stackoverflow.com/questions/6183181/how-to-add-a-custom-widget-to-an-element
+        RootPanel rootPanel = RootPanel.get("loadingMessage");
+        rootPanel.setVisible(false);
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
