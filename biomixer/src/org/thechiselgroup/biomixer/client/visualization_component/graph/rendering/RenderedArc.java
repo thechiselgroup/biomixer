@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
  * @author drusk
  * 
  */
-public interface RenderedArc {
+public interface RenderedArc extends RenderedItem {
 
     Arc getArc();
 

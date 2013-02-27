@@ -18,7 +18,6 @@ package org.thechiselgroup.biomixer.client;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.resources.ui.AbstractDetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatar;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
@@ -36,19 +35,20 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 
-public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
+public class BioMixerDetailsWidgetHelper extends
+        AbstractDetailsWidgetHelper<VisualItem> {
 
     private final ResourceSetAvatarDragController dragController;
 
     private final ResourceManager resourceManager;
 
     @Inject
-    public BioMixerDetailsWidgetHelper(ResourceSetFactory resourceSetFactory,
+    public BioMixerDetailsWidgetHelper(
             ResourceSetAvatarFactory dragAvatarFactory,
             ResourceSetAvatarDragController dragController,
             ResourceManager resourceManager) {
 
-        super(resourceSetFactory, dragAvatarFactory);
+        super(dragAvatarFactory);
 
         this.dragController = dragController;
         this.resourceManager = resourceManager;
@@ -63,7 +63,7 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         return avatar;
     }
 
-    public class VisualItemVerticalPanel extends VerticalPanel {
+    static public class VisualItemVerticalPanel extends VerticalPanel {
         private VisualItem visualItem;
 
         public VisualItemVerticalPanel() {
@@ -88,7 +88,8 @@ public class BioMixerDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
         // when extending the VerticalPanel. Could extend Composite from GWT ui
         // package, but using "new" seems to work fine...do we really need to
         // use create() to begin with?
-        // VisualItemVerticalPanel verticalPanel = GWT.create(VisualItemVerticalPanel.class);
+        // VisualItemVerticalPanel verticalPanel =
+        // GWT.create(VisualItemVerticalPanel.class);
         VisualItemVerticalPanel verticalPanel = new VisualItemVerticalPanel();
         verticalPanel.setVisualItem(visualItem);
         return refreshDetailsWidget(visualItem, verticalPanel);

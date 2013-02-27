@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.visualization.behaviors;
 
+import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper.VisualItemVerticalPanel;
 import org.thechiselgroup.biomixer.client.core.fx.Opacity;
-import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.ui.popup.Popup;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManager;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
@@ -38,11 +38,12 @@ public class PopupVisualItemBehavior extends
         MappedHandlerVisualItemBehavior<PopupManager> implements
         PopupOpacityChangedEventHandler {
 
-    private DetailsWidgetHelper detailsWidgetHelper;
+    private BioMixerDetailsWidgetHelper detailsWidgetHelper;
 
     private PopupManagerFactory popupManagerFactory;
 
-    public PopupVisualItemBehavior(DetailsWidgetHelper detailsWidgetHelper,
+    public PopupVisualItemBehavior(
+            BioMixerDetailsWidgetHelper detailsWidgetHelper,
             PopupManagerFactory popupManagerFactory, DisposeUtil disposeUtil) {
         super(disposeUtil);
         assert detailsWidgetHelper != null;
@@ -54,7 +55,8 @@ public class PopupVisualItemBehavior extends
 
     @Override
     protected PopupManager createHandler(VisualItem visualItem) {
-        // The contents of the widget will get refreshed via the opacity change listener
+        // The contents of the widget will get refreshed via the opacity change
+        // listener
         Widget detailsWidget = detailsWidgetHelper
                 .createDetailsWidget(visualItem);
         PopupManager popupManager = popupManagerFactory

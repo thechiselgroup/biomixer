@@ -34,12 +34,13 @@ import com.google.inject.Inject;
  * 
  * @author Lars Grammel
  */
-public class DefaultDetailsWidgetHelper extends AbstractDetailsWidgetHelper {
+public class DefaultDetailsWidgetHelper extends
+        AbstractDetailsWidgetHelper<VisualItem> {
 
     @Inject
     public DefaultDetailsWidgetHelper(ResourceSetFactory resourceSetFactory,
             ResourceSetAvatarFactory dragAvatarFactory) {
-        super(resourceSetFactory, dragAvatarFactory);
+        super(dragAvatarFactory);
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
@@ -48,6 +49,9 @@ public class GraphViewContentDisplayFactory implements
     private GraphExpansionRegistryFactory registryFactory;
 
     @Inject
+    RenderedItemPopupManager renderedArcPopupManager;
+
+    @Inject
     public GraphViewContentDisplayFactory() {
     }
 
@@ -56,9 +60,9 @@ public class GraphViewContentDisplayFactory implements
         GraphExpansionRegistry registry = registryFactory
                 .createRegistry(errorHandler);
 
-        return new Graph(new Graph.DefaultDisplay(errorHandler),
-                commandManager, resourceManager, resourceCategorizer,
-                arcStyleProvider, registry, errorHandler,
+        return new Graph(new Graph.DefaultDisplay(errorHandler,
+                renderedArcPopupManager), commandManager, resourceManager,
+                resourceCategorizer, arcStyleProvider, registry, errorHandler,
                 createDataTypeValidator());
     }
 

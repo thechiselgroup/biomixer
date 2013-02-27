@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.initialization.ViewContentDisplayFactory;
 
@@ -48,6 +49,9 @@ public class GraphOntologyOverviewViewContentDisplayFactory implements
     private GraphExpansionRegistryFactory registryFactory;
 
     @Inject
+    private RenderedItemPopupManager renderedArcPopupManager;
+
+    @Inject
     public GraphOntologyOverviewViewContentDisplayFactory() {
     }
 
@@ -57,9 +61,9 @@ public class GraphOntologyOverviewViewContentDisplayFactory implements
                 .createRegistry(errorHandler);
 
         // This isn't going to be how it works, but...
-        Graph second = new Graph(new Graph.OntologyGraphDisplay(errorHandler),
-                commandManager, resourceManager, resourceCategorizer,
-                arcStyleProvider, registry, errorHandler,
+        Graph second = new Graph(new Graph.OntologyGraphDisplay(errorHandler,
+                renderedArcPopupManager), commandManager, resourceManager,
+                resourceCategorizer, arcStyleProvider, registry, errorHandler,
                 createDataTypeValidator());
         return second;
     }

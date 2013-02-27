@@ -49,6 +49,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
@@ -112,19 +113,23 @@ public class Graph extends AbstractViewContentDisplay implements
         static final GraphElementSizeTransformerFactory nodeSizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
         // // TODO why is size needed in the first place??
-        public DefaultDisplay(ErrorHandler errorHandler) {
+        public DefaultDisplay(ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(defaultHeight, defaultWidth, "Concept Graph", factory
                     .createGraphRenderer(defaultHeight, defaultWidth),
-                    errorHandler, nodeSizeTransformerFactory
+                    errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
                             .createConceptNodeSizeTransformer(),
                     nodeSizeTransformerFactory
                             .createConceptArcSizeTransformer(), true);
         }
 
-        public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
+        public DefaultDisplay(int width, int height, ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Concept Graph", factory.createGraphRenderer(
-                    width, height), errorHandler, nodeSizeTransformerFactory
-                    .createConceptNodeSizeTransformer(),
+                    width, height), errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createConceptNodeSizeTransformer(),
                     nodeSizeTransformerFactory
                             .createConceptArcSizeTransformer(), true);
         }
@@ -142,20 +147,24 @@ public class Graph extends AbstractViewContentDisplay implements
         static final GraphElementSizeTransformerFactory nodeSizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
         // // TODO why is size needed in the first place??
-        public OntologyGraphDisplay(ErrorHandler errorHandler) {
+        public OntologyGraphDisplay(ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(defaultHeight, defaultWidth, "Ontology Graph", factory
                     .createGraphRenderer(defaultHeight, defaultWidth),
-                    errorHandler, nodeSizeTransformerFactory
+                    errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
                             .createOntologyNodeSizeTransformer(),
                     nodeSizeTransformerFactory
                             .createOntologyMappingArcSizeTransformer(), true);
         }
 
         public OntologyGraphDisplay(int width, int height,
-                ErrorHandler errorHandler) {
+                ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Ontology Graph", factory.createGraphRenderer(
-                    width, height), errorHandler, nodeSizeTransformerFactory
-                    .createOntologyNodeSizeTransformer(),
+                    width, height), errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createOntologyNodeSizeTransformer(),
                     nodeSizeTransformerFactory
                             .createOntologyMappingArcSizeTransformer(), true);
         }

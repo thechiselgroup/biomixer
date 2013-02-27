@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.BioMixerDetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.command.CommandManager;
 import org.thechiselgroup.biomixer.client.core.error_handling.CompositeErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
@@ -39,7 +40,6 @@ import org.thechiselgroup.biomixer.client.core.resources.HasResourceCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceByUriMultiCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceMultiCategorizer;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
-import org.thechiselgroup.biomixer.client.core.resources.ui.DetailsWidgetHelper;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarFactory;
 import org.thechiselgroup.biomixer.client.core.resources.ui.ResourceSetAvatarResourceSetsPresenter;
 import org.thechiselgroup.biomixer.client.core.ui.SidePanelSection;
@@ -142,7 +142,7 @@ public class ViewWindowContentProducer implements WindowContentProducer {
     private PopupManagerFactory popupManagerFactory;
 
     @Inject
-    private DetailsWidgetHelper detailsWidgetHelper;
+    private BioMixerDetailsWidgetHelper detailsWidgetHelper;
 
     @Inject
     private DragEnablerFactory dragEnablerFactory;

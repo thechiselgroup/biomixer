@@ -23,6 +23,7 @@ import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.geometry.Point;
 import org.thechiselgroup.biomixer.client.core.util.animation.TestAnimationRunner;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.svg.AbstractSvgTest;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphRendererConceptGraphTestFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
@@ -62,6 +63,9 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends
 
     @Mock
     protected ErrorHandler errorHandler;
+
+    @Mock
+    RenderedItemPopupManager renderedArcPopupManager;
 
     @Mock
     NodeSizeTransformer nodeSizeTransformer;
@@ -141,12 +145,14 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends
     @Before
     public void setUpGraphDisplay() {
         MockitoAnnotations.initMocks(this);
-        underTest = new TestGraphSvgDisplay(400,
+        underTest = new TestGraphSvgDisplay(
+                400,
                 300,
                 // factory.createGraphRenderer(400, 300,
                 // new TextSvgElementFactory()), errorHandler);
                 factory.createGraphRenderer(400, 300), errorHandler,
-                nodeSizeTransformer, arcSizeTransformer);
+                renderedArcPopupManager, nodeSizeTransformer,
+                arcSizeTransformer);
         underTest.addEventHandler(NodeMouseClickEvent.TYPE,
                 nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,

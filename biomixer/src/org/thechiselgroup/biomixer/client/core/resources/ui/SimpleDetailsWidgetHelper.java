@@ -20,7 +20,8 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SimpleDetailsWidgetHelper implements DetailsWidgetHelper {
+public class SimpleDetailsWidgetHelper implements
+        DetailsWidgetHelper<VisualItem> {
 
     @Override
     public Widget createDetailsWidget(VisualItem visualItem) {

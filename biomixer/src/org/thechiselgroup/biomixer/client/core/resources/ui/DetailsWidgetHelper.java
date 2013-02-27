@@ -15,15 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.resources.ui;
 
-import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-
 import com.google.gwt.user.client.ui.Widget;
 
 // TODO rename into details widget factory...
-public interface DetailsWidgetHelper {
+public interface DetailsWidgetHelper<T> {
 
-    Widget createDetailsWidget(VisualItem visualItem);
+    Widget createDetailsWidget(T visualItem);
 
-    Widget refreshDetailsWidget(VisualItem visualItem, Widget existingWidget);
+    Widget refreshDetailsWidget(T visualItem, Widget existingWidget);
 
 }

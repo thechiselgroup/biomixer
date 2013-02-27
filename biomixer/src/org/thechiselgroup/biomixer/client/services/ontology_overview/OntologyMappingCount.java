@@ -18,7 +18,7 @@ public class OntologyMappingCount {
     }
 
     /**
-     * Sometimes only the total mapping count is available fromt he REST
+     * Sometimes only the total mapping count is available from the REST
      * service.
      * 
      * @param sourceId

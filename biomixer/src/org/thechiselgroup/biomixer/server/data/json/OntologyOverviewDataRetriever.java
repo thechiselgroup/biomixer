@@ -18,6 +18,8 @@ import org.xml.sax.InputSource;
 
 // XXX actual file generation is commented out because FileWriter can't be used with GAE
 // TODO some way of periodically running this to refresh the data
+// TODO Delete this. It is no longer needed.
+@Deprecated
 public class OntologyOverviewDataRetriever {
     private static String getTagValue(String sTag, Element eElement) {
         NodeList nlList = eElement.getElementsByTagName(sTag).item(0)

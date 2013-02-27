@@ -38,7 +38,11 @@ public class Arc {
      * arcs would have a size corresponding to the number of concept mapping
      * arcs between the two ontologies.
      */
-    private int size = 1;
+    private int outgoingSize = 1;
+
+    // If we want bidirectional rather than nondirectional mapping arcs, work
+    // out the best way of having incoming and outgoing counts.
+    // private int incomingSize = 1;
 
     private String arcLabel;
 
@@ -144,12 +148,38 @@ public class Arc {
      * @return
      */
     public int getSize() {
-        return size;
+        return outgoingSize;
     }
 
     public void setSize(int size) {
-        this.size = size;
+        this.outgoingSize = size;
     }
+
+    // /**
+    // * Like {@link Arc#getOutgoingSize()}, but count from target to source.
+    // * Frequently equal for mapping arcs. For directed arcs, this is likely
+    // not
+    // * useful, but in the case of mapping undirected arcs, it allows us to use
+    // a
+    // * single arc rather than two.
+    // *
+    // * @return
+    // */
+    // public int getIncomingSize() {
+    // return incomingSize;
+    // }
+
+    // /**
+    // * As per {@link Arc#getOutgoingSize()}. Sets both incoming and outgoing
+    // * size.
+    // *
+    // * @param outgoingSize
+    // * @param incomingSize
+    // */
+    // public void setSize(int outgoingSize, int incomingSize) {
+    // this.outgoingSize = outgoingSize;
+    // this.incomingSize = incomingSize;
+    // }
 
     @Override
     public int hashCode() {
@@ -175,7 +205,10 @@ public class Arc {
         return "Arc [id=" + id + ", sourceNodeId=" + sourceNodeId
                 + ", targetNodeId=" + targetNodeId + ", type=" + type
                 + ", directed=" + directed + ", weight=" + weight
-                + ", arcLabel=" + arcLabel + ", size=" + size + "]";
+                + ", arcLabel=" + arcLabel + ", size=" + outgoingSize
+                // + ", outgoingSize=" + outgoingSize
+                // + ", incomingSize=" + incomingSize
+                + "]";
     }
 
     public String getLabel() {

@@ -34,6 +34,8 @@ import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.math.MathUtils;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager.ArcChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEvent;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewResizeEventListener;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLayoutExecutionManager;
@@ -100,6 +102,8 @@ public class GraphDisplayController implements GraphDisplay,
 
     private NodeInteractionManager nodeInteractionManager;
 
+    private RenderedItemPopupManager renderedArcPopupManager;
+
     private NodeAnimator nodeAnimator;
 
     private GraphLayoutExecutionManager layoutManager;
@@ -133,9 +137,11 @@ public class GraphDisplayController implements GraphDisplay,
      *            Determines whether layouts are run right away. Send in false
      *            for testing.
      * @param arcSizeTransformer
+     * @param renderedArcPopupManager
      */
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
+            RenderedItemPopupManager renderedArcPopupManager,
             NodeSizeTransformer nodeSizeTransformer,
             ArcSizeTransformer arcSizeTransformer,
             boolean runLayoutsAutomatically) {
@@ -144,6 +150,8 @@ public class GraphDisplayController implements GraphDisplay,
         this.viewName = viewName;
 
         nodeInteractionManager = new NodeInteractionManager(this);
+
+        this.renderedArcPopupManager = renderedArcPopupManager;
 
         this.graphRenderer = graphRenderer;
 
@@ -188,14 +196,8 @@ public class GraphDisplayController implements GraphDisplay,
 
         final RenderedArc renderedArc = graphRenderer.renderArc(arc);
 
-        renderedArc.setEventListener(new ChooselEventHandler() {
-            @Override
-            public void onEvent(ChooselEvent event) {
-                if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)) {
-                    onArcMouseOver(renderedArc);
-                }
-            }
-        });
+        renderedArc.setEventListener(new ArcChooselEventHandler(renderedArc,
+                renderedArcPopupManager, this));
 
         IdentifiableLayoutNode sourceNode = layoutGraph
                 .getIdentifiableLayoutNode(sourceNodeId);
@@ -210,6 +212,7 @@ public class GraphDisplayController implements GraphDisplay,
         sourceNode.addConnectedArc(layoutArc);
         targetNode.addConnectedArc(layoutArc);
     }
+
 
     @Override
     public <T extends EventHandler> HandlerRegistration addEventHandler(
@@ -446,6 +449,13 @@ public class GraphDisplayController implements GraphDisplay,
         // bring connected nodes to front
         graphRenderer.bringToForeground(arc.getSource());
         graphRenderer.bringToForeground(arc.getTarget());
+        // This gets called by the popup manager listener...
+        // renderedArcPopupManager.addArcDelayedPopup(arc);
+    }
+
+    public void onArcMouseOut(RenderedArc arc) {
+    	// This gets called by the popup manager listener...
+        // renderedArcPopupManager.removeArcDelayedPopup(arc);
     }
 
     public void onBackgroundClick(int mouseX, int mouseY) {
