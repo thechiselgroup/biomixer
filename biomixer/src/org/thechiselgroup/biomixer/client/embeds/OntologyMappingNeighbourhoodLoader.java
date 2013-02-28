@@ -46,11 +46,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.a
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutWithCentralNodeAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -243,15 +240,8 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
             graph.updateArcsForResources(results);
 
-            hideLoadingBar();
+            loadingBar.hide();
         }
-    }
-
-    protected void hideLoadingBar() {
-        // http://turbomanage.wordpress.com/2010/01/12/gwt-layout-gotcha/
-        // http://stackoverflow.com/questions/6183181/how-to-add-a-custom-widget-to-an-element
-        RootPanel rootPanel = RootPanel.get("loadingMessage");
-        rootPanel.setVisible(false);
     }
 
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
@@ -284,6 +274,8 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
     private NodeAnimator nodeAnimator;
 
     private Graph graph;
+
+    private LoadingBarAssistant loadingBar;
 
     @Override
     public void loadView(ResourceSet virtualOntologies,
@@ -318,13 +310,8 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
 
-        // add a loading bar so the user knows the application is being
-        // loaded
-        Image loadingMessage = new Image(GWT.getModuleBaseURL()
-                + "images/ajax-loader-bar.gif");
-        graphView
-                .addTopBarExtension(new LeftViewTopBarExtension(loadingMessage));
-        loadingMessage.getElement().setId("loadingMessage");
+        loadingBar = new LoadingBarAssistant();
+        loadingBar.initialize(graphView);
 
         graphView.init();
         nodeAnimator = graphView.adaptTo(GraphLayoutSupport.class)
