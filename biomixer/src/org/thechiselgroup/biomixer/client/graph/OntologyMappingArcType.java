@@ -57,9 +57,12 @@ public class OntologyMappingArcType implements ArcType {
 
     private Arc createArc(String ontology1Uri, String ontology2Uri,
             int numberOfMappings) {
-        boolean isOntology1First = ontology1Uri.compareTo(ontology2Uri) < 0;
-        String firstUri = isOntology1First ? ontology1Uri : ontology2Uri;
-        String secondUri = isOntology1First ? ontology2Uri : ontology1Uri;
+        // boolean isOntology1First = ontology1Uri.compareTo(ontology2Uri) < 0;
+        // String firstUri = isOntology1First ? ontology1Uri : ontology2Uri;
+        // String secondUri = isOntology1First ? ontology2Uri : ontology1Uri;
+
+        String firstUri = ontology1Uri;
+        String secondUri = ontology2Uri;
 
         Arc arc = new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
                 secondUri, ID, getArcTypeLabel(), ARC_DIRECTED);

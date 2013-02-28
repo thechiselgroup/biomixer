@@ -64,9 +64,12 @@ public class DirectConceptMappingArcType implements ArcType {
     }
 
     private Arc createArc(String concept1Uri, String concept2Uri) {
-        boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
-        String firstUri = isConcept1First ? concept1Uri : concept2Uri;
-        String secondUri = isConcept1First ? concept2Uri : concept1Uri;
+        // boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
+        // String firstUri = isConcept1First ? concept1Uri : concept2Uri;
+        // String secondUri = isConcept1First ? concept2Uri : concept1Uri;
+
+        String firstUri = concept1Uri;
+        String secondUri = concept2Uri;
 
         return new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
                 secondUri, ID, ARC_LABEL, ARC_DIRECTED);
