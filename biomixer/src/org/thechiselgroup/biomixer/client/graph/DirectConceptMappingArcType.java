@@ -64,12 +64,16 @@ public class DirectConceptMappingArcType implements ArcType {
     }
 
     private Arc createArc(String concept1Uri, String concept2Uri) {
-        // boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
-        // String firstUri = isConcept1First ? concept1Uri : concept2Uri;
-        // String secondUri = isConcept1First ? concept2Uri : concept1Uri;
+        // Stopped doing this in ontology arcs. Had to put this back to prevent
+        // duplicate arcs. They were visible as dashed lines that turned into
+        // solid as you dragged the nodes. Directed/undirected is sort of
+        // a pain given the current classes...
+        boolean isConcept1First = concept1Uri.compareTo(concept2Uri) < 0;
+        String firstUri = isConcept1First ? concept1Uri : concept2Uri;
+        String secondUri = isConcept1First ? concept2Uri : concept1Uri;
 
-        String firstUri = concept1Uri;
-        String secondUri = concept2Uri;
+        // String firstUri = concept1Uri;
+        // String secondUri = concept2Uri;
 
         return new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
                 secondUri, ID, ARC_LABEL, ARC_DIRECTED);

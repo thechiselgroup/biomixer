@@ -86,20 +86,48 @@ public class Arc {
         } else if (!id.equals(other.id)) {
             return false;
         }
+
         if (sourceNodeId == null) {
             if (other.sourceNodeId != null) {
                 return false;
             }
-        } else if (!sourceNodeId.equals(other.sourceNodeId)) {
-            return false;
         }
         if (targetNodeId == null) {
             if (other.targetNodeId != null) {
                 return false;
             }
-        } else if (!targetNodeId.equals(other.targetNodeId)) {
+        }
+
+        // Already know direction here, so safe to look at only this.direction.
+        String thisFirstUri;
+        String thisSecondUri;
+        String otherFirstUri;
+        String otherSecondUri;
+        if (!directed) {
+            boolean isConcept1First = sourceNodeId.compareTo(targetNodeId) < 0;
+            thisFirstUri = isConcept1First ? sourceNodeId : targetNodeId;
+            thisSecondUri = isConcept1First ? targetNodeId : sourceNodeId;
+            otherFirstUri = isConcept1First ? other.sourceNodeId
+                    : other.targetNodeId;
+            ;
+            otherSecondUri = isConcept1First ? other.targetNodeId
+                    : other.sourceNodeId;
+            ;
+        } else {
+            thisFirstUri = sourceNodeId;
+            thisSecondUri = targetNodeId;
+            otherFirstUri = other.sourceNodeId;
+            otherSecondUri = other.targetNodeId;
+        }
+
+        if (!thisFirstUri.equals(otherFirstUri)) {
             return false;
         }
+
+        if (!thisSecondUri.equals(otherSecondUri)) {
+            return false;
+        }
+
         if (type == null) {
             if (other.type != null) {
                 return false;
@@ -183,14 +211,24 @@ public class Arc {
 
     @Override
     public int hashCode() {
+        String firstUri;
+        String secondUri;
+        if (!directed) {
+            boolean isConcept1First = sourceNodeId.compareTo(targetNodeId) < 0;
+            firstUri = isConcept1First ? sourceNodeId : targetNodeId;
+            secondUri = isConcept1First ? targetNodeId : sourceNodeId;
+        } else {
+            firstUri = sourceNodeId;
+            secondUri = targetNodeId;
+        }
         final int prime = 31;
         int result = 1;
         result = prime * result + (directed ? 1231 : 1237);
         result = prime * result + ((id == null) ? 0 : id.hashCode());
         result = prime * result
-                + ((sourceNodeId == null) ? 0 : sourceNodeId.hashCode());
+                + ((firstUri == null) ? 0 : firstUri.hashCode());
         result = prime * result
-                + ((targetNodeId == null) ? 0 : targetNodeId.hashCode());
+                + ((secondUri == null) ? 0 : secondUri.hashCode());
         result = prime * result + ((type == null) ? 0 : type.hashCode());
         // Don't use weight or size in here, I don't think.
         return result;
