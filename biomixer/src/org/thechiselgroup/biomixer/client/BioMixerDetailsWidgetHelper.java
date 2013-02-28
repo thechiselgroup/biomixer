@@ -146,11 +146,12 @@ public class BioMixerDetailsWidgetHelper extends
 
             // The summary url is also clickable. Perhaps they can have
             // different targets? Not sure...
-            addRow("Summary", ontologySummaryUrl, true, verticalPanel);
+            addRow("Summary", ontologySummaryUrl, verticalPanel, true);
             addRow(resource, verticalPanel, "Ontology Acronym", Ontology.LABEL);
             addRow(resource, verticalPanel, "Ontology ID",
                     Ontology.VIRTUAL_ONTOLOGY_ID);
-            addRow(resource, verticalPanel, "Description", Ontology.DESCRIPTION);
+            addRow(resource, verticalPanel, "Description",
+                    Ontology.DESCRIPTION, false);
             addRow(resource, verticalPanel, "Num Concepts",
                     Ontology.NUMBER_OF_CONCEPTS);
 

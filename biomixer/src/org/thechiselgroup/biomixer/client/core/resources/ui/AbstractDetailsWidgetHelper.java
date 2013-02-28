@@ -54,8 +54,8 @@ public abstract class AbstractDetailsWidgetHelper<T> implements
         verticalPanel.add(html);
     }
 
-    protected void addRow(String label, UrlBuilder value, boolean nowrap,
-            VerticalPanel verticalPanel) {
+    protected void addRow(String label, UrlBuilder value, VerticalPanel verticalPanel,
+            boolean nowrap) {
         HTML html = GWT.create(HTML.class);
         html.setHTML("<span " + (nowrap ? "style='white-space:nowrap;'" : "")
                 + "><b>" + label + ":</b> " + "<a target=_blank href=" + value
