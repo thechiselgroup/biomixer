@@ -63,6 +63,10 @@ public final class Ontology {
 
     public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
+    public static final String VIEWING_RESTRICTIONS = "viewingRestriction";
+
+    public static final String VALUE_VIEWING_RESTRICTION_PRIVATE = "private";
+
     public static Resource createOntologyResource(String ontologyId) {
 
         Resource ontology = new Resource(Ontology.toOntologyURI(ontologyId));

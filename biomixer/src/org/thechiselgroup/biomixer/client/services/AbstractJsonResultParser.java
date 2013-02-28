@@ -50,6 +50,19 @@ public abstract class AbstractJsonResultParser implements JsonParser {
         return jsonParser.get(object, property);
     }
 
+    public Object getPossiblyMissing(Object object, String property) {
+        if (jsonParser.has(object, property)) {
+            try {
+                // has() is failing, but I am in a hurry...try/catch then!
+                return jsonParser.get(object, property);
+            } catch (Throwable t) {
+                return "";
+            }
+        }
+        return "";
+
+    }
+
     protected String getOntologyIdAsString(Object object, String property) {
         return Integer.toString(asInt(get(object, property)));
     }
