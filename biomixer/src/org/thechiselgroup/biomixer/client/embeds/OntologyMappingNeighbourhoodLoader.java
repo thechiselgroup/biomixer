@@ -114,7 +114,8 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                     }
 
                     @Override
-                    protected void runOnSuccess(TotalMappingCount results)
+                    protected void runOnSuccess(
+                            TotalMappingCount mappingCountResults)
                             throws Exception {
 
                         // if (!graphView.isInitialized()) {
@@ -130,12 +131,12 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                                 .toOntologyURI(centralOntologyVirtualId));
                         ontologyResources.add(targetOntologyResource);
                         // Iterate through the neighbourhood
-                        for (OntologyMappingCount ontologyCount : results) {
+                        for (OntologyMappingCount ontologyCount : mappingCountResults) {
                             ontologyIds.add(ontologyCount.getTargetId());
                         }
 
                         OntologyDetailsCallback ontologyDetailsCallback = new OntologyDetailsCallback(
-                                graphView, results);
+                                graphView, mappingCountResults);
                         searchService.searchOntologiesPredeterminedSet(
                                 ontologyIds, ontologyDetailsCallback);
                     }
@@ -163,11 +164,11 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
         }
 
         @Override
-        public void onSuccess(Set<Resource> results) {
+        public void onSuccess(Set<Resource> ontologyDetailsResults) {
             // The resources we have here are fully detailed ontology resources.
             // How do we resolve these against the ones we created based on the
             // mapping neighbourhood data?
-            if (results.isEmpty()) {
+            if (ontologyDetailsResults.isEmpty()) {
                 // This would be unexpected, but nonetheless...
                 // infoLabel.setText("No results found for search term '"
                 // + searchTerm + "'");
@@ -192,7 +193,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
             // TODO add convenience method to resourceSetFactory
             ResourceSet resourceSet = resourceSetFactory.createResourceSet();
-            resourceSet.addAll(results);
+            resourceSet.addAll(ontologyDetailsResults);
             graphView.getResourceModel().addResourceSet(resourceSet);
 
             // Now that all of the resources exist for the
@@ -202,7 +203,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             // This happens differently for concept mappings in
             // calculatePartialProperties(). See there for contrast.
             Map<String, Resource> itemIdMap = new HashMap<String, Resource>();
-            for (Resource ontologyResource : results) {
+            for (Resource ontologyResource : ontologyDetailsResults) {
                 itemIdMap.put(Ontology.getOntologyId(ontologyResource),
                         ontologyResource);
             }
@@ -238,7 +239,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 }
             }
 
-            graph.updateArcsForResources(results);
+            graph.updateArcsForResources(ontologyDetailsResults);
 
             loadingBar.hide();
         }

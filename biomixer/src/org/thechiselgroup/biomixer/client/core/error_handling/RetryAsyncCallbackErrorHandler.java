@@ -3,7 +3,6 @@ package org.thechiselgroup.biomixer.client.core.error_handling;
 import org.thechiselgroup.biomixer.client.workbench.util.url.JsonpUrlFetchService;
 
 import com.google.gwt.jsonp.client.TimeoutException;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class RetryAsyncCallbackErrorHandler extends AsyncCallbackErrorHandler {
@@ -42,8 +41,8 @@ public class RetryAsyncCallbackErrorHandler extends AsyncCallbackErrorHandler {
             // + " and Eric sees an error num: " + error.getCause()
             // + " class " + error.getClass() + " error message: "
             // + error.getMessage());
-            Window.alert("Investigating error " + error.getClass() + " "
-                    + error.getMessage());
+            // Window.alert("Investigating error " + error.getClass() + " "
+            // + error.getMessage());
             super.handleError(error);
         }
     }
