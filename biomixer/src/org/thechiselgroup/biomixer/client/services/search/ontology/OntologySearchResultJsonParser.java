@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.search.ontology;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,9 +35,11 @@ import com.google.inject.Inject;
  */
 public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
 
-    private String filterText = "";
+    private String filterText = null;
 
     private String filterProperty = "";
+
+    private Collection<String> filterValueSet = null;
 
     @Inject
     public OntologySearchResultJsonParser(JsonParser jsonParser) {
@@ -58,6 +61,13 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
                 asString(get(jsonItem, "displayLabel")));
         resource.putValue(Ontology.DESCRIPTION,
                 asString(get(jsonItem, "description")));
+        try {
+            resource.putValue(
+                    Ontology.VIEWING_RESTRICTIONS,
+                    asString(getPossiblyMissing(jsonItem, "viewingRestriction")));
+        } catch (Throwable t) {
+            // nothing
+        }
 
         return resource;
     }
@@ -68,19 +78,25 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
         Object searchResults = get(
                 get(get(get(get(get(super.parse(json), "success"), "data"), 0),
                         "list"), 0), "ontologyBean");
+        int in = 0;
+        int total = 0;
         if (isArray(searchResults)) {
             for (int i = 0; i < length(searchResults); i++) {
                 Resource item = analyzeItem(get(searchResults, i));
                 if (passFilter(item)) {
                     resources.add(item);
+                    in++;
                 }
+                total++;
             }
         } else {
             Resource item = analyzeItem(searchResults);
             if (passFilter(item)) {
                 resources.add(item);
+                in++;
             }
         }
+        // Window.alert("Filtered in/all: " + in + "/" + total);
         return resources;
     }
 
@@ -90,13 +106,33 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
         this.filterProperty = filterProperty;
     }
 
+    /**
+     * Looks for the given values in reuslts. Full match only, unlike partial
+     * match available in other method.
+     * 
+     * @param filterValueSet
+     * @param filterText
+     */
+    public void setFilterPropertyAndContainedText(String filterProperty,
+            Collection<String> filterValueSet) {
+        this.filterProperty = filterProperty;
+        this.filterValueSet = filterValueSet;
+    }
+
     private boolean passFilter(Resource item) {
-        if (this.filterProperty == "" || this.filterText == "") {
+        if (this.filterProperty == ""
+                || (this.filterText == null && this.filterValueSet == null)) {
             return true;
         }
-        if (item.containsProperty(this.filterProperty)
+        boolean matchOnSingleProperty = null != this.filterText
+                && item.containsProperty(this.filterProperty)
                 && ((String) item.getValue(this.filterProperty)).toLowerCase()
-                        .contains(this.filterText.toLowerCase())) {
+                        .contains(this.filterText.toLowerCase());
+        boolean matchOnPropertySet = null != this.filterValueSet
+                && item.containsProperty(this.filterProperty)
+                && this.filterValueSet.contains(((String) item
+                        .getValue(this.filterProperty)).toLowerCase());
+        if (matchOnSingleProperty || matchOnPropertySet) {
             return true;
         }
 
