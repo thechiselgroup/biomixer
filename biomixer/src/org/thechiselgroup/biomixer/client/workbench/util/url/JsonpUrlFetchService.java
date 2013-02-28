@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.workbench.util.url;
 
-import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.error_handling.RetryAsyncCallbackErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.json.JsJsonParser;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
@@ -25,7 +25,6 @@ import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.jsonp.client.JsonpRequestBuilder;
-import com.google.gwt.jsonp.client.TimeoutException;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -34,51 +33,20 @@ import com.google.inject.Inject;
  */
 public class JsonpUrlFetchService implements UrlFetchService {
 
-    // Refactor this to allow re-use if it works out.
-    // Outer class is a singleton, so we need to track number of tries through
-    // here...
-    private class retryAsyncCallbackErrorHandler extends
-            AsyncCallbackErrorHandler {
-
-        private final int prevNumberOfTries;
-
-        private final String url;
-
-        private final AsyncCallback<String> fetchCallback;
-
-        static private final int MAX_NUMBER_OF_TRIES = 3;
-
-        public retryAsyncCallbackErrorHandler(AsyncCallback<String> callback,
-                final String url, int prevNumberOfTries) {
-            super(callback);
-            this.prevNumberOfTries = prevNumberOfTries;
-            this.url = url;
-            this.fetchCallback = callback;
-        }
-
-        @Override
-        public void handleError(Throwable error) {
-            if (error.getClass().equals(TimeoutException.class)
-                    && prevNumberOfTries <= Math.max(MAX_NUMBER_OF_TRIES, 1)) {
-                // Re-trigger the call
-                JsonpUrlFetchService.this.fetchURL(url, fetchCallback,
-                        prevNumberOfTries + 1);
-            } else {
-                // Window.alert("Retried " + prevNumberOfTries
-                // + " and Eric sees an error num: " + error.getCause()
-                // + " class " + error.getClass() + " error message: "
-                // + error.getMessage());
-                super.handleError(error);
-            }
-        }
-    }
-
     @Override
     public void fetchURL(final String url, final AsyncCallback<String> callback) {
         fetchURL(url, callback, 0);
     }
 
-    protected void fetchURL(final String url,
+    /**
+     * This is primarily used by the {@link RetryAsyncCallbackErrorHandler} that
+     * this uses internally.
+     * 
+     * @param url
+     * @param callback
+     * @param previousNumberTries
+     */
+    public void fetchURL(final String url,
             final AsyncCallback<String> callback, int previousNumberTries) {
         JsonpRequestBuilder jsonp = new JsonpRequestBuilder();
         // Could change timeout, but probably better to change retry attempt
@@ -88,8 +56,8 @@ public class JsonpUrlFetchService implements UrlFetchService {
 
         jsonp.requestObject(url,
                 new ErrorHandlingAsyncCallback<JavaScriptObject>(
-                        new retryAsyncCallbackErrorHandler(callback, url,
-                                previousNumberTries)) {
+                        new RetryAsyncCallbackErrorHandler(callback, url,
+                                previousNumberTries, this)) {
 
                     @Override
                     protected void runOnSuccess(JavaScriptObject result)
@@ -109,20 +77,29 @@ public class JsonpUrlFetchService implements UrlFetchService {
 
                         if (null == errorCode) {
                             callback.onSuccess(jsonString);
+                            return;
                         } else if (500 == errorCode) {
-                            // This error code, server error, is something I
-                            // want to ignore at the moment.
+                        	// 500 errors don't get here! Caught lower down?
+                            // We can retry this once, since I have already seen
+                            // cases of very singular failures here.
+                            boolean retryAttempted = ((RetryAsyncCallbackErrorHandler) callback)
+                                    .manualRetry();
+                            if (retryAttempted) {
+                                return;
+                            }
                         } else if (403 == errorCode) {
                             // This error code, forbidden, is something I want
                             // to ignore at the moment.
-                        } else {
-                            // This wasn't a success, and we got an error code
-                            // we don't understand.
-                            // Treat as an error for the callback.
-                            callback.onFailure(new Exception(
-                                    "Error code, status: " + errorCode + "."));
-                            throw new Exception("Status " + errorCode);
+                            return;
                         }
+
+                        // This wasn't a success, and we got an error code
+                        // we don't understand.
+                        // Treat as an error for the callback.
+                        callback.onFailure(new Exception("Error code, status: "
+                                + errorCode + "."));
+                        throw new Exception("Status " + errorCode);
+
                     }
 
                 });
