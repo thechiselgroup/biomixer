@@ -115,6 +115,7 @@ public class SvgBareText implements IsSvg {
         tspan.setTextContent(line);
 
         tspan.setAttribute(Svg.X, TEXT_BUFFER);
+        // See CircularTextSvgNodeRenderer if multiline needed
         int dy = numberOfLines == 0 ? 0 : textHeight;
         tspan.setAttribute(Svg.DY, dy);
 

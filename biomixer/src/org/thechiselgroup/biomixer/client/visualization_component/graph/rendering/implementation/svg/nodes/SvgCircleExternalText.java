@@ -104,7 +104,9 @@ public class SvgCircleExternalText implements IsSvg {
         tspan.setTextContent(line);
 
         tspan.setAttribute(Svg.X, TEXT_BUFFER_X);
-        int dy = numberOfLines == 0 ? 0 : textHeight;
+        int numberOfPreviousTspanElements = tspanElements.size();
+        int dy = numberOfLines == 0 ? 0 : textHeight
+                * numberOfPreviousTspanElements;
         tspan.setAttribute(Svg.DY, dy);
 
         textElement.appendChild(tspan);
@@ -248,7 +250,7 @@ public class SvgCircleExternalText implements IsSvg {
         // Circle doesn't need resizing around text, so no need for this.
         // updateCircleWidthAndPositionAroundText(newWidth - oldWidth);
     }
-    
+
     // Circle doesn't need resizing around text, so no need for this.
     // private void updateCircleWidthAndPositionAroundText(double deltaWidth) {
     // setCircleX(getCircleLeftX() - (deltaWidth / 2));
