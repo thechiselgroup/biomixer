@@ -90,6 +90,17 @@ public class BioMixerGraphFilterPredicate implements Predicate<Resource>,
             return values.get(ontologyId);
         }
 
+        if (Ontology.isOntology(resource)) {
+            String ontologyId = (String) resource
+                    .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
+
+            if (!values.containsKey(ontologyId)) {
+                return true;
+            }
+
+            return values.get(ontologyId);
+        }
+
         return true;
     }
 
