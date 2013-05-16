@@ -43,9 +43,15 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
         this.sourceOntologyId = resourceString.substring(indexOfOntologyId
                 + ontologyIdCutoffString.length());
 
-        Object jsonArray = get(
-                get(get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "list"), 0), "ontologyMappingStatistics");
+        Object list = get(
+                get(get(get(get(super.parse(json), "success"), "data"), 0),
+                        "list"), 0);
+
+        if (!isArray(list) || 0 == length(list)) {
+            return result;
+        }
+
+        Object jsonArray = get(list, "ontologyMappingStatistics");
 
         if (isArray(jsonArray)) {
             for (int i = 0; i < length(jsonArray); i++) {
@@ -59,8 +65,9 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
     }
 
     private OntologyMappingCount analyzeItem(Object jsonItem) {
-    	// They appear to have changed the REST service since the previous version
-    	// of this class.
+        // They appear to have changed the REST service since the previous
+        // version
+        // of this class.
         String targetOntologyId = "" + asInt(get(jsonItem, "ontologyId"));
         int sourceMappings = asInt(get(jsonItem, "sourceMappings"));
         int targetMappings = asInt(get(jsonItem, "targetMappings"));
