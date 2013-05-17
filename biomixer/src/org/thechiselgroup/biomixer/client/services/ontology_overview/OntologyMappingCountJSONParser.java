@@ -47,7 +47,17 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
                 get(get(get(get(super.parse(json), "success"), "data"), 0),
                         "list"), 0);
 
-        if (!isArray(list) || 0 == length(list)) {
+        // The empty list returned unfortunately is not *empty*, but is a
+        // zero-length string, and throws JSON parsing null exceptions if not
+        // checked for. But if we check for it as a string, it throws an
+        // exception
+        // when it is a josn object. Seems like a try-catch is simplest.
+        try {
+            if (!has(list, "ontologyMappingStatistics")) {
+                return result;
+            }
+        } catch (Exception e) {
+
             return result;
         }
 

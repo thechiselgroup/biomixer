@@ -43,8 +43,12 @@ public class OntologyMetricJsonParser extends AbstractJsonResultParser {
 
     @Override
     public OntologyMetrics parse(String json) {
-        Object searchResults = get(
-                get(get(get(super.parse(json), "success"), "data"), 0),
+        Object parsed = super.parse(json);
+        if (has(parsed, "status") && !has(parsed, "success")) {
+            return null;
+        }
+
+        Object searchResults = get(get(get(get(parsed, "success"), "data"), 0),
                 "ontologyMetricsBean");
         return analyzeItem(searchResults);
     }

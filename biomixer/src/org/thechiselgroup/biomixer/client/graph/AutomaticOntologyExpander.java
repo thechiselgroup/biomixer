@@ -80,8 +80,13 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                         }
 
                         int numClasses = 0;
-                        if (results.numberOfClasses != null) {
-                            numClasses = results.numberOfClasses;
+                        if (null != results) {
+                            if (results.numberOfClasses != null) {
+                                numClasses = results.numberOfClasses;
+                            }
+                        } else {
+                            // Cannot expand without metric information
+                            return;
                         }
 
                         // TODO There must be a smarter way to do this rather
