@@ -43,4 +43,6 @@ public interface GraphLayouts {
 
     String FORCE_DIRECTED_LAYOUT = "Force Directed Layout";
 
+    String CIRCLE_WITH_CENTRAL_NODE_LAYOUT = "Central Node Layout";
+
 }

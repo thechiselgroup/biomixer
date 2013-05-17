@@ -29,6 +29,9 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 public class CircleLayoutWithCentralNodeComputation extends
         CircleLayoutComputation {
 
+    /**
+     * If null, finds node with most connections to put in center.
+     */
     private String centralNodeUri;
 
     public CircleLayoutWithCentralNodeComputation(double minAngle,
@@ -47,10 +50,25 @@ public class CircleLayoutWithCentralNodeComputation extends
 
         // Identify the central node
         LayoutNode centralLayoutNode = null;
-        for (LayoutNode node : allNodes) {
-            if (((IdentifiableLayoutNode) node).getId().equals(centralNodeUri)) {
-                centralLayoutNode = node;
-                break;
+        if (null == centralNodeUri) {
+            // Need to pick a central node
+            int maxConnectCount = 0;
+            LayoutNode maxConnectNode = null;
+            for (LayoutNode node : allNodes) {
+                if (node.getConnectedArcs().size() >= maxConnectCount) {
+                    maxConnectNode = node;
+                    maxConnectCount = node.getConnectedArcs().size();
+                }
+            }
+            centralLayoutNode = maxConnectNode;
+        } else {
+            // Have a requested central node
+            for (LayoutNode node : allNodes) {
+                if (((IdentifiableLayoutNode) node).getId().equals(
+                        centralNodeUri)) {
+                    centralLayoutNode = node;
+                    break;
+                }
             }
         }
 

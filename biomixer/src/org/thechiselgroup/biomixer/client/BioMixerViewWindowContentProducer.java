@@ -36,6 +36,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactor
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.predicates.Predicate;
+import org.thechiselgroup.biomixer.client.core.visualization.model.DelegatingViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemValueResolver;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualizationModel;
@@ -57,6 +58,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphLayouts;
 import org.thechiselgroup.biomixer.client.visualization_component.matrix.ConceptMatrixViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.matrix.NeoD3Matrix;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchViewWindowContentProducer;
@@ -477,7 +479,13 @@ public class BioMixerViewWindowContentProducer extends
                     resourceModel, visualizationModel));
             sidePanelSections
                     .add(createOntologyGraphArcsSidePanelSection(contentDisplay));
-            sidePanelSections.addAll(contentDisplay.getSidePanelSections());
+            LightweightList<String> layoutList = CollectionFactory
+                    .createLightweightList();
+            layoutList.add(GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT);
+            ViewContentDisplay delegate = ((DelegatingViewContentDisplay) contentDisplay)
+                    .getDelegate();
+            sidePanelSections.addAll(((Graph) delegate)
+                    .getLimitedSidePanelLayoutSection(layoutList));
 
             // temporarily removing the Comments view part
             // {

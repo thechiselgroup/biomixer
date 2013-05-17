@@ -61,6 +61,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.Re
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutWithCentralNodeAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
@@ -637,6 +638,10 @@ public class Graph extends AbstractViewContentDisplay implements
                 new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
         actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
                 new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
+        actions.add(new GraphLayoutAction(
+                GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
+                new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
+                        nodeAnimator, null)));
         actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
                 new HorizontalTreeLayoutAlgorithm(true, errorHandler,
                         nodeAnimator)));
@@ -650,6 +655,73 @@ public class Graph extends AbstractViewContentDisplay implements
                         new BoundsAwareRepulsionCalculator(graphDisplay
                                 .getLayoutGraph())), 0.9, nodeAnimator,
                         new GwtDelayedExecutor(), errorHandler)));
+
+        VerticalPanel layoutPanel = new VerticalPanel();
+        for (final ViewContentDisplayAction action : actions) {
+            Button w = new Button(action.getLabel());
+            w.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    action.execute();
+                }
+            });
+            layoutPanel.add(w);
+        }
+
+        return new SidePanelSection[] { new SidePanelSection("Layouts",
+                layoutPanel), };
+    }
+
+    public SidePanelSection[] getLimitedSidePanelLayoutSection(
+            LightweightList<String> layoutsToKeep) {
+        List<ViewContentDisplayAction> actions = new ArrayList<ViewContentDisplayAction>();
+        // TODO cleanup
+
+        NodeAnimator nodeAnimator = getNodeAnimator();
+
+        if (layoutsToKeep.contains(GraphLayouts.CIRCLE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
+                    new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.RADIAL_LAYOUT)) {
+            actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
+                    new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.HORIZONTAL_TREE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.HORIZONTAL_TREE_LAYOUT,
+                    new HorizontalTreeLayoutAlgorithm(true, errorHandler,
+                            nodeAnimator)));
+        }
+        if (layoutsToKeep.contains(GraphLayouts.VERTICAL_TREE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.VERTICAL_TREE_LAYOUT,
+                    new VerticalTreeLayoutAlgorithm(true, errorHandler,
+                            nodeAnimator)));
+        }
+
+        if (layoutsToKeep
+                .contains(GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
+                    new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
+                            nodeAnimator, null)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.FORCE_DIRECTED_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.FORCE_DIRECTED_LAYOUT,
+                    new ForceDirectedLayoutAlgorithm(
+                            new CompositeForceCalculator(
+                                    new BoundsAwareAttractionCalculator(
+                                            graphDisplay.getLayoutGraph()),
+                                    new BoundsAwareRepulsionCalculator(
+                                            graphDisplay.getLayoutGraph())),
+                            0.9, nodeAnimator, new GwtDelayedExecutor(),
+                            errorHandler)));
+        }
 
         VerticalPanel layoutPanel = new VerticalPanel();
         for (final ViewContentDisplayAction action : actions) {

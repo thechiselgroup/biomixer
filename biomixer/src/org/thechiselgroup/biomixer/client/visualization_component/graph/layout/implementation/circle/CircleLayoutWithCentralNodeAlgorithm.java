@@ -25,6 +25,13 @@ public class CircleLayoutWithCentralNodeAlgorithm extends CircleLayoutAlgorithm 
 
     private String centralNodeUri;
 
+    /**
+     * 
+     * @param errorHandler
+     * @param nodeAnimator
+     * @param centralNodeUri
+     *            If null, selects the node with the most incoming arcs
+     */
     public CircleLayoutWithCentralNodeAlgorithm(ErrorHandler errorHandler,
             NodeAnimator nodeAnimator, String centralNodeUri) {
         super(errorHandler, nodeAnimator);
@@ -37,5 +44,4 @@ public class CircleLayoutWithCentralNodeAlgorithm extends CircleLayoutAlgorithm 
                 (IdentifiableLayoutGraph) graph, executor, errorHandler,
                 nodeAnimator, centralNodeUri);
     }
-
 }
