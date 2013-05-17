@@ -80,13 +80,15 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                         }
 
                         int numClasses = 0;
+                     // Arbitrarily set the node size to 100 for
+                        // private or licensed nodes (or those without
+                        // metric results)
+                        int nodeSizeBasis = 100;
                         if (null != results) {
                             if (results.numberOfClasses != null) {
                                 numClasses = results.numberOfClasses;
+                                nodeSizeBasis = numClasses;
                             }
-                        } else {
-                            // Cannot expand without metric information
-                            return;
                         }
 
                         // TODO There must be a smarter way to do this rather
@@ -101,7 +103,7 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                         // changing stuff in circle.
                         // Rest of the formula is arbitrary for aesthetics.
                         expansionCallback.getDisplay().setNodeStyle(node,
-                                GraphDisplay.NODE_SIZE, numClasses + "");
+                                GraphDisplay.NODE_SIZE, nodeSizeBasis + "");
                         // Refactored so that transformers are used per graph to
                         // control
                         // node sizing. This can be a raw number.
@@ -111,6 +113,10 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                                 .getFirstElement();
                         resource.putValue(Ontology.NUMBER_OF_CONCEPTS,
                                 numClasses);
+                        if (null == results) {
+                            resource.putValue(Ontology.NOTE,
+                                    "No metrics available. Private or licensed ontology.");
+                        }
                     }
 
                 });

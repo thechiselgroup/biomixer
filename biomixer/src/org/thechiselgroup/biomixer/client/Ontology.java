@@ -47,6 +47,8 @@ public final class Ontology {
 
     public static final String NUMBER_OF_CONCEPTS = "numberOfConcepts";
 
+    public static final String NOTE = "note";
+
     // TODO Property that can be used to make link to ontology on bioportal
 
     /**

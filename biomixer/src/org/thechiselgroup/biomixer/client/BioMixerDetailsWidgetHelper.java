@@ -154,8 +154,9 @@ public class BioMixerDetailsWidgetHelper extends
                     Ontology.DESCRIPTION, false);
             addRow(resource, verticalPanel, "Num Concepts",
                     Ontology.NUMBER_OF_CONCEPTS);
+            addRow(resource, verticalPanel, "Note", Ontology.NOTE);
             // addRow(resource, verticalPanel, "Access",
-            //        Ontology.VIEWING_RESTRICTIONS);
+            // Ontology.VIEWING_RESTRICTIONS);
 
         } else if (Mapping.isMapping(resource)) {
             verticalPanel.add(createAvatar("Mapping", resourceSet));

@@ -75,11 +75,8 @@ public class JsonpUrlFetchService implements UrlFetchService {
 
                         Integer errorCode = errorCodeParser.parse(jsonString);
 
-                        if (null == errorCode) {
-                            callback.onSuccess(jsonString);
-                            return;
-                        } else if (500 == errorCode) {
-                        	// 500 errors don't get here! Caught lower down?
+                        if (null != errorCode && 500 == errorCode) {
+                            // 500 errors don't get here! Caught lower down?
                             // We can retry this once, since I have already seen
                             // cases of very singular failures here.
                             boolean retryAttempted = ((RetryAsyncCallbackErrorHandler) callback)
@@ -87,9 +84,14 @@ public class JsonpUrlFetchService implements UrlFetchService {
                             if (retryAttempted) {
                                 return;
                             }
-                        } else if (403 == errorCode) {
-                            // This error code, forbidden, is something I want
-                            // to ignore at the moment.
+                            // else if (403 == errorCode) {
+                            // // This error code, forbidden, is something I
+                            // want
+                            // // to ignore at the moment.
+                            // return;
+                            // }
+                        } else { // if (null == errorCode) {
+                            callback.onSuccess(jsonString);
                             return;
                         }
 

@@ -51,13 +51,12 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
         // zero-length string, and throws JSON parsing null exceptions if not
         // checked for. But if we check for it as a string, it throws an
         // exception
-        // when it is a josn object. Seems like a try-catch is simplest.
+        // when it is a json object. Seems like a try-catch is simplest.
         try {
             if (!has(list, "ontologyMappingStatistics")) {
                 return result;
             }
         } catch (Exception e) {
-
             return result;
         }
 
