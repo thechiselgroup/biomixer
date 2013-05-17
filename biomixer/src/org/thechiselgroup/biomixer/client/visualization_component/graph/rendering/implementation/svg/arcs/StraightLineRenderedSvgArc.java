@@ -127,8 +127,10 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
     public void setArcHead(String arcHead) {
         if (arcHead.equals(ArcSettings.ARC_HEAD_TRIANGLE_FULL)) {
             arrow.asSvgElement().setAttribute(Svg.FILL_OPACITY, "1.0");
+            arrow.asSvgElement().setAttribute(Svg.STROKE_OPACITY, "1.0");
         } else if (arcHead.equals(ArcSettings.ARC_HEAD_TRIANGLE_EMPTY)) {
             arrow.asSvgElement().setAttribute(Svg.FILL_OPACITY, "0.0");
+            arrow.asSvgElement().setAttribute(Svg.STROKE_OPACITY, "1.0");
         } else {
             arrow.asSvgElement().setAttribute(Svg.FILL_OPACITY, "0.0");
             arrow.asSvgElement().setAttribute(Svg.STROKE_OPACITY, "0.0");

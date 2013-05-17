@@ -172,11 +172,11 @@ public class BioMixerViewWindowContentProducer extends
         arcHeadDropDown.addItem(ArcSettings.ARC_HEAD_TRIANGLE_EMPTY);
         arcHeadDropDown.addItem(ArcSettings.ARC_HEAD_TRIANGLE_FULL);
         String arcHead = arcItemContainer.getArcHead();
-        if (ArcSettings.ARC_HEAD_NONE.equals(arcHead)) {
+        if (ArcSettings.ARC_HEAD_TRIANGLE_FULL.equals(arcHead)) {
             arcHeadDropDown.setSelectedIndex(2);
-        } else if (ArcSettings.ARC_HEAD_TRIANGLE_FULL.equals(arcHead)) {
-            arcHeadDropDown.setSelectedIndex(1);
         } else if (ArcSettings.ARC_HEAD_TRIANGLE_EMPTY.equals(arcHead)) {
+            arcHeadDropDown.setSelectedIndex(1);
+        } else if (ArcSettings.ARC_HEAD_NONE.equals(arcHead)) {
             arcHeadDropDown.setSelectedIndex(0);
         }
 
