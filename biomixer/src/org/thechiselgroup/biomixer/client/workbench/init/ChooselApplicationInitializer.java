@@ -40,6 +40,8 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
 
     public static final String USER_API_KEY = "userapikey";
 
+    public static final String REST_SERVER_ROOT = "restURLPrefix";
+
     @Inject
     protected ErrorHandler errorHandler;
 
@@ -67,6 +69,8 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
         Map<String, List<String>> parameters = windowLocation.getParameterMap();
 
         initUserApiKey(parameters);
+
+        initRestServerRoot(parameters);
 
         if (!parameters.containsKey(APPLICATION_MODE_PARAMETER)) {
             workbenchInitializer.init();
@@ -110,7 +114,20 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
                 && parameters.get(USER_API_KEY).size() > 0) {
             urlBuilderFactory
                     .setUserApiKey(parameters.get(USER_API_KEY).get(0));
+
         }
+
     }
 
+    protected void initRestServerRoot(Map<String, List<String>> parameters) {
+        if (parameters.containsKey(REST_SERVER_ROOT)
+                && parameters.get(REST_SERVER_ROOT).size() > 0) {
+            urlBuilderFactory.setServerRoot(parameters.get(REST_SERVER_ROOT)
+                    .get(0));
+        } else {
+            // Pass null to get default
+            urlBuilderFactory.setServerRoot(null);
+        }
+
+    }
 }

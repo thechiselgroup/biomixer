@@ -23,10 +23,18 @@ package org.thechiselgroup.biomixer.client.core.util.url;
  */
 public interface UrlBuilderFactory {
 
-    String BIO_MIXER_API_KEY = "6700f7bc-5209-43b6-95da-44336cbc0a3a";
+    static String BIO_MIXER_API_KEY = "6700f7bc-5209-43b6-95da-44336cbc0a3a";
 
     UrlBuilder createUrlBuilder();
-
+    
     void setUserApiKey(String apiKey);
-
+    
+    /**
+     * Allows us to configure for different REST server endpoints.
+     * This is needed for private Bioportal runnign in software appliance.
+     * Cannot use VM args easily, and would need RPC to get this from
+     * server, which may not work with WAR in software appliance anyway.
+     */
+    void setServerRoot(String serverRoot);
+    
 }
