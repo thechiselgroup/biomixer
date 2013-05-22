@@ -79,8 +79,10 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                             return;
                         }
 
-                        int numClasses = 0;
-                     // Arbitrarily set the node size to 100 for
+                        Integer numClasses = null;
+                        Integer numIndividuals = null;
+                        Integer numProperties = null;
+                        // Arbitrarily set the node size to 100 for
                         // private or licensed nodes (or those without
                         // metric results)
                         int nodeSizeBasis = 100;
@@ -88,6 +90,12 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                             if (results.numberOfClasses != null) {
                                 numClasses = results.numberOfClasses;
                                 nodeSizeBasis = numClasses;
+                            }
+                            if (results.numberOfIndividuals != null) {
+                                numIndividuals = results.numberOfIndividuals;
+                            }
+                            if (results.numberOfProperties != null) {
+                                numProperties = results.numberOfProperties;
                             }
                         }
 
@@ -111,8 +119,12 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
 
                         Resource resource = visualItem.getResources()
                                 .getFirstElement();
-                        resource.putValue(Ontology.NUMBER_OF_CONCEPTS,
+                        resource.putValue(Ontology.NUMBER_OF_CLASSES,
                                 numClasses);
+                        resource.putValue(Ontology.NUMBER_OF_INDIVIDUALS,
+                                numIndividuals);
+                        resource.putValue(Ontology.NUMBER_OF_PROPERTIES,
+                                numProperties);
                         if (null == results) {
                             resource.putValue(Ontology.NOTE,
                                     "No metrics available. Private or licensed ontology.");

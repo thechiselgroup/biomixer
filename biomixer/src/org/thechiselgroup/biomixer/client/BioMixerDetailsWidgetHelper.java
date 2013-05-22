@@ -152,8 +152,12 @@ public class BioMixerDetailsWidgetHelper extends
                     Ontology.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Description",
                     Ontology.DESCRIPTION, false);
-            addRow(resource, verticalPanel, "Num Concepts",
-                    Ontology.NUMBER_OF_CONCEPTS);
+            addRow(resource, verticalPanel, "Num Classes",
+                    Ontology.NUMBER_OF_CLASSES);
+            addRow(resource, verticalPanel, "Num Individuals",
+                    Ontology.NUMBER_OF_INDIVIDUALS);
+            addRow(resource, verticalPanel, "Num Properties",
+                    Ontology.NUMBER_OF_PROPERTIES);
             addRow(resource, verticalPanel, "Note", Ontology.NOTE);
             // addRow(resource, verticalPanel, "Access",
             // Ontology.VIEWING_RESTRICTIONS);

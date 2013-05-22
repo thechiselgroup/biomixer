@@ -36,6 +36,8 @@ public class OntologyMetricJsonParser extends AbstractJsonResultParser {
         OntologyMetrics stats = new OntologyMetrics(getOntologyIdAsString(
                 jsonItem, "id"));
         stats.numberOfClasses = asInt(get(jsonItem, "numberOfClasses"));
+        stats.numberOfIndividuals = asInt(get(jsonItem, "numberOfIndividuals"));
+        stats.numberOfProperties = asInt(get(jsonItem, "numberOfProperties"));
         stats.maximumDepth = asInt(get(jsonItem, "maximumDepth"));
 
         return stats;

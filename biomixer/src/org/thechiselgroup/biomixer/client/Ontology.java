@@ -45,7 +45,11 @@ public final class Ontology {
 
     public static final String DESCRIPTION = "description";
 
-    public static final String NUMBER_OF_CONCEPTS = "numberOfConcepts";
+    public static final String NUMBER_OF_CLASSES = "numberOfClasses";
+
+    public static final String NUMBER_OF_INDIVIDUALS = "numberOfIndividuals";
+
+    public static final String NUMBER_OF_PROPERTIES = "numberOfProperties";
 
     public static final String NOTE = "note";
 
