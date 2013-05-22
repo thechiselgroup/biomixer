@@ -13,34 +13,38 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services;
+package org.thechiselgroup.biomixer.client.servicesnewapi;
 
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.JsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
 /**
- * Use this class, probably directly without a module binding, in the service
- * implementations where the main REST service does not expose functionality
- * built for us. Change things over for each case when BioPortal moves a given
- * service over to production.
- * 
- * We prefer the JSONP versions now, so that the client can handle requests
- * rather than using the BioMixer server as a proxy.
+ * The new API for REST services differs from the old REST service. It has a
+ * different endpoint, different query construction, and different parsing
+ * requirements. This class provides access to the endpoint.
  * 
  * @author everbeek
  * 
  */
-@Deprecated
-public class NcboStageRestUrlBuilderFactory implements UrlBuilderFactory {
+public class NcboApiStageDataUrlBuilderFactory implements UrlBuilderFactory {
 
-    public static final String PROTOCOL = "http";
+    public static final String PROTOCOL = ""; // "http";
 
-    public static final String SERVER = "stagerest.bioontology.org";
+    public static final String SERVER = "stagedata.bioontology.org";
 
     public final static String API_KEY_PARAMETER = "apikey";
 
     public final static String USER_API_KEY_PARAMETER = "userapikey";
+
+    public static final String FORMAT_PARAMETER = "format";
+
+    public static final String FORMAT_VALUE = "jsonp";
+
+    public static final String CALLBACK = "callback";
+
+    // public static final String PATH = "ajax/jsonp";
 
     private String userApiKey;
 
@@ -48,9 +52,13 @@ public class NcboStageRestUrlBuilderFactory implements UrlBuilderFactory {
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new DefaultUrlBuilder().host(this.server).protocol(PROTOCOL)
+        return new JsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
+                .host(this.server)
+                .protocol(PROTOCOL)
+                // .path(PATH)
+                .parameter(FORMAT_PARAMETER, FORMAT_VALUE)
                 .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
-                .parameter(USER_API_KEY_PARAMETER, userApiKey);
+                .parameter(USER_API_KEY_PARAMETER, userApiKey));
     }
 
     @Override

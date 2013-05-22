@@ -20,6 +20,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.JsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
+@Deprecated
 public class NcboJsonpStageRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public static final String PROTOCOL = "https";

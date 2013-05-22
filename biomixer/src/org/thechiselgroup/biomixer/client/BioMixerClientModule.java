@@ -28,7 +28,6 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
-import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
@@ -52,6 +51,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation;
+import org.thechiselgroup.biomixer.client.servicesnewapi.NcboApiStageDataUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphExpansionRegistryFactory;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchClientModule;
@@ -120,8 +120,8 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 OntologyMappingCountServiceAsyncImplementation.class).in(
                 Singleton.class);
 
-        bind(UrlBuilderFactory.class).to(NcboJsonpRestUrlBuilderFactory.class)
-                .in(Singleton.class);
+        bind(UrlBuilderFactory.class).to(
+                NcboApiStageDataUrlBuilderFactory.class).in(Singleton.class);
     }
 
     @Override
