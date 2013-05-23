@@ -162,7 +162,8 @@ public class GraphDisplayController implements GraphDisplay,
 
         this.arcSizeTransformer = arcSizeTransformer;
 
-        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width, height);
+        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width,
+                height);
 
         this.nodeAnimator = new NodeAnimator(getNodeAnimationFactory());
 
@@ -212,7 +213,6 @@ public class GraphDisplayController implements GraphDisplay,
         sourceNode.addConnectedArc(layoutArc);
         targetNode.addConnectedArc(layoutArc);
     }
-
 
     @Override
     public <T extends EventHandler> HandlerRegistration addEventHandler(
@@ -439,6 +439,9 @@ public class GraphDisplayController implements GraphDisplay,
                     onViewMouseMove(event, event.getClientX(),
                             event.getClientY());
                 }
+                if (event.getEventType().equals(ChooselEvent.Type.MOUSE_UP)) {
+                    onViewMouseUp(event);
+                }
             }
         };
         graphRenderer
@@ -454,7 +457,7 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     public void onArcMouseOut(RenderedArc arc) {
-    	// This gets called by the popup manager listener...
+        // This gets called by the popup manager listener...
         // renderedArcPopupManager.removeArcDelayedPopup(arc);
     }
 
@@ -464,6 +467,7 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onNodeDrag(ChooselEvent event, String nodeId, int deltaX,
             int deltaY) {
+        // Don't try anything with nodeInteractionManager, or we get a loop
         Node node = nodes.get(nodeId);
         Point startLocation = graphRenderer.getRenderedNode(node).getTopLeft()
                 .toPointInt();
@@ -517,13 +521,13 @@ public class GraphDisplayController implements GraphDisplay,
                 chooselEvent, x, y));
     }
 
-    public void onNodeMouseDown(Node node, ChooselEvent event, int clientX,
-            int clientY) {
+    public void onNodeMouseDown(Node node, ChooselEvent chooselEvent,
+            int clientX, int clientY) {
         // Why do/did some methods have nodeInteractionManager, others
         // eventBus.fireEvent()??
-        nodeInteractionManager.onMouseDown(node.getId(), event, clientX,
+        nodeInteractionManager.onMouseDown(node.getId(), chooselEvent, clientX,
                 clientY);
-        eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, event,
+        eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, chooselEvent,
                 clientX, clientY));
     }
 
@@ -548,12 +552,11 @@ public class GraphDisplayController implements GraphDisplay,
         graphRenderer.bringToForeground(renderedNode);
     }
 
-    public void onNodeMouseUp(ChooselEvent event) {
-        nodeInteractionManager.onMouseUp(event);
-        // Whyd idn't this have an eventBus.fireEvent() like commented below?
-        // eventBus.fireEvent(new NodeDragHandleMouseUpEvent(node, event,
-        // startX,
-        // startY, endX, endY));
+    public void onNodeMouseUp(ChooselEvent chooselEvent) {
+        // Why didn't this have an eventBus.fireEvent() like the mouse down?
+        // Don't try any mouse up with nodeInteractionManager, or we get a loop.
+        // The conversion of this mouse up to a click in there is fine.
+        nodeInteractionManager.onMouseUp(chooselEvent);
     }
 
     public void onNodeTabClick(final RenderedNode renderedNode) {
@@ -621,6 +624,10 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onViewMouseMove(ChooselEvent event, int mouseX, int mouseY) {
         nodeInteractionManager.onMouseMove(event, mouseX, mouseY);
+    }
+
+    public void onViewMouseUp(ChooselEvent event) {
+        nodeInteractionManager.onMouseUp(event);
     }
 
     public void panBackground(int deltaX, int deltaY) {

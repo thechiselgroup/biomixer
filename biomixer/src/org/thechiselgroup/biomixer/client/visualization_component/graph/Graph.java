@@ -248,6 +248,10 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onDrag(NodeDragEvent event) {
+            // Needed for popup management. Hides popups when dragging occurs.
+
+            // TODO What does this accomplish? Commenting out seems to affect
+            // nothing...
             commandManager.execute(new MoveNodeCommand(graphDisplay, event
                     .getNode(),
                     new Point(event.getStartX(), event.getStartY()), new Point(
@@ -278,18 +282,19 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseClick(NodeMouseClickEvent event) {
+            // TODO Doesn't seem to do anything
             reportInteraction(Type.CLICK, event);
         }
 
         @Override
         public void onMouseDown(NodeDragHandleMouseDownEvent event) {
+            // TODO Doesn't seem to do anything
             reportInteraction(Type.MOUSE_DOWN, event);
         }
 
         @Override
         public void onMouseMove(MouseMoveEvent event) {
-            // TODO This doesn't get called currently. Is the code valuable for
-            // later?
+            // TODO Doesn't seem to do anything
             // May not get called since some funny redispatching involving the
             // DRAG_START event type occurs.
             if (currentNode != null) {
@@ -301,19 +306,20 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseMove(NodeDragHandleMouseMoveEvent event) {
-            // TODO This doesn't get called currently. Is the code valuable for
-            // later?
+            // TODO Doesn't seem to do anything
             reportInteraction(Type.MOUSE_MOVE, event);
         }
 
         @Override
         public void onMouseOut(NodeMouseOutEvent event) {
+            // Needed for popup management
             currentNode = null;
             reportInteraction(Type.MOUSE_OUT, event);
         }
 
         @Override
         public void onMouseOver(NodeMouseOverEvent event) {
+            // Needed for popup management
             currentNode = event.getNode();
             reportInteraction(Type.MOUSE_OVER, event);
         }
@@ -783,13 +789,19 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private void initStateChangeHandlers() {
         GraphEventHandler handler = new GraphEventHandler();
+        // NodeDragHandleMouseDownEvent doesn't seem to be used here
         graphDisplay
                 .addEventHandler(NodeDragHandleMouseDownEvent.TYPE, handler);
+        // NodeMouseClickEvent doesn't seem to be used here
+        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE, handler);
+        // MoveMouseEvent doesn't seem to be used here
+        graphDisplay.addEventHandler(MouseMoveEvent.getType(), handler);
+
+        // NodeDragEvent, NodeMouseOverEvent, and NodeMouseOutEvent are
+        // critical to popup display management.
+        graphDisplay.addEventHandler(NodeDragEvent.TYPE, handler);
         graphDisplay.addEventHandler(NodeMouseOverEvent.TYPE, handler);
         graphDisplay.addEventHandler(NodeMouseOutEvent.TYPE, handler);
-        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE, handler);
-        graphDisplay.addEventHandler(NodeDragEvent.TYPE, handler);
-        graphDisplay.addEventHandler(MouseMoveEvent.getType(), handler);
 
         initNodeMenuItems();
     }

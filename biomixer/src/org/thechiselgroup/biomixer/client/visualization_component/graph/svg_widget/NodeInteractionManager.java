@@ -53,6 +53,11 @@ public class NodeInteractionManager {
     }
 
     public void onMouseMove(ChooselEvent event, int currentX, int currentY) {
+        // Was trying to see if mouse button is still down,
+        // but browsers apparently do not support mouse polling.
+        // I wanted this to prevent the mouse-stuck-on-node bug,
+        // but I cannot do it this way.
+
         if (mouseDownNodeId != null) {
             int deltaX = currentX - lastMouseX;
             int deltaY = currentY - lastMouseY;
