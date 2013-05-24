@@ -31,12 +31,14 @@ public interface GraphExpansionRegistry {
 
     void putAutomaticExpander(String category, NodeExpander expander);
 
-    void putAutomaticBulkExpander(String category,
-            NodeBulkExpander expander);
+    void putAutomaticBulkExpander(String category, NodeBulkExpander expander);
 
     void putNodeMenuEntry(String category, NodeMenuEntry nodeMenuEntry);
 
-    void putNodeMenuEntry(String category, String label,
-            NodeExpander expander);
+    void putNodeMenuEntry(String category, String label, NodeExpander expander);
+
+    void removeAutomaticExpander(String category, Class expanderClass);
+
+    void removeAutomaticBulkExpander(String category, Class expanderClass);
 
 }

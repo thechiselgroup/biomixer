@@ -32,7 +32,7 @@ public class CompositionArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.CompositionArcType";
 
-    public static final String ARC_LABEL = "has a";
+    public static final String ARC_LABEL = "has_part";
 
     public static final String ARC_COLOR = "#AFC600";
 

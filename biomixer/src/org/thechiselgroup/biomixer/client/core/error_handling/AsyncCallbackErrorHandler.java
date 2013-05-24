@@ -1,8 +1,12 @@
 package org.thechiselgroup.biomixer.client.core.error_handling;
 
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
+/**
+ * 
+ * @author everbeek
+ * 
+ */
 public class AsyncCallbackErrorHandler implements ErrorHandler {
 
     private final AsyncCallback<?> callback;

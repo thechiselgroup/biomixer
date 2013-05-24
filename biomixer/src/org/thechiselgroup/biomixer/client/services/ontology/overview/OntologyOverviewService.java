@@ -32,6 +32,8 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  * http://stackoverflow.com/questions/6577909/unable-to-make-call-to-service-
  * on-gwt
  */
+// Prototype D3 view support
+@Deprecated
 @RemoteServiceRelativePath("../org.thechiselgroup.biomixer.BioMixerWorkbench/ontologyOverview")
 public interface OntologyOverviewService extends RemoteService {
 

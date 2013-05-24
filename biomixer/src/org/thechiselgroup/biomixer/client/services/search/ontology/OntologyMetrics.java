@@ -11,6 +11,10 @@ public class OntologyMetrics {
 
     public Integer numberOfClasses;
 
+    public Integer numberOfIndividuals;
+
+    public Integer numberOfProperties;
+
     public Integer maximumDepth;
 
     final public String ontologyId;

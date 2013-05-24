@@ -16,27 +16,21 @@
 package org.thechiselgroup.biomixer.client.core.resources.ui;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.inject.Inject;
 
-public abstract class AbstractDetailsWidgetHelper implements
-        DetailsWidgetHelper {
+public abstract class AbstractDetailsWidgetHelper<T> implements
+        DetailsWidgetHelper<T> {
 
     protected ResourceSetAvatarFactory avatarFactory;
 
-    protected ResourceSetFactory resourceSetFactory;
 
     // TODO use dragavatarfactory instead of provider
-    @Inject
-    public AbstractDetailsWidgetHelper(ResourceSetFactory resourceSetFactory,
-            ResourceSetAvatarFactory dragAvatarFactory) {
+    public AbstractDetailsWidgetHelper(ResourceSetAvatarFactory dragAvatarFactory) {
 
-        this.resourceSetFactory = resourceSetFactory;
         this.avatarFactory = dragAvatarFactory;
     }
 
@@ -60,8 +54,8 @@ public abstract class AbstractDetailsWidgetHelper implements
         verticalPanel.add(html);
     }
 
-    protected void addRow(String label, UrlBuilder value, boolean nowrap,
-            VerticalPanel verticalPanel) {
+    protected void addRow(String label, UrlBuilder value, VerticalPanel verticalPanel,
+            boolean nowrap) {
         HTML html = GWT.create(HTML.class);
         html.setHTML("<span " + (nowrap ? "style='white-space:nowrap;'" : "")
                 + "><b>" + label + ":</b> " + "<a target=_blank href=" + value

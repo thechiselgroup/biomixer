@@ -36,6 +36,8 @@ public class OntologyMetricJsonParser extends AbstractJsonResultParser {
         OntologyMetrics stats = new OntologyMetrics(getOntologyIdAsString(
                 jsonItem, "id"));
         stats.numberOfClasses = asInt(get(jsonItem, "numberOfClasses"));
+        stats.numberOfIndividuals = asInt(get(jsonItem, "numberOfIndividuals"));
+        stats.numberOfProperties = asInt(get(jsonItem, "numberOfProperties"));
         stats.maximumDepth = asInt(get(jsonItem, "maximumDepth"));
 
         return stats;
@@ -43,8 +45,12 @@ public class OntologyMetricJsonParser extends AbstractJsonResultParser {
 
     @Override
     public OntologyMetrics parse(String json) {
-        Object searchResults = get(
-                get(get(get(super.parse(json), "success"), "data"), 0),
+        Object parsed = super.parse(json);
+        if (has(parsed, "status") && !has(parsed, "success")) {
+            return null;
+        }
+
+        Object searchResults = get(get(get(get(parsed, "success"), "data"), 0),
                 "ontologyMetricsBean");
         return analyzeItem(searchResults);
     }

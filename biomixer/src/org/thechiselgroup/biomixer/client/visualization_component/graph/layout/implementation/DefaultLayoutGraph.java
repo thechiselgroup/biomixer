@@ -25,6 +25,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNodeType;
 
+import com.google.gwt.user.client.ui.Widget;
+
 public class DefaultLayoutGraph extends AbstractLayoutGraph {
 
     private double minX = 0;
@@ -43,12 +45,15 @@ public class DefaultLayoutGraph extends AbstractLayoutGraph {
 
     private List<DefaultLayoutArcType> layoutArcTypes = new ArrayList<DefaultLayoutArcType>();
 
-    public DefaultLayoutGraph(double width, double height) {
-        this(0, 0, width, height);
+    private Widget graphWidget;
+
+    public DefaultLayoutGraph(Widget graphWidget, double width, double height) {
+        this(graphWidget, 0, 0, width, height);
     }
 
-    public DefaultLayoutGraph(double minX, double minY, double width,
-            double height) {
+    public DefaultLayoutGraph(Widget graphWidget, double minX, double minY,
+            double width, double height) {
+        this.graphWidget = graphWidget;
         this.minX = minX;
         this.minY = minY;
         this.width = width;
@@ -166,4 +171,8 @@ public class DefaultLayoutGraph extends AbstractLayoutGraph {
         this.width = width;
     }
 
+    @Override
+    public Widget getGraphWidget() {
+        return graphWidget;
+    }
 }

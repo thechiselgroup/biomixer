@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.search.ontology;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -28,7 +29,7 @@ public interface OntologySearchServiceAsync {
             AsyncCallback<Set<Resource>> callback);
 
     public void searchOntologiesPredeterminedSet(
-            Iterable<String> virtualOntologyIds,
+            Collection<String> virtualOntologyIds,
             AsyncCallback<Set<Resource>> callback);
 
 }

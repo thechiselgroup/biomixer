@@ -33,6 +33,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExten
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
 import org.thechiselgroup.biomixer.client.dnd.windows.ViewWindowContent;
+import org.thechiselgroup.biomixer.client.graph.OntologyNodeMappingExpander;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCount;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
@@ -42,13 +43,10 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphLay
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphOntologyOverviewViewContentDisplayFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutWithCentralNodeAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -99,9 +97,12 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
     public OntologyMappingNeighbourhoodLoader() {
     }
 
+    private Resource targetOntologyResource;
+
+    private String centralOntologyUri;
+
     private void doLoadData(final String centralOntologyVirtualId,
             final View graphView, final ErrorHandler errorHandler) {
-
         mappingService.getAllMappingCountsForCentralOntology(
                 centralOntologyVirtualId,
                 new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
@@ -113,30 +114,29 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                     }
 
                     @Override
-                    protected void runOnSuccess(TotalMappingCount results)
+                    protected void runOnSuccess(
+                            TotalMappingCount mappingCountResults)
                             throws Exception {
 
                         // if (!graphView.isInitialized()) {
                         // return;
                         // }
-
                         // Create resources for each ontology, including target
                         // and mapped ontologies.
                         Set<String> ontologyIds = new HashSet<String>();
                         ontologyIds.add(centralOntologyVirtualId);
                         Map<String, Resource> itemIdMap = new HashMap<String, Resource>();
                         List<Resource> ontologyResources = new ArrayList<Resource>();
-                        // Add target resource
-                        Resource targetOntologyResource = new Resource(Ontology
+                        targetOntologyResource = new Resource(Ontology
                                 .toOntologyURI(centralOntologyVirtualId));
                         ontologyResources.add(targetOntologyResource);
                         // Iterate through the neighbourhood
-                        for (OntologyMappingCount ontologyCount : results) {
+                        for (OntologyMappingCount ontologyCount : mappingCountResults) {
                             ontologyIds.add(ontologyCount.getTargetId());
                         }
 
                         OntologyDetailsCallback ontologyDetailsCallback = new OntologyDetailsCallback(
-                                graphView, results);
+                                graphView, mappingCountResults);
                         searchService.searchOntologiesPredeterminedSet(
                                 ontologyIds, ontologyDetailsCallback);
                     }
@@ -159,39 +159,42 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
         @Override
         public void onFailure(Throwable caught) {
-            // Do nothing. The user cannot really do anything about this!
             // infoLabel.setText("Search failed for '" + searchTerm + "'");
             loggingErrorHandler.handleError(caught);
         }
 
         @Override
-        public void onSuccess(Set<Resource> results) {
+        public void onSuccess(Set<Resource> ontologyDetailsResults) {
             // The resources we have here are fully detailed ontology resources.
             // How do we resolve these against the ones we created based on the
             // mapping neighbourhood data?
-            if (results.isEmpty()) {
+            if (ontologyDetailsResults.isEmpty()) {
                 // This would be unexpected, but nonetheless...
                 // infoLabel.setText("No results found for search term '"
                 // + searchTerm + "'");
                 return;
             }
 
-            // // TODO add convenience method to
-            // // resourceSetFactory
+            // For use with scaling system, which is incomplete, in branch
+            // issue240.
+            // int minRawSize = 0;
+            // int maxRawSize = 0;
+            // for (Resource nodeResource : results) {
+            // Integer size = (Integer) nodeResource
+            // .getValue(Ontology.NUMBER_OF_CONCEPTS);
+            // if (size > maxRawSize) {
+            // maxRawSize = size;
+            // } else if (size < minRawSize) {
+            // minRawSize = size;
+            // }
+            // }
+            // graph.getDisplayController().getNodeSizeTransformer()
+            // .setScalingContextRange(minRawSize, maxRawSize);
+
+            // TODO add convenience method to resourceSetFactory
             ResourceSet resourceSet = resourceSetFactory.createResourceSet();
-            resourceSet.addAll(results);
+            resourceSet.addAll(ontologyDetailsResults);
             graphView.getResourceModel().addResourceSet(resourceSet);
-
-            // Is this the right way to deal with the edges?
-            // Do something with mapping counts to make edges here
-            // this.mappingCounts;
-            // DropEnabledViewContentDisplay cd1 =
-            // (DropEnabledViewContentDisplay) graphView
-            // .getModel().getViewContentDisplay();
-            // Graph graph = (Graph) cd1.getDelegate();
-            // graph.updateArcsForResources(resourceSet);
-
-            Window.alert("Good to here? Get arcs now?");
 
             // Now that all of the resources exist for the
             // neighbourhood,
@@ -200,10 +203,11 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             // This happens differently for concept mappings in
             // calculatePartialProperties(). See there for contrast.
             Map<String, Resource> itemIdMap = new HashMap<String, Resource>();
-            for (Resource ontologyResource : results) {
+            for (Resource ontologyResource : ontologyDetailsResults) {
                 itemIdMap.put(Ontology.getOntologyId(ontologyResource),
                         ontologyResource);
             }
+
             for (OntologyMappingCount mapping : mappingCounts) {
                 Resource sourceResource = itemIdMap.get(mapping.getSourceId());
                 Resource targetResource = itemIdMap.get(mapping.getTargetId());
@@ -235,13 +239,9 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 }
             }
 
-            // resultView.getModel().setResolver(
-            // LABEL_SLOT,
-            // TEXT_PROPERTY_RESOLVER_FACTORY
-            // .create(textPropertyForResolver));
-            // resultView.getModel().setResolver(TextVisualization.FONT_SIZE_SLOT,
-            // // was: size 12
-            // FIXED_NUMBER_1_RESOLVER_FACTORY.create());
+            graph.updateArcsForResources(ontologyDetailsResults);
+
+            loadingBar.hide();
         }
     }
 
@@ -251,10 +251,14 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
          * to performance problems when trying to animate so many highly
          * interconnected nodes at the same time as loading the data.
          */
-        CircleLayoutAlgorithm layout = new CircleLayoutAlgorithm(errorHandler,
+        // Radial and Force layouts can't run with typical ontology expansions.
+        // Too many nodes! So use circle, then place the central node after the
+        // layout is done.
+        CircleLayoutWithCentralNodeAlgorithm layout = new CircleLayoutWithCentralNodeAlgorithm(
+                errorHandler, this.nodeAnimator, centralOntologyUri);
         // new NodeAnimator(new NullNodeAnimationFactory()));
-                this.nodeAnimator);
         layout.setAngleRange(MIN_ANGLE, MAX_ANGLE);
+
         return layout;
     }
 
@@ -270,10 +274,19 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
     private NodeAnimator nodeAnimator;
 
+    private Graph graph;
+
+    private LoadingBarAssistant loadingBar;
+
     @Override
     public void loadView(ResourceSet virtualOntologies,
             List<String> virtualOntologyIds, IsWidget topBarWidget,
             AsyncCallback<IsWidget> callback) {
+
+        String centralOntologyVirtualId = virtualOntologyIds.get(0);
+
+        this.centralOntologyUri = Ontology
+                .toOntologyURI(centralOntologyVirtualId);
 
         View graphView = ((ViewWindowContent) viewContentProducer
                 .createWindowContent(GraphOntologyOverviewViewContentDisplayFactory.ID))
@@ -284,18 +297,22 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
         // to show the errors in the view-specific error box (ListBox)
         DropEnabledViewContentDisplay cd1 = (DropEnabledViewContentDisplay) graphView
                 .getModel().getViewContentDisplay();
-        Graph graph = (Graph) cd1.getDelegate();
+        this.graph = (Graph) cd1.getDelegate();
         ErrorHandler errorHandler = graph.getErrorHandler();
+
+        // Disable some automatic expanders
+        graph.getExpanderRegistry()
+                .removeAutomaticBulkExpander(Ontology.RESOURCE_URI_PREFIX,
+                        OntologyNodeMappingExpander.class);
+
+        // Turn off labels. These graphs tend ot have many nodes and arcs, and
+        // the labels slow down rendering to problematic levels.
+        graph.getDisplayController().setRenderArcLabels(false);
 
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
 
-        // add a loading bar so the user knows the application is being
-        // loaded
-        Image loadingMessage = new Image(GWT.getModuleBaseURL()
-                + "images/ajax-loader-bar.gif");
-        graphView
-                .addTopBarExtension(new LeftViewTopBarExtension(loadingMessage));
-        loadingMessage.getElement().setId("loadingMessage");
+        loadingBar = new LoadingBarAssistant();
+        loadingBar.initialize(graphView);
 
         graphView.init();
         nodeAnimator = graphView.adaptTo(GraphLayoutSupport.class)
@@ -303,6 +320,6 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
         setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 
-        doLoadData(virtualOntologyIds.get(0), graphView, errorHandler);
+        doLoadData(centralOntologyVirtualId, graphView, errorHandler);
     }
 }

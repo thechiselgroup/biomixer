@@ -28,11 +28,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.a
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
@@ -50,6 +47,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
     private final String label;
 
     protected NodeAnimator nodeAnimator;
+
+    private LoadingBarAssistant loadingBar;
 
     public AbstractTermGraphEmbedLoader(String label, String id) {
         assert label != null;
@@ -77,10 +76,7 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
     }
 
     protected void hideLoadingBar() {
-        // http://turbomanage.wordpress.com/2010/01/12/gwt-layout-gotcha/
-        // http://stackoverflow.com/questions/6183181/how-to-add-a-custom-widget-to-an-element
-        RootPanel rootPanel = RootPanel.get("loadingMessage");
-        rootPanel.setVisible(false);
+        loadingBar.hide();
     }
 
     protected abstract void loadData(String virtualOntologyId,
@@ -104,14 +100,8 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
         graphView.addTopBarExtension(new LeftViewTopBarExtension(topBarWidget));
 
-        // add a loading bar so the user knows the application is being loaded
-        Image loadingMessage = new Image(GWT.getModuleBaseURL()
-                + "images/ajax-loader-bar.gif");
-
-        LeftViewTopBarExtension leftViewTopBarExtension = new LeftViewTopBarExtension(
-                loadingMessage);
-        graphView.addTopBarExtension(leftViewTopBarExtension);
-        loadingMessage.getElement().setId("loadingMessage");
+        loadingBar = new LoadingBarAssistant();
+        loadingBar.initialize(graphView);
 
         graphView.init();
         nodeAnimator = getNodeAnimator(graphView);

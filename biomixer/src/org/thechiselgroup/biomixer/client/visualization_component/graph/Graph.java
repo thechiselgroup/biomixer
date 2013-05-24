@@ -49,6 +49,7 @@ import org.thechiselgroup.biomixer.client.core.util.collections.LightweightColle
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.util.executor.GwtDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.CompositeVisualItemBehavior;
+import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.AbstractViewContentDisplay;
 import org.thechiselgroup.biomixer.client.core.visualization.model.Slot;
 import org.thechiselgroup.biomixer.client.core.visualization.model.ViewContentDisplayCallback;
@@ -60,6 +61,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.extensions.Re
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutWithCentralNodeAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareAttractionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.BoundsAwareRepulsionCalculator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.force_directed.CompositeForceCalculator;
@@ -109,22 +111,28 @@ public class Graph extends AbstractViewContentDisplay implements
 
         static final GraphRendererConceptGraphFactory factory = new GraphRendererConceptGraphFactory();
 
-        static final NodeSizeTransformerFactory nodeSizeTransformerFactory = new NodeSizeTransformerFactory();
+        static final GraphElementSizeTransformerFactory nodeSizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
         // // TODO why is size needed in the first place??
-        public DefaultDisplay(ErrorHandler errorHandler) {
+        public DefaultDisplay(ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(defaultHeight, defaultWidth, "Concept Graph", factory
-                    .createGraphRenderer(defaultHeight, defaultWidth,
-                            nodeSizeTransformerFactory
-                                    .createConceptNodeSizeTransformer()),
-                    errorHandler, true);
+                    .createGraphRenderer(defaultHeight, defaultWidth),
+                    errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createConceptNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createConceptArcSizeTransformer(), true);
         }
 
-        public DefaultDisplay(int width, int height, ErrorHandler errorHandler) {
+        public DefaultDisplay(int width, int height, ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Concept Graph", factory.createGraphRenderer(
-                    width, height, nodeSizeTransformerFactory
-                            .createConceptNodeSizeTransformer()), errorHandler,
-                    true);
+                    width, height), errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createConceptNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createConceptArcSizeTransformer(), true);
         }
 
     }
@@ -137,23 +145,29 @@ public class Graph extends AbstractViewContentDisplay implements
 
         static final GraphRendererOntologyOverviewFactory factory = new GraphRendererOntologyOverviewFactory();
 
-        static final NodeSizeTransformerFactory nodeSizeTransformerFactory = new NodeSizeTransformerFactory();
+        static final GraphElementSizeTransformerFactory nodeSizeTransformerFactory = new GraphElementSizeTransformerFactory();
 
         // // TODO why is size needed in the first place??
-        public OntologyGraphDisplay(ErrorHandler errorHandler) {
+        public OntologyGraphDisplay(ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(defaultHeight, defaultWidth, "Ontology Graph", factory
-                    .createGraphRenderer(defaultHeight, defaultWidth,
-                            nodeSizeTransformerFactory
-                                    .createOntologyNodeSizeTransformer()),
-                    errorHandler, true);
+                    .createGraphRenderer(defaultHeight, defaultWidth),
+                    errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createOntologyNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createOntologyMappingArcSizeTransformer(), true);
         }
 
         public OntologyGraphDisplay(int width, int height,
-                ErrorHandler errorHandler) {
+                ErrorHandler errorHandler,
+                RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Ontology Graph", factory.createGraphRenderer(
-                    width, height, nodeSizeTransformerFactory
-                            .createOntologyNodeSizeTransformer()),
-                    errorHandler, true);
+                    width, height), errorHandler, renderedArcPopupManager,
+                    nodeSizeTransformerFactory
+                            .createOntologyNodeSizeTransformer(),
+                    nodeSizeTransformerFactory
+                            .createOntologyMappingArcSizeTransformer(), true);
         }
 
     }
@@ -234,6 +248,10 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onDrag(NodeDragEvent event) {
+            // Needed for popup management. Hides popups when dragging occurs.
+
+            // TODO What does this accomplish? Commenting out seems to affect
+            // nothing...
             commandManager.execute(new MoveNodeCommand(graphDisplay, event
                     .getNode(),
                     new Point(event.getStartX(), event.getStartY()), new Point(
@@ -264,18 +282,19 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseClick(NodeMouseClickEvent event) {
+            // TODO Doesn't seem to do anything
             reportInteraction(Type.CLICK, event);
         }
 
         @Override
         public void onMouseDown(NodeDragHandleMouseDownEvent event) {
+            // TODO Doesn't seem to do anything
             reportInteraction(Type.MOUSE_DOWN, event);
         }
 
         @Override
         public void onMouseMove(MouseMoveEvent event) {
-            // TODO This doesn't get called currently. Is the code valuable for
-            // later?
+            // TODO Doesn't seem to do anything
             // May not get called since some funny redispatching involving the
             // DRAG_START event type occurs.
             if (currentNode != null) {
@@ -287,19 +306,20 @@ public class Graph extends AbstractViewContentDisplay implements
 
         @Override
         public void onMouseMove(NodeDragHandleMouseMoveEvent event) {
-            // TODO This doesn't get called currently. Is the code valuable for
-            // later?
+            // TODO Doesn't seem to do anything
             reportInteraction(Type.MOUSE_MOVE, event);
         }
 
         @Override
         public void onMouseOut(NodeMouseOutEvent event) {
+            // Needed for popup management
             currentNode = null;
             reportInteraction(Type.MOUSE_OUT, event);
         }
 
         @Override
         public void onMouseOver(NodeMouseOverEvent event) {
+            // Needed for popup management
             currentNode = event.getNode();
             reportInteraction(Type.MOUSE_OVER, event);
         }
@@ -411,10 +431,7 @@ public class Graph extends AbstractViewContentDisplay implements
         this.arcStyleProvider = arcStyleProvider;
         this.resourceCategorizer = resourceCategorizer;
         graphDisplay = display;
-        // didn't want to change GraphDisplay's interface yet
-        if (graphDisplay instanceof GraphDisplayController) {
-            addResizeListener(graphDisplay);
-        }
+        addResizeListener(graphDisplay);
         this.commandManager = commandManager;
         this.resourceManager = resourceManager;
         this.registry = registry;
@@ -627,6 +644,10 @@ public class Graph extends AbstractViewContentDisplay implements
                 new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
         actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
                 new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
+        actions.add(new GraphLayoutAction(
+                GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
+                new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
+                        nodeAnimator, null)));
         actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
                 new HorizontalTreeLayoutAlgorithm(true, errorHandler,
                         nodeAnimator)));
@@ -640,6 +661,73 @@ public class Graph extends AbstractViewContentDisplay implements
                         new BoundsAwareRepulsionCalculator(graphDisplay
                                 .getLayoutGraph())), 0.9, nodeAnimator,
                         new GwtDelayedExecutor(), errorHandler)));
+
+        VerticalPanel layoutPanel = new VerticalPanel();
+        for (final ViewContentDisplayAction action : actions) {
+            Button w = new Button(action.getLabel());
+            w.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    action.execute();
+                }
+            });
+            layoutPanel.add(w);
+        }
+
+        return new SidePanelSection[] { new SidePanelSection("Layouts",
+                layoutPanel), };
+    }
+
+    public SidePanelSection[] getLimitedSidePanelLayoutSection(
+            LightweightList<String> layoutsToKeep) {
+        List<ViewContentDisplayAction> actions = new ArrayList<ViewContentDisplayAction>();
+        // TODO cleanup
+
+        NodeAnimator nodeAnimator = getNodeAnimator();
+
+        if (layoutsToKeep.contains(GraphLayouts.CIRCLE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
+                    new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.RADIAL_LAYOUT)) {
+            actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
+                    new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.HORIZONTAL_TREE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.HORIZONTAL_TREE_LAYOUT,
+                    new HorizontalTreeLayoutAlgorithm(true, errorHandler,
+                            nodeAnimator)));
+        }
+        if (layoutsToKeep.contains(GraphLayouts.VERTICAL_TREE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.VERTICAL_TREE_LAYOUT,
+                    new VerticalTreeLayoutAlgorithm(true, errorHandler,
+                            nodeAnimator)));
+        }
+
+        if (layoutsToKeep
+                .contains(GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
+                    new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
+                            nodeAnimator, null)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.FORCE_DIRECTED_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.FORCE_DIRECTED_LAYOUT,
+                    new ForceDirectedLayoutAlgorithm(
+                            new CompositeForceCalculator(
+                                    new BoundsAwareAttractionCalculator(
+                                            graphDisplay.getLayoutGraph()),
+                                    new BoundsAwareRepulsionCalculator(
+                                            graphDisplay.getLayoutGraph())),
+                            0.9, nodeAnimator, new GwtDelayedExecutor(),
+                            errorHandler)));
+        }
 
         VerticalPanel layoutPanel = new VerticalPanel();
         for (final ViewContentDisplayAction action : actions) {
@@ -701,13 +789,19 @@ public class Graph extends AbstractViewContentDisplay implements
 
     private void initStateChangeHandlers() {
         GraphEventHandler handler = new GraphEventHandler();
+        // NodeDragHandleMouseDownEvent doesn't seem to be used here
         graphDisplay
                 .addEventHandler(NodeDragHandleMouseDownEvent.TYPE, handler);
+        // NodeMouseClickEvent doesn't seem to be used here
+        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE, handler);
+        // MoveMouseEvent doesn't seem to be used here
+        graphDisplay.addEventHandler(MouseMoveEvent.getType(), handler);
+
+        // NodeDragEvent, NodeMouseOverEvent, and NodeMouseOutEvent are
+        // critical to popup display management.
+        graphDisplay.addEventHandler(NodeDragEvent.TYPE, handler);
         graphDisplay.addEventHandler(NodeMouseOverEvent.TYPE, handler);
         graphDisplay.addEventHandler(NodeMouseOutEvent.TYPE, handler);
-        graphDisplay.addEventHandler(NodeMouseClickEvent.TYPE, handler);
-        graphDisplay.addEventHandler(NodeDragEvent.TYPE, handler);
-        graphDisplay.addEventHandler(MouseMoveEvent.getType(), handler);
 
         initNodeMenuItems();
     }
@@ -968,5 +1062,9 @@ public class Graph extends AbstractViewContentDisplay implements
 
     public void setNodeStyle(Node node, String nodeSize, String styleValue) {
         this.graphDisplay.setNodeStyle(node, nodeSize, styleValue);
+    }
+
+    public GraphExpansionRegistry getExpanderRegistry() {
+        return this.registry;
     }
 }

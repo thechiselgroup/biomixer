@@ -43,9 +43,11 @@ public class NcboStageRestUrlBuilderFactory implements UrlBuilderFactory {
 
     private String userApiKey;
 
+    private String server = null;
+
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new DefaultUrlBuilder().host(SERVER).protocol(PROTOCOL)
+        return new DefaultUrlBuilder().host(this.server).protocol(PROTOCOL)
                 .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
                 .parameter(USER_API_KEY_PARAMETER, userApiKey);
     }
@@ -56,4 +58,12 @@ public class NcboStageRestUrlBuilderFactory implements UrlBuilderFactory {
         this.userApiKey = apiKey;
     }
 
+    @Override
+    public void setServerRoot(String serverRoot) {
+        if (serverRoot != null) {
+            this.server = serverRoot;
+        } else {
+            this.server = SERVER;
+        }
+    }
 }

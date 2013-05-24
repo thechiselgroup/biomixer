@@ -17,6 +17,8 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout;
 
 import java.util.List;
 
+import com.google.gwt.user.client.ui.Widget;
+
 /**
  * 
  * @author Lars Grammel
@@ -79,5 +81,7 @@ public interface LayoutGraph {
      * @return all nodes on the graph which have not been anchored.
      */
     List<LayoutNode> getUnanchoredNodes();
+
+    Widget getGraphWidget();
 
 }

@@ -41,8 +41,8 @@ public class OntologyMetricServiceAsyncClientImplementation extends
     public OntologyMetricServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
             UrlBuilderFactory urlBuilderFactory,
-            OntologyMetricJsonParser responseParser) {
 
+            OntologyMetricJsonParser responseParser) {
         super(urlFetchService, urlBuilderFactory);
 
         this.responseParser = responseParser;

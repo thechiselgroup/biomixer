@@ -18,35 +18,30 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.AbstractLayoutComputation;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.IdentifiableLayoutGraph;
 
-public class CircleLayoutAlgorithm extends AbstractLayoutAlgorithm {
+public class CircleLayoutWithCentralNodeAlgorithm extends CircleLayoutAlgorithm {
 
-    protected double minAngle = 0.0;
+    private String centralNodeUri;
 
-    protected double maxAngle = 360.0;
-
-    public CircleLayoutAlgorithm(ErrorHandler errorHandler,
-            NodeAnimator nodeAnimator) {
+    /**
+     * 
+     * @param errorHandler
+     * @param nodeAnimator
+     * @param centralNodeUri
+     *            If null, selects the node with the most incoming arcs
+     */
+    public CircleLayoutWithCentralNodeAlgorithm(ErrorHandler errorHandler,
+            NodeAnimator nodeAnimator, String centralNodeUri) {
         super(errorHandler, nodeAnimator);
+        this.centralNodeUri = centralNodeUri;
     }
 
     @Override
     protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
-        return new CircleLayoutComputation(minAngle, maxAngle, graph, executor,
-                errorHandler, nodeAnimator);
+        return new CircleLayoutWithCentralNodeComputation(minAngle, maxAngle,
+                (IdentifiableLayoutGraph) graph, executor, errorHandler,
+                nodeAnimator, centralNodeUri);
     }
-
-    public void setAngleRange(double angle1, double angle2) {
-        if (angle1 < angle2) {
-            minAngle = angle1;
-            maxAngle = angle2;
-        } else {
-            maxAngle = angle1;
-            minAngle = angle2;
-        }
-        assert maxAngle - minAngle <= 360.0;
-    }
-
 }

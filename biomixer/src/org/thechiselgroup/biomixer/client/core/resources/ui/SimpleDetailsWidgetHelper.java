@@ -20,11 +20,21 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SimpleDetailsWidgetHelper implements DetailsWidgetHelper {
+public class SimpleDetailsWidgetHelper implements
+        DetailsWidgetHelper<VisualItem> {
 
+    @Override
     public Widget createDetailsWidget(VisualItem visualItem) {
-        return new HTML("<b style='white-space: nowrap;'>" + visualItem.getId()
+        return refreshDetailsWidget(visualItem, new HTML());
+    }
+
+    @Override
+    public Widget refreshDetailsWidget(VisualItem visualItem,
+            Widget existingWidget) {
+        ((HTML) existingWidget).setHTML("<b style='white-space: nowrap;'>"
+                + visualItem.getId()
                 + "</b><br/><span style='white-space: nowrap;'>"
                 + visualItem.getResources().size() + " items<span>");
+        return existingWidget;
     }
 }

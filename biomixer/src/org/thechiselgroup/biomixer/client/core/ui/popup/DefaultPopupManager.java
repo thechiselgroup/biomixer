@@ -32,6 +32,7 @@ import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.HasAttachHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class DefaultPopupManager implements PopupManager {
@@ -459,8 +460,30 @@ public class DefaultPopupManager implements PopupManager {
 
     protected void setOpacity(int opacity) {
         if (popup.getOpacity() == Opacity.TRANSPARENT) {
-            popup.setLocation(new Point(clientX + POPUP_OFFSET_X, clientY
-                    + POPUP_OFFSET_Y));
+            // Compute the position so it's centered on the parent element,
+            // but not falling off the view edge.
+            int x = clientX + POPUP_OFFSET_X;
+            int y = clientY + POPUP_OFFSET_Y;
+
+            int maxX = RootPanel.get().getOffsetWidth();
+            int maxY = RootPanel.get().getOffsetHeight();
+            int popupWidth = popup.getSize().getWidth();
+            int popupHeight = popup.getSize().getHeight();
+            // Only check in one direction, because we normally put the
+            // top left corner on the parent.
+            int deltaX = maxX - (x + popupWidth);
+            int deltaY = maxY - (y + popupHeight);
+            // Move towards direction with the most spare room, by height and/or
+            // width
+            // But don't stick the popup right over the parent. That'd be bad.
+            if (deltaX < 0 && x > popupWidth) {
+                x -= popupWidth;
+            }
+            if (deltaY < 0 && y > popupHeight) {
+                y -= popupHeight;
+            }
+
+            popup.setLocation(new Point(x, y));
         }
 
         popup.setOpacity(opacity);

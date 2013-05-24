@@ -86,7 +86,7 @@ public class ConceptConceptNeighbourhoodExpander<T extends ViewWithResourceManag
     private void setGraphViewResources(boolean capNodes) {
         List<Resource> setToRender = neighbourhood;
         if (capNodes) {
-            setToRender = updateRenderedNeighboursWithMaximumNumber();
+            setToRender = updateRenderedNeighboursWithMaximumNumber(neighbourhood);
         } else {
             setToRender = neighbourhood;
         }
@@ -125,14 +125,17 @@ public class ConceptConceptNeighbourhoodExpander<T extends ViewWithResourceManag
      * @return
      * 
      */
-    private List<Resource> updateRenderedNeighboursWithMaximumNumber() {
+    private List<Resource> updateRenderedNeighboursWithMaximumNumber(
+            List<Resource> fullNeighbourhood) {
         long i = 0;
-        List<Resource> cappedSet = new ArrayList<Resource>();
+        List<Resource> cappedSet = new ArrayList<Resource>(
+                TermNeighbourhoodLoader.MAX_NUMBER_OF_NEIGHBOURS);
 
-        for (Resource res : neighbourhood) {
+        for (Resource res : fullNeighbourhood) {
             cappedSet.add(res);
             i++;
-            // Put break here, so we have a minimum of 1, in case max is 0.
+            // Put break here, so we have a minimum of 1, in case max is 0 for
+            // some reason.
             if (i >= TermNeighbourhoodLoader.MAX_NUMBER_OF_NEIGHBOURS) {
                 break;
             }

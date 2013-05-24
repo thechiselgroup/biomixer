@@ -20,6 +20,8 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.IdentifiablesList;
 
+import com.google.gwt.user.client.ui.Widget;
+
 public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
 
     private IdentifiablesList<IdentifiableLayoutNode> identifiableLayoutNodes = new IdentifiablesList<IdentifiableLayoutNode>();
@@ -30,8 +32,9 @@ public class IdentifiableLayoutGraph extends DefaultLayoutGraph {
 
     private IdentifiablesList<DefaultLayoutArcType> arcTypes = new IdentifiablesList<DefaultLayoutArcType>();
 
-    public IdentifiableLayoutGraph(double width, double height) {
-        super(width, height);
+    public IdentifiableLayoutGraph(Widget graphWidget, double width,
+            double height) {
+        super(graphWidget, width, height);
     }
 
     public void addIdentifiableLayoutArc(IdentifiableLayoutArc arc) {

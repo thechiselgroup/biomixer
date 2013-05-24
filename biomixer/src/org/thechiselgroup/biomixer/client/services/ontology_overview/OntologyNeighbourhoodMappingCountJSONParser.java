@@ -31,9 +31,10 @@ public class OntologyNeighbourhoodMappingCountJSONParser extends
     @Override
     public TotalMappingCount parse(String json) {
         TotalMappingCount result = new TotalMappingCount();
-        Object jsonArray = get(
-                get(get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "set"), 0), "ontologyPairMappingStatistics");
+        Object list = get(
+                get(get(get(get(super.parse(json), "success"), "data"), 0),
+                        "set"), 0);
+        Object jsonArray = get(list, "ontologyPairMappingStatistics");
         if (isArray(jsonArray)) {
             for (int i = 0; i < length(jsonArray); i++) {
                 result.add(analyzeItem(get(jsonArray, i)));

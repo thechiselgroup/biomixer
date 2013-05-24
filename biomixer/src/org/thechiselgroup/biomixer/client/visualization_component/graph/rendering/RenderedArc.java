@@ -24,7 +24,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
  * @author drusk
  * 
  */
-public interface RenderedArc {
+public interface RenderedArc extends RenderedItem {
 
     Arc getArc();
 
@@ -44,7 +44,7 @@ public interface RenderedArc {
 
     void setEventListener(ChooselEventHandler handler);
 
-    void setThickness(String thickness);
+    void setThickness(Double thickness);
 
     void setLabelRendering(boolean newValue);
 
