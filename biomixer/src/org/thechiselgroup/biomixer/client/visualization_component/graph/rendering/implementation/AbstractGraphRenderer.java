@@ -39,8 +39,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 
-import com.google.gwt.user.client.Window;
-
 /**
  * Manages construction and deletion of graph visualization elements. Also
  * applies styling to nodes and arcs.
@@ -105,7 +103,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
             }
         });
         this.nodeSizeTransformer.addGraphRenderingListener(this);
-        
+
     }
 
     protected abstract void addArcToGraph(RenderedArc arc);
@@ -309,9 +307,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
         else if (styleProperty.equals(GraphDisplay.NODE_SIZE)) {
             try {
+                double parsedSize = Double.parseDouble(styleValue);
+                node.setSize(parsedSize);
                 renderedNode.setSize(nodeSizeTransformer
-                        .transform(new SquareSizeDouble(Double
-                                .parseDouble(styleValue))));
+                        .transform(new SquareSizeDouble(parsedSize)));
             } catch (Exception e) {
                 // This is for the transformation, which shouldn't have a
                 // problem. Still could be double parse issues, which was never
@@ -333,13 +332,11 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
 
         if (changed) {
-            Window.alert("Changed size");
             refreshAllNodeSizes();
         }
     }
 
     public void refreshAllNodeSizes() {
-        // See issue240. This might be used along those lines.
         for (Node node : renderedNodes.keySet()) {
             RenderedNode renderedNode = renderedNodes.get(node);
             try {

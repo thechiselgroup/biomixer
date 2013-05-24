@@ -23,7 +23,7 @@ public class Node {
 
     private String type;
 
-    private int size;
+    private double size;
 
     public Node(String id, String label, String type, int size) {
         this.size = size;
@@ -43,8 +43,24 @@ public class Node {
         return label;
     }
 
-    public int getSize() {
+    /**
+     * Note that this size is the basis of the renderable size, and won't be the
+     * same as it if transformers are applied.
+     * 
+     * @return
+     */
+    public double getSize() {
         return size;
+    }
+
+    /**
+     * Note that this size is the basis of the renderable size, and won't be the
+     * same as it if transformers are applied.
+     * 
+     * @param size
+     */
+    public void setSize(double size) {
+        this.size = size;
     }
 
     public String getType() {

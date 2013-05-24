@@ -90,12 +90,12 @@ public class IdentifiableLayoutNode extends AbstractLayoutNode implements
     @Override
     public SizeDouble getSize() {
         // SizeDouble transformedSize = size;
-        // // try {
-        // // // Do I transform here?
-        // // transformedSize = nodeSizeTransformer.transform(size);
-        // // } catch (Exception e) {
-        // // // There won't be problems, right?
-        // // }
+        // try {
+        // // Do I transform here?
+        // transformedSize = nodeSizeTransformer.transform(size);
+        // } catch (Exception e) {
+        // // There won't be problems, right?
+        // }
         // return transformedSize;
         return renderedNode.getSize();
     }
