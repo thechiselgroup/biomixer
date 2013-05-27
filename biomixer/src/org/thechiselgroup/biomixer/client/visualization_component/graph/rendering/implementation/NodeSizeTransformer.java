@@ -5,8 +5,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
+import org.thechiselgroup.biomixer.client.core.util.GwtRecomputedDelayExecutor;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
+import org.thechiselgroup.biomixer.shared.core.util.ConditionWithDelay;
 
 public abstract class NodeSizeTransformer implements
         Transformer<SizeDouble, SizeDouble> {
@@ -24,6 +26,14 @@ public abstract class NodeSizeTransformer implements
 
     private Set<AbstractGraphRenderer> graphRenderingListeners = new HashSet();
 
+    /**
+     * As the raw node value sizes are scaled, if they are beyond the range that
+     * is currently known, we have to re-scale the entire graph. This is made
+     * more efficient internally.
+     * 
+     * @param rawValue
+     * @return
+     */
     protected double scaleForContextRange(double rawValue) {
 
         if (rawValue > maxRawSize || maxRawSize == -1) {
@@ -76,7 +86,36 @@ public abstract class NodeSizeTransformer implements
         }
     }
 
+    private int REFRESH_LOOP_DELAY_MS = 500;
+
+    private GwtRecomputedDelayExecutor executor = new GwtRecomputedDelayExecutor();
+
+    private ConditionWithDelay condition = new ConditionWithDelay(
+            REFRESH_LOOP_DELAY_MS);
+
+    private Runnable nodeRefreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            loopOverNodeRefreshListeners();
+        }
+    };
+
+    /**
+     * This should not cause inefficiency due to multiple calls.
+     */
     private void informListeners() {
+        condition.setRequestTime(System.currentTimeMillis());
+        // If the executor hasn't actually run the code yet, we shouldn't
+        // be requesting another run of it.
+        if (executor.canMakeNewRequest()) {
+            // Use same delay as the one for comparing when it was last called.
+            executor.execute(nodeRefreshRunnable, condition,
+                    REFRESH_LOOP_DELAY_MS);
+        }
+
+    }
+
+    private void loopOverNodeRefreshListeners() {
         for (AbstractGraphRenderer listener : graphRenderingListeners) {
             listener.refreshAllNodeSizes();
         }
