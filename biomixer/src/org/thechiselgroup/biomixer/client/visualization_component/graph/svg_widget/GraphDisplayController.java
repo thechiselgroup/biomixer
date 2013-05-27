@@ -158,7 +158,7 @@ public class GraphDisplayController implements GraphDisplay,
         initBackgroundListener();
         initViewWideInteractionHandler();
 
-        this.nodeSizeTransformer = nodeSizeTransformer;
+        this.nodeSizeTransformer = graphRenderer.getNodeSizeTransformer();
 
         this.arcSizeTransformer = arcSizeTransformer;
 

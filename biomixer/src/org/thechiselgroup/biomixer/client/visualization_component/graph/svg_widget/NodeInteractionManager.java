@@ -69,7 +69,7 @@ public class NodeInteractionManager {
     }
 
     public void onMouseUp(ChooselEvent event) {
-        if (!movedSinceMouseDown) {
+        if (!movedSinceMouseDown && mouseDownNodeId != null) {
             graphDisplay.onNodeMouseClick(mouseDownNodeId, event, lastMouseX,
                     lastMouseY);
         }
