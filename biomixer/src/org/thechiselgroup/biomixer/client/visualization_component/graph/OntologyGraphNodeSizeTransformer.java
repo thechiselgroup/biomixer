@@ -40,6 +40,7 @@ public class OntologyGraphNodeSizeTransformer extends NodeSizeTransformer {
     }
 
     private double linearFunction(double value) {
+        // Ha! A sqrt makes this not linear. Mis-named now...
         return 2 * (4 + Math.sqrt((value) / 10));
     }
 

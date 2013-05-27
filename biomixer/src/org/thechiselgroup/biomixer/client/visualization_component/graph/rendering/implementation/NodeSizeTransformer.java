@@ -11,7 +11,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 public abstract class NodeSizeTransformer implements
         Transformer<SizeDouble, SizeDouble> {
 
-	// 20 * 7 seems too big. Got 20 from other transformers.
+    // 20 * 7 seems too big. Got 20 from other transformers.
     double MAX_ON_SCREEN_SIZE = 20 * 5;
 
     double MIN_ON_SCREEN_SIZE = 10;
@@ -36,9 +36,23 @@ public abstract class NodeSizeTransformer implements
 
         // Our factor here is linear. Perhaps we want other functions?
         double factor = 1.0 - ((this.maxRawSize - rawValue) / this.rangeRawSize);
-        double transformedValue = MIN_ON_SCREEN_SIZE + factor
-                * (MAX_ON_SCREEN_SIZE - MIN_ON_SCREEN_SIZE);
+        double transformedValue = linearRelativeScaledRangeValue(factor);
+        // transformedValue = logRelativeScaledRangeValue(factor);
         return transformedValue;
+    }
+
+    private double linearRelativeScaledRangeValue(double factor) {
+        return MIN_ON_SCREEN_SIZE + factor
+                * (MAX_ON_SCREEN_SIZE - MIN_ON_SCREEN_SIZE);
+    }
+
+    private double logRelativeScaledRangeValue(double factor) {
+        // TODO This is ok, but not great. If the linear one isn't working
+        // to satisfaction, try tweaking this one.
+        double multiplier = 6;
+        return multiplier
+                * Math.sqrt(MIN_ON_SCREEN_SIZE + factor
+                        * (MAX_ON_SCREEN_SIZE - MIN_ON_SCREEN_SIZE));
     }
 
     /**
