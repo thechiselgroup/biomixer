@@ -76,15 +76,16 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
         double graphWidth = graphBounds.getWidth();
         double graphHeight = graphBounds.getHeight();
 
-        double radiusX = graphWidth / 2 - horizontalPaddingPercent * graphWidth
-                - LayoutUtils.getMaxNodeWidth(allNodes) / 2;
+        double layoutRadiusX = graphWidth / 2 - horizontalPaddingPercent
+                * graphWidth - LayoutUtils.getMaxNodeWidth(allNodes) / 2;
 
-        double radiusY = graphHeight / 2 - verticalPaddingPercent * graphHeight
-                - LayoutUtils.getMaxNodeHeight(allNodes) / 2;
+        double layoutRadiusY = graphHeight / 2 - verticalPaddingPercent
+                * graphHeight - LayoutUtils.getMaxNodeHeight(allNodes) / 2;
 
         // TODO: allow varying radius if radiusX and radiusY are not equal
-        double radius = Math.min(radiusX, radiusY);
+        double radius = Math.min(layoutRadiusX, layoutRadiusY);
 
+        PointDouble graphCentre = graphBounds.getCentre();
         for (int i = 0; i < allNodes.size(); i++) {
             LayoutNode layoutNode = allNodes.get(i);
 
@@ -93,11 +94,15 @@ public class CircleLayoutComputation extends AbstractLayoutComputation {
             double deltaXFromGraphCentre = radius * Math.sin(nodeAngleRadians);
             double deltaYFromGraphCentre = -radius * Math.cos(nodeAngleRadians);
 
-            PointDouble graphCentre = graphBounds.getCentre();
             double x = graphCentre.getX() + deltaXFromGraphCentre;
             double y = graphCentre.getY() + deltaYFromGraphCentre;
 
-            PointDouble topLeft = layoutNode.getTopLeftForCentreAt(x, y);
+            // I thought we'd need to account for node size, but that appears
+            // to be covered already...though I don't see how...circle nodes
+            // give their center as their coordinate, whereas the other node
+            // type (box and label) give their top left. That must be it.
+            // PointDouble topLeft = layoutNode.getTopLeftForCentreAt(x, y);
+            PointDouble topLeft = new PointDouble(x, y);
             animateTo(layoutNode, topLeft, animationDuration);
         }
     }
