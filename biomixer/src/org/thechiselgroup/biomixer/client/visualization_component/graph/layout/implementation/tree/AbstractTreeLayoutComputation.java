@@ -102,13 +102,20 @@ public abstract class AbstractTreeLayoutComputation extends
         // This didn't work because the values are virtually identical...but
         // maybe not necessarily so.
         PointDouble viewCenter = getRenderedViewCenter();
-
         // traverse each dag
         for (int i = 0; i < dagsOnGraph.size(); i++) {
             DirectedAcyclicGraph dag = dagsOnGraph.get(i);
 
-            double primaryDimensionSpacing = getPrimaryDimensionSpacing(dag
-                    .getNumberOfNodesOnLongestPath());
+            int treeDepth = dag.getNumberOfNodesOnLongestPath();
+            // We have to make the path count extended for the case of a
+            // set of dags with no common root. In addition, more below...
+            int numberOfRoots = dag.getRoots().size();
+            boolean radialTreeSkipCentralPosition = false;
+            if (radial && i == 0 && numberOfRoots > 1) {
+                radialTreeSkipCentralPosition = true;
+                treeDepth += 1;
+            }
+            double primaryDimensionSpacing = getPrimaryDimensionSpacing(treeDepth);
             double currentPrimaryDimension = primaryDimensionSpacing;
 
             /*
@@ -116,11 +123,15 @@ public abstract class AbstractTreeLayoutComputation extends
              * We will complete each layer of this 2D onion as we go.
              */
             if (radial) {
+                if (radialTreeSkipCentralPosition) {
+                    currentPrimaryDimension += primaryDimensionSpacing;
+                }
                 for (int j = 0; j < dag.getNumberOfNodesOnLongestPath(); j++) {
                     processNodesAlongSecondaryDimensionRadially(i, j,
                             dagsOnGraph.size(), dag,
                             availableSecondaryDimensionForEachTree,
-                            currentPrimaryDimension, viewCenter);
+                            currentPrimaryDimension, viewCenter,
+                            radialTreeSkipCentralPosition);
                     currentPrimaryDimension += primaryDimensionSpacing;
                 }
             } else
@@ -234,7 +245,8 @@ public abstract class AbstractTreeLayoutComputation extends
     private void processNodesAlongSecondaryDimensionRadially(int i, int j,
             int numDags, DirectedAcyclicGraph dag,
             double availableSecondaryDimensionForEachTree,
-            double currentPrimaryDimension, PointDouble viewCenter) {
+            double currentPrimaryDimension, PointDouble viewCenter,
+            boolean radialTreeSkipCentralPosition) {
 
         int maxDepth = dag.getNumberOfNodesOnLongestPath();
 
@@ -248,7 +260,8 @@ public abstract class AbstractTreeLayoutComputation extends
         // it doesn't right now). This would determine the radius...I need to
         // rework this.
         double radiusDepth = currentPrimaryDimension
-                * ((j == 0 & numDags == 1) ? 0 : 1);
+                * ((j == 0 && numDags == 1 && !radialTreeSkipCentralPosition) ? 0
+                        : 1);
 
         // TODO This is also vital to the radial tree version
         // We need to interpret the availableSecondaryDimensionForEachTree as
