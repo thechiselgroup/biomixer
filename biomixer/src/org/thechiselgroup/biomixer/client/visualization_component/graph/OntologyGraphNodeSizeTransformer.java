@@ -30,10 +30,13 @@ public class OntologyGraphNodeSizeTransformer extends NodeSizeTransformer {
 
         // Assume we are using SquareSizeDouble for now...
         // ontology is set that way, after all.
-        double width = scaleForContextRange(value.getWidth());
+        // double width = scaleForContextRange(value.getWidth());
         // double width = logFunction(value.getHeight());
         // double width = linearFunction(value.getHeight());
-        // double width = discretizingFunction(value.getHeight());
+        // Until we have a satisfactory scaling function for the
+        // scaleForContextRange(),
+        // the discretizingFunction() will be used.
+        double width = discretizingFunction(value.getHeight());
         // Assume SquareSizeDouble used...because it is for ontologies.
         return new DefaultSizeDouble(width, width);
 
