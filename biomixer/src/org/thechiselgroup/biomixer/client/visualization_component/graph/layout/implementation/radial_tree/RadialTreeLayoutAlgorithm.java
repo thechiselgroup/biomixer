@@ -8,15 +8,18 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.i
 
 public class RadialTreeLayoutAlgorithm extends AbstractLayoutAlgorithm {
 
-    public RadialTreeLayoutAlgorithm(ErrorHandler errorHandler,
-            NodeAnimator nodeAnimator) {
+    private final boolean leafsToCenter;
+
+    public RadialTreeLayoutAlgorithm(boolean leafsToCenter,
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
         super(errorHandler, nodeAnimator);
+        this.leafsToCenter = leafsToCenter;
     }
 
     @Override
     protected AbstractLayoutComputation getLayoutComputation(LayoutGraph graph) {
         return new RadialTreeLayoutComputation(graph, executor, errorHandler,
-                nodeAnimator);
+                nodeAnimator, leafsToCenter);
     }
 
 }

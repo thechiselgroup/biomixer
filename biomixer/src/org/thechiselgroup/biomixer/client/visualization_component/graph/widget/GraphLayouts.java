@@ -25,6 +25,8 @@ public interface GraphLayouts {
 
     String RADIAL_LAYOUT = "Radial Layout";
 
+    String INVERTED_RADIAL_LAYOUT = "Inverted Radial Layout";
+
     String SPRING_LAYOUT = "Spring Layout";
 
     String INDENTED_TREE_LAYOUT = "Indented Tree Layout";

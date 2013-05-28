@@ -48,30 +48,16 @@ public abstract class AbstractTreeLayoutComputation extends
      * Traversing the dag normally results in a vertical tree with arrows
      * pointing up or horizontal tree with arrows pointing left. To get a
      * vertical tree with arrows pointing down, or a horizontal tree with arrows
-     * pointing right, set <code>reversed</code> to true
+     * pointing right, set <code>reversed</code> to true. To make the absolutely
+     * different radial tree, with either root or leaves in the center, and the
+     * rest spanned out in rings, pass in <code>radial</code> set as true;
      */
     protected AbstractTreeLayoutComputation(LayoutGraph graph,
             Executor executor, ErrorHandler errorHandler,
-            NodeAnimator nodeAnimator, boolean reversed) {
+            NodeAnimator nodeAnimator, boolean reversed, boolean radial) {
         super(graph, executor, errorHandler, nodeAnimator);
         this.reversed = reversed;
-        this.radial = false;
-    }
-
-    /**
-     * Convenience constructor for radial tree
-     * 
-     * @param graph
-     * @param executor
-     * @param errorHandler
-     * @param nodeAnimator
-     */
-    protected AbstractTreeLayoutComputation(LayoutGraph graph,
-            Executor executor, ErrorHandler errorHandler,
-            NodeAnimator nodeAnimator) {
-        super(graph, executor, errorHandler, nodeAnimator);
-        this.reversed = false;
-        this.radial = true;
+        this.radial = radial;
     }
 
     @Override
@@ -111,7 +97,11 @@ public abstract class AbstractTreeLayoutComputation extends
             // set of dags with no common root. In addition, more below...
             int numberOfRoots = dag.getRoots().size();
             boolean radialTreeSkipCentralPosition = false;
-            if (radial && i == 0 && numberOfRoots > 1) {
+            if (!reversed && radial && i == 0 && numberOfRoots > 1) {
+                radialTreeSkipCentralPosition = true;
+                treeDepth += 1;
+            } else if (reversed && radial && i == dagsOnGraph.size() - 1
+                    && numberOfRoots > 1) {
                 radialTreeSkipCentralPosition = true;
                 treeDepth += 1;
             }
@@ -122,16 +112,32 @@ public abstract class AbstractTreeLayoutComputation extends
              * We have to traverse from the center outwards for the radial case.
              * We will complete each layer of this 2D onion as we go.
              */
-            if (radial) {
+            if (radial && !reversed) {
                 if (radialTreeSkipCentralPosition) {
                     currentPrimaryDimension += primaryDimensionSpacing;
                 }
+                boolean topNode = true;
                 for (int j = 0; j < dag.getNumberOfNodesOnLongestPath(); j++) {
                     processNodesAlongSecondaryDimensionRadially(i, j,
                             dagsOnGraph.size(), dag,
                             availableSecondaryDimensionForEachTree,
                             currentPrimaryDimension, viewCenter,
-                            radialTreeSkipCentralPosition);
+                            radialTreeSkipCentralPosition, topNode);
+                    topNode = false;
+                    currentPrimaryDimension += primaryDimensionSpacing;
+                }
+            } else if (radial && reversed) {
+                if (radialTreeSkipCentralPosition) {
+                    currentPrimaryDimension += primaryDimensionSpacing;
+                }
+                boolean topNode = true;
+                for (int j = dag.getNumberOfNodesOnLongestPath() - 1; j >= 0; j--) {
+                    processNodesAlongSecondaryDimensionRadially(i, j,
+                            dagsOnGraph.size(), dag,
+                            availableSecondaryDimensionForEachTree,
+                            currentPrimaryDimension, viewCenter,
+                            radialTreeSkipCentralPosition, topNode);
+                    topNode = false;
                     currentPrimaryDimension += primaryDimensionSpacing;
                 }
             } else
@@ -246,7 +252,7 @@ public abstract class AbstractTreeLayoutComputation extends
             int numDags, DirectedAcyclicGraph dag,
             double availableSecondaryDimensionForEachTree,
             double currentPrimaryDimension, PointDouble viewCenter,
-            boolean radialTreeSkipCentralPosition) {
+            boolean radialTreeSkipCentralPosition, boolean topNode) {
 
         int maxDepth = dag.getNumberOfNodesOnLongestPath();
 
@@ -260,7 +266,7 @@ public abstract class AbstractTreeLayoutComputation extends
         // it doesn't right now). This would determine the radius...I need to
         // rework this.
         double radiusDepth = currentPrimaryDimension
-                * ((j == 0 && numDags == 1 && !radialTreeSkipCentralPosition) ? 0
+                * ((topNode && numDags == 1 && !radialTreeSkipCentralPosition) ? 0
                         : 1);
 
         // TODO This is also vital to the radial tree version

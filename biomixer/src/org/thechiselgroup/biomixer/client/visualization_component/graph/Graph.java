@@ -642,8 +642,11 @@ public class Graph extends AbstractViewContentDisplay implements
         NodeAnimator nodeAnimator = getNodeAnimator();
         actions.add(new GraphLayoutAction(GraphLayouts.CIRCLE_LAYOUT,
                 new CircleLayoutAlgorithm(errorHandler, nodeAnimator)));
-        actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
-                new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
+        actions.add(new GraphLayoutAction(
+                GraphLayouts.RADIAL_LAYOUT,
+                new RadialTreeLayoutAlgorithm(false, errorHandler, nodeAnimator)));
+        actions.add(new GraphLayoutAction(GraphLayouts.INVERTED_RADIAL_LAYOUT,
+                new RadialTreeLayoutAlgorithm(true, errorHandler, nodeAnimator)));
         actions.add(new GraphLayoutAction(
                 GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
                 new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
@@ -692,7 +695,15 @@ public class Graph extends AbstractViewContentDisplay implements
 
         if (layoutsToKeep.contains(GraphLayouts.RADIAL_LAYOUT)) {
             actions.add(new GraphLayoutAction(GraphLayouts.RADIAL_LAYOUT,
-                    new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator)));
+                    new RadialTreeLayoutAlgorithm(false, errorHandler,
+                            nodeAnimator)));
+        }
+
+        if (layoutsToKeep.contains(GraphLayouts.INVERTED_RADIAL_LAYOUT)) {
+            actions.add(new GraphLayoutAction(
+                    GraphLayouts.INVERTED_RADIAL_LAYOUT,
+                    new RadialTreeLayoutAlgorithm(true, errorHandler,
+                            nodeAnimator)));
         }
 
         if (layoutsToKeep.contains(GraphLayouts.HORIZONTAL_TREE_LAYOUT)) {
