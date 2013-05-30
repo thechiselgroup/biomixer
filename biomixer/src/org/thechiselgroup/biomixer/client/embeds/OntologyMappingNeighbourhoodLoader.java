@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Ontology;
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -268,7 +269,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                 layoutAlgorithm);
     }
 
-    @Named("embed")
+    @Named(ChooselInjectionConstants.EMBED)
     @Inject
     protected ViewWindowContentProducer viewContentProducer;
 

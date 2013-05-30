@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.search.ontology;
 
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -33,8 +33,8 @@ public class OntologyMetricJsonParser extends AbstractJsonResultParser {
     }
 
     private OntologyMetrics analyzeItem(Object jsonItem) {
-        OntologyMetrics stats = new OntologyMetrics(getOntologyIdAsString(
-                jsonItem, "id"));
+        OntologyMetrics stats = new OntologyMetrics(getIntAsString(jsonItem,
+                "id"));
         stats.numberOfClasses = asInt(get(jsonItem, "numberOfClasses"));
         stats.numberOfIndividuals = asInt(get(jsonItem, "numberOfIndividuals"));
         stats.numberOfProperties = asInt(get(jsonItem, "numberOfProperties"));

@@ -35,13 +35,22 @@ public final class Ontology {
 
     public static final String RESOURCE_URI_PREFIX = "ncbo-ontology";
 
-    public static final String LABEL = "label";
+    // Always leave as label, for CHoosel purposes
+    public static final String ONTOLOGY_FULL_NAME = "label";
 
-    public static final String ONTOLOGY_ABBREVIATION = "ontologyAbbreviation";
+    public static final String ONTOLOGY_ACRONYM = "ontologyAcronym";
 
     public static final String TYPE = "type";
 
+    // Unique URLs in the new API @id field, or the acronym, appear to be the
+    // new unique identifiers. Integer identifiers don't seem to exist in the
+    // new API, except for submission version numbers (the sequential
+    // submissionId).
+    @Deprecated
     public static final String VIRTUAL_ONTOLOGY_ID = "ontologyId";
+
+    @Deprecated
+    public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
     public static final String DESCRIPTION = "description";
 
@@ -66,8 +75,6 @@ public final class Ontology {
      * ontology URI as well as the count in the URI value.
      */
     public static String INCOMING_MAPPINGS = "incomingMappings";
-
-    public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
     public static final String VIEWING_RESTRICTIONS = "viewingRestriction";
 

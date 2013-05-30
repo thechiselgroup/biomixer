@@ -35,4 +35,8 @@ public interface JsonParser {
 
     Object parse(String json);
 
+    public Object getPossiblyMissing(Object object, String property);
+
+    public String getIntAsString(Object object, String property);
+
 }

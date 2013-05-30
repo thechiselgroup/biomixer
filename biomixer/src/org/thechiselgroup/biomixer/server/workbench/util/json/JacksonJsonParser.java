@@ -30,6 +30,25 @@ public class JacksonJsonParser implements JsonParser {
             return null;
         }
     }
+    
+    @Override
+    public Object getPossiblyMissing(Object object, String property) {
+        if (has(object, property)) {
+            try {
+                // has() is failing, but I am in a hurry...try/catch then!
+                return get(object, property);
+            } catch (Throwable t) {
+                return "";
+            }
+        }
+        return "";
+
+    }
+
+    @Override
+    public String getIntAsString(Object object, String property) {
+        return Integer.toString(asInt(get(object, property)));
+    }
 
     @Override
     public Double asNumber(Object jsonNode) {

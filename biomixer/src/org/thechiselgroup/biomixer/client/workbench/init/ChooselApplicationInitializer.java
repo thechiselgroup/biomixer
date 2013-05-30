@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.workbench.init;
 import java.util.List;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
@@ -34,9 +35,9 @@ public class ChooselApplicationInitializer implements ApplicationInitializer {
      */
     public static final String APPLICATION_MODE_PARAMETER = "mode";
 
-    public static final String WORKBENCH = "workbench";
+    public static final String WORKBENCH = ChooselInjectionConstants.WORKBENCH;
 
-    public static final String EMBED = "embed";
+    public static final String EMBED = ChooselInjectionConstants.EMBED;
 
     public static final String USER_API_KEY = "userapikey";
 

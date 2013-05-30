@@ -282,7 +282,7 @@ public class OntologyNodeMetricsExpanderTest {
     public void doNotLoadContainedConceptsWithLabel() {
         String addedResourceUri = Ontology.toOntologyURI("ontologyId2");
         Resource addedResource = new Resource(addedResourceUri);
-        addedResource.putValue(Ontology.LABEL, "label");
+        addedResource.putValue(Ontology.ONTOLOGY_FULL_NAME, "label");
 
         testLoadConcepts(0, addedResourceUri, addedResource);
     }

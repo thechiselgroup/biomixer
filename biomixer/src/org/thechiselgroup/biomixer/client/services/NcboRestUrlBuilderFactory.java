@@ -39,7 +39,7 @@ public class NcboRestUrlBuilderFactory implements UrlBuilderFactory {
 
     private String userApiKey;
 
-    private String server = null;
+    private String server = SERVER;
 
     @Override
     public UrlBuilder createUrlBuilder() {

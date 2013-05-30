@@ -135,7 +135,7 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
     }
 
     protected String getOntologyInfoForErrorMessage(Resource resource) {
-        String ontologyName = (String) resource.getValue(Ontology.LABEL);
+        String ontologyName = (String) resource.getValue(Ontology.ONTOLOGY_FULL_NAME);
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {

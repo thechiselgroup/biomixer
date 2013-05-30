@@ -22,9 +22,9 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormat;
 import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormatFactory;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -50,8 +50,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         Resource resource = new Resource(Mapping.toMappingURI(id));
         resource.putValue(Mapping.ID, id);
 
-        String sourceOntologyId = getOntologyIdAsString(mapping,
-                "sourceOntologyId");
+        String sourceOntologyId = getIntAsString(mapping, "sourceOntologyId");
         // NOTE: odd json format -> {source: [{fullId: <fullId>}], target:
         // [{fullId: <fullId>}]}
         String sourceConceptId = asString(get(get(get(mapping, "source"), 0),
@@ -60,8 +59,7 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
                 sourceConceptId);
         resource.putValue(Mapping.SOURCE, sourceUri);
 
-        String targetOntologyId = getOntologyIdAsString(mapping,
-                "targetOntologyId");
+        String targetOntologyId = getIntAsString(mapping, "targetOntologyId");
         String targetConceptId = asString(get(get(get(mapping, "target"), 0),
                 "fullId"));
         String targetUri = Concept.toConceptURI(targetOntologyId,

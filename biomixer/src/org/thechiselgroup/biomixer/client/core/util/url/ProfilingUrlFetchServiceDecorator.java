@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.core.util.url;
 
 import java.util.logging.Logger;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.LoggerProvider;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -31,7 +32,7 @@ public class ProfilingUrlFetchServiceDecorator implements UrlFetchService {
 
     @Inject
     public ProfilingUrlFetchServiceDecorator(
-            @Named("delegate") UrlFetchService delegate,
+            @Named(ChooselInjectionConstants.DELEGATE) UrlFetchService delegate,
             LoggerProvider loggerProvider) {
 
         this.delegate = delegate;

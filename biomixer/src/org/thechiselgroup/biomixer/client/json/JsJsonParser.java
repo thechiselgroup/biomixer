@@ -24,6 +24,25 @@ import com.google.gwt.json.client.JSONValue;
 public class JsJsonParser implements JsonParser {
 
     @Override
+    public Object getPossiblyMissing(Object object, String property) {
+        if (has(object, property)) {
+            try {
+                // has() is failing, but I am in a hurry...try/catch then!
+                return get(object, property);
+            } catch (Throwable t) {
+                return "";
+            }
+        }
+        return "";
+
+    }
+
+    @Override
+    public String getIntAsString(Object object, String property) {
+        return Integer.toString(asInt(get(object, property)));
+    }
+
+    @Override
     public Integer asInt(Object jsonValue) {
         if (null != jsonValue) {
             return (int) ((JSONValue) jsonValue).isNumber().doubleValue();

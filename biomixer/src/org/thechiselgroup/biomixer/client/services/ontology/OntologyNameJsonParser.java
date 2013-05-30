@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.ontology;
 
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -31,8 +31,7 @@ public class OntologyNameJsonParser extends AbstractJsonResultParser {
     public String parse(String json) {
         return asString(get(
                 get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "ontologyBean"),
-                "displayLabel"));
+                        "ontologyBean"), "displayLabel"));
     }
 
 }

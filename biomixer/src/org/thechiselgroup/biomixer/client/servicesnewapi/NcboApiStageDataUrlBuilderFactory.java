@@ -16,7 +16,6 @@
 package org.thechiselgroup.biomixer.client.servicesnewapi;
 
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
-import org.thechiselgroup.biomixer.client.core.util.url.JsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
@@ -30,7 +29,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
  */
 public class NcboApiStageDataUrlBuilderFactory implements UrlBuilderFactory {
 
-    public static final String PROTOCOL = ""; // "http";
+    public static final String PROTOCOL = "http";
 
     public static final String SERVER = "stagedata.bioontology.org";
 
@@ -48,17 +47,17 @@ public class NcboApiStageDataUrlBuilderFactory implements UrlBuilderFactory {
 
     private String userApiKey;
 
-    private String server = null;
+    private String server = SERVER;
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new JsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
-                .host(this.server)
+        return
+        new DefaultUrlBuilder().host(this.server)
                 .protocol(PROTOCOL)
-                // .path(PATH)
                 .parameter(FORMAT_PARAMETER, FORMAT_VALUE)
                 .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
-                .parameter(USER_API_KEY_PARAMETER, userApiKey));
+                .parameter(USER_API_KEY_PARAMETER, userApiKey)
+        ;
     }
 
     @Override

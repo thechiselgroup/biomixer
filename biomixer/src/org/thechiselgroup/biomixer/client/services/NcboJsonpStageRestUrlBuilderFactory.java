@@ -16,7 +16,7 @@
 package org.thechiselgroup.biomixer.client.services;
 
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
-import org.thechiselgroup.biomixer.client.core.util.url.JsonpUrlBuilder;
+import org.thechiselgroup.biomixer.client.core.util.url.OldRestJsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
@@ -37,11 +37,11 @@ public class NcboJsonpStageRestUrlBuilderFactory implements UrlBuilderFactory {
 
     private String userApiKey;
 
-    private String server = null;
+    private String server = SERVER;
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new JsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
+        return new OldRestJsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
                 .host(this.server).protocol(PROTOCOL).path(PATH)
                 .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
                 .parameter(USER_API_KEY_PARAMETER, userApiKey));

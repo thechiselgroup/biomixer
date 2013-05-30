@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.ontology;
 
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 public class OntologyVersionJsonParser extends AbstractJsonResultParser {

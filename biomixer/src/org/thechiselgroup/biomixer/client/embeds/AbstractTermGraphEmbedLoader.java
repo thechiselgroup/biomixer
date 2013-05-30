@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
@@ -35,7 +36,7 @@ import com.google.inject.name.Named;
 
 public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
-    @Named("embed")
+    @Named(ChooselInjectionConstants.EMBED)
     @Inject
     protected ViewWindowContentProducer viewContentProducer;
 

@@ -303,7 +303,7 @@ public class BioMixerViewWindowContentProducer extends
                                                     + "&nbsp;"
                                                     + "Show "
                                                     + resource
-                                                            .getValue(Ontology.LABEL),
+                                                            .getValue(Ontology.ONTOLOGY_FULL_NAME),
                                             true);
                                     checkBox.setValue(true);
                                     ontologyToFilterBox.put(ontologyId,

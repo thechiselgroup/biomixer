@@ -52,10 +52,10 @@ public class OntologySearchResultParser extends AbstractXMLResultParser {
 
         ontology.putValue(Ontology.ONTOLOGY_VERSION_ID,
                 getText(node, "id/text()"));
-        ontology.putValue(Ontology.ONTOLOGY_ABBREVIATION,
+        ontology.putValue(Ontology.ONTOLOGY_ACRONYM,
                 getText(node, "abbreviation/text()"));
         ontology.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
-        ontology.putValue(Ontology.LABEL, getText(node, "displayLabel/text()"));
+        ontology.putValue(Ontology.ONTOLOGY_FULL_NAME, getText(node, "displayLabel/text()"));
         ontology.putValue(Ontology.DESCRIPTION,
                 getText(node, "description/text()"));
 

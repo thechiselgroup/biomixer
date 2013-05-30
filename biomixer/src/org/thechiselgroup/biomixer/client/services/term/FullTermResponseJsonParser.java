@@ -25,9 +25,10 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
+
 
 import com.google.inject.Inject;
 
@@ -103,14 +104,14 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
             Object entry = queriedResourceRelations.get(i);
 
             String relationType = asString(get(entry, "string"));
-            
+
             boolean classRelation = "SubClass".equals(relationType)
                     || "SuperClass".equals(relationType);
             boolean compositeRelation = "has_part".equals(relationType)
                     || "[R]has_part".equals(relationType);
             boolean reversed = "SuperClass".equals(relationType)
                     || "[R]has_part".equals(relationType);
-            
+
             if (relationType == null || !(classRelation || compositeRelation)) {
                 /*
                  * XXX OBO relations (such as 'negatively_regulates', '[R]is_a')

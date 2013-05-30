@@ -30,7 +30,10 @@ import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactor
  * @author drusk
  * 
  */
-public class JsonpUrlBuilder implements UrlBuilder {
+// TODO This will become unusable when the new API has been implemented,
+// and I wanted to make it clearer that this is so by renaming it.
+@Deprecated
+public class OldRestJsonpUrlBuilder implements UrlBuilder {
 
     /**
      * Builds up the doubly-encoded "path" parameter portion of the overall url.
@@ -79,7 +82,7 @@ public class JsonpUrlBuilder implements UrlBuilder {
 
     private PathBuilder pathBuilder = new PathBuilder();
 
-    public JsonpUrlBuilder(DefaultUrlBuilder defaultUrlBuilder) {
+    public OldRestJsonpUrlBuilder(DefaultUrlBuilder defaultUrlBuilder) {
         this.overallUrlBuilder = defaultUrlBuilder;
     }
 

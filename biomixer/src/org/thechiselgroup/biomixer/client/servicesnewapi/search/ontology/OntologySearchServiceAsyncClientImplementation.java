@@ -13,21 +13,31 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.search.ontology;
+package org.thechiselgroup.biomixer.client.servicesnewapi.search.ontology;
 
 import java.util.Collection;
 import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Ontology;
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
+import org.thechiselgroup.biomixer.client.servicesnewapi.ontology.OntologySearchResultJsonParser;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
+/**
+ * Differs from the original implementation in another package by the url
+ * builder and the parser, both of which here are for the new API. The named
+ * binding is temporary until we have fully switched over to the new API.
+ * 
+ */
 public class OntologySearchServiceAsyncClientImplementation extends
         AbstractWebResourceService implements OntologySearchServiceAsync {
 
@@ -36,31 +46,29 @@ public class OntologySearchServiceAsyncClientImplementation extends
     @Inject
     public OntologySearchServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory,
-            OntologySearchResultJsonParser resultParser) {
+            @Named(ChooselInjectionConstants.NEW_REST_API) UrlBuilderFactory urlBuilderFactory,
+            OntologySearchResultJsonParser resultParserNewApi) {
 
         super(urlFetchService, urlBuilderFactory);
 
-        this.resultParser = resultParser;
+        this.resultParser = resultParserNewApi;
     }
 
     private String buildUrl(String queryText) {
-        // http://rest.bioontology.org/bioportal/ontologies?apikey=YourAPIKey
+        // http://stagedata.bioontology.org/ontologies?apikey=YourAPIKey
         // provides all ontologies.
         // We can do client side filtering on the returned ontology names,
         // rather than requesting a REST service that does so.
         // If we decide to, we can later request a REST service that filters the
         // results.
-        return urlBuilderFactory.createUrlBuilder()
-                .path("/bioportal/ontologies/").toString();
+        return urlBuilderFactory.createUrlBuilder().path("/ontologies/")
+                .toString();
     }
 
     @Override
     public void searchOntologies(final String queryText,
             final AsyncCallback<Set<Resource>> callback) {
-
-        String url = buildUrl(queryText);
-
+        final String url = buildUrl(queryText);
         fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
             @Override
             public Set<Resource> transform(String responseText)
@@ -71,7 +79,6 @@ public class OntologySearchServiceAsyncClientImplementation extends
             }
         });
     }
-
 
     @Override
     public void searchOntologiesPredeterminedSet(
@@ -89,6 +96,7 @@ public class OntologySearchServiceAsyncClientImplementation extends
                 return resultParser.parse(responseText);
             }
         });
+
     }
 
 }

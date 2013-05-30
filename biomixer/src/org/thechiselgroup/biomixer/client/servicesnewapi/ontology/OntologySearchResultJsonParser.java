@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.search.ontology;
+package org.thechiselgroup.biomixer.client.servicesnewapi.ontology;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -47,21 +47,36 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource analyzeItem(Object jsonItem) {
-        String virtualOntologyId = getIntAsString(jsonItem, "ontologyId") + "";
 
+        String virtualOntologyId = asString(get(jsonItem, "@id"));
+
+        // The id is now a URL. This will work for us still, right?
+        // It should work fine once we are fully converted, but until then
+        // a lot of the older services expect old integer ids. Too bad!
         Resource resource = new Resource(
                 Ontology.toOntologyURI(virtualOntologyId));
 
-        resource.putValue(Ontology.ONTOLOGY_VERSION_ID,
-                asString(get(jsonItem, "id")));
-        resource.putValue(Ontology.ONTOLOGY_ACRONYM,
-                asString(get(jsonItem, "abbreviation")));
+        // No ontology ID available anymore. Do we even need it?
+        resource.putValue(Ontology.ONTOLOGY_VERSION_ID, virtualOntologyId);
+        // asString(get(jsonItem, "id")));
         resource.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
+
+        // used to be "abbreviation"
+        resource.putValue(Ontology.ONTOLOGY_ACRONYM,
+                asString(get(jsonItem, "acronym")));
+
+        // Used to be "displayLabel"
         resource.putValue(Ontology.ONTOLOGY_FULL_NAME,
-                asString(get(jsonItem, "displayLabel")));
-        resource.putValue(Ontology.DESCRIPTION,
-                asString(get(jsonItem, "description")));
+                asString(get(jsonItem, "name")));
+
+        // TODO "description" seems to be moved to the next object, under
+        // "latestSubmission".
+        // resource.putValue(Ontology.DESCRIPTION,
+        // asString(get(jsonItem, "description")));
         try {
+            // TODO The new API doesn't seem to have this pinned down yet.
+            // The private ontology below has an odd error:
+            // http://stagedata.bioontology.org/ontologies/HOM_EHS/latest_submission
             resource.putValue(
                     Ontology.VIEWING_RESTRICTIONS,
                     asString(getPossiblyMissing(jsonItem, "viewingRestriction")));
@@ -75,9 +90,9 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
     @Override
     public Set<Resource> parse(String json) {
         Set<Resource> resources = new HashSet<Resource>();
-        Object searchResults = get(
-                get(get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "list"), 0), "ontologyBean");
+        // Would parse with Jackson as in NCBO docs, but GWT doesn't support it.
+        Object searchResults = super.parse(json);
+
         int in = 0;
         int total = 0;
         if (isArray(searchResults)) {
@@ -88,6 +103,23 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
                     in++;
                 }
                 total++;
+            }
+        } else if (has(searchResults, "0")) {
+            // Larger than 0, but isn't an array...use string integers...oi vay!
+            int i = 0;
+            boolean keepGoing = true;
+            while (keepGoing) {
+                if (!has(searchResults, i + "")) {
+                    keepGoing = false;
+                    break;
+                }
+                Resource item = analyzeItem(get(searchResults, i + ""));
+                if (passFilter(item)) {
+                    resources.add(item);
+                    in++;
+                }
+                total++;
+                i++;
             }
         } else {
             Resource item = analyzeItem(searchResults);

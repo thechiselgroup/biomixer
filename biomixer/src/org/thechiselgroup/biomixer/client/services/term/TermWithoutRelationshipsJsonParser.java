@@ -17,7 +17,7 @@ package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;

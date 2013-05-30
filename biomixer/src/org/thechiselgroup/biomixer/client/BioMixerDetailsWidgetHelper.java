@@ -129,7 +129,8 @@ public class BioMixerDetailsWidgetHelper extends
         if (Ontology.isOntology(resource)) {
             // making the concept label clickable
             ResourceSetAvatar avatar = createAvatar(
-                    (String) resource.getValue(Ontology.LABEL), resourceSet);
+                    (String) resource.getValue(Ontology.ONTOLOGY_FULL_NAME),
+                    resourceSet);
             final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
                     .generateOntologySummaryUrl((String) resource
                             .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
@@ -147,7 +148,8 @@ public class BioMixerDetailsWidgetHelper extends
             // The summary url is also clickable. Perhaps they can have
             // different targets? Not sure...
             addRow("Summary", ontologySummaryUrl, verticalPanel, true);
-            addRow(resource, verticalPanel, "Ontology Acronym", Ontology.LABEL);
+            addRow(resource, verticalPanel, "Ontology Acronym",
+                    Ontology.ONTOLOGY_ACRONYM);
             addRow(resource, verticalPanel, "Ontology ID",
                     Ontology.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Description",
