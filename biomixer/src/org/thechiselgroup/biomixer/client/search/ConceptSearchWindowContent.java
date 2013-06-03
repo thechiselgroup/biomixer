@@ -19,21 +19,24 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.AbstractSearchWindowContent;
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
-import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
+import org.thechiselgroup.biomixer.client.servicesnewapi.search.concept.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 public class ConceptSearchWindowContent extends AbstractSearchWindowContent {
 
     private ConceptSearchServiceAsync searchService;
 
     @Inject
-    public ConceptSearchWindowContent(ResourceSetFactory resourceSetFactory,
-            ConceptSearchServiceAsync searchService,
+    public ConceptSearchWindowContent(
+            ResourceSetFactory resourceSetFactory,
+            @Named(ChooselInjectionConstants.NEW_REST_API) ConceptSearchServiceAsync searchService,
             ViewWindowContentProducer viewFactory) {
         super(resourceSetFactory, Concept.CONCEPT_ONTOLOGY_NAME, viewFactory,
                 ConceptSearchCommand.NCBO_CONCEPT_SEARCH);

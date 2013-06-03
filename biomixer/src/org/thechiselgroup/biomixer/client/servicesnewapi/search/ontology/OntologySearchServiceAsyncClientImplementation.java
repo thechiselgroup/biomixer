@@ -25,7 +25,6 @@ import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
-import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
 import org.thechiselgroup.biomixer.client.servicesnewapi.ontology.OntologySearchResultJsonParser;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -39,7 +38,9 @@ import com.google.inject.name.Named;
  * 
  */
 public class OntologySearchServiceAsyncClientImplementation extends
-        AbstractWebResourceService implements OntologySearchServiceAsync {
+        AbstractWebResourceService
+        implements
+        org.thechiselgroup.biomixer.client.servicesnewapi.search.ontology.OntologySearchServiceAsync {
 
     private final OntologySearchResultJsonParser resultParser;
 
@@ -73,8 +74,8 @@ public class OntologySearchServiceAsyncClientImplementation extends
             @Override
             public Set<Resource> transform(String responseText)
                     throws Exception {
-                resultParser.setFilterPropertyAndContainedText(Ontology.ONTOLOGY_FULL_NAME,
-                        queryText);
+                resultParser.setFilterPropertyAndContainedText(
+                        Ontology.ONTOLOGY_FULL_NAME, queryText);
                 return resultParser.parse(responseText);
             }
         });

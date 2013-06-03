@@ -13,40 +13,43 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.search.concept;
+package org.thechiselgroup.biomixer.client.servicesnewapi.search.concept;
 
 import java.util.Set;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 public class ConceptSearchServiceAsyncClientImplementation extends
-        AbstractWebResourceService implements ConceptSearchServiceAsync {
+        AbstractWebResourceService
+        implements
+        org.thechiselgroup.biomixer.client.servicesnewapi.search.concept.ConceptSearchServiceAsync {
 
     private final ConceptSearchResultJsonParser resultParser;
 
     @Inject
     public ConceptSearchServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory,
+            @Named(ChooselInjectionConstants.NEW_REST_API) UrlBuilderFactory urlBuilderFactory,
             ConceptSearchResultJsonParser resultParser) {
 
         super(urlFetchService, urlBuilderFactory);
+        // Window.alert("Yes here! Good!");
         this.resultParser = resultParser;
-        Window.alert("I am sad");
     }
 
     private String buildUrl(String queryText) {
-        return urlBuilderFactory.createUrlBuilder().path("/bioportal/search/")
-                .uriParameter("query", queryText)
-                .parameter("isexactmatch", "1").toString();
+        return urlBuilderFactory.createUrlBuilder().path("/search/")
+                .uriParameter("q", queryText).parameter("isexactmatch", "1")
+                .toString();
     }
 
     @Override
@@ -54,7 +57,6 @@ public class ConceptSearchServiceAsyncClientImplementation extends
             final AsyncCallback<Set<Resource>> callback) {
 
         String url = buildUrl(queryText);
-
         fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
             @Override
             public Set<Resource> transform(String responseText)

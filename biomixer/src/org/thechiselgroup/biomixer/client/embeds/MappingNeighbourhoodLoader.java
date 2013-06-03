@@ -31,6 +31,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -103,7 +104,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
                 final String otherOntologyId = Concept.getOntologyId(otherUri);
                 final String otherConceptId = Concept.getConceptId(otherUri);
-
+                Window.alert("Moar alerts");
                 termService.getBasicInformation(otherOntologyId,
                         otherConceptId, new BasicTermInfoCallback(errorHandler,
                                 otherConceptId));
@@ -133,7 +134,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     private void doLoadData(final String virtualOntologyId,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
-
+        Window.alert("Moar alerts");
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 

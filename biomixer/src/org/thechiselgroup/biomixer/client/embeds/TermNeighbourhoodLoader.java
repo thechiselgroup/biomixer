@@ -32,6 +32,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.radial_tree.RadialTreeLayoutAlgorithm;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -194,6 +195,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     private void doLoadData(final String virtualOntologyId,
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
+        Window.alert("Moar alerts");
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 

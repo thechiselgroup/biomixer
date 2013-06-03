@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.term;
+package org.thechiselgroup.biomixer.client.servicesnewapi.term;
 
 import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
@@ -29,6 +30,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 /**
  * @author Lars Grammel
@@ -36,7 +38,9 @@ import com.google.inject.Inject;
  * @see "http://www.bioontology.org/wiki/index.php/NCBO_REST_services#Term_services"
  */
 public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
-        AbstractWebResourceService implements ConceptNeighbourhoodServiceAsync {
+        AbstractWebResourceService
+        implements
+        org.thechiselgroup.biomixer.client.servicesnewapi.term.ConceptNeighbourhoodServiceAsync {
 
     private final FullTermResponseJsonParser responseParser;
 
@@ -45,12 +49,13 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
     @Inject
     public ConceptNeighbourhoodServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory,
+            @Named(ChooselInjectionConstants.NEW_REST_API) UrlBuilderFactory urlBuilderFactory,
+            // @Named(ChooselInjectionConstants.NEW_REST_API)
             OntologyNameServiceAsync ontologyNameService,
             FullTermResponseJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
-
+        Window.alert("This too " + ontologyNameService.getClass());
         assert responseParser != null;
         assert ontologyNameService != null;
 
@@ -58,30 +63,31 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         this.ontologyNameService = ontologyNameService;
     }
 
-    private String buildUrl(String fullConceptId, String ontologyId) {
+    private String buildUrl(String fullConceptId, String ontologyAcronym) {
         return urlBuilderFactory.createUrlBuilder()
-                .path("bioportal/virtual/ontology/" + ontologyId)
-                .uriParameter("conceptid", fullConceptId).toString();
+                .path("ontologies/" + ontologyAcronym + "/" + fullConceptId)
+                .uriParameter("include", "all").toString();
     }
 
     @Override
-    public void getNeighbourhood(final String ontologyId,
+    public void getNeighbourhood(final String ontologyAcroynm,
             final String conceptId,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
-        assert ontologyId != null;
+        assert ontologyAcroynm != null;
         assert conceptId != null;
 
-        final String url = buildUrl(conceptId, ontologyId);
-        Window.alert("Why am I here???");
-        ontologyNameService.getOntologyName(ontologyId,
+        // Now this expects the URL based concept ID and ontology acronym
+        final String url = buildUrl(conceptId, ontologyAcroynm);
+        Window.alert("Here, good.");
+        ontologyNameService.getOntologyName(ontologyAcroynm,
                 new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
                         return "Could not retrieve concept neighbourhood for concept "
-                                + conceptId + " in ontology " + ontologyId;
+                                + conceptId + " in ontology " + ontologyAcroynm;
                     }
 
                     @Override
@@ -96,7 +102,8 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                             throws Exception {
 
                                         ResourceNeighbourhood neighbourhood = responseParser
-                                                .parseNeighbourhood(ontologyId,
+                                                .parseNeighbourhood(
+                                                        ontologyAcroynm,
                                                         responseText);
 
                                         for (Resource resource : neighbourhood
@@ -115,22 +122,23 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
     }
 
     @Override
-    public void getResourceWithRelations(final String ontologyId,
+    public void getResourceWithRelations(final String ontologyAcroynm,
             final String conceptId, final AsyncCallback<Resource> callback) {
 
-        assert ontologyId != null;
+        assert ontologyAcroynm != null;
         assert conceptId != null;
 
-        final String url = buildUrl(conceptId, ontologyId);
+        // Now this expects the URL based concept ID and ontology acronym
+        final String url = buildUrl(conceptId, ontologyAcroynm);
 
-        ontologyNameService.getOntologyName(ontologyId,
+        ontologyNameService.getOntologyName(ontologyAcroynm,
                 new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
                         return "Could not retrieve concept neighbourhood for concept "
-                                + conceptId + " in ontology " + ontologyId;
+                                + conceptId + " in ontology " + ontologyAcroynm;
                     }
 
                     @Override
@@ -142,7 +150,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                             String responseText)
                                             throws Exception {
                                         Resource resource = responseParser
-                                                .parseResource(ontologyId,
+                                                .parseResource(ontologyAcroynm,
                                                         responseText);
                                         resource.putValue(
                                                 Concept.CONCEPT_ONTOLOGY_NAME,

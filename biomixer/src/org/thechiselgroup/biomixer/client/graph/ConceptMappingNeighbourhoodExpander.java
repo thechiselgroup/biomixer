@@ -45,7 +45,7 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
             TermServiceAsync termService) {
 
         super(mappingService, resourceManager, errorHandler);
-
+        Window.alert("No thank you sir");
         this.termService = termService;
     }
 

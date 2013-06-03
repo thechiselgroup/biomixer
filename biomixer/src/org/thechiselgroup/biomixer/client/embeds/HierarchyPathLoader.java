@@ -27,6 +27,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 /**
@@ -125,7 +126,7 @@ public class HierarchyPathLoader {
 
     public void loadUsingHierarchyService(final String virtualOntologyId,
             final String fullConceptId, final View graphView) {
-
+        Window.alert("Moar alerts");
         // need to look up short id since that is what the hierarchy service
         // requires as a parameter
         termService.getBasicInformation(virtualOntologyId, fullConceptId,

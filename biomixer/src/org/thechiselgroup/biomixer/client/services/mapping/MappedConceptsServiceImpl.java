@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -53,7 +54,7 @@ public class MappedConceptsServiceImpl implements MappedConceptsServiceAsync {
     @Override
     public void getMappedConcepts(String ontologyId, String fullConceptId,
             AsyncCallback<List<Resource>> callback) {
-
+        Window.alert("Dunno bout this bra");
         // TODO move calls from MappingNeighbourhoodLoader here
 
         // mappingService.getMappings(ontologyId, fullConceptId, new

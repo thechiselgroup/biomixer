@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.ontology;
+package org.thechiselgroup.biomixer.client.servicesnewapi.ontology;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
@@ -23,6 +24,7 @@ import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 
 public class OntologyNameServiceAsyncClientImplementation extends
         AbstractWebResourceService implements OntologyNameServiceAsync {
@@ -32,25 +34,25 @@ public class OntologyNameServiceAsyncClientImplementation extends
     @Inject
     public OntologyNameServiceAsyncClientImplementation(
             UrlFetchService urlFetchService,
-            UrlBuilderFactory urlBuilderFactory, OntologyNameJsonParser parser) {
+            @Named(ChooselInjectionConstants.NEW_REST_API) UrlBuilderFactory urlBuilderFactory,
+            OntologyNameJsonParser parser) {
         super(urlFetchService, urlBuilderFactory);
 
         assert parser != null;
         this.parser = parser;
     }
 
-    private String buildUrl(String virtualOntologyId) {
-        Window.alert("Still here");
+    private String buildUrl(String ontologyAcronym) {
+        Window.alert("Got here finally");
         return urlBuilderFactory.createUrlBuilder()
-                .path("/bioportal/virtual/ontology/" + virtualOntologyId)
-                .toString();
+                .path("/ontologies/" + ontologyAcronym).toString();
     }
 
     @Override
-    public void getOntologyName(String virtualOntologyId,
+    public void getOntologyName(String ontologyAcronym,
             AsyncCallback<String> callback) {
 
-        String url = buildUrl(virtualOntologyId);
+        String url = buildUrl(ontologyAcronym);
         fetchUrl(callback, url, new Transformer<String, String>() {
             @Override
             public String transform(String responseText) throws Exception {
