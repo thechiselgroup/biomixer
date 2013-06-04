@@ -158,7 +158,8 @@ public class BioMixerDetailsWidgetHelper extends
                     Ontology.NUMBER_OF_INDIVIDUALS);
             addRow(resource, verticalPanel, "Num Properties",
                     Ontology.NUMBER_OF_PROPERTIES);
-            addRow(resource, verticalPanel, "Note", Ontology.NOTE);
+            // Decided to remove Note, for now at least.
+            // addRow(resource, verticalPanel, "Note", Ontology.NOTE);
             // addRow(resource, verticalPanel, "Access",
             // Ontology.VIEWING_RESTRICTIONS);
 
