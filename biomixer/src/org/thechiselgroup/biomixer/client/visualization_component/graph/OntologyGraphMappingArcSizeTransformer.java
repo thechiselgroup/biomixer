@@ -22,7 +22,9 @@ public class OntologyGraphMappingArcSizeTransformer extends ArcSizeTransformer {
     public Double transform(Double value) throws Exception {
         // return logFunction(value);
         // return linearFunction(value);
-        return discretizingFunction(value);
+        // return discretizingFunction(value);
+        return scaleForContextRange(value);
+
     }
 
     private Double linearFunction(Double value) {

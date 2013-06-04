@@ -142,8 +142,8 @@ public class GraphDisplayController implements GraphDisplay,
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
             RenderedItemPopupManager renderedArcPopupManager,
-            NodeSizeTransformer nodeSizeTransformer,
-            ArcSizeTransformer arcSizeTransformer,
+            // NodeSizeTransformer nodeSizeTransformer,
+            // ArcSizeTransformer arcSizeTransformer,
             boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -160,7 +160,7 @@ public class GraphDisplayController implements GraphDisplay,
 
         this.nodeSizeTransformer = graphRenderer.getNodeSizeTransformer();
 
-        this.arcSizeTransformer = arcSizeTransformer;
+        this.arcSizeTransformer = graphRenderer.getArcSizeTransformer();
 
         this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width,
                 height);

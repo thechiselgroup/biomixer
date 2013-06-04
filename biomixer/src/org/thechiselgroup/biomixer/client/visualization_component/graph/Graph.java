@@ -119,20 +119,22 @@ public class Graph extends AbstractViewContentDisplay implements
             super(defaultHeight, defaultWidth, "Concept Graph", factory
                     .createGraphRenderer(defaultHeight, defaultWidth),
                     errorHandler, renderedArcPopupManager,
-                    nodeSizeTransformerFactory
-                            .createConceptNodeSizeTransformer(),
-                    nodeSizeTransformerFactory
-                            .createConceptArcSizeTransformer(), true);
+                    // nodeSizeTransformerFactory
+                    // .createConceptNodeSizeTransformer(),
+                    // nodeSizeTransformerFactory
+                    // .createConceptArcSizeTransformer(),
+                    true);
         }
 
         public DefaultDisplay(int width, int height, ErrorHandler errorHandler,
                 RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Concept Graph", factory.createGraphRenderer(
                     width, height), errorHandler, renderedArcPopupManager,
-                    nodeSizeTransformerFactory
-                            .createConceptNodeSizeTransformer(),
-                    nodeSizeTransformerFactory
-                            .createConceptArcSizeTransformer(), true);
+            // nodeSizeTransformerFactory
+            // .createConceptNodeSizeTransformer(),
+            // nodeSizeTransformerFactory
+            // .createConceptArcSizeTransformer(),
+                    true);
         }
 
     }
@@ -153,10 +155,11 @@ public class Graph extends AbstractViewContentDisplay implements
             super(defaultHeight, defaultWidth, "Ontology Graph", factory
                     .createGraphRenderer(defaultHeight, defaultWidth),
                     errorHandler, renderedArcPopupManager,
-                    nodeSizeTransformerFactory
-                            .createOntologyNodeSizeTransformer(),
-                    nodeSizeTransformerFactory
-                            .createOntologyMappingArcSizeTransformer(), true);
+                    // nodeSizeTransformerFactory
+                    // .createOntologyNodeSizeTransformer(),
+                    // nodeSizeTransformerFactory
+                    // .createOntologyMappingArcSizeTransformer(),
+                    true);
         }
 
         public OntologyGraphDisplay(int width, int height,
@@ -164,10 +167,11 @@ public class Graph extends AbstractViewContentDisplay implements
                 RenderedItemPopupManager renderedArcPopupManager) {
             super(width, height, "Ontology Graph", factory.createGraphRenderer(
                     width, height), errorHandler, renderedArcPopupManager,
-                    nodeSizeTransformerFactory
-                            .createOntologyNodeSizeTransformer(),
-                    nodeSizeTransformerFactory
-                            .createOntologyMappingArcSizeTransformer(), true);
+            // nodeSizeTransformerFactory
+            // .createOntologyNodeSizeTransformer(),
+            // nodeSizeTransformerFactory
+            // .createOntologyMappingArcSizeTransformer(),
+                    true);
         }
 
     }

@@ -92,4 +92,6 @@ public interface GraphRenderer {
 
     void updateTransformedNodeSizes(Node changedNode, boolean removing);
 
+    void updateTransformedArcSizes(Arc changedArc, boolean removing);
+
 }

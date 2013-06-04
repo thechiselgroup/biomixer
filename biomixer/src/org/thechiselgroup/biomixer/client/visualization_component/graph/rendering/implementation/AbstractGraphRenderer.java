@@ -62,6 +62,8 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private final TreeSet<Node> nodeSortedSet;
 
+    private final TreeSet<Arc> arcSortedSet;
+
     private Map<String, RenderedNode> renderedNodesById = CollectionFactory
             .createStringMap();
 
@@ -102,7 +104,20 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
                 }
             }
         });
+        arcSortedSet = new TreeSet<Arc>(new Comparator<Arc>() {
+            @Override
+            public int compare(Arc o1, Arc o2) {
+                if (o1.getWeight() > o2.getWeight()) {
+                    return 1;
+                } else if (o1.getWeight() < o2.getWeight()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
         this.nodeSizeTransformer.addGraphRenderingListener(this);
+        this.arcSizeTransformer.addGraphRenderingListener(this);
 
     }
 
@@ -148,6 +163,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         removeNodeConnections(renderedArc);
         renderedArcs.remove(arc);
         removeArcFromGraph(renderedArc);
+        updateTransformedArcSizes(arc, false);
     }
 
     protected abstract void removeArcFromGraph(RenderedArc arc);
@@ -220,6 +236,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
                 this.renderLabels, renderedSource, renderedTarget);
         renderedArcs.put(arc, renderedArc);
         addArcToGraph(renderedArc);
+        updateTransformedArcSizes(arc, false);
         return renderedArc;
     }
 
@@ -264,8 +281,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
             // renderedArc.setThickness(styleValue);
             try {
-                renderedArc.setThickness(arcSizeTransformer.transform(Double
-                        .parseDouble(styleValue)));
+                double parsedThickness = Double.parseDouble(styleValue);
+                arc.setWeight(parsedThickness);
+                renderedArc.setThickness(arcSizeTransformer
+                        .transform(parsedThickness));
             } catch (Exception e) {
                 // This is for the transformation, which shouldn't have a
                 // problem. Still could be double parse issues, which was never
@@ -336,6 +355,21 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
     }
 
+    @Override
+    public void updateTransformedArcSizes(Arc changedArc, boolean removing) {
+        boolean changed = false;
+        if (removing) {
+            changed = arcSizeTransformer.removingScalingContextRange(
+                    changedArc, arcSortedSet);
+        } else {
+            changed = arcSizeTransformer.addingScalingContextRange(changedArc);
+        }
+
+        if (changed) {
+            refreshAllArcSizes();
+        }
+    }
+
     public void refreshAllNodeSizes() {
         for (Node node : renderedNodes.keySet()) {
             RenderedNode renderedNode = renderedNodes.get(node);
@@ -349,7 +383,24 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
     }
 
+    public void refreshAllArcSizes() {
+        for (Arc arc : renderedArcs.keySet()) {
+            RenderedArc renderedArc = renderedArcs.get(arc);
+            try {
+                renderedArc.setThickness(arcSizeTransformer.transform(arc
+                        .getWeight()));
+            } catch (Exception e) {
+                // Won't happen.
+                e.printStackTrace();
+            }
+        }
+    }
+
     public NodeSizeTransformer getNodeSizeTransformer() {
         return nodeSizeTransformer;
+    }
+
+    public ArcSizeTransformer getArcSizeTransformer() {
+        return arcSizeTransformer;
     }
 }
