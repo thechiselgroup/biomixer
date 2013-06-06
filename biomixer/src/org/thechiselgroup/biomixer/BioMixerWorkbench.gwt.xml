@@ -45,6 +45,10 @@
   <!-- GWT effects: gwt-fx -->
   <inherits name='org.adamtacy.GWTEffects' /> 
   
+  <!--  Color Picker --> 
+  <inherits name='com.google.gwt.query.Query'/>
+  <inherits name='gwtquery.plugins.enhance.Enhance'/>
+  
   <!-- GWT SWF Bridge: gwt2swf -->
   <!-- <inherits name='pl.rmalinowski.gwt2swf.GWT2SWF' />  -->
   
