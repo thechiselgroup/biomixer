@@ -101,7 +101,7 @@ public abstract class AbstractTreeLayoutComputation extends
                 radialTreeSkipCentralPosition = true;
                 treeDepth += 1;
             } else if (reversed && radial && i == dagsOnGraph.size() - 1
-                    && numberOfRoots > 1) {
+                    && numberOfRoots == 1) {
                 radialTreeSkipCentralPosition = true;
                 treeDepth += 1;
             }
@@ -272,7 +272,6 @@ public abstract class AbstractTreeLayoutComputation extends
         // TODO This is also vital to the radial tree version
         // We need to interpret the availableSecondaryDimensionForEachTree as
         // angle, and currentPrimaryDimension as radius distance.
-
         List<DirectedAcyclicGraphNode> nodesAtDepth = dag
                 .getNodesAtDistanceFromRoot(j);
 
