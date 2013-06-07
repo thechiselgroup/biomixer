@@ -229,6 +229,9 @@ public abstract class AbstractTreeLayoutComputation extends
 
         List<DirectedAcyclicGraphNode> nodesAtDepth = dag
                 .getNodesAtDistanceFromRoot(j);
+        if (null == nodesAtDepth || nodesAtDepth.size() == 0) {
+            return;
+        }
 
         double secondaryDimensionSpacing = availableSecondaryDimensionForEachTree
                 / (nodesAtDepth.size() + 1);
@@ -274,6 +277,10 @@ public abstract class AbstractTreeLayoutComputation extends
         // angle, and currentPrimaryDimension as radius distance.
         List<DirectedAcyclicGraphNode> nodesAtDepth = dag
                 .getNodesAtDistanceFromRoot(j);
+
+        if (null == nodesAtDepth || nodesAtDepth.size() == 0) {
+            return;
+        }
 
         double radianSlicePerNode = radianSlicePerTree / (nodesAtDepth.size());
 

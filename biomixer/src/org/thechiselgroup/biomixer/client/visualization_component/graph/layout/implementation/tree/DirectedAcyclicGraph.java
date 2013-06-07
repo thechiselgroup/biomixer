@@ -107,11 +107,13 @@ public class DirectedAcyclicGraph {
     public List<DirectedAcyclicGraphNode> getNodesAtDistanceFromRoot(
             int distance) {
         assert distance >= 0;
-        assert nodesByMaxDistanceFromARoot.containsKey(Integer
-                .valueOf(distance)) : "no nodes at distance=" + distance
-                + " from a root";
+        // This assertion was breaking on soem graphs, for linear and radial trees.
+        // assert nodesByMaxDistanceFromARoot.containsKey(Integer
+        // .valueOf(distance)) : "no nodes at distance=" + distance
+        // + " from a root";
         return nodesByMaxDistanceFromARoot.get(Integer.valueOf(distance));
     }
+
 
     /**
      * 
