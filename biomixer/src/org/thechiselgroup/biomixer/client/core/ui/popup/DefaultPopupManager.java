@@ -413,7 +413,9 @@ public class DefaultPopupManager implements PopupManager {
         /*
          * Some browsers (e.g. Safari 5.0.3, Chome 10.0.648.127 beta) seem to
          * fire mouse move events continously under certain circumstance even
-         * though the mouse was not moved.
+         * though the mouse was not moved. Null check is to prevent errors in
+         * IE, but the arc popups don't work...oh, I moved the null check to the
+         * caller. Nonetheless, it should never get this far in IE...
          */
         if ((clientX == this.clientX) && (clientY == this.clientY)) {
             return;
