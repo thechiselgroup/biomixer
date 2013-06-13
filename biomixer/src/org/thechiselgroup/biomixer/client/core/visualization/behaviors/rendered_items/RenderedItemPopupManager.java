@@ -91,10 +91,6 @@ public class RenderedItemPopupManager implements
                 renderedItemPopupManager.currentPopupManager.hidePopup();
                 break;
             case MOUSE_MOVE:
-                // In IE, we see a null exception here where we don't in other
-                // browsers. Likely, the currentPopupManager hasn't been created.
-            	// So...we have to use a null check. Not sure how it got worked around in
-                // other browsers.
                 renderedItemPopupManager.currentPopupManager.onMouseMove(
                         event.getClientX(), event.getClientY());
                 break;

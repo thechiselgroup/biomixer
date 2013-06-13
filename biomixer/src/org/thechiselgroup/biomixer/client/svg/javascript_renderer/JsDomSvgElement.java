@@ -170,6 +170,8 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
         DOM.setEventListener(asElement, new EventListener() {
             @Override
             public void onBrowserEvent(Event event) {
+                // This would fire in Chrome, but fail to fire in IE
+            	// for ONMOUSEOUT events in particular. I do not know why.
                 handler.onEvent(new ChooselEvent(event));
             }
         });

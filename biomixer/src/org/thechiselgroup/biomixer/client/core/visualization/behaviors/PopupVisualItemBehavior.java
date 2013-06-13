@@ -29,6 +29,7 @@ import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItemInteraction;
 
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -61,8 +62,8 @@ public class PopupVisualItemBehavior extends
                 .createDetailsWidget(visualItem);
         PopupManager popupManager = popupManagerFactory
                 .createPopupManager(detailsWidget);
-        
-        Popup popup = popupManager.getPopup();
+
+        final Popup popup = popupManager.getPopup();
         popup.addHandler(this, PopupOpacityChangedEvent.TYPE);
         VisualItemVerticalPanel contentWidget = (VisualItemVerticalPanel) (popup
                 .getContentWidget());
@@ -117,12 +118,23 @@ public class PopupVisualItemBehavior extends
             }
             break;
         case MOUSE_OUT:
+        	// This won't fire in IE on nodes. Do not know why.
             popupManager.onMouseOut(interaction.getClientX(),
                     interaction.getClientY());
             break;
         case MOUSE_OVER:
+            // In IE, this event gets fired pretty much constantly
+            // when the mouse is *not moving* but is over. In Chrome, it
+            // appears to only fire the first time, and when moved on and off
+            // of the node label to and from the node body.
             popupManager.onMouseOver(interaction.getClientX(),
                     interaction.getClientY());
+            // If using IE, we need to refresh a timer, abusing the mouse over repeats
+            // to deal with the lack of mouse out events.
+            if (Window.Navigator.getUserAgent().toLowerCase().contains("msie")) {
+                popupManager.refreshInternetExplorerAutoHideTimer();
+            }
+
             break;
         }
     }

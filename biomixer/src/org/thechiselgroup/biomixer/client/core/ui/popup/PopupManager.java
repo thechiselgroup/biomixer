@@ -31,6 +31,8 @@ public interface PopupManager {
 
     void hidePopup();
 
+    void refreshInternetExplorerAutoHideTimer();
+
     boolean isEnabled();
 
     <T extends Widget & HasAllMouseHandlers & HasAttachHandlers> HandlerRegistration linkToWidget(

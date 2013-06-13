@@ -573,6 +573,7 @@ public class GraphDisplayController implements GraphDisplay,
                     new ChooselEventHandler() {
                         @Override
                         public void onEvent(ChooselEvent event) {
+
                             switch (event.getEventType()) {
                             case MOUSE_OVER:
                                 onNodeExpanderMouseOver(renderNodeExpander,
@@ -807,6 +808,8 @@ public class GraphDisplayController implements GraphDisplay,
                 location.getX(), location.getY());
     }
 
+    static int i = 0;
+
     private void setNodeEventHandlers(final RenderedNode renderedNode) {
         renderedNode.setBodyEventHandler(new ChooselEventHandler() {
             @Override
@@ -816,10 +819,16 @@ public class GraphDisplayController implements GraphDisplay,
 
                 switch (event.getEventType()) {
                 case MOUSE_OVER:
+                    // In IE, this event gets fired pretty much constantly
+                    // when the mouse is *not moving* but is over. In Chrome, it
+                    // appears to only fire the first time, and when moved on
+                    // and off of the node label to and from the node body.
                     onNodeMouseOver(renderedNode, event, clientX, clientY);
                     break;
 
                 case MOUSE_OUT:
+                    // In FF and Chrome, this gets called on nodes. In IE,
+                    // it does not. I could not find out why.
                     onNodeMouseOut(renderedNode, event, clientX, clientY);
                     break;
 

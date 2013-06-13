@@ -32,6 +32,7 @@ import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.HasAttachHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -511,11 +512,38 @@ public class DefaultPopupManager implements PopupManager {
 
     protected void startTimer(int delayInMs) {
         timer.schedule(delayInMs);
+        autoHide.schedule(showDelay);
     }
 
     private void updateMousePosition(int clientX, int clientY) {
         this.clientX = clientX;
         this.clientY = clientY;
     }
+
+    @Override
+    public void refreshInternetExplorerAutoHideTimer() {
+        this.autoHide.schedule(showDelay);
+    }
+
+    /**
+     * This timer was created to deal with the missing mouse out events in IE.
+     * This is combined with a 'refresh' method that needs to be called in the
+     * mouse over event handler Mouse over is called very very frequently in IE,
+     * so that allows us to reset this timer with a frequency greater than the
+     * timeout for it.
+     */
+    private Timer autoHide = new Timer() {
+        @Override
+        public void run() {
+            if (Window.Navigator.getUserAgent().toLowerCase().contains("msie")) {
+                int tempHideDelay = getHideDelay();
+                // Trying to fix delay when we are already subject to a minimum
+                // delay on this timer...maybe it's not a big deal.
+                setHideDelay(0);
+                hidePopup();
+                setHideDelay(tempHideDelay);
+            }
+        }
+    };
 
 }
