@@ -62,6 +62,8 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     private ChooselEventHandler viewWideInteractionHandler;
 
+    private RenderedNode currentForegroundElement = null;
+
     public SvgGraphRenderer(int width, int height,
             SvgElementFactory svgElementFactory, NodeRenderer nodeRenderer,
             ArcRenderer arcRenderer, NodeExpanderRenderer nodeExpanderRenderer,
@@ -103,7 +105,10 @@ public class SvgGraphRenderer extends AbstractGraphRenderer {
 
     @Override
     public void bringToForeground(RenderedNode node) {
-        nodeGroup.appendChild((AbstractSvgRenderedNode) node);
+        if (this.currentForegroundElement != node) {
+            this.currentForegroundElement = node;
+            nodeGroup.appendChild((AbstractSvgRenderedNode) node);
+        }
     }
 
     @Override

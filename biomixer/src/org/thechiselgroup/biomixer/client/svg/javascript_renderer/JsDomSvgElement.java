@@ -171,7 +171,11 @@ public class JsDomSvgElement extends JavaScriptObject implements SvgElement {
             @Override
             public void onBrowserEvent(Event event) {
                 // This would fire in Chrome, but fail to fire in IE
-            	// for ONMOUSEOUT events in particular. I do not know why.
+                // for ONMOUSEOUT events in particular. I do not know why.
+            	// Oh, because an operation to send the node to foreground
+            	// made IE clobber the mouse out, and that operation was
+            	// being triggered pretty much constantly by IE re-emitting
+            	// the mouseover event.
                 handler.onEvent(new ChooselEvent(event));
             }
         });

@@ -808,8 +808,6 @@ public class GraphDisplayController implements GraphDisplay,
                 location.getX(), location.getY());
     }
 
-    static int i = 0;
-
     private void setNodeEventHandlers(final RenderedNode renderedNode) {
         renderedNode.setBodyEventHandler(new ChooselEventHandler() {
             @Override

@@ -512,7 +512,12 @@ public class DefaultPopupManager implements PopupManager {
 
     protected void startTimer(int delayInMs) {
         timer.schedule(delayInMs);
-        autoHide.schedule(showDelay);
+        if (!autoHideStarted) {
+            // This boolean flag is necessary for IE because
+            // / the repeat mouse over events retrigger too often
+            // autoHide.schedule(2 * delayInMs);
+            autoHideStarted = true;
+        }
     }
 
     private void updateMousePosition(int clientX, int clientY) {
@@ -522,7 +527,7 @@ public class DefaultPopupManager implements PopupManager {
 
     @Override
     public void refreshInternetExplorerAutoHideTimer() {
-        this.autoHide.schedule(showDelay);
+        // this.autoHide.schedule(2 * showDelay);
     }
 
     /**
@@ -532,6 +537,10 @@ public class DefaultPopupManager implements PopupManager {
      * so that allows us to reset this timer with a frequency greater than the
      * timeout for it.
      */
+    private boolean autoHideStarted = false;
+
+    static int i = 0;
+
     private Timer autoHide = new Timer() {
         @Override
         public void run() {
@@ -539,9 +548,10 @@ public class DefaultPopupManager implements PopupManager {
                 int tempHideDelay = getHideDelay();
                 // Trying to fix delay when we are already subject to a minimum
                 // delay on this timer...maybe it's not a big deal.
-                setHideDelay(0);
+                // setHideDelay(0);
+                Window.setTitle("Hiding stuff " + (i++));
                 hidePopup();
-                setHideDelay(tempHideDelay);
+                // setHideDelay(tempHideDelay);
             }
         }
     };
