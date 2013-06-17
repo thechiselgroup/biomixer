@@ -125,8 +125,7 @@ public class BioMixerDetailsWidgetHelper extends
                     Concept.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
 
-        }
-        if (Ontology.isOntology(resource)) {
+        } else if (Ontology.isOntology(resource)) {
             // making the concept label clickable
             ResourceSetAvatar avatar = createAvatar(
                     (String) resource.getValue(Ontology.LABEL), resourceSet);
