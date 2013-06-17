@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointUtils;
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
@@ -25,18 +26,23 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.A
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
+import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 /**
- * An SVG arc rendered as a straight line.
+ * An SVG arc rendered as a straight line, but with another line on top that is
+ * transparent. This allows the mouse to be positioned over the arc more easily,
+ * without making the line visibly wider. This facilitates viewing popups for
+ * arcs.
  * 
- * @author drusk
  * 
  */
-public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
-        implements Identifiable {
+public class StraightLineWideMousableRenderedSvgArc extends
+        AbstractSvgRenderedArc implements Identifiable {
 
     private final SvgElement arcLine;
+
+    private final SvgElement arcLineTransparentOverlay;
 
     private final SvgArrowHead arrow;
 
@@ -46,17 +52,43 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     private Boolean labelRendering = null;
 
-    public StraightLineRenderedSvgArc(Arc arc, SvgElement container,
-            SvgElement arcLine, SvgArrowHead arrow, SvgBareText label,
-            boolean renderLabel, RenderedNode source, RenderedNode target) {
+    private Double MIN_THICKNESS_PAD = 8.0;
+
+    public StraightLineWideMousableRenderedSvgArc(Arc arc,
+            SvgElement container, SvgElement arcLine, SvgArrowHead arrow,
+            SvgBareText label, boolean renderLabel, RenderedNode source,
+            RenderedNode target, SvgElementFactory svgElementFactory) {
         super(arc, source, target);
         assert (arcLine != null);
         assert (arrow != null);
         this.baseContainer = container;
         this.arcLine = arcLine;
+
         this.arrow = arrow;
         this.label = label;
         this.setLabelRendering(renderLabel);
+
+        // Make the two transparent border arcs, and make their parent that of
+        // the main arc.
+        this.arcLineTransparentOverlay = svgElementFactory
+                .createElement(Svg.LINE);
+        this.arcLineTransparentOverlay.setAttribute(Svg.X1,
+                arcLine.getAttributeAsString(Svg.X1));
+        this.arcLineTransparentOverlay.setAttribute(Svg.Y1,
+                arcLine.getAttributeAsString(Svg.X1));
+        this.arcLineTransparentOverlay.setAttribute(Svg.X2,
+                arcLine.getAttributeAsString(Svg.X1));
+        this.arcLineTransparentOverlay.setAttribute(Svg.Y2,
+                arcLine.getAttributeAsString(Svg.X1));
+        this.arcLineTransparentOverlay.setAttribute(Svg.STROKE, Colors.ORANGE);
+        container.appendChild(this.arcLineTransparentOverlay);
+
+        // Make fill opaque and stroke not opaque so that
+        // the visible portion is smaller than the mouse
+        // area for the thinnest arcs.
+        this.arcLine.setAttribute(Svg.STROKE_OPACITY, 100);
+        this.arcLineTransparentOverlay.setAttribute(Svg.STROKE_OPACITY, 0);
+
     }
 
     @Override
@@ -140,6 +172,7 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
     @Override
     public void setColor(String color) {
         arcLine.setAttribute(Svg.STROKE, color);
+        arcLine.setAttribute(Svg.FILL, "#FFFFFF");
         // Used to skip undirected arc heads
         arrow.asSvgElement().setAttribute(Svg.STROKE, color);
         arrow.asSvgElement().setAttribute(Svg.FILL, color);
@@ -150,11 +183,17 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         arcLine.setEventListener(handler);
         label.setEventListener(handler);
         arrow.asSvgElement().setEventListener(handler);
+        arcLineTransparentOverlay.setEventListener(handler);
     }
 
     @Override
     public void setThickness(Double thickness) {
         arcLine.setAttribute(Svg.STROKE_WIDTH, thickness);
+        // // Update transparent line thickness, so that the effective
+        // // size for mouse over purposes is larger than the visible in
+        // // the case of thin lines
+        arcLineTransparentOverlay.setAttribute(Svg.STROKE_WIDTH,
+                MIN_THICKNESS_PAD);
     }
 
     @Override
@@ -164,6 +203,9 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
         SvgUtils.setX1Y1(arcLine, sourceCentre);
         SvgUtils.setX2Y2(arcLine, targetCentre);
+
+        SvgUtils.setX1Y1(arcLineTransparentOverlay, sourceCentre);
+        SvgUtils.setX2Y2(arcLineTransparentOverlay, targetCentre);
 
         // Used to skip undirected arc heads
         assert arrow != null;

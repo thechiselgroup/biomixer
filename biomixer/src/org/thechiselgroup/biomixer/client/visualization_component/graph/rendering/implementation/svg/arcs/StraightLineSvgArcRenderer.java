@@ -71,9 +71,11 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
         SvgBareText textLabel = new SvgBareText(arc.getLabel(),
                 textBoundsEstimator, svgElementFactory);
 
-        StraightLineRenderedSvgArc renderedArc = new StraightLineRenderedSvgArc(
+        // This can be StraightLineRenderedSvgArc as it was before if the graph
+        // in question cannot handle twice as many rendered lines.
+        StraightLineWideMousableRenderedSvgArc renderedArc = new StraightLineWideMousableRenderedSvgArc(
                 arc, container, arcLine, arrowHead, textLabel, renderLabel,
-                source, target);
+                source, target, svgElementFactory);
         // Ensures consistent setting of endpoints, since this is used later.
         renderedArc.update();
         return renderedArc;
