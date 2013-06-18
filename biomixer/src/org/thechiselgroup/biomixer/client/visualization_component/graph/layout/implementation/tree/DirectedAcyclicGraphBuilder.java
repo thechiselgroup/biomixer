@@ -69,7 +69,10 @@ public class DirectedAcyclicGraphBuilder {
             DirectedAcyclicGraphNode targetNode = directedAcyclicGraphNodes
                     .get(arc.getTargetNode());
 
-            if (sourceNode.getLayoutNode().isAnchored()
+            // These can be null if we are filtering and the nodes for this arc
+            // are not layed out.
+            if (null == sourceNode || sourceNode.getLayoutNode().isAnchored()
+                    || null == targetNode
                     || targetNode.getLayoutNode().isAnchored()) {
                 continue;
             }

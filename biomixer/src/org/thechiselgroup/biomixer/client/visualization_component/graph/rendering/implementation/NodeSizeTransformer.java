@@ -170,18 +170,20 @@ public abstract class NodeSizeTransformer implements
 
     public boolean removingScalingContextRange(Node changedNode,
             TreeSet<Node> sortedNodes) {
-        double newSize = changedNode.getSize();
+        double removingSize = changedNode.getSize();
         boolean changed = false;
-        if (newSize < maxRawSize || newSize > minRawSize && maxRawSize != -1
-                && minRawSize != -1) {
+        if (removingSize < maxRawSize || removingSize > minRawSize
+                && maxRawSize != -1 && minRawSize != -1) {
             changed = false;
         } else {
             // Recompute bounds
-            this.minRawSize = sortedNodes.first().getSize();
-            this.maxRawSize = sortedNodes.last().getSize();
-            changed = true;
+            if (0 != sortedNodes.size()) {
+                this.minRawSize = sortedNodes.first().getSize();
+                this.maxRawSize = sortedNodes.last().getSize();
+                changed = true;
+                setScalingContextRange(this.minRawSize, this.maxRawSize);
+            }
         }
-        setScalingContextRange(this.minRawSize, this.maxRawSize);
 
         return changed;
     }

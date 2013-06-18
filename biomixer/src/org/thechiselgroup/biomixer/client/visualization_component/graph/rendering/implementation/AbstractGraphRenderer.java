@@ -158,6 +158,14 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     @Override
     public void removeArc(Arc arc) {
+        if (!renderedArcs.containsKey(arc)) {
+            // Arcs can be removed when either endpoint is removed, so to
+            // facilitate
+            // easier access, I am checking here rather than above to see if the
+            // arc is removable.
+            // Who better to determine that than the renderer?
+            return;
+        }
         assert renderedArcs.containsKey(arc) : "Cannot remove an arc which has not been rendered";
         RenderedArc renderedArc = renderedArcs.get(arc);
         removeNodeConnections(renderedArc);

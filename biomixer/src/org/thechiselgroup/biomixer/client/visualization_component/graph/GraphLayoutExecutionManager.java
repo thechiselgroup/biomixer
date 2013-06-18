@@ -128,7 +128,10 @@ public class GraphLayoutExecutionManager {
      * changes on the graph and take them into account.
      */
     public void runLayout() {
-        if (currentComputation == null) {
+        if (graph.getAllNodes().size() == 0) {
+            // Do nothing if we have an empty graph, possibly due to hiding all
+            // of the nodes with filters.
+        } else if (currentComputation == null) {
             /*
              * Run a brand new computation.
              */
