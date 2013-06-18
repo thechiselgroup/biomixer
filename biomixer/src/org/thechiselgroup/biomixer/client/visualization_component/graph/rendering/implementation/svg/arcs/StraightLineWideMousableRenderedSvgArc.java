@@ -68,7 +68,8 @@ public class StraightLineWideMousableRenderedSvgArc extends
         nodePositionOffsetMap.put(CompositionArcType.ID, 6);
         nodePositionOffsetMap.put(DirectConceptMappingArcType.ID, 3);
         nodePositionOffsetMap.put(MappingArcType.ID, -3);
-        nodePositionOffsetMap.put(OntologyMappingArcType.ID, -6);
+        // Small ontology nodes prevent us from offsetting.
+        nodePositionOffsetMap.put(OntologyMappingArcType.ID, 0);
     }
 
     public StraightLineWideMousableRenderedSvgArc(Arc arc, boolean renderLabel,
