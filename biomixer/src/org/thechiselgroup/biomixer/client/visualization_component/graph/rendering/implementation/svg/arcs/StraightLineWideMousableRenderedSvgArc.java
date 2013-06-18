@@ -15,11 +15,19 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs;
 
+import java.util.HashMap;
+
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointUtils;
 import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.graph.CompositionArcType;
+import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
+import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
+import org.thechiselgroup.biomixer.client.graph.MappingArcType;
+import org.thechiselgroup.biomixer.client.graph.OntologyMappingArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBareText;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -46,7 +54,7 @@ public class StraightLineWideMousableRenderedSvgArc extends
 
     private final SvgArrowHead arrow;
 
-    private SvgElement baseContainer;
+    private SvgElement container;
 
     private SvgBareText label;
 
@@ -54,18 +62,48 @@ public class StraightLineWideMousableRenderedSvgArc extends
 
     private Double MIN_THICKNESS_PAD = 8.0;
 
-    public StraightLineWideMousableRenderedSvgArc(Arc arc,
-            SvgElement container, SvgElement arcLine, SvgArrowHead arrow,
-            SvgBareText label, boolean renderLabel, RenderedNode source,
-            RenderedNode target, SvgElementFactory svgElementFactory) {
-        super(arc, source, target);
-        assert (arcLine != null);
-        assert (arrow != null);
-        this.baseContainer = container;
-        this.arcLine = arcLine;
+    static HashMap<String, Integer> nodePositionOffsetMap = new HashMap<String, Integer>();
+    {
+        nodePositionOffsetMap.put(ConceptArcType.ID, -6);
+        nodePositionOffsetMap.put(CompositionArcType.ID, 6);
+        nodePositionOffsetMap.put(DirectConceptMappingArcType.ID, 3);
+        nodePositionOffsetMap.put(MappingArcType.ID, -3);
+        nodePositionOffsetMap.put(OntologyMappingArcType.ID, -6);
+    }
 
-        this.arrow = arrow;
-        this.label = label;
+    public StraightLineWideMousableRenderedSvgArc(Arc arc, boolean renderLabel,
+            RenderedNode source, RenderedNode target,
+            SvgElementFactory svgElementFactory,
+            TextBoundsEstimator textBoundsEstimator) {
+        super(arc, source, target);
+
+        this.container = svgElementFactory.createElement(Svg.G);
+        container.setAttribute(Svg.ID, arc.getId());
+
+        PointDouble tempSource = source.getNodeShapeCentre();
+        PointDouble sourceNodeLocation = this
+                .preventArcOverlap(source.getNodeShapeCentre(),
+                        target.getNodeShapeCentre(), false);
+        PointDouble targetNodeLocation = this.preventArcOverlap(
+                target.getNodeShapeCentre(), tempSource, true);
+
+        this.arcLine = svgElementFactory.createElement(Svg.LINE);
+        arcLine.setAttribute(Svg.X1, sourceNodeLocation.getX());
+        arcLine.setAttribute(Svg.Y1, sourceNodeLocation.getY());
+        arcLine.setAttribute(Svg.X2, targetNodeLocation.getX());
+        arcLine.setAttribute(Svg.Y2, targetNodeLocation.getY());
+        arcLine.setAttribute(Svg.STROKE, Colors.BLACK);
+        container.appendChild(arcLine);
+
+        // used to skip undirected arc heads
+        this.arrow = new SvgArrowHead(svgElementFactory, sourceNodeLocation,
+                targetNodeLocation);
+        container.appendChild(arrow.asSvgElement());
+
+        // Create label
+        this.label = new SvgBareText(arc.getLabel(), textBoundsEstimator,
+                svgElementFactory);
+
         this.setLabelRendering(renderLabel);
 
         // Make the two transparent border arcs, and make their parent that of
@@ -91,14 +129,39 @@ public class StraightLineWideMousableRenderedSvgArc extends
 
     }
 
+    private PointDouble preventArcOverlap(PointDouble sourceNodeLocation,
+            PointDouble referenceLocation, boolean otherSide) {
+        Integer offset = nodePositionOffsetMap.get(this.getArc().getType());
+
+        int flipFactor = 1;
+        if (otherSide) {
+            flipFactor = -1;
+        }
+
+        double a = Math.abs(sourceNodeLocation.getY()
+                - referenceLocation.getY());
+        double b = Math.abs(sourceNodeLocation.getX()
+                - referenceLocation.getX());
+        double h = Math.sqrt(a * a + b * b);
+
+        double yDist = flipFactor
+                * (sourceNodeLocation.getY() - referenceLocation.getY()) / h;
+        double xDist = flipFactor
+                * (sourceNodeLocation.getX() - referenceLocation.getX()) / h;
+        // double normalizedSlope = (yDist / xDist);
+
+        return sourceNodeLocation.plus(new PointDouble((-yDist) * offset,
+                (xDist) * offset));
+    }
+
     @Override
     public void setLabelRendering(boolean newValue) {
         if (newValue) {
-            this.baseContainer.appendChild(this.label.asSvgElement());
+            this.container.appendChild(this.label.asSvgElement());
         } else {
             // If in constructor, don't try to remove it...
             if (null != labelRendering) {
-                this.baseContainer.removeChild(this.label.asSvgElement());
+                this.container.removeChild(this.label.asSvgElement());
             }
         }
         labelRendering = newValue;
@@ -111,7 +174,7 @@ public class StraightLineWideMousableRenderedSvgArc extends
 
     @Override
     public SvgElement asSvgElement() {
-        return baseContainer;
+        return container;
     }
 
     @Override
@@ -198,8 +261,11 @@ public class StraightLineWideMousableRenderedSvgArc extends
 
     @Override
     public void update() {
-        PointDouble sourceCentre = source.getNodeShapeCentre(); // cache
-        PointDouble targetCentre = target.getNodeShapeCentre(); // cache
+        PointDouble sourceCentre = this
+                .preventArcOverlap(source.getNodeShapeCentre(),
+                        target.getNodeShapeCentre(), false); // cache
+        PointDouble targetCentre = this.preventArcOverlap(
+                target.getNodeShapeCentre(), source.getNodeShapeCentre(), true); // cache
 
         SvgUtils.setX1Y1(arcLine, sourceCentre);
         SvgUtils.setX2Y2(arcLine, targetCentre);

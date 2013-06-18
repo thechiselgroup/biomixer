@@ -17,14 +17,17 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.renderi
 
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointUtils;
+import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBareText;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.ArcSettings;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
+import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.SvgUtils;
 
 /**
@@ -46,16 +49,35 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
 
     private Boolean labelRendering = null;
 
-    public StraightLineRenderedSvgArc(Arc arc, SvgElement container,
-            SvgElement arcLine, SvgArrowHead arrow, SvgBareText label,
-            boolean renderLabel, RenderedNode source, RenderedNode target) {
+    public StraightLineRenderedSvgArc(Arc arc, boolean renderLabel,
+            RenderedNode source, RenderedNode target,
+            SvgElementFactory svgElementFactory,
+            TextBoundsEstimator textBoundsEstimator) {
         super(arc, source, target);
-        assert (arcLine != null);
-        assert (arrow != null);
-        this.baseContainer = container;
-        this.arcLine = arcLine;
-        this.arrow = arrow;
-        this.label = label;
+
+        baseContainer = svgElementFactory.createElement(Svg.G);
+        baseContainer.setAttribute(Svg.ID, arc.getId());
+
+        PointDouble sourceNodeLocation = source.getNodeShapeCentre();
+        PointDouble targetNodeLocation = target.getNodeShapeCentre();
+
+        this.arcLine = svgElementFactory.createElement(Svg.LINE);
+        arcLine.setAttribute(Svg.X1, sourceNodeLocation.getX());
+        arcLine.setAttribute(Svg.Y1, sourceNodeLocation.getY());
+        arcLine.setAttribute(Svg.X2, targetNodeLocation.getX());
+        arcLine.setAttribute(Svg.Y2, targetNodeLocation.getY());
+        arcLine.setAttribute(Svg.STROKE, Colors.BLACK);
+        baseContainer.appendChild(arcLine);
+
+        // used to skip undirected arc heads
+        this.arrow = new SvgArrowHead(svgElementFactory, sourceNodeLocation,
+                targetNodeLocation);
+        baseContainer.appendChild(arrow.asSvgElement());
+
+        // Create label
+        this.label = new SvgBareText(arc.getLabel(), textBoundsEstimator,
+                svgElementFactory);
+
         this.setLabelRendering(renderLabel);
     }
 
