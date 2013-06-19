@@ -31,10 +31,10 @@ public abstract class AbstractRenderedNode implements RenderedNode {
     private Node node;
 
     // cache
-    private double leftX;
+    private double leftX = 0;
 
     // cache
-    private double topY;
+    private double topY = 0;
 
     private PointDouble topLeft;
 

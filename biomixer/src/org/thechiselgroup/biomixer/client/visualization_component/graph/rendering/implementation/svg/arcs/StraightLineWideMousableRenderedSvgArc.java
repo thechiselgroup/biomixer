@@ -144,6 +144,9 @@ public class StraightLineWideMousableRenderedSvgArc extends
         double b = Math.abs(sourceNodeLocation.getX()
                 - referenceLocation.getX());
         double h = Math.sqrt(a * a + b * b);
+        if (h == 0) {
+            h = 1;
+        }
 
         double yDist = flipFactor
                 * (sourceNodeLocation.getY() - referenceLocation.getY()) / h;
@@ -267,7 +270,6 @@ public class StraightLineWideMousableRenderedSvgArc extends
                         target.getNodeShapeCentre(), false); // cache
         PointDouble targetCentre = this.preventArcOverlap(
                 target.getNodeShapeCentre(), source.getNodeShapeCentre(), true); // cache
-
         SvgUtils.setX1Y1(arcLine, sourceCentre);
         SvgUtils.setX2Y2(arcLine, targetCentre);
 
