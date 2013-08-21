@@ -1,0 +1,46 @@
+circle.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+circle {
+  fill: rgb(31, 119, 180);
+  fill-opacity: .70;
+  stroke: #3D3D3D;
+  stroke-width: 4px;
+}
+line.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+legend{
+width:350px;
+padding:2px 0 0 20px;
+float:right;
+} 
+.legend{
+ padding:20px;
+}
+.circle {
+display: block;
+width: 40px;
+height: 40px;
+background: #496BB0;
+border-radius: 40px; 
+-moz-border-radius: 40px;
+-webkit-border-radius: 40px;
+border-style: solid; 
+border-color: #3D3D3D; 
+}
+
+
+
+.line{
+display: block;
+width: 45px;
+height: 10px;
+background: #999;
+}
+
+td.vis{
+	width: 1000px;
+}
