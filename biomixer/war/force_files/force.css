@@ -33,6 +33,26 @@ border-color: #3D3D3D;
 }
 
 
+div.gallery{
+	/*
+	width: 800px;
+	height: 800px;
+	*/
+	float: left; /* take child width */
+	border-style:solid;
+}
+
+body{
+	/*
+	width: 800px;
+	height: 800px;
+	*/
+	float: left; /* take child width */
+	fill: rgb(255,0,0);
+}
+
+
+
 
 .line{
 display: block;
@@ -42,5 +62,5 @@ background: #999;
 }
 
 td.vis{
-	width: 1000px;
+	width: 600px;
 }

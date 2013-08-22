@@ -1,18 +1,39 @@
-var w = 1400,
-    h = 1000
+var visWidth = $(document).width()-50,
+    visHeight = $(document).height()-50
 
 var vis = d3.select("#chart").append("svg:svg")
-    .attr("width", w)
-    .attr("height", h)
+.attr("id", "graphSvg")
+    .attr("width", visWidth)
+    .attr("height", visHeight)
 	.attr("pointer-events", "all")
-  .append('svg:g')
+//  .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", redraw))
-  .append('svg:g');
+//  .append('svg:g')
+  ;
 
 vis.append('svg:rect')
-    .attr('width', w)
-    .attr('height', h)
-    .attr('fill', 'white');
+	.attr("id", "graphRect")
+    .attr('width', visWidth)
+    .attr('height', visHeight)
+    .attr('fill', 'AliceBlue');
+
+resizedWindow = function()
+{	
+	visWidth = $(document).width()-50;
+    visHeight = $(document).height()-50;
+	
+    d3.select("#graphSvg")
+    .attr("width", visWidth)
+    .attr("height", visHeight);
+
+	d3.select("#graphRect")
+    .attr('width', visWidth)
+    .attr('height', visHeight);
+};
+
+$(window).resize(resizedWindow);
+
+resizedWindow();
 
 function redraw() {
   console.log("here", d3.event.translate, d3.event.scale);
@@ -28,7 +49,7 @@ d3.json("force_files/set_data.json", function(json) {
         .gravity(.05)
         .distance(600)
         .charge(-100)
-        .size([w, h])
+        .size([visWidth, visHeight])
         .start();
 
     var link = vis.selectAll("line.link")
