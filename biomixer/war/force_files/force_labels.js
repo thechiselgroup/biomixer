@@ -173,14 +173,14 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 				ontologyNode.weight = 1;
 				ontologyNode.number = 1; // number of terms
 				ontologyNode.virtualId = virtualId;
-				ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode);
+				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(virtualIdNodeMap).attr("vid"+virtualId, ontologyNode);
 				
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
-				ontologyLink.source = centralOntologyNode.index; // Links need index of node array...*sigh*
-				ontologyLink.target = ontologyNode.index;
+				ontologyLink.source = 0; // Links need index of node array...*sigh*
+				ontologyLink.target = targetIndex;
 				ontologyLink.value = element.totalMappings; // This gets used for link stroke thickness later.
 				ontologyLink.sourceMappings = element.sourceMappings;
 				ontologyLink.targetMappings = element.targetMappings;
@@ -265,7 +265,7 @@ function OntologyDetailsCallback(url, virtualIdNodeMap){
 				}
 		);
 
-		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
+		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
 			
 	}
 }
@@ -315,7 +315,7 @@ function OntologyMetricsCallback(url, node){
 		// I can use the transformation algorithm from BioMixer.
 		self.node.number = nodeSizeBasis;
 		
-		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
+		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
 	}
 }
 
@@ -430,11 +430,11 @@ function initAndPopulateGraph(json){
 	var centralOntologyVirtualId = 1033;
 
 	// Will do async stuff and add to graph
-//	fetchOntologyNeighbourhood(centralOntologyVirtualId);
+	fetchOntologyNeighbourhood(centralOntologyVirtualId);
 	
 //	console.log(json);
 //	populateGraph("", true);
-	populateGraph(json, true);
+//	populateGraph(json, true);
 //	populateGraph("", false);
 //	populateGraph(json, false);
 }
@@ -469,6 +469,9 @@ function populateGraph(json, newElementsExpected){
 		forceLayout
 		.nodes(json.nodes)
 	    .links(json.links);
+	} else {
+		// Just for dev...should do something smarter otherwise (unless nothign can be done)
+		return;
 	}
 	
 	forceLayout
