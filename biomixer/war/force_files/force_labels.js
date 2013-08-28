@@ -146,17 +146,22 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 			// have an error. Done?
 			return;
 		}
+		
+		var defaultNumOfTermsForSize = 100;
 
 		// Create the central node
 		var centralOntologyNode = new Object();
 		centralOntologyNode.name = "blank";
 		centralOntologyNode.weight = 1;
-		centralOntologyNode.number = 1; // number of terms
+		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.virtualId = centralOntologyVirtualId;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
 		var virtualIdNodeMap = new Object();
 		$(virtualIdNodeMap).attr("vid"+centralOntologyVirtualId, centralOntologyNode);
+		
+		// TODO XXX Either the parsing or the looping here causes a visible glitch in rendering,
+		// so this is the first place to try a web worker out.
 
 		// Make some graph parts!
 		$.each(mappingData.success.data[0].list[0].ontologyMappingStatistics,
@@ -171,7 +176,7 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 				var ontologyNode = new Object();
 				ontologyNode.name = "blank";
 				ontologyNode.weight = 1;
-				ontologyNode.number = 1; // number of terms
+				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.virtualId = virtualId;
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
@@ -179,8 +184,8 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 				
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
-				ontologyLink.source = 0; // Links need index of node array...*sigh*
-				ontologyLink.target = targetIndex;
+				ontologyLink.source = centralOntologyNode;
+				ontologyLink.target = ontologyNode;
 				ontologyLink.value = element.totalMappings; // This gets used for link stroke thickness later.
 				ontologyLink.sourceMappings = element.sourceMappings;
 				ontologyLink.targetMappings = element.targetMappings;
@@ -265,7 +270,7 @@ function OntologyDetailsCallback(url, virtualIdNodeMap){
 				}
 		);
 
-		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
+		populateGraph({nodes:[], links:[]}, false);
 			
 	}
 }
@@ -315,7 +320,7 @@ function OntologyMetricsCallback(url, node){
 		// I can use the transformation algorithm from BioMixer.
 		self.node.number = nodeSizeBasis;
 		
-		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
+		populateGraph({nodes:[], links:[]}, false);
 	}
 }
 
@@ -429,6 +434,8 @@ function initAndPopulateGraph(json){
 	
 	var centralOntologyVirtualId = 1033;
 
+	populateGraph(json, true);
+	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyVirtualId);
 	
@@ -454,43 +461,29 @@ function initGraph(){
 
 }
 
-function populateGraph(json, newElementsExpected){
+function populateGraph(json
+//		, newElementsExpected
+		){
 	console.log("Populating with:");
 	console.log(json);
 	
 	if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
-		return;
-	}
-	
-	// Whenever I call populate, it adds more to this layout.
-	// I need to figure out how to get enter/update/exit sort of things
-	// to work for the layout.
-	if(newElementsExpected === true){
-		forceLayout
-		.nodes(json.nodes)
-	    .links(json.links);
+		// console.log("skip");
+		// return;
+		newElementsExpected = false;
 	} else {
-		// Just for dev...should do something smarter otherwise (unless nothign can be done)
-		return;
+		newElementsExpected = true;
 	}
-	
-	forceLayout
-//	.gravity(.05)
-//    .distance(600)
-//    .charge(-100)
-//    .size([visWidth, visHeight])
-    .start();
-	
 	
 	// TODO Separate the "update" part out from the enter() part
+	// This talks about the pattern to follow for an update method: http://bl.ocks.org/mbostock/3808218
 	
 	// Link stuff first
-	
 	var links = vis.selectAll("line.link").data(json.links);
 	// Add new stuff
 	links.enter().append("svg:line"); // Make svg:g like nodes if we need labels
 	
-	// Basic properties
+	// Update Basic properties
 	links
     .attr("class", "link")
     .attr("x1", function(d) { return d.source.x; })
@@ -499,14 +492,14 @@ function populateGraph(json, newElementsExpected){
     .attr("y2", function(d) { return d.target.y; })
 	.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
 	
-	// Tool tip
+	// Update Tool tip
 	links.append("title")
 		.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
 		
-	// Behaviors
+	// Update Behaviors
 	links.on("mouseover", highlightLink())
 		.on("mouseout", changeColourBack("#496BB0", "#999"));
-		
+
 	// Node stuff now
 	
 	var nodes = vis.selectAll("g.node").data(json.nodes);
@@ -541,31 +534,39 @@ function populateGraph(json, newElementsExpected){
     .attr("class", "node")
     .call(forceLayout.drag);
 	
-	forceLayout.on("tick", function() {
-		// For every iteration of the layout (until it stabilizes)
-		links
-		  .attr("x1", function(d) { return d.source.x; })
-	      .attr("y1", function(d) { return d.source.y; })
-	      .attr("x2", function(d) { return d.target.x; })
-	      .attr("y2", function(d) { return d.target.y; });
+	// XXX Doing this a second time destroys the visualization!
+	// How would we do it on only new things?
+	// Oh! It is because we are using the links and nodes references,
+	// and losing references to the existing nodes and links.
+	// I really want to make sure I keep trakc of whether we
+	// have all nodes/links, or just new ones...
+	if(newElementsExpected === true){
+		forceLayout.on("tick", function() {
+			// For every iteration of the layout (until it stabilizes)
+			links
+			  .attr("x1", function(d) { return d.source.x; })
+		      .attr("y1", function(d) { return d.source.y; })
+		      .attr("x2", function(d) { return d.target.x; })
+		      .attr("y2", function(d) { return d.target.y; });
+		
+			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+		});
+	}
 	
-	  nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-	});
 	
-////	forceLayout
-////	.nodes(json.nodes)
-////    .links(json.links);
-//	
-////	forceLayout
-////	.nodes(nodes.enter())
-////    .links(links.enter());
-//	
-//	forceLayout
-////	.gravity(.05)
-////    .distance(600)
-////    .charge(-100)
-////    .size([visWidth, visHeight])
-//    .start();
+	// Whenever I call populate, it adds more to this layout.
+	// I need to figure out how to get enter/update/exit sort of things
+	// to work for the layout.
+	if(newElementsExpected === true){
+		// forceLayout
+		// .nodes(nodes.enter())
+	    // .links(links.enter());
+		forceLayout
+		.nodes(json.nodes)
+	    .links(json.links);
+		// Call start() whenever any nodes or links get added or removed
+		forceLayout.start();
+	}
 	
 }
 
