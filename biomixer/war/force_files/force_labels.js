@@ -1,3 +1,9 @@
+// http://www.jslint.com/
+// http://www.jshint.com/, also available as Eclipse or Sublime plugin
+// Strict mode is safer to develop in, ya?
+"use strict";
+
+
 var visWidth = $(document).width()-50,
     visHeight = $(document).height()-50;
 var forceLayout = undefined;
@@ -18,7 +24,7 @@ vis.append('svg:rect')
     .attr('height', visHeight)
     .attr('fill', 'AliceBlue');
 
-resizedWindow = function()
+var resizedWindow = function()
 {	
 	visWidth = $(document).width()-50;
     visHeight = $(document).height()-50;
@@ -461,25 +467,25 @@ function initGraph(){
 
 }
 
-function populateGraph(json
-//		, newElementsExpected
-		){
+function populateGraph(json){
 	console.log("Populating with:");
 	console.log(json);
+	
+	var newElementsExpected = true;
 	
 	if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
 		// console.log("skip");
 		// return;
 		newElementsExpected = false;
-	} else {
-		newElementsExpected = true;
 	}
 	
 	// TODO Separate the "update" part out from the enter() part
 	// This talks about the pattern to follow for an update method: http://bl.ocks.org/mbostock/3808218
 	
+	// Data constancy via key function() passed to data()
+	
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links);
+	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source+"->"+d.target});
 	// Add new stuff
 	links.enter().append("svg:line"); // Make svg:g like nodes if we need labels
 	
@@ -502,7 +508,7 @@ function populateGraph(json
 
 	// Node stuff now
 	
-	var nodes = vis.selectAll("g.node").data(json.nodes);
+	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.virtualId});
 	// Add new stuff
 	nodes.enter().append("svg:g");
 	
@@ -642,10 +648,10 @@ function initAndPopulateGraphOriginal(json){
 function highlightLink(){
 	return function(d, i){
 	
-		xSourcePos = d.source.x;
-		ySourcePos = d.source.y;
-		xTargetPos = d.target.x;
-		yTargetPos = d.target.y;
+		var xSourcePos = d.source.x;
+		var ySourcePos = d.source.y;
+		var xTargetPos = d.target.x;
+		var yTargetPos = d.target.y;
 		
 		d3.selectAll("text").style("opacity", .2)
 			.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y;})
