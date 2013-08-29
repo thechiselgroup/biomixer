@@ -200,6 +200,7 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 		);
 
 		// Not sure about whether to do this here or not...
+		console.log("ontologyMappingCallback");
 		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
 
 		//----------------------------------------------------------
@@ -276,7 +277,9 @@ function OntologyDetailsCallback(url, virtualIdNodeMap){
 				}
 		);
 
-		populateGraph({nodes:[], links:[]}, false);
+//		populateGraph({nodes:[], links:[]}, false);
+		console.log("ontologyDetailsCallback");
+		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
 			
 	}
 }
@@ -326,7 +329,10 @@ function OntologyMetricsCallback(url, node){
 		// I can use the transformation algorithm from BioMixer.
 		self.node.number = nodeSizeBasis;
 		
-		populateGraph({nodes:[], links:[]}, false);
+//		populateGraph({nodes:[], links:[]}, false);
+//		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
+		console.log("ontologyMetricsCallback");
+		populateGraph({nodes:[node], links:[]}, false);
 	}
 }
 
@@ -440,16 +446,16 @@ function initAndPopulateGraph(json){
 	
 	var centralOntologyVirtualId = 1033;
 
-	populateGraph(json, true);
+//	populateGraph(json);
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyVirtualId);
 	
 //	console.log(json);
-//	populateGraph("", true);
-//	populateGraph(json, true);
-//	populateGraph("", false);
-//	populateGraph(json, false);
+//	populateGraph("");
+//	populateGraph(json);
+//	populateGraph("");
+//	populateGraph(json);
 }
 
 function initGraph(){
@@ -467,11 +473,9 @@ function initGraph(){
 
 }
 
-function populateGraph(json){
-	console.log("Populating with:");
-	console.log(json);
-	
-	var newElementsExpected = true;
+function populateGraph(json, newElementsExpected){
+//	console.log("Populating with:");
+//	console.log(json);
 	
 	if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
 		// console.log("skip");
@@ -485,11 +489,18 @@ function populateGraph(json){
 	// Data constancy via key function() passed to data()
 	
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source+"->"+d.target});
+	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.virtualId+"->"+d.target.virtualId});
+	console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
+
 	// Add new stuff
-	links.enter().append("svg:line"); // Make svg:g like nodes if we need labels
+	if(newElementsExpected === true)
+	links.enter().append("svg:line")
+	.attr("class", "link"); // Make svg:g like nodes if we need labels
+	
+	console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
 	// Update Basic properties
+//	if(newElementsExpected === true)
 	links
     .attr("class", "link")
     .attr("x1", function(d) { return d.source.x; })
@@ -497,24 +508,52 @@ function populateGraph(json){
     .attr("x2", function(d) { return d.target.x; })
     .attr("y2", function(d) { return d.target.y; })
 	.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
-	
+
 	// Update Tool tip
-	links.append("title")
+	if(newElementsExpected === true)
+	links.append("title") // How would I *update* this if I needed to?
 		.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
 		
 	// Update Behaviors
+//	if(newElementsExpected === true)
 	links.on("mouseover", highlightLink())
 		.on("mouseout", changeColourBack("#496BB0", "#999"));
 
 	// Node stuff now
 	
 	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.virtualId});
+	console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	// Add new stuff
-	nodes.enter().append("svg:g");
+	if(newElementsExpected === true)
+	nodes.enter().append("svg:g")
+	.attr("class", "node");
 	
+	console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
+	
+
+	
+	// Easiest to use JQuery to get at existing enter() circles
+	// Otherwise we futz with things like the enter()select(function) below
+//	 var existingEnterCircles = nodes.enter().select(function(d){return $(this).select(".circle")});
+//	var existingEnterNodes = nodes.enter().select(function(d){return d3.select(this)});
+//	var existingEnterCircles = $(nodes).select(".circle");
+//	console.log("Found circles: "+existingEnterNodes[0].length);
+	
+	// TODO Trying to append only when necessary, but then trying to use the enter selection to sub-select
+	// the previously appended elements...
+	
+    // XXX TODO I think that the lack of way to grab child elements from the enter() selection while they are
+	// data bound (as is usual for most D3 selections), is what is preventing me from udpating using D3
+	// idioms. THEREFORE I NEED TO UPDATE USING JQUERY SELECTIONS, ON UNIQUE ELEMENT IDS OR CLASSES. This means no D3 implicit selection loops.
+	
+	// I know that append() is truly new things...how do I grab enter() that are not new things
+	// (because they have been previously appended)?
+	// Trying to select all circles that are entering a second or third time or more...
+	// Without using append, which would append additional circles to the entering data which already has a circle...
 	// Basic properties
+	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes
-	.append("svg:circle")
+	.append("svg:circle") 
     .attr("class", "circle")
     .attr("cx", "0px")
     .attr("cy", "0px")
@@ -524,20 +563,24 @@ function populateGraph(json){
 	.on("mouseout", changeColourBack("#496BB0", "#999"));
 		
 	// Tool tip
+	if(newElementsExpected === true)  // How would I *update* this if I needed to?
 	nodes.append("title")
 	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
+	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes.append("svg:text")
 	    .attr("class", "nodetext")
 	    .attr("dx", 12)
 	    .attr("dy", 1)
 	    .text(function(d) { return d.name; });
 		
+	// Would do exit().remove() here if it weren't re-entrant, so to speak.
 	
 	// Behaviors
+	if(newElementsExpected === true)
 	nodes
-    .attr("class", "node")
+	.attr("class", "node")
     .call(forceLayout.drag);
 	
 	// XXX Doing this a second time destroys the visualization!
@@ -673,8 +716,8 @@ function highlightLink(){
 function changeColour(circleFill, lineFill, circlesFill, opacity){
 	return function(d, i){
 		
-		xPos=d.x;
-		yPos=d.y;
+		var xPos=d.x;
+		var yPos=d.y;
 		
 		d3.selectAll("line").style("stroke-opacity", .1);
 		d3.selectAll("circle").style("fill-opacity", .1)
