@@ -318,7 +318,7 @@ function OntologyMetricsCallback(url, node){
 	            numProperties = metricData.numberOfProperties;
 	        }
 	    }
-		
+	    
 		self.node.weight = 1;
 		self.node.numberOfClasses = numClasses;
 		self.node.numberOfIndividuals = numIndividuals;
@@ -551,7 +551,8 @@ function populateGraph(json, newElementsExpected){
     .attr("cx", "0px")
     .attr("cy", "0px")
 	.style("fill", "#496BB0")
-    .attr("r", function(d) { return Math.sqrt((d.number)/10); })
+	.attr("data-radius_basis", function(d) { return d.number;})
+    .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
 	.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
 	.on("mouseout", changeColourBack("#496BB0", "#999"));
 		
@@ -608,6 +609,9 @@ function populateGraph(json, newElementsExpected){
 		forceLayout.start();
 	}
 	
+	// Don't have sizes here, but still...
+	updateNodeScalingFactor();
+	
 }
 
 /**
@@ -644,7 +648,8 @@ function updateNodesAndLinks(json){
 		console.log("Updating "+"#node_g_"+d.virtualId);
 		var node = vis.select("#node_g_"+d.virtualId);
 		console.log("Updating "+node.attr("class"));
-		node.select("circle").attr("r", function(d) { return Math.sqrt((d.number)/10); });
+//		node.select("circle").attr("r", function(d) { return ontologyNodeScalingFunc(d.number); });
+		node.select("circle").attr("data-radius_basis", d.number);
 		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
 		node.select("text").text(function(d) { return d.name; });
 	}
@@ -652,74 +657,81 @@ function updateNodesAndLinks(json){
 	$.each(json.links, updateLinksFromJson);
 	$.each(json.nodes, updateNodesFromJson);
 
+//	console.log("Use a timer of some sort, to prevent over-use.");
+	
+	if(nodeUpdateTimer == false){
+		nodeUpdateTimer = true;
+		window.setTimeout(function(){ console.log("TIMER RESET"); nodeUpdateTimer = false; updateNodeScalingFactor(); }, 1000);
+	}
 }
+var nodeUpdateTimer = false;
 
-function initAndPopulateGraphOriginal(json){
-	    forceLayout = self.forceLayout = d3.layout.force()
-	        .nodes(json.nodes)
-	        .links(json.links)
-	        .gravity(.05)
-	        .distance(600)
-	        .charge(-100)
-	        .size([visWidth, visHeight])
-	        .start();
-
-	    var link = vis.selectAll("line.link")
-	        .data(json.links)
-	      .enter().append("svg:line")
-	        .attr("class", "link")
-	        .attr("x1", function(d) { return d.source.x; })
-	        .attr("y1", function(d) { return d.source.y; })
-	        .attr("x2", function(d) { return d.target.x; })
-	        .attr("y2", function(d) { return d.target.y; })
-			.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
-			
-		link.append("title")
-			.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
-			
-		link.on("mouseover", highlightLink())
-			.on("mouseout", changeColourBack("#496BB0", "#999"));
-			
-	    var node = vis.selectAll("g.node")
-	        .data(json.nodes)
-	      .enter().append("svg:g")
-	        .attr("class", "node")
-	        .call(forceLayout.drag);
-
-	    node.append("svg:circle")
-	        .attr("class", "circle")
-	        .attr("cx", "0px")
-	        .attr("cy", "0px")
-			.style("fill", "#496BB0")
-	        .attr("r", function(d) { return Math.sqrt((d.number)/10); })
-			.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
-			.on("mouseout", changeColourBack("#496BB0", "#999"));
-			
-		node.append("title")
-	      .text(function(d) { return "Number Of Terms: "+d.number; });
-
-	    node.append("svg:text")
-	        .attr("class", "nodetext")
-	        .attr("dx", 12)
-	        .attr("dy", 1)
-	        .text(function(d) { return d.name; });
-			
-		node.append("svg:text")
-	        .attr("class", "nodetext")
-	        .attr("x", 12)
-	        .attr("y", 1)
-	        .text(function(d) { return d.name; });
-
-		forceLayout.on("tick", function() {
-	    	// For every iteration of the layout (until it stabilizes)
-	      link.attr("x1", function(d) { return d.source.x; })
-	          .attr("y1", function(d) { return d.source.y; })
-	          .attr("x2", function(d) { return d.target.x; })
-	          .attr("y2", function(d) { return d.target.y; });
-
-	      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-	    });
-}
+//function initAndPopulateGraphOriginal(json){
+//	    forceLayout = self.forceLayout = d3.layout.force()
+//	        .nodes(json.nodes)
+//	        .links(json.links)
+//	        .gravity(.05)
+//	        .distance(600)
+//	        .charge(-100)
+//	        .size([visWidth, visHeight])
+//	        .start();
+//
+//	    var link = vis.selectAll("line.link")
+//	        .data(json.links)
+//	      .enter().append("svg:line")
+//	        .attr("class", "link")
+//	        .attr("x1", function(d) { return d.source.x; })
+//	        .attr("y1", function(d) { return d.source.y; })
+//	        .attr("x2", function(d) { return d.target.x; })
+//	        .attr("y2", function(d) { return d.target.y; })
+//			.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
+//			
+//		link.append("title")
+//			.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
+//			
+//		link.on("mouseover", highlightLink())
+//			.on("mouseout", changeColourBack("#496BB0", "#999"));
+//			
+//	    var node = vis.selectAll("g.node")
+//	        .data(json.nodes)
+//	      .enter().append("svg:g")
+//	        .attr("class", "node")
+//	        .call(forceLayout.drag);
+//
+//	    node.append("svg:circle")
+//	        .attr("class", "circle")
+//	        .attr("cx", "0px")
+//	        .attr("cy", "0px")
+//			.style("fill", "#496BB0")
+//	        .attr("r", function(d) { return Math.sqrt((d.number)/10); })
+//			.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
+//			.on("mouseout", changeColourBack("#496BB0", "#999"));
+//			
+//		node.append("title")
+//	      .text(function(d) { return "Number Of Terms: "+d.number; });
+//
+//	    node.append("svg:text")
+//	        .attr("class", "nodetext")
+//	        .attr("dx", 12)
+//	        .attr("dy", 1)
+//	        .text(function(d) { return d.name; });
+//			
+//		node.append("svg:text")
+//	        .attr("class", "nodetext")
+//	        .attr("x", 12)
+//	        .attr("y", 1)
+//	        .text(function(d) { return d.name; });
+//
+//		forceLayout.on("tick", function() {
+//	    	// For every iteration of the layout (until it stabilizes)
+//	      link.attr("x1", function(d) { return d.source.x; })
+//	          .attr("y1", function(d) { return d.source.y; })
+//	          .attr("x2", function(d) { return d.target.x; })
+//	          .attr("y2", function(d) { return d.target.y; });
+//
+//	      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+//	    });
+//}
 
 
 
@@ -796,4 +808,126 @@ function changeColourBack(circleFill, lineFill){
 	};
 }
 
+
+// XXX TODO
+// I think that the node and arc relative size feature should happen with a timer
+// instead of on every size change occurrence, and furthermore, that is should
+// occur in a web worker with a dedicated update function for only size changes.
+// But first, I will try implementing simply by modifying the function for "r"...
+// which can't really work, because that gets evaluated only when set...
+// BioMixer used a 500 ms delay on re-doing things.
+
+// 20 * 7 seems too big. Got 20 from other transformers.
+var MAX_ON_SCREEN_SIZE = 20 * 5;
+var MIN_ON_SCREEN_SIZE = 3;
+var REFRESH_LOOP_DELAY_MS = 500;
+//var ontologyNodeAreaScalingFactor = 1.0;
+var minRawSize = -1;
+var maxRawSize = -1;
+function updateNodeScalingFactor(){
+	// Call this prior to redrawing. The alternative is to track on every size
+	// modification. That worked well for BioMixer, but perhaps we're better
+	// off doing a bulk computation per size-refreshing redraw that we want to make.
+	$.each(vis.selectAll("g.node").select("circle")[0], function(i, circle){
+		circle = $(circle);
+//		console.log("Updating circle max min "+circle.attr("data-radius_basis"));
+//		console.log(circle);
+		if(-1 == maxRawSize || circle.attr("data-radius_basis") > maxRawSize){
+			maxRawSize = circle.attr("data-radius_basis");
+		}
+		if(-1 == minRawSize || circle.attr("data-radius_basis") < minRawSize){
+			minRawSize = circle.attr("data-radius_basis");
+		}
+	});
+	
+//	vis.selectAll("g.node").data().select("circle").attr("r", function(d) { console.log("d.data-radius_basis is "+d.data-radius_basis); return ontologyNodeScalingFunc(d.number); });
+	
+	$.each(vis.selectAll("g.node")[0], function(i, node){
+		// Given a json encoded graph element, update all of the nested elements associated with it
+		// cherry pick elements that we might otherwise get by class "node"
+//		console.log("Updating circle radius"+$(node).children("circle").attr("id"));
+//		console.log(node);
+		var circle = $(node).children("circle");
+//		console.log(circle);
+		circle.attr("r", function(d) { return ontologyNodeScalingFunc(circle.attr("data-radius_basis")); });
+	});
+}
+
+function ontologyNodeScalingFunc(rawValue){
+	// return Math.sqrt((rawValue)/10);
+	
+	if(maxRawSize == minRawSize){
+		return rawValue;
+	}
+	
+	// computeFactorOfRange from BioMixer
+	var factor = 1.0 - (maxRawSize - rawValue) / Math.max(1, maxRawSize - minRawSize);
+	// TODO This is makign some big nodes at certain times. Firm up the logic.
+	console.log("Factor is "+factor);
+
+	// linearAreaRelativeScaledRangeValue
+    var linearArea = Math.PI * Math.pow(MIN_ON_SCREEN_SIZE, 2) + factor
+            * Math.PI * Math.pow(MAX_ON_SCREEN_SIZE, 2);
+    var diameter = Math.sqrt(linearArea / Math.PI);
+    return diameter/2; // need radius for SVG
+}
+
+/*
+    private double linearFunction(double value) {
+        // Ha! A sqrt makes this not linear. Mis-named now...
+        return 2 * (4 + Math.sqrt((value) / 10));
+    }
+
+    private double logFunction(double value) {
+        return 4 + Math.log(value) * 10;
+    }
+ */
+
+
+//public class OntologyGraphMappingArcSizeTransformer extends ArcSizeTransformer {
+//
+//    private HashMap<Double, Double> discreteRawSizeToRenderSizeMap = new HashMap<Double, Double>();
+//
+//    {
+//        discreteRawSizeToRenderSizeMap.put(0.0, 1.0);
+//        discreteRawSizeToRenderSizeMap.put(200.0, 2.0);
+//        discreteRawSizeToRenderSizeMap.put(400.0, 3.0);
+//        discreteRawSizeToRenderSizeMap.put(2000.0, 4.0);
+//        discreteRawSizeToRenderSizeMap.put(4000.0, 5.0);
+//        discreteRawSizeToRenderSizeMap.put(20000.0, 7.0);
+//        discreteRawSizeToRenderSizeMap.put(40000.0, 10.0);
+//    } 
+//
+//    @Override
+//    public Double transform(Double value) throws Exception {
+//        // return logFunction(value);
+//        // return linearFunction(value);
+//        // return discretizingFunction(value);
+//        return scaleForContextRange(value);
+//
+//    }
+//
+//    private Double linearFunction(Double value) {
+//        // return 2 * (4 + Math.sqrt((value) / 10));
+//        return (1 + Math.sqrt((value)));
+//    }
+//
+//    private Double logFunction(Double value) {
+//        return 4 + Math.log(value) * 10;
+//    }
+//
+//    private Double discretizingFunction(Double value) {
+//        double renderSize = 0;
+//        for (Double lowerCutOff : discreteRawSizeToRenderSizeMap.keySet()) {
+//            double cutOffRenderSize = discreteRawSizeToRenderSizeMap
+//                    .get(lowerCutOff);
+//            // If we're above a given cutoff and it's also the biggest one
+//            // yet...
+//            if (lowerCutOff < value && renderSize < cutOffRenderSize) {
+//                renderSize = cutOffRenderSize;
+//            }
+//        }
+//        return renderSize;
+//    }
+//}
 
