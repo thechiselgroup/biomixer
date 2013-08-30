@@ -277,9 +277,8 @@ function OntologyDetailsCallback(url, virtualIdNodeMap){
 				}
 		);
 
-//		populateGraph({nodes:[], links:[]}, false);
 		console.log("ontologyDetailsCallback");
-		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
+		updateNodesAndLinks({nodes:ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
 			
 	}
 }
@@ -329,10 +328,8 @@ function OntologyMetricsCallback(url, node){
 		// I can use the transformation algorithm from BioMixer.
 		self.node.number = nodeSizeBasis;
 		
-//		populateGraph({nodes:[], links:[]}, false);
-//		populateGraph(ontologyNeighbourhoodJsonForGraph, false);
 		console.log("ontologyMetricsCallback");
-		populateGraph({nodes:[node], links:[]}, false);
+		updateNodesAndLinks({nodes:[self.node], links:[]});
 	}
 }
 
@@ -445,8 +442,6 @@ function initAndPopulateGraph(json){
 	initGraph();
 	
 	var centralOntologyVirtualId = 1033;
-
-//	populateGraph(json);
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyVirtualId);
@@ -460,8 +455,6 @@ function initAndPopulateGraph(json){
 
 function initGraph(){
 	forceLayout = self.forceLayout = d3.layout.force();
-//	forceLayout.nodes(json.nodes)
-//    .links(json.links);
 	
 	forceLayout
 	.gravity(.05)
@@ -469,10 +462,13 @@ function initGraph(){
     .charge(-100)
     .size([visWidth, visHeight])
     .start();
-
-
 }
 
+/**
+* This function should be used when adding brand new nodes and links to the
+* graph. Do not call it to update properties of graph elements.
+* TODO Make this function cleaner and fully compliant with the above description!
+*/
 function populateGraph(json, newElementsExpected){
 //	console.log("Populating with:");
 //	console.log(json);
@@ -483,21 +479,20 @@ function populateGraph(json, newElementsExpected){
 		newElementsExpected = false;
 	}
 	
-	// TODO Separate the "update" part out from the enter() part
-	// This talks about the pattern to follow for an update method: http://bl.ocks.org/mbostock/3808218
-	
 	// Data constancy via key function() passed to data()
-	
 	// Link stuff first
 	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.virtualId+"->"+d.target.virtualId});
-	console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
+	// console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 
 	// Add new stuff
 	if(newElementsExpected === true)
 	links.enter().append("svg:line")
-	.attr("class", "link"); // Make svg:g like nodes if we need labels
+	.attr("class", "link") // Make svg:g like nodes if we need labels
+	.attr("id", function(d){ return "link_line_"+d.source.virtualId+"->"+d.target.virtualId})
+	.on("mouseover", highlightLink())
+		.on("mouseout", changeColourBack("#496BB0", "#999"));
 	
-	console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
+	// console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
 	// Update Basic properties
 //	if(newElementsExpected === true)
@@ -512,25 +507,22 @@ function populateGraph(json, newElementsExpected){
 	// Update Tool tip
 	if(newElementsExpected === true)
 	links.append("title") // How would I *update* this if I needed to?
-		.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
-		
-	// Update Behaviors
-//	if(newElementsExpected === true)
-	links.on("mouseover", highlightLink())
-		.on("mouseout", changeColourBack("#496BB0", "#999"));
+		.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; })
+			.attr("id", function(d){ return "link_title_"+d.source.virtualId+"->"+d.target.virtualId});
 
 	// Node stuff now
 	
 	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.virtualId});
-	console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
+	// console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	// Add new stuff
 	if(newElementsExpected === true)
 	nodes.enter().append("svg:g")
-	.attr("class", "node");
+	.attr("class", "node")
+	.attr("id", function(d){ return "node_g_"+d.virtualId})
+	// Is it ok to do call() here?
+    .call(forceLayout.drag);
 	
-	console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
-	
-
+	// console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	
 	// Easiest to use JQuery to get at existing enter() circles
 	// Otherwise we futz with things like the enter()select(function) below
@@ -554,6 +546,7 @@ function populateGraph(json, newElementsExpected){
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes
 	.append("svg:circle") 
+	.attr("id", function(d){ return "node_circle_"+d.virtualId})
     .attr("class", "circle")
     .attr("cx", "0px")
     .attr("cy", "0px")
@@ -565,11 +558,13 @@ function populateGraph(json, newElementsExpected){
 	// Tool tip
 	if(newElementsExpected === true)  // How would I *update* this if I needed to?
 	nodes.append("title")
+	  .attr("id", function(d){ return "node_title_"+d.virtualId})
 	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes.append("svg:text")
+		.attr("id", function(d){ return "node_text_"+d.virtualId})
 	    .attr("class", "nodetext")
 	    .attr("dx", 12)
 	    .attr("dy", 1)
@@ -577,11 +572,7 @@ function populateGraph(json, newElementsExpected){
 		
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
 	
-	// Behaviors
-	if(newElementsExpected === true)
-	nodes
-	.attr("class", "node")
-    .call(forceLayout.drag);
+
 	
 	// XXX Doing this a second time destroys the visualization!
 	// How would we do it on only new things?
@@ -617,6 +608,50 @@ function populateGraph(json, newElementsExpected){
 		forceLayout.start();
 	}
 	
+}
+
+/**
+ * We cannot update the graph with new node or link properties *efficiently* using D3.
+ * This is because, although you can use the enter() selection, you cannot sub-select within
+ * it to access the children DOM elements, and using other D3 ways of getting at the elements
+ * fails to have them bound to the data as they are in the enter() selection [meaning that
+ * data based property settings fail].
+ * 
+ * Explicit looping allows us to cherry pick data, and do fewer DOM changes than I could
+ * when using D3's data().enter() selection results.
+ * 
+ * @param json
+ */
+function updateNodesAndLinks(json){
+	// console.log("Updating with data:");
+	// console.log(json);
+	
+	var updateLinksFromJson = function(i, d){
+		// Given a json encoded graph element, update all of the nested elements associated with it
+		// cherry pick elements that we might otherwise get by class "link"
+		// TODO Do I still need to do data() on this looped-over element?? I think perhaps!
+		// If so, I can do that prior to using these loops to cherry pick elements.
+		console.log("Updating with link:"+d);
+		console.log("#link_line_"+d.source.virtualId+"->"+d.target.virtualId);
+		var link = vis.select("#link_line_"+d.source.virtualId+"->"+d.target.virtualId);
+		link.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
+		link.select("title").text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
+	}
+	
+	var updateNodesFromJson = function(i, d){
+		// Given a json encoded graph element, update all of the nested elements associated with it
+		// cherry pick elements that we might otherwise get by class "node"
+		console.log("Updating "+"#node_g_"+d.virtualId);
+		var node = vis.select("#node_g_"+d.virtualId);
+		console.log("Updating "+node.attr("class"));
+		node.select("circle").attr("r", function(d) { return Math.sqrt((d.number)/10); });
+		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
+		node.select("text").text(function(d) { return d.name; });
+	}
+	
+	$.each(json.links, updateLinksFromJson);
+	$.each(json.nodes, updateNodesFromJson);
+
 }
 
 function initAndPopulateGraphOriginal(json){
