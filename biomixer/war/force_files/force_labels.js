@@ -278,7 +278,7 @@ function OntologyDetailsCallback(url, virtualIdNodeMap){
 		);
 
 		console.log("ontologyDetailsCallback");
-		updateNodesAndLinks({nodes:ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
+		updateDataForNodesAndLinks({nodes:ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
 			
 	}
 }
@@ -329,7 +329,7 @@ function OntologyMetricsCallback(url, node){
 		self.node.number = nodeSizeBasis;
 		
 		console.log("ontologyMetricsCallback");
-		updateNodesAndLinks({nodes:[self.node], links:[]});
+		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
 	}
 }
 
@@ -502,7 +502,13 @@ function populateGraph(json, newElementsExpected){
     .attr("y1", function(d) { return d.source.y; })
     .attr("x2", function(d) { return d.target.x; })
     .attr("y2", function(d) { return d.target.y; })
-	.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
+    .style("stroke-linecap", "round")
+    .attr("data-thickness_basis", function(d) { return d.value;});
+	
+	updateLinkScalingFactor();
+	
+    links.style("stroke-width", function(d) { return ontologyLinkScalingFunc(d.value); })
+	;
 
 	// Update Tool tip
 	if(newElementsExpected === true)
@@ -526,22 +532,12 @@ function populateGraph(json, newElementsExpected){
 	
 	// Easiest to use JQuery to get at existing enter() circles
 	// Otherwise we futz with things like the enter()select(function) below
-//	 var existingEnterCircles = nodes.enter().select(function(d){return $(this).select(".circle")});
-//	var existingEnterNodes = nodes.enter().select(function(d){return d3.select(this)});
-//	var existingEnterCircles = $(nodes).select(".circle");
-//	console.log("Found circles: "+existingEnterNodes[0].length);
 	
-	// TODO Trying to append only when necessary, but then trying to use the enter selection to sub-select
-	// the previously appended elements...
-	
-    // XXX TODO I think that the lack of way to grab child elements from the enter() selection while they are
+    // I think that the lack of way to grab child elements from the enter() selection while they are
 	// data bound (as is usual for most D3 selections), is what is preventing me from udpating using D3
-	// idioms. THEREFORE I NEED TO UPDATE USING JQUERY SELECTIONS, ON UNIQUE ELEMENT IDS OR CLASSES. This means no D3 implicit selection loops.
+	// idioms. This means no D3 implicit selection loops.
+	// Therefore I need to update using JQuery selections on unqiue element IDs
 	
-	// I know that append() is truly new things...how do I grab enter() that are not new things
-	// (because they have been previously appended)?
-	// Trying to select all circles that are entering a second or third time or more...
-	// Without using append, which would append additional circles to the entering data which already has a circle...
 	// Basic properties
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes
@@ -611,6 +607,8 @@ function populateGraph(json, newElementsExpected){
 	
 	// Don't have sizes here, but still...
 	updateNodeScalingFactor();
+	// Do have link sizes though? Now e called it earlier at a better time.
+	// updateLinkScalingFactor();
 	
 }
 
@@ -626,29 +624,22 @@ function populateGraph(json, newElementsExpected){
  * 
  * @param json
  */
-function updateNodesAndLinks(json){
+function updateDataForNodesAndLinks(json){
 	// console.log("Updating with data:");
 	// console.log(json);
 	
 	var updateLinksFromJson = function(i, d){
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
-		// TODO Do I still need to do data() on this looped-over element?? I think perhaps!
-		// If so, I can do that prior to using these loops to cherry pick elements.
-		console.log("Updating with link:"+d);
-		console.log("#link_line_"+d.source.virtualId+"->"+d.target.virtualId);
 		var link = vis.select("#link_line_"+d.source.virtualId+"->"+d.target.virtualId);
-		link.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
+		link.attr("data-thickness_basis", function(d) { return d.value;})
 		link.select("title").text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
 	}
 	
 	var updateNodesFromJson = function(i, d){
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
-		console.log("Updating "+"#node_g_"+d.virtualId);
 		var node = vis.select("#node_g_"+d.virtualId);
-		console.log("Updating "+node.attr("class"));
-//		node.select("circle").attr("r", function(d) { return ontologyNodeScalingFunc(d.number); });
 		node.select("circle").attr("data-radius_basis", d.number);
 		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
 		node.select("text").text(function(d) { return d.name; });
@@ -656,83 +647,21 @@ function updateNodesAndLinks(json){
 	
 	$.each(json.links, updateLinksFromJson);
 	$.each(json.nodes, updateNodesFromJson);
-
-//	console.log("Use a timer of some sort, to prevent over-use.");
 	
 	if(nodeUpdateTimer == false){
 		nodeUpdateTimer = true;
-		window.setTimeout(function(){ console.log("TIMER RESET"); nodeUpdateTimer = false; updateNodeScalingFactor(); }, 1000);
+		window.setTimeout(function(){
+				console.log("TIMER RESET");
+				nodeUpdateTimer = false;
+				updateNodeScalingFactor();
+				// The link thickness does not receive new data right now,
+				// otherwise we'd want to call the update factor function here.
+				// updateLinkScalingFactor();
+			},
+			1000);
 	}
 }
 var nodeUpdateTimer = false;
-
-//function initAndPopulateGraphOriginal(json){
-//	    forceLayout = self.forceLayout = d3.layout.force()
-//	        .nodes(json.nodes)
-//	        .links(json.links)
-//	        .gravity(.05)
-//	        .distance(600)
-//	        .charge(-100)
-//	        .size([visWidth, visHeight])
-//	        .start();
-//
-//	    var link = vis.selectAll("line.link")
-//	        .data(json.links)
-//	      .enter().append("svg:line")
-//	        .attr("class", "link")
-//	        .attr("x1", function(d) { return d.source.x; })
-//	        .attr("y1", function(d) { return d.source.y; })
-//	        .attr("x2", function(d) { return d.target.x; })
-//	        .attr("y2", function(d) { return d.target.y; })
-//			.style("stroke-width", function(d) { return Math.sqrt(Math.ceil(d.value/10)); });
-//			
-//		link.append("title")
-//			.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
-//			
-//		link.on("mouseover", highlightLink())
-//			.on("mouseout", changeColourBack("#496BB0", "#999"));
-//			
-//	    var node = vis.selectAll("g.node")
-//	        .data(json.nodes)
-//	      .enter().append("svg:g")
-//	        .attr("class", "node")
-//	        .call(forceLayout.drag);
-//
-//	    node.append("svg:circle")
-//	        .attr("class", "circle")
-//	        .attr("cx", "0px")
-//	        .attr("cy", "0px")
-//			.style("fill", "#496BB0")
-//	        .attr("r", function(d) { return Math.sqrt((d.number)/10); })
-//			.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
-//			.on("mouseout", changeColourBack("#496BB0", "#999"));
-//			
-//		node.append("title")
-//	      .text(function(d) { return "Number Of Terms: "+d.number; });
-//
-//	    node.append("svg:text")
-//	        .attr("class", "nodetext")
-//	        .attr("dx", 12)
-//	        .attr("dy", 1)
-//	        .text(function(d) { return d.name; });
-//			
-//		node.append("svg:text")
-//	        .attr("class", "nodetext")
-//	        .attr("x", 12)
-//	        .attr("y", 1)
-//	        .text(function(d) { return d.name; });
-//
-//		forceLayout.on("tick", function() {
-//	    	// For every iteration of the layout (until it stabilizes)
-//	      link.attr("x1", function(d) { return d.source.x; })
-//	          .attr("y1", function(d) { return d.source.y; })
-//	          .attr("x2", function(d) { return d.target.x; })
-//	          .attr("y2", function(d) { return d.target.y; });
-//
-//	      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-//	    });
-//}
-
 
 
 function highlightLink(){
@@ -755,8 +684,7 @@ function highlightLink(){
 			.style("stroke-opacity", 1);
 		d3.select(this).style("stroke-opacity", 1)
 			.style("stroke", "#3d3d3d");
-			
-		
+
 	}
 }
 
@@ -809,125 +737,117 @@ function changeColourBack(circleFill, lineFill){
 }
 
 
-// XXX TODO
-// I think that the node and arc relative size feature should happen with a timer
-// instead of on every size change occurrence, and furthermore, that is should
-// occur in a web worker with a dedicated update function for only size changes.
-// But first, I will try implementing simply by modifying the function for "r"...
-// which can't really work, because that gets evaluated only when set...
+// Maintaining relative scaled sizes of arcs and nodes depends on updating
+// the raw size range, which in this implementation, loops over all entities.
+// Only update the ranges when appropriate.
 // BioMixer used a 500 ms delay on re-doing things.
 
 // 20 * 7 seems too big. Got 20 from other transformers.
-var MAX_ON_SCREEN_SIZE = 20 * 5;
-var MIN_ON_SCREEN_SIZE = 3;
+var NODE_MAX_ON_SCREEN_SIZE = 20 * 5;
+var NODE_MIN_ON_SCREEN_SIZE = 3;
+var minNodeRawSize = -1;
+var maxNodeRawSize = -1;
+var LINK_MAX_ON_SCREEN_SIZE = 5; // 6 looks good...but if I change colors it may not.
+var LINK_MIN_ON_SCREEN_SIZE = 2;
+var minLinkRawSize = -1;
+var maxLinkRawSize = -1;
 var REFRESH_LOOP_DELAY_MS = 500;
-//var ontologyNodeAreaScalingFactor = 1.0;
-var minRawSize = -1;
-var maxRawSize = -1;
+
 function updateNodeScalingFactor(){
 	// Call this prior to redrawing. The alternative is to track on every size
 	// modification. That worked well for BioMixer, but perhaps we're better
 	// off doing a bulk computation per size-refreshing redraw that we want to make.
 	$.each(vis.selectAll("g.node").select("circle")[0], function(i, circle){
 		circle = $(circle);
-//		console.log("Updating circle max min "+circle.attr("data-radius_basis"));
-//		console.log(circle);
-		if(-1 == maxRawSize || circle.attr("data-radius_basis") > maxRawSize){
-			maxRawSize = circle.attr("data-radius_basis");
+		var basis = parseInt(circle.attr("data-radius_basis"));
+		if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
+			maxNodeRawSize = basis;
 		}
-		if(-1 == minRawSize || circle.attr("data-radius_basis") < minRawSize){
-			minRawSize = circle.attr("data-radius_basis");
+		if(-1 == minNodeRawSize || basis < minNodeRawSize){
+			minNodeRawSize = basis;
 		}
 	});
-	
-//	vis.selectAll("g.node").data().select("circle").attr("r", function(d) { console.log("d.data-radius_basis is "+d.data-radius_basis); return ontologyNodeScalingFunc(d.number); });
 	
 	$.each(vis.selectAll("g.node")[0], function(i, node){
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
-//		console.log("Updating circle radius"+$(node).children("circle").attr("id"));
-//		console.log(node);
 		var circle = $(node).children("circle");
-//		console.log(circle);
 		circle.attr("r", function(d) { return ontologyNodeScalingFunc(circle.attr("data-radius_basis")); });
+	});
+	
+}
+
+function updateLinkScalingFactor(){
+	// TODO This may not ever need to be called multiple times, but it would take some time to run.
+	// Make sure it actually needs to be run if it is indeed called. 
+	console.log("Ran update link");
+	// Call this prior to redrawing. The alternative is to track on every size
+	// modification. That worked well for BioMixer, but perhaps we're better
+	// off doing a bulk computation per size-refreshing redraw that we want to make.
+	$.each(vis.selectAll("line.link")[0], function(i, link){
+		link = $(link);
+		var basis = parseInt(link.attr("data-thickness_basis"));
+		if(-1 == maxLinkRawSize || basis > maxLinkRawSize){
+			maxLinkRawSize =  basis;
+		}
+		if(-1 == minLinkRawSize || basis < minLinkRawSize){
+			minLinkRawSize =  basis;
+		}
+	});
+		
+	$.each(vis.selectAll("line.link")[0], function(i, link){
+		// Given a json encoded graph element, update all of the nested elements associated with it
+		// cherry pick elements that we might otherwise get by class "node"
+		link = $(link);
+		link.css("stroke-width", function(d) { return ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
 	});
 }
 
+
 function ontologyNodeScalingFunc(rawValue){
 	// return Math.sqrt((rawValue)/10);
-	
-	if(maxRawSize == minRawSize){
+	if(maxNodeRawSize == minNodeRawSize){
 		return rawValue;
 	}
-	
-	// computeFactorOfRange from BioMixer
-	var factor = 1.0 - (maxRawSize - rawValue) / Math.max(1, maxRawSize - minRawSize);
-	// TODO This is makign some big nodes at certain times. Firm up the logic.
-	console.log("Factor is "+factor);
-
-	// linearAreaRelativeScaledRangeValue
-    var linearArea = Math.PI * Math.pow(MIN_ON_SCREEN_SIZE, 2) + factor
-            * Math.PI * Math.pow(MAX_ON_SCREEN_SIZE, 2);
-    var diameter = Math.sqrt(linearArea / Math.PI);
+	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
+    var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
     return diameter/2; // need radius for SVG
+}
+
+
+function ontologyLinkScalingFunc(rawValue){
+	if(maxLinkRawSize == minLinkRawSize){
+		return rawValue;
+	}
+	var factor = computeFactorOfRange(rawValue, minLinkRawSize, maxLinkRawSize);
+	// The linear area algorithm used for nodes happens to work really well for the edges thickness too.
+    var thickness = linearAreaRelativeScaledRangeValue(factor, LINK_MIN_ON_SCREEN_SIZE, LINK_MAX_ON_SCREEN_SIZE);
+    return thickness/2;
+}
+
+function computeRangeRawSize(minRawSize, maxRawSize) {
+	return Math.max(1, maxRawSize - minRawSize);
+}
+
+function computeFactorOfRange(rawValue, minRawSize, maxRawSize) {
+	return 1.0 - (maxRawSize - rawValue) / computeRangeRawSize(minRawSize, maxRawSize);
+}
+
+function linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
+	var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor
+	      * Math.PI * Math.pow(maxOnScreenSize, 2);
+	var diameter = Math.sqrt(linearArea / Math.PI);
+	return diameter;
 }
 
 /*
     private double linearFunction(double value) {
         // Ha! A sqrt makes this not linear. Mis-named now...
         return 2 * (4 + Math.sqrt((value) / 10));
+        return (1 + Math.sqrt((value)));
     }
 
     private double logFunction(double value) {
         return 4 + Math.log(value) * 10;
     }
  */
-
-
-//public class OntologyGraphMappingArcSizeTransformer extends ArcSizeTransformer {
-//
-//    private HashMap<Double, Double> discreteRawSizeToRenderSizeMap = new HashMap<Double, Double>();
-//
-//    {
-//        discreteRawSizeToRenderSizeMap.put(0.0, 1.0);
-//        discreteRawSizeToRenderSizeMap.put(200.0, 2.0);
-//        discreteRawSizeToRenderSizeMap.put(400.0, 3.0);
-//        discreteRawSizeToRenderSizeMap.put(2000.0, 4.0);
-//        discreteRawSizeToRenderSizeMap.put(4000.0, 5.0);
-//        discreteRawSizeToRenderSizeMap.put(20000.0, 7.0);
-//        discreteRawSizeToRenderSizeMap.put(40000.0, 10.0);
-//    } 
-//
-//    @Override
-//    public Double transform(Double value) throws Exception {
-//        // return logFunction(value);
-//        // return linearFunction(value);
-//        // return discretizingFunction(value);
-//        return scaleForContextRange(value);
-//
-//    }
-//
-//    private Double linearFunction(Double value) {
-//        // return 2 * (4 + Math.sqrt((value) / 10));
-//        return (1 + Math.sqrt((value)));
-//    }
-//
-//    private Double logFunction(Double value) {
-//        return 4 + Math.log(value) * 10;
-//    }
-//
-//    private Double discretizingFunction(Double value) {
-//        double renderSize = 0;
-//        for (Double lowerCutOff : discreteRawSizeToRenderSizeMap.keySet()) {
-//            double cutOffRenderSize = discreteRawSizeToRenderSizeMap
-//                    .get(lowerCutOff);
-//            // If we're above a given cutoff and it's also the biggest one
-//            // yet...
-//            if (lowerCutOff < value && renderSize < cutOffRenderSize) {
-//                renderSize = cutOffRenderSize;
-//            }
-//        }
-//        return renderSize;
-//    }
-//}
-
