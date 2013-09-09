@@ -464,6 +464,88 @@ function initGraph(){
     .start();
 }
 
+function createNodePopupTable(ontology){
+	var outerDiv = $("<div></div>");
+	outerDiv.addClass("popups-Popup");
+	
+	// TODO Tipsy and this don't get along. Tried making another parent div, didn't work.
+	// Can't make the popup opaque when mouse is hovering, but maybe that's ok.
+	function enter (){
+		outerDiv.fadeTo(100); // 400
+		console.log("enter");
+	};
+	function exit(){
+		outerDiv.fadeTo(80); // 200
+		console.log("exit");
+	}
+	
+//	outerDiv.hover(enter, exit);
+//	outerDiv.mouseover(enter);
+//	outerDiv.mouseleave(exit());
+ 
+	
+	var table = $("<table></table>");
+	var tBody = $("<tbody></tbody>");
+	 outerDiv.append(table);
+	 table.append(tBody);
+	 
+	 tBody.append(
+			 $("<tr></tr>").append(
+				   $("<td></td>").append(
+						   $("<div></div>").text("BioModels").attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+				   )
+		   )
+	 );
+   
+     
+     var urlText = "http://bioportal.bioontology.org/ontologies/3022?p=summary";
+     tBody.append(
+    		 $("<tr></tr>").append(
+    				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+    						 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
+    								 $("<a></a>").attr("href", urlText).text(urlText)
+    						 )
+    				 )
+    		 )
+     );
+     
+     tBody.append(
+    		 $("<tr></tr>").append(
+    				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+    						 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
+    								 $("<b></b>").text("Ontology Acronym: ")
+    						 ).append(
+    								 $("<span></span>").text("BioModelsOntology")
+    						 )
+    				 )
+    		 )
+     );
+     
+     var jsonArgs = {
+    		 "Ontology ID: ":"3022",
+    		 "Description: ": "OWL Representation of the models in the BioModels repository.",
+    		 "Num Classes: ": "187519",
+    		 "Num Individuals: ": "220948",
+    		 "Num Properties: ": "70",
+     };
+     
+     $.each(jsonArgs,function(key, value){
+    	 tBody.append(
+        		 $("<tr></tr>").append(
+        				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+        						 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
+        								 $("<b></b>").text(key)
+        						 ).append(
+        								 $("<span></span>").text(value)
+        						 )
+        				 )
+        		 )
+         );
+     });
+
+     return outerDiv.prop("outerHTML");
+}
+
 /**
 * This function should be used when adding brand new nodes and links to the
 * graph. Do not call it to update properties of graph elements.
@@ -551,6 +633,68 @@ function populateGraph(json, newElementsExpected){
     .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
 	.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
 	.on("mouseout", changeColourBack("#496BB0", "#999"));
+	
+	
+	
+	$("svg circle").each(function(){
+		var me = this,
+	    timer = null,
+	    visible = false;
+		
+		function leave() {
+	        // We add a 100 ms timeout to give the user a little time
+	        // moving the cursor to/from the tipsy object
+	        timer = setTimeout(function () {
+	            $(me).tipsy('hide');
+	            visible = false;
+	        }, 100);
+	    }
+
+	    function enter() {
+	    	
+			$(me).tipsy({
+				html: true,
+				fade: true,
+				offset: parseInt($(me).attr("r")),
+				fallback: "Fetching data...",
+		        title: function() {
+		          // var d = this.__data__, c = d.i; //colors(d.i);
+		          // return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>';
+		          return createNodePopupTable();
+		        },
+		        trigger: 'manual',
+				gravity: function() {
+					var location = "";
+					
+					if($(me).offset().top > ($(document).scrollTop() + $(window).height() / 2)){
+						location += "s";
+					} else {
+						location += "n";
+					}
+					
+					if($(me).offset().left > ($(document).scrollLeft() + $(window).width() / 2)){
+						location += "e";
+					} else {
+						location += "w";
+					}
+					// console.log("Location "+location);
+			        return location;
+			    },
+			});
+	    	
+	        if (visible) {
+	            clearTimeout(timer);
+	        } else {
+	            $(me).tipsy('show');
+	            // The .tipsy object is destroyed every time it is hidden,
+	            // so we need to add our listener every time its shown
+	            $('.tipsy').hover(enter, leave);
+	            visible = true;
+	        }
+	    }
+	    
+		$(this).hover(enter, leave);
+	});
 		
 	// Tool tip
 	if(newElementsExpected === true)  // How would I *update* this if I needed to?
