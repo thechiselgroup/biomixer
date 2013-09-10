@@ -7,6 +7,7 @@
 var visWidth = $(document).width()-50,
     visHeight = $(document).height()-50;
 var linkMaxDesiredLength = Math.min(visWidth, visHeight)/2.5
+var alphaCutoff = 0.05; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 
 var vis = d3.select("#chart").append("svg:svg")
@@ -465,6 +466,7 @@ function initGraph(){
 	// gravity to keep nodes within the view frame.
 	// If charge() is adjusted, the base gravity and tweaking of it probably needs tweaking as well.
 	forceLayout
+	// .friction(0.2) // use 0.2 friction to get a very circular layout
 	.gravity(.05) // 0.5
     .distance(Math.min(visWidth, visHeight)/1.1) // 600
     .charge(-200) // -100
@@ -644,7 +646,8 @@ function populateGraph(json, newElementsExpected){
 	.on("mouseout", changeColourBack("#496BB0", "#999"));
 	
 	
-	
+	// tipsy stickiness from:
+	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
 	$("svg circle").each(function(){
 		var me = this,
 	    timer = null,
@@ -731,15 +734,28 @@ function populateGraph(json, newElementsExpected){
 	// I really want to make sure I keep trakc of whether we
 	// have all nodes/links, or just new ones...
 	var lastLabelShiftTime = jQuery.now();
+	var lastGravityAdjustmentTime = jQuery.now();
 	if(newElementsExpected === true){
 		forceLayout.on("tick", function() {
+
+			// Stop the layout early. The circular initialization makes it ok.
+			if (forceLayout.alpha() < alphaCutoff) {
+//				forceLayout.stop();
+			}
 			
 			// For every iteration of the layout (until it stabilizes)
 			// Using this bounding box on nodes and links works, but leads to way too much overlap for the
 			// labels...Bostock is correct in saying that gravity adjustments can get better results.
 			// gravityAdjust() functions are pass through; they want to inspect values,
 			// not modify them!
-			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
+			var doLabelUpdateNextTime = false;
+			if(jQuery.now() - lastGravityAdjustmentTime > 4000){
+				nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
+				lastGravityAdjustmentTime = jQuery.now();
+				doLabelUpdateNextTime = true;
+			} else {
+				nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+			}
 			
 			links
 			  .attr("x1", function(d) { return d.source.x; })
@@ -749,7 +765,7 @@ function populateGraph(json, newElementsExpected){
 			
 			// I want labels to aim out of middle of graph, to make more room
 			// It slows rendering, so I will only do it sometimes
-			if(jQuery.now() - lastLabelShiftTime > 2000){
+			if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
 				$.each($(".nodetext"), function(i, text){
 					text = $(text);
 					if(text.position().left >= visWidth/2){
