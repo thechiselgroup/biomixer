@@ -92,7 +92,7 @@ initAndPopulateGraph();
 
 
 function fetchOntologyNeighbourhood(centralOntologyVirtualId){
-	// I have confimed that this is faster than BioMixer. Without removing
+	// I have confirmed that this is faster than BioMixer. Without removing
 	// network latency in REST calls, it is approximately half as long from page load to
 	// graph completion (on the order of 11 sec vs 22 sec)
 	// TODO XXX Then try adding web workers around things to see if it affects it further.
@@ -730,6 +730,7 @@ function populateGraph(json, newElementsExpected){
 	// and losing references to the existing nodes and links.
 	// I really want to make sure I keep trakc of whether we
 	// have all nodes/links, or just new ones...
+	var lastLabelShiftTime = jQuery.now();
 	if(newElementsExpected === true){
 		forceLayout.on("tick", function() {
 			
@@ -745,6 +746,21 @@ function populateGraph(json, newElementsExpected){
 		      .attr("y1", function(d) { return d.source.y; })
 		      .attr("x2", function(d) { return d.target.x; })
 		      .attr("y2", function(d) { return d.target.y; });
+			
+			// I want labels to aim out of middle of graph, to make more room
+			// It slows rendering, so I will only do it sometimes
+			if(jQuery.now() - lastLabelShiftTime > 2000){
+				$.each($(".nodetext"), function(i, text){
+					text = $(text);
+					if(text.position().left >= visWidth/2){
+						text.attr("dx", 12);
+					} else {
+						text.attr("dx", - 12 - text.get(0).getComputedTextLength());
+					}
+				})
+				lastLabelShiftTime = jQuery.now();
+			}
+			
 		
 		});
 	}
