@@ -51,6 +51,12 @@ body{
 	fill: rgb(255,0,0);
 }
 
+.nodetext {
+	fill: rgb(0,0,0);
+	font-weight: "normal";
+	font-size: "12";
+}
+
 
 
 

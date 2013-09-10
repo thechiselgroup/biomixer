@@ -6,6 +6,7 @@
 
 var visWidth = $(document).width()-50,
     visHeight = $(document).height()-50;
+var linkMaxDesiredLength = Math.min(visWidth, visHeight)/2.5
 var forceLayout = undefined;
 
 var vis = d3.select("#chart").append("svg:svg")
@@ -53,63 +54,52 @@ function redraw() {
       + " scale(" + d3.event.scale + ")");
 }
 
-
-// TODO
-/*
- * When adding data dynamically, one guy had success using d3.layout.tree().nodes(nodes) where
- * nodes contains {source: new_node, target: new_node.parent}. Something similar should work for us.
- */
-
-// TODO Cutting initAndPopulateGraph into two methods
-// Then cutting pipulateGraph into being an incremental method
-
-d3.json("force_files/set_data.json", initAndPopulateGraph);
-//d3.json("force_files/set_data.json", initAndPopulateGraphOriginal);
-
-
-
-/* json format for graph is/was:
-{
-	"nodes": [
-	    {
-	      "name": "Cell Behavior Ontology",
-	      "number": 6
-	    },
-	    {
-	      "name": "Drosophila development",
-	      "number": 132
-	    }
-    ],
-    "links": [
-	    {
-	      "source": 0,
-	      "target": 18,
-	      "value": 2,
-	      "sourceMappings": 1
-	    },
-	    {
-	      "source": 0,
-	      "target": 2,
-	      "value": 2,
-	      "sourceMappings": 1
-	    }
-    ]
+//Seeing if I can modulate graph gravity using bounding boxes...
+// when the nodes are outside the box, tweak the gravity higher by a small amount,
+// and decrease it when the nodes are further from the edge
+// This is happening for each node as it updates, so keep that in mind...
+var minGravity = 0.1;
+var maxGravity = 0.9;
+var gravityAdjust = function(number, visSize){
+	var alpha = 0.2 / forceLayout.nodes().length;
+	if(number < visSize*0.05 || visSize*0.95 < number){
+		// console.log("increase");
+		forceLayout.gravity(Math.min(maxGravity, forceLayout.gravity() * (1 + alpha)));
+	} else if(visSize*0.40 < number && number < visSize*0.60){
+		// console.log("decrease");
+		forceLayout.gravity(Math.max(minGravity, forceLayout.gravity() * (1 - alpha)));
+	} else {
+		// leave gravity as it is
+	}
+	return number;
 }
-*/
+var gravityAdjustX = function(number){
+	return gravityAdjust(number, visWidth);
+};
+var gravityAdjustY = function(number){
+	return gravityAdjust(number, visHeight);
+};
+
 
 var ontologyNeighbourhoodJsonForGraph = new Object();
 ontologyNeighbourhoodJsonForGraph.nodes = [];
 ontologyNeighbourhoodJsonForGraph.links = [];
 
 
+// Run the graph! Don't need the json really, though...
+// d3.json("force_files/set_data.json", initAndPopulateGraph);
+initAndPopulateGraph();
+
+
 function fetchOntologyNeighbourhood(centralOntologyVirtualId){
-	// TODO XXX Do this in the same sort of way that it occurs in BioMixer.
-	// I expect this to be very much faster.
-	// Then try adding web workers around things to see if it affects it further.
+	// I have confimed that this is faster than BioMixer. Without removing
+	// network latency in REST calls, it is approximately half as long from page load to
+	// graph completion (on the order of 11 sec vs 22 sec)
+	// TODO XXX Then try adding web workers around things to see if it affects it further.
 	
 	// TODO XXX I lose all the error handling and retry handling that I set up in BioMixer.
 	// This is our first loss, that we have to futz with that again. It can be recreated, or if this
-	// is fasts enough, we can adapt things so that some of the Java work in BioMixer can be used here too
+	// is fast enough, we can adapt things so that some of the Java work in BioMixer can be used here too
 	// I mostly need to bypass the overall architecture of BioMixer to see how it affects loading speed
 	// and responsivity, as well as to try using web workers (which don't work with GWT 2.5 right now)
 	
@@ -153,12 +143,15 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 			return;
 		}
 		
-		var defaultNumOfTermsForSize = 100;
+		var defaultNumOfTermsForSize = 10;
 
 		// Create the central node
 		var centralOntologyNode = new Object();
-		centralOntologyNode.name = "blank";
-		centralOntologyNode.weight = 1;
+		centralOntologyNode.name = "fetching";
+		centralOntologyNode.fixed = true; // lock central node
+		centralOntologyNode.x = visWidth/2;
+		centralOntologyNode.y = visHeight/2;
+		centralOntologyNode.weight = mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.virtualId = centralOntologyVirtualId;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
@@ -170,6 +163,9 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 		// so this is the first place to try a web worker out.
 
 		// Make some graph parts!
+		var anglePerNode = 360/mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
+		var arcLength = linkMaxDesiredLength;
+		var i = 0;
 		$.each(mappingData.success.data[0].list[0].ontologyMappingStatistics,
 			function(index, element){
 				var virtualId = element.ontologyId;
@@ -180,8 +176,13 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 				
 				// Create the neighbouring nodes
 				var ontologyNode = new Object();
-				ontologyNode.name = "blank";
+				ontologyNode.name = "fetching";
 				ontologyNode.weight = 1;
+				ontologyNode.fixed = false; // lock central node
+				// Compute starting positions to be in a circle for faster layout
+				var angleForNode = i * anglePerNode; i++;
+				ontologyNode.x = visWidth/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+				ontologyNode.y = visHeight/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.virtualId = virtualId;
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
@@ -391,6 +392,13 @@ function buildOntologyMetricsUrl(ontologyVersionId){
 //		}
 //}
 
+/*
+ * This fetcher system allows the success receiver to call it to see if there has been an error that
+ * allows for a retry. It is fairly clean on the user side, though it does require checking of
+ * return values.
+ * 
+ * Tried to implement as a class object and failed...see above this if you want to try again...
+ */
 function closureRetryingJsonpFetcher(callbackObject){
 	var callbackObject = callbackObject;
 	// Has circular dependency with the callback
@@ -446,20 +454,21 @@ function initAndPopulateGraph(json){
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyVirtualId);
 	
-//	console.log(json);
-//	populateGraph("");
-//	populateGraph(json);
-//	populateGraph("");
-//	populateGraph(json);
+	// If you want to toy with the original static data, try this:
+	//	populateGraph(json);
 }
 
 function initGraph(){
 	forceLayout = self.forceLayout = d3.layout.force();
 	
+	// See the gravityAdjust(), which is called in tick() and modualtes
+	// gravity to keep nodes within the view frame.
+	// If charge() is adjusted, the base gravity and tweaking of it probably needs tweaking as well.
 	forceLayout
-	.gravity(.05)
-    .distance(600)
-    .charge(-100)
+	.gravity(.05) // 0.5
+    .distance(Math.min(visWidth, visHeight)/1.1) // 600
+    .charge(-200) // -100
+    .linkDistance(linkMaxDesiredLength)
     .size([visWidth, visHeight])
     .start();
 }
@@ -713,7 +722,7 @@ function populateGraph(json, newElementsExpected){
 		
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
 	
-
+	
 	
 	// XXX Doing this a second time destroys the visualization!
 	// How would we do it on only new things?
@@ -723,14 +732,20 @@ function populateGraph(json, newElementsExpected){
 	// have all nodes/links, or just new ones...
 	if(newElementsExpected === true){
 		forceLayout.on("tick", function() {
+			
 			// For every iteration of the layout (until it stabilizes)
+			// Using this bounding box on nodes and links works, but leads to way too much overlap for the
+			// labels...Bostock is correct in saying that gravity adjustments can get better results.
+			// gravityAdjust() functions are pass through; they want to inspect values,
+			// not modify them!
+			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
+			
 			links
 			  .attr("x1", function(d) { return d.source.x; })
 		      .attr("y1", function(d) { return d.source.y; })
 		      .attr("x2", function(d) { return d.target.x; })
 		      .attr("y2", function(d) { return d.target.y; });
 		
-			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 		});
 	}
 	
