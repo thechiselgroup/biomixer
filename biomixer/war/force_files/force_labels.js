@@ -10,6 +10,11 @@ var linkMaxDesiredLength = Math.min(visWidth, visHeight)/2.5
 var alphaCutoff = 0.05; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 
+//var defaultNodeColor = "#496BB0";
+var defaultNodeColor = "#FFFFFF";
+var defaultLinkColor = "#999";
+var nodeHighlightColor = "#FC6854";
+
 var vis = d3.select("#chart").append("svg:svg")
 .attr("id", "graphSvg")
     .attr("width", visWidth)
@@ -24,7 +29,7 @@ vis.append('svg:rect')
 	.attr("id", "graphRect")
     .attr('width', visWidth)
     .attr('height', visHeight)
-    .attr('fill', 'AliceBlue');
+    .style('fill', 'AliceBlue');
 
 var resizedWindow = function()
 {	
@@ -155,6 +160,7 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 		centralOntologyNode.weight = mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.virtualId = centralOntologyVirtualId;
+		centralOntologyNode.nodeColor = nextNodeColor();
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
 		var virtualIdNodeMap = new Object();
@@ -186,6 +192,7 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 				ontologyNode.y = visHeight/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.virtualId = virtualId;
+				ontologyNode.nodeColor = nextNodeColor();
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(virtualIdNodeMap).attr("vid"+virtualId, ontologyNode);
@@ -325,9 +332,6 @@ function OntologyMetricsCallback(url, node){
 		self.node.numberOfClasses = numClasses;
 		self.node.numberOfIndividuals = numIndividuals;
 		self.node.numberOfProperties = numProperties;
-		// TODO XXX This is what the node size was derived from
-		// Add a transformer for this (I believe in D3 this should be easy)
-		// I can use the transformation algorithm from BioMixer.
 		self.node.number = nodeSizeBasis;
 		
 		console.log("ontologyMetricsCallback");
@@ -583,7 +587,7 @@ function populateGraph(json, newElementsExpected){
 	.attr("class", "link") // Make svg:g like nodes if we need labels
 	.attr("id", function(d){ return "link_line_"+d.source.virtualId+"->"+d.target.virtualId})
 	.on("mouseover", highlightLink())
-		.on("mouseout", changeColourBack("#496BB0", "#999"));
+	.on("mouseout", changeColourBack);
 	
 	// console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
@@ -639,11 +643,12 @@ function populateGraph(json, newElementsExpected){
     .attr("class", "circle")
     .attr("cx", "0px")
     .attr("cy", "0px")
-	.style("fill", "#496BB0")
+    .style("fill", defaultNodeColor)
+    // .style("fill", function(d) { return d.nodeColor; })
 	.attr("data-radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
-	.on("mouseover", changeColour("#FC6854", "#ff1", "#ff1", .1))
-	.on("mouseout", changeColourBack("#496BB0", "#999"));
+	.on("mouseover", changeColour)
+	.on("mouseout", changeColourBack);
 	
 	
 	// tipsy stickiness from:
@@ -819,7 +824,7 @@ function updateDataForNodesAndLinks(json){
 	// console.log("Updating with data:");
 	// console.log(json);
 	
-	var updateLinksFromJson = function(i, d){
+	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
 		var link = vis.select("#link_line_"+d.source.virtualId+"->"+d.target.virtualId);
@@ -827,11 +832,13 @@ function updateDataForNodesAndLinks(json){
 		link.select("title").text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
 	}
 	
-	var updateNodesFromJson = function(i, d){
+	var updateNodesFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
 		var node = vis.select("#node_g_"+d.virtualId);
-		node.select("circle").attr("data-radius_basis", d.number);
+		var circles = node.select("circle");
+		circles.attr("data-radius_basis", d.number);
+		circles.transition().style("fill", d.nodeColor);
 		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
 		node.select("text").text(function(d) { return d.name; });
 	}
@@ -879,52 +886,49 @@ function highlightLink(){
 	}
 }
 
-function changeColour(circleFill, lineFill, circlesFill, opacity){
-	return function(d, i){
+function changeColour(d, i){
+	var xPos=d.x;
+	var yPos=d.y;
+	
+	d3.selectAll("line").style("stroke-opacity", .1);
+	d3.selectAll("circle").style("fill-opacity", .1)
+		.style("stroke-opacity", .2);
 		
-		var xPos=d.x;
-		var yPos=d.y;
+	d3.selectAll("text").style("opacity", .2)
+		.filter(function(g, i){return g.x==d.x})
+		.style("opacity", 1);
 		
-		d3.selectAll("line").style("stroke-opacity", .1);
-		d3.selectAll("circle").style("fill-opacity", .1)
-			.style("stroke-opacity", .2);
-			
-		d3.selectAll("text").style("opacity", .2)
-			.filter(function(g, i){return g.x==d.x})
-			.style("opacity", 1);
+	var sourceNode = d3.select(this).style("fill", nodeHighlightColor)
+		.style("fill-opacity", 1)
+		.style("stroke-opacity", 1);
 		
-		var sourceNode = d3.select(this).style("fill", circleFill)
+	var adjacentLinks = d3.selectAll("line")
+		.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
+		.style("stroke-opacity", 1)
+		.style("stroke", "#3d3d3d")
+		.each(function(d){
+			d3.selectAll("circle")
+			.filter(function(g, i){return d.target.x==g.x && d.target.y==g.y;})
 			.style("fill-opacity", 1)
-			.style("stroke-opacity", 1);
-			
-		var adjacentLinks = d3.selectAll("line")
-			.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
 			.style("stroke-opacity", 1)
-			.style("stroke", "#3d3d3d")
 			.each(function(d){
-				d3.selectAll("circle")
-				.filter(function(g, i){return d.target.x==g.x && d.target.y==g.y;})
-				.style("fill-opacity", 1)
-				.style("stroke-opacity", 1)
-				.each(function(d){
-					d3.selectAll("text")
-					.filter(function(g, i){return g.x==d.x})
-					.style("opacity", 1);});
-		});
-	};
+				d3.selectAll("text")
+				.filter(function(g, i){return g.x==d.x})
+				.style("opacity", 1);});
+	});
 }
 
-function changeColourBack(circleFill, lineFill){
-	return function(d, i){
-		d3.selectAll("circle")
-			.style("fill", circleFill)
-			.style("fill-opacity", .75)
-			.style("stroke-opacity", 1);
-		d3.selectAll("line")
-			.style("stroke", lineFill)
-			.style("stroke-opacity", .75);
-		d3.selectAll("text").style("opacity", 1);
-	};
+function changeColourBack(d, i){
+	d3.selectAll("circle")
+		.style("fill", function(e, i){ 
+			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
+			})
+		.style("fill-opacity", .75)
+		.style("stroke-opacity", 1);
+	d3.selectAll("line")
+		.style("stroke", defaultLinkColor)
+		.style("stroke-opacity", .75);
+	d3.selectAll("text").style("opacity", 1);
 }
 
 
@@ -935,7 +939,7 @@ function changeColourBack(circleFill, lineFill){
 
 // 20 * 7 seems too big. Got 20 from other transformers.
 var NODE_MAX_ON_SCREEN_SIZE = 20 * 5;
-var NODE_MIN_ON_SCREEN_SIZE = 3;
+var NODE_MIN_ON_SCREEN_SIZE = 4;
 var minNodeRawSize = -1;
 var maxNodeRawSize = -1;
 var LINK_MAX_ON_SCREEN_SIZE = 5; // 6 looks good...but if I change colors it may not.
@@ -948,23 +952,19 @@ function updateNodeScalingFactor(){
 	// Call this prior to redrawing. The alternative is to track on every size
 	// modification. That worked well for BioMixer, but perhaps we're better
 	// off doing a bulk computation per size-refreshing redraw that we want to make.
-	$.each(vis.selectAll("g.node").select("circle")[0], function(i, circle){
-		circle = $(circle);
-		var basis = parseInt(circle.attr("data-radius_basis"));
-		if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
-			maxNodeRawSize = basis;
-		}
-		if(-1 == minNodeRawSize || basis < minNodeRawSize){
-			minNodeRawSize = basis;
-		}
-	});
 	
-	$.each(vis.selectAll("g.node")[0], function(i, node){
-		// Given a json encoded graph element, update all of the nested elements associated with it
-		// cherry pick elements that we might otherwise get by class "node"
-		var circle = $(node).children("circle");
-		circle.attr("r", function(d) { return ontologyNodeScalingFunc(circle.attr("data-radius_basis")); });
-	});
+	var circles = vis.selectAll(".circle");
+	circles.each(function(d){
+				var basis = parseInt(this.getAttribute("data-radius_basis"));
+				if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
+					maxNodeRawSize = basis;
+				}
+				if(-1 == minNodeRawSize || basis < minNodeRawSize){
+					minNodeRawSize = basis;
+				}
+		});
+	
+	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
 	
 }
 
@@ -1042,3 +1042,10 @@ function linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreen
         return 4 + Math.log(value) * 10;
     }
  */
+
+var currentNodeColor = -1;
+var nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
+function nextNodeColor(){
+	currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
+	return nodeOrderedColors(currentNodeColor);
+}

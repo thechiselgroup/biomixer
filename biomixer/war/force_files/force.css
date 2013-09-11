@@ -3,24 +3,17 @@ circle.node {
   stroke-width: 1.5px;
 }
 circle {
+  /*
   fill: rgb(31, 119, 180);
+  */
   fill-opacity: .70;
+  /*
   stroke: #3D3D3D;
-  stroke-width: 4px;
+  */
+  stroke-width: 0px;
 }
-line.link {
-  stroke: #999;
-  stroke-opacity: .6;
-}
-legend{
-width:350px;
-padding:2px 0 0 20px;
-float:right;
-} 
-.legend{
- padding:20px;
-}
-.circle {
+
+/*.circle {
 display: block;
 width: 40px;
 height: 40px;
@@ -31,6 +24,29 @@ border-radius: 40px;
 border-style: solid; 
 border-color: #3D3D3D; 
 }
+*/
+
+line.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+.line{
+display: block;
+width: 45px;
+height: 10px;
+background: #999;
+}
+
+legend{
+width:350px;
+padding:2px 0 0 20px;
+float:right;
+} 
+.legend{
+ padding:20px;
+}
+
 
 
 div.gallery{
@@ -55,16 +71,6 @@ body{
 	fill: rgb(0,0,0);
 	font-weight: "normal";
 	font-size: "12";
-}
-
-
-
-
-.line{
-display: block;
-width: 45px;
-height: 10px;
-background: #999;
 }
 
 td.vis{
