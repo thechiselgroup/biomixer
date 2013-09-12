@@ -16,6 +16,7 @@ function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2.5; }
 var alphaCutoff = 0.005; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 var centralOntologyVirtualId = undefined;
+var dragging = false;
 
 //var defaultNodeColor = "#496BB0";
 var defaultNodeColor = "#FFFFFF";
@@ -633,6 +634,8 @@ function populateGraph(json, newElementsExpected){
 	// Is it ok to do call() here?
     .call(forceLayout.drag);
 	
+	forceLayout.drag().on("dragstart", function(){dragging = true;}).on("dragend", function(){dragging = false;});
+	
 	// console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	
 	// Easiest to use JQuery to get at existing enter() circles
@@ -668,16 +671,16 @@ function populateGraph(json, newElementsExpected){
 	    visible = false,
 	    tipsyId = undefined;
 		
-//	    var leaveMissedTimer = undefined;
-//	    function missedEventTimer() {
-//	    	leaveMissedTimer = setTimeout(this, 1000);
-//	    	// The hover check doesn't work whne we are over children it seems, and the tipsy has plenty of children...
-//	    	if($("#"+me.id+":hover").length != 0 && !$(tipsyId+":hover").length != 0){
-//	    		console.log("Not in thing");
-//	    		leave();
-//	    	}
-//	    }
-//	    missedEventTimer();
+	    var leaveMissedTimer = undefined;
+	    function missedEventTimer() {
+	    	leaveMissedTimer = setTimeout(this, 1000);
+	    	// The hover check doesn't work whne we are over children it seems, and the tipsy has plenty of children...
+	    	if($("#"+me.id+":hover").length != 0 && !$(tipsyId+":hover").length != 0){
+	    		console.log("Not in thing");
+	    		leave();
+	    	}
+	    }
+	    missedEventTimer();
 		
 		function leave() {
 	        // We add a 100 ms timeout to give the user a little time
@@ -689,6 +692,9 @@ function populateGraph(json, newElementsExpected){
 	    }
 
 	    function enter() {
+	    	if(dragging){
+	    		return;
+	    	}
 			$(me).tipsy({
 				html: true,
 				fade: true,
@@ -729,17 +735,17 @@ function populateGraph(json, newElementsExpected){
 	            tipsyId = $(me).attr("id"+"_tipsy");
 	            tipsy.attr("id", tipsyId);
 	            tipsy.hover(enter, leave);
-//	            tipsy.mouseover(function(){
-//	    	    	clearTimeout(leaveMissedTimer);
-//	    		});
+	            tipsy.mouseover(function(){
+	    	    	clearTimeout(leaveMissedTimer);
+	    		});
 	            visible = true;
 	        }
 	    }
 	    
 		$(this).hover(enter, leave);
-//		$(this).mouseover(function(){
-//	    	clearTimeout(leaveMissedTimer);
-//		});
+		$(this).mouseover(function(){
+	    	clearTimeout(leaveMissedTimer);
+		});
 		
 		
 		// TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
@@ -760,7 +766,12 @@ function populateGraph(json, newElementsExpected){
 	    .attr("class", "nodetext")
 	    .attr("dx", 12)
 	    .attr("dy", 1)
-	    .text(function(d) { return d.name; });
+	    .text(function(d) { return d.name; })
+	    // Not sure if I want interactions on labels or not. Change following as desired.
+	    .style("pointer-events", "none")
+	    // .on("mouseover", changeColour)
+	    // .on("mouseout", changeColourBack)
+	    ;
 		
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
 	
@@ -963,7 +974,15 @@ function changeColour(d, i){
 		.filter(function(g, i){return g.x==d.x})
 		.style("opacity", 1);
 		
-	var sourceNode = d3.select(this).style("fill", nodeHighlightColor)
+	var sourceNode;
+	if(d3.select(this).attr("class") == "circle"){
+		sourceNode = d3.select(this);
+	} else if(d3.select(this).attr("class") == "nodetext"){
+		// If the labels aren't wired for mouse interaction, this is unneeded
+		sourceNode = d3.select(this.parentNode).select(".circle");
+	}
+	
+	sourceNode.style("fill", nodeHighlightColor)
 		.style("fill-opacity", 1)
 		.style("stroke-opacity", 1);
 		
