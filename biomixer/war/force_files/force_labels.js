@@ -485,7 +485,7 @@ function initGraph(){
     .start();
 }
 
-function createNodePopupTable(ontology){
+function createNodePopupTable(ontologyCircle, ontologyData){
 	var outerDiv = $("<div></div>");
 	outerDiv.addClass("popups-Popup");
 	
@@ -519,7 +519,7 @@ function createNodePopupTable(ontology){
 	 );
    
      
-     var urlText = "http://bioportal.bioontology.org/ontologies/3022?p=summary";
+     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["virtualId"]+"?p=summary";
      tBody.append(
     		 $("<tr></tr>").append(
     				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -536,28 +536,30 @@ function createNodePopupTable(ontology){
     						 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
     								 $("<b></b>").text("Ontology Acronym: ")
     						 ).append(
-    								 $("<span></span>").text("BioModelsOntology")
+    								 $("<span></span>").text(ontologyData["name"])
     						 )
     				 )
     		 )
      );
      
      var jsonArgs = {
-    		 "Ontology ID: ":"3022",
-    		 "Description: ": "OWL Representation of the models in the BioModels repository.",
-    		 "Num Classes: ": "187519",
-    		 "Num Individuals: ": "220948",
-    		 "Num Properties: ": "70",
+    		 "Ontology Acronym:": "ONTOLOGY_ABBREVIATION",
+    		 "Ontology ID: ": "virtualId",
+    		 "Description: ": "DESCRIPTION",
+    		 "Num Classes: ": "numberOfClasses",
+    		 "Num Individuals: ": "numberOfIndividuals",
+    		 "Num Properties: ": "numberOfProperties",
      };
      
-     $.each(jsonArgs,function(key, value){
+     $.each(jsonArgs,function(label, key){
+    	 var style = (key === "DESCRIPTION" ? {} : {"white-space":"nowrap"});
     	 tBody.append(
         		 $("<tr></tr>").append(
         				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-        						 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-        								 $("<b></b>").text(key)
+        						 $("<div></div>").addClass("gwt-HTML").css(style).append(
+        								 $("<b></b>").text(label)
         						 ).append(
-        								 $("<span></span>").text(value)
+        								 $("<span></span>").text(ontologyData[key])
         						 )
         				 )
         		 )
@@ -659,22 +661,34 @@ function populateGraph(json, newElementsExpected){
 	
 	// tipsy stickiness from:
 	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-	$("svg circle").each(function(){
+	d3.selectAll(".circle").each(function(d){
 		var me = this,
-	    timer = null,
-	    visible = false;
+		meData = d,
+	    leaveDelayTimer = null,
+	    visible = false,
+	    tipsyId = undefined;
+		
+//	    var leaveMissedTimer = undefined;
+//	    function missedEventTimer() {
+//	    	leaveMissedTimer = setTimeout(this, 1000);
+//	    	// The hover check doesn't work whne we are over children it seems, and the tipsy has plenty of children...
+//	    	if($("#"+me.id+":hover").length != 0 && !$(tipsyId+":hover").length != 0){
+//	    		console.log("Not in thing");
+//	    		leave();
+//	    	}
+//	    }
+//	    missedEventTimer();
 		
 		function leave() {
 	        // We add a 100 ms timeout to give the user a little time
 	        // moving the cursor to/from the tipsy object
-	        timer = setTimeout(function () {
+			leaveDelayTimer = setTimeout(function () {
 	            $(me).tipsy('hide');
 	            visible = false;
 	        }, 100);
 	    }
 
 	    function enter() {
-	    	
 			$(me).tipsy({
 				html: true,
 				fade: true,
@@ -683,7 +697,7 @@ function populateGraph(json, newElementsExpected){
 		        title: function() {
 		          // var d = this.__data__, c = d.i; //colors(d.i);
 		          // return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>';
-		          return createNodePopupTable();
+		          return createNodePopupTable(me, meData);
 		        },
 		        trigger: 'manual',
 				gravity: function() {
@@ -706,21 +720,31 @@ function populateGraph(json, newElementsExpected){
 			});
 	    	
 	        if (visible) {
-	            clearTimeout(timer);
+	            clearTimeout(leaveDelayTimer);
 	        } else {
 	            $(me).tipsy('show');
 	            // The .tipsy object is destroyed every time it is hidden,
 	            // so we need to add our listener every time its shown
-	            $('.tipsy').hover(enter, leave);
+	            var tipsy = $(me).tipsy("tip");
+	            tipsyId = $(me).attr("id"+"_tipsy");
+	            tipsy.attr("id", tipsyId);
+	            tipsy.hover(enter, leave);
+//	            tipsy.mouseover(function(){
+//	    	    	clearTimeout(leaveMissedTimer);
+//	    		});
 	            visible = true;
 	        }
 	    }
 	    
 		$(this).hover(enter, leave);
+//		$(this).mouseover(function(){
+//	    	clearTimeout(leaveMissedTimer);
+//		});
+		
 		
 		// TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
 		// That happens commonly. We'll want to hide stale open tipsy panels when this happens.
-		// d3.timer(notify, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
+//		 d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
 	});
 		
 	// Tool tip
@@ -755,7 +779,7 @@ function populateGraph(json, newElementsExpected){
 
 			// Stop the layout early. The circular initialization makes it ok.
 			if (forceLayout.alpha() < alphaCutoff) {
-//				forceLayout.stop();
+				forceLayout.stop();
 			}
 			
 			// Do I want nodes to avoid one another?
@@ -827,7 +851,6 @@ function populateGraph(json, newElementsExpected){
 		
 		});
 	}
-	
 	
 	// Whenever I call populate, it adds more to this layout.
 	// I need to figure out how to get enter/update/exit sort of things
