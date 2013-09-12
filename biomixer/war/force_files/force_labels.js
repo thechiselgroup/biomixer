@@ -3,12 +3,19 @@
 // Strict mode is safer to develop in, ya?
 "use strict";
 
+// I eventually came across the post that sort of discusses our update problem, of
+// having new attributes for nodes from late coming JSON:
+// https://groups.google.com/forum/#!msg/d3-js/ENMlOyUGGjk/YiPc8AUKCOwJ
+// http://grokbase.com/t/gg/d3-js/12cjmqc2cx/dynamically-updating-nodes-links-in-a-force-layout-diagram
+// Bostock confirms that we shouldn't bind things that aren't truly new, and instead we must
+// 
 
-var visWidth = $(document).width()-50,
-    visHeight = $(document).height()-50;
-var linkMaxDesiredLength = Math.min(visWidth, visHeight)/2.5
-var alphaCutoff = 0.05; // used to stop the layout early in the tick() callback
+function visWidth(){ return $(document).width()-50; }
+function visHeight(){ return $(document).height()-50; }
+function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2.5; }
+var alphaCutoff = 0.005; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
+var centralOntologyVirtualId = undefined;
 
 //var defaultNodeColor = "#496BB0";
 var defaultNodeColor = "#FFFFFF";
@@ -17,8 +24,8 @@ var nodeHighlightColor = "#FC6854";
 
 var vis = d3.select("#chart").append("svg:svg")
 .attr("id", "graphSvg")
-    .attr("width", visWidth)
-    .attr("height", visHeight)
+    .attr("width", visWidth())
+    .attr("height", visHeight())
 	.attr("pointer-events", "all")
 //  .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", redraw))
@@ -27,26 +34,26 @@ var vis = d3.select("#chart").append("svg:svg")
 
 vis.append('svg:rect')
 	.attr("id", "graphRect")
-    .attr('width', visWidth)
-    .attr('height', visHeight)
+    .attr('width', visWidth())
+    .attr('height', visHeight())
     .style('fill', 'AliceBlue');
 
 var resizedWindow = function()
 {	
-	visWidth = $(document).width()-50;
-    visHeight = $(document).height()-50;
+	d3.select("#graphSvg")
+	.attr("width", visWidth())
+	.attr("height", visHeight());
+	
+	d3.select("#graphRect")
+	.attr('width', visWidth())
+	.attr('height', visHeight());
 	
     if(forceLayout){
-    	forceLayout.size([visWidth, visHeight]);
-    }
-    
-    d3.select("#graphSvg")
-    .attr("width", visWidth)
-    .attr("height", visHeight);
-
-	d3.select("#graphRect")
-    .attr('width', visWidth)
-    .attr('height', visHeight);
+    	forceLayout.size([visWidth(), visHeight()]).linkDistance(linkMaxDesiredLength());
+    	// Put central node in middle of view
+    	d3.select("#node_g_"+centralOntologyVirtualId).each(function(d){d.px = visWidth()/2; d.py = visHeight()/2;});
+    	forceLayout.resume();
+    }  
 };
 
 $(window).resize(resizedWindow);
@@ -65,13 +72,13 @@ function redraw() {
 // and decrease it when the nodes are further from the edge
 // This is happening for each node as it updates, so keep that in mind...
 var minGravity = 0.1;
-var maxGravity = 0.9;
-var gravityAdjust = function(number, visSize){
+var maxGravity = 3.5;
+function gravityAdjust(number, visSize){
 	var alpha = 0.2 / forceLayout.nodes().length;
 	if(number < visSize*0.05 || visSize*0.95 < number){
 		// console.log("increase");
 		forceLayout.gravity(Math.min(maxGravity, forceLayout.gravity() * (1 + alpha)));
-	} else if(visSize*0.40 < number && number < visSize*0.60){
+	} else if(visSize*0.20 < number && number < visSize*0.80){
 		// console.log("decrease");
 		forceLayout.gravity(Math.max(minGravity, forceLayout.gravity() * (1 - alpha)));
 	} else {
@@ -79,12 +86,12 @@ var gravityAdjust = function(number, visSize){
 	}
 	return number;
 }
-var gravityAdjustX = function(number){
-	return gravityAdjust(number, visWidth);
-};
-var gravityAdjustY = function(number){
-	return gravityAdjust(number, visHeight);
-};
+function gravityAdjustX(number){
+	return gravityAdjust(number, visWidth());
+}
+function gravityAdjustY(number){
+	return gravityAdjust(number, visHeight());
+}
 
 
 var ontologyNeighbourhoodJsonForGraph = new Object();
@@ -132,7 +139,6 @@ function fetchOntologyNeighbourhood(centralOntologyVirtualId){
 
 function OntologyMappingCallback(url, centralOntologyVirtualId){
 	this.url = url;
-	var centralOntologyVirtualId = centralOntologyVirtualId;
 	// Define this fetcher when one is instantiated (circular dependency)
 	this.fetcher = undefined;
 	var self = this;
@@ -155,8 +161,8 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 		var centralOntologyNode = new Object();
 		centralOntologyNode.name = "fetching";
 		centralOntologyNode.fixed = true; // lock central node
-		centralOntologyNode.x = visWidth/2;
-		centralOntologyNode.y = visHeight/2;
+		centralOntologyNode.x = visWidth()/2;
+		centralOntologyNode.y = visHeight()/2;
 		centralOntologyNode.weight = mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.virtualId = centralOntologyVirtualId;
@@ -171,7 +177,7 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 
 		// Make some graph parts!
 		var anglePerNode = 360/mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
-		var arcLength = linkMaxDesiredLength;
+		var arcLength = linkMaxDesiredLength();
 		var i = 0;
 		$.each(mappingData.success.data[0].list[0].ontologyMappingStatistics,
 			function(index, element){
@@ -188,8 +194,8 @@ function OntologyMappingCallback(url, centralOntologyVirtualId){
 				ontologyNode.fixed = false; // lock central node
 				// Compute starting positions to be in a circle for faster layout
 				var angleForNode = i * anglePerNode; i++;
-				ontologyNode.x = visWidth/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
-				ontologyNode.y = visHeight/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+				ontologyNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+				ontologyNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.virtualId = virtualId;
 				ontologyNode.nodeColor = nextNodeColor();
@@ -454,7 +460,7 @@ function closureRetryingJsonpFetcher(callbackObject){
 function initAndPopulateGraph(json){
 	initGraph();
 	
-	var centralOntologyVirtualId = 1033;
+	centralOntologyVirtualId = 1033;
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyVirtualId);
@@ -472,10 +478,10 @@ function initGraph(){
 	forceLayout
 	// .friction(0.2) // use 0.2 friction to get a very circular layout
 	.gravity(.05) // 0.5
-    .distance(Math.min(visWidth, visHeight)/1.1) // 600
+    .distance(Math.min(visWidth(), visHeight())/1.1) // 600
     .charge(-200) // -100
-    .linkDistance(linkMaxDesiredLength)
-    .size([visWidth, visHeight])
+    .linkDistance(linkMaxDesiredLength())
+    .size([visWidth(), visHeight()])
     .start();
 }
 
@@ -711,6 +717,10 @@ function populateGraph(json, newElementsExpected){
 	    }
 	    
 		$(this).hover(enter, leave);
+		
+		// TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
+		// That happens commonly. We'll want to hide stale open tipsy panels when this happens.
+		// d3.timer(notify, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
 	});
 		
 	// Tool tip
@@ -748,6 +758,38 @@ function populateGraph(json, newElementsExpected){
 //				forceLayout.stop();
 			}
 			
+			// Do I want nodes to avoid one another?
+			// http://bl.ocks.org/mbostock/3231298
+//			var q = d3.geom.quadtree(nodes),
+//		      i = 0,
+//		      n = nodes.length;
+//			while (++i < n) q.visit(collide(nodes[i]));
+//			function collide(node) {
+//				  var r = node.radius + 16,
+//				      nx1 = node.x - r,
+//				      nx2 = node.x + r,
+//				      ny1 = node.y - r,
+//				      ny2 = node.y + r;
+//				  return function(quad, x1, y1, x2, y2) {
+//				    if (quad.point && (quad.point !== node)) {
+//				      var x = node.x - quad.point.x,
+//				          y = node.y - quad.point.y,
+//				          l = Math.sqrt(x * x + y * y),
+//				          r = node.radius + quad.point.radius;
+//				      if (l < r) {
+//				        l = (l - r) / l * .5;
+//				        node.x -= x *= l;
+//				        node.y -= y *= l;
+//				        quad.point.x += x;
+//				        quad.point.y += y;
+//				      }
+//				    }
+//				    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+//				  };
+//			 svg.selectAll("circle")
+//		      .attr("cx", function(d) { return d.x; })
+//		      .attr("cy", function(d) { return d.y; });
+			
 			// For every iteration of the layout (until it stabilizes)
 			// Using this bounding box on nodes and links works, but leads to way too much overlap for the
 			// labels...Bostock is correct in saying that gravity adjustments can get better results.
@@ -773,7 +815,7 @@ function populateGraph(json, newElementsExpected){
 			if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
 				$.each($(".nodetext"), function(i, text){
 					text = $(text);
-					if(text.position().left >= visWidth/2){
+					if(text.position().left >= visWidth()/2){
 						text.attr("dx", 12);
 					} else {
 						text.attr("dx", - 12 - text.get(0).getComputedTextLength());
