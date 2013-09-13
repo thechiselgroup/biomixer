@@ -14,7 +14,7 @@ function visHeight(){ return $("#chart").height(); }
 function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
 var alphaCutoff = 0.005; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
-var centralOntologyVirtualId = undefined;
+var centralOntologyVirtualId = purl().param("virtual_ontology_id");
 var dragging = false;
 
 //var defaultNodeColor = "#496BB0";
@@ -447,8 +447,6 @@ function closureRetryingJsonpFetcher(callbackObject){
 
 function initAndPopulateGraph(json){
 	initGraph();
-	
-	centralOntologyVirtualId = 1033;
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyVirtualId);
