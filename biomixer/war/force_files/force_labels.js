@@ -19,7 +19,7 @@ var centralOntologyVirtualId = undefined;
 var dragging = false;
 
 //var defaultNodeColor = "#496BB0";
-var defaultNodeColor = "#FFFFFF";
+var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
 var nodeHighlightColor = "#FC6854";
 
@@ -37,7 +37,7 @@ vis.append('svg:rect')
 	.attr("id", "graphRect")
     .attr('width', visWidth())
     .attr('height', visHeight())
-    .style('fill', 'AliceBlue');
+    .style('fill', 'white');
 
 var resizedWindow = function()
 {	
@@ -763,7 +763,7 @@ function populateGraph(json, newElementsExpected){
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes.append("svg:text")
 		.attr("id", function(d){ return "node_text_"+d.virtualId})
-	    .attr("class", "nodetext")
+	    .attr("class", "nodetext unselectable")
 	    .attr("dx", 12)
 	    .attr("dy", 1)
 	    .text(function(d) { return d.name; })
@@ -1026,8 +1026,8 @@ var NODE_MAX_ON_SCREEN_SIZE = 20 * 5;
 var NODE_MIN_ON_SCREEN_SIZE = 4;
 var minNodeRawSize = -1;
 var maxNodeRawSize = -1;
-var LINK_MAX_ON_SCREEN_SIZE = 5; // 6 looks good...but if I change colors it may not.
-var LINK_MIN_ON_SCREEN_SIZE = 2;
+var LINK_MAX_ON_SCREEN_SIZE = 7; // 6 looks good...but if I change colors it may not.
+var LINK_MIN_ON_SCREEN_SIZE = 1;
 var minLinkRawSize = -1;
 var maxLinkRawSize = -1;
 var REFRESH_LOOP_DELAY_MS = 500;
