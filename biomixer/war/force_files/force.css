@@ -60,20 +60,13 @@ float:right;
 
 div.gallery{
 	/*
-	width: 800px;
-	height: 800px;
-	*/
-	float: left; /* take child width */
 	border-style:solid;
+	*/
 }
 
 body{
-	/*
-	width: 800px;
-	height: 800px;
-	*/
-	float: left; /* take child width */
 	fill: rgb(255,0,0);
+	margin: 0px;
 }
 
 .nodetext {

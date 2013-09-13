@@ -9,10 +9,9 @@
 // http://grokbase.com/t/gg/d3-js/12cjmqc2cx/dynamically-updating-nodes-links-in-a-force-layout-diagram
 // Bostock confirms that we shouldn't bind things that aren't truly new, and instead we must
 // 
-
-function visWidth(){ return $(document).width()-50; }
-function visHeight(){ return $(document).height()-50; }
-function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2.5; }
+function visWidth(){ return $("#chart").width(); }
+function visHeight(){ return $("#chart").height(); }
+function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
 var alphaCutoff = 0.005; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 var centralOntologyVirtualId = undefined;
@@ -25,8 +24,6 @@ var nodeHighlightColor = "#FC6854";
 
 var vis = d3.select("#chart").append("svg:svg")
 .attr("id", "graphSvg")
-    .attr("width", visWidth())
-    .attr("height", visHeight())
 	.attr("pointer-events", "all")
 //  .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", redraw))
@@ -35,20 +32,10 @@ var vis = d3.select("#chart").append("svg:svg")
 
 vis.append('svg:rect')
 	.attr("id", "graphRect")
-    .attr('width', visWidth())
-    .attr('height', visHeight())
     .style('fill', 'white');
 
 var resizedWindow = function()
-{	
-	d3.select("#graphSvg")
-	.attr("width", visWidth())
-	.attr("height", visHeight());
-	
-	d3.select("#graphRect")
-	.attr('width', visWidth())
-	.attr('height', visHeight());
-	
+{		
     if(forceLayout){
     	forceLayout.size([visWidth(), visHeight()]).linkDistance(linkMaxDesiredLength());
     	// Put central node in middle of view
