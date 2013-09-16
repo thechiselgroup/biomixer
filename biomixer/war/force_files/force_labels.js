@@ -65,9 +65,9 @@ resizedWindow();
 
 function redraw() {
   console.log("redrawing D3", d3.event.translate, d3.event.scale);
-  vis.attr("transform",
-      "translate(" + d3.event.translate + ")"
-      + " scale(" + d3.event.scale + ")");
+//  vis.attr("transform",
+//      "translate(" + d3.event.translate + ")"
+//      + " scale(" + d3.event.scale + ")");
 }
 
 //Seeing if I can modulate graph gravity using bounding boxes...
