@@ -8,11 +8,12 @@
 // https://groups.google.com/forum/#!msg/d3-js/ENMlOyUGGjk/YiPc8AUKCOwJ
 // http://grokbase.com/t/gg/d3-js/12cjmqc2cx/dynamically-updating-nodes-links-in-a-force-layout-diagram
 // Bostock confirms that we shouldn't bind things that aren't truly new, and instead we must
-// 
+// update element properties without binding.
+
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
 function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
-var alphaCutoff = 0.005; // used to stop the layout early in the tick() callback
+var alphaCutoff = 0.01; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 var centralOntologyVirtualId = purl().param("virtual_ontology_id");
 var dragging = false;
@@ -22,8 +23,12 @@ var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
 var nodeHighlightColor = "#FC6854";
 
+// Had to set div#chart.gallery height = 100% in CSS,
+// but this was only required in Firefox. I can't see why.
 var vis = d3.select("#chart").append("svg:svg")
-.attr("id", "graphSvg")
+	.attr("id", "graphSvg")
+	.attr("width", visWidth())
+	.attr("height", visHeight())
 	.attr("pointer-events", "all")
 //  .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", redraw))
@@ -31,11 +36,21 @@ var vis = d3.select("#chart").append("svg:svg")
   ;
 
 vis.append('svg:rect')
+	.attr("width", visWidth())
+	.attr("height", visHeight())
 	.attr("id", "graphRect")
     .style('fill', 'white');
 
 var resizedWindow = function()
 {		
+	d3.select("#graphRect")
+	.attr("width", visWidth())
+	.attr("height", visHeight());
+	
+	d3.select("#graphSvg")
+	.attr("width", visWidth())
+	.attr("height", visHeight());
+	
     if(forceLayout){
     	forceLayout.size([visWidth(), visHeight()]).linkDistance(linkMaxDesiredLength());
     	// Put central node in middle of view
@@ -658,8 +673,8 @@ function populateGraph(json, newElementsExpected){
 		
 	    var leaveMissedTimer = undefined;
 	    function missedEventTimer() {
-	    	leaveMissedTimer = setTimeout(this, 1000);
-	    	// The hover check doesn't work whne we are over children it seems, and the tipsy has plenty of children...
+	    	leaveMissedTimer = setTimeout(missedEventTimer, 1000);
+	    	// The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
 	    	if($("#"+me.id+":hover").length != 0 && !$(tipsyId+":hover").length != 0){
 	    		console.log("Not in thing");
 	    		leave();
@@ -738,11 +753,11 @@ function populateGraph(json, newElementsExpected){
 //		 d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
 	});
 		
-	// Tool tip
-	if(newElementsExpected === true)  // How would I *update* this if I needed to?
-	nodes.append("title")
-	  .attr("id", function(d){ return "node_title_"+d.virtualId})
-	  .text(function(d) { return "Number Of Terms: "+d.number; });
+	// Dumb Tool tip...not needed with tipsy popups.
+//	if(newElementsExpected === true)  // How would I *update* this if I needed to?
+//	nodes.append("title")
+//	  .attr("id", function(d){ return "node_title_"+d.virtualId})
+//	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
