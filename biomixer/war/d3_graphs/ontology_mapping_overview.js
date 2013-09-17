@@ -785,11 +785,14 @@ function populateGraph(json, newElementsExpected){
 	// have all nodes/links, or just new ones...
 	var lastLabelShiftTime = jQuery.now();
 	var lastGravityAdjustmentTime = jQuery.now();
+	var firstTickTime = jQuery.now();
+	var maxLayoutRunDuration = 10000;
+	var maxGravityFrequency = 4000;
 	if(newElementsExpected === true){
 		forceLayout.on("tick", function() {
 
 			// Stop the layout early. The circular initialization makes it ok.
-			if (forceLayout.alpha() < alphaCutoff) {
+			if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
 				forceLayout.stop();
 			}
 			
@@ -831,7 +834,7 @@ function populateGraph(json, newElementsExpected){
 			// gravityAdjust() functions are pass through; they want to inspect values,
 			// not modify them!
 			var doLabelUpdateNextTime = false;
-			if(jQuery.now() - lastGravityAdjustmentTime > 4000){
+			if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
 				nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
 				lastGravityAdjustmentTime = jQuery.now();
 				doLabelUpdateNextTime = true;
@@ -847,17 +850,20 @@ function populateGraph(json, newElementsExpected){
 			
 			// I want labels to aim out of middle of graph, to make more room
 			// It slows rendering, so I will only do it sometimes
-			if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
-				$.each($(".nodetext"), function(i, text){
-					text = $(text);
-					if(text.position().left >= visWidth()/2){
-						text.attr("dx", 12);
-					} else {
-						text.attr("dx", - 12 - text.get(0).getComputedTextLength());
-					}
-				})
-				lastLabelShiftTime = jQuery.now();
-			}
+			// Commented all thsi out because I liked centering them instead.
+//			if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
+//				$.each($(".nodetext"), function(i, text){
+//					text = $(text);
+//					if(text.position().left >= visWidth()/2){
+//						text.attr("dx", 12);
+//						text.attr("x", 12);
+//					} else {
+//						text.attr("dx", - 12 - text.get(0).getComputedTextLength());
+//						text.attr("x", - 12 - text.get(0).getComputedTextLength());
+//					}
+//				})
+//				lastLabelShiftTime = jQuery.now();
+//			}
 			
 		
 		});
@@ -916,7 +922,13 @@ function updateDataForNodesAndLinks(json){
 		circles.attr("data-radius_basis", d.number);
 		circles.transition().style("fill", d.nodeColor);
 		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
-		node.select("text").text(function(d) { return d.name; });
+		node.select("text")
+		.text(function(d) { return d.name; })
+		// Firefox renders dx for text poorly, shifting things around oddly,
+		// but x works for both Chrome and Firefox.
+//		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
+		.attr("x", function(){ return - this.getComputedTextLength()/2; })
+		;
 	}
 	
 	$.each(json.links, updateLinksFromJson);
