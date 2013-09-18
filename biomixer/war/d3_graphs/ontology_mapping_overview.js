@@ -500,6 +500,8 @@ function initGraph(){
 
 function dragstart(d, i) {
 	dragging = true;
+	// $(this).tipsy('hide');
+	$(".tipsy").hide();
 	// stops the force auto positioning before you start dragging
 	// This will halt the layout entirely, so if it tends to be unfinished for
 	// long enough for a user to want to drag a node, we need to make this more complicated...
@@ -532,6 +534,8 @@ function dragmove(d, i) {
 
 function dragend(d, i) {
 	dragging = false;
+	// $(this).tipsy('show');
+	$(".tipsy").show();
 	// of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
     d.fixed = true;
     
@@ -1005,6 +1009,9 @@ var nodeUpdateTimer = false;
 
 function highlightLink(){
 	return function(d, i){
+		if(dragging){
+			return;
+		}
 	
 		var xSourcePos = d.source.x;
 		var ySourcePos = d.source.y;
@@ -1028,6 +1035,9 @@ function highlightLink(){
 }
 
 function changeColour(d, i){
+	if(dragging){
+		return;
+	}
 	var xPos=d.x;
 	var yPos=d.y;
 	
