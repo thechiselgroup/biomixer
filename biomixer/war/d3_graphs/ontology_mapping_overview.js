@@ -17,6 +17,7 @@ var alphaCutoff = 0.01; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 var centralOntologyVirtualId = purl().param("virtual_ontology_id");
 var dragging = false;
+var ontologyTick; // needs to contain the onTick listener function
 
 //var defaultNodeColor = "#496BB0";
 var defaultNodeColor = "#000000";
@@ -64,7 +65,7 @@ $(window).resize(resizedWindow);
 resizedWindow();
 
 function redraw() {
-  console.log("redrawing D3", d3.event.translate, d3.event.scale);
+//  console.log("redrawing D3", d3.event.translate, d3.event.scale);
 //  vis.attr("transform",
 //      "translate(" + d3.event.translate + ")"
 //      + " scale(" + d3.event.scale + ")");
@@ -470,20 +471,73 @@ function initAndPopulateGraph(json){
 	//	populateGraph(json);
 }
 
+var nodeDragBehavior;
 function initGraph(){
 	forceLayout = self.forceLayout = d3.layout.force();
 	
-	// See the gravityAdjust(), which is called in tick() and modualtes
+	//	forceLayout.drag()
+	//	.on("dragstart", function(){})
+	//	.on("dragend", function(){dragging = false;});
+	
+	// nodeDragBehavior = forceLayout.drag;
+	nodeDragBehavior = d3.behavior.drag()
+    .on("dragstart", dragstart)
+    .on("drag", dragmove)
+    .on("dragend", dragend);
+
+	// See the gravityAdjust(), which is called in tick() and modulates
 	// gravity to keep nodes within the view frame.
 	// If charge() is adjusted, the base gravity and tweaking of it probably needs tweaking as well.
 	forceLayout
-	// .friction(0.2) // use 0.2 friction to get a very circular layout
+	.friction(0.9) // use 0.2 friction to get a very circular layout
 	.gravity(.05) // 0.5
     .distance(Math.min(visWidth(), visHeight())/1.1) // 600
     .charge(-200) // -100
     .linkDistance(linkMaxDesiredLength())
     .size([visWidth(), visHeight()])
     .start();
+}
+
+function dragstart(d, i) {
+	dragging = true;
+	// stops the force auto positioning before you start dragging
+	// This will halt the layout entirely, so if it tends to be unfinished for
+	// long enough for a user to want to drag a node, we need to make this more complicated...
+    forceLayout.stop();
+}
+
+function dragmove(d, i) {
+	// http://bl.ocks.org/norrs/2883411
+	// https://github.com/mbostock/d3/blob/master/src/layout/force.js
+	// Original dragmove() had call to force.resume(), which I needed to remove when the graph was stable.
+    d.px += d3.event.dx;
+    d.py += d3.event.dy;
+    d.x += d3.event.dx;
+    d.y += d3.event.dy; 
+    
+    // Don't need tick if I update the node and associated arcs appropriately.
+    // forceLayout.resume();
+    // ontologyTick(); // this is the key to make it work together with updating both px,py,x,y on d !
+    
+    d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+    vis.selectAll("line")
+		.filter(function(e, i){ return e.source == d || e.target == d; })
+		.attr("x1", function(e) { return e.source.x; })
+		.attr("y1", function(e) { return e.source.y; })
+		.attr("x2", function(e) { return e.target.x; })
+		.attr("y2", function(e) { return e.target.y; });
+   
+}
+
+function dragend(d, i) {
+	dragging = false;
+	// of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+    d.fixed = true;
+    
+    // Don't need the tick(), don't want the resume.
+    // ontologyTick(true);
+    // forceLayout.resume();
 }
 
 function createNodePopupTable(ontologyCircle, ontologyData){
@@ -632,9 +686,7 @@ function populateGraph(json, newElementsExpected){
 	.attr("class", "node")
 	.attr("id", function(d){ return "node_g_"+d.virtualId})
 	// Is it ok to do call() here?
-    .call(forceLayout.drag);
-	
-	forceLayout.drag().on("dragstart", function(){dragging = true;}).on("dragend", function(){dragging = false;});
+    .call(nodeDragBehavior);
 	
 	// console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	
@@ -788,85 +840,86 @@ function populateGraph(json, newElementsExpected){
 	var firstTickTime = jQuery.now();
 	var maxLayoutRunDuration = 10000;
 	var maxGravityFrequency = 4000;
-	if(newElementsExpected === true){
-		forceLayout.on("tick", function() {
-
-			// Stop the layout early. The circular initialization makes it ok.
-			if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
-				forceLayout.stop();
-			}
-			
-			// Do I want nodes to avoid one another?
-			// http://bl.ocks.org/mbostock/3231298
-//			var q = d3.geom.quadtree(nodes),
-//		      i = 0,
-//		      n = nodes.length;
-//			while (++i < n) q.visit(collide(nodes[i]));
-//			function collide(node) {
-//				  var r = node.radius + 16,
-//				      nx1 = node.x - r,
-//				      nx2 = node.x + r,
-//				      ny1 = node.y - r,
-//				      ny2 = node.y + r;
-//				  return function(quad, x1, y1, x2, y2) {
-//				    if (quad.point && (quad.point !== node)) {
-//				      var x = node.x - quad.point.x,
-//				          y = node.y - quad.point.y,
-//				          l = Math.sqrt(x * x + y * y),
-//				          r = node.radius + quad.point.radius;
-//				      if (l < r) {
-//				        l = (l - r) / l * .5;
-//				        node.x -= x *= l;
-//				        node.y -= y *= l;
-//				        quad.point.x += x;
-//				        quad.point.y += y;
-//				      }
-//				    }
-//				    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-//				  };
-//			 svg.selectAll("circle")
-//		      .attr("cx", function(d) { return d.x; })
-//		      .attr("cy", function(d) { return d.y; });
-			
-			// For every iteration of the layout (until it stabilizes)
-			// Using this bounding box on nodes and links works, but leads to way too much overlap for the
-			// labels...Bostock is correct in saying that gravity adjustments can get better results.
-			// gravityAdjust() functions are pass through; they want to inspect values,
-			// not modify them!
-			var doLabelUpdateNextTime = false;
-			if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
-				nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
-				lastGravityAdjustmentTime = jQuery.now();
-				doLabelUpdateNextTime = true;
-			} else {
-				nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-			}
-			
-			links
-			  .attr("x1", function(d) { return d.source.x; })
-		      .attr("y1", function(d) { return d.source.y; })
-		      .attr("x2", function(d) { return d.target.x; })
-		      .attr("y2", function(d) { return d.target.y; });
-			
-			// I want labels to aim out of middle of graph, to make more room
-			// It slows rendering, so I will only do it sometimes
-			// Commented all thsi out because I liked centering them instead.
-//			if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
-//				$.each($(".nodetext"), function(i, text){
-//					text = $(text);
-//					if(text.position().left >= visWidth()/2){
-//						text.attr("dx", 12);
-//						text.attr("x", 12);
-//					} else {
-//						text.attr("dx", - 12 - text.get(0).getComputedTextLength());
-//						text.attr("x", - 12 - text.get(0).getComputedTextLength());
-//					}
-//				})
-//				lastLabelShiftTime = jQuery.now();
-//			}
-			
+	ontologyTick = function() {
+		// Stop the layout early. The circular initialization makes it ok.
+		if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
+			forceLayout.stop();
+		}
 		
-		});
+		// Do I want nodes to avoid one another?
+		// http://bl.ocks.org/mbostock/3231298
+//		var q = d3.geom.quadtree(nodes),
+//	      i = 0,
+//	      n = nodes.length;
+//		while (++i < n) q.visit(collide(nodes[i]));
+//		function collide(node) {
+//			  var r = node.radius + 16,
+//			      nx1 = node.x - r,
+//			      nx2 = node.x + r,
+//			      ny1 = node.y - r,
+//			      ny2 = node.y + r;
+//			  return function(quad, x1, y1, x2, y2) {
+//			    if (quad.point && (quad.point !== node)) {
+//			      var x = node.x - quad.point.x,
+//			          y = node.y - quad.point.y,
+//			          l = Math.sqrt(x * x + y * y),
+//			          r = node.radius + quad.point.radius;
+//			      if (l < r) {
+//			        l = (l - r) / l * .5;
+//			        node.x -= x *= l;
+//			        node.y -= y *= l;
+//			        quad.point.x += x;
+//			        quad.point.y += y;
+//			      }
+//			    }
+//			    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+//			  };
+//		 svg.selectAll("circle")
+//	      .attr("cx", function(d) { return d.x; })
+//	      .attr("cy", function(d) { return d.y; });
+		
+		// For every iteration of the layout (until it stabilizes)
+		// Using this bounding box on nodes and links works, but leads to way too much overlap for the
+		// labels...Bostock is correct in saying that gravity adjustments can get better results.
+		// gravityAdjust() functions are pass through; they want to inspect values,
+		// not modify them!
+		var doLabelUpdateNextTime = false;
+		if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
+			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
+			lastGravityAdjustmentTime = jQuery.now();
+			doLabelUpdateNextTime = true;
+		} else {
+			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+		}
+		
+		links
+		  .attr("x1", function(d) { return d.source.x; })
+	      .attr("y1", function(d) { return d.source.y; })
+	      .attr("x2", function(d) { return d.target.x; })
+	      .attr("y2", function(d) { return d.target.y; });
+		
+		// I want labels to aim out of middle of graph, to make more room
+		// It slows rendering, so I will only do it sometimes
+		// Commented all thsi out because I liked centering them instead.
+//		if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
+//			$.each($(".nodetext"), function(i, text){
+//				text = $(text);
+//				if(text.position().left >= visWidth()/2){
+//					text.attr("dx", 12);
+//					text.attr("x", 12);
+//				} else {
+//					text.attr("dx", - 12 - text.get(0).getComputedTextLength());
+//					text.attr("x", - 12 - text.get(0).getComputedTextLength());
+//				}
+//			})
+//			lastLabelShiftTime = jQuery.now();
+//		}
+		
+	
+	}
+	
+	if(newElementsExpected === true){
+		forceLayout.on("tick", ontologyTick);
 	}
 	
 	// Whenever I call populate, it adds more to this layout.
