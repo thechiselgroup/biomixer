@@ -548,22 +548,6 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 	var outerDiv = $("<div></div>");
 	outerDiv.addClass("popups-Popup");
 	
-	// TODO Tipsy and this don't get along. Tried making another parent div, didn't work.
-	// Can't make the popup opaque when mouse is hovering, but maybe that's ok.
-	function enter (){
-		outerDiv.fadeTo(100); // 400
-		console.log("enter");
-	};
-	function exit(){
-		outerDiv.fadeTo(80); // 200
-		console.log("exit");
-	}
-	
-//	outerDiv.hover(enter, exit);
-//	outerDiv.mouseover(enter);
-//	outerDiv.mouseleave(exit());
- 
-	
 	var table = $("<table></table>");
 	var tBody = $("<tbody></tbody>");
 	 outerDiv.append(table);
@@ -790,8 +774,11 @@ function populateGraph(json, newElementsExpected){
 	            var tipsy = $(me).tipsy("tip");
 	            tipsyId = $(me).attr("id"+"_tipsy");
 	            tipsy.attr("id", tipsyId);
-	            tipsy.hover(enter, leave);
+	            
+	            // For the tipsy specific listeners, change opacity.
+	            tipsy.mouseenter(function(){tipsy.css("opacity",1.0); enter(); }).mouseleave(function(){tipsy.css("opacity",0.8); leave();});
 	            tipsy.mouseover(function(){
+	            	tipsy.css("opacity",1.0);
 	    	    	clearTimeout(leaveMissedTimer);
 	    		});
 	            visible = true;
