@@ -1,3 +1,5 @@
+// we have custom changes for BioMixer. Diff with regular version for details.
+
 // tipsy, facebook style tooltips for jquery
 // version 1.0.0a
 // (c) 2008-2010 jason frame [jason@onehackoranother.com]
@@ -28,11 +30,28 @@
                 $tip[0].className = 'tipsy'; // reset classname in case of dynamic gravity
                 $tip.remove().css({top: 0, left: 0, visibility: 'hidden', display: 'block'}).appendTo(document.body);
                 
-                var pos = $.extend({}, this.$element.offset(), {
-                    width: this.$element[0].offsetWidth,
-                    height: this.$element[0].offsetHeight
-                });
+                // Grabbed patch for SVG support in IE and Firefox
+//                var pos = $.extend({}, this.$element.offset(), {
+//                    width: this.$element[0].offsetWidth,
+//                    height: this.$element[0].offsetHeight
+//                });
                 
+                // Patched from https://github.com/ajah/tipsy/commit/b9cf0e1c0731d3265cd0cebded44a2af2278f979
+                var pos;
+                try {
+				  pos = $.extend({}, this.$element.offset(), {
+				    width: this.$element[0].getBBox().width,
+				    height: this.$element[0].getBBox().height
+				  });
+				}
+				catch (TypeError) {
+				  pos = $.extend({}, this.$element.offset(), {
+				      width: this.$element[0].offsetWidth,
+				      height: this.$element[0].offsetHeight
+				  });
+				} 
+                
+				
                 var actualWidth = $tip[0].offsetWidth, actualHeight = $tip[0].offsetHeight;
                 // Re-wrangled to get at the child of the tip, for better gravitational placement
                 // still needs work, but at least the actual tip size is accounted for now.
