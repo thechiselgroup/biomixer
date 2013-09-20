@@ -812,6 +812,10 @@ function populateGraph(json, newElementsExpected){
 	    .text(function(d) { return d.name; })
 	    // Not sure if I want interactions on labels or not. Change following as desired.
 	    .style("pointer-events", "none")
+	    // Why cannot we stop selection in IE? They are rude.
+		.attr("unselectable", "on") // IE 8
+		.attr("onmousedown", "noselect") // IE ?
+		.attr("onselectstart", "function(){ return false;}") // IE 8?
 	    // .on("mouseover", changeColour)
 	    // .on("mouseout", changeColourBack)
 	    ;
