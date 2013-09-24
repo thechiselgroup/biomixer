@@ -3,7 +3,7 @@
 // Strict mode is safer to develop in, ya?
 "use strict";
 
-// This is using the new API that is stable in September 2013.
+// This is using the old REST services, which will be phased, probably out some time before 2014.
 
 // I eventually came across the post that sort of discusses our update problem, of
 // having new attributes for nodes from late coming JSON:
@@ -17,7 +17,7 @@ function visHeight(){ return $("#chart").height(); }
 function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
 var alphaCutoff = 0.01; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
-var centralOntologyAcronym = purl().param("ontology_acronym");
+var centralOntologyVirtualId = purl().param("virtual_ontology_id");
 var dragging = false;
 var ontologyTick; // needs to contain the onTick listener function
 
@@ -57,7 +57,7 @@ var resizedWindow = function()
     if(forceLayout){
     	forceLayout.size([visWidth(), visHeight()]).linkDistance(linkMaxDesiredLength());
     	// Put central node in middle of view
-    	d3.select("#node_g_"+centralOntologyAcronym).each(function(d){d.px = visWidth()/2; d.py = visHeight()/2;});
+    	d3.select("#node_g_"+centralOntologyVirtualId).each(function(d){d.px = visWidth()/2; d.py = visHeight()/2;});
     	forceLayout.resume();
     }  
 };
@@ -110,7 +110,7 @@ ontologyNeighbourhoodJsonForGraph.links = [];
 initAndPopulateGraph();
 
 
-function fetchOntologyNeighbourhood(centralOntologyAcronym){
+function fetchOntologyNeighbourhood(centralOntologyVirtualId){
 	// I have confirmed that this is faster than BioMixer. Without removing
 	// network latency in REST calls, it is approximately half as long from page load to
 	// graph completion (on the order of 11 sec vs 22 sec)
@@ -135,15 +135,15 @@ function fetchOntologyNeighbourhood(centralOntologyAcronym){
 	*/
 	
 	// 1) Get mappings to central ontology
-	var ontologyMappingUrl = buildOntologyMappingUrlNewApi(centralOntologyAcronym);
-	var ontologyMappingCallback = new OntologyMappingCallback(ontologyMappingUrl, centralOntologyAcronym);
+	var ontologyMappingUrl = buildOntologyMappingUrl(centralOntologyVirtualId);
+	var ontologyMappingCallback = new OntologyMappingCallback(ontologyMappingUrl, centralOntologyVirtualId);
 //	var fetcher = new RetryingJsonpFetcher(ontologyMappingCallback);
 //	fetcher.retryFetch();
 	var fetcher = closureRetryingJsonpFetcher(ontologyMappingCallback);
 	fetcher();
 }
 
-function OntologyMappingCallback(url, centralOntologyAcronym){
+function OntologyMappingCallback(url, centralOntologyVirtualId){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
 	this.fetcher = undefined;
@@ -161,40 +161,36 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 			return;
 		}
 		
-		var numberOfMappedOntologies = Object.keys(mappingData).length;
-		
 		var defaultNumOfTermsForSize = 10;
-		
-		// New API example: http://stagedata.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
 
 		// Create the central node
 		var centralOntologyNode = new Object();
 		centralOntologyNode.name = "fetching";
 		centralOntologyNode.fixed = true; // lock central node
 		centralOntologyNode.x = visWidth()/2;
-		centralOntologyNode.y = visHeight()/2;		
-		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
+		centralOntologyNode.y = visHeight()/2;
+		centralOntologyNode.weight = mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-		centralOntologyNode.acronym = centralOntologyAcronym;
+		centralOntologyNode.virtualId = centralOntologyVirtualId;
 		centralOntologyNode.nodeColor = nextNodeColor();
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
-		var ontologyAcronymNodeMap = new Object();
-		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyAcronym, centralOntologyNode);
+		var virtualIdNodeMap = new Object();
+		$(virtualIdNodeMap).attr("vid"+centralOntologyVirtualId, centralOntologyNode);
 		
 		// TODO XXX Either the parsing or the looping here causes a visible glitch in rendering,
 		// so this is the first place to try a web worker out.
 
 		// Make some graph parts!
-		var anglePerNode = 360/numberOfMappedOntologies;
+		var anglePerNode = 360/mappingData.success.data[0].list[0].ontologyMappingStatistics.length;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
-		$.each(mappingData,
+		$.each(mappingData.success.data[0].list[0].ontologyMappingStatistics,
 			function(index, element){
-				var acronym = index;
+				var virtualId = element.ontologyId;
 
-				if(typeof acronym === "undefined"){
-					console.log("Undefined ontology entry");
+				if(typeof virtualId === "undefined"){
+					console.log("Undefined virtual id");
 				}
 				
 				// Create the neighbouring nodes
@@ -207,18 +203,19 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				ontologyNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 				ontologyNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
-				ontologyNode.acronym = acronym;
+				ontologyNode.virtualId = virtualId;
 				ontologyNode.nodeColor = nextNodeColor();
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
-				$(ontologyAcronymNodeMap).attr("vid:"+acronym, ontologyNode);
+				$(virtualIdNodeMap).attr("vid"+virtualId, ontologyNode);
 				
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
 				ontologyLink.source = centralOntologyNode;
 				ontologyLink.target = ontologyNode;
-				ontologyLink.value = element; // This gets used for link stroke thickness later.
-				ontologyLink.numMappings = element;
+				ontologyLink.value = element.totalMappings; // This gets used for link stroke thickness later.
+				ontologyLink.sourceMappings = element.sourceMappings;
+				ontologyLink.targetMappings = element.targetMappings;
 				ontologyNeighbourhoodJsonForGraph.links.push(ontologyLink);
 			}
 		);
@@ -230,8 +227,8 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		//----------------------------------------------------------
 		
 		// 2) Get details for all the ontologies (and either create or update the nodes)
-		var ontologyDetailsUrl = buildOntologyDetailsUrlNewApi();
-		var ontologyDetailsCallback = new OntologyDetailsCallback(ontologyDetailsUrl, ontologyAcronymNodeMap);
+		var ontologyDetailsUrl = buildOntologyDetailsUrl();
+		var ontologyDetailsCallback = new OntologyDetailsCallback(ontologyDetailsUrl, virtualIdNodeMap);
 //		var fetcher = new RetryingJsonpFetcher(ontologyDetailsCallback);
 //		fetcher.retryFetch();
 		var fetcher = closureRetryingJsonpFetcher(ontologyDetailsCallback);
@@ -240,12 +237,12 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 	
 }
 
-function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
+function OntologyDetailsCallback(url, virtualIdNodeMap){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
 	this.fetcher = undefined;
 	// Need to fetch existing node objects from this
-	this.ontologyAcronymNodeMap = ontologyAcronymNodeMap;
+	this.virtualIdNodeMap = virtualIdNodeMap;
 	var self = this;
 
 	this.callback  = function ontologyDetailsCallback(detailsDataRaw, textStatus, jqXHR){
@@ -263,40 +260,35 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 		// Loop over ontologies and add their additional properties to the nodes
 		// Recall that getting *all* ontology details is the easiest (only) way,
 		// so we have to skip anything that is not defined.
-		var ontologiesSkipped = 0;
-		$.each(detailsDataRaw,
+		$.each(detailsDataRaw.success.data[0].list[0].ontologyBean,
 				function(index, ontologyDetails){
 					// I can't cherry pick, because this involves iterating
 					// through the entire set of ontologies to find each ontology entry.
 					// So, I will do a separate loop, and only use data for which there
 					// exists in the graph a corresponding ontology.
 					// Make use of details to add info to ontologies
-					var ontologyAcronym = ontologyDetails.acronym;
+					var virtualOntologyId = ontologyDetails.ontologyId;
 					// var node = ontologyNeighbourhoodJsonForGraph.;
-					var node = $(self.ontologyAcronymNodeMap).attr("vid:"+ontologyAcronym);
+					var node = $(self.virtualIdNodeMap).attr("vid"+virtualOntologyId);
 					
 					if(typeof node === "undefined"){
 						// Skip node details that aren't in our graph
-						ontologiesSkipped += 1;
 						return;
 					}
 					
-					node.name = ontologyDetails.name;
-//					node.ONTOLOGY_VERSION_ID = ontologyDetails.id;
-					node.uriId = ontologyDetails["@id"]; // Use the URI isntead of virtual id
-					node.LABEL = ontologyDetails.name;
-					node.description = ontologyDetails.description;
-//					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
-					
-					// TODO XXX If we want Description, I think we need to grab the most recent submission
-					// and take it fromt here. This is another API call per ontology.
-					// /ontologies/:acronym:/lastest_submission
+					node.name = ontologyDetails.displayLabel;
+					node.ONTOLOGY_VERSION_ID = ontologyDetails.id;
+					node.ONTOLOGY_ABBREVIATION = ontologyDetails.abbreviation;
+					node.VIRTUAL_ONTOLOGY_ID = virtualOntologyId
+					node.LABEL = ontologyDetails.displayLabel;
+					node.DESCRIPTION = ontologyDetails.description;
+					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
 					
 					// --------------------------------------------------------------
 					// Do this in the details callback, then? Do we need anything from details in
 					// order to get metrics? Do we need the ontology id?
 					// 3) Get metric details for each ontology
-					var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.acronym);
+					var ontologyMetricsUrl = buildOntologyMetricsUrl(node.ONTOLOGY_VERSION_ID);
 					var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
 //					var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
 //					fetcher.retryFetch();
@@ -306,9 +298,7 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 				}
 		);
 
-		// We usually use very many of the ontologies, so it is likely cheaper to make the one
-		// big call with no ontology acronym arguments than to cherry pick the ones we want details for.
-		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+detailsDataRaw.length);
+		console.log("ontologyDetailsCallback");
 		updateDataForNodesAndLinks({nodes:ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
 			
 	}
@@ -333,20 +323,20 @@ function OntologyMetricsCallback(url, node){
 			return;
 		}
 		
-		var metricData = metricDataRaw;
+		var metricData = metricDataRaw.success.data[0].ontologyMetricsBean;
 		
 		var nodeSizeBasis = 100;
 		var numClasses=0, numIndividuals=0, numProperties=0;
 	    if (typeof metricData !== "undefined") {
-	        if (metricData.classes != null) {
-	            numClasses = metricData.classes;
+	        if (metricData.numberOfClasses != null) {
+	            numClasses = metricData.numberOfClasses;
 	            nodeSizeBasis = numClasses;
 	        }
-	        if (metricData.individuals != null) {
-	            numIndividuals = metricData.individuals;
+	        if (metricData.numberOfIndividuals != null) {
+	            numIndividuals = metricData.numberOfIndividuals;
 	        }
-	        if (metricData.properties != null) {
-	            numProperties = metricData.properties;
+	        if (metricData.numberOfProperties != null) {
+	            numProperties = metricData.numberOfProperties;
 	        }
 	    }
 	    
@@ -362,28 +352,16 @@ function OntologyMetricsCallback(url, node){
 }
 
 
-//function buildOntologyMappingUrl(centralOntologyVirtualId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
-//}
-
-function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+function buildOntologyMappingUrl(centralOntologyVirtualId){
+	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
 }
 
-//function buildOntologyDetailsUrl(){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F"+"&callback=?";
-//}
-
-function buildOntologyDetailsUrlNewApi(){
-	return "http://stagedata.bioontology.org/ontologies/"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+function buildOntologyDetailsUrl(){
+	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F"+"&callback=?";
 }
 
-//function buildOntologyMetricsUrl(ontologyVersionId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
-//}
-
-function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+function buildOntologyMetricsUrl(ontologyVersionId){
+	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
 }
 
 //function RetryingJsonpFetcher(callbackObject){
@@ -454,11 +432,11 @@ function closureRetryingJsonpFetcher(callbackObject){
 				return 0;
 			}
 			
-			if(typeof resultData.errors !== "undefined") {
-				if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
+			if(typeof resultData.success === "undefined") {
+				if(resultData.status == "403" && resultData.body.indexOf("Forbidden") >= 0){
 					console.log("Forbidden Error, no retry: "
 							+"\nURL: "+callbackObject.url
-							+"\nReply: "+resultData.error);
+							+"\nReply: "+resultData.body);
 		    		return -1;
 				} else if(resultData.status == "500" || resultData.status == "403"){
 		    		if(previousRetriesMade < 4){
@@ -473,7 +451,7 @@ function closureRetryingJsonpFetcher(callbackObject){
 		    		}
 		    	} else {
 			    	// Don't retry for other errors
-		    		console.log("Error: "+callbackObject.url+" --> Data: "+resultData.error);
+		    		console.log("Error: "+callbackObject.url+" --> Data: "+resultData.status);
 			    	return -1;
 		    	}
 		    } else {
@@ -489,7 +467,7 @@ function initAndPopulateGraph(json){
 	initGraph();
 	
 	// Will do async stuff and add to graph
-	fetchOntologyNeighbourhood(centralOntologyAcronym);
+	fetchOntologyNeighbourhood(centralOntologyVirtualId);
 	
 	// If you want to toy with the original static data, try this:
 	//	populateGraph(json);
@@ -580,13 +558,13 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 	 tBody.append(
 			 $("<tr></tr>").append(
 				   $("<td></td>").append(
-						   $("<div></div>").text(ontologyData["acronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+						   $("<div></div>").text(ontologyData["ONTOLOGY_ABBREVIATION"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
 				   )
 		   )
 	 );
    
      
-     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["acronym"]+"?p=summary";
+     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["virtualId"]+"?p=summary";
      tBody.append(
     		 $("<tr></tr>").append(
     				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -610,17 +588,17 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 //     );
      
      var jsonArgs = {
+    		 "Ontology Acronym: ": "ONTOLOGY_ABBREVIATION",
     		 "Ontology Name: ": "name",
-    		 "Ontology Acronym: ": "acronym",
-    		 "Ontology URI: ": "uriId",
-    		 "Description: ": "description",
+    		 "Ontology ID: ": "virtualId",
+    		 "Description: ": "DESCRIPTION",
     		 "Num Classes: ": "numberOfClasses",
     		 "Num Individuals: ": "numberOfIndividuals",
     		 "Num Properties: ": "numberOfProperties",
      };
      
      $.each(jsonArgs,function(label, key){
-    	 var style = (key === "description" ? {} : {"white-space":"nowrap"});
+    	 var style = (key === "DESCRIPTION" ? {} : {"white-space":"nowrap"});
     	 tBody.append(
         		 $("<tr></tr>").append(
         				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -654,14 +632,14 @@ function populateGraph(json, newElementsExpected){
 	
 	// Data constancy via key function() passed to data()
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.acronym+"->"+d.target.acronym});
+	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.virtualId+"->"+d.target.virtualId});
 	// console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 
 	// Add new stuff
 	if(newElementsExpected === true)
 	links.enter().append("svg:line")
 	.attr("class", "link") // Make svg:g like nodes if we need labels
-	.attr("id", function(d){ return "link_line_"+d.source.acronym+"->"+d.target.acronym})
+	.attr("id", function(d){ return "link_line_"+d.source.virtualId+"->"+d.target.virtualId})
 	.on("mouseover", highlightLink())
 	.on("mouseout", changeColourBack);
 	
@@ -686,18 +664,18 @@ function populateGraph(json, newElementsExpected){
 	// Update Tool tip
 	if(newElementsExpected === true)
 	links.append("title") // How would I *update* this if I needed to?
-		.text(function(d) { return "Number Of Mappings: "+d.numMappings; })
-			.attr("id", function(d){ return "link_title_"+d.source.acronym+"->"+d.target.acronym});
+		.text(function(d) { return "Number Of Mappings: "+d.sourceMappings; })
+			.attr("id", function(d){ return "link_title_"+d.source.virtualId+"->"+d.target.virtualId});
 
 	// Node stuff now
 	
-	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.acronym});
+	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.virtualId});
 	// console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	// Add new stuff
 	if(newElementsExpected === true)
 	nodes.enter().append("svg:g")
 	.attr("class", "node")
-	.attr("id", function(d){ return "node_g_"+d.acronym})
+	.attr("id", function(d){ return "node_g_"+d.virtualId})
 	// Is it ok to do call() here?
     .call(nodeDragBehavior);
 	
@@ -715,7 +693,7 @@ function populateGraph(json, newElementsExpected){
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes
 	.append("svg:circle") 
-	.attr("id", function(d){ return "node_circle_"+d.acronym})
+	.attr("id", function(d){ return "node_circle_"+d.virtualId})
     .attr("class", "circle")
     .attr("cx", "0px")
     .attr("cy", "0px")
@@ -824,13 +802,13 @@ function populateGraph(json, newElementsExpected){
 	// Dumb Tool tip...not needed with tipsy popups.
 //	if(newElementsExpected === true)  // How would I *update* this if I needed to?
 //	nodes.append("title")
-//	  .attr("id", function(d){ return "node_title_"+d.acronym})
+//	  .attr("id", function(d){ return "node_title_"+d.virtualId})
 //	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes.append("svg:text")
-		.attr("id", function(d){ return "node_text_"+d.acronym})
+		.attr("id", function(d){ return "node_text_"+d.virtualId})
 	    .attr("class", "nodetext unselectable")
 	    .attr("dx", 12)
 	    .attr("dy", 1)
@@ -982,15 +960,15 @@ function updateDataForNodesAndLinks(json){
 	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
-		var link = vis.select("#link_line_"+d.source.acronym+"->"+d.target.acronym);
+		var link = vis.select("#link_line_"+d.source.virtualId+"->"+d.target.virtualId);
 		link.attr("data-thickness_basis", function(d) { return d.value;})
-		link.select("title").text(function(d) { return "Number Of Mappings: "+d.numMappings; });
+		link.select("title").text(function(d) { return "Number Of Mappings: "+d.sourceMappings; });
 	}
 	
 	var updateNodesFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
-		var node = vis.select("#node_g_"+d.acronym);
+		var node = vis.select("#node_g_"+d.virtualId);
 		var circles = node.select("circle");
 		circles.attr("data-radius_basis", d.number);
 		circles.transition().style("fill", d.nodeColor);
