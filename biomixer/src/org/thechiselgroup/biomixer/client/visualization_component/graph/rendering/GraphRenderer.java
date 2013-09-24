@@ -90,6 +90,8 @@ public interface GraphRenderer {
 
     void setViewWideInteractionHandler(ChooselEventHandler handler);
 
-    public void updateTransformedNodeSizes();
+    void updateTransformedNodeSizes(Node changedNode, boolean removing);
+
+    void updateTransformedArcSizes(Arc changedArc, boolean removing);
 
 }

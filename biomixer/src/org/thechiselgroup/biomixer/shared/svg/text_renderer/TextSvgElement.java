@@ -59,6 +59,7 @@ public class TextSvgElement implements SvgElement, SvgStyle {
 
     public void fireEvent(ChooselEvent chooselEvent) {
         assert handler != null : "no event handler set";
+        // TODO When does this happen? I did not see this one fire in Chrome or IE.
         handler.onEvent(chooselEvent);
     }
 

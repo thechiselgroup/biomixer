@@ -15,16 +15,11 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.arcs;
 
-import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
-import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.ArcRenderer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBareText;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
-import org.thechiselgroup.biomixer.shared.svg.Svg;
-import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 
 /**
@@ -48,32 +43,16 @@ public class StraightLineSvgArcRenderer implements ArcRenderer {
     @Override
     public RenderedArc createRenderedArc(Arc arc, boolean renderLabel,
             RenderedNode source, RenderedNode target) {
-        SvgElement container = svgElementFactory.createElement(Svg.G);
-        container.setAttribute(Svg.ID, arc.getId());
 
-        PointDouble sourceNodeLocation = source.getNodeShapeCentre();
-        PointDouble targetNodeLocation = target.getNodeShapeCentre();
-
-        SvgElement arcLine = svgElementFactory.createElement(Svg.LINE);
-        arcLine.setAttribute(Svg.X1, sourceNodeLocation.getX());
-        arcLine.setAttribute(Svg.Y1, sourceNodeLocation.getY());
-        arcLine.setAttribute(Svg.X2, targetNodeLocation.getX());
-        arcLine.setAttribute(Svg.Y2, targetNodeLocation.getY());
-        arcLine.setAttribute(Svg.STROKE, Colors.BLACK);
-        container.appendChild(arcLine);
-
-        // used to skip undirected arc heads
-        SvgArrowHead arrowHead = new SvgArrowHead(svgElementFactory,
-                sourceNodeLocation, targetNodeLocation);
-        container.appendChild(arrowHead.asSvgElement());
-
-        // Create label
-        SvgBareText textLabel = new SvgBareText(arc.getLabel(),
-                textBoundsEstimator, svgElementFactory);
-
-        StraightLineRenderedSvgArc renderedArc = new StraightLineRenderedSvgArc(
-                arc, container, arcLine, arrowHead, textLabel, renderLabel,
-                source, target);
+        // NB Refactored so that the rendered svg arc class dealt with the
+        // production of associated elements and container.
+        // The factory is merely providing some other classes to the arc
+        // constructor. This can be StraightLineRenderedSvgArc as it
+        // was before if the graph in question cannot handle twice as many
+        // rendered lines.
+        StraightLineWideMousableRenderedSvgArc renderedArc = new StraightLineWideMousableRenderedSvgArc(
+                arc, renderLabel, source, target, svgElementFactory,
+                textBoundsEstimator);
         // Ensures consistent setting of endpoints, since this is used later.
         renderedArc.update();
         return renderedArc;

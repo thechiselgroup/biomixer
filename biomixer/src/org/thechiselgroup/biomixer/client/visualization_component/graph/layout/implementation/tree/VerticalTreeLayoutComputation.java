@@ -28,7 +28,7 @@ public class VerticalTreeLayoutComputation extends
     protected VerticalTreeLayoutComputation(LayoutGraph graph,
             Executor executor, ErrorHandler errorHandler,
             NodeAnimator nodeAnimator, boolean pointingUp) {
-        super(graph, executor, errorHandler, nodeAnimator, !pointingUp);
+        super(graph, executor, errorHandler, nodeAnimator, !pointingUp, false);
     }
 
     @Override

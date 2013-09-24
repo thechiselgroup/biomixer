@@ -32,6 +32,8 @@ import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.HasAttachHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class DefaultPopupManager implements PopupManager {
@@ -412,7 +414,9 @@ public class DefaultPopupManager implements PopupManager {
         /*
          * Some browsers (e.g. Safari 5.0.3, Chome 10.0.648.127 beta) seem to
          * fire mouse move events continously under certain circumstance even
-         * though the mouse was not moved.
+         * though the mouse was not moved. Null check is to prevent errors in
+         * IE, but the arc popups don't work...oh, I moved the null check to the
+         * caller. Nonetheless, it should never get this far in IE...
          */
         if ((clientX == this.clientX) && (clientY == this.clientY)) {
             return;
@@ -459,8 +463,30 @@ public class DefaultPopupManager implements PopupManager {
 
     protected void setOpacity(int opacity) {
         if (popup.getOpacity() == Opacity.TRANSPARENT) {
-            popup.setLocation(new Point(clientX + POPUP_OFFSET_X, clientY
-                    + POPUP_OFFSET_Y));
+            // Compute the position so it's centered on the parent element,
+            // but not falling off the view edge.
+            int x = clientX + POPUP_OFFSET_X;
+            int y = clientY + POPUP_OFFSET_Y;
+
+            int maxX = RootPanel.get().getOffsetWidth();
+            int maxY = RootPanel.get().getOffsetHeight();
+            int popupWidth = popup.getSize().getWidth();
+            int popupHeight = popup.getSize().getHeight();
+            // Only check in one direction, because we normally put the
+            // top left corner on the parent.
+            int deltaX = maxX - (x + popupWidth);
+            int deltaY = maxY - (y + popupHeight);
+            // Move towards direction with the most spare room, by height and/or
+            // width
+            // But don't stick the popup right over the parent. That'd be bad.
+            if (deltaX < 0 && x > popupWidth) {
+                x -= popupWidth;
+            }
+            if (deltaY < 0 && y > popupHeight) {
+                y -= popupHeight;
+            }
+
+            popup.setLocation(new Point(x, y));
         }
 
         popup.setOpacity(opacity);
@@ -486,11 +512,48 @@ public class DefaultPopupManager implements PopupManager {
 
     protected void startTimer(int delayInMs) {
         timer.schedule(delayInMs);
+        if (!autoHideStarted) {
+            // This boolean flag is necessary for IE because
+            // / the repeat mouse over events retrigger too often
+            // autoHide.schedule(2 * delayInMs);
+            autoHideStarted = true;
+        }
     }
 
     private void updateMousePosition(int clientX, int clientY) {
         this.clientX = clientX;
         this.clientY = clientY;
     }
+
+    @Override
+    public void refreshInternetExplorerAutoHideTimer() {
+        // this.autoHide.schedule(2 * showDelay);
+    }
+
+    /**
+     * This timer was created to deal with the missing mouse out events in IE.
+     * This is combined with a 'refresh' method that needs to be called in the
+     * mouse over event handler Mouse over is called very very frequently in IE,
+     * so that allows us to reset this timer with a frequency greater than the
+     * timeout for it.
+     */
+    private boolean autoHideStarted = false;
+
+    static int i = 0;
+
+    private Timer autoHide = new Timer() {
+        @Override
+        public void run() {
+            if (Window.Navigator.getUserAgent().toLowerCase().contains("msie")) {
+                int tempHideDelay = getHideDelay();
+                // Trying to fix delay when we are already subject to a minimum
+                // delay on this timer...maybe it's not a big deal.
+                // setHideDelay(0);
+                Window.setTitle("Hiding stuff " + (i++));
+                hidePopup();
+                // setHideDelay(tempHideDelay);
+            }
+        }
+    };
 
 }

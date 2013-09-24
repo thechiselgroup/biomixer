@@ -23,8 +23,6 @@ import org.thechiselgroup.biomixer.client.core.util.executor.DelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.util.executor.TestDelayedExecutor;
 import org.thechiselgroup.biomixer.client.core.visualization.behaviors.rendered_items.RenderedItemPopupManager;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.AbstractGraphRenderer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.ArcSizeTransformer;
-import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.shared.svg.SvgElement;
 
@@ -40,12 +38,15 @@ public class TestGraphSvgDisplay extends GraphDisplayController {
 
     public TestGraphSvgDisplay(int width, int height,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
-            RenderedItemPopupManager renderedArcPopupManager,
-            NodeSizeTransformer nodeSizeTransformer,
-            ArcSizeTransformer arcSizeTransformer) {
+            RenderedItemPopupManager renderedArcPopupManager
+    // , NodeSizeTransformer nodeSizeTransformer,
+    // ArcSizeTransformer arcSizeTransformer
+    ) {
         super(width, height, "Test Graph View", graphRenderer, errorHandler,
-                renderedArcPopupManager, nodeSizeTransformer,
-                arcSizeTransformer, false);
+                renderedArcPopupManager,
+                // nodeSizeTransformer,
+                // arcSizeTransformer,
+                false);
     }
 
     public SvgElement asSvg() {

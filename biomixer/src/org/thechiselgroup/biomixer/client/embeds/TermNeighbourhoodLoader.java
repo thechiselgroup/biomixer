@@ -225,7 +225,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     protected LayoutAlgorithm getLayoutAlgorithm(ErrorHandler errorHandler) {
         // return new HorizontalTreeLayoutAlgorithm(true, errorHandler,
         // nodeAnimator);
-        return new RadialTreeLayoutAlgorithm(errorHandler, nodeAnimator);
+        return new RadialTreeLayoutAlgorithm(false, errorHandler, nodeAnimator);
     }
 
     @Override

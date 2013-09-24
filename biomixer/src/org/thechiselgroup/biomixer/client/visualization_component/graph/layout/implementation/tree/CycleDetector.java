@@ -228,7 +228,11 @@ public class CycleDetector {
             if (vertex.equals(sourceVertex)) {
                 Vertex targetVertex = vertexRepresentations.get(arc
                         .getTargetNode());
-
+                if (null == targetVertex) {
+                    // When recalling layout while filtering nodes, this can
+                    // occur...
+                    continue;
+                }
                 if (targetVertex.isUnprocessed()) {
                     /* "Successor" node has not yet been visited. Recurse on it. */
                     process(targetVertex);

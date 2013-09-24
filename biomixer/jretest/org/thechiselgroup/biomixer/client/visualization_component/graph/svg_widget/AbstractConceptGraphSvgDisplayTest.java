@@ -145,14 +145,15 @@ public abstract class AbstractConceptGraphSvgDisplayTest extends
     @Before
     public void setUpGraphDisplay() {
         MockitoAnnotations.initMocks(this);
-        underTest = new TestGraphSvgDisplay(
-                400,
+        underTest = new TestGraphSvgDisplay(400,
                 300,
                 // factory.createGraphRenderer(400, 300,
                 // new TextSvgElementFactory()), errorHandler);
                 factory.createGraphRenderer(400, 300), errorHandler,
-                renderedArcPopupManager, nodeSizeTransformer,
-                arcSizeTransformer);
+                renderedArcPopupManager
+        // , nodeSizeTransformer,
+        // arcSizeTransformer
+        );
         underTest.addEventHandler(NodeMouseClickEvent.TYPE,
                 nodeMouseClickHandler);
         underTest.addNodeMenuItemHandler(MENU_ITEM_0_LABEL, menuItemHandler0,

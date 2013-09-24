@@ -28,7 +28,7 @@ public class HorizontalTreeLayoutComputation extends
     protected HorizontalTreeLayoutComputation(LayoutGraph graph,
             Executor executor, ErrorHandler errorHandler,
             NodeAnimator nodeAnimator, boolean pointingRight) {
-        super(graph, executor, errorHandler, nodeAnimator, pointingRight);
+        super(graph, executor, errorHandler, nodeAnimator, pointingRight, false);
     }
 
     @Override

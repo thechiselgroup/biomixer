@@ -114,8 +114,7 @@ public class BioMixerDetailsWidgetRenderedArcHelper extends
 
         // For now, simply make the thickness the popup contents.
         // Later when we have better ideas, change this conditional.
-        boolean i = true;
-        if (i) {
+        if (type.equals(OntologyMappingArcType.ID)) {
             // See concept popup for clickable link avatars if desired
             // ResourceSetAvatar avatar = createAvatar(
             // (String) resource.getValue(Ontology.LABEL), resourceSet);
@@ -153,11 +152,26 @@ public class BioMixerDetailsWidgetRenderedArcHelper extends
             // + targetLabel + "->" + sourceLabel + ")", true,
             // verticalPanel);
 
-        } else if (type.equals(OntologyMappingArcType.ID)) {
         } else if (type.equals(MappingArcType.ID)) {
+            String sourceLabel = arc.getSource().getNode().getLabel();
+            String targetLabel = arc.getTarget().getNode().getLabel();
+            addRow("From", sourceLabel, true, verticalPanel);
+            addRow("To", targetLabel, true, verticalPanel);
         } else if (type.equals(ConceptArcType.ID)) {
+            String sourceLabel = arc.getSource().getNode().getLabel();
+            String targetLabel = arc.getTarget().getNode().getLabel();
+            addRow("From", sourceLabel, true, verticalPanel);
+            addRow("To", targetLabel, true, verticalPanel);
         } else if (type.equals(CompositionArcType.ID)) {
+            String sourceLabel = arc.getSource().getNode().getLabel();
+            String targetLabel = arc.getTarget().getNode().getLabel();
+            addRow("From", sourceLabel, true, verticalPanel);
+            addRow("To", targetLabel, true, verticalPanel);
         } else if (type.equals(DirectConceptMappingArcType.ID)) {
+            String sourceLabel = arc.getSource().getNode().getLabel();
+            String targetLabel = arc.getTarget().getNode().getLabel();
+            addRow("From", sourceLabel, true, verticalPanel);
+            addRow("To", targetLabel, true, verticalPanel);
         } else {
             // verticalPanel.add(avatarFactory.createAvatar(resourceSet));
             String value = "";

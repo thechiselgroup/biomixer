@@ -142,8 +142,8 @@ public class GraphDisplayController implements GraphDisplay,
     public GraphDisplayController(int width, int height, String viewName,
             AbstractGraphRenderer graphRenderer, ErrorHandler errorHandler,
             RenderedItemPopupManager renderedArcPopupManager,
-            NodeSizeTransformer nodeSizeTransformer,
-            ArcSizeTransformer arcSizeTransformer,
+            // NodeSizeTransformer nodeSizeTransformer,
+            // ArcSizeTransformer arcSizeTransformer,
             boolean runLayoutsAutomatically) {
         this.viewWidth = width;
         this.viewHeight = height;
@@ -158,11 +158,12 @@ public class GraphDisplayController implements GraphDisplay,
         initBackgroundListener();
         initViewWideInteractionHandler();
 
-        this.nodeSizeTransformer = nodeSizeTransformer;
+        this.nodeSizeTransformer = graphRenderer.getNodeSizeTransformer();
 
-        this.arcSizeTransformer = arcSizeTransformer;
+        this.arcSizeTransformer = graphRenderer.getArcSizeTransformer();
 
-        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width, height);
+        this.layoutGraph = new IdentifiableLayoutGraph(this.asWidget(), width,
+                height);
 
         this.nodeAnimator = new NodeAnimator(getNodeAnimationFactory());
 
@@ -212,7 +213,6 @@ public class GraphDisplayController implements GraphDisplay,
         sourceNode.addConnectedArc(layoutArc);
         targetNode.addConnectedArc(layoutArc);
     }
-
 
     @Override
     public <T extends EventHandler> HandlerRegistration addEventHandler(
@@ -439,6 +439,9 @@ public class GraphDisplayController implements GraphDisplay,
                     onViewMouseMove(event, event.getClientX(),
                             event.getClientY());
                 }
+                if (event.getEventType().equals(ChooselEvent.Type.MOUSE_UP)) {
+                    onViewMouseUp(event);
+                }
             }
         };
         graphRenderer
@@ -454,7 +457,7 @@ public class GraphDisplayController implements GraphDisplay,
     }
 
     public void onArcMouseOut(RenderedArc arc) {
-    	// This gets called by the popup manager listener...
+        // This gets called by the popup manager listener...
         // renderedArcPopupManager.removeArcDelayedPopup(arc);
     }
 
@@ -464,6 +467,7 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onNodeDrag(ChooselEvent event, String nodeId, int deltaX,
             int deltaY) {
+        // Don't try anything with nodeInteractionManager, or we get a loop
         Node node = nodes.get(nodeId);
         Point startLocation = graphRenderer.getRenderedNode(node).getTopLeft()
                 .toPointInt();
@@ -517,13 +521,13 @@ public class GraphDisplayController implements GraphDisplay,
                 chooselEvent, x, y));
     }
 
-    public void onNodeMouseDown(Node node, ChooselEvent event, int clientX,
-            int clientY) {
+    public void onNodeMouseDown(Node node, ChooselEvent chooselEvent,
+            int clientX, int clientY) {
         // Why do/did some methods have nodeInteractionManager, others
         // eventBus.fireEvent()??
-        nodeInteractionManager.onMouseDown(node.getId(), event, clientX,
+        nodeInteractionManager.onMouseDown(node.getId(), chooselEvent, clientX,
                 clientY);
-        eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, event,
+        eventBus.fireEvent(new NodeDragHandleMouseDownEvent(node, chooselEvent,
                 clientX, clientY));
     }
 
@@ -548,12 +552,11 @@ public class GraphDisplayController implements GraphDisplay,
         graphRenderer.bringToForeground(renderedNode);
     }
 
-    public void onNodeMouseUp(ChooselEvent event) {
-        nodeInteractionManager.onMouseUp(event);
-        // Whyd idn't this have an eventBus.fireEvent() like commented below?
-        // eventBus.fireEvent(new NodeDragHandleMouseUpEvent(node, event,
-        // startX,
-        // startY, endX, endY));
+    public void onNodeMouseUp(ChooselEvent chooselEvent) {
+        // Why didn't this have an eventBus.fireEvent() like the mouse down?
+        // Don't try any mouse up with nodeInteractionManager, or we get a loop.
+        // The conversion of this mouse up to a click in there is fine.
+        nodeInteractionManager.onMouseUp(chooselEvent);
     }
 
     public void onNodeTabClick(final RenderedNode renderedNode) {
@@ -570,6 +573,7 @@ public class GraphDisplayController implements GraphDisplay,
                     new ChooselEventHandler() {
                         @Override
                         public void onEvent(ChooselEvent event) {
+
                             switch (event.getEventType()) {
                             case MOUSE_OVER:
                                 onNodeExpanderMouseOver(renderNodeExpander,
@@ -621,6 +625,10 @@ public class GraphDisplayController implements GraphDisplay,
 
     public void onViewMouseMove(ChooselEvent event, int mouseX, int mouseY) {
         nodeInteractionManager.onMouseMove(event, mouseX, mouseY);
+    }
+
+    public void onViewMouseUp(ChooselEvent event) {
+        nodeInteractionManager.onMouseUp(event);
     }
 
     public void panBackground(int deltaX, int deltaY) {
@@ -809,10 +817,16 @@ public class GraphDisplayController implements GraphDisplay,
 
                 switch (event.getEventType()) {
                 case MOUSE_OVER:
+                    // In IE, this event gets fired pretty much constantly
+                    // when the mouse is *not moving* but is over. In Chrome, it
+                    // appears to only fire the first time, and when moved on
+                    // and off of the node label to and from the node body.
                     onNodeMouseOver(renderedNode, event, clientX, clientY);
                     break;
 
                 case MOUSE_OUT:
+                    // In FF and Chrome, this gets called on nodes. In IE,
+                    // it does not. I could not find out why.
                     onNodeMouseOut(renderedNode, event, clientX, clientY);
                     break;
 

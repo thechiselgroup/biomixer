@@ -15,10 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.thechiselgroup.biomixer.client.core.geometry.DefaultSizeDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
@@ -58,6 +60,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     private Map<Node, RenderedNode> renderedNodes = new HashMap<Node, RenderedNode>();
 
+    private final TreeSet<Node> nodeSortedSet;
+
+    private final TreeSet<Arc> arcSortedSet;
+
     private Map<String, RenderedNode> renderedNodesById = CollectionFactory
             .createStringMap();
 
@@ -86,6 +92,33 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         this.nodeExpanderRenderer = nodeExpanderRenderer;
         this.nodeSizeTransformer = nodeSizeTransformer;
         this.arcSizeTransformer = arcSizeTransformer;
+        nodeSortedSet = new TreeSet<Node>(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                if (o1.getSize() > o2.getSize()) {
+                    return 1;
+                } else if (o1.getSize() < o2.getSize()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        arcSortedSet = new TreeSet<Arc>(new Comparator<Arc>() {
+            @Override
+            public int compare(Arc o1, Arc o2) {
+                if (o1.getWeight() > o2.getWeight()) {
+                    return 1;
+                } else if (o1.getWeight() < o2.getWeight()) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        });
+        this.nodeSizeTransformer.addGraphRenderingListener(this);
+        this.arcSizeTransformer.addGraphRenderingListener(this);
+
     }
 
     protected abstract void addArcToGraph(RenderedArc arc);
@@ -125,11 +158,20 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
     @Override
     public void removeArc(Arc arc) {
+        if (!renderedArcs.containsKey(arc)) {
+            // Arcs can be removed when either endpoint is removed, so to
+            // facilitate
+            // easier access, I am checking here rather than above to see if the
+            // arc is removable.
+            // Who better to determine that than the renderer?
+            return;
+        }
         assert renderedArcs.containsKey(arc) : "Cannot remove an arc which has not been rendered";
         RenderedArc renderedArc = renderedArcs.get(arc);
         removeNodeConnections(renderedArc);
         renderedArcs.remove(arc);
         removeArcFromGraph(renderedArc);
+        updateTransformedArcSizes(arc, false);
     }
 
     protected abstract void removeArcFromGraph(RenderedArc arc);
@@ -168,7 +210,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         }
         renderedNodes.remove(node);
         renderedNodesById.remove(node.getId());
+        nodeSortedSet.remove(node);
         removeNodeFromGraph(renderedNode);
+        updateTransformedNodeSizes(node, true);
         nodeBeingRemoved = null;
     }
 
@@ -200,6 +244,7 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
                 this.renderLabels, renderedSource, renderedTarget);
         renderedArcs.put(arc, renderedArc);
         addArcToGraph(renderedArc);
+        updateTransformedArcSizes(arc, false);
         return renderedArc;
     }
 
@@ -209,7 +254,9 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         RenderedNode renderedNode = nodeRenderer.createRenderedNode(node);
         renderedNodes.put(node, renderedNode);
         renderedNodesById.put(node.getId(), renderedNode);
+        nodeSortedSet.add(node);
         addNodeToGraph(renderedNode);
+        updateTransformedNodeSizes(node, false);
         return renderedNode;
     }
 
@@ -242,8 +289,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
         else if (styleProperty.equals(ArcSettings.ARC_THICKNESS)) {
             // renderedArc.setThickness(styleValue);
             try {
-                renderedArc.setThickness(arcSizeTransformer.transform(Double
-                        .parseDouble(styleValue)));
+                double parsedThickness = Double.parseDouble(styleValue);
+                arc.setWeight(parsedThickness);
+                renderedArc.setThickness(arcSizeTransformer
+                        .transform(parsedThickness));
             } catch (Exception e) {
                 // This is for the transformation, which shouldn't have a
                 // problem. Still could be double parse issues, which was never
@@ -285,9 +334,10 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
 
         else if (styleProperty.equals(GraphDisplay.NODE_SIZE)) {
             try {
+                double parsedSize = Double.parseDouble(styleValue);
+                node.setSize(parsedSize);
                 renderedNode.setSize(nodeSizeTransformer
-                        .transform(new SquareSizeDouble(Double
-                                .parseDouble(styleValue))));
+                        .transform(new SquareSizeDouble(parsedSize)));
             } catch (Exception e) {
                 // This is for the transformation, which shouldn't have a
                 // problem. Still could be double parse issues, which was never
@@ -298,8 +348,37 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
     }
 
     @Override
-    public void updateTransformedNodeSizes() {
-        // See issue240. This might be used along those lines.
+    public void updateTransformedNodeSizes(Node changedNode, boolean removing) {
+        boolean changed = false;
+        if (removing) {
+            changed = nodeSizeTransformer.removingScalingContextRange(
+                    changedNode, nodeSortedSet);
+        } else {
+            changed = nodeSizeTransformer
+                    .addingScalingContextRange(changedNode);
+        }
+
+        if (changed) {
+            refreshAllNodeSizes();
+        }
+    }
+
+    @Override
+    public void updateTransformedArcSizes(Arc changedArc, boolean removing) {
+        boolean changed = false;
+        if (removing) {
+            changed = arcSizeTransformer.removingScalingContextRange(
+                    changedArc, arcSortedSet);
+        } else {
+            changed = arcSizeTransformer.addingScalingContextRange(changedArc);
+        }
+
+        if (changed) {
+            refreshAllArcSizes();
+        }
+    }
+
+    public void refreshAllNodeSizes() {
         for (Node node : renderedNodes.keySet()) {
             RenderedNode renderedNode = renderedNodes.get(node);
             try {
@@ -310,5 +389,26 @@ public abstract class AbstractGraphRenderer implements GraphRenderer {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void refreshAllArcSizes() {
+        for (Arc arc : renderedArcs.keySet()) {
+            RenderedArc renderedArc = renderedArcs.get(arc);
+            try {
+                renderedArc.setThickness(arcSizeTransformer.transform(arc
+                        .getWeight()));
+            } catch (Exception e) {
+                // Won't happen.
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public NodeSizeTransformer getNodeSizeTransformer() {
+        return nodeSizeTransformer;
+    }
+
+    public ArcSizeTransformer getArcSizeTransformer() {
+        return arcSizeTransformer;
     }
 }

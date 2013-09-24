@@ -16,6 +16,8 @@
 package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
@@ -47,6 +49,15 @@ public class CircleLayoutWithCentralNodeComputation extends
         List<LayoutNode> allNodes = graph.getAllNodes();
 
         assert allNodes.size() >= 1;
+
+        // I need to sort the nodes. Chaos is unnecessary,
+        // but having them sorted makes comparing layouts easier.
+        Collections.sort(allNodes, new Comparator<LayoutNode>() {
+            @Override
+            public int compare(LayoutNode o1, LayoutNode o2) {
+                return o1.toString().compareTo(o2.toString());
+            }
+        });
 
         // Identify the central node
         LayoutNode centralLayoutNode = null;

@@ -20,7 +20,7 @@ import org.thechiselgroup.biomixer.shared.core.util.DelayedExecutor;
 
 import com.google.gwt.user.client.Timer;
 
-public class GwtDelayedExecutor implements DelayedExecutor {
+public class GwtDelayedConditionalExecutor implements DelayedExecutor {
 
     @Override
     public void execute(final Runnable code, final Condition condition,

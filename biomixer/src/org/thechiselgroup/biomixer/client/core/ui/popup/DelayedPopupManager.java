@@ -22,5 +22,4 @@ public interface DelayedPopupManager {
     void hideDelayed();
 
     void showDelayed();
-
 }

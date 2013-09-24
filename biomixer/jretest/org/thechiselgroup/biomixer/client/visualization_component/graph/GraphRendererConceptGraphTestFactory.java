@@ -2,6 +2,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 
 import org.thechiselgroup.biomixer.client.core.util.text.TestTextBoundsEstimator;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.NodeSizeTransformer;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.SvgGraphRenderer;
 import org.thechiselgroup.biomixer.shared.svg.SvgElementFactory;
 import org.thechiselgroup.biomixer.shared.svg.text_renderer.TextSvgElementFactory;

@@ -49,7 +49,7 @@ import org.thechiselgroup.biomixer.client.core.ui.popup.PopupFactory;
 import org.thechiselgroup.biomixer.client.core.ui.popup.PopupManagerFactory;
 import org.thechiselgroup.biomixer.client.core.ui.shade.ShadeManager;
 import org.thechiselgroup.biomixer.client.core.util.DisposeUtil;
-import org.thechiselgroup.biomixer.client.core.util.GwtDelayedExecutor;
+import org.thechiselgroup.biomixer.client.core.util.GwtDelayedConditionalExecutor;
 import org.thechiselgroup.biomixer.client.core.util.HandlerManagerProvider;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.core.visualization.DefaultViewAccessor;
@@ -243,7 +243,7 @@ public abstract class ChooselWorkbenchClientModule extends AbstractGinModule
         configureGwtApiWrappers();
         configureLogging();
 
-        bind(DelayedExecutor.class).to(GwtDelayedExecutor.class).in(
+        bind(DelayedExecutor.class).to(GwtDelayedConditionalExecutor.class).in(
                 Singleton.class);
 
         bind(CommandManager.class).to(DefaultCommandManager.class).in(

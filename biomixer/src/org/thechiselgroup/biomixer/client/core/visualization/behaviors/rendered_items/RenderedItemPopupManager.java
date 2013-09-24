@@ -74,7 +74,11 @@ public class RenderedItemPopupManager implements
             // popupmanagers as arcs are hovered and unhovered, but I think I
             // have to pass events on to the popupmanagers as well. Is any
             // timing important here?
-            if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)) {
+            // TODO The MOUSE_MOVE part was only added for IE. Is it causing
+            // any problems?
+            if (event.getEventType().equals(ChooselEvent.Type.MOUSE_OVER)
+                    || event.getEventType()
+                            .equals(ChooselEvent.Type.MOUSE_MOVE)) {
                 graphDisplayController.onArcMouseOver(renderedArc);
                 renderedItemPopupManager.addArcDelayedPopup(renderedArc);
             }
@@ -143,13 +147,11 @@ public class RenderedItemPopupManager implements
                 .createDetailsWidget(renderedArc);
         PopupManager popupManager = popupManagerFactory
                 .createPopupManager(detailsWidget);
-
         Popup popup = popupManager.getPopup();
         popup.addHandler(this, PopupOpacityChangedEvent.TYPE);
         RenderedArcVerticalPanel contentWidget = (RenderedArcVerticalPanel) (popup
                 .getContentWidget());
         contentWidget.setRenderedArc(renderedArc);
-
         return popupManager;
     }
 

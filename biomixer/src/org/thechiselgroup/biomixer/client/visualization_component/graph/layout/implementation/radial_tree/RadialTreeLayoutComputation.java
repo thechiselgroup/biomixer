@@ -17,12 +17,14 @@ public class RadialTreeLayoutComputation extends AbstractTreeLayoutComputation {
      * @param executor
      * @param errorHandler
      * @param nodeAnimator
+     * @param leafsToCenter
      * @param pointingUp
      *            Irrelevant for this subclass
      */
     protected RadialTreeLayoutComputation(LayoutGraph graph, Executor executor,
-            ErrorHandler errorHandler, NodeAnimator nodeAnimator) {
-        super(graph, executor, errorHandler, nodeAnimator);
+            ErrorHandler errorHandler, NodeAnimator nodeAnimator,
+            boolean leafsToCenter) {
+        super(graph, executor, errorHandler, nodeAnimator, leafsToCenter, true);
     }
 
     @Override
@@ -35,10 +37,8 @@ public class RadialTreeLayoutComputation extends AbstractTreeLayoutComputation {
 
     @Override
     protected double getPrimaryDimensionSpacing(int numberOfNodesOnLongestPath) {
-        // This isthe radial coordinate.
+        // This is the radial coordinate.
 
-        // return graph.getBounds().getHeight() / (numberOfNodesOnLongestPath +
-        // 1);
         double smallerDimSize = Math.min(graph.getBounds().getHeight(), graph
                 .getBounds().getWidth());
         // divide by 2 because we want radius not diameters

@@ -125,8 +125,7 @@ public class BioMixerDetailsWidgetHelper extends
                     Concept.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
 
-        }
-        if (Ontology.isOntology(resource)) {
+        } else if (Ontology.isOntology(resource)) {
             // making the concept label clickable
             ResourceSetAvatar avatar = createAvatar(
                     (String) resource.getValue(Ontology.ONTOLOGY_FULL_NAME),
@@ -160,7 +159,8 @@ public class BioMixerDetailsWidgetHelper extends
                     Ontology.NUMBER_OF_INDIVIDUALS);
             addRow(resource, verticalPanel, "Num Properties",
                     Ontology.NUMBER_OF_PROPERTIES);
-            addRow(resource, verticalPanel, "Note", Ontology.NOTE);
+            // Decided to remove Note, for now at least.
+            // addRow(resource, verticalPanel, "Note", Ontology.NOTE);
             // addRow(resource, verticalPanel, "Access",
             // Ontology.VIEWING_RESTRICTIONS);
 

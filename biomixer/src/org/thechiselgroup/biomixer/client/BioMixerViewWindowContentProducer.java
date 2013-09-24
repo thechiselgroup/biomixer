@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import static com.google.gwt.query.client.GQuery.$;
+import static gwtquery.plugins.enhance.client.Enhance.Enhance;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.CONCEPT_GRAPH_LABEL_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_BORDER_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.MATRIX_COLOR_RESOLVER_FACTORY;
@@ -22,6 +24,7 @@ import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolver
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BACKGROUND_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_BORDER_COLOR_RESOLVER_FACTORY;
 import static org.thechiselgroup.biomixer.client.BioMixerVisualItemValueResolverFactoryProvider.NODE_COLOR_BY_ONTOLOGY_RESOLVER_FACTORY;
+import gwtquery.plugins.enhance.client.colorpicker.ColorPickerFactory.ColorPickerType;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,8 +68,11 @@ import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchViewWindowCo
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.AttachEvent.Handler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Label;
@@ -246,6 +252,21 @@ public class BioMixerViewWindowContentProducer extends
         containerPanel.add(new Label("Arc Thickness"));
         containerPanel.add(arcThicknessDropDown);
         containerPanel.add(updateButton);
+
+        // Handler runs and removes itself internally.
+        @SuppressWarnings("unused")
+        Handler handler = new Handler() {
+            private HandlerRegistration register = arcColorText
+                    .addAttachHandler(this);
+
+            @Override
+            public void onAttachOrDetach(AttachEvent event) {
+                $(arcColorText).as(Enhance).colorBox(ColorPickerType.SIMPLE);
+                // Only want this run once, so let's do a trick to remove it.
+                register.removeHandler();
+            }
+        };
+
         return containerPanel;
     }
 
