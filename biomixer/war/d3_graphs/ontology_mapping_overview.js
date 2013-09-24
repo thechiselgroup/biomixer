@@ -21,6 +21,9 @@ var centralOntologyAcronym = purl().param("ontology_acronym");
 var dragging = false;
 var ontologyTick; // needs to contain the onTick listener function
 
+// These are needed to do a refresh of popups when new data arrives and the user has the popup open
+var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyCircle = null;
+
 //var defaultNodeColor = "#496BB0";
 var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
@@ -170,6 +173,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Create the central node
 		var centralOntologyNode = new Object();
 		centralOntologyNode.name = "fetching";
+		centralOntologyNode.description = "fetching description";
 		centralOntologyNode.fixed = true; // lock central node
 		centralOntologyNode.x = visWidth()/2;
 		centralOntologyNode.y = visHeight()/2;		
@@ -200,6 +204,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				// Create the neighbouring nodes
 				var ontologyNode = new Object();
 				ontologyNode.name = "fetching";
+				ontologyNode.description = "fetching description";
 				ontologyNode.weight = 1;
 				ontologyNode.fixed = false; // lock central node
 				// Compute starting positions to be in a circle for faster layout
@@ -224,7 +229,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		);
 
 		// Not sure about whether to do this here or not...
-		console.log("ontologyMappingCallback");
+		// console.log("ontologyMappingCallback");
 		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
 
 		//----------------------------------------------------------
@@ -285,7 +290,7 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 //					node.ONTOLOGY_VERSION_ID = ontologyDetails.id;
 					node.uriId = ontologyDetails["@id"]; // Use the URI isntead of virtual id
 					node.LABEL = ontologyDetails.name;
-					node.description = ontologyDetails.description;
+					// node.description = ontologyDetails.description; // Unavailable in details call
 //					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
 					
 					// TODO XXX If we want Description, I think we need to grab the most recent submission
@@ -296,13 +301,23 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 					// Do this in the details callback, then? Do we need anything from details in
 					// order to get metrics? Do we need the ontology id?
 					// 3) Get metric details for each ontology
-					var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.acronym);
-					var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
-//					var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
-//					fetcher.retryFetch();
-					var fetcher = closureRetryingJsonpFetcher(ontologyMetricsCallback);
-					fetcher();
+					{
+						// The metric call has much of the info we need
+						var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.acronym);
+						var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
+	//					var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
+	//					fetcher.retryFetch();
+						var fetcher = closureRetryingJsonpFetcher(ontologyMetricsCallback);
+						fetcher();
+					}
 					
+					{
+						// Details are in the submissions, so we need an additional call.
+						var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.acronym);
+						var ontologyDescriptionCallback = new OntologyDescriptionCallback(ontologyDescriptionUrl, node);
+						var fetcher = closureRetryingJsonpFetcher(ontologyDescriptionCallback);
+						fetcher();
+					}
 				}
 		);
 
@@ -356,7 +371,42 @@ function OntologyMetricsCallback(url, node){
 		self.node.numberOfProperties = numProperties;
 		self.node.number = nodeSizeBasis;
 		
-		console.log("ontologyMetricsCallback");
+		// console.log("ontologyMetricsCallback");
+		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
+	}
+}
+
+function OntologyDescriptionCallback(url, node){
+	this.url = url;
+	this.node = node;
+	// Define this fetcher when one is instantiated (circular dependency)
+	this.fetcher = undefined;
+	var self = this;
+	
+	this.callback = function (latestSubmissionData, textStatus, jqXHR){
+		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+		
+//		var errorOrRetry = 	self.fetcher.retryFetch(metricDataRaw);
+		var errorOrRetry = 	self.fetcher(latestSubmissionData);
+		if(0 == errorOrRetry){
+			return;
+		} else if(-1 == errorOrRetry){
+			// have an error. Done?
+			return;
+		}
+		
+		var description="";
+	    if (typeof latestSubmissionData !== "undefined") {
+	        if (latestSubmissionData.description != null) {
+	            description = latestSubmissionData.description;
+	        } else if(typeof latestSubmissionData.error != null){
+	        	description = latestSubmissionData.error;
+	        }
+	    }
+	    
+		self.node.description = description;
+		
+		// console.log("ontologyDescriptionCallback");
 		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
 	}
 }
@@ -384,6 +434,10 @@ function buildOntologyDetailsUrlNewApi(){
 
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
 	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+}
+
+function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
+	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
 }
 
 //function RetryingJsonpFetcher(callbackObject){
@@ -455,7 +509,11 @@ function closureRetryingJsonpFetcher(callbackObject){
 			}
 			
 			if(typeof resultData.errors !== "undefined") {
-				if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
+				if(resultData.status == "404"){
+					// 404 Error should fill in some popup data points, so let through...
+					console.log("Error: "+callbackObject.url+" --> Data: "+resultData.error);
+			    	return 1;
+				} else if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
 					console.log("Forbidden Error, no retry: "
 							+"\nURL: "+callbackObject.url
 							+"\nReply: "+resultData.error);
@@ -797,6 +855,9 @@ function populateGraph(json, newElementsExpected){
 	            // The .tipsy object is destroyed every time it is hidden,
 	            // so we need to add our listener every time its shown
 	            var tipsy = $(me).tipsy("tip");
+	            lastDisplayedTipsy = tipsy;
+	            lastDisplayedTipsyData = meData;
+	            lastDisplayedTipsyCircle = me;
 	            tipsyId = $(me).attr("id"+"_tipsy");
 	            tipsy.attr("id", tipsyId);
 	            
@@ -1002,6 +1063,14 @@ function updateDataForNodesAndLinks(json){
 //		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
 		.attr("x", function(){ return - this.getComputedTextLength()/2; })
 		;
+		
+		// Refresh popup if currently open
+		if(lastDisplayedTipsy != null
+				&& lastDisplayedTipsy.css("visibility") == "visible"
+				&& lastDisplayedTipsyData.acronym == d.acronym
+				){
+			$(lastDisplayedTipsy).children(".tipsy-inner").html(createNodePopupTable(lastDisplayedTipsyCircle, lastDisplayedTipsyData));
+		}
 	}
 	
 	$.each(json.links, updateLinksFromJson);
