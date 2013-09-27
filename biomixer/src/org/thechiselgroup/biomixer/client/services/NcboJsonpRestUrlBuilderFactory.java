@@ -20,6 +20,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.OldRestJsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
+@Deprecated
 public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public static final String PROTOCOL = "http";
@@ -40,10 +41,11 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new OldRestJsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
-                .host(this.server).protocol(PROTOCOL).path(PATH)
-                .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
-                .parameter(USER_API_KEY_PARAMETER, userApiKey));
+        return new OldRestJsonpUrlBuilder(
+                (DefaultUrlBuilder) new DefaultUrlBuilder().host(this.server)
+                        .protocol(PROTOCOL).path(PATH)
+                        .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
+                        .parameter(USER_API_KEY_PARAMETER, userApiKey));
     }
 
     @Override

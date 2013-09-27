@@ -104,7 +104,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
                 final String otherOntologyId = Concept.getOntologyId(otherUri);
                 final String otherConceptId = Concept.getConceptId(otherUri);
-                Window.alert("Moar alerts");
+                Window.alert("Moar alerts Working on mapping neighborhood");
                 termService.getBasicInformation(otherOntologyId,
                         otherConceptId, new BasicTermInfoCallback(errorHandler,
                                 otherConceptId));
@@ -134,7 +134,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     private void doLoadData(final String virtualOntologyId,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
-        Window.alert("Moar alerts");
+        Window.alert("Moar alerts Working on mapping neighborhood");
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 

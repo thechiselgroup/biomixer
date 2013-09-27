@@ -24,6 +24,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
+@Deprecated
 public class OntologyNameServiceAsyncClientImplementation extends
         AbstractWebResourceService implements OntologyNameServiceAsync {
 

@@ -79,7 +79,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
 
         // Now this expects the URL based concept ID and ontology acronym
         final String url = buildUrl(conceptId, ontologyAcroynm);
-        Window.alert("Here, good.");
+        Window.alert("Here, good. New ConceptNeighbourhoodServicesAsync");
         ontologyNameService.getOntologyName(ontologyAcroynm,
                 new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {

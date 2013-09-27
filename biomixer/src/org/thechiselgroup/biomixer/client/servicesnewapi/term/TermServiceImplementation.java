@@ -63,7 +63,7 @@ public class TermServiceImplementation extends AbstractWebResourceService
     @Override
     public void getBasicInformation(final String ontologyId,
             String conceptFullId, final AsyncCallback<Resource> callback) {
-        Window.alert("Newie called");
+        Window.alert("Newie called for TermServiceImpementation");
         assert ontologyId != null;
         assert conceptFullId != null;
         assert callback != null;

@@ -35,6 +35,7 @@ import com.google.inject.Inject;
  * 
  * @see "http://www.bioontology.org/wiki/index.php/NCBO_REST_services#Term_services"
  */
+@Deprecated
 public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         AbstractWebResourceService implements ConceptNeighbourhoodServiceAsync {
 

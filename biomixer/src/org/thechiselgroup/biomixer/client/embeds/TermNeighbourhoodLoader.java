@@ -195,7 +195,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     private void doLoadData(final String virtualOntologyId,
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
-        Window.alert("Moar alerts");
+        Window.alert("Moar alerts Working on term neighborhood");
         termService.getBasicInformation(virtualOntologyId, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 

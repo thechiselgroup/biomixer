@@ -29,6 +29,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
+@Deprecated
 public class TermServiceImplementation extends AbstractWebResourceService
         implements TermServiceAsync {
 

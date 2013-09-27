@@ -43,10 +43,7 @@ import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchS
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
-import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
-import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
-import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphExpansionRegistryFactory;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchClientModule;
@@ -110,23 +107,23 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         // to do piecemeal upgrades.
         bind(
                 org.thechiselgroup.biomixer.client.servicesnewapi.term.TermServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
+                // .annotatedWith(
+                // Names.named(ChooselInjectionConstants.NEW_REST_API))
                 .to(org.thechiselgroup.biomixer.client.servicesnewapi.term.TermServiceImplementation.class)
                 .in(Singleton.class);
-        bind(TermServiceAsync.class)
-                .to(org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation.class)
-                .in(Singleton.class);
+        // bind(TermServiceAsync.class)
+        // .to(org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation.class)
+        // .in(Singleton.class);
 
         bind(
                 org.thechiselgroup.biomixer.client.servicesnewapi.term.ConceptNeighbourhoodServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
+                // .annotatedWith(
+                // Names.named(ChooselInjectionConstants.NEW_REST_API))
                 .to(org.thechiselgroup.biomixer.client.servicesnewapi.term.ConceptNeighbourhoodServiceAsyncClientImplementation.class)
                 .in(Singleton.class);
-        bind(ConceptNeighbourhoodServiceAsync.class).to(
-                ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(
-                Singleton.class);
+        // bind(ConceptNeighbourhoodServiceAsync.class).to(
+        // ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(
+        // Singleton.class);
 
         bind(OntologyMetricServiceAsync.class).to(
                 OntologyMetricServiceAsyncClientImplementation.class).in(

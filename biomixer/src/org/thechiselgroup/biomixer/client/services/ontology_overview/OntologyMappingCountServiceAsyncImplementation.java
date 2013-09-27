@@ -9,6 +9,7 @@ import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
+@Deprecated
 public class OntologyMappingCountServiceAsyncImplementation extends
         AbstractWebResourceService implements OntologyMappingCountServiceAsync {
 
