@@ -24,7 +24,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-@Deprecated
 public class OntologyNameServiceAsyncClientImplementation extends
         AbstractWebResourceService implements OntologyNameServiceAsync {
 
@@ -40,18 +39,36 @@ public class OntologyNameServiceAsyncClientImplementation extends
         this.parser = parser;
     }
 
-    private String buildUrl(String virtualOntologyId) {
-        Window.alert("Still here");
+    // private String buildUrl(String virtualOntologyId) {
+    // Window.alert("Still here");
+    // return urlBuilderFactory.createUrlBuilder()
+    // .path("/bioportal/virtual/ontology/" + virtualOntologyId)
+    // .toString();
+    // }
+    private String buildUrl(String ontologyAcronym) {
+        Window.alert("Got here finally");
         return urlBuilderFactory.createUrlBuilder()
-                .path("/bioportal/virtual/ontology/" + virtualOntologyId)
-                .toString();
+                .path("/ontologies/" + ontologyAcronym).toString();
     }
 
+    // @Override
+    // public void getOntologyName(String virtualOntologyId,
+    // AsyncCallback<String> callback) {
+    //
+    // String url = buildUrl(virtualOntologyId);
+    // fetchUrl(callback, url, new Transformer<String, String>() {
+    // @Override
+    // public String transform(String responseText) throws Exception {
+    // return parser.parse(responseText);
+    // }
+    //
+    // });
+    // }
     @Override
-    public void getOntologyName(String virtualOntologyId,
+    public void getOntologyName(String ontologyAcronym,
             AsyncCallback<String> callback) {
 
-        String url = buildUrl(virtualOntologyId);
+        String url = buildUrl(ontologyAcronym);
         fetchUrl(callback, url, new Transformer<String, String>() {
             @Override
             public String transform(String responseText) throws Exception {

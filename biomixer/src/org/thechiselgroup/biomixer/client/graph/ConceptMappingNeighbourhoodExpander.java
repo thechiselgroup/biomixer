@@ -30,7 +30,6 @@ import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>
@@ -45,7 +44,6 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
             TermServiceAsync termService) {
 
         super(mappingService, resourceManager, errorHandler);
-        Window.alert("No thank you sir");
         this.termService = termService;
     }
 

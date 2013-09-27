@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
+import java.util.Set;
+
 public interface JsonParser {
 
     Integer asInt(Object intObject);
@@ -38,5 +40,7 @@ public interface JsonParser {
     public Object getPossiblyMissing(Object object, String property);
 
     public String getIntAsString(Object object, String property);
+
+    Set<String> getObjectProperties(Object jsonValue);
 
 }

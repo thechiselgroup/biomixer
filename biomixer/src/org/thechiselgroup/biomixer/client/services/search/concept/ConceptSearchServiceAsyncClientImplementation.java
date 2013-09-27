@@ -40,21 +40,44 @@ public class ConceptSearchServiceAsyncClientImplementation extends
 
         super(urlFetchService, urlBuilderFactory);
         this.resultParser = resultParser;
-        Window.alert("I am sad");
+        Window.alert("I am working... ConceptSearchServiceAsyncClientImplementation ...why?");
     }
 
+    // private String buildUrl(String queryText) {
+    // return urlBuilderFactory.createUrlBuilder().path("/bioportal/search/")
+    // .uriParameter("query", queryText)
+    // .parameter("isexactmatch", "1").toString();
+    // }
+
     private String buildUrl(String queryText) {
-        return urlBuilderFactory.createUrlBuilder().path("/bioportal/search/")
-                .uriParameter("query", queryText)
-                .parameter("isexactmatch", "1").toString();
+        Window.alert(urlBuilderFactory.createUrlBuilder().path("/search/")
+                .uriParameter("q", queryText).parameter("isexactmatch", "1")
+                .toString());
+        return urlBuilderFactory.createUrlBuilder().path("/search/")
+                .uriParameter("q", queryText).parameter("isexactmatch", "1")
+                .toString();
     }
+
+    // @Override
+    // public void searchConcept(String queryText,
+    // final AsyncCallback<Set<Resource>> callback) {
+    //
+    // String url = buildUrl(queryText);
+    //
+    // fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
+    // @Override
+    // public Set<Resource> transform(String responseText)
+    // throws Exception {
+    // return resultParser.parse(responseText);
+    // }
+    // });
+    // }
 
     @Override
     public void searchConcept(String queryText,
             final AsyncCallback<Set<Resource>> callback) {
 
         String url = buildUrl(queryText);
-
         fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
             @Override
             public Set<Resource> transform(String responseText)

@@ -83,8 +83,11 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
         int sourceMappings = asInt(get(jsonItem, "sourceMappings"));
         int targetMappings = asInt(get(jsonItem, "targetMappings"));
 
+        // XXX Fix this, base it off of OntologyMappingCountJSONParser, which
+        // should work already with the new API.
+
         return new OntologyMappingCount(sourceOntologyId, targetOntologyId,
-                sourceMappings, targetMappings);
+                sourceMappings);
     }
 
 }

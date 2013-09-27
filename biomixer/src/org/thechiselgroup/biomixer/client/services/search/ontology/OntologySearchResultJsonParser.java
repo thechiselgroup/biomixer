@@ -24,6 +24,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 /**
@@ -47,57 +48,117 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource analyzeItem(Object jsonItem) {
-        String virtualOntologyId = getIntAsString(jsonItem, "ontologyId") + "";
+        // String virtualOntologyId = getIntAsString(jsonItem, "ontologyId") +
+        // "";
+        String ontologyAcronym = asString(get(jsonItem, "acronym"));
+
+        // node.name = ontologyDetails.name;
+        // // node.ONTOLOGY_VERSION_ID = ontologyDetails.id;
+        // node.uriId = ontologyDetails["@id"]; // Use the URI isntead of
+        // virtual id
+        // node.LABEL = ontologyDetails.name;
+        // node.description = ontologyDetails.description;
+        // // node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions;
+        // // might be missing
+        //
+        // // TODO XXX If we want Description, I think we need to grab the most
+        // recent submission
+        // // and take it fromt here. This is another API call per ontology.
+        // // /ontologies/:acronym:/lastest_submission
+
+        // Resource resource = new Resource(
+        // Ontology.toOntologyURI(virtualOntologyId));
 
         Resource resource = new Resource(
-                Ontology.toOntologyURI(virtualOntologyId));
+                Ontology.toOntologyURI(ontologyAcronym));
 
-        resource.putValue(Ontology.ONTOLOGY_VERSION_ID,
-                asString(get(jsonItem, "id")));
+        // resource.putValue(Ontology.ONTOLOGY_VERSION_ID,
+        // asString(get(jsonItem, "id")));
         resource.putValue(Ontology.ONTOLOGY_ACRONYM,
-                asString(get(jsonItem, "abbreviation")));
-        resource.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
+                asString(get(jsonItem, "acronym")));
+        resource.putValue(Ontology.ONTOLOGY_URI, asString(get(jsonItem, "@id")));
         resource.putValue(Ontology.ONTOLOGY_FULL_NAME,
-                asString(get(jsonItem, "displayLabel")));
-        resource.putValue(Ontology.DESCRIPTION,
-                asString(get(jsonItem, "description")));
-        try {
-            resource.putValue(
-                    Ontology.VIEWING_RESTRICTIONS,
-                    asString(getPossiblyMissing(jsonItem, "viewingRestriction")));
-        } catch (Throwable t) {
-            // nothing
-        }
+                asString(get(jsonItem, "name")));
+        // TODO XXXX Description is now held in latest_submission of ontology.
+        // it will arrive in a later call.
+        // resource.putValue(Ontology.DESCRIPTION,
+        // asString(get(jsonItem, "description")));
+
+        // I do not know where viewing restrictions are in the new API, but they
+        // are not here!
+        // try {
+        // resource.putValue(
+        // Ontology.VIEWING_RESTRICTIONS,
+        // asString(getPossiblyMissing(jsonItem, "viewingRestriction")));
+        // } catch (Throwable t) {
+        // // nothing
+        // }
 
         return resource;
     }
 
     @Override
     public Set<Resource> parse(String json) {
+        // Set<Resource> resources = new HashSet<Resource>();
+        // Object searchResults = get(
+        // get(get(get(get(get(super.parse(json), "success"), "data"), 0),
+        // "list"), 0), "ontologyBean");
+        // int in = 0;
+        // int total = 0;
+        // if (isArray(searchResults)) {
+        // for (int i = 0; i < length(searchResults); i++) {
+        // Resource item = analyzeItem(get(searchResults, i));
+        // if (passFilter(item)) {
+        // resources.add(item);
+        // in++;
+        // }
+        // total++;
+        // }
+        // } else {
+        // Resource item = analyzeItem(searchResults);
+        // if (passFilter(item)) {
+        // resources.add(item);
+        // in++;
+        // }
+        // }
+
+        int ontologiesSkipped = 0;
+
         Set<Resource> resources = new HashSet<Resource>();
-        Object searchResults = get(
-                get(get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "list"), 0), "ontologyBean");
+        // Object searchResults = get(
+        // get(get(get(get(get(super.parse(json), "success"), "data"), 0),
+        // "list"), 0), "ontologyBean");
+
         int in = 0;
         int total = 0;
-        if (isArray(searchResults)) {
-            for (int i = 0; i < length(searchResults); i++) {
-                Resource item = analyzeItem(get(searchResults, i));
-                if (passFilter(item)) {
-                    resources.add(item);
-                    in++;
-                }
-                total++;
-            }
-        } else {
-            Resource item = analyzeItem(searchResults);
+        // if (isArray(searchResults)) {
+        // for (int i = 0; i < length(searchResults); i++) {
+        Object jsonObject = super.parse(json);
+        for (String key : getObjectProperties(jsonObject)) {
+            Resource item = analyzeItem(get(jsonObject, key));
             if (passFilter(item)) {
                 resources.add(item);
                 in++;
+            } else {
+                // Window.alert("Filter skipped " + item.toString());
+                ontologiesSkipped++;
             }
+            total++;
         }
+        // } else {
+        // Resource item = analyzeItem(searchResults);
+        // if (passFilter(item)) {
+        // resources.add(item);
+        // in++;
+        // }
+        // }
+
+        Window.alert("OntologySearchResultJsonParser, skipped "
+                + ontologiesSkipped + " of total " + total);
+
         // Window.alert("Filtered in/all: " + in + "/" + total);
         return resources;
+
     }
 
     public void setFilterPropertyAndContainedText(String filterProperty,
@@ -120,6 +181,16 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private boolean passFilter(Resource item) {
+        // Window.alert("Debuggin filter");
+        // Window.alert(this.filterValueSet.contains(item
+        // .getValue(this.filterProperty)) + "");
+        // Window.alert("pass? "
+        // + this.filterValueSet.contains(item
+        // .getValue(this.filterProperty))
+        // + " for Filtering on property: " + this.filterProperty
+        // + " with value: " + (String) item.getValue(this.filterProperty)
+        // + " and list "
+        // + CollectionUtils.asSortedList(this.filterValueSet).toString());
         if (this.filterProperty == ""
                 || (this.filterText == null && this.filterValueSet == null)) {
             return true;
@@ -130,8 +201,8 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
                         .contains(this.filterText.toLowerCase());
         boolean matchOnPropertySet = null != this.filterValueSet
                 && item.containsProperty(this.filterProperty)
-                && this.filterValueSet.contains(((String) item
-                        .getValue(this.filterProperty)).toLowerCase());
+                && this.filterValueSet.contains(item
+                        .getValue(this.filterProperty));
         if (matchOnSingleProperty || matchOnPropertySet) {
             return true;
         }

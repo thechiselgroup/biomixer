@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
@@ -33,6 +34,7 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource analyzeItem(Object jsonItem) {
+        Window.alert(jsonItem.toString());
         String ontologyId = getIntAsString(jsonItem, "ontologyId");
         String conceptId = asString(get(jsonItem, "conceptId"));
 

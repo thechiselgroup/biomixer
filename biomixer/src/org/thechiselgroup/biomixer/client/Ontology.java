@@ -40,6 +40,8 @@ public final class Ontology {
 
     public static final String ONTOLOGY_ACRONYM = "ontologyAcronym";
 
+    public static final String ONTOLOGY_URI = "ontologyAbsoluteUri";
+
     public static final String TYPE = "type";
 
     // Unique URLs in the new API @id field, or the acronym, appear to be the

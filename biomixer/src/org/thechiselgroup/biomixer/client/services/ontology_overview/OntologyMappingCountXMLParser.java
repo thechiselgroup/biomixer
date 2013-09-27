@@ -26,9 +26,13 @@ public class OntologyMappingCountXMLParser extends AbstractXMLResultParser {
             int mappingCount = Integer.parseInt(getText(statistic,
                     "mappingCount"));
 
+            // XXX Fix this, base it off of OntologyMappingCountJSONParser,
+            // which should work already with the new API.
+            // We enedn't fix this XML, but it is crufty and we can indeed
+            // delete it. Making a ticket.
+
             ontologyMappingCounts.add(new OntologyMappingCount(
-                    sourceOntologyId, targetOntologyId, mappingCount,
-                    mappingCount));
+                    sourceOntologyId, targetOntologyId, mappingCount));
         }
 
         return ontologyMappingCounts;

@@ -100,8 +100,8 @@ public class OntologyMappingNeighbourhoodLoaderTest {
         // when this was created, but I wanted a failing test in place.
         doNothing().when(mappingService).getMappingCounts(eq(virtualIdList),
                 captor.capture());
-        underTest.loadView(ontologyResourceSet, virtualIdList, topBarWidget,
-                isWidgetCallback);
+        underTest.loadView(ontologyResourceSet, virtualIdList, null,
+                topBarWidget, isWidgetCallback);
 
         return captor.getValue();
     }

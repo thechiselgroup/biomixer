@@ -25,7 +25,7 @@ import java.util.Set;
 
 public final class CollectionUtils {
 
-    public static List<String> asSortedList(Set<String> strings) {
+    public static List<String> asSortedList(Collection<String> strings) {
         List<String> sortedList = new ArrayList<String>(strings);
         Collections.sort(sortedList);
         return sortedList;

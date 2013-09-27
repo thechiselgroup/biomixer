@@ -16,24 +16,66 @@
 package org.thechiselgroup.biomixer.client.services;
 
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
-import org.thechiselgroup.biomixer.client.core.util.url.OldRestJsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
-@Deprecated
 public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
+
+    // public static final String PROTOCOL = "http";
+    //
+    // public static final String SERVER = "bioportal.bioontology.org";
+    //
+    // public final static String API_KEY_PARAMETER = "apikey";
+    //
+    // public final static String USER_API_KEY_PARAMETER = "userapikey";
+    //
+    // public static final String CALLBACK = "callback";
+    //
+    // public static final String PATH = "ajax/jsonp";
+    //
+    // private String userApiKey;
+    //
+    // private String server = SERVER;
+    //
+    // @Override
+    // public UrlBuilder createUrlBuilder() {
+    // return new OldRestJsonpUrlBuilder(
+    // (DefaultUrlBuilder) new DefaultUrlBuilder().host(this.server)
+    // .protocol(PROTOCOL).path(PATH)
+    // .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
+    // .parameter(USER_API_KEY_PARAMETER, userApiKey));
+    // }
+    //
+    // @Override
+    // public void setUserApiKey(String apiKey) {
+    // assert apiKey != null;
+    // this.userApiKey = apiKey;
+    // }
+    //
+    // @Override
+    // public void setServerRoot(String serverRoot) {
+    // if (serverRoot != null) {
+    // this.server = serverRoot;
+    // } else {
+    // this.server = SERVER;
+    // }
+    // }
 
     public static final String PROTOCOL = "http";
 
-    public static final String SERVER = "bioportal.bioontology.org";
+    public static final String SERVER = "stagedata.bioontology.org";
 
     public final static String API_KEY_PARAMETER = "apikey";
 
-    public final static String USER_API_KEY_PARAMETER = "userapikey";
+    // public final static String USER_API_KEY_PARAMETER = "userapikey";
+
+    public static final String FORMAT_PARAMETER = "format";
+
+    public static final String FORMAT_VALUE = "jsonp";
 
     public static final String CALLBACK = "callback";
 
-    public static final String PATH = "ajax/jsonp";
+    // public static final String PATH = "ajax/jsonp";
 
     private String userApiKey;
 
@@ -41,11 +83,11 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new OldRestJsonpUrlBuilder(
-                (DefaultUrlBuilder) new DefaultUrlBuilder().host(this.server)
-                        .protocol(PROTOCOL).path(PATH)
-                        .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
-                        .parameter(USER_API_KEY_PARAMETER, userApiKey));
+        return new DefaultUrlBuilder().host(this.server).protocol(PROTOCOL)
+                .parameter(FORMAT_PARAMETER, FORMAT_VALUE)
+                .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
+        // .parameter(USER_API_KEY_PARAMETER, userApiKey)
+        ;
     }
 
     @Override

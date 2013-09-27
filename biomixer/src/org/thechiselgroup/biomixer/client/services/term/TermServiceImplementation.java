@@ -29,7 +29,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-@Deprecated
 public class TermServiceImplementation extends AbstractWebResourceService
         implements TermServiceAsync {
 
@@ -44,28 +43,76 @@ public class TermServiceImplementation extends AbstractWebResourceService
             TermWithoutRelationshipsJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
-        Window.alert("Using oldie");
+        Window.alert("Using modified oldie, make sure to fix OntologyMappingCountJSONParser");
         this.responseParser = responseParser;
         this.ontologyNameService = ontologyNameService;
     }
 
-    protected String buildUrl(String ontologyId, String conceptFullId) {
+    // protected String buildUrl(String ontologyId, String conceptFullId) {
+    // return urlBuilderFactory.createUrlBuilder()
+    // .path("bioportal/virtual/ontology/" + ontologyId)
+    // .parameter("light", "1").parameter("norelations", "1")
+    // .uriParameter("conceptid", conceptFullId).toString();
+    // }
+
+    protected String buildUrl(String ontologyAcronym, String conceptFullId) {
         return urlBuilderFactory.createUrlBuilder()
-                .path("bioportal/virtual/ontology/" + ontologyId)
-                .parameter("light", "1").parameter("norelations", "1")
+                .path("/ontologies/" + ontologyAcronym).parameter("light", "1")
+                .parameter("norelations", "1")
                 .uriParameter("conceptid", conceptFullId).toString();
     }
+
+    // @Override
+    // public void getBasicInformation(final String ontologyId,
+    // String conceptFullId, final AsyncCallback<Resource> callback) {
+    // Window.alert("Oldie called");
+    // assert ontologyId != null;
+    // assert conceptFullId != null;
+    // assert callback != null;
+    //
+    // final String url = buildUrl(ontologyId, conceptFullId);
+    // Window.alert("Why am I here???");
+    // ontologyNameService.getOntologyName(ontologyId,
+    // new TimeoutErrorHandlingAsyncCallback<String>(
+    // new AsyncCallbackErrorHandler(callback)) {
+    //
+    // @Override
+    // protected String getMessage(Throwable caught) {
+    // return "Could not retrieve ontology name for virtual ontology id: "
+    // + ontologyId;
+    // }
+    //
+    // @Override
+    // public void runOnSuccess(final String ontologyName) {
+    // fetchUrl(callback, url,
+    // new Transformer<String, Resource>() {
+    // @Override
+    // public Resource transform(String value)
+    // throws Exception {
+    // Resource resource = responseParser
+    // .parseConcept(ontologyId, value);
+    // resource.putValue(
+    // Concept.CONCEPT_ONTOLOGY_NAME,
+    // ontologyName);
+    // return resource;
+    // }
+    // });
+    // }
+    //
+    // });
+    // }
+    //
 
     @Override
     public void getBasicInformation(final String ontologyId,
             String conceptFullId, final AsyncCallback<Resource> callback) {
-        Window.alert("Oldie called");
+        Window.alert("Newie called for TermServiceImpementation");
         assert ontologyId != null;
         assert conceptFullId != null;
         assert callback != null;
 
         final String url = buildUrl(ontologyId, conceptFullId);
-        Window.alert("Why am I here???");
+        Window.alert("Or here is good too");
         ontologyNameService.getOntologyName(ontologyId,
                 new TimeoutErrorHandlingAsyncCallback<String>(
                         new AsyncCallbackErrorHandler(callback)) {

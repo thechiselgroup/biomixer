@@ -18,7 +18,6 @@ package org.thechiselgroup.biomixer.client.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
@@ -33,7 +32,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpa
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 public class ConceptConceptNeighbourhoodExpander<T extends ViewWithResourceManager>
         extends AbstractConceptConceptNeighbourhoodExpander<T> {
@@ -57,10 +55,9 @@ public class ConceptConceptNeighbourhoodExpander<T extends ViewWithResourceManag
     };
 
     @Inject
-    public ConceptConceptNeighbourhoodExpander(
-            ErrorHandler errorHandler,
+    public ConceptConceptNeighbourhoodExpander(ErrorHandler errorHandler,
             ResourceManager resourceManager,
-            @Named(ChooselInjectionConstants.NEW_REST_API) ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService,
+            ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService,
             DialogManager dialogManager) {
 
         super(errorHandler, resourceManager, conceptNeighbourhoodService);

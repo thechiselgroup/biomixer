@@ -19,24 +19,21 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.AbstractSearchWindowContent;
 import org.thechiselgroup.biomixer.client.Ontology;
-import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
-import org.thechiselgroup.biomixer.client.servicesnewapi.search.ontology.OntologySearchServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 public class OntologySearchWindowContent extends AbstractSearchWindowContent {
 
     private OntologySearchServiceAsync searchService;
 
     @Inject
-    public OntologySearchWindowContent(
-            ResourceSetFactory resourceSetFactory,
-            @Named(ChooselInjectionConstants.NEW_REST_API) OntologySearchServiceAsync searchService,
+    public OntologySearchWindowContent(ResourceSetFactory resourceSetFactory,
+            OntologySearchServiceAsync searchService,
             ViewWindowContentProducer viewFactory) {
         super(resourceSetFactory, Ontology.ONTOLOGY_FULL_NAME, viewFactory,
                 OntologySearchCommand.NCBO_ONTOLOGY_SEARCH);

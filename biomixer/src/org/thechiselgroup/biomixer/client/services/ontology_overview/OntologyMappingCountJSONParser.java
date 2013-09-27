@@ -22,11 +22,15 @@ import com.google.inject.Inject;
 
 public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
 
-    private String sourceOntologyId;
+    private String sourceOntologyAcronym;
 
     @Inject
     public OntologyMappingCountJSONParser(JsonParser jsonParser) {
         super(jsonParser);
+    }
+
+    public void setSourceOntologyAcronym(String sourceOntologyAcronym) {
+        this.sourceOntologyAcronym = sourceOntologyAcronym;
     }
 
     @Override
@@ -35,54 +39,69 @@ public class OntologyMappingCountJSONParser extends AbstractJsonResultParser {
         // Grab source ontology id...they removed form list:
         // Like:
         // "accessedResource":"\/bioportal\/virtual\/mappings\/stats\/ontologies\/1032"
-        String resourceString = asString(get(get(super.parse(json), "success"),
-                "accessedResource"));
-        String ontologyIdCutoffString = "ontologies/";
-        int indexOfOntologyId = resourceString
-                .lastIndexOf(ontologyIdCutoffString);
-        this.sourceOntologyId = resourceString.substring(indexOfOntologyId
-                + ontologyIdCutoffString.length());
+        // String resourceString = asString(get(get(super.parse(json),
+        // "success"),
+        // "accessedResource"));
+        // String ontologyIdCutoffString = "ontologies/";
+        // int indexOfOntologyId = resourceString
+        // .lastIndexOf(ontologyIdCutoffString);
+        // this.sourceOntologyId = resourceString.substring(indexOfOntologyId
+        // + ontologyIdCutoffString.length());
 
-        Object list = get(
-                get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "list"), 0);
+        // this.sourceOntologyAcronym = sourceOntologyAcronym;
 
         // The empty list returned unfortunately is not *empty*, but is a
         // zero-length string, and throws JSON parsing null exceptions if not
         // checked for. But if we check for it as a string, it throws an
         // exception
         // when it is a json object. Seems like a try-catch is simplest.
-        try {
-            if (!has(list, "ontologyMappingStatistics")) {
-                return result;
-            }
-        } catch (Exception e) {
-            return result;
-        }
+        // try {
+        // if (length(jsonArray) == 0) {
+        // return result;
+        // }
+        // } catch (Exception e) {
+        // return result;
+        // }
 
-        Object jsonArray = get(list, "ontologyMappingStatistics");
+        // if (isArray(jsonArray)) {
+        // for (int i = 0; i < length(jsonArray); i++) {
+        // result.add(analyzeItem(get(jsonArray, i)));
+        // }
+        // } else {
+        // result.add(analyzeItem(jsonArray));
+        // }
 
-        if (isArray(jsonArray)) {
-            for (int i = 0; i < length(jsonArray); i++) {
-                result.add(analyzeItem(get(jsonArray, i)));
-            }
-        } else {
-            result.add(analyzeItem(jsonArray));
+        Object jsonObject = super.parse(json);
+        // Window.alert(jsonObject.toString());
+
+        for (String ontologyAcronym : getObjectProperties(jsonObject)) {
+            String deHyphenatedAcronym = ontologyAcronym;
+            // Get 159 (skip 150) results if I dehyphenate, or 273 (skip 133) if
+            // I don't.
+            // if (ontologyAcronym.contains("-")) {
+            // deHyphenatedAcronym = ontologyAcronym.substring(0,
+            // ontologyAcronym.indexOf("-"));
+            // // Window.alert("Cut " + ontologyAcronym + " to "
+            // // + deHyphenatedAcronym);
+            // }
+            result.add(analyzeItem(deHyphenatedAcronym,
+                    get(jsonObject, ontologyAcronym)));
         }
 
         return result;
     }
 
-    private OntologyMappingCount analyzeItem(Object jsonItem) {
+    private OntologyMappingCount analyzeItem(String ontologyAcronym,
+            Object jsonItem) {
         // They appear to have changed the REST service since the previous
-        // version
-        // of this class.
-        String targetOntologyId = "" + asInt(get(jsonItem, "ontologyId"));
-        int sourceMappings = asInt(get(jsonItem, "sourceMappings"));
-        int targetMappings = asInt(get(jsonItem, "targetMappings"));
+        // version of this class.
+        // Window.alert(ontologyAcronym + " " + jsonItem.toString());
+        // String targetOntologyId = "" + asInt(get(jsonItem, "ontologyId"));
+        // int sourceMappings = asInt(get(jsonItem, "sourceMappings"));
+        // int targetMappings = asInt(get(jsonItem, "targetMappings"));
 
-        return new OntologyMappingCount(sourceOntologyId, targetOntologyId,
-                sourceMappings, targetMappings);
+        return new OntologyMappingCount(sourceOntologyAcronym, ontologyAcronym,
+                asInt(jsonItem));
     }
 
 }

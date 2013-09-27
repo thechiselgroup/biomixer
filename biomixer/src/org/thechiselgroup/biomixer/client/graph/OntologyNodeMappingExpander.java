@@ -35,6 +35,8 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeBulkExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 
+import com.google.gwt.user.client.Window;
+
 /**
  * Frame for expanding data on a collection of {@link VisualItem}s with a single
  * {@link Resource}. This is useful when we have REST calls that support passing
@@ -75,6 +77,9 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
         assert visualItems != null && visualItems.size() > 0;
         assert expansionCallback != null;
 
+        // XXX TODO Fix this!
+        Window.alert("Need to modify REST call and parsing. May not have convenient way of doing this.");
+
         LightweightList<String> ontologyIds = LightweightCollections
                 .<String> toList();
         for (VisualItem visItem : visualItems) {
@@ -114,10 +119,11 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
                         // calculatePartialProperties(). See there for contrast.
                         for (OntologyMappingCount mapping : results) {
                             Resource sourceResource = itemIdMap.get(mapping
-                                    .getSourceId());
+                                    .getSourceOntologyAcronym());
                             Resource targetResource = itemIdMap.get(mapping
-                                    .getTargetId());
-                            int mappingNumberOfConcepts = mapping.getSourceMappingCount();
+                                    .getTargetOntologyAcronym());
+                            int mappingNumberOfConcepts = mapping
+                                    .getSourceMappingCount();
 
                             if (null != sourceResource
                                     && null != targetResource) {

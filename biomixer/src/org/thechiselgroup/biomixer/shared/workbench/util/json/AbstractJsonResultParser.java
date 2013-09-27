@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
+import java.util.Set;
 
 public abstract class AbstractJsonResultParser implements JsonParser {
 
@@ -66,6 +67,11 @@ public abstract class AbstractJsonResultParser implements JsonParser {
     @Override
     public Object get(Object object, String property) {
         return jsonParser.get(object, property);
+    }
+
+    @Override
+    public Set<String> getObjectProperties(Object jsonValue) {
+        return jsonParser.getObjectProperties(jsonValue);
     }
 
     protected String getOntologyIdAsString(Object object, String property) {

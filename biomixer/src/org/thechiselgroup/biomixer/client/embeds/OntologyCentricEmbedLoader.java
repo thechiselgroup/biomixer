@@ -16,6 +16,7 @@ import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -61,6 +62,13 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
         List<String> virtualOntologyIds = new ArrayList<String>();
         virtualOntologyIds.add(virtualOntologyId);
 
+        Window.alert("Get rid of virtual_ontology_id, replace with ontology_acronym");
+
+        String ontologyAcronym = windowLocation
+                .getParameter("ontology_acronym");
+        List<String> ontologyAcronyms = new ArrayList<String>();
+        ontologyAcronyms.add(ontologyAcronym);
+
         // TODO Pulling ontolgoy ids from the current page url works for the
         // embed only...and we are not aiming this feature in the embed version
         // yet.
@@ -99,7 +107,7 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
         });
 
         ontologyEmbedLoader.loadView(virtualOntologies, virtualOntologyIds,
-                selector, callback);
+                ontologyAcronyms, selector, callback);
 
     }
 

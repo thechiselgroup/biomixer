@@ -37,7 +37,7 @@ public interface ChooselInjectionConstants {
 
     String LABEL_PROVIDER_SELECTION_SET = "label-provider-selection";
 
-    String NEW_REST_API = "new-rest-api";
+    // String NEW_REST_API = "new-rest-api";
 
     String EMBED = "embed";
 

@@ -1,54 +1,29 @@
 package org.thechiselgroup.biomixer.client.services.ontology_overview;
 
 public class OntologyMappingCount {
-    private String sourceId;
+    private String sourceOntologyAcronym;
 
-    private String targetId;
+    private String targetOntologyAcronym;
 
     private int sourceMappingCount;
 
-    private int targetMappingCount;
-
-    public OntologyMappingCount(String sourceId, String targetId,
-            int sourceMappingCount, int targetMappingCount) {
-        this.sourceId = sourceId;
-        this.targetId = targetId;
+    public OntologyMappingCount(String sourceOntologyAcronym,
+            String targetOntologyAcronym, int sourceMappingCount) {
+        this.sourceOntologyAcronym = sourceOntologyAcronym;
+        this.targetOntologyAcronym = targetOntologyAcronym;
         this.sourceMappingCount = sourceMappingCount;
-        this.targetMappingCount = targetMappingCount;
-    }
-
-    /**
-     * Sometimes only the total mapping count is available from the REST
-     * service.
-     * 
-     * @param sourceId
-     * @param targetId
-     * @param totalMappingCount
-     */
-    public OntologyMappingCount(String sourceId, String targetId,
-            int totalMappingCount) {
-        this.sourceId = sourceId;
-        this.targetId = targetId;
-        // Ensure that they sum (rather than dividing by 2 for both)
-        int sourceMapCount = totalMappingCount - totalMappingCount / 2;
-        this.sourceMappingCount = sourceMapCount;
-        this.targetMappingCount = totalMappingCount - sourceMapCount;
     }
 
     public int getSourceMappingCount() {
         return sourceMappingCount;
     }
 
-    public int getTargetMappingCount() {
-        return targetMappingCount;
+    public String getSourceOntologyAcronym() {
+        return sourceOntologyAcronym;
     }
 
-    public String getSourceId() {
-        return sourceId;
-    }
-
-    public String getTargetId() {
-        return targetId;
+    public String getTargetOntologyAcronym() {
+        return targetOntologyAcronym;
     }
 
 }

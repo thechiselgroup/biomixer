@@ -3,7 +3,6 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.Ontology;
-import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.ui.dialog.DialogManager;
@@ -16,13 +15,12 @@ import org.thechiselgroup.biomixer.client.graph.ConceptMappingNeighbourhoodLoade
 import org.thechiselgroup.biomixer.client.graph.MappingExpander;
 import org.thechiselgroup.biomixer.client.graph.OntologyNodeMappingExpander;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
-import org.thechiselgroup.biomixer.client.servicesnewapi.ontology_overview.OntologyMappingCountServiceAsync;
-import org.thechiselgroup.biomixer.client.servicesnewapi.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 public class GraphExpansionRegistryFactory {
 
@@ -38,7 +36,6 @@ public class GraphExpansionRegistryFactory {
     private ConceptMappingServiceAsync conceptMappingService;
 
     @Inject
-    @Named(ChooselInjectionConstants.NEW_REST_API)
     private OntologyMappingCountServiceAsync ontologyMappingService;
 
     @Inject
@@ -49,7 +46,6 @@ public class GraphExpansionRegistryFactory {
     private ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService;
 
     @Inject
-    @Named(ChooselInjectionConstants.NEW_REST_API)
     private TermServiceAsync termService;
 
     public GraphExpansionRegistry createRegistry(ErrorHandler errorHandler) {

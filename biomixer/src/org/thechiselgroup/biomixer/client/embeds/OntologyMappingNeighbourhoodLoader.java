@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.dnd.resources.DropEnabledViewContentDisplay;
@@ -47,6 +47,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.a
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutWithCentralNodeAlgorithm;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -103,9 +104,10 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
     private String centralOntologyUri;
 
     private void doLoadData(final String centralOntologyVirtualId,
-            final View graphView, final ErrorHandler errorHandler) {
+            final String centralOntologyAcronym, final View graphView,
+            final ErrorHandler errorHandler) {
         mappingService.getAllMappingCountsForCentralOntology(
-                centralOntologyVirtualId,
+                centralOntologyAcronym,
                 new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
                         errorHandler) {
 
@@ -124,22 +126,31 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
                         // }
                         // Create resources for each ontology, including target
                         // and mapped ontologies.
-                        Set<String> ontologyIds = new HashSet<String>();
-                        ontologyIds.add(centralOntologyVirtualId);
-                        Map<String, Resource> itemIdMap = new HashMap<String, Resource>();
-                        List<Resource> ontologyResources = new ArrayList<Resource>();
+                        // Set<String> ontologyIds = new HashSet<String>();
+                        // ontologyIds.add(centralOntologyVirtualId);
+
+                        Set<String> ontologyAcronyms = new HashSet<String>();
+                        ontologyAcronyms.add(centralOntologyAcronym);
+
                         targetOntologyResource = new Resource(Ontology
-                                .toOntologyURI(centralOntologyVirtualId));
-                        ontologyResources.add(targetOntologyResource);
+                                .toOntologyURI(centralOntologyAcronym));
                         // Iterate through the neighbourhood
+                        // for (OntologyMappingCount ontologyCount :
+                        // mappingCountResults) {
+                        // ontologyIds.add(ontologyCount.getTargetOntologyAcronym());
+                        // }
                         for (OntologyMappingCount ontologyCount : mappingCountResults) {
-                            ontologyIds.add(ontologyCount.getTargetId());
+                            ontologyAcronyms.add(ontologyCount
+                                    .getTargetOntologyAcronym());
                         }
 
+                        Window.alert(CollectionUtils.asSortedList(
+                                ontologyAcronyms).size()
+                                + "");
                         OntologyDetailsCallback ontologyDetailsCallback = new OntologyDetailsCallback(
                                 graphView, mappingCountResults);
                         searchService.searchOntologiesPredeterminedSet(
-                                ontologyIds, ontologyDetailsCallback);
+                                ontologyAcronyms, ontologyDetailsCallback);
                     }
 
                 });
@@ -169,6 +180,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             // The resources we have here are fully detailed ontology resources.
             // How do we resolve these against the ones we created based on the
             // mapping neighbourhood data?
+
             if (ontologyDetailsResults.isEmpty()) {
                 // This would be unexpected, but nonetheless...
                 // infoLabel.setText("No results found for search term '"
@@ -192,9 +204,19 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             // graph.getDisplayController().getNodeSizeTransformer()
             // .setScalingContextRange(minRawSize, maxRawSize);
 
+            Window.alert("Got resources from ontology search...shall I remove ones that had no ontology listing?");
+            Window.alert("Need the details callback next");
+
             // TODO add convenience method to resourceSetFactory
             ResourceSet resourceSet = resourceSetFactory.createResourceSet();
-            resourceSet.addAll(ontologyDetailsResults);
+            resourceSet.add(targetOntologyResource);
+            for (Resource res : ontologyDetailsResults) {
+                // Some results that appear in the mappings don't show up in
+                // ontologies list
+                if (res.containsProperty(Ontology.ONTOLOGY_URI)) {
+                    resourceSet.add(res);
+                }
+            }
             graphView.getResourceModel().addResourceSet(resourceSet);
 
             // Now that all of the resources exist for the
@@ -210,8 +232,10 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             }
 
             for (OntologyMappingCount mapping : mappingCounts) {
-                Resource sourceResource = itemIdMap.get(mapping.getSourceId());
-                Resource targetResource = itemIdMap.get(mapping.getTargetId());
+                Resource sourceResource = itemIdMap.get(mapping
+                        .getSourceOntologyAcronym());
+                Resource targetResource = itemIdMap.get(mapping
+                        .getTargetOntologyAcronym());
                 int mappingNumberOfConcepts = mapping.getSourceMappingCount();
 
                 if (null != sourceResource && null != targetResource) {
@@ -281,10 +305,12 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
 
     @Override
     public void loadView(ResourceSet virtualOntologies,
-            List<String> virtualOntologyIds, IsWidget topBarWidget,
-            AsyncCallback<IsWidget> callback) {
+            List<String> virtualOntologyIds, List<String> ontologyAcroynms,
+            IsWidget topBarWidget, AsyncCallback<IsWidget> callback) {
 
         String centralOntologyVirtualId = virtualOntologyIds.get(0);
+
+        String centralOntologyAcronym = ontologyAcroynms.get(0);
 
         this.centralOntologyUri = Ontology
                 .toOntologyURI(centralOntologyVirtualId);
@@ -321,6 +347,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
         setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 
-        doLoadData(centralOntologyVirtualId, graphView, errorHandler);
+        doLoadData(centralOntologyVirtualId, centralOntologyAcronym, graphView,
+                errorHandler);
     }
 }

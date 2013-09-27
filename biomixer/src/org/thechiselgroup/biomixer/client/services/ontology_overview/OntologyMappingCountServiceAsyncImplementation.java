@@ -9,7 +9,6 @@ import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
-@Deprecated
 public class OntologyMappingCountServiceAsyncImplementation extends
         AbstractWebResourceService implements OntologyMappingCountServiceAsync {
 
@@ -45,6 +44,9 @@ public class OntologyMappingCountServiceAsyncImplementation extends
         }
         // Stage Rest service only, at the moment. No on-line documentation of
         // this.
+        // XXX May not have support in the new API. If there was only stage
+        // support
+        // for this before, perhaps it was never used by us. Look into that.
         UrlBuilder parameter = urlBuilderFactory.createUrlBuilder()
                 .path("/mappings/stats/ontologies")
                 .parameter("ontologyids", sb.toString());
@@ -68,23 +70,30 @@ public class OntologyMappingCountServiceAsyncImplementation extends
         });
     }
 
-    private String buildUrlForCentralOntologyQuery(String virtualOntologyId) {
+    private String buildUrlForCentralOntologyQuery(String ontologyAcronym) {
+        // New API Target:
+        // "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+
         // Stage Rest service only, at the moment. No on-line documentation of
         // this.
+        // UrlBuilder parameter = urlBuilderFactory.createUrlBuilder().path(
+        // "/virtual/mappings/stats/ontologies/" + virtualOntologyId);
         UrlBuilder parameter = urlBuilderFactory.createUrlBuilder().path(
-                "/virtual/mappings/stats/ontologies/" + virtualOntologyId);
+                "/mappings/statistics/ontologies/" + ontologyAcronym);
         return parameter.toString();
     }
 
     @Override
     public void getAllMappingCountsForCentralOntology(
-            final String virtualOntologyId,
+            final String ontologyAcronym,
             AsyncCallback<TotalMappingCount> callback) {
-        String url = buildUrlForCentralOntologyQuery(virtualOntologyId);
+        String url = buildUrlForCentralOntologyQuery(ontologyAcronym);
         fetchUrl(callback, url, new Transformer<String, TotalMappingCount>() {
             @Override
             public TotalMappingCount transform(String responseText)
                     throws Exception {
+                mappingsForCentralOntologyCountParser
+                        .setSourceOntologyAcronym(ontologyAcronym);
                 TotalMappingCount parse = mappingsForCentralOntologyCountParser
                         .parse(responseText);
 
