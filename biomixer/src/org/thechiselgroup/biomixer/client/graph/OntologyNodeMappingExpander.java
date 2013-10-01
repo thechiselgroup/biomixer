@@ -80,16 +80,16 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
         // XXX TODO Fix this!
         Window.alert("Need to modify REST call and parsing. May not have convenient way of doing this.");
 
-        LightweightList<String> ontologyIds = LightweightCollections
+        LightweightList<String> ontologyAcronyms = LightweightCollections
                 .<String> toList();
         for (VisualItem visItem : visualItems) {
             // Makes same assumption regarding first element of each item. This
             // is done elsewhere too.
-            ontologyIds.add((String) visItem.getResources().getFirstElement()
-                    .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
+            ontologyAcronyms.add((String) visItem.getResources()
+                    .getFirstElement().getValue(Ontology.ONTOLOGY_ACRONYM));
         }
 
-        mappingService.getMappingCounts(ontologyIds,
+        mappingService.getMappingCounts(ontologyAcronyms,
                 new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
                         errorHandler) {
 
@@ -168,9 +168,9 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {
-            String virtualOntologyId = (String) resource
-                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
-            return "(virtual ontology id: " + virtualOntologyId + ")";
+            String ontologyAcronym = (String) resource
+                    .getValue(Concept.ONTOLOGY_ACRONYM);
+            return "(ontology acronym: " + ontologyAcronym + ")";
         }
     }
 

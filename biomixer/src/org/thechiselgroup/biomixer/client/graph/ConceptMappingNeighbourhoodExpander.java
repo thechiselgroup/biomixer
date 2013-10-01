@@ -74,7 +74,7 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
                 continue;
             }
 
-            termService.getBasicInformation(Concept.getOntologyId(otherUri),
+            termService.getBasicInformation(Concept.getOntologyAcronym(otherUri),
                     Concept.getConceptId(otherUri),
                     new TimeoutErrorHandlingAsyncCallback<Resource>(
                             errorHandler) {

@@ -81,7 +81,7 @@ public class MappingServiceImplementationTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(urlFetchService).fetchURL(eq(URL), captor.capture());
 
-        underTest.getMappings(Concept.getOntologyId(conceptUri),
+        underTest.getMappings(Concept.getOntologyAcronym(conceptUri),
                 Concept.getConceptId(conceptUri), false, callback);
 
         AsyncCallback<String> xmlResultCallback = captor.getValue();

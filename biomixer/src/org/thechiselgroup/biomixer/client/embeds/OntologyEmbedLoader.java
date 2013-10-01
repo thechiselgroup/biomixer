@@ -12,8 +12,7 @@ public interface OntologyEmbedLoader extends Identifiable {
 
     String getLabel();
 
-    void loadView(ResourceSet virtualOntologies,
-            List<String> virtualOntologyIds, List<String> ontologyAcronymss,
+    void loadView(ResourceSet ontologies, List<String> ontologyAcronym,
             IsWidget topBarWidget, AsyncCallback<IsWidget> callback);
 
 }

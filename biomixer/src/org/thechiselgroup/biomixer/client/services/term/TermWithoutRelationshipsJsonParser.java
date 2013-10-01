@@ -30,7 +30,7 @@ public class TermWithoutRelationshipsJsonParser extends
         super(jsonParser);
     }
 
-    public Resource parseConcept(String ontologyId, String json) {
+    public Resource parseConcept(String ontologyAcronym, String json) {
         Object classBean = get(get(get(get(parse(json), "success"), "data"), 0),
                 "classBean");
 
@@ -39,11 +39,11 @@ public class TermWithoutRelationshipsJsonParser extends
         String label = asString(get(classBean, "label"));
         String type = asString(get(classBean, "type"));
 
-        Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
+        Resource result = new Resource(Concept.toConceptURI(ontologyAcronym, fullId));
 
         result.putValue(Concept.FULL_ID, fullId);
         result.putValue(Concept.SHORT_ID, shortId);
-        result.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        result.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         result.putValue(Concept.TYPE, type);
         result.putValue(Concept.LABEL, label);
 

@@ -37,9 +37,9 @@ public class OntologyMappingCountServiceAsyncImplementation extends
     }
 
     private String buildUrlForSpecifiedNeighbourhoodQuery(
-            Iterable<String> virtualOntologyIds) {
+            Iterable<String> ontologyAcronyms) {
         StringBuilder sb = new StringBuilder();
-        for (String id : virtualOntologyIds) {
+        for (String id : ontologyAcronyms) {
             sb.append(id).append(",");
         }
         // Stage Rest service only, at the moment. No on-line documentation of
@@ -54,9 +54,9 @@ public class OntologyMappingCountServiceAsyncImplementation extends
     }
 
     @Override
-    public void getMappingCounts(Iterable<String> virtualOntologyIds,
+    public void getMappingCounts(Iterable<String> ontologyAcronyms,
             AsyncCallback<TotalMappingCount> callback) {
-        String url = buildUrlForSpecifiedNeighbourhoodQuery(virtualOntologyIds);
+        String url = buildUrlForSpecifiedNeighbourhoodQuery(ontologyAcronyms);
         fetchUrl(callback, url, new Transformer<String, TotalMappingCount>() {
             @Override
             public TotalMappingCount transform(String responseText)

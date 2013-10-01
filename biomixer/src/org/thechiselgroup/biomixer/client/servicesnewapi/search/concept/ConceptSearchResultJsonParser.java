@@ -60,7 +60,7 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
         // Used to be the integer ontology id, now is substring for acronym
         String ontologyAcronym = ontologyId.substring(ontologyId
                 .lastIndexOf("/") + 1);
-        resource.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyAcronym);
+        resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
         // Used to be ontolgoyDisplayLabel, now is same as virtual id, since the
         // integer ids are gone, and they are now half-decent identifiers.

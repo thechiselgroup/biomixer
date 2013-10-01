@@ -80,25 +80,25 @@ public class BioMixerGraphFilterPredicate implements Predicate<Resource>,
         }
 
         if (Concept.isConcept(resource)) {
-            String ontologyId = (String) resource
-                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+            String ontologyAcronym = (String) resource
+                    .getValue(Concept.ONTOLOGY_ACRONYM);
 
-            if (!values.containsKey(ontologyId)) {
+            if (!values.containsKey(ontologyAcronym)) {
                 return true;
             }
 
-            return values.get(ontologyId);
+            return values.get(ontologyAcronym);
         }
 
         if (Ontology.isOntology(resource)) {
-            String ontologyId = (String) resource
-                    .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
+            String ontologyAcronym = (String) resource
+                    .getValue(Ontology.ONTOLOGY_ACRONYM);
 
-            if (!values.containsKey(ontologyId)) {
+            if (!values.containsKey(ontologyAcronym)) {
                 return true;
             }
 
-            return values.get(ontologyId);
+            return values.get(ontologyAcronym);
         }
 
         return true;

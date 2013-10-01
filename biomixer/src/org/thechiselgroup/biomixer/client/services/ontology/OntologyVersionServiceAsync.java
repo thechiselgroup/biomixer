@@ -27,7 +27,7 @@ public interface OntologyVersionServiceAsync {
      * a specific ontology version id. This is the interface for converting a
      * virtual ontology id to a specific ontology version id.
      */
-    void getOntologyVersionId(String virtualOntologyId,
+    void getOntologyVersionId(String ontologyAcronym,
             AsyncCallback<String> callback);
 
 }

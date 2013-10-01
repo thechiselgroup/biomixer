@@ -56,7 +56,7 @@ public class BioMixerConceptByOntologyColorResolver extends
             for (Entry<String, Serializable> entry : memento.getValues()
                     .entrySet()) {
                 // XXX buggy due to static map!
-                BioMixerConceptByOntologyColorResolver.ontologyIdToColorMap
+                BioMixerConceptByOntologyColorResolver.ontologyAcronymToColorMap
                         .put(entry.getKey(), (Color) entry.getValue());
             }
 
@@ -67,7 +67,7 @@ public class BioMixerConceptByOntologyColorResolver extends
         public Memento save(ManagedVisualItemValueResolver o) {
             Memento memento = new Memento();
 
-            for (Entry<String, Color> entry : ontologyIdToColorMap.entrySet()) {
+            for (Entry<String, Color> entry : ontologyAcronymToColorMap.entrySet()) {
                 memento.setValue(entry.getKey(), entry.getValue());
             }
 
@@ -84,18 +84,18 @@ public class BioMixerConceptByOntologyColorResolver extends
 
     // XXX bad hack - but colors should be the same across graph viewers and
     // they are also need for the legend.
-    private static Map<String, Color> ontologyIdToColorMap = CollectionFactory
+    private static Map<String, Color> ontologyAcronymToColorMap = CollectionFactory
             .createStringMap();
 
     // XXX bad hack - but colors should be the same across graph viewers and
     // they are also need for the legend.
-    public static Color getColor(String ontologyId) {
-        if (!ontologyIdToColorMap.containsKey(ontologyId)) {
-            Color color = COLORS[ontologyIdToColorMap.size() % COLORS.length];
-            ontologyIdToColorMap.put(ontologyId, color);
+    public static Color getColor(String ontologyAcronym) {
+        if (!ontologyAcronymToColorMap.containsKey(ontologyAcronym)) {
+            Color color = COLORS[ontologyAcronymToColorMap.size() % COLORS.length];
+            ontologyAcronymToColorMap.put(ontologyAcronym, color);
         }
 
-        return ontologyIdToColorMap.get(ontologyId);
+        return ontologyAcronymToColorMap.get(ontologyAcronym);
     }
 
     @Override
@@ -115,10 +115,10 @@ public class BioMixerConceptByOntologyColorResolver extends
                 return new Color("#DAE5F3");
             } else {
                 Resource resource = visualItem.getResources().getFirstElement();
-                String ontologyId = (String) resource
-                        .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+                String ontologyAcronym = (String) resource
+                        .getValue(Concept.ONTOLOGY_ACRONYM);
 
-                return getColor(ontologyId);
+                return getColor(ontologyAcronym);
             }
         }
 
@@ -128,10 +128,10 @@ public class BioMixerConceptByOntologyColorResolver extends
                 return new Color("#DAE5F3");
             } else {
                 Resource resource = visualItem.getResources().getFirstElement();
-                String ontologyId = (String) resource
-                        .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
+                String ontologyAcronym = (String) resource
+                        .getValue(Ontology.ONTOLOGY_ACRONYM);
 
-                return getColor(ontologyId);
+                return getColor(ontologyAcronym);
             }
         }
 

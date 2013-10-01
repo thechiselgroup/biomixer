@@ -24,7 +24,6 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 /**
@@ -153,8 +152,9 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
         // }
         // }
 
-        Window.alert("OntologySearchResultJsonParser, skipped "
-                + ontologiesSkipped + " of total " + total);
+        // We have to skip some...see how many here
+        // Window.alert("OntologySearchResultJsonParser, skipped "
+        // + ontologiesSkipped + " of total " + total);
 
         // Window.alert("Filtered in/all: " + in + "/" + total);
         return resources;

@@ -40,7 +40,10 @@ public final class Concept {
 
     public static final String TYPE = "type";
 
-    public static final String VIRTUAL_ONTOLOGY_ID = "virtualOntologyId";
+    @Deprecated
+    public static final String OLD_VIRTUAL_ONTOLOGY_ID = "virtualOntologyId";
+
+    public static final String ONTOLOGY_ACRONYM = "parentOntologyAcronym";
 
     /**
      * URIs of mapping where this concept is the source.
@@ -69,16 +72,16 @@ public final class Concept {
     public static final String OWNED_CONCEPTS = "ownedConcepts";
 
     // TODO change to full id
-    public static Resource createConceptResource(String ontologyId,
+    public static Resource createConceptResource(String ontologyAcronym,
             String conceptId) {
 
-        Resource concept = new Resource(Concept.toConceptURI(ontologyId,
+        Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
         // XXX
         concept.putValue(Concept.SHORT_ID, conceptId);
         concept.putValue(Concept.FULL_ID, conceptId);
-        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
         return concept;
     }
@@ -102,10 +105,10 @@ public final class Concept {
     }
 
     public static String getOntologyId(Resource resource) {
-        return getOntologyId(resource.getUri());
+        return getOntologyAcronym(resource.getUri());
     }
 
-    public static String getOntologyId(String conceptURI) {
+    public static String getOntologyAcronym(String conceptURI) {
         return conceptURI.substring(RESOURCE_URI_PREFIX.length() + 1,
                 conceptURI.indexOf('/'));
     }
@@ -122,11 +125,11 @@ public final class Concept {
     private Concept() {
     }
 
-    public static List<String> asUris(String virtualOntologyId,
+    public static List<String> asUris(String ontologyAcronym,
             String... conceptIds) {
         List<String> uris = new ArrayList<String>();
         for (String conceptId : conceptIds) {
-            uris.add(toConceptURI(virtualOntologyId, conceptId));
+            uris.add(toConceptURI(ontologyAcronym, conceptId));
         }
         return uris;
     }

@@ -51,6 +51,7 @@ import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.test.mockito.MockitoGWTBridge;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyLatestSubmissionServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
@@ -82,6 +83,9 @@ public class OntologyNodeMetricsExpanderTest {
 
     @Mock
     private OntologyMetricServiceAsync mappingService;
+
+    @Mock
+    private OntologyLatestSubmissionServiceAsync ontologySubmissionService;
 
     @Mock
     private ResourceManager resourceManager;
@@ -325,7 +329,7 @@ public class OntologyNodeMetricsExpanderTest {
                 eq(Ontology.getOntologyId(ontologyUri)), captor.capture());
         doNothing().when(mappingService).getMetrics(eq(sourceResource),
                 captor.capture());
-        when(sourceResource.getValue(eq(Ontology.ONTOLOGY_VERSION_ID)))
+        when(sourceResource.getValue(eq(Ontology.ONTOLOGY_ACRONYM)))
                 .thenReturn((Ontology.getOntologyId(ontologyUri)));
 
         underTest.expand(visualItem, expansionCallback);
@@ -437,7 +441,7 @@ public class OntologyNodeMetricsExpanderTest {
             }
         };
 
-        underTest = new AutomaticOntologyExpander(mappingService, errorHandler);
+        underTest = new AutomaticOntologyExpander(mappingService, ontologySubmissionService, errorHandler);
 
         ontology = Ontology.createOntologyResource("ontologyId");
 

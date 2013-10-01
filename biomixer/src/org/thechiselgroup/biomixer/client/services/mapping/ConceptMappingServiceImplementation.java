@@ -111,11 +111,11 @@ public class ConceptMappingServiceImplementation implements
     }
 
     @Override
-    public void getMappings(final String ontologyId, final String conceptId,
+    public void getMappings(final String ontologyAcronym, final String conceptId,
             final boolean mappingNeighbourhood,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
-        assert ontologyId != null;
+        assert ontologyAcronym != null;
         assert conceptId != null;
         assert callback != null;
 
@@ -137,12 +137,12 @@ public class ConceptMappingServiceImplementation implements
                 }
 
                 Map<String, Serializable> partialProperties = calculatePartialProperties(
-                        Concept.toConceptURI(ontologyId, conceptId), mappings);
+                        Concept.toConceptURI(ontologyAcronym, conceptId), mappings);
                 return new ResourceNeighbourhood(partialProperties, mappings);
             }
         };
 
-        urlFetchService.fetchURL(buildUrl(ontologyId, conceptId),
+        urlFetchService.fetchURL(buildUrl(ontologyAcronym, conceptId),
                 TransformingAsyncCallback.create(callback, transformer));
     }
 }

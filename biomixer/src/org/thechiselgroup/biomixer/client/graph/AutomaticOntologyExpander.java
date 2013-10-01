@@ -20,6 +20,8 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyLatestSubmissionDetails;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyLatestSubmissionServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetrics;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
@@ -34,14 +36,18 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
 
     private final OntologyMetricServiceAsync ontologyMetricService;
 
+    private final OntologyLatestSubmissionServiceAsync ontologyDescriptionService;
+
     protected final ErrorHandler errorHandler;
 
     @Inject
     public AutomaticOntologyExpander(
             OntologyMetricServiceAsync ontologyMetricService,
+            OntologyLatestSubmissionServiceAsync ontologyDescriptionService,
             ErrorHandler errorHandler) {
 
         this.ontologyMetricService = ontologyMetricService;
+        this.ontologyDescriptionService = ontologyDescriptionService;
         this.errorHandler = errorHandler;
     }
 
@@ -58,10 +64,11 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
     @Override
     public final void expand(final VisualItem visualItem,
             final NodeExpansionCallback<Graph> expansionCallback) {
-
         assert visualItem != null;
         assert expansionCallback != null;
 
+        // We have to get the metrics, but we also need the ontology description
+        // from a separate API call.
         ontologyMetricService.getMetrics(getSingleResource(visualItem),
                 new TimeoutErrorHandlingAsyncCallback<OntologyMetrics>(
                         errorHandler) {
@@ -117,8 +124,7 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                         // node sizing. This can be a raw number.
                         // 2 * (4 + Math.sqrt((numClasses) / 10)) + "");
 
-                        Resource resource = visualItem.getResources()
-                                .getFirstElement();
+                        Resource resource = getSingleResource(visualItem);
                         resource.putValue(Ontology.NUMBER_OF_CLASSES,
                                 numClasses);
                         resource.putValue(Ontology.NUMBER_OF_INDIVIDUALS,
@@ -132,6 +138,33 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
                     }
 
                 });
+
+        ontologyDescriptionService
+                .getLatestSubmissionDetails(
+                        getSingleResource(visualItem),
+                        new TimeoutErrorHandlingAsyncCallback<OntologyLatestSubmissionDetails>(
+                                errorHandler) {
+
+                            @Override
+                            protected String getMessage(Throwable caught) {
+                                return getErrorMessageWhenLoadingFails("Error finding ontology submission details");
+                            }
+
+                            @Override
+                            protected void runOnSuccess(
+                                    OntologyLatestSubmissionDetails results)
+                                    throws Exception {
+
+                                // Can do more, but for now just set description
+                                // of ontology.
+                                Resource resource = getSingleResource(visualItem);
+                                resource.putValue(Ontology.DESCRIPTION,
+                                        results.description);
+
+                                // The expansionCallback. doesn't really need to
+                                // be informed.
+                            }
+                        });
     }
 
     protected String getOntologyInfoForErrorMessage(Resource resource) {
@@ -139,9 +172,9 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {
-            String virtualOntologyId = (String) resource
-                    .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
-            return "(virtual ontology id: " + virtualOntologyId + ")";
+            String ontologyAcronym = (String) resource
+                    .getValue(Ontology.ONTOLOGY_ACRONYM);
+            return "(ontology id: " + ontologyAcronym + ")";
         }
     }
 

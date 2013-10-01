@@ -25,27 +25,30 @@ import com.google.inject.Inject;
  * @author everbeek
  * 
  */
-public class OntologyMetricJsonParser extends AbstractJsonResultParser {
+public class OntologySubmissionJsonParser extends AbstractJsonResultParser {
 
     private String ontologyAcronym;
 
     @Inject
-    public OntologyMetricJsonParser(JsonParser jsonParser) {
+    public OntologySubmissionJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }
 
-    private OntologyMetrics analyzeItem(Object jsonItem) {
-        OntologyMetrics stats = new OntologyMetrics(ontologyAcronym);
-        stats.numberOfClasses = asInt(get(jsonItem, "classes"));
-        stats.numberOfIndividuals = asInt(get(jsonItem, "individuals"));
-        stats.numberOfProperties = asInt(get(jsonItem, "properties"));
-        stats.maximumDepth = asInt(get(jsonItem, "maxDepth"));
+    private OntologyLatestSubmissionDetails analyzeItem(Object jsonItem) {
+        OntologyLatestSubmissionDetails submissionDetails = new OntologyLatestSubmissionDetails(
+                ontologyAcronym);
+        // Not used now, but leads to more details
+        Object ontologyDetails = get(jsonItem, "ontology");
+        submissionDetails.description = asString(get(jsonItem, "description"));
+        submissionDetails.version = asString(get(jsonItem, "version"));
+        submissionDetails.submissionId = asInt(get(jsonItem, "submissionId"));
+        submissionDetails.latest = true;
 
-        return stats;
+        return submissionDetails;
     }
 
     @Override
-    public OntologyMetrics parse(String json) {
+    public OntologyLatestSubmissionDetails parse(String json) {
         Object jsonObject = super.parse(json);
         if (has(jsonObject, "status") && has(jsonObject, "errors")) {
             return null;

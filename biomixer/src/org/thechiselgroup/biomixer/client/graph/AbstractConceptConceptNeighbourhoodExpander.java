@@ -66,11 +66,11 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander<T extends View
     protected void loadNeighbourhood(VisualItem visualItem, Resource resource,
             AsyncCallback<ResourceNeighbourhood> callback) {
 
-        String ontologyId = (String) resource
-                .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+        String ontologyAcronym = (String) resource
+                .getValue(Concept.ONTOLOGY_ACRONYM);
         String conceptId = (String) resource.getValue(Concept.FULL_ID);
 
-        conceptNeighbourhoodService.getNeighbourhood(ontologyId, conceptId,
+        conceptNeighbourhoodService.getNeighbourhood(ontologyAcronym, conceptId,
                 callback);
     }
 

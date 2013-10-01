@@ -34,22 +34,22 @@ public class OntologyStatusParser extends AbstractXMLResultParser {
 
     public Map<String, List<String>> parseStatuses(String xmlText)
             throws Exception {
-        Map<String, List<String>> virtualOntologyIdsByStatus = new HashMap<String, List<String>>();
+        Map<String, List<String>> ontologyAcronymsByStatus = new HashMap<String, List<String>>();
 
         Object root = parseDocument(xmlText);
 
         for (Object ontologyBean : getNodes(root,
                 "//success/data/list/ontologyBean")) {
 
-            String virtualOntologyId = getText(ontologyBean,
+            String ontologyAcronym = getText(ontologyBean,
                     "virtualOntologyId/text()");
             String status = getText(ontologyBean, "status/text()");
-            if (!virtualOntologyIdsByStatus.containsKey(status)) {
-                virtualOntologyIdsByStatus.put(status, new ArrayList<String>());
+            if (!ontologyAcronymsByStatus.containsKey(status)) {
+                ontologyAcronymsByStatus.put(status, new ArrayList<String>());
             }
-            virtualOntologyIdsByStatus.get(status).add(virtualOntologyId);
+            ontologyAcronymsByStatus.get(status).add(ontologyAcronym);
         }
 
-        return virtualOntologyIdsByStatus;
+        return ontologyAcronymsByStatus;
     }
 }

@@ -40,7 +40,6 @@ public class ConceptSearchServiceAsyncClientImplementation extends
 
         super(urlFetchService, urlBuilderFactory);
         this.resultParser = resultParser;
-        Window.alert("I am working... ConceptSearchServiceAsyncClientImplementation ...why?");
     }
 
     // private String buildUrl(String queryText) {

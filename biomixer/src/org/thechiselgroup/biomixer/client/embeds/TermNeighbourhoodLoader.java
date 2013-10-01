@@ -192,11 +192,11 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         super("term neighborhood", EMBED_MODE);
     }
 
-    private void doLoadData(final String virtualOntologyId,
+    private void doLoadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
         Window.alert("Moar alerts Working on term neighborhood");
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
@@ -212,7 +212,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
                         conceptNeighbourhoodService.getNeighbourhood(
-                                virtualOntologyId, fullConceptId,
+                                ontologyAcronym, fullConceptId,
                                 new ConceptNeighbourhoodCallback(errorHandler,
                                         resourceSet, fullConceptId, graphView,
                                         targetResource));
@@ -229,14 +229,14 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
         // XXX remove once proper view content display lifecycle is available
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                doLoadData(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);

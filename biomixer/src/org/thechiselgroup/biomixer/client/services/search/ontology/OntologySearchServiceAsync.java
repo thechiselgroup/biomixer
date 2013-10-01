@@ -29,7 +29,7 @@ public interface OntologySearchServiceAsync {
             AsyncCallback<Set<Resource>> callback);
 
     public void searchOntologiesPredeterminedSet(
-            Collection<String> virtualOntologyIds,
+            Collection<String> ontologyAcronyms,
             AsyncCallback<Set<Resource>> callback);
 
 }

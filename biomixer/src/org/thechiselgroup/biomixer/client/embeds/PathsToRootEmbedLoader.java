@@ -54,7 +54,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
 
@@ -63,22 +63,22 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
          * supported via JSONP. Therefore we just use the basic services
          * recursively.
          */
-        loadUsingRecursiveTermService(virtualOntologyId, fullConceptId,
+        loadUsingRecursiveTermService(ontologyAcronym, fullConceptId,
                 graphView, errorHandler);
     }
 
-    private void loadTerm(final String virtualOntologyId,
+    private void loadTerm(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
 
-        final String conceptUri = Concept.toConceptURI(virtualOntologyId,
+        final String conceptUri = Concept.toConceptURI(ontologyAcronym,
                 fullConceptId);
         if (graphView.getResourceModel().getResources()
                 .containsResourceWithUri(conceptUri)) {
             return;
         }
 
-        conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
+        conceptNeighbourhoodService.getResourceWithRelations(ontologyAcronym,
                 fullConceptId, new TimeoutErrorHandlingAsyncCallback<Resource>(
                         errorHandler) {
 
@@ -105,21 +105,21 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                             // Filters out has_part relations, among others...
                             String parentFullConceptId = Concept
                                     .getConceptId(parentUri);
-                            loadTerm(virtualOntologyId, parentFullConceptId,
+                            loadTerm(ontologyAcronym, parentFullConceptId,
                                     graphView, errorHandler);
                         }
                     }
                 });
     }
 
-    private void loadUsingRecursiveTermService(final String virtualOntologyId,
+    private void loadUsingRecursiveTermService(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                loadTerm(virtualOntologyId, fullConceptId, graphView,
+                loadTerm(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 50);

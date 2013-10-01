@@ -31,7 +31,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -102,10 +101,9 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                 final String otherUri = targetResource.getUri().equals(
                         sourceUri) ? targetUri : sourceUri;
 
-                final String otherOntologyId = Concept.getOntologyId(otherUri);
+                final String otherOntologyAcronym = Concept.getOntologyAcronym(otherUri);
                 final String otherConceptId = Concept.getConceptId(otherUri);
-                Window.alert("Moar alerts Working on mapping neighborhood");
-                termService.getBasicInformation(otherOntologyId,
+                termService.getBasicInformation(otherOntologyAcronym,
                         otherConceptId, new BasicTermInfoCallback(errorHandler,
                                 otherConceptId));
 
@@ -131,11 +129,10 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         super("mappings neighborhood", EMBED_MODE);
     }
 
-    private void doLoadData(final String virtualOntologyId,
+    private void doLoadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
-        Window.alert("Moar alerts Working on mapping neighborhood");
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
@@ -151,7 +148,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                         resourceSet.add(targetResource);
 
                         // TODO move to MappedConceptsServiceAsyncImpl
-                        mappingService.getMappings(virtualOntologyId,
+                        mappingService.getMappings(ontologyAcronym,
                                 fullConceptId, true, new MappingCallback(
                                         errorHandler, targetResource,
                                         resourceSet, fullConceptId, graphView));
@@ -174,14 +171,14 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                doLoadData(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);

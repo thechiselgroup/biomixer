@@ -121,8 +121,8 @@ public class BioMixerDetailsWidgetHelper extends
 
             addRow(resource, verticalPanel, "Ontology",
                     Concept.CONCEPT_ONTOLOGY_NAME);
-            addRow(resource, verticalPanel, "Ontology ID",
-                    Concept.VIRTUAL_ONTOLOGY_ID);
+            addRow(resource, verticalPanel, "Ontology Acronym",
+                    Concept.ONTOLOGY_ACRONYM);
             addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
 
         } else if (Ontology.isOntology(resource)) {
@@ -132,7 +132,7 @@ public class BioMixerDetailsWidgetHelper extends
                     resourceSet);
             final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
                     .generateOntologySummaryUrl((String) resource
-                            .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
+                            .getValue(Ontology.ONTOLOGY_ACRONYM));
             ClickHandler urlClickHandler = new ClickHandler() {
                 @Override
                 public void onClick(com.google.gwt.event.dom.client.ClickEvent e) {
@@ -149,8 +149,6 @@ public class BioMixerDetailsWidgetHelper extends
             addRow("Summary", ontologySummaryUrl, verticalPanel, true);
             addRow(resource, verticalPanel, "Ontology Acronym",
                     Ontology.ONTOLOGY_ACRONYM);
-            addRow(resource, verticalPanel, "Ontology ID",
-                    Ontology.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Description",
                     Ontology.DESCRIPTION, false);
             addRow(resource, verticalPanel, "Num Classes",
@@ -180,8 +178,8 @@ public class BioMixerDetailsWidgetHelper extends
             if (sourceConcept != null) {
                 addRow(sourceConcept, verticalPanel, "Source concept",
                         Concept.LABEL);
-                addRow(sourceConcept, verticalPanel, "Source ontology ID",
-                        Concept.VIRTUAL_ONTOLOGY_ID);
+                addRow(sourceConcept, verticalPanel, "Source ontology acronym",
+                        Concept.ONTOLOGY_ACRONYM);
                 // TODO ontology names (might need service for ontologies)
             }
 
@@ -190,8 +188,8 @@ public class BioMixerDetailsWidgetHelper extends
             if (targetConcept != null) {
                 addRow(targetConcept, verticalPanel, "Target concept",
                         Concept.LABEL);
-                addRow(targetConcept, verticalPanel, "Target ontology ID",
-                        Concept.VIRTUAL_ONTOLOGY_ID);
+                addRow(targetConcept, verticalPanel, "Target ontology acronym",
+                        Concept.ONTOLOGY_ACRONYM);
                 // TODO ontology names (might need service for ontologies)
             }
         } else {

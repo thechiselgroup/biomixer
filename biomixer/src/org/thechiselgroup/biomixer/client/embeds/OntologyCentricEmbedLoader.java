@@ -16,7 +16,6 @@ import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -55,15 +54,8 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
 
         OntologyEmbedLoader ontologyEmbedLoader = embedLoaders.get(embedMode);
 
-        // TODO This will be a series of ontology ids if this is set up for the
-        // embed. Probably. Mothballing. Sort this out later.
-        String virtualOntologyId = windowLocation
-                .getParameter("virtual_ontology_id");
-        List<String> virtualOntologyIds = new ArrayList<String>();
-        virtualOntologyIds.add(virtualOntologyId);
-
-        Window.alert("Get rid of virtual_ontology_id, replace with ontology_acronym");
-
+        // TODO This will be a series of ontology acronyms if this is set up for
+        // the embed. Probably. Mothballing. Sort this out later.
         String ontologyAcronym = windowLocation
                 .getParameter("ontology_acronym");
         List<String> ontologyAcronyms = new ArrayList<String>();
@@ -106,9 +98,8 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
             }
         });
 
-        ontologyEmbedLoader.loadView(virtualOntologies, virtualOntologyIds,
-                ontologyAcronyms, selector, callback);
-
+        ontologyEmbedLoader.loadView(virtualOntologies, ontologyAcronyms,
+                selector, callback);
     }
 
     protected void registerLoader(OntologyEmbedLoader loader) {

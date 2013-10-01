@@ -91,7 +91,7 @@ public class FullTermResponseParserTest {
         String virtualOntologyId = "1070";
         Resource result = getResource(virtualOntologyId,
                 "obo_multiple_parents_and_children.response");
-        assertThat((String) result.getValue(Concept.VIRTUAL_ONTOLOGY_ID),
+        assertThat((String) result.getValue(Concept.ONTOLOGY_ACRONYM),
                 equalTo(virtualOntologyId));
         assertThat((String) result.getValue(Concept.FULL_ID),
                 equalTo("http://purl.org/obo/owl/GO#GO_0007569"));

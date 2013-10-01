@@ -80,9 +80,9 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander<T ext
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {
-            String virtualOntologyId = (String) resource
-                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
-            return "(virtual ontology id: " + virtualOntologyId + ")";
+            String ontologyAcronym = (String) resource
+                    .getValue(Concept.ONTOLOGY_ACRONYM);
+            return "(ontology acronym: " + ontologyAcronym + ")";
         }
     }
 

@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface OntologyNameServiceAsync {
 
-    void getOntologyName(String virtualOntologyId,
+    void getOntologyName(String ontologyAcronym,
             AsyncCallback<String> callback);
 
 }

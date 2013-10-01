@@ -109,7 +109,7 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
-    public Resource parseResource(String ontologyId, String xmlText)
+    public Resource parseResource(String ontologyAcronym, String xmlText)
             throws Exception {
 
         Object rootNode = parseDocument(xmlText);
@@ -123,23 +123,24 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         String shortConceptId = getText(node, "id/text()");
         String label = getText(node, "label/text()");
 
-        Resource resource = new Resource(Concept.toConceptURI(ontologyId,
+        Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
                 fullConceptId));
         resource.putValue(Concept.FULL_ID, fullConceptId);
         resource.putValue(Concept.SHORT_ID, shortConceptId);
         resource.putValue(Concept.LABEL, label);
-        resource.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
-        ResourceNeighbourhood neighbourhood = parseNeighbourhood(ontologyId,
-                xmlText);
+        ResourceNeighbourhood neighbourhood = parseNeighbourhood(
+                ontologyAcronym, xmlText);
         resource.applyPartialProperties(neighbourhood.getPartialProperties());
 
         return resource;
     }
 
     private Resource process(Object node, boolean reversed,
-            boolean hasARelation, String ontologyId, UriList parentConcepts,
-            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts)
+            boolean hasARelation, String ontologyAcronym,
+            UriList parentConcepts, UriList childConcepts,
+            UriList owningConcepts, UriList ownedConcepts)
             throws XPathEvaluationException {
 
         String conceptId = getConceptId(node);
@@ -154,13 +155,13 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         }
 
         // retrieve & create concept + relationship
-        Resource concept = new Resource(Concept.toConceptURI(ontologyId,
+        Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
         concept.putValue(Concept.FULL_ID, conceptId);
         concept.putValue(Concept.SHORT_ID, conceptShortId);
         concept.putValue(Concept.LABEL, label);
-        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
 

@@ -27,7 +27,7 @@ public class OntologyVersionParser extends AbstractXMLResultParser {
         super(documentProcessor);
     }
 
-    public String parse(String virtualOntologyId, String xmlText)
+    public String parse(String ontologyAcronym, String xmlText)
             throws Exception {
         return getText(parseDocument(xmlText),
                 "//success/data/ontologyBean/id/text()");

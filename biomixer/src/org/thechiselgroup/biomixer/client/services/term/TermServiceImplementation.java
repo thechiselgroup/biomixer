@@ -43,7 +43,6 @@ public class TermServiceImplementation extends AbstractWebResourceService
             TermWithoutRelationshipsJsonParser responseParser) {
 
         super(urlFetchService, urlBuilderFactory);
-        Window.alert("Using modified oldie, make sure to fix OntologyMappingCountJSONParser");
         this.responseParser = responseParser;
         this.ontologyNameService = ontologyNameService;
     }

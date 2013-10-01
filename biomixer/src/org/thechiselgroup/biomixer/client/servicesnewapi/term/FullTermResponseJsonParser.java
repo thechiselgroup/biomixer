@@ -164,7 +164,7 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
-    public Resource parseResource(String ontologyId, String json) {
+    public Resource parseResource(String ontologyAcronym, String json) {
         Object queriedResource = get(
                 get(get(get(super.parse(json), "success"), "data"), 0),
                 "classBean");
@@ -173,23 +173,24 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         String shortConceptId = asString(get(queriedResource, "id"));
         String label = asString(get(queriedResource, "label"));
 
-        Resource resource = new Resource(Concept.toConceptURI(ontologyId,
+        Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
                 fullConceptId));
         resource.putValue(Concept.FULL_ID, fullConceptId);
         resource.putValue(Concept.SHORT_ID, shortConceptId);
         resource.putValue(Concept.LABEL, label);
-        resource.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
-        ResourceNeighbourhood neighbourhood = parseNeighbourhood(ontologyId,
-                json);
+        ResourceNeighbourhood neighbourhood = parseNeighbourhood(
+                ontologyAcronym, json);
         resource.applyPartialProperties(neighbourhood.getPartialProperties());
 
         return resource;
     }
 
     private Resource process(Object relation, boolean reversed,
-            boolean hasARelation, String ontologyId, UriList parentConcepts,
-            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts) {
+            boolean hasARelation, String ontologyAcronym,
+            UriList parentConcepts, UriList childConcepts,
+            UriList owningConcepts, UriList ownedConcepts) {
 
         String conceptId = asString(get(relation, "fullId"));
         String conceptShortId = asString(get(relation, "id"));
@@ -206,13 +207,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
             }
         }
 
-        Resource concept = new Resource(Concept.toConceptURI(ontologyId,
+        Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
         concept.putValue(Concept.FULL_ID, conceptId);
         concept.putValue(Concept.SHORT_ID, conceptShortId);
         concept.putValue(Concept.LABEL, label);
-        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         concept.putValue(Concept.CONCEPT_CHILD_COUNT,
                 Integer.valueOf(childCount));
 

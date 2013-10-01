@@ -46,7 +46,8 @@ public class ConceptSearchResultParser extends AbstractXMLResultParser {
         concept.putValue(Concept.FULL_ID, conceptId);
         concept.putValue(Concept.SHORT_ID, conceptShortId);
         concept.putValue(Concept.LABEL, getText(node, "preferredName/text()"));
-        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        // TODO XXX Not changed yet
+        concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyId);
         concept.putValue(Concept.CONCEPT_ONTOLOGY_NAME,
                 getText(node, "ontologyDisplayLabel/text()"));
 

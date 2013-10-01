@@ -38,10 +38,10 @@ public class BioportalWebUrlBuilder {
         return new DefaultUrlBuilder().host(SERVER).protocol(PROTOCOL);
     }
 
-    public static UrlBuilder generateOntologySummaryUrl(String virtualOntologyId) {
-        assert (null != virtualOntologyId);
+    public static UrlBuilder generateOntologySummaryUrl(String ontologyAcronym) {
+        assert (null != ontologyAcronym);
         UrlBuilder builder = baseUrlBuilder();
-        builder.path(ONTOLOGY_SUMMARY_PATH + virtualOntologyId).parameter(
+        builder.path(ONTOLOGY_SUMMARY_PATH + ontologyAcronym).parameter(
                 ONTOLOGY_SUMMARY_P_PARAM, ONTOLOGY_SUMMARY_P_PARAM_VALUE);
         return builder;
     }

@@ -16,6 +16,7 @@ import org.thechiselgroup.biomixer.client.graph.MappingExpander;
 import org.thechiselgroup.biomixer.client.graph.OntologyNodeMappingExpander;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
+import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyLatestSubmissionServiceAsyncImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
@@ -41,6 +42,10 @@ public class GraphExpansionRegistryFactory {
     @Inject
     // Can't make this the interface despite binding...why not?
     private OntologyMetricServiceAsyncClientImplementation ontologyMetricService;
+
+    @Inject
+    // Can't make this the interface despite binding...why not?
+    private OntologyLatestSubmissionServiceAsyncImplementation ontologySubmissionService;
 
     @Inject
     private ConceptNeighbourhoodServiceAsync conceptNeighbourhoodService;
@@ -74,7 +79,7 @@ public class GraphExpansionRegistryFactory {
 
         registry.putAutomaticExpander(Ontology.RESOURCE_URI_PREFIX,
                 new AutomaticOntologyExpander(ontologyMetricService,
-                        errorHandler));
+                        ontologySubmissionService, errorHandler));
 
         registry.putAutomaticBulkExpander(Ontology.RESOURCE_URI_PREFIX,
                 new OntologyNodeMappingExpander(ontologyMappingService,

@@ -37,21 +37,21 @@ public class OntologyVersionServiceAsyncClientImplementation extends
         this.parser = parser;
     }
 
-    private String buildUrl(String virtualOntologyId) {
+    private String buildUrl(String ontologyAcronym) {
         return urlBuilderFactory.createUrlBuilder()
-                .path("/bioportal/virtual/ontology/" + virtualOntologyId + "/")
+                .path("/bioportal/virtual/ontology/" + ontologyAcronym + "/")
                 .toString();
     }
 
     @Override
-    public void getOntologyVersionId(final String virtualOntologyId,
+    public void getOntologyVersionId(final String ontologyAcronym,
             final AsyncCallback<String> callback) {
 
-        String url = buildUrl(virtualOntologyId);
+        String url = buildUrl(ontologyAcronym);
         fetchUrl(callback, url, new Transformer<String, String>() {
             @Override
             public String transform(String xmlText) throws Exception {
-                return parser.parse(virtualOntologyId, xmlText);
+                return parser.parse(ontologyAcronym, xmlText);
             }
 
         });

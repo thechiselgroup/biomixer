@@ -61,11 +61,11 @@ public class HierarchyPathLoader {
         this.executor = executor;
     }
 
-    private void doLoadHierarchyData(final String virtualOntologyId,
+    private void doLoadHierarchyData(final String ontologyAcronym,
             final String shortConceptId, final View graphView) {
 
         hierarchyPathService
-                .findHierarchyToRoot(virtualOntologyId, shortConceptId,
+                .findHierarchyToRoot(ontologyAcronym, shortConceptId,
                         new TimeoutErrorHandlingAsyncCallback<Set<String>>(
                                 errorHandler) {
 
@@ -81,7 +81,7 @@ public class HierarchyPathLoader {
                                     throws Exception {
 
                                 for (String shortId : shortIdsInHierarchy) {
-                                    loadConcept(virtualOntologyId, shortId,
+                                    loadConcept(ontologyAcronym, shortId,
                                             graphView);
                                 }
                             }
@@ -89,10 +89,10 @@ public class HierarchyPathLoader {
                         });
     }
 
-    private void loadConcept(final String virtualOntologyId,
+    private void loadConcept(final String ontologyAcronym,
             final String conceptShortId, final View graphView) {
 
-        conceptNeighbourhoodService.getResourceWithRelations(virtualOntologyId,
+        conceptNeighbourhoodService.getResourceWithRelations(ontologyAcronym,
                 conceptShortId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
@@ -100,7 +100,7 @@ public class HierarchyPathLoader {
                     protected String getMessage(Throwable caught) {
                         return "Could not retrieve full term information for "
                                 + conceptShortId + " ontology "
-                                + virtualOntologyId;
+                                + ontologyAcronym;
                     }
 
                     @Override
@@ -112,24 +112,24 @@ public class HierarchyPathLoader {
                 });
     }
 
-    private void loadHierarchyData(final String virtualOntologyId,
+    private void loadHierarchyData(final String ontologyAcronym,
             final String shortConceptId, final View graphView) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadHierarchyData(virtualOntologyId, shortConceptId,
+                doLoadHierarchyData(ontologyAcronym, shortConceptId,
                         graphView);
             }
         }, new ViewIsReadyCondition(graphView), 50);
     }
 
-    public void loadUsingHierarchyService(final String virtualOntologyId,
+    public void loadUsingHierarchyService(final String ontologyAcronym,
             final String fullConceptId, final View graphView) {
         Window.alert("Moar alerts");
         // need to look up short id since that is what the hierarchy service
         // requires as a parameter
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
                 new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
@@ -144,7 +144,7 @@ public class HierarchyPathLoader {
 
                         String shortId = (String) result
                                 .getValue(Concept.SHORT_ID);
-                        loadHierarchyData(virtualOntologyId, shortId, graphView);
+                        loadHierarchyData(ontologyAcronym, shortId, graphView);
                     }
 
                 });

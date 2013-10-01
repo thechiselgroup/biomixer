@@ -82,7 +82,7 @@ public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
         String virtualOntologyId = "1070";
         Resource result = parseResource(virtualOntologyId,
                 "obo_multiple_parents_and_children.json");
-        assertThat((String) result.getValue(Concept.VIRTUAL_ONTOLOGY_ID),
+        assertThat((String) result.getValue(Concept.ONTOLOGY_ACRONYM),
                 equalTo(virtualOntologyId));
         assertThat((String) result.getValue(Concept.FULL_ID),
                 equalTo("http://purl.obolibrary.org/obo/GO_0007569"));

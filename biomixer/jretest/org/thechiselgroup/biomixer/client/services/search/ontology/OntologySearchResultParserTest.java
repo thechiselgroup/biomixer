@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchResultParser;
 import org.thechiselgroup.biomixer.server.core.util.IOUtils;
 import org.thechiselgroup.biomixer.server.workbench.util.xml.StandardJavaXMLDocumentProcessor;
 
@@ -48,10 +47,10 @@ public class OntologySearchResultParserTest extends AbstractJsonParserTest {
     @Test
     public void parseSearchResults() throws Exception {
         Set<Resource> searchResults = parseSearchResults("searchResults.xml");
-        List<String> virtualOntologyIds = getValues(searchResults,
-                Ontology.VIRTUAL_ONTOLOGY_ID);
-        assertThat(virtualOntologyIds.size(), equalTo(4));
-        assertThat(virtualOntologyIds,
+        List<String> ontologyAcronyms = getValues(searchResults,
+                Ontology.ONTOLOGY_ACRONYM);
+        assertThat(ontologyAcronyms.size(), equalTo(4));
+        assertThat(ontologyAcronyms,
                 containsExactly(Arrays.asList("1158", "1033", "1016", "1135")));
     }
 

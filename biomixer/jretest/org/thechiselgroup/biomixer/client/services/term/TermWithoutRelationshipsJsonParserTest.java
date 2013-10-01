@@ -47,7 +47,7 @@ public class TermWithoutRelationshipsJsonParserTest extends
                 "http://purl.bioontology.org/ontology/ICD10/O80-O84.9")));
         assertThat((String) concept.getValue(Concept.FULL_ID),
                 equalTo("http://purl.bioontology.org/ontology/ICD10/O80-O84.9"));
-        assertThat((String) concept.getValue(Concept.VIRTUAL_ONTOLOGY_ID),
+        assertThat((String) concept.getValue(Concept.ONTOLOGY_ACRONYM),
                 equalTo("44103"));
         assertThat((String) concept.getValue(Concept.LABEL),
                 equalTo("Delivery"));
