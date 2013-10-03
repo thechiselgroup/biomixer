@@ -17,10 +17,14 @@ package org.thechiselgroup.biomixer.client.embeds;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
@@ -78,8 +82,9 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
             return;
         }
 
-        conceptNeighbourhoodService.getResourceWithRelations(ontologyAcronym,
-                fullConceptId, new TimeoutErrorHandlingAsyncCallback<Resource>(
+        conceptNeighbourhoodService.getPathToRootNeighbourhood(ontologyAcronym,
+                fullConceptId,
+                new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                         errorHandler) {
 
                     @Override
@@ -89,7 +94,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                     }
 
                     @Override
-                    public void runOnSuccess(Resource resource) {
+                    public void runOnSuccess(ResourceNeighbourhood resourceNeighbourhood) {
                         hideLoadingBar();
 
                         if (graphView.getResourceModel().getResources()
@@ -97,17 +102,37 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                             return;
                         }
 
-                        graphView.getResourceModel().getAutomaticResourceSet()
-                                .add(resource);
+                        // for (Resource resource : resourceNeighbourhood
+                        // .getResources()) {
+                        // graphView.getResourceModel()
+                        // .getAutomaticResourceSet().add(resource);
+                        // }
 
-                        for (String parentUri : resource
-                                .getUriListValue(Concept.PARENT_CONCEPTS)) {
-                            // Filters out has_part relations, among others...
-                            String parentFullConceptId = Concept
-                                    .getConceptId(parentUri);
-                            loadTerm(ontologyAcronym, parentFullConceptId,
-                                    graphView, errorHandler);
-                        }
+                        // See TermNeighbourhoodLoader for some related stuff
+                        final ResourceSet resourceSet = new DefaultResourceSet();
+                        resourceSet.addAll(resourceNeighbourhood.getResources());
+                        graphView.getResourceModel()
+                                .addResourceSet(resourceSet);
+
+                        // for (String parentUri : resource
+                        // .getUriListValue(Concept.PARENT_CONCEPTS)) {
+                        // // Filters out has_part relations, among others...
+                        // String parentFullConceptId = Concept
+                        // .getConceptId(parentUri);
+
+                        Resource targetResource = resourceNeighbourhood
+                                .getResource(fullConceptId);
+                        targetResource
+                                .applyPartialProperties(resourceNeighbourhood
+                                        .getPartialProperties());
+
+                        // Getting parents doesn't just get their IDs, it gets
+                        // the parsable parent. So the whole paths to root
+                        // neighbourhood is everything we need.
+                        // loadTerm(ontologyAcronym, parentFullConceptId,
+                        // graphView, errorHandler);
+                        // }
+
                     }
                 });
     }

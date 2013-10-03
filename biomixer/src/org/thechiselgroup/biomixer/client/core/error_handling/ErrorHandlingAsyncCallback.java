@@ -15,11 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.core.error_handling;
 
+import org.thechiselgroup.biomixer.client.visualization_component.graph.CallbackException;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ErrorHandlingAsyncCallback<T> implements AsyncCallback<T> {
 
-    protected final ErrorHandler errorHandler;
+    public final ErrorHandler errorHandler;
 
     public ErrorHandlingAsyncCallback(ErrorHandler errorHandler) {
         assert errorHandler != null;
@@ -52,8 +54,12 @@ public class ErrorHandlingAsyncCallback<T> implements AsyncCallback<T> {
      * Hook method. Override to log custom exceptions in
      * {@link #onFailure(Throwable)}, e.g. to provide custom error messages.
      */
-    protected Throwable wrapException(Throwable caught) {
-        return caught;
+    protected String getMessage(Throwable caught) {
+        return "An error occurred";
+    }
+
+    protected final Throwable wrapException(Throwable caught) {
+        return new CallbackException(getMessage(caught), caught);
     }
 
 }

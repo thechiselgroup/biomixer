@@ -48,9 +48,8 @@ public class FullTermResponseParserTest {
     }
 
     private String getResponseXML(String xmlFilename) throws IOException {
-        return IOUtils
-                .readIntoString(FullTermResponseParserTest.class
-                        .getResourceAsStream(xmlFilename));
+        return IOUtils.readIntoString(FullTermResponseParserTest.class
+                .getResourceAsStream(xmlFilename));
     }
 
     @Test
@@ -69,20 +68,16 @@ public class FullTermResponseParserTest {
         UriList parentUris = (UriList) partialProperties
                 .get(Concept.PARENT_CONCEPTS);
 
-        assertThat(
-                childUris,
-                containsExactly(Concept.asUris(virtualOntologyId,
-                        "http://purl.org/obo/owl/GO#GO_0001300",
-                        "http://purl.org/obo/owl/GO#GO_0090398",
-                        "http://purl.org/obo/owl/GO#GO_0001302",
-                        "http://purl.org/obo/owl/GO#GO_0007576",
-                        "http://purl.org/obo/owl/GO#GO_0001301")));
+        assertThat(childUris, containsExactly(Concept.asUris(virtualOntologyId,
+                "http://purl.org/obo/owl/GO#GO_0001300",
+                "http://purl.org/obo/owl/GO#GO_0090398",
+                "http://purl.org/obo/owl/GO#GO_0001302",
+                "http://purl.org/obo/owl/GO#GO_0007576",
+                "http://purl.org/obo/owl/GO#GO_0001301")));
 
-        assertThat(
-                parentUris,
-                containsExactly(Concept.asUris(virtualOntologyId,
-                        "http://purl.org/obo/owl/GO#GO_0007568",
-                        "http://purl.org/obo/owl/GO#GO_0009987")));
+        assertThat(parentUris, containsExactly(Concept.asUris(
+                virtualOntologyId, "http://purl.org/obo/owl/GO#GO_0007568",
+                "http://purl.org/obo/owl/GO#GO_0009987")));
     }
 
     @Test
@@ -93,9 +88,9 @@ public class FullTermResponseParserTest {
                 "obo_multiple_parents_and_children.response");
         assertThat((String) result.getValue(Concept.ONTOLOGY_ACRONYM),
                 equalTo(virtualOntologyId));
-        assertThat((String) result.getValue(Concept.FULL_ID),
+        assertThat((String) result.getValue(Concept.ID),
                 equalTo("http://purl.org/obo/owl/GO#GO_0007569"));
-        assertThat((String) result.getValue(Concept.SHORT_ID),
+        assertThat((String) result.getValue(Concept.OLD_SHORT_ID),
                 equalTo("GO:0007569"));
         assertThat((String) result.getValue(Concept.LABEL),
                 equalTo("cell aging"));

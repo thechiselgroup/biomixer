@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.embeds;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -31,15 +32,16 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     private class MappingCallback extends
-            TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> {
 
         private class BasicTermInfoCallback extends
-                TimeoutErrorHandlingAsyncCallback<Resource> {
+                ErrorHandlingAsyncCallback<Resource> {
 
             private final String otherConceptId;
 
@@ -133,7 +135,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
         termService.getBasicInformation(ontologyAcronym, fullConceptId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -146,6 +148,8 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                             throws Exception {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
+
+                        Window.alert("In doLoadData of the MappingNeighbourhoodLoader");
 
                         // TODO move to MappedConceptsServiceAsyncImpl
                         mappingService.getMappings(ontologyAcronym,

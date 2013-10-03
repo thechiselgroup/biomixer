@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceManager;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
@@ -124,8 +125,8 @@ public class ConceptConceptNeighbourhoodExpanderTest {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void callExpand() {
-        ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
-                .forClass(AsyncCallback.class);
+        ArgumentCaptor<ErrorHandlingAsyncCallback> captor = ArgumentCaptor
+                .forClass(ErrorHandlingAsyncCallback.class);
 
         doNothing().when(neighbourhoodService).getNeighbourhood(
                 eq(CONCEPT_1_ONTOLOGY_ID), eq(CONCEPT_1_FULL_ID),
@@ -159,13 +160,13 @@ public class ConceptConceptNeighbourhoodExpanderTest {
         concept1Uri = Concept.toConceptURI(CONCEPT_1_ONTOLOGY_ID,
                 CONCEPT_1_FULL_ID);
         concept1 = new Resource(concept1Uri);
-        concept1.putValue(Concept.FULL_ID, CONCEPT_1_FULL_ID);
+        concept1.putValue(Concept.ID, CONCEPT_1_FULL_ID);
         concept1.putValue(Concept.ONTOLOGY_ACRONYM, CONCEPT_1_ONTOLOGY_ID);
 
         concept2Uri = Concept.toConceptURI(CONCEPT_2_ONTOLOGY_ID,
                 CONCEPT_2_FULL_ID);
         concept2 = new Resource(concept2Uri);
-        concept2.putValue(Concept.FULL_ID, CONCEPT_2_FULL_ID);
+        concept2.putValue(Concept.ID, CONCEPT_2_FULL_ID);
         concept2.putValue(Concept.ONTOLOGY_ACRONYM, CONCEPT_2_ONTOLOGY_ID);
 
         when(graphDisplay.getNode(concept2Uri)).thenReturn(concept2Node);

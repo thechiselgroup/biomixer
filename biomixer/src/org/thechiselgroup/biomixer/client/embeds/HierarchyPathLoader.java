@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
 import org.thechiselgroup.biomixer.client.core.visualization.ViewIsReadyCondition;
@@ -40,6 +41,9 @@ import com.google.inject.Inject;
  * @author drusk
  * 
  */
+// The new API roots_to_path appears to be the best way to get that data, and I
+// can go ahead and use the PathsToRootEmbedLoader with that approach.
+@Deprecated
 public class HierarchyPathLoader {
 
     @Inject
@@ -62,64 +66,59 @@ public class HierarchyPathLoader {
     }
 
     private void doLoadHierarchyData(final String ontologyAcronym,
-            final String shortConceptId, final View graphView) {
+            final String conceptId, final View graphView) {
 
-        hierarchyPathService
-                .findHierarchyToRoot(ontologyAcronym, shortConceptId,
-                        new TimeoutErrorHandlingAsyncCallback<Set<String>>(
-                                errorHandler) {
-
-                            @Override
-                            protected String getMessage(Throwable caught) {
-                                return "Could not retrieve hierarchy to root for "
-                                        + shortConceptId;
-                            }
-
-                            @Override
-                            protected void runOnSuccess(
-                                    Set<String> shortIdsInHierarchy)
-                                    throws Exception {
-
-                                for (String shortId : shortIdsInHierarchy) {
-                                    loadConcept(ontologyAcronym, shortId,
-                                            graphView);
-                                }
-                            }
-
-                        });
-    }
-
-    private void loadConcept(final String ontologyAcronym,
-            final String conceptShortId, final View graphView) {
-
-        conceptNeighbourhoodService.getResourceWithRelations(ontologyAcronym,
-                conceptShortId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+        hierarchyPathService.findHierarchyToRoot(ontologyAcronym, conceptId,
+                new ErrorHandlingAsyncCallback<Set<String>>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
-                        return "Could not retrieve full term information for "
-                                + conceptShortId + " ontology "
-                                + ontologyAcronym;
+                        return "Could not retrieve hierarchy to root for "
+                                + conceptId;
                     }
 
                     @Override
-                    protected void runOnSuccess(Resource resource) {
-                        graphView.getResourceModel().getAutomaticResourceSet()
-                                .add(resource);
+                    protected void runOnSuccess(
+                            Set<String> conceptIdsInHierarchy) throws Exception {
+
+                        for (String conceptId : conceptIdsInHierarchy) {
+                            // loadConcept(ontologyAcronym, conceptId,
+                            // graphView);
+                        }
                     }
 
                 });
     }
 
+    private void loadConcept(final String ontologyAcronym,
+            final String conceptId, final View graphView) {
+
+        // conceptNeighbourhoodService.getResourceWithRelations(ontologyAcronym,
+        // conceptId, new ErrorHandlingAsyncCallback<Resource>(
+        // errorHandler) {
+        //
+        // @Override
+        // protected String getMessage(Throwable caught) {
+        // return "Could not retrieve full term information for "
+        // + conceptId + " ontology " + ontologyAcronym;
+        // }
+        //
+        // @Override
+        // protected void runOnSuccess(Resource resource) {
+        // graphView.getResourceModel().getAutomaticResourceSet()
+        // .add(resource);
+        // }
+        //
+        // });
+    }
+
     private void loadHierarchyData(final String ontologyAcronym,
-            final String shortConceptId, final View graphView) {
+            final String conceptId, final View graphView) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadHierarchyData(ontologyAcronym, shortConceptId,
-                        graphView);
+                doLoadHierarchyData(ontologyAcronym, conceptId, graphView);
             }
         }, new ViewIsReadyCondition(graphView), 50);
     }
@@ -130,7 +129,7 @@ public class HierarchyPathLoader {
         // need to look up short id since that is what the hierarchy service
         // requires as a parameter
         termService.getBasicInformation(ontologyAcronym, fullConceptId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -142,9 +141,8 @@ public class HierarchyPathLoader {
                     protected void runOnSuccess(Resource result)
                             throws Exception {
 
-                        String shortId = (String) result
-                                .getValue(Concept.SHORT_ID);
-                        loadHierarchyData(ontologyAcronym, shortId, graphView);
+                        String conceptId = (String) result.getValue(Concept.ID);
+                        loadHierarchyData(ontologyAcronym, conceptId, graphView);
                     }
 
                 });

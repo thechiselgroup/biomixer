@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
@@ -27,8 +28,6 @@ import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingService
 import org.thechiselgroup.biomixer.client.visualization_component.graph.AbstractGraphNodeSingleResourceNeighbourhoodExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public abstract class AbstractConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>
         extends AbstractGraphNodeSingleResourceNeighbourhoodExpander<T> {
@@ -64,12 +63,11 @@ public abstract class AbstractConceptMappingNeighbourhoodExpander<T extends View
 
     @Override
     protected void loadNeighbourhood(VisualItem visualItem, Resource resource,
-            AsyncCallback<ResourceNeighbourhood> callback) {
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback) {
 
         String ontologyAcronym = (String) resource
                 .getValue(Concept.ONTOLOGY_ACRONYM);
-        String conceptId = (String) resource.getValue(Concept.FULL_ID);
-
+        String conceptId = (String) resource.getValue(Concept.ID);
         mappingService.getMappings(ontologyAcronym, conceptId, false, callback);
     }
 

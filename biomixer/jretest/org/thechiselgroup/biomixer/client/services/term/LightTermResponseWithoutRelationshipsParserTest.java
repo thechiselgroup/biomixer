@@ -39,7 +39,7 @@ public class LightTermResponseWithoutRelationshipsParserTest {
         assertThat(concept.getUri(), equalTo(Concept.toConceptURI("44103",
                 "http://purl.bioontology.org/ontology/ICD10/O80-O84.9")));
 
-        assertThat((String) concept.getValue(Concept.FULL_ID),
+        assertThat((String) concept.getValue(Concept.ID),
                 equalTo("http://purl.bioontology.org/ontology/ICD10/O80-O84.9"));
 
         assertThat((String) concept.getValue(Concept.ONTOLOGY_ACRONYM),

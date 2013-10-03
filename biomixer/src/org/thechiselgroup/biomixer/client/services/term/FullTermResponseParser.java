@@ -31,6 +31,8 @@ import org.thechiselgroup.biomixer.shared.workbench.util.xml.XPathEvaluationExce
 
 import com.google.inject.Inject;
 
+// This is for old API, and we prefer json to XML, since we use JSONP fro cross domain data.
+@Deprecated
 public class FullTermResponseParser extends AbstractXMLResultParser {
 
     private static final String OWL_THING = "owl:Thing";
@@ -71,7 +73,7 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
                 Object r = relationships[j];
 
                 String name = getText(node, "string/text()");
-                
+
                 boolean classRelation = "SubClass".equals(name)
                         || "SuperClass".equals(name);
                 boolean compositeRelation = "has_part".equals(name)
@@ -120,13 +122,12 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         Object node = nodes[0];
 
         String fullConceptId = getConceptId(node);
-        String shortConceptId = getText(node, "id/text()");
+        // String shortConceptId = getText(node, "id/text()");
         String label = getText(node, "label/text()");
 
         Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
                 fullConceptId));
-        resource.putValue(Concept.FULL_ID, fullConceptId);
-        resource.putValue(Concept.SHORT_ID, shortConceptId);
+        resource.putValue(Concept.ID, fullConceptId);
         resource.putValue(Concept.LABEL, label);
         resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
@@ -144,7 +145,7 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
             throws XPathEvaluationException {
 
         String conceptId = getConceptId(node);
-        String conceptShortId = getText(node, "id/text()");
+        // String conceptShortId = getText(node, "id/text()");
         String label = getText(node, "label/text()");
 
         int childCount = 0;
@@ -158,12 +159,13 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
-        concept.putValue(Concept.FULL_ID, conceptId);
-        concept.putValue(Concept.SHORT_ID, conceptShortId);
+        concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.LABEL, label);
         concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
-        concept.putValue(Concept.CONCEPT_CHILD_COUNT,
-                Integer.valueOf(childCount));
+        // CHild count was never used and is no longer conveniently available in
+        // the new API
+        // concept.putValue(Concept.CONCEPT_CHILD_COUNT,
+        // Integer.valueOf(childCount));
 
         if (hasARelation && reversed) {
             owningConcepts.add(concept.getUri());

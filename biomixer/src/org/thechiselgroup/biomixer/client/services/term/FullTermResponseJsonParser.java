@@ -19,12 +19,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
-import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
@@ -45,112 +45,64 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
 
     private static final String OWL_THING = "owl:Thing";
 
+    private final TermWithoutRelationshipsJsonParser termParser;
+
     @Inject
-    public FullTermResponseJsonParser(JsonParser jsonParser) {
+    public FullTermResponseJsonParser(JsonParser jsonParser,
+            TermWithoutRelationshipsJsonParser termParser) {
         super(jsonParser);
+        this.termParser = termParser;
     }
 
-    public ResourceNeighbourhood parseNeighbourhood(String ontologyId,
+    // Parses results of class call with "parents" or "children" arguments:
+    // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F35146001/parents/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P4.onSuccess
+    // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F35146001/children/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P4.onSuccess
+    public ResourceNeighbourhood parseNewChildren(String ontologyAcronym,
             String json) {
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
         UriList owningConcepts = new UriList();
         UriList ownedConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
+        // LightweightList<Object> queriedResourceRelations = CollectionFactory
+        // .createLightweightList();
 
-        /*
-         * The code below should fix situations such as the one mentioned in
-         * issue #149. However, the mapping discussed in #149 has now been
-         * removed by BioPortal. // check if there is a "status" key in the JSON
-         * returned //Window.alert("original JSON: " + json); if
-         * (json.contains("status") == true) { // inform the user CharSequence
-         * s1 = "{"; CharSequence s2 = ");";
-         * 
-         * int location1 = json.indexOf(s1.toString()); int location2 =
-         * json.indexOf(s2.toString()); String finalJson =
-         * json.substring(location1, location2);
-         * Window.alert("substringed json: " + finalJson); Object statusKey =
-         * get(super.parse(finalJson), "status"); Window.alert("statusKey: " +
-         * statusKey); if (statusKey == "404") { Window.alert(
-         * "This mapping cannot be viewed because the target concept's id cannot be found in the most recent version of the target ontology."
-         * );
-         * 
-         * }
-         * 
-         * } else { // process JSON as usual
-         * 
-         * }
-         */
+        // TODO What if I get more pages? This seems to low to redispatch to get
+        // more...but I have links, so I could write another fetch call in here
+        // and keep using the original callback after it is adjusted for
+        // multiple passes to get data.
 
-        /*
-         * Note: only entries with a list attribute are retrieved
-         */
-        // "$.success.data[0].classBean.relations[0].entry[?(@.list)]");
-        Object queriedResourceRelationsObject = get(
-                get(get(get(
-                        get(get(get(super.parse(json), "success"), "data"), 0),
-                        "classBean"), "relations"), 0), "entry");
-        LightweightList<Object> queriedResourceRelations = CollectionFactory
-                .createLightweightList();
-        for (int i = 0; i < length(queriedResourceRelationsObject); i++) {
-            Object object = get(queriedResourceRelationsObject, i);
-            if (has(object, "list")) {
-                queriedResourceRelations.add(object);
-            }
-        }
+        Integer pageNumber = asInt(get(super.parse(json), "page"));
+        Integer maxPageNumber = asInt(get(super.parse(json), "pageCount"));
+        Object collectionArray = get(super.parse(json), "collection");
+        // Make resources for all the children
+        Integer numChildren = length(collectionArray);
+        for (int i = 0; i < numChildren; i++) {
+            Object child = get(collectionArray, i);
 
-        for (int i = 0; i < queriedResourceRelations.size(); i++) {
-            Object entry = queriedResourceRelations.get(i);
+            // I can't seem to find how to get composition relations fromt he
+            // new API. Emailed Paul about it.
+            // Until I know this, just make use of the parent and child
+            // relations.
+            boolean classRelation = true;
+            boolean compositeRelation = false;
+            boolean superOfTarget = false;
 
-            String relationType = asString(get(entry, "string"));
+            // String relationType = asString(get(entry, "string"));
+            // boolean classRelation = "SubClass".equals(relationType)
+            // || "SuperClass".equals(relationType);
+            // boolean compositeRelation = "has_part".equals(relationType)
+            // || "[R]has_part".equals(relationType);
+            // boolean reversed = "SuperClass".equals(relationType)
+            // || "[R]has_part".equals(relationType);
 
-            boolean classRelation = "SubClass".equals(relationType)
-                    || "SuperClass".equals(relationType);
-            boolean compositeRelation = "has_part".equals(relationType)
-                    || "[R]has_part".equals(relationType);
-            boolean reversed = "SuperClass".equals(relationType)
-                    || "[R]has_part".equals(relationType);
+            // The process method creates the resource and registers the
+            // relations.
+            Resource neighbour = process(child, superOfTarget,
+                    compositeRelation, ontologyAcronym, parentConcepts,
+                    childConcepts, owningConcepts, ownedConcepts);
+            resources.add(neighbour);
 
-            if (relationType == null || !(classRelation || compositeRelation)) {
-                /*
-                 * XXX OBO relations (such as 'negatively_regulates', '[R]is_a')
-                 * get ignored
-                 */
-                continue;
-            }
-
-            Object entryListContents = get(get(get(entry, "list"), 0),
-                    "classBean"); // "$.list[0].classBean"
-            if (entryListContents == null || !isArray(entryListContents)) {
-                // if there is just one classbean it is not stored in an array
-                // XXX CLEAN THIS UP
-                // JsonItem item = getItem(entry.stringValue(),
-                // "$.list[0].classBean");
-                if (entryListContents == null // TODO ! isObject
-                        || asString(get(entryListContents, "id")).equals(
-                                OWL_THING)) {
-                    continue;
-                }
-                Resource neighbour = process(entryListContents, reversed,
-                        compositeRelation, ontologyId, parentConcepts,
-                        childConcepts, owningConcepts, ownedConcepts);
-                resources.add(neighbour);
-                continue;
-            }
-
-            for (int j = 0; j < length(entryListContents); j++) {
-                Object relation = get(entryListContents, j);
-
-                if (asString(get(relation, "id")).equals(OWL_THING)) {
-                    // don't include owl:Thing as a neighbour
-                    continue;
-                }
-
-                Resource neighbour = process(relation, reversed,
-                        compositeRelation, ontologyId, parentConcepts,
-                        childConcepts, owningConcepts, ownedConcepts);
-                resources.add(neighbour);
-            }
         }
 
         Map<String, Serializable> partialProperties = CollectionFactory
@@ -163,64 +115,132 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
-    public Resource parseResource(String ontologyAcronym, String json) {
-        Object queriedResource = get(
-                get(get(get(super.parse(json), "success"), "data"), 0),
-                "classBean");
+    public ResourceNeighbourhood parseNewParents(String ontologyAcronym,
+            String json) {
+        UriList parentConcepts = new UriList();
+        UriList childConcepts = new UriList();
+        UriList owningConcepts = new UriList();
+        UriList ownedConcepts = new UriList();
+        List<Resource> resources = new ArrayList<Resource>();
+        // LightweightList<Object> queriedResourceRelations = CollectionFactory
+        // .createLightweightList();
 
-        String fullConceptId = asString(get(queriedResource, "fullId"));
-        String shortConceptId = asString(get(queriedResource, "id"));
-        String label = asString(get(queriedResource, "label"));
+        // Note that there are no pages for parents
+        Object parentsArray = super.parse(json);
 
-        Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
-                fullConceptId));
-        resource.putValue(Concept.FULL_ID, fullConceptId);
-        resource.putValue(Concept.SHORT_ID, shortConceptId);
-        resource.putValue(Concept.LABEL, label);
-        resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
+        // Make resources for all the parents
+        // Integer numParents = length(parentsArray);
+        // Having a problem (again) with implicit array indices being turned
+        // into quoted string integers.
+        Set<String> quotedStringIndices = getObjectProperties(parentsArray);
 
-        ResourceNeighbourhood neighbourhood = parseNeighbourhood(
-                ontologyAcronym, json);
-        resource.applyPartialProperties(neighbourhood.getPartialProperties());
+        // for (int i = 0; i < numParents; i++) {
+        for (String index : quotedStringIndices) {
+            Object parent = get(parentsArray, index);
 
-        return resource;
+            // I can't seem to find how to get composition relations from the
+            // new API. Emailed Paul about it.
+            // Until I know this, just make use of the parent and child
+            // relations.
+            boolean classRelation = true;
+            boolean compositeRelation = false;
+            boolean superOfTarget = true;
+
+            // String relationType = asString(get(entry, "string"));
+            // boolean classRelation = "SubClass".equals(relationType)
+            // || "SuperClass".equals(relationType);
+            // boolean compositeRelation = "has_part".equals(relationType)
+            // || "[R]has_part".equals(relationType);
+            // boolean reversed = "SuperClass".equals(relationType)
+            // || "[R]has_part".equals(relationType);
+
+            // The process method creates the resource and registers the
+            // relations.
+            Resource neighbour = process(parent, superOfTarget,
+                    compositeRelation, ontologyAcronym, parentConcepts,
+                    childConcepts, owningConcepts, ownedConcepts);
+            resources.add(neighbour);
+
+        }
+
+        Map<String, Serializable> partialProperties = CollectionFactory
+                .createStringMap();
+        partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
+        partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
+        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
+
+        return new ResourceNeighbourhood(partialProperties, resources);
     }
 
-    private Resource process(Object relation, boolean reversed,
+    public ResourceNeighbourhood parseNewPathsToRoot(String ontologyAcronym,
+            String json) {
+        UriList parentConcepts = new UriList();
+        UriList childConcepts = new UriList();
+        UriList owningConcepts = new UriList();
+        UriList ownedConcepts = new UriList();
+        List<Resource> resources = new ArrayList<Resource>();
+        // LightweightList<Object> queriedResourceRelations = CollectionFactory
+        // .createLightweightList();
+
+        // Note that there are no pages for parents
+        Object collectionArray = super.parse(json);
+
+        // Make resources for all the children
+        Integer numParents = length(collectionArray);
+        for (int i = 0; i < numParents; i++) {
+            String parent = asString(get(collectionArray, i));
+
+            // I can't seem to find how to get composition relations fromt he
+            // new API. Emailed Paul about it.
+            // Until I know this, just make use of the parent and child
+            // relations.
+            boolean classRelation = true;
+            boolean compositeRelation = false;
+            boolean superOfTarget = true;
+
+            // String relationType = asString(get(entry, "string"));
+            // boolean classRelation = "SubClass".equals(relationType)
+            // || "SuperClass".equals(relationType);
+            // boolean compositeRelation = "has_part".equals(relationType)
+            // || "[R]has_part".equals(relationType);
+            // boolean reversed = "SuperClass".equals(relationType)
+            // || "[R]has_part".equals(relationType);
+
+            // The process method creates the resource and registers the
+            // relations.
+
+            Resource neighbour = process(parent, superOfTarget,
+                    compositeRelation, ontologyAcronym, parentConcepts,
+                    childConcepts, owningConcepts, ownedConcepts);
+            resources.add(neighbour);
+
+        }
+
+        Map<String, Serializable> partialProperties = CollectionFactory
+                .createStringMap();
+        partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
+        partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
+        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
+
+        return new ResourceNeighbourhood(partialProperties, resources);
+    }
+
+    private Resource process(Object relatedTerm, boolean superOfTarget,
             boolean hasARelation, String ontologyAcronym,
             UriList parentConcepts, UriList childConcepts,
             UriList owningConcepts, UriList ownedConcepts) {
 
-        String conceptId = asString(get(relation, "fullId"));
-        String conceptShortId = asString(get(relation, "id"));
-        String label = asString(get(relation, "label"));
-
-        int childCount = 0;
-        Object relationsEntry = get(get(get(relation, "relations"), 0), "entry");
-
-        if (relationsEntry != null) {
-            Object entryString = get(relationsEntry, "string");
-            if (entryString != null
-                    && asString(entryString).equals("ChildCount")) {
-                childCount = asInt(get(relationsEntry, "int"));
-            }
-        }
-
-        Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
-                conceptId));
-
-        concept.putValue(Concept.FULL_ID, conceptId);
-        concept.putValue(Concept.SHORT_ID, conceptShortId);
-        concept.putValue(Concept.LABEL, label);
-        concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
-        concept.putValue(Concept.CONCEPT_CHILD_COUNT,
-                Integer.valueOf(childCount));
-
-        if (hasARelation && reversed) {
+        // This is so different now, because it seems that relations are not
+        // directly represented as they were in the old API.
+        Resource concept = termParser
+                .parseConcept(ontologyAcronym, relatedTerm);
+        if (hasARelation && superOfTarget) {
             owningConcepts.add(concept.getUri());
-        } else if (hasARelation && !reversed) {
+        } else if (hasARelation && !superOfTarget) {
             ownedConcepts.add(concept.getUri());
-        } else if (!hasARelation && reversed) {
+        } else if (!hasARelation && superOfTarget) {
             parentConcepts.add(concept.getUri());
         } else { // !hasARelation && !reversed
             childConcepts.add(concept.getUri());

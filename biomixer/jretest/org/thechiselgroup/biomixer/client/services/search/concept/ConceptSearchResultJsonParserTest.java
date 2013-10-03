@@ -49,7 +49,7 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
 
         assertThat(getValues(searchResults, Concept.ONTOLOGY_ACRONYM),
                 containsExactly(Arrays.asList("1353")));
-        assertThat(getValues(searchResults, Concept.SHORT_ID),
+        assertThat(getValues(searchResults, Concept.OLD_SHORT_ID),
                 containsExactly(Arrays.asList("128927009")));
     }
 
@@ -62,7 +62,7 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
         assertThat(virtualOntologyIds,
                 containsExactly(Arrays.asList("1501", "1613", "1615")));
 
-        List<String> shortIds = getValues(searchResults, Concept.SHORT_ID);
+        List<String> shortIds = getValues(searchResults, Concept.OLD_SHORT_ID);
         assertThat(shortIds, containsExactly(Arrays.asList("neomark:Gene",
                 "Gene", "bp:Gene")));
     }

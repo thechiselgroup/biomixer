@@ -32,9 +32,13 @@ public final class Concept {
 
     public static final String RESOURCE_URI_PREFIX = "ncbo-concept";
 
-    public static final String FULL_ID = "fullId";
+    @Deprecated
+    public static final String OLD_FULL_ID = "fullId";
 
-    public static final String SHORT_ID = "shortId";
+    public static final String ID = "id";
+
+    @Deprecated
+    public static final String OLD_SHORT_ID = "shortId";
 
     public static final String LABEL = "label";
 
@@ -57,9 +61,10 @@ public final class Concept {
 
     public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
+    @Deprecated
+    // Now that we have ontology acronym, it seems ok to use that and not do all
+    // the extra REST calls necessary to get the ontology names.
     public static final String CONCEPT_ONTOLOGY_NAME = "ontologyName";
-
-    public static final String CONCEPT_CHILD_COUNT = "childCount";
 
     public static final String CHILD_CONCEPTS = "childConcepts";
 
@@ -78,9 +83,7 @@ public final class Concept {
         Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
-        // XXX
-        concept.putValue(Concept.SHORT_ID, conceptId);
-        concept.putValue(Concept.FULL_ID, conceptId);
+        concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
         return concept;
@@ -96,7 +99,7 @@ public final class Concept {
 
     public static String getFullId(Resource concept) {
         assert isConcept(concept);
-        return (String) concept.getValue(FULL_ID);
+        return (String) concept.getValue(ID);
     }
 
     public static String getLabel(Resource concept) {

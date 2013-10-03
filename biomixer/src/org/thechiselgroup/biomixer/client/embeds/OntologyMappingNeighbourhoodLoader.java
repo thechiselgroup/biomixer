@@ -26,6 +26,7 @@ import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.LoggingErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSetFactory;
@@ -104,7 +105,7 @@ public class OntologyMappingNeighbourhoodLoader implements OntologyEmbedLoader
             final View graphView, final ErrorHandler errorHandler) {
         mappingService.getAllMappingCountsForCentralOntology(
                 centralOntologyAcronym,
-                new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
+                new ErrorHandlingAsyncCallback<TotalMappingCount>(
                         errorHandler) {
 
                     @Override

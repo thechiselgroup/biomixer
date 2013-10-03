@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.callbacks.TransformingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
@@ -60,10 +61,15 @@ public class ConceptMappingServiceImplementation implements
         this.urlBuilderFactory = urlBuilderFactory;
     }
 
-    protected String buildUrl(String ontologyId, String conceptId) {
-        return urlBuilderFactory.createUrlBuilder()
-                .path("bioportal/virtual/mappings/concepts/" + ontologyId)
-                .uriParameter("conceptid", conceptId).toString();
+    protected String buildUrl(String ontologyAcronym, String conceptId) {
+        // return urlBuilderFactory.createUrlBuilder()
+        // .path("bioportal/virtual/mappings/concepts/" + ontologyId)
+        // .uriParameter("conceptid", conceptId).toString();
+        return urlBuilderFactory
+                .createUrlBuilder()
+                .path("/ontologies/" + ontologyAcronym + "/classes/"
+                        + UriUtils.encodeURIComponent(conceptId) + "/mappings/")
+                .toString();
     }
 
     private Map<String, Serializable> calculatePartialProperties(
@@ -111,8 +117,8 @@ public class ConceptMappingServiceImplementation implements
     }
 
     @Override
-    public void getMappings(final String ontologyAcronym, final String conceptId,
-            final boolean mappingNeighbourhood,
+    public void getMappings(final String ontologyAcronym,
+            final String conceptId, final boolean mappingNeighbourhood,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
         assert ontologyAcronym != null;
@@ -124,7 +130,6 @@ public class ConceptMappingServiceImplementation implements
             @Override
             public ResourceNeighbourhood transform(String value)
                     throws Exception {
-
                 List<Resource> mappings = responseParser
                         .parseForConceptMapping(value);
 

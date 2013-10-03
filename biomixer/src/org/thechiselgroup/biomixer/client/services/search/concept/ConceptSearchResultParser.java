@@ -36,15 +36,13 @@ public class ConceptSearchResultParser extends AbstractXMLResultParser {
     }
 
     protected Resource analyzeNode(Object node) throws XPathEvaluationException {
-        String conceptShortId = getText(node, "conceptIdShort/text()");
         String ontologyId = getText(node, "ontologyId/text()");
         String conceptId = getText(node, "conceptId/text()");
 
         Resource concept = new Resource(Concept.toConceptURI(ontologyId,
                 conceptId));
 
-        concept.putValue(Concept.FULL_ID, conceptId);
-        concept.putValue(Concept.SHORT_ID, conceptShortId);
+        concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.LABEL, getText(node, "preferredName/text()"));
         // TODO XXX Not changed yet
         concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyId);

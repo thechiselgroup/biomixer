@@ -113,17 +113,17 @@ public class BioMixerDetailsWidgetHelper extends
                 @Override
                 public void onClick(com.google.gwt.event.dom.client.ClickEvent e) {
                     com.google.gwt.user.client.Window.open(
-                            (String) resource.getValue(Concept.FULL_ID),
-                            "_blank", "");
+                            (String) resource.getValue(Concept.ID), "_blank",
+                            "");
                 }
             });
             verticalPanel.add(avatar);
 
-            addRow(resource, verticalPanel, "Ontology",
-                    Concept.CONCEPT_ONTOLOGY_NAME);
+            // addRow(resource, verticalPanel, "Ontology",
+            // Concept.CONCEPT_ONTOLOGY_NAME);
             addRow(resource, verticalPanel, "Ontology Acronym",
                     Concept.ONTOLOGY_ACRONYM);
-            addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
+            addRow(resource, verticalPanel, "Concept ID", Concept.ID);
 
         } else if (Ontology.isOntology(resource)) {
             // making the concept label clickable
@@ -165,13 +165,13 @@ public class BioMixerDetailsWidgetHelper extends
         } else if (Mapping.isMapping(resource)) {
             verticalPanel.add(createAvatar("Mapping", resourceSet));
 
-            addRow(resource, verticalPanel, "Created", Mapping.DATE);
-            addRow(resource, verticalPanel, "Mapping source",
-                    Mapping.MAPPING_SOURCE);
-            addRow(resource, verticalPanel, "Mapping source name",
-                    Mapping.MAPPING_SOURCE_NAME);
-            addRow(resource, verticalPanel, "Mapping type",
-                    Mapping.MAPPING_TYPE);
+            // addRow(resource, verticalPanel, "Created", Mapping.DATE);
+            // addRow(resource, verticalPanel, "Mapping source",
+            // Mapping.MAPPING_SOURCE);
+            // addRow(resource, verticalPanel, "Mapping source name",
+            // Mapping.MAPPING_SOURCE_NAME);
+            // addRow(resource, verticalPanel, "Mapping type",
+            // Mapping.MAPPING_TYPE);
 
             Resource sourceConcept = resourceManager.getByUri((String) resource
                     .getValue(Mapping.SOURCE));

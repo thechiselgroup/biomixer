@@ -21,49 +21,9 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
 public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
-    // public static final String PROTOCOL = "http";
-    //
-    // public static final String SERVER = "bioportal.bioontology.org";
-    //
-    // public final static String API_KEY_PARAMETER = "apikey";
-    //
-    // public final static String USER_API_KEY_PARAMETER = "userapikey";
-    //
-    // public static final String CALLBACK = "callback";
-    //
-    // public static final String PATH = "ajax/jsonp";
-    //
-    // private String userApiKey;
-    //
-    // private String server = SERVER;
-    //
-    // @Override
-    // public UrlBuilder createUrlBuilder() {
-    // return new OldRestJsonpUrlBuilder(
-    // (DefaultUrlBuilder) new DefaultUrlBuilder().host(this.server)
-    // .protocol(PROTOCOL).path(PATH)
-    // .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
-    // .parameter(USER_API_KEY_PARAMETER, userApiKey));
-    // }
-    //
-    // @Override
-    // public void setUserApiKey(String apiKey) {
-    // assert apiKey != null;
-    // this.userApiKey = apiKey;
-    // }
-    //
-    // @Override
-    // public void setServerRoot(String serverRoot) {
-    // if (serverRoot != null) {
-    // this.server = serverRoot;
-    // } else {
-    // this.server = SERVER;
-    // }
-    // }
-
     public static final String PROTOCOL = "http";
 
-    public static final String SERVER = "stagedata.bioontology.org";
+    public static final String SERVER = "data.bioontology.org"; // "stagedata.bioontology.org";
 
     public final static String API_KEY_PARAMETER = "apikey";
 
@@ -73,9 +33,9 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public static final String FORMAT_VALUE = "jsonp";
 
-    public static final String CALLBACK = "callback";
+    public static final String REQUIRED_PATH_PREFIX = ""; // "ajax/jsonp";
 
-    // public static final String PATH = "ajax/jsonp";
+    public static final String CALLBACK = "callback";
 
     private String userApiKey;
 
@@ -83,7 +43,8 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new DefaultUrlBuilder().host(this.server).protocol(PROTOCOL)
+        return new DefaultUrlBuilder().host(this.server)
+                .postRootPath(REQUIRED_PATH_PREFIX).protocol(PROTOCOL)
                 .parameter(FORMAT_PARAMETER, FORMAT_VALUE)
                 .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
         // .parameter(USER_API_KEY_PARAMETER, userApiKey)

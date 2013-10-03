@@ -36,15 +36,13 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
     private Resource analyzeItem(Object jsonItem) {
         Window.alert(jsonItem.toString());
         // TODO XXX Not changed yet
-        String ontologyAcronym = getIntAsString(jsonItem, "ontologyId");
-        String conceptId = asString(get(jsonItem, "conceptId"));
+        String ontologyAcronym = getIntAsString(jsonItem, "ontologyAcronym");
+        String conceptId = asString(get(jsonItem, "@id"));
 
         Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
-        String conceptShortId = asString(get(jsonItem, "conceptIdShort"));
-        resource.putValue(Concept.FULL_ID, conceptId);
-        resource.putValue(Concept.SHORT_ID, conceptShortId);
+        resource.putValue(Concept.ID, conceptId);
         resource.putValue(Concept.LABEL,
                 asString(get(jsonItem, "preferredName")));
         resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);

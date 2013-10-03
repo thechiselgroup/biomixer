@@ -86,10 +86,10 @@ public class MappingResponseParser {
         resource.putValue(Mapping.ID, id);
         resource.putValue(Mapping.SOURCE, sourceUri);
         resource.putValue(Mapping.TARGET, targetUri);
-        resource.putValue(Mapping.DATE, date);
-        resource.putValue(Mapping.MAPPING_TYPE, mappingType);
-        resource.putValue(Mapping.MAPPING_SOURCE, mappingSource);
-        resource.putValue(Mapping.MAPPING_SOURCE_NAME, mappingSourceName);
+        // resource.putValue(Mapping.DATE, date);
+        // resource.putValue(Mapping.MAPPING_TYPE, mappingType);
+        // resource.putValue(Mapping.MAPPING_SOURCE, mappingSource);
+        // resource.putValue(Mapping.MAPPING_SOURCE_NAME, mappingSourceName);
 
         return resource;
     }

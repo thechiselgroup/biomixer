@@ -17,9 +17,9 @@ package org.thechiselgroup.biomixer.client.graph;
 
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyLatestSubmissionDetails;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyLatestSubmissionServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
@@ -70,8 +70,7 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
         // We have to get the metrics, but we also need the ontology description
         // from a separate API call.
         ontologyMetricService.getMetrics(getSingleResource(visualItem),
-                new TimeoutErrorHandlingAsyncCallback<OntologyMetrics>(
-                        errorHandler) {
+                new ErrorHandlingAsyncCallback<OntologyMetrics>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -142,7 +141,7 @@ public class AutomaticOntologyExpander implements NodeExpander<Graph> {
         ontologyDescriptionService
                 .getLatestSubmissionDetails(
                         getSingleResource(visualItem),
-                        new TimeoutErrorHandlingAsyncCallback<OntologyLatestSubmissionDetails>(
+                        new ErrorHandlingAsyncCallback<OntologyLatestSubmissionDetails>(
                                 errorHandler) {
 
                             @Override

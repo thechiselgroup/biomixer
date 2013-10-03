@@ -21,13 +21,13 @@ import java.util.Map;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCount;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
@@ -90,7 +90,7 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
         }
 
         mappingService.getMappingCounts(ontologyAcronyms,
-                new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
+                new ErrorHandlingAsyncCallback<TotalMappingCount>(
                         errorHandler) {
 
                     @Override
