@@ -113,17 +113,17 @@ public class BioMixerDetailsWidgetHelper extends
                 @Override
                 public void onClick(com.google.gwt.event.dom.client.ClickEvent e) {
                     com.google.gwt.user.client.Window.open(
-                            (String) resource.getValue(Concept.FULL_ID),
-                            "_blank", "");
+                            (String) resource.getValue(Concept.ID), "_blank",
+                            "");
                 }
             });
             verticalPanel.add(avatar);
 
-            addRow(resource, verticalPanel, "Ontology",
-                    Concept.CONCEPT_ONTOLOGY_NAME);
-            addRow(resource, verticalPanel, "Ontology ID",
-                    Concept.VIRTUAL_ONTOLOGY_ID);
-            addRow(resource, verticalPanel, "Concept ID", Concept.SHORT_ID);
+            // addRow(resource, verticalPanel, "Ontology",
+            // Concept.CONCEPT_ONTOLOGY_NAME);
+            addRow(resource, verticalPanel, "Ontology Acronym",
+                    Concept.ONTOLOGY_ACRONYM);
+            addRow(resource, verticalPanel, "Concept ID", Concept.ID);
 
         } else if (Ontology.isOntology(resource)) {
             // making the concept label clickable
@@ -132,7 +132,7 @@ public class BioMixerDetailsWidgetHelper extends
                     resourceSet);
             final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
                     .generateOntologySummaryUrl((String) resource
-                            .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
+                            .getValue(Ontology.ONTOLOGY_ACRONYM));
             ClickHandler urlClickHandler = new ClickHandler() {
                 @Override
                 public void onClick(com.google.gwt.event.dom.client.ClickEvent e) {
@@ -149,8 +149,6 @@ public class BioMixerDetailsWidgetHelper extends
             addRow("Summary", ontologySummaryUrl, verticalPanel, true);
             addRow(resource, verticalPanel, "Ontology Acronym",
                     Ontology.ONTOLOGY_ACRONYM);
-            addRow(resource, verticalPanel, "Ontology ID",
-                    Ontology.VIRTUAL_ONTOLOGY_ID);
             addRow(resource, verticalPanel, "Description",
                     Ontology.DESCRIPTION, false);
             addRow(resource, verticalPanel, "Num Classes",
@@ -167,21 +165,21 @@ public class BioMixerDetailsWidgetHelper extends
         } else if (Mapping.isMapping(resource)) {
             verticalPanel.add(createAvatar("Mapping", resourceSet));
 
-            addRow(resource, verticalPanel, "Created", Mapping.DATE);
-            addRow(resource, verticalPanel, "Mapping source",
-                    Mapping.MAPPING_SOURCE);
-            addRow(resource, verticalPanel, "Mapping source name",
-                    Mapping.MAPPING_SOURCE_NAME);
-            addRow(resource, verticalPanel, "Mapping type",
-                    Mapping.MAPPING_TYPE);
+            // addRow(resource, verticalPanel, "Created", Mapping.DATE);
+            // addRow(resource, verticalPanel, "Mapping source",
+            // Mapping.MAPPING_SOURCE);
+            // addRow(resource, verticalPanel, "Mapping source name",
+            // Mapping.MAPPING_SOURCE_NAME);
+            // addRow(resource, verticalPanel, "Mapping type",
+            // Mapping.MAPPING_TYPE);
 
             Resource sourceConcept = resourceManager.getByUri((String) resource
                     .getValue(Mapping.SOURCE));
             if (sourceConcept != null) {
                 addRow(sourceConcept, verticalPanel, "Source concept",
                         Concept.LABEL);
-                addRow(sourceConcept, verticalPanel, "Source ontology ID",
-                        Concept.VIRTUAL_ONTOLOGY_ID);
+                addRow(sourceConcept, verticalPanel, "Source ontology acronym",
+                        Concept.ONTOLOGY_ACRONYM);
                 // TODO ontology names (might need service for ontologies)
             }
 
@@ -190,8 +188,8 @@ public class BioMixerDetailsWidgetHelper extends
             if (targetConcept != null) {
                 addRow(targetConcept, verticalPanel, "Target concept",
                         Concept.LABEL);
-                addRow(targetConcept, verticalPanel, "Target ontology ID",
-                        Concept.VIRTUAL_ONTOLOGY_ID);
+                addRow(targetConcept, verticalPanel, "Target ontology acronym",
+                        Concept.ONTOLOGY_ACRONYM);
                 // TODO ontology names (might need service for ontologies)
             }
         } else {

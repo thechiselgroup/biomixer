@@ -93,15 +93,15 @@ public class OntologyMappingNeighbourhoodLoaderTest {
     private AsyncCallback<ResourceNeighbourhood> callExpand(Resource ontology) {
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        List<String> virtualIdList = new ArrayList();
-        virtualIdList.add(Ontology.getOntologyId(ontology));
+        List<String> ontologyAcronymList = new ArrayList();
+        ontologyAcronymList.add(Ontology.getOntologyId(ontology));
 
         // TODO Compare to Concept loader. The ontology loader was incomplete
         // when this was created, but I wanted a failing test in place.
-        doNothing().when(mappingService).getMappingCounts(eq(virtualIdList),
-                captor.capture());
-        underTest.loadView(ontologyResourceSet, virtualIdList, topBarWidget,
-                isWidgetCallback);
+        doNothing().when(mappingService).getMappingCounts(eq(ontologyAcronymList),
+        		captor.capture());
+        underTest.loadView(ontologyResourceSet, ontologyAcronymList,
+                topBarWidget, isWidgetCallback);
 
         return captor.getValue();
     }

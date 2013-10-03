@@ -54,9 +54,9 @@ public class OntologyStatusServiceAsyncClientImplementation extends
 
             @Override
             public List<String> transform(String xmlText) throws Exception {
-                Map<String, List<String>> virtualOntologyIdsByStatus = parser
+                Map<String, List<String>> ontologyAcronymsByStatus = parser
                         .parseStatuses(xmlText);
-                return virtualOntologyIdsByStatus.get(AVAILABLE_STATUS);
+                return ontologyAcronymsByStatus.get(AVAILABLE_STATUS);
             }
 
         });

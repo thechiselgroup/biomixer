@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 Lars Grammel 
+ * Copyright (C) 2011 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.embeds;
+package org.thechiselgroup.biomixer.client.services.search.ontology;
 
-import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.IsWidget;
 
-/**
- * ID = embed mode
- * 
- * @author Lars Grammel
- */
-public interface TermEmbedLoader extends Identifiable {
+public interface OntologyLatestSubmissionServiceAsync {
 
-    String getLabel();
+    /**
+     * Gets basic information about the given concept (no relationships).
+     */
+    // TODO refactor: use URI
+    void getLatestSubmissionDetails(String ontologyId,
+            AsyncCallback<OntologyLatestSubmissionDetails> callback);
 
-    void loadView(String ontologyAcronym, String fullConceptId,
-            IsWidget topBarWidget, AsyncCallback<IsWidget> callback);
+    void getLatestSubmissionDetails(Resource ontology,
+            AsyncCallback<OntologyLatestSubmissionDetails> callback);
 
 }

@@ -18,6 +18,7 @@ package org.thechiselgroup.biomixer.client.embeds;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -37,10 +38,10 @@ import com.google.inject.Inject;
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     private class MappingCallback extends
-            TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> {
 
         private class BasicTermInfoCallback extends
-                TimeoutErrorHandlingAsyncCallback<Resource> {
+                ErrorHandlingAsyncCallback<Resource> {
 
             private final String otherConceptId;
 
@@ -102,10 +103,9 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                 final String otherUri = targetResource.getUri().equals(
                         sourceUri) ? targetUri : sourceUri;
 
-                final String otherOntologyId = Concept.getOntologyId(otherUri);
+                final String otherOntologyAcronym = Concept.getOntologyAcronym(otherUri);
                 final String otherConceptId = Concept.getConceptId(otherUri);
-                Window.alert("Moar alerts");
-                termService.getBasicInformation(otherOntologyId,
+                termService.getBasicInformation(otherOntologyAcronym,
                         otherConceptId, new BasicTermInfoCallback(errorHandler,
                                 otherConceptId));
 
@@ -131,12 +131,11 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         super("mappings neighborhood", EMBED_MODE);
     }
 
-    private void doLoadData(final String virtualOntologyId,
+    private void doLoadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
-        Window.alert("Moar alerts");
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -150,8 +149,10 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
 
+                        Window.alert("In doLoadData of the MappingNeighbourhoodLoader");
+
                         // TODO move to MappedConceptsServiceAsyncImpl
-                        mappingService.getMappings(virtualOntologyId,
+                        mappingService.getMappings(ontologyAcronym,
                                 fullConceptId, true, new MappingCallback(
                                         errorHandler, targetResource,
                                         resourceSet, fullConceptId, graphView));
@@ -174,14 +175,14 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                doLoadData(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);

@@ -29,11 +29,13 @@ import org.thechiselgroup.biomixer.client.dnd.windows.Branding;
 import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
+import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
 import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
+import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsync;
@@ -47,6 +49,7 @@ import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServ
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
+import org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.GraphExpansionRegistryFactory;
 import org.thechiselgroup.biomixer.client.workbench.ChooselWorkbenchClientModule;
@@ -72,58 +75,17 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
 
         // other bindings
 
-        // The binding here is only used in one class, but I am using the named
-        // bindings until we are fully swapped to the
-        // new API, as a matter of consistency. For other bindings, multiple
-        // classes may use them, and I want to be able
-        // to do piecemeal upgrades.
-        bind(
-                org.thechiselgroup.biomixer.client.servicesnewapi.search.concept.ConceptSearchServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.search.concept.ConceptSearchServiceAsyncClientImplementation.class)
-                .in(Singleton.class);
         bind(ConceptSearchServiceAsync.class)
                 .to(org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsyncClientImplementation.class)
-                .in(Singleton.class);
-
-        // The binding here is only used in one class, but I am using the named
-        // bindings until we are fully swapped to the
-        // new API, as a matter of consistency. For other bindings, multiple
-        // classes may use them, and I want to be able
-        // to do piecemeal upgrades.
-        bind(
-                org.thechiselgroup.biomixer.client.servicesnewapi.search.ontology.OntologySearchServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.search.ontology.OntologySearchServiceAsyncClientImplementation.class)
                 .in(Singleton.class);
 
         bind(OntologySearchServiceAsync.class)
                 .to(org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsyncClientImplementation.class)
                 .in(Singleton.class);
 
-        // The binding here is only used in one class, but I am using the named
-        // bindings until we are fully swapped to the
-        // new API, as a matter of consistency. For other bindings, multiple
-        // classes may use them, and I want to be able
-        // to do piecemeal upgrades.
-        bind(
-                org.thechiselgroup.biomixer.client.servicesnewapi.term.TermServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.term.TermServiceImplementation.class)
-                .in(Singleton.class);
-        bind(TermServiceAsync.class)
-                .to(org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation.class)
-                .in(Singleton.class);
+        bind(TermServiceAsync.class).to(TermServiceImplementation.class).in(
+                Singleton.class);
 
-        bind(
-                org.thechiselgroup.biomixer.client.servicesnewapi.term.ConceptNeighbourhoodServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.term.ConceptNeighbourhoodServiceAsyncClientImplementation.class)
-                .in(Singleton.class);
         bind(ConceptNeighbourhoodServiceAsync.class).to(
                 ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(
                 Singleton.class);
@@ -144,15 +106,9 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 HierarchyPathServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
-        bind(
-                org.thechiselgroup.biomixer.client.servicesnewapi.ontology.OntologyNameServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.ontology.OntologyNameServiceAsyncClientImplementation.class)
-                .in(Singleton.class);
-        bind(OntologyNameServiceAsync.class)
-                .to(org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation.class)
-                .in(Singleton.class);
+        bind(OntologyNameServiceAsync.class).to(
+                OntologyNameServiceAsyncClientImplementation.class).in(
+                Singleton.class);
 
         bind(OntologyVersionServiceAsync.class).to(
                 OntologyVersionServiceAsyncClientImplementation.class).in(
@@ -162,26 +118,11 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 OntologyStatusServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
-        bind(
-                org.thechiselgroup.biomixer.client.servicesnewapi.ontology_overview.OntologyMappingCountServiceAsync.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.ontology.OntologyMappingCountServiceAsyncImplementation.class)
-                .in(Singleton.class);
         bind(OntologyMappingCountServiceAsync.class)
                 .to(org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsyncImplementation.class)
                 .in(Singleton.class);
 
-        // Until the new API is completed and all our implementations are
-        // injected with annotation
-        // Names.named("New API"), keep this default binding.
-        bind(UrlBuilderFactory.class)
-                .annotatedWith(
-                        Names.named(ChooselInjectionConstants.NEW_REST_API))
-                .to(org.thechiselgroup.biomixer.client.servicesnewapi.NcboApiStageDataUrlBuilderFactory.class)
-                .in(Singleton.class);
-        bind(UrlBuilderFactory.class)
-                .to(org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory.class)
+        bind(UrlBuilderFactory.class).to(NcboJsonpRestUrlBuilderFactory.class)
                 .in(Singleton.class);
     }
 

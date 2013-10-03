@@ -32,15 +32,22 @@ public final class Concept {
 
     public static final String RESOURCE_URI_PREFIX = "ncbo-concept";
 
-    public static final String FULL_ID = "fullId";
+    @Deprecated
+    public static final String OLD_FULL_ID = "fullId";
 
-    public static final String SHORT_ID = "shortId";
+    public static final String ID = "id";
+
+    @Deprecated
+    public static final String OLD_SHORT_ID = "shortId";
 
     public static final String LABEL = "label";
 
     public static final String TYPE = "type";
 
-    public static final String VIRTUAL_ONTOLOGY_ID = "virtualOntologyId";
+    @Deprecated
+    public static final String OLD_VIRTUAL_ONTOLOGY_ID = "virtualOntologyId";
+
+    public static final String ONTOLOGY_ACRONYM = "parentOntologyAcronym";
 
     /**
      * URIs of mapping where this concept is the source.
@@ -54,9 +61,10 @@ public final class Concept {
 
     public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
+    @Deprecated
+    // Now that we have ontology acronym, it seems ok to use that and not do all
+    // the extra REST calls necessary to get the ontology names.
     public static final String CONCEPT_ONTOLOGY_NAME = "ontologyName";
-
-    public static final String CONCEPT_CHILD_COUNT = "childCount";
 
     public static final String CHILD_CONCEPTS = "childConcepts";
 
@@ -69,16 +77,14 @@ public final class Concept {
     public static final String OWNED_CONCEPTS = "ownedConcepts";
 
     // TODO change to full id
-    public static Resource createConceptResource(String ontologyId,
+    public static Resource createConceptResource(String ontologyAcronym,
             String conceptId) {
 
-        Resource concept = new Resource(Concept.toConceptURI(ontologyId,
+        Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
-        // XXX
-        concept.putValue(Concept.SHORT_ID, conceptId);
-        concept.putValue(Concept.FULL_ID, conceptId);
-        concept.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        concept.putValue(Concept.ID, conceptId);
+        concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
         return concept;
     }
@@ -93,7 +99,7 @@ public final class Concept {
 
     public static String getFullId(Resource concept) {
         assert isConcept(concept);
-        return (String) concept.getValue(FULL_ID);
+        return (String) concept.getValue(ID);
     }
 
     public static String getLabel(Resource concept) {
@@ -102,10 +108,10 @@ public final class Concept {
     }
 
     public static String getOntologyId(Resource resource) {
-        return getOntologyId(resource.getUri());
+        return getOntologyAcronym(resource.getUri());
     }
 
-    public static String getOntologyId(String conceptURI) {
+    public static String getOntologyAcronym(String conceptURI) {
         return conceptURI.substring(RESOURCE_URI_PREFIX.length() + 1,
                 conceptURI.indexOf('/'));
     }
@@ -122,11 +128,11 @@ public final class Concept {
     private Concept() {
     }
 
-    public static List<String> asUris(String virtualOntologyId,
+    public static List<String> asUris(String ontologyAcronym,
             String... conceptIds) {
         List<String> uris = new ArrayList<String>();
         for (String conceptId : conceptIds) {
-            uris.add(toConceptURI(virtualOntologyId, conceptId));
+            uris.add(toConceptURI(ontologyAcronym, conceptId));
         }
         return uris;
     }

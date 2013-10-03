@@ -19,6 +19,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface OntologyTermCountServiceAsync {
 
-    void getTermCount(String virtualOntologyId, AsyncCallback<String> callback);
+    void getTermCount(String ontologyAcronym, AsyncCallback<String> callback);
 
 }

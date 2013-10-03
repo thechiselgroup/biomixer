@@ -76,8 +76,7 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
 
         String fullConceptId = UriUtils.decodeURIComponent(windowLocation
                 .getParameter("full_concept_id"));
-        String virtualOntologyId = windowLocation
-                .getParameter("virtual_ontology_id");
+        String ontologyAcronym = windowLocation.getParameter("ontology_acronym");
 
         // TODO pass in switch
         final ListBoxControl<TermEmbedLoader> selector = new ListBoxControl<TermEmbedLoader>(
@@ -99,7 +98,7 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
             }
         });
 
-        termEmbedLoader.loadView(virtualOntologyId, fullConceptId, selector,
+        termEmbedLoader.loadView(ontologyAcronym, fullConceptId, selector,
                 callback);
     }
 

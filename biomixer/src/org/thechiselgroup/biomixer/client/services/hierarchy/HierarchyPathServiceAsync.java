@@ -21,7 +21,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface HierarchyPathServiceAsync {
 
-    void findHierarchyToRoot(String virtualOntologyId, String conceptId,
+    void findHierarchyToRoot(String ontologyAcronym, String conceptId,
             AsyncCallback<Set<String>> callback);
 
 }

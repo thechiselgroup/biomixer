@@ -20,17 +20,16 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>
@@ -45,7 +44,6 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
             TermServiceAsync termService) {
 
         super(mappingService, resourceManager, errorHandler);
-        Window.alert("No thank you sir");
         this.termService = termService;
     }
 
@@ -76,9 +74,9 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
                 continue;
             }
 
-            termService.getBasicInformation(Concept.getOntologyId(otherUri),
-                    Concept.getConceptId(otherUri),
-                    new TimeoutErrorHandlingAsyncCallback<Resource>(
+            termService.getBasicInformation(Concept.getOntologyAcronym(otherUri), Concept
+                    .getConceptId(otherUri),
+                    new ErrorHandlingAsyncCallback<Resource>(
                             errorHandler) {
 
                         @Override

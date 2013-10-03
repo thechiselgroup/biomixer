@@ -25,7 +25,7 @@ public interface TermServiceAsync {
      * Gets basic information about the given concept (no relationships).
      */
     // TODO refactor: use URI
-    void getBasicInformation(String ontologyId, String conceptFullId,
+    void getBasicInformation(String ontologyAcronym, String conceptFullId,
             AsyncCallback<Resource> callback);
 
 }

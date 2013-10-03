@@ -19,11 +19,10 @@ import java.util.List;
 
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * Frame for expanding neighbourhoods on {@link VisualItem}s with a single
@@ -80,9 +79,9 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander<T ext
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {
-            String virtualOntologyId = (String) resource
-                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
-            return "(virtual ontology id: " + virtualOntologyId + ")";
+            String ontologyAcronym = (String) resource
+                    .getValue(Concept.ONTOLOGY_ACRONYM);
+            return "(ontology acronym: " + ontologyAcronym + ")";
         }
     }
 
@@ -101,13 +100,14 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander<T ext
             Resource resource);
 
     protected abstract void loadNeighbourhood(VisualItem visualItem,
-            Resource resource, AsyncCallback<ResourceNeighbourhood> callback);
+            Resource resource,
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback);
 
     private void loadNeighbourhood(final VisualItem visualItem,
             final Resource resource, final NodeExpansionCallback<T> graph) {
 
         loadNeighbourhood(visualItem, resource,
-                new TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood>(
+                new ErrorHandlingAsyncCallback<ResourceNeighbourhood>(
                         errorHandler) {
 
                     @Override

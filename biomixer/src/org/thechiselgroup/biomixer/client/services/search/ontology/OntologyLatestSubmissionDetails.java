@@ -7,19 +7,19 @@ package org.thechiselgroup.biomixer.client.services.search.ontology;
  * @author everbeek
  * 
  */
-public class OntologyMetrics {
+public class OntologyLatestSubmissionDetails {
 
-    public Integer numberOfClasses;
-
-    public Integer numberOfIndividuals;
-
-    public Integer numberOfProperties;
-
-    public Integer maximumDepth;
+    public String description;
 
     final public String ontologyAcronym;
 
-    public OntologyMetrics(String ontologyAcronym) {
+    public String version;
+
+    public Integer submissionId;
+
+    public boolean latest;
+
+    public OntologyLatestSubmissionDetails(String ontologyAcronym) {
         this.ontologyAcronym = ontologyAcronym;
     }
 

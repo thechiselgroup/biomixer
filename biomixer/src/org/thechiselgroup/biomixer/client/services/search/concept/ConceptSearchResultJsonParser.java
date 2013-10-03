@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
@@ -33,18 +34,18 @@ public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource analyzeItem(Object jsonItem) {
-        String ontologyId = getIntAsString(jsonItem, "ontologyId");
-        String conceptId = asString(get(jsonItem, "conceptId"));
+        Window.alert(jsonItem.toString());
+        // TODO XXX Not changed yet
+        String ontologyAcronym = getIntAsString(jsonItem, "ontologyAcronym");
+        String conceptId = asString(get(jsonItem, "@id"));
 
-        Resource resource = new Resource(Concept.toConceptURI(ontologyId,
+        Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
                 conceptId));
 
-        String conceptShortId = asString(get(jsonItem, "conceptIdShort"));
-        resource.putValue(Concept.FULL_ID, conceptId);
-        resource.putValue(Concept.SHORT_ID, conceptShortId);
+        resource.putValue(Concept.ID, conceptId);
         resource.putValue(Concept.LABEL,
                 asString(get(jsonItem, "preferredName")));
-        resource.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         resource.putValue(Concept.CONCEPT_ONTOLOGY_NAME,
                 asString(get(jsonItem, "ontologyDisplayLabel")));
 

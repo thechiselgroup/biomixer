@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -32,7 +33,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.radial_tree.RadialTreeLayoutAlgorithm;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -43,7 +43,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     public static final int MAX_NUMBER_OF_NEIGHBOURS = 20;
 
     private class ConceptNeighbourhoodCallback extends
-            TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> {
 
         private NeighbourCapBreachDialog neighbourBreachDialog;
 
@@ -192,12 +192,11 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         super("term neighborhood", EMBED_MODE);
     }
 
-    private void doLoadData(final String virtualOntologyId,
+    private void doLoadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
-        Window.alert("Moar alerts");
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -208,11 +207,10 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                     @Override
                     protected void runOnSuccess(final Resource targetResource)
                             throws Exception {
-
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
                         conceptNeighbourhoodService.getNeighbourhood(
-                                virtualOntologyId, fullConceptId,
+                                ontologyAcronym, fullConceptId,
                                 new ConceptNeighbourhoodCallback(errorHandler,
                                         resourceSet, fullConceptId, graphView,
                                         targetResource));
@@ -229,14 +227,14 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
         // XXX remove once proper view content display lifecycle is available
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                doLoadData(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);

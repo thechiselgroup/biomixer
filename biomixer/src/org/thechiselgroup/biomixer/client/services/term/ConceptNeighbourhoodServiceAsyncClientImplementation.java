@@ -15,19 +15,22 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
-import org.thechiselgroup.biomixer.client.Concept;
-import org.thechiselgroup.biomixer.client.core.error_handling.AsyncCallbackErrorHandler;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
 /**
@@ -40,7 +43,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
 
     private final FullTermResponseJsonParser responseParser;
 
-    private OntologyNameServiceAsync ontologyNameService;
+    // private OntologyNameServiceAsync ontologyNameService;
 
     @Inject
     public ConceptNeighbourhoodServiceAsyncClientImplementation(
@@ -55,104 +58,262 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         assert ontologyNameService != null;
 
         this.responseParser = responseParser;
-        this.ontologyNameService = ontologyNameService;
+        // this.ontologyNameService = ontologyNameService;
     }
 
-    private String buildUrl(String fullConceptId, String ontologyId) {
-        return urlBuilderFactory.createUrlBuilder()
-                .path("bioportal/virtual/ontology/" + ontologyId)
-                .uriParameter("conceptid", fullConceptId).toString();
+    private class ConceptParentChildCollectorNeighbourhoodCallback extends
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+
+        private ArrayList<ResourceNeighbourhood> neighbourhoods = new ArrayList<ResourceNeighbourhood>();
+
+        private final ErrorHandlingAsyncCallback<ResourceNeighbourhood> completionCallback;
+
+        private boolean sendingToCompletion = false;
+
+        private final String fullConceptId;
+
+        private ConceptParentChildCollectorNeighbourhoodCallback(
+                ErrorHandlingAsyncCallback<ResourceNeighbourhood> completionCallback,
+                String fullConceptId) {
+            super(completionCallback.errorHandler);
+            this.completionCallback = completionCallback;
+            this.fullConceptId = fullConceptId;
+        }
+
+        @Override
+        protected String getMessage(Throwable caught) {
+            return "Could not expand concept neighbourhood for "
+                    + fullConceptId;
+        }
+
+        @Override
+        protected void runOnSuccess(ResourceNeighbourhood targetNeighbourhood)
+                throws Exception {
+            // Being a little lazy and assuming the caller only calls with one
+            // child and one parent rest call.
+
+            neighbourhoods.add(targetNeighbourhood);
+            if (neighbourhoods.size() >= 2 && sendingToCompletion != true) {
+                sendingToCompletion = true;
+
+                Map<String, Serializable> partials = neighbourhoods.get(0)
+                        .getPartialProperties();
+                partials.putAll(neighbourhoods.get(1).getPartialProperties());
+                List<Resource> resources = neighbourhoods.get(0).getResources();
+                resources.addAll(neighbourhoods.get(1).getResources());
+
+                ResourceNeighbourhood combined = new ResourceNeighbourhood(
+                        partials, resources);
+
+                completionCallback.onSuccess(combined);
+            }
+            return;
+
+        }
+
+    }
+
+    @Deprecated
+    private String buildNoRelationsUrl(String conceptFullId,
+            String ontologyAcronym) {
+
+        String encodedConceptId;
+        if (conceptFullId.contains("http%3A")) {
+            encodedConceptId = conceptFullId;
+        } else {
+            encodedConceptId = UriUtils.encodeURIComponent(conceptFullId);
+        }
+        // parents and children are direct subclass and direct superclass,
+        // whereas ancestors and descendants include indirect.
+        return urlBuilderFactory
+                .createUrlBuilder()
+                .path("ontologies/" + ontologyAcronym + "/classes/"
+                        + encodedConceptId).toString();
+    }
+
+    private String buildPathsToRootUrl(String conceptFullId,
+            String ontologyAcronym) {
+        // return urlBuilderFactory.createUrlBuilder()
+        // .path("ontologies/" + ontologyAcronym + "/" + fullConceptId)
+        // .uriParameter("include", "all").toString();
+        String encodedConceptId;
+        if (conceptFullId.contains("http%3A")) {
+            encodedConceptId = conceptFullId;
+        } else {
+            encodedConceptId = UriUtils.encodeURIComponent(conceptFullId);
+        }
+        // parents and children are direct subclass and direct superclass,
+        // whereas ancestors and descendants include indirect.
+        return urlBuilderFactory
+                .createUrlBuilder()
+                .path("ontologies/" + ontologyAcronym + "/classes/"
+                        + encodedConceptId + "/paths_to_root/").toString();
+    }
+
+    private String buildParentsUrl(String conceptFullId, String ontologyAcronym) {
+        // return urlBuilderFactory.createUrlBuilder()
+        // .path("ontologies/" + ontologyAcronym + "/" + fullConceptId)
+        // .uriParameter("include", "all").toString();
+        String encodedConceptId;
+        if (conceptFullId.contains("http%3A")) {
+            encodedConceptId = conceptFullId;
+        } else {
+            encodedConceptId = UriUtils.encodeURIComponent(conceptFullId);
+        }
+        // parents and children are direct subclass and direct superclass,
+        // whereas ancestors and descendants include indirect.
+        return urlBuilderFactory
+                .createUrlBuilder()
+                .path("ontologies/" + ontologyAcronym + "/classes/"
+                        + encodedConceptId + "/parents/").toString();
+    }
+
+    private String buildChildrenUrl(String conceptFullId, String ontologyAcronym) {
+        // return urlBuilderFactory.createUrlBuilder()
+        // .path("ontologies/" + ontologyAcronym + "/" + fullConceptId)
+        // .uriParameter("include", "all").toString();
+        String encodedConceptId;
+        if (conceptFullId.contains("http%3A")) {
+            encodedConceptId = conceptFullId;
+        } else {
+            encodedConceptId = UriUtils.encodeURIComponent(conceptFullId);
+        }
+        // parents and children are direct subclass and direct superclass,
+        // whereas ancestors and descendants include indirect.
+        return urlBuilderFactory
+                .createUrlBuilder()
+                .path("ontologies/" + ontologyAcronym + "/classes/"
+                        + encodedConceptId + "/children/").toString();
     }
 
     @Override
-    public void getNeighbourhood(final String ontologyId,
+    public void getNeighbourhood(final String ontologyAcroynm,
             final String conceptId,
-            final AsyncCallback<ResourceNeighbourhood> callback) {
+            // final AsyncCallback<ResourceNeighbourhood> callback) {
+            final ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback) {
 
-        assert ontologyId != null;
+        assert ontologyAcroynm != null;
         assert conceptId != null;
 
-        final String url = buildUrl(conceptId, ontologyId);
-        Window.alert("Why am I here???");
-        ontologyNameService.getOntologyName(ontologyId,
-                new TimeoutErrorHandlingAsyncCallback<String>(
-                        new AsyncCallbackErrorHandler(callback)) {
+        // Now this expects the URL based concept ID and ontology acronym
+        final String parentsUrl = buildParentsUrl(conceptId, ontologyAcroynm);
+        final String childrenUrl = buildChildrenUrl(conceptId, ontologyAcroynm);
 
+        ConceptParentChildCollectorNeighbourhoodCallback combiningCallback = new ConceptParentChildCollectorNeighbourhoodCallback(
+                callback, conceptId);
+
+        // The combining callback will handle the split in data across two
+        // calls, and leave the original callback to perform its initially
+        // designed functions.
+        // ontologyNameService.getOntologyName(ontologyAcroynm,
+        // new ErrorHandlingAsyncCallback<String>(
+        // new AsyncCallbackErrorHandler(combiningCallback)) {
+        //
+        // @Override
+        // protected String getMessage(Throwable caught) {
+        // return "Could not retrieve concept neighbourhood for concept "
+        // + conceptId + " in ontology " + ontologyAcroynm;
+        // }
+        //
+        // @Override
+        // public void runOnSuccess(final String ontologyName) {
+        ErrorHandlingAsyncCallback<ResourceNeighbourhood> parentChildCollector = new ConceptParentChildCollectorNeighbourhoodCallback(
+                callback, conceptId);
+
+        // We call two fetch calls, using the same combining
+        // callback. It will store the first returned result,
+        // and combine that neighbourhood with the second, and
+        // re-dispatch it off to the actual useful callback. I
+        // wanted to do this rather than to expose the
+        // requirement of two REST calls to the original
+        // callback.
+
+        // fetch parents
+        fetchUrl(parentChildCollector, parentsUrl,
+                new Transformer<String, ResourceNeighbourhood>() {
                     @Override
-                    protected String getMessage(Throwable caught) {
-                        return "Could not retrieve concept neighbourhood for concept "
-                                + conceptId + " in ontology " + ontologyId;
-                    }
+                    public ResourceNeighbourhood transform(String responseText)
+                            throws Exception {
 
+                        ResourceNeighbourhood neighbourhood = responseParser
+                                .parseNewParents(ontologyAcroynm, responseText);
+
+                        // for (Resource resource : neighbourhood
+                        // .getResources()) {
+                        // resource.putValue(
+                        // Concept.CONCEPT_ONTOLOGY_NAME,
+                        // ontologyName);
+                        // }
+
+                        return neighbourhood;
+                    }
+                });
+        // fetch children
+        fetchUrl(parentChildCollector, childrenUrl,
+                new Transformer<String, ResourceNeighbourhood>() {
                     @Override
-                    public void runOnSuccess(final String ontologyName) {
-                        fetchUrl(
-                                callback,
-                                url,
-                                new Transformer<String, ResourceNeighbourhood>() {
-                                    @Override
-                                    public ResourceNeighbourhood transform(
-                                            String responseText)
-                                            throws Exception {
+                    public ResourceNeighbourhood transform(String responseText)
+                            throws Exception {
 
-                                        ResourceNeighbourhood neighbourhood = responseParser
-                                                .parseNeighbourhood(ontologyId,
-                                                        responseText);
+                        ResourceNeighbourhood neighbourhood = responseParser
+                                .parseNewChildren(ontologyAcroynm, responseText);
 
-                                        for (Resource resource : neighbourhood
-                                                .getResources()) {
-                                            resource.putValue(
-                                                    Concept.CONCEPT_ONTOLOGY_NAME,
-                                                    ontologyName);
-                                        }
+                        // for (Resource resource : neighbourhood
+                        // .getResources()) {
+                        // resource.putValue(
+                        // Concept.CONCEPT_ONTOLOGY_NAME,
+                        // ontologyName);
+                        // }
 
-                                        return neighbourhood;
-                                    }
-                                });
+                        return neighbourhood;
                     }
-
                 });
     }
 
-    @Override
-    public void getResourceWithRelations(final String ontologyId,
-            final String conceptId, final AsyncCallback<Resource> callback) {
+    // });
+    // }
 
-        assert ontologyId != null;
+    @Override
+    public void getPathToRootNeighbourhood(final String ontologyAcroynm,
+            final String conceptId,
+            final ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback) {
+
+        assert ontologyAcroynm != null;
         assert conceptId != null;
 
-        final String url = buildUrl(conceptId, ontologyId);
-
-        ontologyNameService.getOntologyName(ontologyId,
-                new TimeoutErrorHandlingAsyncCallback<String>(
-                        new AsyncCallbackErrorHandler(callback)) {
-
+        // Now this expects the URL based concept ID and ontology acronym
+        Window.alert("Rename this, it is for hierarchical or root to path. Maybe use ancestors call to do it, maybe use tree call.");
+        // final String url = buildNoRelationsUrl(conceptId, ontologyAcroynm);
+        final String url = buildPathsToRootUrl(conceptId, ontologyAcroynm);
+        // ontologyNameService.getOntologyName(ontologyAcroynm,
+        // new ErrorHandlingAsyncCallback<String>(
+        // new AsyncCallbackErrorHandler(callback)) {
+        //
+        // @Override
+        // protected String getMessage(Throwable caught) {
+        // return "Could not retrieve concept neighbourhood for concept "
+        // + conceptId + " in ontology " + ontologyAcroynm;
+        // }
+        //
+        // @Override
+        // public void runOnSuccess(final String ontologyName) {
+        fetchUrl(callback, url,
+                new Transformer<String, ResourceNeighbourhood>() {
                     @Override
-                    protected String getMessage(Throwable caught) {
-                        return "Could not retrieve concept neighbourhood for concept "
-                                + conceptId + " in ontology " + ontologyId;
+                    public ResourceNeighbourhood transform(String responseText)
+                            throws Exception {
+                        ResourceNeighbourhood pathToRoot = responseParser
+                                .parseNewPathsToRoot(ontologyAcroynm,
+                                        responseText);
+                        // resource.putValue(
+                        // Concept.CONCEPT_ONTOLOGY_NAME,
+                        // ontologyName);
+                        return pathToRoot;
                     }
-
-                    @Override
-                    public void runOnSuccess(final String ontologyName) {
-                        fetchUrl(callback, url,
-                                new Transformer<String, Resource>() {
-                                    @Override
-                                    public Resource transform(
-                                            String responseText)
-                                            throws Exception {
-                                        Resource resource = responseParser
-                                                .parseResource(ontologyId,
-                                                        responseText);
-                                        resource.putValue(
-                                                Concept.CONCEPT_ONTOLOGY_NAME,
-                                                ontologyName);
-                                        return resource;
-                                    }
-                                });
-                    }
-
                 });
+        // }
+        //
+        // });
     }
 
 }

@@ -30,20 +30,21 @@ public class TermWithoutRelationshipsJsonParser extends
         super(jsonParser);
     }
 
-    public Resource parseConcept(String ontologyId, String json) {
-        Object classBean = get(get(get(get(parse(json), "success"), "data"), 0),
-                "classBean");
+    public Resource parseConcept(String ontologyAcronym, String json) {
+        Object jsonObject = parse(json);
+        return parseConcept(ontologyAcronym, jsonObject);
+    }
 
-        String fullId = asString(get(classBean, "fullId"));
-        String shortId = asString(get(classBean, "id"));
-        String label = asString(get(classBean, "label"));
-        String type = asString(get(classBean, "type"));
+    public Resource parseConcept(String ontologyAcronym, Object jsonObject) {
+        String fullId = asString(get(jsonObject, "@id"));
+        String label = asString(get(jsonObject, "prefLabel"));
+        String type = asString(get(jsonObject, "type"));
 
-        Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
+        Resource result = new Resource(Concept.toConceptURI(ontologyAcronym,
+                fullId));
 
-        result.putValue(Concept.FULL_ID, fullId);
-        result.putValue(Concept.SHORT_ID, shortId);
-        result.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        result.putValue(Concept.ID, fullId);
+        result.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         result.putValue(Concept.TYPE, type);
         result.putValue(Concept.LABEL, label);
 

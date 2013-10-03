@@ -45,17 +45,18 @@ public class OntologySearchResultParser extends AbstractXMLResultParser {
     }
 
     protected Resource analyzeNode(Object node) throws XPathEvaluationException {
-        String virtualOntologyId = getText(node, "ontologyId/text()");
+    	// TODO XXX Not changed yet
+        String ontologyAcronym = getText(node, "ontologyId/text()");
 
         Resource ontology = new Resource(
-                Ontology.toOntologyURI(virtualOntologyId));
+                Ontology.toOntologyURI(ontologyAcronym));
 
-        ontology.putValue(Ontology.ONTOLOGY_VERSION_ID,
-                getText(node, "id/text()"));
+        ontology.putValue(Ontology.ONTOLOGY_ACRONYM, getText(node, "id/text()"));
         ontology.putValue(Ontology.ONTOLOGY_ACRONYM,
                 getText(node, "abbreviation/text()"));
-        ontology.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
-        ontology.putValue(Ontology.ONTOLOGY_FULL_NAME, getText(node, "displayLabel/text()"));
+        ontology.putValue(Ontology.ONTOLOGY_ACRONYM, ontologyAcronym);
+        ontology.putValue(Ontology.ONTOLOGY_FULL_NAME,
+                getText(node, "displayLabel/text()"));
         ontology.putValue(Ontology.DESCRIPTION,
                 getText(node, "description/text()"));
 

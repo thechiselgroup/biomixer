@@ -40,6 +40,8 @@ public final class Ontology {
 
     public static final String ONTOLOGY_ACRONYM = "ontologyAcronym";
 
+    public static final String ONTOLOGY_URI = "ontologyAbsoluteUri";
+
     public static final String TYPE = "type";
 
     // Unique URLs in the new API @id field, or the acronym, appear to be the
@@ -47,10 +49,10 @@ public final class Ontology {
     // new API, except for submission version numbers (the sequential
     // submissionId).
     @Deprecated
-    public static final String VIRTUAL_ONTOLOGY_ID = "ontologyId";
+    public static final String OLD_VIRTUAL_ONTOLOGY_ID = "ontologyId";
 
     @Deprecated
-    public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
+    public static final String OLD_ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
     public static final String DESCRIPTION = "description";
 
@@ -80,12 +82,12 @@ public final class Ontology {
 
     public static final String VALUE_VIEWING_RESTRICTION_PRIVATE = "private";
 
-    public static Resource createOntologyResource(String ontologyId) {
+    public static Resource createOntologyResource(String ontologyAcronym) {
 
-        Resource ontology = new Resource(Ontology.toOntologyURI(ontologyId));
+        Resource ontology = new Resource(Ontology.toOntologyURI(ontologyAcronym));
 
         // XXX
-        ontology.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        ontology.putValue(Ontology.ONTOLOGY_ACRONYM, ontologyAcronym);
 
         return ontology;
     }
@@ -144,10 +146,10 @@ public final class Ontology {
     private Ontology() {
     }
 
-    public static List<String> asUris(String... virtualOntologyIds) {
+    public static List<String> asUris(String... ontologyAcronyms) {
         List<String> uris = new ArrayList<String>();
-        for (String virtualOntologyId : virtualOntologyIds) {
-            uris.add(toOntologyURI(virtualOntologyId));
+        for (String ontologyAcronym : ontologyAcronyms) {
+            uris.add(toOntologyURI(ontologyAcronym));
         }
         return uris;
     }

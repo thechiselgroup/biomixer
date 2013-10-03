@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.json;
 
+import java.util.Set;
+
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.gwt.json.client.JSONObject;
@@ -94,6 +96,13 @@ public class JsJsonParser implements JsonParser {
         JSONValue node = (JSONValue) jsonValue;
         JSONObject object = node.isObject();
         return object != null ? object.get(property) : null;
+    }
+
+    @Override
+    public Set<String> getObjectProperties(Object jsonValue) {
+        JSONValue node = (JSONValue) jsonValue;
+        JSONObject object = node.isObject();
+        return object.keySet();
     }
 
     @Override

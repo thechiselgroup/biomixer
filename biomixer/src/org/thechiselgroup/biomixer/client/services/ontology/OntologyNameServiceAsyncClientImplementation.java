@@ -20,7 +20,6 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -39,18 +38,16 @@ public class OntologyNameServiceAsyncClientImplementation extends
         this.parser = parser;
     }
 
-    private String buildUrl(String virtualOntologyId) {
-        Window.alert("Still here");
+    private String buildUrl(String ontologyAcronym) {
         return urlBuilderFactory.createUrlBuilder()
-                .path("/bioportal/virtual/ontology/" + virtualOntologyId)
-                .toString();
+                .path("/ontologies/" + ontologyAcronym).toString();
     }
 
     @Override
-    public void getOntologyName(String virtualOntologyId,
+    public void getOntologyName(String ontologyAcronym,
             AsyncCallback<String> callback) {
 
-        String url = buildUrl(virtualOntologyId);
+        String url = buildUrl(ontologyAcronym);
         fetchUrl(callback, url, new Transformer<String, String>() {
             @Override
             public String transform(String responseText) throws Exception {

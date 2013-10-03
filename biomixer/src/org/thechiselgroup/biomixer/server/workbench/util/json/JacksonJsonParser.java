@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.server.workbench.util.json;
 
+import java.util.Set;
+
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,7 +32,7 @@ public class JacksonJsonParser implements JsonParser {
             return null;
         }
     }
-    
+
     @Override
     public Object getPossiblyMissing(Object object, String property) {
         if (has(object, property)) {
@@ -77,6 +79,12 @@ public class JacksonJsonParser implements JsonParser {
     public Object get(Object jsonNode, String property) {
         JsonNode node = (JsonNode) jsonNode;
         return node.isObject() ? node.get(property) : null;
+    }
+
+    @Override
+    public Set<String> getObjectProperties(Object jsonValue) {
+        // We don't use the jackson parser, do we?
+        return null;
     }
 
     @Override

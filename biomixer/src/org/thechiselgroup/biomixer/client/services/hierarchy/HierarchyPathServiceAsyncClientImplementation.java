@@ -39,22 +39,22 @@ public class HierarchyPathServiceAsyncClientImplementation extends
         this.parser = parser;
     }
 
-    private String buildUrl(String conceptId, String virtualOntologyId) {
+    private String buildUrl(String conceptId, String ontologyAcronym) {
         return urlBuilderFactory
                 .createUrlBuilder()
-                .path("/bioportal/virtual/rootpath/" + virtualOntologyId + "/"
+                .path("/bioportal/virtual/rootpath/" + ontologyAcronym + "/"
                         + conceptId).toString();
     }
 
     @Override
-    public void findHierarchyToRoot(final String virtualOntologyId,
+    public void findHierarchyToRoot(final String ontologyAcronym,
             final String conceptId, AsyncCallback<Set<String>> callback) {
 
-        String url = buildUrl(conceptId, virtualOntologyId);
+        String url = buildUrl(conceptId, ontologyAcronym);
         fetchUrl(callback, url, new Transformer<String, Set<String>>() {
             @Override
             public Set<String> transform(String xmlText) throws Exception {
-                return parser.parse(conceptId, xmlText, virtualOntologyId);
+                return parser.parse(conceptId, xmlText, ontologyAcronym);
             }
 
         });

@@ -48,18 +48,14 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
 
     private Resource analyzeItem(Object jsonItem) {
 
-        String virtualOntologyId = asString(get(jsonItem, "@id"));
+        String ontologyAcronym = asString(get(jsonItem, "acronym"));
+        String uri = asString(get(jsonItem, "@id"));
 
         // The id is now a URL. This will work for us still, right?
         // It should work fine once we are fully converted, but until then
         // a lot of the older services expect old integer ids. Too bad!
         Resource resource = new Resource(
-                Ontology.toOntologyURI(virtualOntologyId));
-
-        // No ontology ID available anymore. Do we even need it?
-        resource.putValue(Ontology.ONTOLOGY_VERSION_ID, virtualOntologyId);
-        // asString(get(jsonItem, "id")));
-        resource.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
+                Ontology.toOntologyURI(ontologyAcronym));
 
         // used to be "abbreviation"
         resource.putValue(Ontology.ONTOLOGY_ACRONYM,

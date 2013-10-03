@@ -33,7 +33,7 @@ public class HierarchyParser extends AbstractXMLResultParser {
     }
 
     public Set<String> parse(String targetShortConceptId, String xmlText,
-            String virtualOntologyId) throws Exception {
+            String ontologyAcronym) throws Exception {
 
         Set<String> shortIdsOnPaths = new HashSet<String>();
         shortIdsOnPaths.add(targetShortConceptId);

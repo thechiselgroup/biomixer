@@ -33,13 +33,22 @@ public final class Mapping {
      */
     public static final String TARGET = "target";
 
-    public static final String DATE = "date";
+    /**
+     * The processes responsible for creating the mapping
+     */
+    public static final String PROCESSES = "mapping_processes";
 
-    public final static String MAPPING_TYPE = "mappingType";
+    @Deprecated
+    public static final String OLD_DATE = "date";
 
-    public final static String MAPPING_SOURCE = "mappingSource";
+    @Deprecated
+    public final static String OLD_MAPPING_TYPE = "mappingType";
 
-    public final static String MAPPING_SOURCE_NAME = "mappingSourceName";
+    @Deprecated
+    public final static String OLD_MAPPING_SOURCE = "mappingSource";
+
+    @Deprecated
+    public final static String OLD_MAPPING_SOURCE_NAME = "mappingSourceName";
 
     public static Resource createMappingResource(String mappingId,
             String sourceConceptUri, String targetConceptUri) {

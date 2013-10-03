@@ -42,6 +42,15 @@ public interface UrlBuilder {
     public abstract UrlBuilder parameter(String key, String... values);
 
     /**
+     * Set the mandatory path prefix of the location (ex.
+     * root/<required_segment>/path/to/file.html).
+     * 
+     * @param path
+     *            the path
+     */
+    public abstract UrlBuilder postRootPath(String path);
+
+    /**
      * Set the path portion of the location (ex. path/to/file.html).
      * 
      * @param path
@@ -70,6 +79,7 @@ public interface UrlBuilder {
      * 
      * @return the encoded URL string
      */
+    @Override
     public abstract String toString();
 
     public abstract UrlBuilder uriParameter(String key, String uriValue);
