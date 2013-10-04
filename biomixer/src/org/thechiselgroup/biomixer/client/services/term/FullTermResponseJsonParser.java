@@ -64,8 +64,6 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         UriList owningConcepts = new UriList();
         UriList ownedConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
-        // LightweightList<Object> queriedResourceRelations = CollectionFactory
-        // .createLightweightList();
 
         // TODO What if I get more pages? This seems to low to redispatch to get
         // more...but I have links, so I could write another fetch call in here
@@ -98,10 +96,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
 
             // The process method creates the resource and registers the
             // relations.
-            Resource neighbour = process(child, superOfTarget,
-                    compositeRelation, ontologyAcronym, parentConcepts,
-                    childConcepts, owningConcepts, ownedConcepts);
-            resources.add(neighbour);
+            Resource neighbour = processImmediateNeighbours(child,
+                    superOfTarget, compositeRelation, ontologyAcronym,
+                    parentConcepts, childConcepts, owningConcepts,
+                    ownedConcepts);
+            if (null != neighbour) {
+                resources.add(neighbour);
+            }
 
         }
 
@@ -115,6 +116,8 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
+    // Would refactor to combine with parseNewChidlren, but the looping differs
+    // due to a json parsing glitch (string integers vs integers)
     public ResourceNeighbourhood parseNewParents(String ontologyAcronym,
             String json) {
         UriList parentConcepts = new UriList();
@@ -122,8 +125,6 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         UriList owningConcepts = new UriList();
         UriList ownedConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
-        // LightweightList<Object> queriedResourceRelations = CollectionFactory
-        // .createLightweightList();
 
         // Note that there are no pages for parents
         Object parentsArray = super.parse(json);
@@ -156,10 +157,13 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
 
             // The process method creates the resource and registers the
             // relations.
-            Resource neighbour = process(parent, superOfTarget,
-                    compositeRelation, ontologyAcronym, parentConcepts,
-                    childConcepts, owningConcepts, ownedConcepts);
-            resources.add(neighbour);
+            Resource neighbour = processImmediateNeighbours(parent,
+                    superOfTarget, compositeRelation, ontologyAcronym,
+                    parentConcepts, childConcepts, owningConcepts,
+                    ownedConcepts);
+            if (null != neighbour) {
+                resources.add(neighbour);
+            }
 
         }
 
@@ -180,41 +184,54 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         UriList owningConcepts = new UriList();
         UriList ownedConcepts = new UriList();
         List<Resource> resources = new ArrayList<Resource>();
-        // LightweightList<Object> queriedResourceRelations = CollectionFactory
-        // .createLightweightList();
 
-        // Note that there are no pages for parents
-        Object collectionArray = super.parse(json);
+        // Note that there are no pages for paths_to_root
+        Object arrayOfPathArrays = super.parse(json);
+        Set<String> outerKeys = getObjectProperties(arrayOfPathArrays);
 
-        // Make resources for all the children
-        Integer numParents = length(collectionArray);
-        for (int i = 0; i < numParents; i++) {
-            String parent = asString(get(collectionArray, i));
+        for (String pathIndex : outerKeys) {
+            Object collectionArray = get(arrayOfPathArrays, pathIndex);
 
-            // I can't seem to find how to get composition relations fromt he
-            // new API. Emailed Paul about it.
-            // Until I know this, just make use of the parent and child
-            // relations.
-            boolean classRelation = true;
-            boolean compositeRelation = false;
-            boolean superOfTarget = true;
+            boolean immediateParent = false;
+            // Make resources for all the children
+            Integer numPathSteps = length(collectionArray);
 
-            // String relationType = asString(get(entry, "string"));
-            // boolean classRelation = "SubClass".equals(relationType)
-            // || "SuperClass".equals(relationType);
-            // boolean compositeRelation = "has_part".equals(relationType)
-            // || "[R]has_part".equals(relationType);
-            // boolean reversed = "SuperClass".equals(relationType)
-            // || "[R]has_part".equals(relationType);
+            // There are all sorts that get parsed multiple times, any
+            // time prior to a root to path branch.
+            for (int i = 0; i < numPathSteps; i++) {
+                Object ancestor = get(collectionArray, i);
 
-            // The process method creates the resource and registers the
-            // relations.
+                boolean classRelation = true;
+                boolean compositeRelation = false;
+                boolean superOfTarget = true;
+                // On the second last element, we are on the parent of the
+                // target resource,
+                // since these paths provide the target as the final element.
+                if (numPathSteps - 2 == i) {
+                    immediateParent = true;
+                }
 
-            Resource neighbour = process(parent, superOfTarget,
-                    compositeRelation, ontologyAcronym, parentConcepts,
-                    childConcepts, owningConcepts, ownedConcepts);
-            resources.add(neighbour);
+                // String relationType = asString(get(entry, "string"));
+                // boolean classRelation = "SubClass".equals(relationType)
+                // || "SuperClass".equals(relationType);
+                // boolean compositeRelation = "has_part".equals(relationType)
+                // || "[R]has_part".equals(relationType);
+                // boolean reversed = "SuperClass".equals(relationType)
+                // || "[R]has_part".equals(relationType);
 
+                // The process method creates the resource and registers the
+                // relations.
+
+                Resource neighbour = processNeighbour(ancestor,
+                        immediateParent, superOfTarget, compositeRelation,
+                        ontologyAcronym, parentConcepts, childConcepts,
+                        owningConcepts, ownedConcepts);
+                if (null != neighbour) {
+                    resources.add(neighbour);
+                }
+                immediateParent = false;
+
+            }
         }
 
         Map<String, Serializable> partialProperties = CollectionFactory
@@ -227,7 +244,18 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
-    private Resource process(Object relatedTerm, boolean superOfTarget,
+    private Resource processImmediateNeighbours(Object relatedTerm,
+            boolean superOfTarget, boolean hasARelation,
+            String ontologyAcronym, UriList parentConcepts,
+            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts) {
+
+        return processNeighbour(relatedTerm, true, superOfTarget, hasARelation,
+                ontologyAcronym, parentConcepts, childConcepts, owningConcepts,
+                ownedConcepts);
+    }
+
+    private Resource processNeighbour(Object relatedTerm,
+            boolean immediateNeighbour, boolean superOfTarget,
             boolean hasARelation, String ontologyAcronym,
             UriList parentConcepts, UriList childConcepts,
             UriList owningConcepts, UriList ownedConcepts) {
@@ -236,14 +264,20 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         // directly represented as they were in the old API.
         Resource concept = termParser
                 .parseConcept(ontologyAcronym, relatedTerm);
-        if (hasARelation && superOfTarget) {
-            owningConcepts.add(concept.getUri());
-        } else if (hasARelation && !superOfTarget) {
-            ownedConcepts.add(concept.getUri());
-        } else if (!hasARelation && superOfTarget) {
-            parentConcepts.add(concept.getUri());
-        } else { // !hasARelation && !reversed
-            childConcepts.add(concept.getUri());
+        if (((String) concept.getValue(Concept.ID))
+                .contains("ontologies/umls/OrphanClass")) {
+            return null;
+        }
+        if (immediateNeighbour) {
+            if (hasARelation && superOfTarget) {
+                owningConcepts.add(concept.getUri());
+            } else if (hasARelation && !superOfTarget) {
+                ownedConcepts.add(concept.getUri());
+            } else if (!hasARelation && superOfTarget) {
+                parentConcepts.add(concept.getUri());
+            } else { // !hasARelation && !reversed
+                childConcepts.add(concept.getUri());
+            }
         }
 
         return concept;

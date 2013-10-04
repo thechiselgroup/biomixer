@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 /**
@@ -94,7 +95,8 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                     }
 
                     @Override
-                    public void runOnSuccess(ResourceNeighbourhood resourceNeighbourhood) {
+                    public void runOnSuccess(
+                            ResourceNeighbourhood resourceNeighbourhood) {
                         hideLoadingBar();
 
                         if (graphView.getResourceModel().getResources()
@@ -121,7 +123,8 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                         // .getConceptId(parentUri);
 
                         Resource targetResource = resourceNeighbourhood
-                                .getResource(fullConceptId);
+                                .getResource(Concept.toConceptURI(
+                                        ontologyAcronym, fullConceptId));
                         targetResource
                                 .applyPartialProperties(resourceNeighbourhood
                                         .getPartialProperties());

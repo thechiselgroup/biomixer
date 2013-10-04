@@ -33,7 +33,6 @@ import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 /**
@@ -134,15 +133,16 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                 // Recollect our partial proeprties container
                 combinedPartialProperties.put(Concept.PARENT_CONCEPTS,
                         compiledParentList);
-                combinedPartialProperties
-                        .put(Concept.CHILD_CONCEPTS, compiledChildList);
+                combinedPartialProperties.put(Concept.CHILD_CONCEPTS,
+                        compiledChildList);
                 combinedPartialProperties.put(Concept.OWNED_CONCEPTS,
                         compiledOwningList);
                 combinedPartialProperties.put(Concept.OWNING_CONCEPTS,
                         compiledOwnerList);
 
                 // Recollect our resources
-                List<Resource> combinedResources = neighbourhoods.get(0).getResources();
+                List<Resource> combinedResources = neighbourhoods.get(0)
+                        .getResources();
                 combinedResources.addAll(neighbourhoods.get(1).getResources());
                 // Window.alert(partialsFirst.toString());
                 ResourceNeighbourhood combined = new ResourceNeighbourhood(
@@ -153,7 +153,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
             return;
 
         }
-
     }
 
     @Deprecated
@@ -325,7 +324,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         assert conceptId != null;
 
         // Now this expects the URL based concept ID and ontology acronym
-        Window.alert("Rename this, it is for hierarchical or root to path. Maybe use ancestors call to do it, maybe use tree call.");
+
         // final String url = buildNoRelationsUrl(conceptId, ontologyAcroynm);
         final String url = buildPathsToRootUrl(conceptId, ontologyAcroynm);
         // ontologyNameService.getOntologyName(ontologyAcroynm,
