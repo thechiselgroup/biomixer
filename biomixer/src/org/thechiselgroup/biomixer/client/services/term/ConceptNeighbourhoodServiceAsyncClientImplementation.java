@@ -20,9 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.UriUtils;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
@@ -96,14 +99,54 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
             if (neighbourhoods.size() >= 2 && sendingToCompletion != true) {
                 sendingToCompletion = true;
 
-                Map<String, Serializable> partials = neighbourhoods.get(0)
-                        .getPartialProperties();
-                partials.putAll(neighbourhoods.get(1).getPartialProperties());
-                List<Resource> resources = neighbourhoods.get(0).getResources();
-                resources.addAll(neighbourhoods.get(1).getResources());
+                Map<String, Serializable> combinedPartialProperties = CollectionFactory
+                        .createStringMap();
+                UriList compiledParentList = new UriList();
+                UriList compiledChildList = new UriList();
+                UriList compiledOwningList = new UriList();
+                UriList compiledOwnerList = new UriList();
 
+                Map<String, Serializable> partialsFirst = neighbourhoods.get(0)
+                        .getPartialProperties();
+                Map<String, Serializable> partialsSecond = neighbourhoods
+                        .get(1).getPartialProperties();
+
+                // Add first
+                compiledParentList.addAll((UriList) partialsFirst
+                        .get(Concept.PARENT_CONCEPTS));
+                compiledChildList.addAll((UriList) partialsFirst
+                        .get(Concept.CHILD_CONCEPTS));
+                compiledOwningList.addAll((UriList) partialsFirst
+                        .get(Concept.OWNED_CONCEPTS));
+                compiledOwnerList.addAll((UriList) partialsFirst
+                        .get(Concept.OWNING_CONCEPTS));
+
+                // Add second
+                compiledParentList.addAll((UriList) partialsSecond
+                        .get(Concept.PARENT_CONCEPTS));
+                compiledChildList.addAll((UriList) partialsSecond
+                        .get(Concept.CHILD_CONCEPTS));
+                compiledOwningList.addAll((UriList) partialsSecond
+                        .get(Concept.OWNED_CONCEPTS));
+                compiledOwnerList.addAll((UriList) partialsSecond
+                        .get(Concept.OWNING_CONCEPTS));
+
+                // Recollect our partial proeprties container
+                combinedPartialProperties.put(Concept.PARENT_CONCEPTS,
+                        compiledParentList);
+                combinedPartialProperties
+                        .put(Concept.CHILD_CONCEPTS, compiledChildList);
+                combinedPartialProperties.put(Concept.OWNED_CONCEPTS,
+                        compiledOwningList);
+                combinedPartialProperties.put(Concept.OWNING_CONCEPTS,
+                        compiledOwnerList);
+
+                // Recollect our resources
+                List<Resource> combinedResources = neighbourhoods.get(0).getResources();
+                combinedResources.addAll(neighbourhoods.get(1).getResources());
+                // Window.alert(partialsFirst.toString());
                 ResourceNeighbourhood combined = new ResourceNeighbourhood(
-                        partials, resources);
+                        combinedPartialProperties, combinedResources);
 
                 completionCallback.onSuccess(combined);
             }
