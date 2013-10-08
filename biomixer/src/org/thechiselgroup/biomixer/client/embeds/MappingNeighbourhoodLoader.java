@@ -93,7 +93,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         protected void runOnSuccess(ResourceNeighbourhood mappingNeighbourhood)
                 throws Exception {
 
-            targetResource.applyPartialProperties(mappingNeighbourhood
+            targetResource.addRelationalProperties(mappingNeighbourhood
                     .getPartialProperties());
 
             for (Resource mappingResource : mappingNeighbourhood.getResources()) {

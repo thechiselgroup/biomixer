@@ -81,7 +81,8 @@ public class MappingResponseParser {
 
         Date date = dateFormat.parse(getText(mappingNode, "date/text()"));
 
-        Resource resource = new Resource(Mapping.toMappingURI(id));
+        Resource resource = Resource.createIndexedResource(Mapping
+                .toMappingURI(id));
 
         resource.putValue(Mapping.ID, id);
         resource.putValue(Mapping.SOURCE, sourceUri);

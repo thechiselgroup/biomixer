@@ -130,7 +130,7 @@ public class ConceptConceptNeighbourhoodExpanderTest {
 
         doNothing().when(neighbourhoodService).getNeighbourhood(
                 eq(CONCEPT_1_ONTOLOGY_ID), eq(CONCEPT_1_FULL_ID),
-                captor.capture());
+                captor.capture(), null);
 
         underTest.expand(visualItem, expansionCallback);
 

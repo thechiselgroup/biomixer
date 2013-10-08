@@ -53,8 +53,8 @@ public class LightTermResponseWithoutRelationshipsParser extends
         String label = getText(node, "label/text()");
         String type = getText(node, "type/text()");
 
-        Resource result = new Resource(Concept.toConceptURI(ontologyAcronym,
-                fullId));
+        Resource result = Resource.createIndexedResource(Concept.toConceptURI(
+                ontologyAcronym, fullId));
 
         result.putValue(Concept.ID, fullId);
         result.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);

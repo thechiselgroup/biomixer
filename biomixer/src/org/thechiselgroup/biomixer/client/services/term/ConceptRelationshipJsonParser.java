@@ -26,7 +26,6 @@ import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -41,17 +40,32 @@ import com.google.inject.Inject;
  * @author drusk
  * 
  */
-public class FullTermResponseJsonParser extends AbstractJsonResultParser {
+public class ConceptRelationshipJsonParser extends
+        TermWithoutRelationshipsJsonParser {
 
     private static final String OWL_THING = "owl:Thing";
 
-    private final TermWithoutRelationshipsJsonParser termParser;
-
     @Inject
-    public FullTermResponseJsonParser(JsonParser jsonParser,
-            TermWithoutRelationshipsJsonParser termParser) {
+    public ConceptRelationshipJsonParser(JsonParser jsonParser) {
         super(jsonParser);
-        this.termParser = termParser;
+    }
+
+    public ResourceNeighbourhood parseCompositionConceptAsNeighbourhood(
+            String ontologyAcronym, String compositionType, String responseText) {
+        UriList thisConceptUriList = new UriList();
+        Resource neighbour = this.parseConcept(ontologyAcronym, responseText);
+
+        Map<String, Serializable> partialProperties = CollectionFactory
+                .createStringMap();
+        if (compositionType.equals(Concept.PART_OF_CONCEPTS)) {
+            partialProperties.put(Concept.PART_OF_CONCEPTS, thisConceptUriList);
+        } else if (compositionType.equals(Concept.HAS_PART_CONCEPTS)) {
+            partialProperties
+                    .put(Concept.HAS_PART_CONCEPTS, thisConceptUriList);
+        }
+        ArrayList<Resource> neighbourhoodArray = new ArrayList<Resource>();
+        neighbourhoodArray.add(neighbour);
+        return new ResourceNeighbourhood(partialProperties, neighbourhoodArray);
     }
 
     // Parses results of class call with "parents" or "children" arguments:
@@ -78,21 +92,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         for (int i = 0; i < numChildren; i++) {
             Object child = get(collectionArray, i);
 
-            // I can't seem to find how to get composition relations fromt he
-            // new API. Emailed Paul about it.
-            // Until I know this, just make use of the parent and child
-            // relations.
             boolean classRelation = true;
             boolean compositeRelation = false;
             boolean superOfTarget = false;
-
-            // String relationType = asString(get(entry, "string"));
-            // boolean classRelation = "SubClass".equals(relationType)
-            // || "SuperClass".equals(relationType);
-            // boolean compositeRelation = "has_part".equals(relationType)
-            // || "[R]has_part".equals(relationType);
-            // boolean reversed = "SuperClass".equals(relationType)
-            // || "[R]has_part".equals(relationType);
 
             // The process method creates the resource and registers the
             // relations.
@@ -110,8 +112,8 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
-        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
-        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
+        partialProperties.put(Concept.PART_OF_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.HAS_PART_CONCEPTS, owningConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -139,21 +141,9 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
         for (String index : quotedStringIndices) {
             Object parent = get(parentsArray, index);
 
-            // I can't seem to find how to get composition relations from the
-            // new API. Emailed Paul about it.
-            // Until I know this, just make use of the parent and child
-            // relations.
             boolean classRelation = true;
             boolean compositeRelation = false;
             boolean superOfTarget = true;
-
-            // String relationType = asString(get(entry, "string"));
-            // boolean classRelation = "SubClass".equals(relationType)
-            // || "SuperClass".equals(relationType);
-            // boolean compositeRelation = "has_part".equals(relationType)
-            // || "[R]has_part".equals(relationType);
-            // boolean reversed = "SuperClass".equals(relationType)
-            // || "[R]has_part".equals(relationType);
 
             // The process method creates the resource and registers the
             // relations.
@@ -171,8 +161,8 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
-        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
-        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
+        partialProperties.put(Concept.PART_OF_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.HAS_PART_CONCEPTS, owningConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -211,14 +201,6 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                     immediateParent = true;
                 }
 
-                // String relationType = asString(get(entry, "string"));
-                // boolean classRelation = "SubClass".equals(relationType)
-                // || "SuperClass".equals(relationType);
-                // boolean compositeRelation = "has_part".equals(relationType)
-                // || "[R]has_part".equals(relationType);
-                // boolean reversed = "SuperClass".equals(relationType)
-                // || "[R]has_part".equals(relationType);
-
                 // The process method creates the resource and registers the
                 // relations.
 
@@ -238,14 +220,14 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
-        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
-        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
+        partialProperties.put(Concept.PART_OF_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.HAS_PART_CONCEPTS, owningConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
     private Resource processImmediateNeighbours(Object relatedTerm,
-            boolean superOfTarget, boolean hasARelation,
+            Boolean superOfTarget, Boolean hasARelation,
             String ontologyAcronym, UriList parentConcepts,
             UriList childConcepts, UriList owningConcepts, UriList ownedConcepts) {
 
@@ -255,15 +237,15 @@ public class FullTermResponseJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource processNeighbour(Object relatedTerm,
-            boolean immediateNeighbour, boolean superOfTarget,
+            boolean immediateNeighbour, Boolean superOfTarget,
             boolean hasARelation, String ontologyAcronym,
             UriList parentConcepts, UriList childConcepts,
             UriList owningConcepts, UriList ownedConcepts) {
 
         // This is so different now, because it seems that relations are not
         // directly represented as they were in the old API.
-        Resource concept = termParser
-                .parseConcept(ontologyAcronym, relatedTerm);
+        Resource concept = this.parseConcept(ontologyAcronym, relatedTerm);
+
         if (((String) concept.getValue(Concept.ID))
                 .contains("ontologies/umls/OrphanClass")) {
             return null;

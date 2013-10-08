@@ -124,7 +124,7 @@ public abstract class AbstractGraphNodeSingleResourceNeighbourhoodExpander<T ext
                             return;
                         }
 
-                        resource.applyPartialProperties(result
+                        resource.addRelationalProperties(result
                                 .getPartialProperties());
                         expandNeighbourhood(visualItem, resource, graph,
                                 resourceManager.addAll(result.getResources()));

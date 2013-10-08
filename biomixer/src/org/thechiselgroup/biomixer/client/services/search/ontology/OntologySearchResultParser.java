@@ -45,11 +45,11 @@ public class OntologySearchResultParser extends AbstractXMLResultParser {
     }
 
     protected Resource analyzeNode(Object node) throws XPathEvaluationException {
-    	// TODO XXX Not changed yet
+        // TODO XXX Not changed yet
         String ontologyAcronym = getText(node, "ontologyId/text()");
 
-        Resource ontology = new Resource(
-                Ontology.toOntologyURI(ontologyAcronym));
+        Resource ontology = Resource.createIndexedResource(Ontology
+                .toOntologyURI(ontologyAcronym));
 
         ontology.putValue(Ontology.ONTOLOGY_ACRONYM, getText(node, "id/text()"));
         ontology.putValue(Ontology.ONTOLOGY_ACRONYM,

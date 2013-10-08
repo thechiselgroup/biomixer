@@ -126,7 +126,7 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
                                 .getResource(Concept.toConceptURI(
                                         ontologyAcronym, fullConceptId));
                         targetResource
-                                .applyPartialProperties(resourceNeighbourhood
+                                .addRelationalProperties(resourceNeighbourhood
                                         .getPartialProperties());
 
                         // Getting parents doesn't just get their IDs, it gets

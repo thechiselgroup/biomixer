@@ -64,6 +64,8 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
         private ResourceNeighbourhood originalTargetNeighbourhood;
 
+        private int entriesAddedSoFar = 0;
+
         private ConceptNeighbourhoodCallback(ErrorHandler errorHandler,
                 ResourceSet resourceSet, String fullConceptId, View graphView,
                 Resource targetResource) {
@@ -112,8 +114,13 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             // Memorize this to make the callbacks easier and cleaner to use.
             // Maybe not cool?
             ConceptNeighbourhoodCallback.this.originalTargetNeighbourhood = targetNeighbourhood;
-
-            if (targetNeighbourhood.getResources().size() > MAX_NUMBER_OF_NEIGHBOURS) {
+            // Storing the number added so far helps with trickle results (such
+            // as the individual calls required for composition relations).
+            // Before prompting, we need to see if we have already prompted, and
+            // if so and we want to cap results, we don't want to add any
+            // results that are trickling in from individual REST calls.
+            if (this.entriesAddedSoFar
+                    + targetNeighbourhood.getResources().size() > MAX_NUMBER_OF_NEIGHBOURS) {
                 // Callback will perform setGraphViewResources() for us.
                 // setGraphViewResources(true);
                 userPromptForNeighbourCap(targetNeighbourhood.getResources()
@@ -128,7 +135,16 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             if (capNodes) {
                 targetNeighbourhood = updateRenderedNeighboursWithMaximumNumber(targetNeighbourhood);
             }
-            targetResource.applyPartialProperties(targetNeighbourhood
+            this.entriesAddedSoFar += targetNeighbourhood.getResources().size();
+
+            // TODO XXX Do I even need this partial property thing here? I think
+            // the automatic expander might do this too...but maybe the
+            // Seems to work fine without these being applied here.
+            // Perhaps I can add properties immediately after getting them?
+            // Perhaps we can safely rely on the automatic expanders providing
+            // relational properties rather than handling them in neighbourhood
+            // collectors?
+            targetResource.addRelationalProperties(targetNeighbourhood
                     .getPartialProperties());
             resourceSet.addAll(targetNeighbourhood.getResources());
             graphView.getResourceModel().addResourceSet(resourceSet);
@@ -213,7 +229,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                                 ontologyAcronym, fullConceptId,
                                 new ConceptNeighbourhoodCallback(errorHandler,
                                         resourceSet, fullConceptId, graphView,
-                                        targetResource));
+                                        targetResource), targetResource);
                     }
                 });
 

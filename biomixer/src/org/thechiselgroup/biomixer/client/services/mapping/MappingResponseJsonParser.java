@@ -57,7 +57,8 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
                 firstConceptIdUri, secondConceptIdUri);
         mappingResource.putValue(Mapping.PROCESSES, processes);
 
-        // Resource resource = new Resource(Mapping.toMappingURI(id));
+        // Resource resource =
+        // Resource.createIndexedResource(Mapping.toMappingURI(id));
         // resource.putValue(Mapping.ID, id);
         //
         // resource.putValue(Mapping.SOURCE, firstConceptIdUri);

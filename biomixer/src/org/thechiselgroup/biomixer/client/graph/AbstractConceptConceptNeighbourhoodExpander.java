@@ -70,7 +70,7 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander<T extends View
         String conceptId = (String) resource.getValue(Concept.ID);
 
         conceptNeighbourhoodService.getNeighbourhood(ontologyAcronym,
-                conceptId, callback);
+                conceptId, callback, resource);
     }
 
     @Override
@@ -84,9 +84,9 @@ public abstract class AbstractConceptConceptNeighbourhoodExpander<T extends View
         neighbourhood.addAll(resourceManager.resolveResources(concept,
                 Concept.CHILD_CONCEPTS));
         neighbourhood.addAll(resourceManager.resolveResources(concept,
-                Concept.OWNED_CONCEPTS));
+                Concept.PART_OF_CONCEPTS));
         neighbourhood.addAll(resourceManager.resolveResources(concept,
-                Concept.OWNING_CONCEPTS));
+                Concept.HAS_PART_CONCEPTS));
 
         return neighbourhood;
     }

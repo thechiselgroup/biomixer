@@ -105,8 +105,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
                 .createStringMap();
         partialProperties.put(Concept.PARENT_CONCEPTS, parentConcepts);
         partialProperties.put(Concept.CHILD_CONCEPTS, childConcepts);
-        partialProperties.put(Concept.OWNING_CONCEPTS, owningConcepts);
-        partialProperties.put(Concept.OWNED_CONCEPTS, ownedConcepts);
+        partialProperties.put(Concept.HAS_PART_CONCEPTS, owningConcepts);
+        partialProperties.put(Concept.PART_OF_CONCEPTS, ownedConcepts);
 
         return new ResourceNeighbourhood(partialProperties, resources);
     }
@@ -125,15 +125,15 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         // String shortConceptId = getText(node, "id/text()");
         String label = getText(node, "label/text()");
 
-        Resource resource = new Resource(Concept.toConceptURI(ontologyAcronym,
-                fullConceptId));
+        Resource resource = Resource.createIndexedResource(Concept
+                .toConceptURI(ontologyAcronym, fullConceptId));
         resource.putValue(Concept.ID, fullConceptId);
         resource.putValue(Concept.LABEL, label);
         resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
 
         ResourceNeighbourhood neighbourhood = parseNeighbourhood(
                 ontologyAcronym, xmlText);
-        resource.applyPartialProperties(neighbourhood.getPartialProperties());
+        resource.addRelationalProperties(neighbourhood.getPartialProperties());
 
         return resource;
     }
@@ -156,8 +156,8 @@ public class FullTermResponseParser extends AbstractXMLResultParser {
         }
 
         // retrieve & create concept + relationship
-        Resource concept = new Resource(Concept.toConceptURI(ontologyAcronym,
-                conceptId));
+        Resource concept = Resource.createIndexedResource(Concept.toConceptURI(
+                ontologyAcronym, conceptId));
 
         concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.LABEL, label);

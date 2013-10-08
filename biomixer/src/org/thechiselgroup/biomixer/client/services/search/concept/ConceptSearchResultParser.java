@@ -39,8 +39,8 @@ public class ConceptSearchResultParser extends AbstractXMLResultParser {
         String ontologyId = getText(node, "ontologyId/text()");
         String conceptId = getText(node, "conceptId/text()");
 
-        Resource concept = new Resource(Concept.toConceptURI(ontologyId,
-                conceptId));
+        Resource concept = Resource.createIndexedResource(Concept.toConceptURI(
+                ontologyId, conceptId));
 
         concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.LABEL, getText(node, "preferredName/text()"));

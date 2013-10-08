@@ -16,17 +16,20 @@
 package org.thechiselgroup.biomixer.client.services.term;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
 
 public interface ConceptNeighbourhoodServiceAsync {
 
     /**
      * 
+     * @param targetResource
      * @param conceptId
      *            can be either a full concept id or a short concept id
      */
     void getNeighbourhood(String ontologyAcronym, String conceptFullId,
-            ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback);
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback,
+            Resource targetResource);
 
     /**
      * 

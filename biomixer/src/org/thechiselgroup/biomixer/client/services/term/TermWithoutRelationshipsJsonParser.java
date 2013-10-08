@@ -15,8 +15,12 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
@@ -40,8 +44,8 @@ public class TermWithoutRelationshipsJsonParser extends
         String label = asString(get(jsonObject, "prefLabel"));
         String type = asString(get(jsonObject, "type"));
 
-        Resource result = new Resource(Concept.toConceptURI(ontologyAcronym,
-                fullId));
+        Resource result = Resource.createIndexedResource(Concept.toConceptURI(
+                ontologyAcronym, fullId));
 
         result.putValue(Concept.ID, fullId);
         result.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
@@ -51,4 +55,45 @@ public class TermWithoutRelationshipsJsonParser extends
         return result;
     }
 
+    /**
+     * Receives the same object that we want for the parseConcept() method, but
+     * we are looking specifically for the properties in it, and for the hasA
+     * and partOf relations in particular. Returns a map of concept ids and
+     * their relation type.
+     * 
+     * @param ontologyAcronym
+     * @param jsonObject
+     * @return
+     */
+    public Map<String, String> parseForCompositionProperties(String json) {
+        Map<String, String> compositionMap = CollectionFactory
+                .createStringMap();
+        Object jsonObject = parse(json);
+        Object propertiesObject = get(jsonObject, "properties");
+
+        Set<String> propertyNames = getObjectProperties(propertiesObject);
+        // Need to do this funny little job because the composition property
+        // names are variable, and contain things such as the ontology acronym
+        // in them. They appear to all end the same way though...
+        for (String name : propertyNames) {
+            if (name.endsWith("has_part")) {
+                Object propArray = get(propertiesObject, name);
+                int length = length(propArray);
+                for (int i = 0; i < length; i++) {
+                    compositionMap.put(asString(get(propArray, i)),
+                            Concept.HAS_PART_CONCEPTS);
+                }
+            }
+            if (name.endsWith("part_of")) {
+                Object propArray = get(propertiesObject, name);
+                int length = length(propArray);
+                for (int i = 0; i < length; i++) {
+                    compositionMap.put(asString(get(propArray, i)),
+                            Concept.PART_OF_CONCEPTS);
+                }
+            }
+        }
+
+        return compositionMap;
+    }
 }

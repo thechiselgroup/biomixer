@@ -51,7 +51,7 @@ public class MappingExpander implements NodeExpander<Graph> {
             if (!resourceManager.contains(sourceUri)) {
                 // XXX broken, might need to call to term service?
                 // --> assume available via resource manager...
-                // Resource concept = new Resource(sourceUri);
+                // Resource concept = Resource.createIndexedResource(sourceUri);
                 // resourceManager2.add(concept);
             }
 
@@ -66,7 +66,7 @@ public class MappingExpander implements NodeExpander<Graph> {
             if (!resourceManager.contains(targetUri)) {
                 // XXX broken, might need to call to term service?
                 // --> assume available via resource manager...
-                // Resource concept = new Resource(sourceUri);
+                // Resource concept = Resource.createIndexedResource(sourceUri);
                 // resourceManager2.add(concept);
             }
 

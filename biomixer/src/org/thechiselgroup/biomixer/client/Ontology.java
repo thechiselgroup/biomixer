@@ -84,7 +84,8 @@ public final class Ontology {
 
     public static Resource createOntologyResource(String ontologyAcronym) {
 
-        Resource ontology = new Resource(Ontology.toOntologyURI(ontologyAcronym));
+        Resource ontology = Resource.createIndexedResource(Ontology
+                .toOntologyURI(ontologyAcronym));
 
         // XXX
         ontology.putValue(Ontology.ONTOLOGY_ACRONYM, ontologyAcronym);

@@ -33,7 +33,7 @@ import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
 
-    private FullTermResponseJsonParser underTest;
+    private ConceptRelationshipJsonParser underTest;
 
     @Test
     public void parseNeighbourhoodMultipleParentsMultipleChildrenOBO()
@@ -111,8 +111,6 @@ public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
 
     @Before
     public void setUp() {
-        underTest = new FullTermResponseJsonParser(new JacksonJsonParser(),
-                new TermWithoutRelationshipsJsonParser(new JacksonJsonParser()));
+        underTest = new ConceptRelationshipJsonParser(new JacksonJsonParser());
     }
-
 }

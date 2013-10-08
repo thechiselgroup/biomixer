@@ -53,7 +53,8 @@ public final class Mapping {
     public static Resource createMappingResource(String mappingId,
             String sourceConceptUri, String targetConceptUri) {
 
-        Resource mapping = new Resource(toMappingURI(mappingId));
+        Resource mapping = Resource
+                .createIndexedResource(toMappingURI(mappingId));
         mapping.putValue(ID, mappingId);
         mapping.putValue(SOURCE, sourceConceptUri);
         mapping.putValue(TARGET, targetConceptUri);

@@ -46,6 +46,17 @@ public class Resource implements Serializable {
     public Resource() {
     }
 
+    static private Map<String, Resource> resourceIndex = new HashMap<String, Resource>();
+
+    static public Resource createIndexedResource(String uri) {
+        Resource res = resourceIndex.get(uri);
+        if (null == res) {
+            res = new Resource(uri);
+            resourceIndex.put(uri, res);
+        }
+        return res;
+    }
+
     public Resource(String uri) {
         assert uri != null;
         this.uri = uri;
@@ -75,10 +86,39 @@ public class Resource implements Serializable {
         putValue(Concept.PARENT_CONCEPTS, currentParents);
     }
 
-    public void applyPartialProperties(
+    public void addPartOf(UriList additionalPartOf) {
+        UriList currentPartOf = getUriListValue(Concept.PART_OF_CONCEPTS);
+        currentPartOf.addAllNew(additionalPartOf);
+        putValue(Concept.PART_OF_CONCEPTS, currentPartOf);
+    }
+
+    public void addPartOf(String uri) {
+        UriList newPartOf = new UriList(uri);
+        addPartOf(newPartOf);
+    }
+
+    public void addHasPart(UriList additionalHasPart) {
+        UriList currentHasPart = getUriListValue(Concept.HAS_PART_CONCEPTS);
+        currentHasPart.addAllNew(additionalHasPart);
+        putValue(Concept.HAS_PART_CONCEPTS, currentHasPart);
+    }
+
+    public void addHasPart(String uri) {
+        UriList newHasPart = new UriList(uri);
+        addHasPart(newHasPart);
+    }
+
+    public void addRelationalProperties(
             Map<String, Serializable> partialProperties) {
         for (Entry<String, Serializable> entry : partialProperties.entrySet()) {
-            putValue(entry.getKey(), entry.getValue());
+            // This used to clobber existing data, which was a huge problem for
+            // cases where relational data was coming from multiple REST calls.
+            // Relational data does not get replaced in the normal course of a
+            // visualization, so keeping old values is sensible.
+            // putValue(entry.getKey(), entry.getValue());
+            UriList currentRelation = getUriListValue(entry.getKey());
+            currentRelation.addAll((UriList) entry.getValue());
+            putValue(entry.getKey(), currentRelation);
         }
     }
 

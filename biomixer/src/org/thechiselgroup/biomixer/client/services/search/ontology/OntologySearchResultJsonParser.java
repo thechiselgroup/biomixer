@@ -62,14 +62,14 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
         //
         // // TODO XXX If we want Description, I think we need to grab the most
         // recent submission
-        // // and take it fromt here. This is another API call per ontology.
+        // // and take it from there. This is another API call per ontology.
         // // /ontologies/:acronym:/lastest_submission
 
         // Resource resource = new Resource(
         // Ontology.toOntologyURI(virtualOntologyId));
 
-        Resource resource = new Resource(
-                Ontology.toOntologyURI(ontologyAcronym));
+        Resource resource = Resource.createIndexedResource(Ontology
+                .toOntologyURI(ontologyAcronym));
 
         // resource.putValue(Ontology.ONTOLOGY_VERSION_ID,
         // asString(get(jsonItem, "id")));

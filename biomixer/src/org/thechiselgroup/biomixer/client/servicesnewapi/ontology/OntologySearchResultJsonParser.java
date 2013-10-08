@@ -54,8 +54,8 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
         // The id is now a URL. This will work for us still, right?
         // It should work fine once we are fully converted, but until then
         // a lot of the older services expect old integer ids. Too bad!
-        Resource resource = new Resource(
-                Ontology.toOntologyURI(ontologyAcronym));
+        Resource resource = Resource.createIndexedResource(Ontology
+                .toOntologyURI(ontologyAcronym));
 
         // used to be "abbreviation"
         resource.putValue(Ontology.ONTOLOGY_ACRONYM,
