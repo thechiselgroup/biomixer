@@ -17,14 +17,18 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionUtils;
+import org.thechiselgroup.biomixer.client.graph.CompositionArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutArc;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutGraph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.DefaultLayoutArcType;
 
 /**
  * Takes a graph and finds all the separate {@link DirectedAcyclicGraph}s on it.
@@ -53,8 +57,29 @@ public class DirectedAcyclicGraphBuilder {
                 potentialRoots.add(root);
             }
         }
+        List<LayoutArc> allArcs = graph.getAllArcs();
+        // The sorting does not appear to be super critical, but
+        // it makes sense to prioritize inheritance relations over
+        // composition ones.
+        Collections.sort(allArcs, new Comparator<LayoutArc>() {
+            // only seeking to make the CompositionArcType occur after the other
+            // ones.
+            @Override
+            public int compare(LayoutArc o1, LayoutArc o2) {
+                if (((DefaultLayoutArcType) o1.getType()).getId() != ((DefaultLayoutArcType) o2
+                        .getType()).getId()) {
+                    if (((DefaultLayoutArcType) o1.getType()).getId() == CompositionArcType.ID) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+                return 0;
+            }
 
-        for (LayoutArc arc : graph.getAllArcs()) {
+        });
+
+        for (LayoutArc arc : allArcs) {
             if (!arc.isDirected()) {
                 /*
                  * This is a DIRECTED acyclic graph. For now just ignore
@@ -77,7 +102,10 @@ public class DirectedAcyclicGraphBuilder {
                 continue;
             }
 
-            targetNode.addChild(sourceNode);
+            if (!sourceNode.getChildren().contains(targetNode)) {
+                // Really can't have both directions in one DAG
+                targetNode.addChild(sourceNode);
+            }
             potentialRoots.remove(sourceNode);
         }
 

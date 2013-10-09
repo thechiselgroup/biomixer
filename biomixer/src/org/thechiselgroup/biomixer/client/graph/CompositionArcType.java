@@ -32,7 +32,7 @@ public class CompositionArcType implements ArcType {
 
     public static final String ID = "org.thechiselgroup.biomixer.client.graph.CompositionArcType";
 
-    public static final String ARC_LABEL = "has_part";
+    public static final String ARC_LABEL = "part of";
 
     public static final String ARC_COLOR = "#AFC600";
 
@@ -65,11 +65,11 @@ public class CompositionArcType implements ArcType {
 
             for (String parentUri : firstResource
                     .getUriListValue(Concept.HAS_PART_CONCEPTS)) {
-                arcItems.add(createArc(visualItemId, parentUri));
+                arcItems.add(createArc(parentUri, visualItemId));
             }
             for (String childUri : firstResource
                     .getUriListValue(Concept.PART_OF_CONCEPTS)) {
-                arcItems.add(createArc(childUri, visualItemId));
+                arcItems.add(createArc(visualItemId, childUri));
             }
         }
         return arcItems;
