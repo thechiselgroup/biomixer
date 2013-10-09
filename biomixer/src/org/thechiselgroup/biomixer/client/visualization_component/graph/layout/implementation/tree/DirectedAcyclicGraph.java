@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutNode;
 
@@ -89,8 +90,11 @@ public class DirectedAcyclicGraph {
      */
     private int getMaxDistanceFromAnyRoot(DirectedAcyclicGraphNode dagNode) {
         int maxDepth = 0;
+        Stack<DirectedAcyclicGraphNode> visitedNodeStack = new Stack<DirectedAcyclicGraphNode>();
         for (DirectedAcyclicGraphNode root : roots) {
-            int maxDepthFromRoot = root.getMaxDistance(dagNode);
+            int maxDepthFromRoot = root.getMaxDistance(dagNode,
+                    visitedNodeStack);
+            assert visitedNodeStack.size() == 0;
             if (maxDepthFromRoot > maxDepth) {
                 maxDepth = maxDepthFromRoot;
             }
@@ -114,7 +118,6 @@ public class DirectedAcyclicGraph {
         return nodesByMaxDistanceFromARoot.get(Integer.valueOf(distance));
     }
 
-
     /**
      * 
      * @return the total number of nodes in the graph, including roots
@@ -129,8 +132,10 @@ public class DirectedAcyclicGraph {
      */
     public int getNumberOfNodesOnLongestPath() {
         int longestPath = 0;
+        Stack<DirectedAcyclicGraphNode> visitedNodeStack = new Stack<DirectedAcyclicGraphNode>();
         for (DirectedAcyclicGraphNode root : roots) {
-            int numberOfNodes = root.getMaxLengthToEndOfPath() + 1;
+            int numberOfNodes = root.getMaxLengthToEndOfPath(visitedNodeStack) + 1;
+            assert visitedNodeStack.size() == 0;
             if (numberOfNodes > longestPath) {
                 longestPath = numberOfNodes;
             }

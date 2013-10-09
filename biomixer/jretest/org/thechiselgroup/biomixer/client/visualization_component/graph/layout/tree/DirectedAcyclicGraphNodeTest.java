@@ -63,7 +63,7 @@ public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
         DirectedAcyclicGraphNode dagNodes0 = getDagNode(nodes[0], dag);
         DirectedAcyclicGraphNode dagNodes1 = getDagNode(nodes[1], dag);
 
-        assertThat(dagNodes0.getMaxDistance(dagNodes1), equalTo(1));
+        assertThat(dagNodes0.getMaxDistance(dagNodes1, null), equalTo(1));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
         DirectedAcyclicGraph dag = getDag(graph);
         DirectedAcyclicGraphNode dagNode0 = getDagNode(nodes[0], dag);
 
-        assertThat(dagNode0.getMaxDistance(dagNode0), equalTo(0));
+        assertThat(dagNode0.getMaxDistance(dagNode0, null), equalTo(0));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DirectedAcyclicGraphNodeTest extends AbstractLayoutGraphTest {
         DirectedAcyclicGraphNode dagNode0 = getDagNode(nodes[0], dag);
         DirectedAcyclicGraphNode dagNode4 = getDagNode(nodes[4], dag);
 
-        assertThat(dagNode0.getMaxDistance(dagNode4), equalTo(3));
+        assertThat(dagNode0.getMaxDistance(dagNode4, null), equalTo(3));
     }
 
 }
