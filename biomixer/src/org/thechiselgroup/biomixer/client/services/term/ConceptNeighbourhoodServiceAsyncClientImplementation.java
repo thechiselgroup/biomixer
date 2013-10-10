@@ -191,7 +191,8 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                 .parameter("include", "properties").toString();
     }
 
-    private String buildChildrenUrl(String conceptFullId, String ontologyAcronym) {
+    private String buildChildrenUrl(String conceptFullId,
+            String ontologyAcronym, int page) {
         String encodedConceptId;
         if (conceptFullId.contains("http%3A")) {
             encodedConceptId = conceptFullId;
@@ -203,7 +204,8 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         return urlBuilderFactory
                 .createUrlBuilder()
                 .path("ontologies/" + ontologyAcronym + "/classes/"
-                        + encodedConceptId + "/children/").toString();
+                        + encodedConceptId + "/children/")
+                .parameter("page", page + "").toString();
     }
 
     @Override
@@ -215,21 +217,9 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
         assert ontologyAcroynm != null;
         assert conceptId != null;
 
-        // Now this expects the URL based concept ID and ontology acronym
-        final String parentsUrl = buildParentsUrl(conceptId, ontologyAcroynm);
-        final String childrenUrl = buildChildrenUrl(conceptId, ontologyAcroynm);
-        final String compositionUrl = buildCompositionUrl(conceptId,
-                ontologyAcroynm);
-
-        ErrorHandlingAsyncCallback<ResourceNeighbourhood> parentChildCollector = callback;
-
-        CompositionRelationFetcherCallback compositionRelationReFetcherCallback = new CompositionRelationFetcherCallback(
-                callback, conceptId, ontologyAcroynm, targetResource);
-
-        // We call two fetch calls, and send the results back to the callback.
-
         // fetch parents
-        fetchUrl(parentChildCollector, parentsUrl,
+        final String parentsUrl = buildParentsUrl(conceptId, ontologyAcroynm);
+        fetchUrl(callback, parentsUrl,
                 new Transformer<String, ResourceNeighbourhood>() {
                     @Override
                     public ResourceNeighbourhood transform(String responseText)
@@ -241,26 +231,61 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                         return neighbourhood;
                     }
                 });
-        
+
         // fetch children
-        fetchUrl(parentChildCollector, childrenUrl,
-                new Transformer<String, ResourceNeighbourhood>() {
-                    @Override
-                    public ResourceNeighbourhood transform(String responseText)
-                            throws Exception {
+        // url will be computed iteratively...
+        // We need to deal with paged children data, and this is a tightly
+        // contained way to do that.
+        // This is a nice way to get closure in life :)
+        (new Object() {
+            private int pageNumberToRequest = 1;
 
-                        ResourceNeighbourhood neighbourhood = responseParser
-                                .parseNewChildren(ontologyAcroynm, responseText);
+            public void callForNextPage() {
+                final String childrenUrl = buildChildrenUrl(conceptId,
+                        ontologyAcroynm, pageNumberToRequest);
 
-                        return neighbourhood;
-                    }
-                });
+                fetchUrl(callback, childrenUrl,
+                        new Transformer<String, ResourceNeighbourhood>() {
+                            @Override
+                            public ResourceNeighbourhood transform(
+                                    String responseText) throws Exception {
 
-        // The original callback can accept trickling" results, that is,
-        // multiple runSuccess calls. Works great for the composiiton calls
-        // that follow.
+                                ResourceNeighbourhood neighbourhood = responseParser
+                                        .parseNewChildren(ontologyAcroynm,
+                                                responseText);
+
+                                // Before returning, check this response to see
+                                // if we have more pages to get
+                                Integer maxPageNumber = responseParser
+                                        .asInt(responseParser.get(
+                                                responseParser
+                                                        .parse(responseText),
+                                                "pageCount"));
+                                // if (maxPageNumber > 1) {
+                                // Window.alert(pageNumberToRequest + " of "
+                                // + maxPageNumber + "");
+                                // }
+                                if (null != maxPageNumber
+                                        && maxPageNumber > pageNumberToRequest) {
+                                    pageNumberToRequest++;
+                                    callForNextPage();
+                                }
+
+                                return neighbourhood;
+                            }
+                        });
+            }
+        }).callForNextPage();
+
 
         // fetch composition relations (has_part and part_of)
+        // The original callback can accept trickling" results, that is,
+        // multiple runSuccess calls. Works great for the composition calls
+        // that occur within the composition parser(should those be pulled out here?)
+        final String compositionUrl = buildCompositionUrl(conceptId,
+                ontologyAcroynm);
+        CompositionRelationFetcherCallback compositionRelationReFetcherCallback = new CompositionRelationFetcherCallback(
+                callback, conceptId, ontologyAcroynm, targetResource);
         fetchUrl(compositionRelationReFetcherCallback, compositionUrl,
                 new Transformer<String, Map<String, String>>() {
                     @Override
