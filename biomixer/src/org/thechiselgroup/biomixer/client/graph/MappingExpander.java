@@ -46,7 +46,7 @@ public class MappingExpander implements NodeExpander<Graph> {
 
         Resource mapping = resourceItem.getResources().getFirstElement();
 
-        String sourceUri = (String) mapping.getValue(Mapping.SOURCE);
+        String sourceUri = Mapping.getSourceUri(mapping);
         if (!expansionCallback.containsResourceWithUri(sourceUri)) {
             if (!resourceManager.contains(sourceUri)) {
                 // XXX broken, might need to call to term service?
@@ -60,7 +60,7 @@ public class MappingExpander implements NodeExpander<Graph> {
             expansionCallback.addAutomaticResource(concept);
         }
 
-        String targetUri = (String) mapping.getValue(Mapping.TARGET);
+        String targetUri = Mapping.getTargetUri(mapping);
 
         if (!expansionCallback.containsResourceWithUri(targetUri)) {
             if (!resourceManager.contains(targetUri)) {

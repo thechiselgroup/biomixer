@@ -76,7 +76,7 @@ public class ConceptMappingNeighbourhoodLoaderTest {
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
-                eq(Concept.getOntologyId(concept)),
+                eq(Concept.getOntologyAcronym(concept)),
                 eq(Concept.getConceptId(concept)), eq(false), captor.capture());
         underTest.expand(visualItem, expansionCallback);
 
@@ -103,13 +103,21 @@ public class ConceptMappingNeighbourhoodLoaderTest {
                         .getUri())).thenReturn(false);
 
         Resource mapping1 = createMappingResource("m1",
-                expandedConcept.getUri(), containedConcept.getUri());
+                expandedConcept.getUri(), containedConcept.getUri(),
+                (String) expandedConcept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) containedConcept.getValue(Concept.ONTOLOGY_ACRONYM));
         Resource mapping2 = createMappingResource("m2",
-                containedConcept.getUri(), expandedConcept.getUri());
+                containedConcept.getUri(), expandedConcept.getUri(),
+                (String) containedConcept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) expandedConcept.getValue(Concept.ONTOLOGY_ACRONYM));
         Resource mapping3 = createMappingResource("m3",
-                expandedConcept.getUri(), uncontainedConcept.getUri());
+                expandedConcept.getUri(), uncontainedConcept.getUri(),
+                (String) expandedConcept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) uncontainedConcept.getValue(Concept.ONTOLOGY_ACRONYM));
         Resource mapping4 = createMappingResource("m4",
-                uncontainedConcept.getUri(), expandedConcept.getUri());
+                uncontainedConcept.getUri(), expandedConcept.getUri(),
+                (String) uncontainedConcept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) containedConcept.getValue(Concept.ONTOLOGY_ACRONYM));
 
         List<Resource> mappings = new ArrayList<Resource>();
         mappings.add(mapping1);

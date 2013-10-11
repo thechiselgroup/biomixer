@@ -85,8 +85,8 @@ public class MappingResponseParser {
                 .toMappingURI(id));
 
         resource.putValue(Mapping.ID, id);
-        resource.putValue(Mapping.SOURCE, sourceUri);
-        resource.putValue(Mapping.TARGET, targetUri);
+        resource.putValue(Mapping.SOURCE_CONCEPT_URI, sourceUri);
+        resource.putValue(Mapping.TARGET_CONCEPT_URI, targetUri);
         // resource.putValue(Mapping.DATE, date);
         // resource.putValue(Mapping.MAPPING_TYPE, mappingType);
         // resource.putValue(Mapping.MAPPING_SOURCE, mappingSource);

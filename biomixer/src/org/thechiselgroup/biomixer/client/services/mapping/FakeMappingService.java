@@ -52,7 +52,8 @@ public class FakeMappingService implements ConceptMappingServiceAsync {
 
     private static final Resource MAPPING_1 = Mapping.createMappingResource(
             "m1", Concept.toConceptURI(CONCEPT_1_ONTOLOGY, CONCEPT_1_ID),
-            Concept.toConceptURI(CONCEPT_2_ONTOLOGY, CONCEPT_2_ID));
+            Concept.toConceptURI(CONCEPT_2_ONTOLOGY, CONCEPT_2_ID),
+            CONCEPT_1_ONTOLOGY, CONCEPT_2_ONTOLOGY);
 
     private final Logger logger;
 

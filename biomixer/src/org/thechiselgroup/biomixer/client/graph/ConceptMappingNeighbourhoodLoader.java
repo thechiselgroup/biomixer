@@ -60,8 +60,8 @@ public class ConceptMappingNeighbourhoodLoader<T extends ViewWithResourceManager
         for (Resource mapping : neighbourhood) {
             assert Mapping.isMapping(mapping);
 
-            String sourceUri = (String) mapping.getValue(Mapping.SOURCE);
-            String targetUri = (String) mapping.getValue(Mapping.TARGET);
+            String sourceUri = Mapping.getSourceUri(mapping);
+            String targetUri = Mapping.getTargetUri(mapping);
 
             if (specificResourceManager.containsResourceWithUri(sourceUri)
                     && specificResourceManager

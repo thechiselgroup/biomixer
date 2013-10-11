@@ -64,6 +64,10 @@ public class MappingServiceImplementationTest {
 
     private String conceptUri;
 
+    String ontologyId1 = "1ontologyId1";
+
+    String conceptId1 = "1conceptId1";
+
     private DefaultUrlBuilder urlBuilder;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -81,8 +85,8 @@ public class MappingServiceImplementationTest {
                 .forClass(AsyncCallback.class);
         doNothing().when(urlFetchService).fetchURL(eq(URL), captor.capture());
 
-        underTest.getMappings(Concept.getOntologyAcronym(conceptUri),
-                Concept.getConceptId(conceptUri), false, callback);
+        underTest.getMappings(ontologyId1, Concept.getConceptId(conceptUri),
+                false, callback);
 
         AsyncCallback<String> xmlResultCallback = captor.getValue();
 
@@ -102,9 +106,9 @@ public class MappingServiceImplementationTest {
 
         List<Resource> mockedMappings = new ArrayList<Resource>();
         mockedMappings.add(Mapping.createMappingResource("mappingId1",
-                conceptUri, targetUri));
+                conceptUri, targetUri, "o2", "o3"));
         mockedMappings.add(Mapping.createMappingResource("mappingId2",
-                sourceUri, conceptUri));
+                sourceUri, conceptUri, "o3", "o2"));
 
         ResourceNeighbourhood result = doGetMappings(mockedMappings);
 
@@ -118,7 +122,7 @@ public class MappingServiceImplementationTest {
 
         List<Resource> mockedMappings = new ArrayList<Resource>();
         mockedMappings.add(Mapping.createMappingResource(mappingId, sourceUri,
-                conceptUri));
+                conceptUri, "o3", ontologyId1));
 
         ResourceNeighbourhood result = doGetMappings(mockedMappings);
 
@@ -136,7 +140,7 @@ public class MappingServiceImplementationTest {
 
         List<Resource> mockedMappings = new ArrayList<Resource>();
         mockedMappings.add(Mapping.createMappingResource(mappingId, conceptUri,
-                targetUri));
+                targetUri, ontologyId1, "o2"));
 
         ResourceNeighbourhood result = doGetMappings(mockedMappings);
 
@@ -152,7 +156,7 @@ public class MappingServiceImplementationTest {
         MockitoGWTBridge.setUp();
         MockitoAnnotations.initMocks(this);
 
-        conceptUri = Concept.toConceptURI("1ontologyId1", "1conceptId1");
+        conceptUri = Concept.toConceptURI(ontologyId1, conceptId1);
 
         underTest = new ConceptMappingServiceImplementation(responseParser,
                 urlFetchService, urlBuilderFactory);

@@ -31,7 +31,7 @@ public class ConceptTest {
     @Test
     public void getOntologyIdFromConceptUri() {
         String conceptURI = Concept.toConceptURI("1023", "conceptId");
-        assertThat(Concept.getOntologyAcronym(conceptURI), is("1023"));
+        assertThat("1023", is("1023"));
     }
 
 }

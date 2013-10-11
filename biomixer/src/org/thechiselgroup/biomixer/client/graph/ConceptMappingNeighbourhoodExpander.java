@@ -55,29 +55,32 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
         final String conceptUri = concept.getUri();
 
         for (final Resource mapping : mappings) {
-            String sourceUri = Mapping.getSource(mapping);
-            String targetUri = Mapping.getTarget(mapping);
+            String sourceUri = Mapping.getSourceUri(mapping);
+            String targetUri = Mapping.getTargetUri(mapping);
 
             assert conceptUri.equals(sourceUri) || conceptUri.equals(targetUri);
             assert !(conceptUri.equals(sourceUri) && conceptUri
                     .equals(targetUri));
 
-            final String otherUri = conceptUri.equals(sourceUri) ? targetUri
+            final String otherConceptUri = conceptUri.equals(sourceUri) ? targetUri
                     : sourceUri;
+            final String otherOntologyAcronym = conceptUri.equals(sourceUri) ? Mapping
+                    .getTargetOntology(mapping) : Mapping
+                    .getSourceOntology(mapping);
 
-            assert !otherUri.equals(conceptUri);
+            assert !otherConceptUri.equals(conceptUri);
 
-            if (resourceManager.contains(otherUri)) {
+            if (resourceManager.contains(otherConceptUri)) {
                 callback.addAutomaticResource(resourceManager
-                        .getByUri(otherUri));
+                        .getByUri(otherConceptUri));
                 callback.addAutomaticResource(mapping);
                 continue;
             }
 
-            termService.getBasicInformation(Concept.getOntologyAcronym(otherUri), Concept
-                    .getConceptId(otherUri),
-                    new ErrorHandlingAsyncCallback<Resource>(
-                            errorHandler) {
+            termService.getBasicInformation(
+                   otherOntologyAcronym,
+                    Concept.getConceptId(otherConceptUri),
+                    new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                         @Override
                         protected String getMessage(Throwable caught) {

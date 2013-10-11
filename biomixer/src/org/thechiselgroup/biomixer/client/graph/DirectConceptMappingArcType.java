@@ -96,8 +96,7 @@ public class DirectConceptMappingArcType implements ArcType {
                     .getUriListValue(Concept.OUTGOING_MAPPINGS)) {
                 if (resourceAccessor.contains(uri)) {
                     Resource mapping = resourceAccessor.getByUri(uri);
-                    String targetResource = (String) mapping
-                            .getValue(Mapping.TARGET);
+                    String targetResource = Mapping.getTargetUri(mapping);
                     arcItems.add(createArc(visualItem.getId(), targetResource));
                 }
             }
@@ -105,8 +104,7 @@ public class DirectConceptMappingArcType implements ArcType {
                     .getUriListValue(Concept.INCOMING_MAPPINGS)) {
                 if (resourceAccessor.contains(uri)) {
                     Resource mapping = resourceAccessor.getByUri(uri);
-                    String sourceResource = (String) mapping
-                            .getValue(Mapping.SOURCE);
+                    String sourceResource = Mapping.getSourceUri(mapping);;
                     arcItems.add(createArc(sourceResource, visualItem.getId()));
                 }
             }

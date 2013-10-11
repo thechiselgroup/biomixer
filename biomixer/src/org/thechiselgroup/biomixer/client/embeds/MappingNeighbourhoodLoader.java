@@ -15,7 +15,6 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
@@ -32,7 +31,6 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.L
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.animations.NodeAnimator;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.circle.CircleLayoutAlgorithm;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
@@ -65,7 +63,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             }
         }
 
-        private final Resource targetResource;
+        private final Resource centralResource;
 
         private final ResourceSet resourceSet;
 
@@ -74,10 +72,10 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         private final View graphView;
 
         private MappingCallback(ErrorHandler errorHandler,
-                Resource targetResource, ResourceSet resourceSet,
+                Resource centralResource, ResourceSet resourceSet,
                 String fullConceptId, View graphView) {
             super(errorHandler);
-            this.targetResource = targetResource;
+            this.centralResource = centralResource;
             this.resourceSet = resourceSet;
             this.fullConceptId = fullConceptId;
             this.graphView = graphView;
@@ -93,21 +91,32 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         protected void runOnSuccess(ResourceNeighbourhood mappingNeighbourhood)
                 throws Exception {
 
-            targetResource.addRelationalProperties(mappingNeighbourhood
+            // The new mapping results give the full terms, but without
+            // relational properties.
+            // We would like to parse those to save REST calls, but we'll need
+            // the relational properties anyway...
+            // Unfortunately, not all concept ids contain the ontology acronym
+            // that is needed for further REST calls; some of them have some
+            // weird short form!
+            centralResource.addRelationalProperties(mappingNeighbourhood
                     .getPartialProperties());
 
-            for (Resource mappingResource : mappingNeighbourhood.getResources()) {
-                String sourceUri = Mapping.getSource(mappingResource);
-                String targetUri = Mapping.getTarget(mappingResource);
 
-                final String otherUri = targetResource.getUri().equals(
+            for (Resource mappingResource : mappingNeighbourhood.getResources()) {
+                String sourceUri = Mapping.getSourceId(mappingResource);
+                String targetUri = Mapping.getTargetId(mappingResource);
+
+                final String otherConceptUri = centralResource.getUri().equals(
                         sourceUri) ? targetUri : sourceUri;
 
-                final String otherOntologyAcronym = Concept.getOntologyAcronym(otherUri);
-                final String otherConceptId = Concept.getConceptId(otherUri);
+                final String otherOntologyAcronym = centralResource
+                        .equals(sourceUri) ? Mapping
+                        .getTargetOntology(mappingResource) : Mapping
+                        .getSourceOntology(mappingResource);
+
                 termService.getBasicInformation(otherOntologyAcronym,
-                        otherConceptId, new BasicTermInfoCallback(errorHandler,
-                                otherConceptId));
+                        otherConceptUri, new BasicTermInfoCallback(
+                                errorHandler, otherConceptUri));
 
             }
 
@@ -148,8 +157,6 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                             throws Exception {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
-
-                        Window.alert("In doLoadData of the MappingNeighbourhoodLoader");
 
                         // TODO move to MappedConceptsServiceAsyncImpl
                         mappingService.getMappings(ontologyAcronym,

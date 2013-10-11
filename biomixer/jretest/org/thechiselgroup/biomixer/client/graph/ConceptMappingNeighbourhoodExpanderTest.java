@@ -106,7 +106,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         mappings.add(outgoingMapping);
         mappings.add(incomingMapping);
 
-        expandUnderTestWithMappings(concept.getUri(), mappings,
+        expandUnderTestWithMappings(concept, mappings,
                 new HashMap<String, Serializable>());
 
         verify(expansionCallback, times(1))
@@ -138,18 +138,18 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         ArgumentCaptor<AsyncCallback> sourceCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(sourceResource)),
+                eq(Concept.getOntologyAcronym(sourceResource)),
                 eq(Concept.getConceptId(sourceResource)),
                 sourceCaptor.capture());
 
         ArgumentCaptor<AsyncCallback> targetCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(targetResource)),
+                eq(Concept.getOntologyAcronym(targetResource)),
                 eq(Concept.getConceptId(targetResource)),
                 targetCaptor.capture());
 
-        expandUnderTestWithMappings(concept.getUri(), mappings,
+        expandUnderTestWithMappings(concept, mappings,
                 new HashMap<String, Serializable>());
 
         AsyncCallback<Resource> sourceCallback = sourceCaptor.getValue();
@@ -180,18 +180,18 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         ArgumentCaptor<AsyncCallback> sourceCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(sourceResource)),
+                eq(Concept.getOntologyAcronym(sourceResource)),
                 eq(Concept.getConceptId(sourceResource)),
                 sourceCaptor.capture());
 
         ArgumentCaptor<AsyncCallback> targetCaptor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         doNothing().when(termService).getBasicInformation(
-                eq(Concept.getOntologyId(targetResource)),
+                eq(Concept.getOntologyAcronym(targetResource)),
                 eq(Concept.getConceptId(targetResource)),
                 targetCaptor.capture());
 
-        expandUnderTestWithMappings(concept.getUri(), mappings,
+        expandUnderTestWithMappings(concept, mappings,
                 new HashMap<String, Serializable>());
 
         AsyncCallback<Resource> sourceCallback = sourceCaptor.getValue();
@@ -214,7 +214,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         mappings.add(outgoingMapping);
         mappings.add(incomingMapping);
 
-        expandUnderTestWithMappings(concept.getUri(), mappings,
+        expandUnderTestWithMappings(concept, mappings,
                 new HashMap<String, Serializable>());
 
         verify(expansionCallback, times(1)).addAutomaticResource(
@@ -245,16 +245,20 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         mappings.add(incomingMapping);
 
         Resource addedOutgoingMapping = Mapping.createMappingResource(
-                "mapping1", concept.getUri(), targetResource.getUri());
+                "mapping1", concept.getUri(), targetResource.getUri(),
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) targetResource.getValue(Concept.ONTOLOGY_ACRONYM));
         Resource addedIncomingMapping = Mapping.createMappingResource(
-                "mapping2", sourceResource.getUri(), concept.getUri());
+                "mapping2", sourceResource.getUri(), concept.getUri(),
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) targetResource.getValue(Concept.ONTOLOGY_ACRONYM));
 
         when(resourceManager.add(incomingMapping)).thenReturn(
                 addedIncomingMapping);
         when(resourceManager.add(outgoingMapping)).thenReturn(
                 addedOutgoingMapping);
 
-        expandUnderTestWithMappings(concept.getUri(), mappings,
+        expandUnderTestWithMappings(concept, mappings,
                 new HashMap<String, Serializable>());
 
         assertThat(resultMappings,
@@ -269,7 +273,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         underTest.expand(visualItem, expansionCallback);
 
         verify(mappingService, times(1)).getMappings(
-                eq(Concept.getOntologyAcronym(concept.getUri())),
+                eq(Concept.getOntologyAcronym(concept)),
                 eq(Concept.getConceptId(concept.getUri())), eq(false),
                 any(AsyncCallback.class));
     }
@@ -306,15 +310,14 @@ public class ConceptMappingNeighbourhoodExpanderTest {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void expandUnderTestWithMappings(String conceptUri,
+    private void expandUnderTestWithMappings(Resource concept,
             List<Resource> mappings, Map<String, Serializable> partialProperties) {
 
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
         doNothing().when(mappingService).getMappings(
-                eq(Concept.getOntologyAcronym(conceptUri)),
-                eq(Concept.getConceptId(conceptUri)), eq(false),
-                captor.capture());
+                eq(Concept.getOntologyAcronym(concept)),
+                eq(Concept.getConceptId(concept)), eq(false), captor.capture());
 
         underTest.expand(visualItem, expansionCallback);
 
@@ -332,8 +335,8 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         partialMappings.put(Concept.INCOMING_MAPPINGS, new UriList(
                 incomingMapping.getUri()));
 
-        expandUnderTestWithMappings(concept.getUri(),
-                new ArrayList<Resource>(), partialMappings);
+        expandUnderTestWithMappings(concept, new ArrayList<Resource>(),
+                partialMappings);
 
         assertThat(concept.getUriListValue(Concept.INCOMING_MAPPINGS),
                 CollectionMatchers.containsExactly(incomingMapping.getUri()));
@@ -365,7 +368,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         underTest.expand(visualItem, expansionCallback);
 
         verify(termService, times(1)).getBasicInformation(
-                eq(Concept.getOntologyAcronym(sourceResource.getUri())),
+                eq(Concept.getOntologyAcronym(sourceResource)),
                 eq(Concept.getConceptId(sourceResource.getUri())),
                 any(AsyncCallback.class));
     }
@@ -390,7 +393,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         underTest.expand(visualItem, expansionCallback);
 
         verify(termService, times(1)).getBasicInformation(
-                eq(Concept.getOntologyAcronym(targetResource.getUri())),
+                eq(Concept.getOntologyAcronym(targetResource)),
                 eq(Concept.getConceptId(targetResource.getUri())),
                 any(AsyncCallback.class));
     }
@@ -403,8 +406,8 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         partialMappings.put(Concept.OUTGOING_MAPPINGS, new UriList(
                 outgoingMapping.getUri()));
 
-        expandUnderTestWithMappings(concept.getUri(),
-                new ArrayList<Resource>(), partialMappings);
+        expandUnderTestWithMappings(concept, new ArrayList<Resource>(),
+                partialMappings);
 
         assertThat(concept.getUriListValue(Concept.OUTGOING_MAPPINGS),
                 CollectionMatchers.containsExactly(outgoingMapping.getUri()));
@@ -438,9 +441,13 @@ public class ConceptMappingNeighbourhoodExpanderTest {
                 "sourceConcept1");
 
         outgoingMapping = Mapping.createMappingResource("mapping1",
-                concept.getUri(), targetResource.getUri());
+                concept.getUri(), targetResource.getUri(),
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) targetResource.getValue(Concept.ONTOLOGY_ACRONYM));
         incomingMapping = Mapping.createMappingResource("mapping2",
-                sourceResource.getUri(), concept.getUri());
+                sourceResource.getUri(), concept.getUri(),
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) targetResource.getValue(Concept.ONTOLOGY_ACRONYM));
 
         when(expansionCallback.getResourceManager())
                 .thenReturn(resourceManager);
@@ -479,13 +486,15 @@ public class ConceptMappingNeighbourhoodExpanderTest {
 
         String concept1Uri = Concept.toConceptURI("ontologyId1", "conceptId1");
 
-        visualItemResources.add(Concept.createConceptResource(
-                Concept.getOntologyAcronym(concept1Uri),
-                Concept.getConceptId(concept1Uri)));
+        Resource concept1 = Concept.createConceptResource("ontologyId1",
+                "conceptId1");
+        visualItemResources.add(concept1);
 
         List<Resource> mappings = new ArrayList<Resource>();
         mappings.add(Mapping.createMappingResource("mappingId1", concept1Uri,
-                addedResourceUri));
+                addedResourceUri,
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM),
+                (String) targetResource.getValue(Concept.ONTOLOGY_ACRONYM)));
 
         if (addedResource != null) {
             stubResourceManagerContains(addedResource);
@@ -493,12 +502,12 @@ public class ConceptMappingNeighbourhoodExpanderTest {
             when(resourceManager.contains(addedResourceUri)).thenReturn(false);
         }
 
-        expandUnderTestWithMappings(concept1Uri, mappings,
+        expandUnderTestWithMappings(concept1, mappings,
                 new HashMap<String, Serializable>());
 
         verify(termService, times(expectedResourceManagerCalls))
                 .getBasicInformation(
-                        eq(Concept.getOntologyAcronym(addedResourceUri)),
+                        eq(Concept.getOntologyAcronym(addedResource)),
                         eq(Concept.getConceptId(addedResourceUri)),
                         any(AsyncCallback.class));
     }
@@ -511,7 +520,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         List<Resource> mappings = new ArrayList<Resource>();
         mappings.add(incomingMapping);
 
-        expandUnderTestWithMappings(concept.getUri(), mappings,
+        expandUnderTestWithMappings(concept, mappings,
                 new HashMap<String, Serializable>());
 
         InOrder inOrder = inOrder(expansionCallback);

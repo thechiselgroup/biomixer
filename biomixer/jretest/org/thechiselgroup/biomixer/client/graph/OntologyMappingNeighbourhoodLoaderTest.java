@@ -98,8 +98,8 @@ public class OntologyMappingNeighbourhoodLoaderTest {
 
         // TODO Compare to Concept loader. The ontology loader was incomplete
         // when this was created, but I wanted a failing test in place.
-        doNothing().when(mappingService).getMappingCounts(eq(ontologyAcronymList),
-        		captor.capture());
+        doNothing().when(mappingService).getMappingCounts(
+                eq(ontologyAcronymList), captor.capture());
         underTest.loadView(ontologyResourceSet, ontologyAcronymList,
                 topBarWidget, isWidgetCallback);
 
@@ -126,13 +126,15 @@ public class OntologyMappingNeighbourhoodLoaderTest {
                         .getUri())).thenReturn(false);
 
         Resource mapping1 = createMappingResource("m1",
-                expandedConcept.getUri(), containedConcept.getUri());
+                expandedConcept.getUri(), containedConcept.getUri(), "o1", "o2");
         Resource mapping2 = createMappingResource("m2",
-                containedConcept.getUri(), expandedConcept.getUri());
+                containedConcept.getUri(), expandedConcept.getUri(), "o2", "o1");
         Resource mapping3 = createMappingResource("m3",
-                expandedConcept.getUri(), uncontainedConcept.getUri());
+                expandedConcept.getUri(), uncontainedConcept.getUri(), "o1",
+                "o3");
         Resource mapping4 = createMappingResource("m4",
-                uncontainedConcept.getUri(), expandedConcept.getUri());
+                uncontainedConcept.getUri(), expandedConcept.getUri(), "o3",
+                "o1");
 
         List<Resource> mappings = new ArrayList<Resource>();
         mappings.add(mapping1);

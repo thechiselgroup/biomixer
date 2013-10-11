@@ -64,11 +64,11 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
                 (String) mapping.getValue(Mapping.ID),
                 equalTo("http://purl.bioontology.org/mapping/fc69b2c0-f207-012d-745e-005056bd0010"));
 
-        assertThat((String) mapping.getValue(Mapping.SOURCE),
+        assertThat((String) mapping.getValue(Mapping.SOURCE_CONCEPT_URI),
                 equalTo(Concept.toConceptURI("1009",
                         "http://purl.org/obo/owl/DOID#DOID_0000000")));
         assertThat(
-                (String) mapping.getValue(Mapping.TARGET),
+                (String) mapping.getValue(Mapping.TARGET_CONCEPT_URI),
                 equalTo(Concept
                         .toConceptURI("1245",
                                 "http://purl.bioontology.org/ontology/MCCL/DOID_0000000")));
@@ -98,10 +98,10 @@ public class MappingResponseJsonParserTest extends AbstractJsonParserTest {
         assertThat((String) mapping.getValue(Mapping.ID),
                 equalTo(testMappingId));
 
-        assertThat((String) mapping.getValue(Mapping.SOURCE),
+        assertThat((String) mapping.getValue(Mapping.SOURCE_CONCEPT_URI),
                 equalTo(Concept.toConceptURI("1009",
                         "http://purl.org/obo/owl/DOID#DOID_0000000")));
-        assertThat((String) mapping.getValue(Mapping.TARGET),
+        assertThat((String) mapping.getValue(Mapping.TARGET_CONCEPT_URI),
                 equalTo(Concept.toConceptURI("1101",
                         "http://purl.bioontology.org/ontology/ICD-9/575.9")));
 

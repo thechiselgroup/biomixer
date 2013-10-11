@@ -74,24 +74,12 @@ public class ConceptMappingServiceImplementation implements
 
     private Map<String, Serializable> calculatePartialProperties(
             String conceptUri, List<Resource> mappings) {
-
         UriList outgoingMappings = new UriList();
         UriList incomingMappings = new UriList();
         for (Resource mapping : mappings) {
-            String sourceUri = Mapping.getSource(mapping);
-            String targetUri = Mapping.getTarget(mapping);
+            String sourceUri = Mapping.getSourceUri(mapping);
+            String targetUri = Mapping.getTargetUri(mapping);
 
-            /*
-             * The NCBO mapping service returns results that are not using the
-             * input URI as target or source (2011-07-24). Once this is fixed,
-             * activate the assertion again.
-             */
-            // assert conceptUri.equals(sourceUri) ||
-            // conceptUri.equals(targetUri) : "'"
-            // + conceptUri
-            // + "' does match neither source ('"
-            // + sourceUri
-            // + "') nor target ('" + targetUri + "')";
             if (!(conceptUri.equals(sourceUri) || conceptUri.equals(targetUri))) {
                 continue;
             }
@@ -112,7 +100,6 @@ public class ConceptMappingServiceImplementation implements
 
         partialProperties.put(Concept.INCOMING_MAPPINGS, incomingMappings);
         partialProperties.put(Concept.OUTGOING_MAPPINGS, outgoingMappings);
-
         return partialProperties;
     }
 
@@ -143,6 +130,7 @@ public class ConceptMappingServiceImplementation implements
 
                 Map<String, Serializable> partialProperties = calculatePartialProperties(
                         Concept.toConceptURI(ontologyAcronym, conceptId), mappings);
+
                 return new ResourceNeighbourhood(partialProperties, mappings);
             }
         };

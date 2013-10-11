@@ -35,47 +35,41 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         super(jsonParser);
     }
 
-    private Resource parseForConceptMapping(Object mappingPair) {
-        Object processArray = get(mappingPair, "process");
+    private Resource parseForConceptMapping(Object mappingData) {
+        // Get process that produced the mapping
+        Object processArray = get(mappingData, "process");
         String processes = "";
         for (int i = 0; i < length(processArray); i++) {
             processes += get(get(processArray, i), "name") + " ";
         }
         processes = processes.trim();
-        Object mappingArray = get(mappingPair, "classes");
-        Object firstMapping = get(mappingArray, 0);
-        Object secondMapping = get(mappingArray, 1);
+
+        // Get mapping relation
+        Object mappingPair = get(mappingData, "classes");
+        Object firstMapping = get(mappingPair, 0);
+        Object secondMapping = get(mappingPair, 1);
 
         // Get process, and mapping endpoints
 
         // We have no mapping id anymore! Combine concept ids instead.
-        String firstConceptIdUri = asString(get(firstMapping, "@id"));
-        String secondConceptIdUri = asString(get(secondMapping, "@id"));
-        String id = firstConceptIdUri + "->" + secondConceptIdUri;
+        String firstConceptId = asString(get(firstMapping, "@id"));
+        String secondConceptId = asString(get(secondMapping, "@id"));
+
+        String firstOntologyUrl = asString(get(get(firstMapping, "links"),
+                "ontology"));
+        String secondOntologyUrl = asString(get(get(secondMapping, "links"),
+                "ontology"));
+        String firstOntologyAcronym = firstOntologyUrl
+                .substring(firstOntologyUrl.lastIndexOf("/") + 1);
+        String secondOntologyAcronym = secondOntologyUrl
+                .substring(secondOntologyUrl.lastIndexOf("/") + 1);
+
+        String id = firstConceptId + "->" + secondConceptId;
 
         Resource mappingResource = Mapping.createMappingResource(id,
-                firstConceptIdUri, secondConceptIdUri);
+                firstConceptId, secondConceptId, firstOntologyAcronym,
+                secondOntologyAcronym);
         mappingResource.putValue(Mapping.PROCESSES, processes);
-
-        // Resource resource =
-        // Resource.createIndexedResource(Mapping.toMappingURI(id));
-        // resource.putValue(Mapping.ID, id);
-        //
-        // resource.putValue(Mapping.SOURCE, firstConceptIdUri);
-        // resource.putValue(Mapping.TARGET, secondConceptIdUri);
-
-        // String mappingType = asString(get(mapping, "mappingType"));
-        // resource.putValue(Mapping.MAPPING_TYPE, mappingType);
-        // if (mappingType.equals(AUTOMATIC_MAPPING_TYPE)) {
-        // resource.putValue(Mapping.MAPPING_SOURCE,
-        // asString(get(mapping, "mappingSource")));
-        // resource.putValue(Mapping.MAPPING_SOURCE_NAME,
-        // asString(get(mapping, "mappingSourceName")));
-        // }
-
-        // No longer have date for mappings
-        // Date date = dateFormat.parse(asString(get(mapping, "date")));
-        // resource.putValue(Mapping.DATE, date);
 
         return mappingResource;
     }

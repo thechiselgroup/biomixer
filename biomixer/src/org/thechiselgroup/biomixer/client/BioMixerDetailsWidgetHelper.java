@@ -174,7 +174,7 @@ public class BioMixerDetailsWidgetHelper extends
             // Mapping.MAPPING_TYPE);
 
             Resource sourceConcept = resourceManager.getByUri((String) resource
-                    .getValue(Mapping.SOURCE));
+                    .getValue(Mapping.SOURCE_CONCEPT_URI));
             if (sourceConcept != null) {
                 addRow(sourceConcept, verticalPanel, "Source concept",
                         Concept.LABEL);
@@ -184,7 +184,7 @@ public class BioMixerDetailsWidgetHelper extends
             }
 
             Resource targetConcept = resourceManager.getByUri((String) resource
-                    .getValue(Mapping.TARGET));
+                    .getValue(Mapping.TARGET_CONCEPT_URI));
             if (targetConcept != null) {
                 addRow(targetConcept, verticalPanel, "Target concept",
                         Concept.LABEL);

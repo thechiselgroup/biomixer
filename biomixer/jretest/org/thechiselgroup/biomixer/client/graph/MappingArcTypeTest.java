@@ -59,7 +59,7 @@ public class MappingArcTypeTest {
                 .toConceptURI(ontologyId, "conceptShortId2");
 
         Resource mapping = createMappingResource("mappingId", concept1Uri,
-                concept2Uri);
+                concept2Uri, ontologyId, ontologyId);
 
         VisualItem mappingVisualItem = VisualItemTestUtils.createVisualItem(
                 mapping.getUri(), ResourceSetTestUtils.toResourceSet(mapping));
@@ -78,7 +78,7 @@ public class MappingArcTypeTest {
         String concept2Uri = Concept
                 .toConceptURI(ontologyId, "conceptShortId2");
         Resource mapping = createMappingResource("mappingId", concept.getUri(),
-                concept2Uri);
+                concept2Uri, ontologyId, ontologyId);
         concept.getUriListValue(Concept.INCOMING_MAPPINGS)
                 .add(mapping.getUri());
 
@@ -98,7 +98,7 @@ public class MappingArcTypeTest {
         String concept2Uri = Concept
                 .toConceptURI(ontologyId, "conceptShortId2");
         Resource mapping = createMappingResource("mappingId", concept.getUri(),
-                concept2Uri);
+                concept2Uri, ontologyId, ontologyId);
         concept.getUriListValue(Concept.OUTGOING_MAPPINGS)
                 .add(mapping.getUri());
 

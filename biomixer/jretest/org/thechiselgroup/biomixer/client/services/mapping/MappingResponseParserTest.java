@@ -55,11 +55,11 @@ public class MappingResponseParserTest {
                 (String) mapping.getValue(Mapping.ID),
                 equalTo("http://purl.bioontology.org/mapping/61d3af40-0060-012e-74a1-005056bd0010"));
 
-        assertThat((String) mapping.getValue(Mapping.SOURCE),
+        assertThat((String) mapping.getValue(Mapping.SOURCE_CONCEPT_URI),
                 equalTo(Concept.toConceptURI("1009",
                         "http://purl.org/obo/owl/DOID#DOID_0000000")));
         assertThat(
-                (String) mapping.getValue(Mapping.TARGET),
+                (String) mapping.getValue(Mapping.TARGET_CONCEPT_URI),
                 equalTo(Concept
                         .toConceptURI("1032",
                                 "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Gallbladder_Disorder")));

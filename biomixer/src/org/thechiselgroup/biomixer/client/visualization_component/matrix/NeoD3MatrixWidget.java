@@ -150,9 +150,9 @@ public class NeoD3MatrixWidget extends Widget {
         for (Resource mappingResource : mappingResources) {
             assert Mapping.isMapping(mappingResource);
             String sourceUri = (String) mappingResource
-                    .getValue(Mapping.SOURCE);
+                    .getValue(Mapping.SOURCE_CONCEPT_URI);
             String targetUri = (String) mappingResource
-                    .getValue(Mapping.TARGET);
+                    .getValue(Mapping.TARGET_CONCEPT_URI);
 
             JSONObject linkObject = new JSONObject();
             linkObject.put("source",

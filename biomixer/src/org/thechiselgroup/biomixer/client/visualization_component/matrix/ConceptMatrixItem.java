@@ -79,7 +79,7 @@ public class ConceptMatrixItem {
     }
 
     public String getOntologyId() {
-        return Concept.getOntologyId(visualItem.getResources()
+        return Concept.getOntologyAcronym(visualItem.getResources()
                 .getFirstElement());
     }
 

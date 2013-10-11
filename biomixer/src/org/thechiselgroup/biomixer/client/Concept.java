@@ -107,13 +107,9 @@ public final class Concept {
         return (String) concept.getValue(LABEL);
     }
 
-    public static String getOntologyId(Resource resource) {
-        return getOntologyAcronym(resource.getUri());
-    }
-
-    public static String getOntologyAcronym(String conceptURI) {
-        return conceptURI.substring(RESOURCE_URI_PREFIX.length() + 1,
-                conceptURI.indexOf('/'));
+    public static String getOntologyAcronym(Resource concept) {
+        assert isConcept(concept);
+        return (String) concept.getProperties().get(Concept.ONTOLOGY_ACRONYM);
     }
 
     public static boolean isConcept(Resource resource) {
