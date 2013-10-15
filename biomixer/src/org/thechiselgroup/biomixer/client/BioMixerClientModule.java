@@ -30,16 +30,10 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
 import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
-import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
-import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsync;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
@@ -47,7 +41,6 @@ import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetri
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
@@ -99,23 +92,9 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
 
         bind(DateTimeFormatFactory.class).to(GwtDateTimeFormatFactory.class)
                 .in(Singleton.class);
-        bind(LightTermResponseWithoutRelationshipsParser.class).in(
-                Singleton.class);
-
-        bind(HierarchyPathServiceAsync.class).to(
-                HierarchyPathServiceAsyncClientImplementation.class).in(
-                Singleton.class);
 
         bind(OntologyNameServiceAsync.class).to(
                 OntologyNameServiceAsyncClientImplementation.class).in(
-                Singleton.class);
-
-        bind(OntologyVersionServiceAsync.class).to(
-                OntologyVersionServiceAsyncClientImplementation.class).in(
-                Singleton.class);
-
-        bind(OntologyStatusServiceAsync.class).to(
-                OntologyStatusServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
         bind(OntologyMappingCountServiceAsync.class)

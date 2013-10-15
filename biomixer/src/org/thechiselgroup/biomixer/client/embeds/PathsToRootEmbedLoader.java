@@ -28,15 +28,10 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.Resource
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.LayoutAlgorithm;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.layout.implementation.tree.VerticalTreeLayoutAlgorithm;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 /**
  * Loads the paths to the root for a concepts.
- * 
- * NOTE: hierarchy service not currently supported via JSONP. If it does become
- * supported later, consider re-incorporating the code from
- * {@link HierarchyPathLoader}.
  * 
  * @author drusk
  * 
@@ -63,11 +58,6 @@ public class PathsToRootEmbedLoader extends AbstractTermGraphEmbedLoader {
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
 
-        /*
-         * XXX NCBO REST service for hierarchy service is currently not
-         * supported via JSONP. Therefore we just use the basic services
-         * recursively.
-         */
         loadUsingRecursiveTermService(ontologyAcronym, fullConceptId,
                 graphView, errorHandler);
     }
