@@ -108,9 +108,9 @@ public class OntologyMappingNeighbourhoodLoaderTest {
 
     @Test
     public void mappingsAddedToGraph() {
-        Resource expandedConcept = createConceptResource("o1", "c1");
-        Resource containedConcept = createConceptResource("o2", "c2");
-        Resource uncontainedConcept = createConceptResource("o3", "c3");
+        Resource expandedConcept = createConceptResource("o1", "c1", "label");
+        Resource containedConcept = createConceptResource("o2", "c2", "label");
+        Resource uncontainedConcept = createConceptResource("o3", "c3", "label");
 
         when(visualItem.getResources()).thenReturn(
                 toResourceSet(expandedConcept));

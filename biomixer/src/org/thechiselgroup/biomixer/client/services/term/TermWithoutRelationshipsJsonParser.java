@@ -29,6 +29,8 @@ import com.google.inject.Inject;
 public class TermWithoutRelationshipsJsonParser extends
         AbstractJsonResultParser {
 
+    final String ONTOLGOY_ACRONYM_FROM_URL_PREFIX = "/ontologies/";
+
     @Inject
     public TermWithoutRelationshipsJsonParser(JsonParser jsonParser) {
         super(jsonParser);
@@ -39,7 +41,16 @@ public class TermWithoutRelationshipsJsonParser extends
         return parseConcept(ontologyAcronym, jsonObject);
     }
 
+    public Resource parseConcept(Object jsonObject) {
+        String ontologyLink = asString(get(get(jsonObject, "links"), "ontology"));
+        String computedAcronym = ontologyLink.substring(ontologyLink
+                .lastIndexOf(ONTOLGOY_ACRONYM_FROM_URL_PREFIX)
+                + ONTOLGOY_ACRONYM_FROM_URL_PREFIX.length());
+        return parseConcept(computedAcronym, jsonObject);
+    }
+
     public Resource parseConcept(String ontologyAcronym, Object jsonObject) {
+
         String fullId = asString(get(jsonObject, "@id"));
         String label = asString(get(jsonObject, "prefLabel"));
         String type = asString(get(jsonObject, "type"));
@@ -51,6 +62,7 @@ public class TermWithoutRelationshipsJsonParser extends
         result.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         result.putValue(Concept.TYPE, type);
         result.putValue(Concept.LABEL, label);
+        result.putValue(Concept.UI_LABEL, Concept.constructUiLabel(result));
 
         return result;
     }

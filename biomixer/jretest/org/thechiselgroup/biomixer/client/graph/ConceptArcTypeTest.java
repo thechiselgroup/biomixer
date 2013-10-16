@@ -94,6 +94,6 @@ public class ConceptArcTypeTest {
         underTest = new ConceptArcType();
 
         ontologyId = "ontologyId";
-        concept = createConceptResource(ontologyId, "conceptShortId");
+        concept = createConceptResource(ontologyId, "conceptShortId", "label");
     }
 }

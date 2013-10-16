@@ -125,10 +125,10 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         mappings.add(incomingMapping);
 
         Resource addedTargetResource = Concept.createConceptResource(
-                "otherOntologyId1", "targetConcept1");
+                "otherOntologyId1", "targetConcept1", "label");
 
         Resource addedSourceResource = Concept.createConceptResource(
-                "otherOntologyId2", "sourceConcept1");
+                "otherOntologyId2", "sourceConcept1", "label");
 
         when(resourceManager.add(sourceResource)).thenReturn(
                 addedSourceResource);
@@ -432,13 +432,14 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         underTest = new ConceptMappingNeighbourhoodExpander(mappingService,
                 errorHandler, resourceManager, termService);
 
-        concept = Concept.createConceptResource("ontologyId", "conceptId");
+        concept = Concept.createConceptResource("ontologyId", "conceptId",
+                "label");
 
         targetResource = Concept.createConceptResource("otherOntologyId1",
-                "targetConcept1");
+                "targetConcept1", "label");
 
         sourceResource = Concept.createConceptResource("otherOntologyId2",
-                "sourceConcept1");
+                "sourceConcept1", "label");
 
         outgoingMapping = Mapping.createMappingResource("mapping1",
                 concept.getUri(), targetResource.getUri(),
@@ -487,7 +488,7 @@ public class ConceptMappingNeighbourhoodExpanderTest {
         String concept1Uri = Concept.toConceptURI("ontologyId1", "conceptId1");
 
         Resource concept1 = Concept.createConceptResource("ontologyId1",
-                "conceptId1");
+                "conceptId1", "label");
         visualItemResources.add(concept1);
 
         List<Resource> mappings = new ArrayList<Resource>();

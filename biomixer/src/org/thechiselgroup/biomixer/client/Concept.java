@@ -49,6 +49,8 @@ public final class Concept {
 
     public static final String ONTOLOGY_ACRONYM = "parentOntologyAcronym";
 
+    public static final String UI_LABEL = "ui_label";
+
     /**
      * URIs of mapping where this concept is the source.
      */
@@ -76,17 +78,23 @@ public final class Concept {
 
     public static final String PART_OF_CONCEPTS = "partOfConcepts";
 
-    // TODO change to full id
     public static Resource createConceptResource(String ontologyAcronym,
-            String conceptId) {
+            String conceptId, String conceptLabel) {
 
         Resource concept = Resource.createIndexedResource(Concept.toConceptURI(
                 ontologyAcronym, conceptId));
 
         concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
+        concept.putValue(Concept.LABEL, conceptLabel);
+        concept.putValue(Concept.UI_LABEL, constructUiLabel(concept));
 
         return concept;
+    }
+
+    public static String constructUiLabel(Resource concept) {
+        return getLabel(concept) + " (" + getOntologyAcronym(concept) + ")";
+        // + " (" + getConceptId(concept) + ")";
     }
 
     public static String getConceptId(Resource resource) {

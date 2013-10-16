@@ -18,7 +18,6 @@ package org.thechiselgroup.biomixer.client.services.ontology.overview;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Async counterpart of {@link OntologyOverviewService}.
  * 
  * @author drusk
  * 

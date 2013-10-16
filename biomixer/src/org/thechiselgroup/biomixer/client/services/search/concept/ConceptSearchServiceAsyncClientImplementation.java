@@ -23,7 +23,6 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.services.AbstractWebResourceService;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
@@ -42,48 +41,53 @@ public class ConceptSearchServiceAsyncClientImplementation extends
         this.resultParser = resultParser;
     }
 
-    // private String buildUrl(String queryText) {
-    // return urlBuilderFactory.createUrlBuilder().path("/bioportal/search/")
-    // .uriParameter("query", queryText)
-    // .parameter("isexactmatch", "1").toString();
-    // }
-
-    private String buildUrl(String queryText) {
-        Window.alert(urlBuilderFactory.createUrlBuilder().path("/search/")
-                .uriParameter("q", queryText).parameter("isexactmatch", "1")
-                .toString());
+    private String buildUrl(String queryText, int pageNumber) {
         return urlBuilderFactory.createUrlBuilder().path("/search/")
-                .uriParameter("q", queryText).parameter("isexactmatch", "1")
-                .toString();
+                .uriParameter("q", queryText).parameter("isexactmatch", "true")
+                .parameter("page", pageNumber + "").toString();
     }
 
-    // @Override
-    // public void searchConcept(String queryText,
-    // final AsyncCallback<Set<Resource>> callback) {
-    //
-    // String url = buildUrl(queryText);
-    //
-    // fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
-    // @Override
-    // public Set<Resource> transform(String responseText)
-    // throws Exception {
-    // return resultParser.parse(responseText);
-    // }
-    // });
-    // }
-
     @Override
-    public void searchConcept(String queryText,
+    public void searchConcept(final String queryText,
             final AsyncCallback<Set<Resource>> callback) {
 
-        String url = buildUrl(queryText);
-        fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
-            @Override
-            public Set<Resource> transform(String responseText)
-                    throws Exception {
-                return resultParser.parse(responseText);
+        // This is a nice way to get closure in life :)
+        (new Object() {
+            private int pageNumberToRequest = 1;
+
+            public void callForNextPage() {
+                final String url = buildUrl(queryText, pageNumberToRequest);
+
+                fetchUrl(callback, url,
+                        new Transformer<String, Set<Resource>>() {
+                            @Override
+                            public Set<Resource> transform(String responseText)
+                                    throws Exception {
+
+                                Set<Resource> searchResultSubset = resultParser
+                                        .parseSearchResults(responseText);
+
+                                // Before returning, check this response to see
+                                // if we have more pages to get
+                                Integer maxPageNumber = resultParser
+                                        .asInt(resultParser.get(resultParser
+                                                .parse(responseText),
+                                                "pageCount"));
+                                // if (maxPageNumber > 1) {
+                                // Window.alert(pageNumberToRequest + " of "
+                                // + maxPageNumber + "");
+                                // }
+                                if (null != maxPageNumber
+                                        && maxPageNumber > pageNumberToRequest) {
+                                    pageNumberToRequest++;
+                                    callForNextPage();
+                                }
+
+                                return searchResultSubset;
+                            }
+                        });
             }
-        });
+        }).callForNextPage();
     }
 
 }

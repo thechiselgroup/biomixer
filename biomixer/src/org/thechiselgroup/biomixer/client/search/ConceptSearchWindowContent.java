@@ -35,7 +35,7 @@ public class ConceptSearchWindowContent extends AbstractSearchWindowContent {
     public ConceptSearchWindowContent(ResourceSetFactory resourceSetFactory,
             ConceptSearchServiceAsync searchService,
             ViewWindowContentProducer viewFactory) {
-        super(resourceSetFactory, Concept.CONCEPT_ONTOLOGY_NAME, viewFactory,
+        super(resourceSetFactory, Concept.UI_LABEL, viewFactory,
                 ConceptSearchCommand.NCBO_CONCEPT_SEARCH);
         this.searchService = searchService;
     }

@@ -47,6 +47,7 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
     @Inject
     private ErrorHandler errorHandler;
 
+    @Deprecated
     public static final String EMBED_MODE = "force_directed_ontology_overview";
 
     @Inject

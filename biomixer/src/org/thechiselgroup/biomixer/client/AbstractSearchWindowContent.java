@@ -207,57 +207,56 @@ abstract public class AbstractSearchWindowContent extends AbstractWindowContent
             return;
         }
 
-        searchForTerm(searchTerm, new AsyncCallback<Set<Resource>>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                infoLabel.setText("Search failed for '" + searchTerm + "'");
-                deckPanel.updateWindowSize();
+        searchForTerm(searchTerm, new SearchCallback());
+    }
 
-                loggingErrorHandler.handleError(caught);
+    private final class SearchCallback implements AsyncCallback<Set<Resource>> {
+        @Override
+        public void onFailure(Throwable caught) {
+            infoLabel.setText("Search failed for '" + searchTerm + "'");
+            deckPanel.updateWindowSize();
+
+            loggingErrorHandler.handleError(caught);
+        }
+
+        @Override
+        public void onSuccess(Set<Resource> result) {
+            if (result.isEmpty()) {
+                infoLabel.setText("No results found for search term '"
+                        + searchTerm + "'");
+                deckPanel.updateWindowSize();
+                return;
             }
 
-            @Override
-            public void onSuccess(Set<Resource> result) {
-                if (result.isEmpty()) {
-                    infoLabel.setText("No results found for search term '"
-                            + searchTerm + "'");
-                    deckPanel.updateWindowSize();
-                    return;
-                }
+            // TODO add convenience method to
+            // resourceSetFactory
+            ResourceSet resourceSet = resourceSetFactory.createResourceSet();
 
-                // TODO add convenience method to
-                // resourceSetFactory
-                ResourceSet resourceSet = resourceSetFactory
-                        .createResourceSet();
+            resourceSet.addAll(result);
+            resultView.getResourceModel().addResourceSet(resourceSet);
 
-                resourceSet.addAll(result);
-                resultView.getResourceModel().addResourceSet(resourceSet);
+            updateSearchHeader(resultView.getResourceModel().getResources()
+                    .size());
 
-                updateSearchHeader(resourceSet.size());
+            deckPanel.showWidget(0);
 
-                deckPanel.showWidget(0);
-
-                /*
-                 * Resizing the deck panel to minimum height of 400px to ensure
-                 * that results are visible.
-                 */
-                int offsetHeight = deckPanel.getOffsetHeight();
-                int offsetWidth = deckPanel.getOffsetWidth();
-                deckPanel.setPixelSize(offsetWidth,
-                        offsetHeight > 400 ? offsetWidth : 400);
-                deckPanel.updateWindowSize();
-
-                resultView.getModel().setResolver(
-                        LABEL_SLOT,
-                        TEXT_PROPERTY_RESOLVER_FACTORY
-                                .create(textPropertyForResolver));
-                resultView.getModel().setResolver(
-                        TextVisualization.FONT_SIZE_SLOT,
-                        // was: size 12
-                        FIXED_NUMBER_1_RESOLVER_FACTORY.create());
-            }
-
-        });
+            /*
+             * Resizing the deck panel to minimum height of 400px to ensure that
+             * results are visible.
+             */
+            int offsetHeight = deckPanel.getOffsetHeight();
+            int offsetWidth = deckPanel.getOffsetWidth();
+            deckPanel.setPixelSize(offsetWidth,
+                    offsetHeight > 400 ? offsetWidth : 400);
+            deckPanel.updateWindowSize();
+            resultView.getModel().setResolver(
+                    LABEL_SLOT,
+                    TEXT_PROPERTY_RESOLVER_FACTORY
+                            .create(textPropertyForResolver));
+            resultView.getModel().setResolver(TextVisualization.FONT_SIZE_SLOT,
+            // was: size 12
+                    FIXED_NUMBER_1_RESOLVER_FACTORY.create());
+        }
     }
 
     @Override

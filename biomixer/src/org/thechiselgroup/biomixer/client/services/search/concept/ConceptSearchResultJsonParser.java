@@ -18,54 +18,30 @@ package org.thechiselgroup.biomixer.client.services.search.concept;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.client.services.term.TermWithoutRelationshipsJsonParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
-public class ConceptSearchResultJsonParser extends AbstractJsonResultParser {
+public class ConceptSearchResultJsonParser extends
+        TermWithoutRelationshipsJsonParser {
 
     @Inject
     public ConceptSearchResultJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }
 
-    private Resource analyzeItem(Object jsonItem) {
-        Window.alert(jsonItem.toString());
-        // TODO XXX Not changed yet
-        String ontologyAcronym = getIntAsString(jsonItem, "ontologyAcronym");
-        String conceptId = asString(get(jsonItem, "@id"));
-
-        Resource resource = Resource.createIndexedResource(Concept
-                .toConceptURI(ontologyAcronym, conceptId));
-
-        resource.putValue(Concept.ID, conceptId);
-        resource.putValue(Concept.LABEL,
-                asString(get(jsonItem, "preferredName")));
-        resource.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
-        resource.putValue(Concept.CONCEPT_ONTOLOGY_NAME,
-                asString(get(jsonItem, "ontologyDisplayLabel")));
-
-        return resource;
-    }
-
-    @Override
-    public Set<Resource> parse(String json) {
+    public Set<Resource> parseSearchResults(String json) {
         Set<Resource> resources = new HashSet<Resource>();
-        Object searchResults = get(
-                get(get(get(
-                        get(get(get(super.parse(json), "success"), "data"), 0),
-                        "page"), "contents"), "searchResultList"), "searchBean");
-        if (isArray(searchResults)) {
-            for (int i = 0; i < length(searchResults); i++) {
-                resources.add(analyzeItem(get(searchResults, i)));
-            }
-        } else {
-            resources.add(analyzeItem(searchResults));
+        Object jsonObject = parse(json);
+        Object searchResults = get(jsonObject, "collection");
+        for (int i = 0; i < length(searchResults); i++) {
+            Object conceptObject = get(searchResults, i);
+
+            resources.add(this.parseConcept(conceptObject));
         }
+
         return resources;
     }
 }

@@ -74,7 +74,7 @@ public class MappingArcTypeTest {
     @Test
     public void getIncomingArcsForConcept() {
         Resource concept = Concept.createConceptResource(ontologyId,
-                "conceptShortId1");
+                "conceptShortId1", "label");
         String concept2Uri = Concept
                 .toConceptURI(ontologyId, "conceptShortId2");
         Resource mapping = createMappingResource("mappingId", concept.getUri(),
@@ -94,7 +94,7 @@ public class MappingArcTypeTest {
     @Test
     public void getOutoingArcsForConcept() {
         Resource concept = Concept.createConceptResource(ontologyId,
-                "conceptShortId1");
+                "conceptShortId1", "label");
         String concept2Uri = Concept
                 .toConceptURI(ontologyId, "conceptShortId2");
         Resource mapping = createMappingResource("mappingId", concept.getUri(),
