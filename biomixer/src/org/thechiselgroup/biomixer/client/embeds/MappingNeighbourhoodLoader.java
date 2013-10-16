@@ -101,7 +101,6 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             centralResource.addRelationalProperties(mappingNeighbourhood
                     .getPartialProperties());
 
-
             for (Resource mappingResource : mappingNeighbourhood.getResources()) {
                 String sourceUri = Mapping.getSourceId(mappingResource);
                 String targetUri = Mapping.getTargetId(mappingResource);
@@ -158,7 +157,6 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
 
-                        // TODO move to MappedConceptsServiceAsyncImpl
                         mappingService.getMappings(ontologyAcronym,
                                 fullConceptId, true, new MappingCallback(
                                         errorHandler, targetResource,
