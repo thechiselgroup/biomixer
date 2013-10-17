@@ -148,7 +148,8 @@ public class DirectConceptMappingArcTypeTest {
         MockitoAnnotations.initMocks(this);
 
         ontologyId = "ontologyId";
-        concept = Concept.createConceptResource(ontologyId, "b", "label");
+        concept = Concept.createConceptResource(ontologyId, "b", "label",
+                "type");
 
         underTest = new DirectConceptMappingArcType(resourceAccessor);
     }

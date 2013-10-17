@@ -68,7 +68,7 @@ public class OntologySearchResultJsonParserTest extends AbstractJsonParserTest {
 
     public Set<Resource> parseSearchResults(String jsonFilename)
             throws IOException {
-        return underTest.parse(getFileContentsAsString(jsonFilename));
+        return underTest.parseOntologySearchResults(getFileContentsAsString(jsonFilename));
     }
 
     @Before

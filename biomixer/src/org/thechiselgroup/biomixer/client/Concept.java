@@ -79,7 +79,7 @@ public final class Concept {
     public static final String PART_OF_CONCEPTS = "partOfConcepts";
 
     public static Resource createConceptResource(String ontologyAcronym,
-            String conceptId, String conceptLabel) {
+            String conceptId, String conceptLabel, String type) {
 
         Resource concept = Resource.createIndexedResource(Concept.toConceptURI(
                 ontologyAcronym, conceptId));
@@ -88,6 +88,7 @@ public final class Concept {
         concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
         concept.putValue(Concept.LABEL, conceptLabel);
         concept.putValue(Concept.UI_LABEL, constructUiLabel(concept));
+        concept.putValue(Concept.TYPE, type);
 
         return concept;
     }

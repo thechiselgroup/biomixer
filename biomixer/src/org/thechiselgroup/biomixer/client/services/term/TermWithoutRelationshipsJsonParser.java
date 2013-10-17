@@ -55,14 +55,8 @@ public class TermWithoutRelationshipsJsonParser extends
         String label = asString(get(jsonObject, "prefLabel"));
         String type = asString(get(jsonObject, "type"));
 
-        Resource result = Resource.createIndexedResource(Concept.toConceptURI(
-                ontologyAcronym, fullId));
-
-        result.putValue(Concept.ID, fullId);
-        result.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
-        result.putValue(Concept.TYPE, type);
-        result.putValue(Concept.LABEL, label);
-        result.putValue(Concept.UI_LABEL, Concept.constructUiLabel(result));
+        Resource result = Concept.createConceptResource(ontologyAcronym,
+                fullId, label, type);
 
         return result;
     }

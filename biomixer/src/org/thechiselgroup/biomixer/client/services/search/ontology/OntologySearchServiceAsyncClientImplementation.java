@@ -44,52 +44,6 @@ public class OntologySearchServiceAsyncClientImplementation extends
         this.resultParser = resultParser;
     }
 
-    // private String buildUrl(String queryText) {
-    // // http://rest.bioontology.org/bioportal/ontologies?apikey=YourAPIKey
-    // // provides all ontologies.
-    // // We can do client side filtering on the returned ontology names,
-    // // rather than requesting a REST service that does so.
-    // // If we decide to, we can later request a REST service that filters the
-    // // results.
-    // return urlBuilderFactory.createUrlBuilder()
-    // .path("/bioportal/ontologies/").toString();
-    // }
-    //
-    // @Overrides
-    // public void searchOntologies(final String queryText,
-    // final AsyncCallback<Set<Resource>> callback) {
-    //
-    // String url = buildUrl(queryText);
-    //
-    // fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
-    // @Override
-    // public Set<Resource> transform(String responseText)
-    // throws Exception {
-    // resultParser.setFilterPropertyAndContainedText(
-    // Ontology.ONTOLOGY_FULL_NAME, queryText);
-    // return resultParser.parse(responseText);
-    // }
-    // });
-    // }
-    //
-    // @Override
-    // public void searchOntologiesPredeterminedSet(
-    // final Collection<String> virtualOntologyIds,
-    // final AsyncCallback<Set<Resource>> callback) {
-    //
-    // String url = buildUrl("");
-    //
-    // fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
-    // @Override
-    // public Set<Resource> transform(String responseText)
-    // throws Exception {
-    // resultParser.setFilterPropertyAndContainedText(
-    // Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyIds);
-    // return resultParser.parse(responseText);
-    // }
-    // });
-    // }
-
     private String buildUrl(String queryText) {
         // This is perfect for the new API.
         // http://stagedata.bioontology.org/ontologies?apikey=YourAPIKey
@@ -112,7 +66,7 @@ public class OntologySearchServiceAsyncClientImplementation extends
                     throws Exception {
                 resultParser.setFilterPropertyAndContainedText(
                         Ontology.ONTOLOGY_FULL_NAME, queryText);
-                return resultParser.parse(responseText);
+                return resultParser.parseOntologySearchResults(responseText);
             }
         });
     }
@@ -132,7 +86,7 @@ public class OntologySearchServiceAsyncClientImplementation extends
                 // Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyIds);
                 resultParser.setFilterPropertyAndContainedText(
                         Ontology.ONTOLOGY_ACRONYM, ontologyAcronyms);
-                return resultParser.parse(responseText);
+                return resultParser.parseOntologySearchResults(responseText);
             }
         });
 

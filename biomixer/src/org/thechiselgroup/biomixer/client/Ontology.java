@@ -64,6 +64,8 @@ public final class Ontology {
 
     public static final String NOTE = "note";
 
+    public static final String UI_LABEL = "ui_label";
+
     // TODO Property that can be used to make link to ontology on bioportal
 
     /**
@@ -82,13 +84,17 @@ public final class Ontology {
 
     public static final String VALUE_VIEWING_RESTRICTION_PRIVATE = "private";
 
-    public static Resource createOntologyResource(String ontologyAcronym) {
+    public static Resource createOntologyResource(String ontologyAcronym,
+            String ontologyId, String ontologyName) {
 
         Resource ontology = Resource.createIndexedResource(Ontology
                 .toOntologyURI(ontologyAcronym));
 
         // XXX
         ontology.putValue(Ontology.ONTOLOGY_ACRONYM, ontologyAcronym);
+        ontology.putValue(Ontology.ONTOLOGY_URI, ontologyId);
+        ontology.putValue(Ontology.ONTOLOGY_FULL_NAME, ontologyName);
+        ontology.putValue(Ontology.UI_LABEL, constructUiLabel(ontology));
 
         return ontology;
     }
@@ -120,6 +126,11 @@ public final class Ontology {
                 return 1;
             }
         }
+    }
+
+    public static String constructUiLabel(Resource ontology) {
+        return ontology.getValue(ONTOLOGY_ACRONYM) + " ("
+                + ontology.getValue(ONTOLOGY_FULL_NAME) + ")";
     }
 
     public static boolean isOntology(Resource resource) {
