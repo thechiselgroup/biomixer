@@ -324,7 +324,7 @@ public class BioMixerViewWindowContentProducer extends
                                                     + "&nbsp;"
                                                     + "Show "
                                                     + resource
-                                                            .getValue(Ontology.ONTOLOGY_FULL_NAME),
+                                                            .getValue(Ontology.ONTOLOGY_ACRONYM),
                                             true);
                                     checkBox.setValue(true);
                                     ontologyToFilterBox.put(ontologyAcronym,
@@ -420,7 +420,7 @@ public class BioMixerViewWindowContentProducer extends
                                                     + "&nbsp;"
                                                     + "Show "
                                                     + resource
-                                                            .getValue(Concept.CONCEPT_ONTOLOGY_NAME),
+                                                            .getValue(Concept.ONTOLOGY_ACRONYM),
                                             true);
                                     checkBox.setValue(true);
                                     ontologyToFilterBox.put(ontologyAcronym,
