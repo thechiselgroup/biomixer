@@ -57,7 +57,6 @@ public class TermServiceImplementation extends AbstractWebResourceService
                         + encodedConceptId).toString();
     }
 
-
     @Override
     public void getBasicInformation(final String ontologyAcronym,
             String conceptFullId, final AsyncCallback<Resource> callback) {
@@ -84,8 +83,7 @@ public class TermServiceImplementation extends AbstractWebResourceService
         fetchUrl(callback, url, new Transformer<String, Resource>() {
             @Override
             public Resource transform(String value) throws Exception {
-                Resource resource = responseParser.parseConcept(
-                        ontologyAcronym, value);
+                Resource resource = responseParser.parseConcept(value);
 
                 // resource.putValue(
                 // Concept.CONCEPT_ONTOLOGY_NAME,

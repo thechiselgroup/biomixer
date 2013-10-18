@@ -51,9 +51,9 @@ public class ConceptRelationshipJsonParser extends
     }
 
     public ResourceNeighbourhood parseCompositionConceptAsNeighbourhood(
-            String ontologyAcronym, String compositionType, String responseText) {
+            String compositionType, String responseText) {
         UriList thisConceptUriList = new UriList();
-        Resource neighbour = this.parseConcept(ontologyAcronym, responseText);
+        Resource neighbour = this.parseConcept(responseText);
 
         Map<String, Serializable> partialProperties = CollectionFactory
                 .createStringMap();
@@ -71,8 +71,7 @@ public class ConceptRelationshipJsonParser extends
     // Parses results of class call with "parents" or "children" arguments:
     // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F35146001/parents/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P4.onSuccess
     // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F35146001/children/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P4.onSuccess
-    public ResourceNeighbourhood parseNewChildren(String ontologyAcronym,
-            String json) {
+    public ResourceNeighbourhood parseNewChildren(String json) {
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
         UriList owningConcepts = new UriList();
@@ -99,9 +98,8 @@ public class ConceptRelationshipJsonParser extends
             // The process method creates the resource and registers the
             // relations.
             Resource neighbour = processImmediateNeighbours(child,
-                    superOfTarget, compositeRelation, ontologyAcronym,
-                    parentConcepts, childConcepts, owningConcepts,
-                    ownedConcepts);
+                    superOfTarget, compositeRelation, parentConcepts,
+                    childConcepts, owningConcepts, ownedConcepts);
             if (null != neighbour) {
                 resources.add(neighbour);
             }
@@ -120,8 +118,7 @@ public class ConceptRelationshipJsonParser extends
 
     // Would refactor to combine with parseNewChidlren, but the looping differs
     // due to a json parsing glitch (string integers vs integers)
-    public ResourceNeighbourhood parseNewParents(String ontologyAcronym,
-            String json) {
+    public ResourceNeighbourhood parseNewParents(String json) {
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
         UriList owningConcepts = new UriList();
@@ -148,9 +145,8 @@ public class ConceptRelationshipJsonParser extends
             // The process method creates the resource and registers the
             // relations.
             Resource neighbour = processImmediateNeighbours(parent,
-                    superOfTarget, compositeRelation, ontologyAcronym,
-                    parentConcepts, childConcepts, owningConcepts,
-                    ownedConcepts);
+                    superOfTarget, compositeRelation, parentConcepts,
+                    childConcepts, owningConcepts, ownedConcepts);
             if (null != neighbour) {
                 resources.add(neighbour);
             }
@@ -167,8 +163,7 @@ public class ConceptRelationshipJsonParser extends
         return new ResourceNeighbourhood(partialProperties, resources);
     }
 
-    public ResourceNeighbourhood parseNewPathsToRoot(String ontologyAcronym,
-            String json) {
+    public ResourceNeighbourhood parseNewPathsToRoot(String json) {
         UriList parentConcepts = new UriList();
         UriList childConcepts = new UriList();
         UriList owningConcepts = new UriList();
@@ -206,8 +201,8 @@ public class ConceptRelationshipJsonParser extends
 
                 Resource neighbour = processNeighbour(ancestor,
                         immediateParent, superOfTarget, compositeRelation,
-                        ontologyAcronym, parentConcepts, childConcepts,
-                        owningConcepts, ownedConcepts);
+                        parentConcepts, childConcepts, owningConcepts,
+                        ownedConcepts);
                 if (null != neighbour) {
                     resources.add(neighbour);
                 }
@@ -228,23 +223,21 @@ public class ConceptRelationshipJsonParser extends
 
     private Resource processImmediateNeighbours(Object relatedTerm,
             Boolean superOfTarget, Boolean hasARelation,
-            String ontologyAcronym, UriList parentConcepts,
-            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts) {
+            UriList parentConcepts, UriList childConcepts,
+            UriList owningConcepts, UriList ownedConcepts) {
 
         return processNeighbour(relatedTerm, true, superOfTarget, hasARelation,
-                ontologyAcronym, parentConcepts, childConcepts, owningConcepts,
-                ownedConcepts);
+                parentConcepts, childConcepts, owningConcepts, ownedConcepts);
     }
 
     private Resource processNeighbour(Object relatedTerm,
             boolean immediateNeighbour, Boolean superOfTarget,
-            boolean hasARelation, String ontologyAcronym,
-            UriList parentConcepts, UriList childConcepts,
-            UriList owningConcepts, UriList ownedConcepts) {
+            boolean hasARelation, UriList parentConcepts,
+            UriList childConcepts, UriList owningConcepts, UriList ownedConcepts) {
 
         // This is so different now, because it seems that relations are not
         // directly represented as they were in the old API.
-        Resource concept = this.parseConcept(ontologyAcronym, relatedTerm);
+        Resource concept = this.parseConcept(relatedTerm);
 
         if (((String) concept.getValue(Concept.ID))
                 .contains("ontologies/umls/OrphanClass")) {

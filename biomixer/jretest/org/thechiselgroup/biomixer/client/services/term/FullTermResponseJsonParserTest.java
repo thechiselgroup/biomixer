@@ -73,8 +73,8 @@ public class FullTermResponseJsonParserTest extends AbstractJsonParserTest {
     private ResourceNeighbourhood parseResourceNeighbourhood(String ontologyId,
             String jsonFilename) throws IOException {
         // Broken! Need new test.
-        return underTest.parseNewParents(ontologyId,
-                getFileContentsAsString(jsonFilename).toString());
+        return underTest.parseNewParents(getFileContentsAsString(jsonFilename)
+                .toString());
     }
 
     // @Test

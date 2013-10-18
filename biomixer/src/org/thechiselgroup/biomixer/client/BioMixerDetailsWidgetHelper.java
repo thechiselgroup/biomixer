@@ -84,7 +84,7 @@ public class BioMixerDetailsWidgetHelper extends
     // TODO use dragAvatarFactory (injection)
     @Override
     public Widget createDetailsWidget(VisualItem visualItem) {
-        // XXX Used to use deferred bindign via GWT.create(), but had trouble
+        // XXX Used to use deferred binding via GWT.create(), but had trouble
         // when extending the VerticalPanel. Could extend Composite from GWT ui
         // package, but using "new" seems to work fine...do we really need to
         // use create() to begin with?
@@ -121,9 +121,13 @@ public class BioMixerDetailsWidgetHelper extends
 
             // addRow(resource, verticalPanel, "Ontology",
             // Concept.CONCEPT_ONTOLOGY_NAME);
+            addRow(resource, verticalPanel, "Concept ID", Concept.ID);
             addRow(resource, verticalPanel, "Ontology Acronym",
                     Concept.ONTOLOGY_ACRONYM);
-            addRow(resource, verticalPanel, "Concept ID", Concept.ID);
+            final UrlBuilder ontologySummaryUrl = BioportalWebUrlBuilder
+                    .generateOntologySummaryUrl((String) resource
+                            .getValue(Concept.ONTOLOGY_ACRONYM));
+            addRow("Ontology Homepage", ontologySummaryUrl, verticalPanel, true);
 
         } else if (Ontology.isOntology(resource)) {
             // making the concept label clickable

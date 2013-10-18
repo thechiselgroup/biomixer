@@ -34,8 +34,7 @@ public class TermWithoutRelationshipsJsonParserTest extends
 
     private Resource parseResource(String ontologyId, String jsonFilename)
             throws IOException {
-        return underTest.parseConcept(ontologyId,
-                getFileContentsAsString(jsonFilename));
+        return underTest.parseConcept(getFileContentsAsString(jsonFilename));
     }
 
     @Test

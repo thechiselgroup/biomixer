@@ -29,31 +29,28 @@ import com.google.inject.Inject;
 public class TermWithoutRelationshipsJsonParser extends
         AbstractJsonResultParser {
 
-    final String ONTOLGOY_ACRONYM_FROM_URL_PREFIX = "/ontologies/";
+    final String ONTOLOGY_ACRONYM_FROM_URL_PREFIX = "/ontologies/";
 
     @Inject
     public TermWithoutRelationshipsJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }
 
-    public Resource parseConcept(String ontologyAcronym, String json) {
+    public Resource parseConcept(String json) {
         Object jsonObject = parse(json);
-        return parseConcept(ontologyAcronym, jsonObject);
+        return parseConcept(jsonObject);
     }
 
     public Resource parseConcept(Object jsonObject) {
-        String ontologyLink = asString(get(get(jsonObject, "links"), "ontology"));
-        String computedAcronym = ontologyLink.substring(ontologyLink
-                .lastIndexOf(ONTOLGOY_ACRONYM_FROM_URL_PREFIX)
-                + ONTOLGOY_ACRONYM_FROM_URL_PREFIX.length());
-        return parseConcept(computedAcronym, jsonObject);
-    }
-
-    public Resource parseConcept(String ontologyAcronym, Object jsonObject) {
 
         String fullId = asString(get(jsonObject, "@id"));
         String label = asString(get(jsonObject, "prefLabel"));
         String type = asString(get(jsonObject, "type"));
+        String ontologyHomepage = asString(get(get(jsonObject, "links"),
+                "ontology"));
+        String ontologyAcronym = ontologyHomepage.substring(ontologyHomepage
+                .lastIndexOf(ONTOLOGY_ACRONYM_FROM_URL_PREFIX)
+                + ONTOLOGY_ACRONYM_FROM_URL_PREFIX.length());
 
         Resource result = Concept.createConceptResource(ontologyAcronym,
                 fullId, label, type);

@@ -115,7 +115,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                 // concept.
                                 ResourceNeighbourhood compositionNeighbour = responseParser
                                         .parseCompositionConceptAsNeighbourhood(
-                                                ontologyAcronym,
                                                 compositionType, responseText);
 
                                 return compositionNeighbour;
@@ -226,7 +225,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                             throws Exception {
 
                         ResourceNeighbourhood neighbourhood = responseParser
-                                .parseNewParents(ontologyAcroynm, responseText);
+                                .parseNewParents(responseText);
 
                         return neighbourhood;
                     }
@@ -251,8 +250,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                                     String responseText) throws Exception {
 
                                 ResourceNeighbourhood neighbourhood = responseParser
-                                        .parseNewChildren(ontologyAcroynm,
-                                                responseText);
+                                        .parseNewChildren(responseText);
 
                                 // Before returning, check this response to see
                                 // if we have more pages to get
@@ -276,7 +274,6 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                         });
             }
         }).callForNextPage();
-
 
         // fetch composition relations (has_part and part_of)
         // The original callback can accept trickling" results, that is,
@@ -330,8 +327,7 @@ public class ConceptNeighbourhoodServiceAsyncClientImplementation extends
                     public ResourceNeighbourhood transform(String responseText)
                             throws Exception {
                         ResourceNeighbourhood pathToRoot = responseParser
-                                .parseNewPathsToRoot(ontologyAcroynm,
-                                        responseText);
+                                .parseNewPathsToRoot(responseText);
                         // resource.putValue(
                         // Concept.CONCEPT_ONTOLOGY_NAME,
                         // ontologyName);

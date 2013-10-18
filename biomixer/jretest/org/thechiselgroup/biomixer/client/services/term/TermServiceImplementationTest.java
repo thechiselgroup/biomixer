@@ -71,8 +71,7 @@ public class TermServiceImplementationTest {
 
         Resource result = new Resource();
 
-        when(responseParser.parseConcept(ontologyId, xmlResultStub))
-                .thenReturn(result);
+        when(responseParser.parseConcept(xmlResultStub)).thenReturn(result);
 
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
