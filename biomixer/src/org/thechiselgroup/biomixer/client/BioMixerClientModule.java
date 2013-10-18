@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.label.CategoryLabelProvider;
 import org.thechiselgroup.biomixer.client.core.persistence.PersistableRestorationServiceProvider;
 import org.thechiselgroup.biomixer.client.core.util.date.GwtDateTimeFormatFactory;
@@ -29,27 +30,17 @@ import org.thechiselgroup.biomixer.client.dnd.windows.WindowContentProducer;
 import org.thechiselgroup.biomixer.client.embeds.BioMixerEmbedInitializer;
 import org.thechiselgroup.biomixer.client.graph.BioMixerArcTypeProvider;
 import org.thechiselgroup.biomixer.client.services.NcboJsonpRestUrlBuilderFactory;
-import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsync;
-import org.thechiselgroup.biomixer.client.services.hierarchy.HierarchyPathServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology.OntologyNameServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsync;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyStatusServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsync;
-import org.thechiselgroup.biomixer.client.services.ontology.OntologyVersionServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
-import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsyncImplementation;
 import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsync;
-import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsync;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologyMetricServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsync;
-import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsyncClientImplementation;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.ConceptNeighbourhoodServiceAsyncClientImplementation;
-import org.thechiselgroup.biomixer.client.services.term.LightTermResponseWithoutRelationshipsParser;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceImplementation;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ArcTypeProvider;
@@ -76,12 +67,18 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         bind(GraphExpansionRegistryFactory.class).in(Singleton.class);
 
         // other bindings
-        bind(ConceptSearchServiceAsync.class).to(
-                ConceptSearchServiceAsyncClientImplementation.class).in(
+
+        bind(ConceptSearchServiceAsync.class)
+                .to(org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchServiceAsyncClientImplementation.class)
+                .in(Singleton.class);
+
+        bind(OntologySearchServiceAsync.class)
+                .to(org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchServiceAsyncClientImplementation.class)
+                .in(Singleton.class);
+
+        bind(TermServiceAsync.class).to(TermServiceImplementation.class).in(
                 Singleton.class);
-        bind(OntologySearchServiceAsync.class).to(
-                OntologySearchServiceAsyncClientImplementation.class).in(
-                Singleton.class);
+
         bind(ConceptNeighbourhoodServiceAsync.class).to(
                 ConceptNeighbourhoodServiceAsyncClientImplementation.class).in(
                 Singleton.class);
@@ -93,32 +90,16 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
         bind(ConceptMappingServiceAsync.class).to(
                 ConceptMappingServiceImplementation.class).in(Singleton.class);
 
-        bind(TermServiceAsync.class).to(TermServiceImplementation.class).in(
-                Singleton.class);
         bind(DateTimeFormatFactory.class).to(GwtDateTimeFormatFactory.class)
                 .in(Singleton.class);
-        bind(LightTermResponseWithoutRelationshipsParser.class).in(
-                Singleton.class);
-
-        bind(HierarchyPathServiceAsync.class).to(
-                HierarchyPathServiceAsyncClientImplementation.class).in(
-                Singleton.class);
 
         bind(OntologyNameServiceAsync.class).to(
                 OntologyNameServiceAsyncClientImplementation.class).in(
                 Singleton.class);
 
-        bind(OntologyVersionServiceAsync.class).to(
-                OntologyVersionServiceAsyncClientImplementation.class).in(
-                Singleton.class);
-
-        bind(OntologyStatusServiceAsync.class).to(
-                OntologyStatusServiceAsyncClientImplementation.class).in(
-                Singleton.class);
-
-        bind(OntologyMappingCountServiceAsync.class).to(
-                OntologyMappingCountServiceAsyncImplementation.class).in(
-                Singleton.class);
+        bind(OntologyMappingCountServiceAsync.class)
+                .to(org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsyncImplementation.class)
+                .in(Singleton.class);
 
         bind(UrlBuilderFactory.class).to(NcboJsonpRestUrlBuilderFactory.class)
                 .in(Singleton.class);
@@ -126,7 +107,8 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
 
     @Override
     protected void bindUrlFetchService() {
-        bind(UrlFetchService.class).annotatedWith(Names.named("delegate"))
+        bind(UrlFetchService.class)
+                .annotatedWith(Names.named(ChooselInjectionConstants.DELEGATE))
                 .to(JsonpUrlFetchService.class).in(Singleton.class);
         bind(UrlFetchService.class).to(JsonpUrlFetchService.class).in(
                 Singleton.class);
@@ -141,7 +123,7 @@ public class BioMixerClientModule extends ChooselWorkbenchClientModule {
                 .in(Singleton.class);
 
         bind(ViewWindowContentProducer.class)
-                .annotatedWith(Names.named("embed"))
+                .annotatedWith(Names.named(ChooselInjectionConstants.EMBED))
                 .to(BioMixerEmbedViewWindowContentProducer.class)
                 .in(Singleton.class);
     }

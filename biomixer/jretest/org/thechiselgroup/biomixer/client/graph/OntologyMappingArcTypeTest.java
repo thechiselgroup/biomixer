@@ -104,6 +104,6 @@ public class OntologyMappingArcTypeTest {
         underTest = new OntologyMappingArcType();
 
         ontologyId = "ontologyId";
-        ontology = createOntologyResource(ontologyId);
+        ontology = createOntologyResource(ontologyId, "uri", "name");
     }
 }

@@ -15,27 +15,28 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ResourceNeighbourhood;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface ConceptNeighbourhoodServiceAsync {
 
     /**
      * 
+     * @param targetResource
      * @param conceptId
      *            can be either a full concept id or a short concept id
      */
-    void getNeighbourhood(String ontologyId, String conceptFullId,
-            AsyncCallback<ResourceNeighbourhood> callback);
+    void getNeighbourhood(String ontologyAcronym, String conceptFullId,
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback,
+            Resource targetResource);
 
     /**
      * 
      * @param conceptId
      *            can be either a full concept id or a short concept id
      */
-    void getResourceWithRelations(String ontologyId, String conceptId,
-            AsyncCallback<Resource> callback);
+    void getPathToRootNeighbourhood(String ontologyAcronym, String conceptId,
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> callback);
 
 }

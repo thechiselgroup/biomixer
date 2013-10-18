@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -42,7 +43,7 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     public static final int MAX_NUMBER_OF_NEIGHBOURS = 20;
 
     private class ConceptNeighbourhoodCallback extends
-            TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> {
 
         private NeighbourCapBreachDialog neighbourBreachDialog;
 
@@ -62,6 +63,8 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         private final Resource targetResource;
 
         private ResourceNeighbourhood originalTargetNeighbourhood;
+
+        private int entriesAddedSoFar = 0;
 
         private ConceptNeighbourhoodCallback(ErrorHandler errorHandler,
                 ResourceSet resourceSet, String fullConceptId, View graphView,
@@ -111,8 +114,13 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             // Memorize this to make the callbacks easier and cleaner to use.
             // Maybe not cool?
             ConceptNeighbourhoodCallback.this.originalTargetNeighbourhood = targetNeighbourhood;
-
-            if (targetNeighbourhood.getResources().size() > MAX_NUMBER_OF_NEIGHBOURS) {
+            // Storing the number added so far helps with trickle results (such
+            // as the individual calls required for composition relations).
+            // Before prompting, we need to see if we have already prompted, and
+            // if so and we want to cap results, we don't want to add any
+            // results that are trickling in from individual REST calls.
+            if (this.entriesAddedSoFar
+                    + targetNeighbourhood.getResources().size() > MAX_NUMBER_OF_NEIGHBOURS) {
                 // Callback will perform setGraphViewResources() for us.
                 // setGraphViewResources(true);
                 userPromptForNeighbourCap(targetNeighbourhood.getResources()
@@ -127,7 +135,16 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             if (capNodes) {
                 targetNeighbourhood = updateRenderedNeighboursWithMaximumNumber(targetNeighbourhood);
             }
-            targetResource.applyPartialProperties(targetNeighbourhood
+            this.entriesAddedSoFar += targetNeighbourhood.getResources().size();
+
+            // TODO XXX Do I even need this partial property thing here? I think
+            // the automatic expander might do this too...but maybe the
+            // Seems to work fine without these being applied here.
+            // Perhaps I can add properties immediately after getting them?
+            // Perhaps we can safely rely on the automatic expanders providing
+            // relational properties rather than handling them in neighbourhood
+            // collectors?
+            targetResource.addRelationalProperties(targetNeighbourhood
                     .getPartialProperties());
             resourceSet.addAll(targetNeighbourhood.getResources());
             graphView.getResourceModel().addResourceSet(resourceSet);
@@ -191,11 +208,11 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         super("term neighborhood", EMBED_MODE);
     }
 
-    private void doLoadData(final String virtualOntologyId,
+    private void doLoadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             ErrorHandler errorHandler) {
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -206,14 +223,13 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                     @Override
                     protected void runOnSuccess(final Resource targetResource)
                             throws Exception {
-
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
                         conceptNeighbourhoodService.getNeighbourhood(
-                                virtualOntologyId, fullConceptId,
+                                ontologyAcronym, fullConceptId,
                                 new ConceptNeighbourhoodCallback(errorHandler,
                                         resourceSet, fullConceptId, graphView,
-                                        targetResource));
+                                        targetResource), targetResource);
                     }
                 });
 
@@ -227,14 +243,14 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
         // XXX remove once proper view content display lifecycle is available
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                doLoadData(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);

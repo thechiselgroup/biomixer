@@ -29,7 +29,7 @@ public interface TermEmbedLoader extends Identifiable {
 
     String getLabel();
 
-    void loadView(String virtualOntologyId, String fullConceptId,
+    void loadView(String ontologyAcronym, String fullConceptId,
             IsWidget topBarWidget, AsyncCallback<IsWidget> callback);
 
 }

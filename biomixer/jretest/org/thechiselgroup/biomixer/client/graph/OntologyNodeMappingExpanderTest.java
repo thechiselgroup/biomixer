@@ -132,11 +132,11 @@ public class OntologyNodeMappingExpanderTest {
         mappings.add(outgoingMapping);
         mappings.add(incomingMapping);
 
-        Resource addedTargetResource = Ontology
-                .createOntologyResource("otherOntologyId1");
+        Resource addedTargetResource = Ontology.createOntologyResource(
+                "otherOntologyId1", "uri", "name");
 
-        Resource addedSourceResource = Ontology
-                .createOntologyResource("otherOntologyId2");
+        Resource addedSourceResource = Ontology.createOntologyResource(
+                "otherOntologyId2", "uri", "name");
 
         when(resourceManager.add(sourceResource)).thenReturn(
                 addedSourceResource);
@@ -250,7 +250,7 @@ public class OntologyNodeMappingExpanderTest {
     public void doNotLoadContainedConceptsWithLabel() {
         String addedResourceUri = Ontology.toOntologyURI("ontologyId2");
         Resource addedResource = new Resource(addedResourceUri);
-        addedResource.putValue(Ontology.LABEL, "label");
+        addedResource.putValue(Ontology.ONTOLOGY_FULL_NAME, "label");
 
         testLoadConcepts(0, addedResourceUri, addedResource);
     }
@@ -451,11 +451,13 @@ public class OntologyNodeMappingExpanderTest {
         underTest = new OntologyNodeMappingExpander(mappingService,
                 errorHandler);
 
-        ontology = Ontology.createOntologyResource("ontologyId");
+        ontology = Ontology.createOntologyResource("ontologyId", "uri", "name");
 
-        targetResource = Ontology.createOntologyResource("otherOntologyId1");
+        targetResource = Ontology.createOntologyResource("otherOntologyId1",
+                "uri", "name");
 
-        sourceResource = Ontology.createOntologyResource("otherOntologyId2");
+        sourceResource = Ontology.createOntologyResource("otherOntologyId2",
+                "uri", "name");
 
         // outgoingMapping = Mapping.createMappingResource("mapping1",
         // concept.getUri(), targetResource.getUri());
@@ -499,8 +501,8 @@ public class OntologyNodeMappingExpanderTest {
 
         String concept1Uri = Ontology.toOntologyURI("ontologyId1");
 
-        visualItemResources.add(Ontology.createOntologyResource(Ontology
-                .getOntologyId(concept1Uri)));
+        visualItemResources.add(Ontology.createOntologyResource(
+                Ontology.getOntologyId(concept1Uri), "uri", "name"));
 
         // List<Resource> mappings = new ArrayList<Resource>();
         // mappings.add(Mapping.createMappingResource("mappingId1", concept1Uri,

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.core.configuration.ChooselInjectionConstants;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.visualization.LeftViewTopBarExtension;
 import org.thechiselgroup.biomixer.client.core.visualization.View;
@@ -35,7 +36,7 @@ import com.google.inject.name.Named;
 
 public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
 
-    @Named("embed")
+    @Named(ChooselInjectionConstants.EMBED)
     @Inject
     protected ViewWindowContentProducer viewContentProducer;
 
@@ -79,11 +80,11 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         loadingBar.hide();
     }
 
-    protected abstract void loadData(String virtualOntologyId,
+    protected abstract void loadData(String ontologyAcronym,
             String fullConceptId, View graphView, ErrorHandler errorHandler);
 
     @Override
-    public final void loadView(String virtualOntologyId, String fullConceptId,
+    public final void loadView(String ontologyAcronym, String fullConceptId,
             IsWidget topBarWidget, AsyncCallback<IsWidget> callback) {
 
         View graphView = ((ViewWindowContent) viewContentProducer
@@ -108,7 +109,7 @@ public abstract class AbstractTermGraphEmbedLoader implements TermEmbedLoader {
         setLayoutAlgorithm(graphView, getLayoutAlgorithm(errorHandler));
         callback.onSuccess(graphView);
 
-        loadData(virtualOntologyId, fullConceptId, graphView, errorHandler);
+        loadData(ontologyAcronym, fullConceptId, graphView, errorHandler);
 
     }
 

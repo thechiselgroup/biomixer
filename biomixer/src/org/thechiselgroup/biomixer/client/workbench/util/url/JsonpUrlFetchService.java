@@ -19,7 +19,7 @@ import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsync
 import org.thechiselgroup.biomixer.client.core.error_handling.RetryAsyncCallbackErrorHandler;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlFetchService;
 import org.thechiselgroup.biomixer.client.json.JsJsonParser;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.gwt.core.client.JavaScriptObject;
@@ -68,6 +68,11 @@ public class JsonpUrlFetchService implements UrlFetchService {
                                 new JsJsonParser());
 
                         JSONObject jsonObject = new JSONObject(result);
+                        // This JSONObect method changes what appear to be
+                        // array entries to be string-integer indexed property
+                        // entries.
+                        // This happens when an array is presented without
+                        // explicit numeric indices.
                         String jsonString = jsonObject.toString();
 
                         // Need to check for understood errors in response, such

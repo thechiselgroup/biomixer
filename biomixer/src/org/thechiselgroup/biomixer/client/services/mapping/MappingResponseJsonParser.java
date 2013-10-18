@@ -16,86 +16,72 @@
 package org.thechiselgroup.biomixer.client.services.mapping;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
-import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
-import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormat;
 import org.thechiselgroup.biomixer.shared.core.util.date.DateTimeFormatFactory;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
 
 public class MappingResponseJsonParser extends AbstractJsonResultParser {
 
-    private static final String AUTOMATIC_MAPPING_TYPE = "Automatic";
-
-    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.S z";
-
-    private final DateTimeFormat dateFormat;
-
     @Inject
     public MappingResponseJsonParser(JsonParser jsonParser,
             DateTimeFormatFactory dateTimeFormatFactory) {
         super(jsonParser);
-        this.dateFormat = dateTimeFormatFactory
-                .createDateTimeFormat(DATE_PATTERN);
     }
 
-    private Resource parseForConceptMapping(Object mapping) {
-        String id = asString(get(mapping, "id"));
-        Resource resource = new Resource(Mapping.toMappingURI(id));
-        resource.putValue(Mapping.ID, id);
-
-        String sourceOntologyId = getOntologyIdAsString(mapping,
-                "sourceOntologyId");
-        // NOTE: odd json format -> {source: [{fullId: <fullId>}], target:
-        // [{fullId: <fullId>}]}
-        String sourceConceptId = asString(get(get(get(mapping, "source"), 0),
-                "fullId"));
-        String sourceUri = Concept.toConceptURI(sourceOntologyId,
-                sourceConceptId);
-        resource.putValue(Mapping.SOURCE, sourceUri);
-
-        String targetOntologyId = getOntologyIdAsString(mapping,
-                "targetOntologyId");
-        String targetConceptId = asString(get(get(get(mapping, "target"), 0),
-                "fullId"));
-        String targetUri = Concept.toConceptURI(targetOntologyId,
-                targetConceptId);
-        resource.putValue(Mapping.TARGET, targetUri);
-
-        String mappingType = asString(get(mapping, "mappingType"));
-        resource.putValue(Mapping.MAPPING_TYPE, mappingType);
-        if (mappingType.equals(AUTOMATIC_MAPPING_TYPE)) {
-            resource.putValue(Mapping.MAPPING_SOURCE,
-                    asString(get(mapping, "mappingSource")));
-            resource.putValue(Mapping.MAPPING_SOURCE_NAME,
-                    asString(get(mapping, "mappingSourceName")));
+    private Resource parseForConceptMapping(Object mappingData) {
+        // Get process that produced the mapping
+        Object processArray = get(mappingData, "process");
+        String processes = "";
+        for (int i = 0; i < length(processArray); i++) {
+            processes += get(get(processArray, i), "name") + " ";
         }
+        processes = processes.trim();
 
-        Date date = dateFormat.parse(asString(get(mapping, "date")));
-        resource.putValue(Mapping.DATE, date);
+        // Get mapping relation
+        Object mappingPair = get(mappingData, "classes");
+        Object firstMapping = get(mappingPair, 0);
+        Object secondMapping = get(mappingPair, 1);
 
-        return resource;
+        // Get process, and mapping endpoints
+
+        // We have no mapping id anymore! Combine concept ids instead.
+        String firstConceptId = asString(get(firstMapping, "@id"));
+        String secondConceptId = asString(get(secondMapping, "@id"));
+
+        String firstOntologyUrl = asString(get(get(firstMapping, "links"),
+                "ontology"));
+        String secondOntologyUrl = asString(get(get(secondMapping, "links"),
+                "ontology"));
+        String firstOntologyAcronym = firstOntologyUrl
+                .substring(firstOntologyUrl.lastIndexOf("/") + 1);
+        String secondOntologyAcronym = secondOntologyUrl
+                .substring(secondOntologyUrl.lastIndexOf("/") + 1);
+
+        String id = firstConceptId + "->" + secondConceptId;
+
+        Resource mappingResource = Mapping.createMappingResource(id,
+                firstConceptId, secondConceptId, firstOntologyAcronym,
+                secondOntologyAcronym);
+        mappingResource.putValue(Mapping.PROCESSES, processes);
+
+        return mappingResource;
     }
 
     public List<Resource> parseForConceptMapping(String json) {
         List<Resource> result = new ArrayList<Resource>();
 
-        Object mappings = get(
-                get(get(get(get(get(get(parse(json), "success"), "data"), 0),
-                        "page"), "contents"), "mappings"), "mapping");
-
-        if (mappings == null) {
-            return result;
-        }
-
-        for (int i = 0; i < length(mappings); i++) {
-            result.add(parseForConceptMapping(get(mappings, i)));
+        Object jsonObject = parse(json);
+        Set<String> keys = getObjectProperties(jsonObject);
+        for (String index : keys) {
+            Object mappingPair = get(jsonObject, index);
+            result.add(parseForConceptMapping(mappingPair));
         }
 
         return result;

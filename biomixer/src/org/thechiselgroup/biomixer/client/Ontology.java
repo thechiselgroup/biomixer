@@ -35,13 +35,24 @@ public final class Ontology {
 
     public static final String RESOURCE_URI_PREFIX = "ncbo-ontology";
 
-    public static final String LABEL = "label";
+    // Always leave as label, for CHoosel purposes
+    public static final String ONTOLOGY_FULL_NAME = "label";
 
-    public static final String ONTOLOGY_ABBREVIATION = "ontologyAbbreviation";
+    public static final String ONTOLOGY_ACRONYM = "ontologyAcronym";
+
+    public static final String ONTOLOGY_URI = "ontologyAbsoluteUri";
 
     public static final String TYPE = "type";
 
-    public static final String VIRTUAL_ONTOLOGY_ID = "ontologyId";
+    // Unique URLs in the new API @id field, or the acronym, appear to be the
+    // new unique identifiers. Integer identifiers don't seem to exist in the
+    // new API, except for submission version numbers (the sequential
+    // submissionId).
+    @Deprecated
+    public static final String OLD_VIRTUAL_ONTOLOGY_ID = "ontologyId";
+
+    @Deprecated
+    public static final String OLD_ONTOLOGY_VERSION_ID = "ontologyVersionId";
 
     public static final String DESCRIPTION = "description";
 
@@ -52,6 +63,8 @@ public final class Ontology {
     public static final String NUMBER_OF_PROPERTIES = "numberOfProperties";
 
     public static final String NOTE = "note";
+
+    public static final String UI_LABEL = "ui_label";
 
     // TODO Property that can be used to make link to ontology on bioportal
 
@@ -67,18 +80,21 @@ public final class Ontology {
      */
     public static String INCOMING_MAPPINGS = "incomingMappings";
 
-    public static final String ONTOLOGY_VERSION_ID = "ontologyVersionId";
-
     public static final String VIEWING_RESTRICTIONS = "viewingRestriction";
 
     public static final String VALUE_VIEWING_RESTRICTION_PRIVATE = "private";
 
-    public static Resource createOntologyResource(String ontologyId) {
+    public static Resource createOntologyResource(String ontologyAcronym,
+            String ontologyId, String ontologyName) {
 
-        Resource ontology = new Resource(Ontology.toOntologyURI(ontologyId));
+        Resource ontology = Resource.createIndexedResource(Ontology
+                .toOntologyURI(ontologyAcronym));
 
         // XXX
-        ontology.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, ontologyId);
+        ontology.putValue(Ontology.ONTOLOGY_ACRONYM, ontologyAcronym);
+        ontology.putValue(Ontology.ONTOLOGY_URI, ontologyId);
+        ontology.putValue(Ontology.ONTOLOGY_FULL_NAME, ontologyName);
+        ontology.putValue(Ontology.UI_LABEL, constructUiLabel(ontology));
 
         return ontology;
     }
@@ -112,6 +128,11 @@ public final class Ontology {
         }
     }
 
+    public static String constructUiLabel(Resource ontology) {
+        return ontology.getValue(ONTOLOGY_ACRONYM) + " ("
+                + ontology.getValue(ONTOLOGY_FULL_NAME) + ")";
+    }
+
     public static boolean isOntology(Resource resource) {
         return resource.getUri().startsWith(Ontology.RESOURCE_URI_PREFIX);
     }
@@ -137,10 +158,10 @@ public final class Ontology {
     private Ontology() {
     }
 
-    public static List<String> asUris(String... virtualOntologyIds) {
+    public static List<String> asUris(String... ontologyAcronyms) {
         List<String> uris = new ArrayList<String>();
-        for (String virtualOntologyId : virtualOntologyIds) {
-            uris.add(toOntologyURI(virtualOntologyId));
+        for (String ontologyAcronym : ontologyAcronyms) {
+            uris.add(toOntologyURI(ontologyAcronym));
         }
         return uris;
     }

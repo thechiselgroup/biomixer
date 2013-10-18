@@ -45,37 +45,35 @@ public class OntologySearchServiceAsyncClientImplementation extends
     }
 
     private String buildUrl(String queryText) {
-        // http://rest.bioontology.org/bioportal/ontologies?apikey=YourAPIKey
+        // This is perfect for the new API.
+        // http://stagedata.bioontology.org/ontologies?apikey=YourAPIKey
         // provides all ontologies.
         // We can do client side filtering on the returned ontology names,
         // rather than requesting a REST service that does so.
         // If we decide to, we can later request a REST service that filters the
         // results.
-        return urlBuilderFactory.createUrlBuilder()
-                .path("/bioportal/ontologies/").toString();
+        return urlBuilderFactory.createUrlBuilder().path("/ontologies/")
+                .toString();
     }
 
     @Override
     public void searchOntologies(final String queryText,
             final AsyncCallback<Set<Resource>> callback) {
-
-        String url = buildUrl(queryText);
-
+        final String url = buildUrl(queryText);
         fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
             @Override
             public Set<Resource> transform(String responseText)
                     throws Exception {
-                resultParser.setFilterPropertyAndContainedText(Ontology.LABEL,
-                        queryText);
-                return resultParser.parse(responseText);
+                resultParser.setFilterPropertyAndContainedText(
+                        Ontology.ONTOLOGY_FULL_NAME, queryText);
+                return resultParser.parseOntologySearchResults(responseText);
             }
         });
     }
 
-
     @Override
     public void searchOntologiesPredeterminedSet(
-            final Collection<String> virtualOntologyIds,
+            final Collection<String> ontologyAcronyms,
             final AsyncCallback<Set<Resource>> callback) {
 
         String url = buildUrl("");
@@ -84,11 +82,13 @@ public class OntologySearchServiceAsyncClientImplementation extends
             @Override
             public Set<Resource> transform(String responseText)
                     throws Exception {
+                // resultParser.setFilterPropertyAndContainedText(
+                // Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyIds);
                 resultParser.setFilterPropertyAndContainedText(
-                        Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyIds);
-                return resultParser.parse(responseText);
+                        Ontology.ONTOLOGY_ACRONYM, ontologyAcronyms);
+                return resultParser.parseOntologySearchResults(responseText);
             }
         });
-    }
 
+    }
 }

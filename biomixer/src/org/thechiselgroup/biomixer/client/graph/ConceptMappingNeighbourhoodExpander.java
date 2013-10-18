@@ -20,17 +20,16 @@ import java.util.List;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceManager;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.mapping.ConceptMappingServiceAsync;
 import org.thechiselgroup.biomixer.client.services.term.TermServiceAsync;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.ViewWithResourceManager;
 
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 
 public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManager>
@@ -45,7 +44,6 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
             TermServiceAsync termService) {
 
         super(mappingService, resourceManager, errorHandler);
-
         this.termService = termService;
     }
 
@@ -57,29 +55,32 @@ public class ConceptMappingNeighbourhoodExpander<T extends ViewWithResourceManag
         final String conceptUri = concept.getUri();
 
         for (final Resource mapping : mappings) {
-            String sourceUri = Mapping.getSource(mapping);
-            String targetUri = Mapping.getTarget(mapping);
+            String sourceUri = Mapping.getSourceUri(mapping);
+            String targetUri = Mapping.getTargetUri(mapping);
 
             assert conceptUri.equals(sourceUri) || conceptUri.equals(targetUri);
             assert !(conceptUri.equals(sourceUri) && conceptUri
                     .equals(targetUri));
 
-            final String otherUri = conceptUri.equals(sourceUri) ? targetUri
+            final String otherConceptUri = conceptUri.equals(sourceUri) ? targetUri
                     : sourceUri;
+            final String otherOntologyAcronym = conceptUri.equals(sourceUri) ? Mapping
+                    .getTargetOntology(mapping) : Mapping
+                    .getSourceOntology(mapping);
 
-            assert !otherUri.equals(conceptUri);
+            assert !otherConceptUri.equals(conceptUri);
 
-            if (resourceManager.contains(otherUri)) {
+            if (resourceManager.contains(otherConceptUri)) {
                 callback.addAutomaticResource(resourceManager
-                        .getByUri(otherUri));
+                        .getByUri(otherConceptUri));
                 callback.addAutomaticResource(mapping);
                 continue;
             }
 
-            termService.getBasicInformation(Concept.getOntologyId(otherUri),
-                    Concept.getConceptId(otherUri),
-                    new TimeoutErrorHandlingAsyncCallback<Resource>(
-                            errorHandler) {
+            termService.getBasicInformation(
+                   otherOntologyAcronym,
+                    Concept.getConceptId(otherConceptUri),
+                    new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                         @Override
                         protected String getMessage(Throwable caught) {

@@ -38,29 +38,56 @@ public class ConceptSearchServiceAsyncClientImplementation extends
             ConceptSearchResultJsonParser resultParser) {
 
         super(urlFetchService, urlBuilderFactory);
-
         this.resultParser = resultParser;
     }
 
-    private String buildUrl(String queryText) {
-        return urlBuilderFactory.createUrlBuilder().path("/bioportal/search/")
-                .uriParameter("query", queryText)
-                .parameter("isexactmatch", "1").toString();
+    private String buildUrl(String queryText, int pageNumber) {
+        return urlBuilderFactory.createUrlBuilder().path("/search/")
+                .uriParameter("q", queryText).parameter("isexactmatch", "true")
+                .parameter("page", pageNumber + "").toString();
     }
 
     @Override
-    public void searchConcept(String queryText,
+    public void searchConcept(final String queryText,
             final AsyncCallback<Set<Resource>> callback) {
 
-        String url = buildUrl(queryText);
+        // This is a nice way to get closure in life :)
+        (new Object() {
+            private int pageNumberToRequest = 1;
 
-        fetchUrl(callback, url, new Transformer<String, Set<Resource>>() {
-            @Override
-            public Set<Resource> transform(String responseText)
-                    throws Exception {
-                return resultParser.parse(responseText);
+            public void callForNextPage() {
+                final String url = buildUrl(queryText, pageNumberToRequest);
+
+                fetchUrl(callback, url,
+                        new Transformer<String, Set<Resource>>() {
+                            @Override
+                            public Set<Resource> transform(String responseText)
+                                    throws Exception {
+
+                                Set<Resource> searchResultSubset = resultParser
+                                        .parseSearchResults(responseText);
+
+                                // Before returning, check this response to see
+                                // if we have more pages to get
+                                Integer maxPageNumber = resultParser
+                                        .asInt(resultParser.get(resultParser
+                                                .parse(responseText),
+                                                "pageCount"));
+                                // if (maxPageNumber > 1) {
+                                // Window.alert(pageNumberToRequest + " of "
+                                // + maxPageNumber + "");
+                                // }
+                                if (null != maxPageNumber
+                                        && maxPageNumber > pageNumberToRequest) {
+                                    pageNumberToRequest++;
+                                    callForNextPage();
+                                }
+
+                                return searchResultSubset;
+                            }
+                        });
             }
-        });
+        }).callForNextPage();
     }
 
 }

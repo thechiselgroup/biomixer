@@ -17,6 +17,7 @@ package org.thechiselgroup.biomixer.client.visualization_component.graph.layout.
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
@@ -94,40 +95,51 @@ public class DirectedAcyclicGraphNode {
      *         <code>targetNode</code>. Returns -1 if the
      *         <code>targetNode</code> cannot be reached from the current node.
      */
-    public int getMaxDistance(DirectedAcyclicGraphNode targetNode) {
+    public int getMaxDistance(DirectedAcyclicGraphNode targetNode,
+            Stack<DirectedAcyclicGraphNode> visitedNodeStack) {
         if (targetNode.equals(this)) {
             return 0;
         }
 
-        if (children.contains(targetNode)) {
-            return 1;
-        }
-
         int maxDistance = -1;
+        visitedNodeStack.push(this);
         for (DirectedAcyclicGraphNode child : children) {
-            int childDistance = child.getMaxDistance(targetNode);
+            if (visitedNodeStack.contains(child)) {
+                continue;
+            }
+            int childDistance = child.getMaxDistance(targetNode,
+                    visitedNodeStack);
 
             if (childDistance > maxDistance) {
                 maxDistance = childDistance;
             }
         }
 
+        visitedNodeStack.pop();
         return maxDistance >= 0 ? maxDistance + 1 : -1;
     }
 
     /**
      * 
+     * @param visitedNodes
      * @return the maximum number of hops (edges) between this node and a node
      *         which is at the end of a path.
      */
-    public int getMaxLengthToEndOfPath() {
+    public int getMaxLengthToEndOfPath(
+            Stack<DirectedAcyclicGraphNode> visitedNodes) {
         int maxLength = 0;
+        visitedNodes.push(this);
         for (int i = 0; i < children.size(); i++) {
-            int length = children.get(i).getMaxLengthToEndOfPath() + 1;
+            DirectedAcyclicGraphNode child = children.get(i);
+            if (visitedNodes.contains(child)) {
+                continue;
+            }
+            int length = child.getMaxLengthToEndOfPath(visitedNodes) + 1;
             if (length > maxLength) {
                 maxLength = length;
             }
         }
+        visitedNodes.pop();
         return maxLength;
     }
 

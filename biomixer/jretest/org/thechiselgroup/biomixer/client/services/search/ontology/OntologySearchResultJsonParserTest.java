@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.client.services.search.ontology.OntologySearchResultJsonParser;
 import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class OntologySearchResultJsonParserTest extends AbstractJsonParserTest {
@@ -49,7 +48,7 @@ public class OntologySearchResultJsonParserTest extends AbstractJsonParserTest {
     public void parseSearchResults() throws IOException {
         Set<Resource> searchResults = parseSearchResults("searchResults.json");
         List<String> virtualOntologyIds = getValues(searchResults,
-                Ontology.VIRTUAL_ONTOLOGY_ID);
+                Ontology.ONTOLOGY_ACRONYM);
         assertThat(virtualOntologyIds.size(), equalTo(4));
         assertThat(virtualOntologyIds,
                 containsExactly(Arrays.asList("1158", "1033", "1016", "1135")));
@@ -58,10 +57,10 @@ public class OntologySearchResultJsonParserTest extends AbstractJsonParserTest {
     @Test
     public void parseFilteredSearchResults() throws IOException {
         underTest.setFilterPropertyAndContainedText(
-                Ontology.VIRTUAL_ONTOLOGY_ID, "11");
+        		Ontology.ONTOLOGY_ACRONYM, "11");
         Set<Resource> searchResults = parseSearchResults("searchResults.json");
         List<String> virtualOntologyIds = getValues(searchResults,
-                Ontology.VIRTUAL_ONTOLOGY_ID);
+                Ontology.ONTOLOGY_ACRONYM);
         assertThat(virtualOntologyIds.size(), equalTo(2));
         assertThat(virtualOntologyIds,
                 containsExactly(Arrays.asList("1158", "1135")));
@@ -69,7 +68,7 @@ public class OntologySearchResultJsonParserTest extends AbstractJsonParserTest {
 
     public Set<Resource> parseSearchResults(String jsonFilename)
             throws IOException {
-        return underTest.parse(getFileContentsAsString(jsonFilename));
+        return underTest.parseOntologySearchResults(getFileContentsAsString(jsonFilename));
     }
 
     @Before

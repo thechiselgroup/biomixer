@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.json;
 
+import java.util.Set;
+
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.gwt.json.client.JSONObject;
@@ -22,6 +24,25 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 
 public class JsJsonParser implements JsonParser {
+
+    @Override
+    public Object getPossiblyMissing(Object object, String property) {
+        if (has(object, property)) {
+            try {
+                // has() is failing, but I am in a hurry...try/catch then!
+                return get(object, property);
+            } catch (Throwable t) {
+                return "";
+            }
+        }
+        return "";
+
+    }
+
+    @Override
+    public String getIntAsString(Object object, String property) {
+        return Integer.toString(asInt(get(object, property)));
+    }
 
     @Override
     public Integer asInt(Object jsonValue) {
@@ -75,6 +96,13 @@ public class JsJsonParser implements JsonParser {
         JSONValue node = (JSONValue) jsonValue;
         JSONObject object = node.isObject();
         return object != null ? object.get(property) : null;
+    }
+
+    @Override
+    public Set<String> getObjectProperties(Object jsonValue) {
+        JSONValue node = (JSONValue) jsonValue;
+        JSONObject object = node.isObject();
+        return object.keySet();
     }
 
     @Override

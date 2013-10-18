@@ -54,12 +54,12 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
 
         OntologyEmbedLoader ontologyEmbedLoader = embedLoaders.get(embedMode);
 
-        // TODO This will be a series of ontology ids if this is set up for the
-        // embed. Probably. Mothballing. Sort this out later.
-        String virtualOntologyId = windowLocation
-                .getParameter("virtual_ontology_id");
-        List<String> virtualOntologyIds = new ArrayList<String>();
-        virtualOntologyIds.add(virtualOntologyId);
+        // TODO This will be a series of ontology acronyms if this is set up for
+        // the embed. Probably. Mothballing. Sort this out later.
+        String ontologyAcronym = windowLocation
+                .getParameter("ontology_acronym");
+        List<String> ontologyAcronyms = new ArrayList<String>();
+        ontologyAcronyms.add(ontologyAcronym);
 
         // TODO Pulling ontolgoy ids from the current page url works for the
         // embed only...and we are not aiming this feature in the embed version
@@ -70,7 +70,7 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
         // if (!resourceManager.contains(sourceUri)) {
         // // XXX broken, might need to call to term service?
         // // --> assume available via resource manager...
-        // // Resource concept = new Resource(sourceUri);
+        // // Resource concept = Resource.createIndexedResource(sourceUri);
         // // resourceManager2.add(concept);
         // }
         //
@@ -98,9 +98,8 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
             }
         });
 
-        ontologyEmbedLoader.loadView(virtualOntologies, virtualOntologyIds,
+        ontologyEmbedLoader.loadView(virtualOntologies, ontologyAcronyms,
                 selector, callback);
-
     }
 
     protected void registerLoader(OntologyEmbedLoader loader) {

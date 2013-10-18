@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -47,57 +47,43 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
     }
 
     private Resource analyzeItem(Object jsonItem) {
-        String virtualOntologyId = getOntologyIdAsString(jsonItem, "ontologyId");
+        String ontologyAcronym = asString(get(jsonItem, "acronym"));
+        String uri = asString(get(jsonItem, "@id"));
+        String name = asString(get(jsonItem, "name"));
+        Resource resource = Ontology.createOntologyResource(ontologyAcronym,
+                uri, name);
 
-        Resource resource = new Resource(
-                Ontology.toOntologyURI(virtualOntologyId));
-
-        resource.putValue(Ontology.ONTOLOGY_VERSION_ID,
-                asString(get(jsonItem, "id")));
-        resource.putValue(Ontology.ONTOLOGY_ABBREVIATION,
-                asString(get(jsonItem, "abbreviation")));
-        resource.putValue(Ontology.VIRTUAL_ONTOLOGY_ID, virtualOntologyId);
-        resource.putValue(Ontology.LABEL,
-                asString(get(jsonItem, "displayLabel")));
-        resource.putValue(Ontology.DESCRIPTION,
-                asString(get(jsonItem, "description")));
-        try {
-            resource.putValue(
-                    Ontology.VIEWING_RESTRICTIONS,
-                    asString(getPossiblyMissing(jsonItem, "viewingRestriction")));
-        } catch (Throwable t) {
-            // nothing
-        }
+        // TODO XXXX Description is now held in latest_submission of ontology.
+        // it will arrive in a later call.
+        // resource.putValue(Ontology.DESCRIPTION,
+        // asString(get(jsonItem, "description")));
 
         return resource;
     }
 
-    @Override
-    public Set<Resource> parse(String json) {
-        Set<Resource> resources = new HashSet<Resource>();
-        Object searchResults = get(
-                get(get(get(get(get(super.parse(json), "success"), "data"), 0),
-                        "list"), 0), "ontologyBean");
+    public Set<Resource> parseOntologySearchResults(String json) {
         int in = 0;
         int total = 0;
-        if (isArray(searchResults)) {
-            for (int i = 0; i < length(searchResults); i++) {
-                Resource item = analyzeItem(get(searchResults, i));
-                if (passFilter(item)) {
-                    resources.add(item);
-                    in++;
-                }
-                total++;
-            }
-        } else {
-            Resource item = analyzeItem(searchResults);
-            if (passFilter(item)) {
+        int ontologiesSkipped = 0;
+        Set<Resource> resources = new HashSet<Resource>();
+        Object searchResults = super.parse(json);
+        Set<String> keys = getObjectProperties(searchResults);
+        for (String i : keys) {
+            Object ontologyJson = get(searchResults, i);
+            total++;
+            if (passFilter(ontologyJson, "name")
+                    || passFilter(ontologyJson, "acronym")) {
+                Resource item = analyzeItem(ontologyJson);
                 resources.add(item);
                 in++;
+            } else {
+                ontologiesSkipped++;
             }
         }
+
         // Window.alert("Filtered in/all: " + in + "/" + total);
         return resources;
+
     }
 
     public void setFilterPropertyAndContainedText(String filterProperty,
@@ -119,7 +105,48 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
         this.filterValueSet = filterValueSet;
     }
 
+    private boolean passFilter(Object jsonObject,
+            String correspondingJsonProperty) {
+        // Window.alert("Debuggin filter");
+        // Window.alert(this.filterValueSet.contains(item
+        // .getValue(this.filterProperty)) + "");
+        // Window.alert("pass? "
+        // + this.filterValueSet.contains(item
+        // .getValue(this.filterProperty))
+        // + " for Filtering on property: " + this.filterProperty
+        // + " with value: " + (String) item.getValue(this.filterProperty)
+        // + " and list "
+        // + CollectionUtils.asSortedList(this.filterValueSet).toString());
+        if (this.filterProperty == ""
+                || (this.filterText == null && this.filterValueSet == null)) {
+            return true;
+        }
+        boolean matchOnSingleProperty = null != this.filterText
+                && has(jsonObject, correspondingJsonProperty)
+                && asString(get(jsonObject, correspondingJsonProperty))
+                        .toLowerCase().contains(this.filterText.toLowerCase());
+        boolean matchOnPropertySet = null != this.filterValueSet;
+        if (matchOnSingleProperty || matchOnPropertySet) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // I don't like making resources for all the ontologies that we are
+    // filtering through...
+    // But I want to leave this method here, unused.
     private boolean passFilter(Resource item) {
+        // Window.alert("Debuggin filter");
+        // Window.alert(this.filterValueSet.contains(item
+        // .getValue(this.filterProperty)) + "");
+        // Window.alert("pass? "
+        // + this.filterValueSet.contains(item
+        // .getValue(this.filterProperty))
+        // + " for Filtering on property: " + this.filterProperty
+        // + " with value: " + (String) item.getValue(this.filterProperty)
+        // + " and list "
+        // + CollectionUtils.asSortedList(this.filterValueSet).toString());
         if (this.filterProperty == ""
                 || (this.filterText == null && this.filterValueSet == null)) {
             return true;
@@ -130,8 +157,8 @@ public class OntologySearchResultJsonParser extends AbstractJsonResultParser {
                         .contains(this.filterText.toLowerCase());
         boolean matchOnPropertySet = null != this.filterValueSet
                 && item.containsProperty(this.filterProperty)
-                && this.filterValueSet.contains(((String) item
-                        .getValue(this.filterProperty)).toLowerCase());
+                && this.filterValueSet.contains(item
+                        .getValue(this.filterProperty));
         if (matchOnSingleProperty || matchOnPropertySet) {
             return true;
         }

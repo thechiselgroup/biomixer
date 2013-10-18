@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.services.AbstractJsonParserTest;
-import org.thechiselgroup.biomixer.client.services.search.concept.ConceptSearchResultJsonParser;
 import org.thechiselgroup.biomixer.server.workbench.util.json.JacksonJsonParser;
 
 public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
@@ -48,9 +47,9 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
     public void parseResultsWithOneHit() throws IOException {
         Set<Resource> searchResults = parseSearchResults("searchOneResult.json");
 
-        assertThat(getValues(searchResults, Concept.VIRTUAL_ONTOLOGY_ID),
+        assertThat(getValues(searchResults, Concept.ONTOLOGY_ACRONYM),
                 containsExactly(Arrays.asList("1353")));
-        assertThat(getValues(searchResults, Concept.SHORT_ID),
+        assertThat(getValues(searchResults, Concept.OLD_SHORT_ID),
                 containsExactly(Arrays.asList("128927009")));
     }
 
@@ -59,18 +58,19 @@ public class ConceptSearchResultJsonParserTest extends AbstractJsonParserTest {
         Set<Resource> searchResults = parseSearchResults("searchResults.json");
 
         List<String> virtualOntologyIds = getValues(searchResults,
-                Concept.VIRTUAL_ONTOLOGY_ID);
+                Concept.ONTOLOGY_ACRONYM);
         assertThat(virtualOntologyIds,
                 containsExactly(Arrays.asList("1501", "1613", "1615")));
 
-        List<String> shortIds = getValues(searchResults, Concept.SHORT_ID);
+        List<String> shortIds = getValues(searchResults, Concept.OLD_SHORT_ID);
         assertThat(shortIds, containsExactly(Arrays.asList("neomark:Gene",
                 "Gene", "bp:Gene")));
     }
 
     public Set<Resource> parseSearchResults(String jsonFilename)
             throws IOException {
-        return underTest.parse(getFileContentsAsString(jsonFilename));
+        return underTest
+                .parseSearchResults(getFileContentsAsString(jsonFilename));
     }
 
     @Before

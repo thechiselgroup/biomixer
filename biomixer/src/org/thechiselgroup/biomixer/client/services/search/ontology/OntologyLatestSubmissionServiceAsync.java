@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 David Rusk 
+ * Copyright (C) 2011 Lars Grammel 
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services.ontology;
+package org.thechiselgroup.biomixer.client.services.search.ontology;
+
+import org.thechiselgroup.biomixer.client.core.resources.Resource;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public interface OntologyVersionServiceAsync {
+public interface OntologyLatestSubmissionServiceAsync {
 
-    /*
-     * A virtual ontology id always gets the latest version of the ontology.
-     * This is used for most of the services such as concept neighbourhoods,
-     * etc. However, some of the NCBO REST services such as finding the path to
-     * root don't have an option for using a virtual ontology id. They must use
-     * a specific ontology version id. This is the interface for converting a
-     * virtual ontology id to a specific ontology version id.
+    /**
+     * Gets basic information about the given concept (no relationships).
      */
-    void getOntologyVersionId(String virtualOntologyId,
-            AsyncCallback<String> callback);
+    // TODO refactor: use URI
+    void getLatestSubmissionDetails(String ontologyId,
+            AsyncCallback<OntologyLatestSubmissionDetails> callback);
+
+    void getLatestSubmissionDetails(Resource ontology,
+            AsyncCallback<OntologyLatestSubmissionDetails> callback);
 
 }

@@ -15,9 +15,13 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.services.term;
 
+import java.util.Map;
+import java.util.Set;
+
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
-import org.thechiselgroup.biomixer.client.services.AbstractJsonResultParser;
+import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
+import org.thechiselgroup.biomixer.shared.workbench.util.json.AbstractJsonResultParser;
 import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
 
 import com.google.inject.Inject;
@@ -25,29 +29,77 @@ import com.google.inject.Inject;
 public class TermWithoutRelationshipsJsonParser extends
         AbstractJsonResultParser {
 
+    final String ONTOLGOY_ACRONYM_FROM_URL_PREFIX = "/ontologies/";
+
     @Inject
     public TermWithoutRelationshipsJsonParser(JsonParser jsonParser) {
         super(jsonParser);
     }
 
-    public Resource parseConcept(String ontologyId, String json) {
-        Object classBean = get(get(get(get(parse(json), "success"), "data"), 0),
-                "classBean");
+    public Resource parseConcept(String ontologyAcronym, String json) {
+        Object jsonObject = parse(json);
+        return parseConcept(ontologyAcronym, jsonObject);
+    }
 
-        String fullId = asString(get(classBean, "fullId"));
-        String shortId = asString(get(classBean, "id"));
-        String label = asString(get(classBean, "label"));
-        String type = asString(get(classBean, "type"));
+    public Resource parseConcept(Object jsonObject) {
+        String ontologyLink = asString(get(get(jsonObject, "links"), "ontology"));
+        String computedAcronym = ontologyLink.substring(ontologyLink
+                .lastIndexOf(ONTOLGOY_ACRONYM_FROM_URL_PREFIX)
+                + ONTOLGOY_ACRONYM_FROM_URL_PREFIX.length());
+        return parseConcept(computedAcronym, jsonObject);
+    }
 
-        Resource result = new Resource(Concept.toConceptURI(ontologyId, fullId));
+    public Resource parseConcept(String ontologyAcronym, Object jsonObject) {
 
-        result.putValue(Concept.FULL_ID, fullId);
-        result.putValue(Concept.SHORT_ID, shortId);
-        result.putValue(Concept.VIRTUAL_ONTOLOGY_ID, ontologyId);
-        result.putValue(Concept.TYPE, type);
-        result.putValue(Concept.LABEL, label);
+        String fullId = asString(get(jsonObject, "@id"));
+        String label = asString(get(jsonObject, "prefLabel"));
+        String type = asString(get(jsonObject, "type"));
+
+        Resource result = Concept.createConceptResource(ontologyAcronym,
+                fullId, label, type);
 
         return result;
     }
 
+    /**
+     * Receives the same object that we want for the parseConcept() method, but
+     * we are looking specifically for the properties in it, and for the hasA
+     * and partOf relations in particular. Returns a map of concept ids and
+     * their relation type.
+     * 
+     * @param ontologyAcronym
+     * @param jsonObject
+     * @return
+     */
+    public Map<String, String> parseForCompositionProperties(String json) {
+        Map<String, String> compositionMap = CollectionFactory
+                .createStringMap();
+        Object jsonObject = parse(json);
+        Object propertiesObject = get(jsonObject, "properties");
+
+        Set<String> propertyNames = getObjectProperties(propertiesObject);
+        // Need to do this funny little job because the composition property
+        // names are variable, and contain things such as the ontology acronym
+        // in them. They appear to all end the same way though...
+        for (String name : propertyNames) {
+            if (name.endsWith("has_part")) {
+                Object propArray = get(propertiesObject, name);
+                int length = length(propArray);
+                for (int i = 0; i < length; i++) {
+                    compositionMap.put(asString(get(propArray, i)),
+                            Concept.HAS_PART_CONCEPTS);
+                }
+            }
+            if (name.endsWith("part_of")) {
+                Object propArray = get(propertiesObject, name);
+                int length = length(propArray);
+                for (int i = 0; i < length; i++) {
+                    compositionMap.put(asString(get(propArray, i)),
+                            Concept.PART_OF_CONCEPTS);
+                }
+            }
+        }
+
+        return compositionMap;
+    }
 }

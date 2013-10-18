@@ -51,7 +51,11 @@ public class UriList implements Serializable, Iterable<String> {
 
     public void addAll(UriList other) {
         for (String uri : other) {
-            add(uri);
+            // Why would we ever want duplicates?
+            // There is no key semantics, and uris are intended to be *unique*
+            if (!contains(uri)) {
+                add(uri);
+            }
         }
     }
 

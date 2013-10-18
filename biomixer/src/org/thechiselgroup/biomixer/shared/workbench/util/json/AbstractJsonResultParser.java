@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License.  
  *******************************************************************************/
-package org.thechiselgroup.biomixer.client.services;
+package org.thechiselgroup.biomixer.shared.workbench.util.json;
 
-import org.thechiselgroup.biomixer.shared.workbench.util.json.JsonParser;
+import java.util.Set;
 
 public abstract class AbstractJsonResultParser implements JsonParser {
 
@@ -23,6 +23,25 @@ public abstract class AbstractJsonResultParser implements JsonParser {
 
     public AbstractJsonResultParser(JsonParser jsonParser) {
         this.jsonParser = jsonParser;
+    }
+
+    @Override
+    public Object getPossiblyMissing(Object object, String property) {
+        if (jsonParser.has(object, property)) {
+            try {
+                // has() is failing, but I am in a hurry...try/catch then!
+                return jsonParser.get(object, property);
+            } catch (Throwable t) {
+                return "";
+            }
+        }
+        return "";
+
+    }
+
+    @Override
+    public String getIntAsString(Object object, String property) {
+        return Integer.toString(asInt(get(object, property)));
     }
 
     @Override
@@ -50,17 +69,9 @@ public abstract class AbstractJsonResultParser implements JsonParser {
         return jsonParser.get(object, property);
     }
 
-    public Object getPossiblyMissing(Object object, String property) {
-        if (jsonParser.has(object, property)) {
-            try {
-                // has() is failing, but I am in a hurry...try/catch then!
-                return jsonParser.get(object, property);
-            } catch (Throwable t) {
-                return "";
-            }
-        }
-        return "";
-
+    @Override
+    public Set<String> getObjectProperties(Object jsonValue) {
+        return jsonParser.getObjectProperties(jsonValue);
     }
 
     protected String getOntologyIdAsString(Object object, String property) {

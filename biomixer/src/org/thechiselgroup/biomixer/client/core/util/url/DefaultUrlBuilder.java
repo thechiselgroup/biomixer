@@ -42,6 +42,8 @@ public class DefaultUrlBuilder implements UrlBuilder {
 
     private String path = null;
 
+    private String postRootPath = "";
+
     private String hash = null;
 
     /**
@@ -150,6 +152,15 @@ public class DefaultUrlBuilder implements UrlBuilder {
         return this;
     }
 
+    @Override
+    public UrlBuilder postRootPath(String path) {
+        if (path != null && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        this.postRootPath = path;
+        return this;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -226,6 +237,10 @@ public class DefaultUrlBuilder implements UrlBuilder {
         // http://www.google.com:80
         if (port != PORT_UNSPECIFIED) {
             url.append(":").append(port);
+        }
+
+        if (postRootPath != null && !"".equals(postRootPath)) {
+            url.append("/").append(postRootPath);
         }
 
         // http://www.google.com:80/path/to/file.html

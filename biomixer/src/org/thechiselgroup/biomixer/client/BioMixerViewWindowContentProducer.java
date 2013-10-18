@@ -311,23 +311,23 @@ public class BioMixerViewWindowContentProducer extends
                                 .getAddedResources();
                         for (Resource resource : addedResources) {
                             if (Ontology.isOntology(resource)) {
-                                String ontologyId = (String) resource
-                                        .getValue(Ontology.VIRTUAL_ONTOLOGY_ID);
+                                String ontologyAcronym = (String) resource
+                                        .getValue(Ontology.ONTOLOGY_ACRONYM);
                                 if (!ontologyToFilterBox
-                                        .containsKey(ontologyId)) {
+                                        .containsKey(ontologyAcronym)) {
 
                                     CheckBox checkBox = new CheckBox(
                                             "<span style='color: "
                                                     + BioMixerConceptByOntologyColorResolver
-                                                            .getColor(ontologyId)
+                                                            .getColor(ontologyAcronym)
                                                     + "'>&#9609;</span>"
                                                     + "&nbsp;"
                                                     + "Show "
                                                     + resource
-                                                            .getValue(Ontology.LABEL),
+                                                            .getValue(Ontology.ONTOLOGY_ACRONYM),
                                             true);
                                     checkBox.setValue(true);
-                                    ontologyToFilterBox.put(ontologyId,
+                                    ontologyToFilterBox.put(ontologyAcronym,
                                             checkBox);
                                     panel.add(checkBox);
                                     checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -407,23 +407,23 @@ public class BioMixerViewWindowContentProducer extends
                                 .getAddedResources();
                         for (Resource resource : addedResources) {
                             if (Concept.isConcept(resource)) {
-                                String ontologyId = (String) resource
-                                        .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
+                                String ontologyAcronym = (String) resource
+                                        .getValue(Concept.ONTOLOGY_ACRONYM);
                                 if (!ontologyToFilterBox
-                                        .containsKey(ontologyId)) {
+                                        .containsKey(ontologyAcronym)) {
 
                                     CheckBox checkBox = new CheckBox(
                                             "<span style='color: "
                                                     + BioMixerConceptByOntologyColorResolver
-                                                            .getColor(ontologyId)
+                                                            .getColor(ontologyAcronym)
                                                     + "'>&#9609;</span>"
                                                     + "&nbsp;"
                                                     + "Show "
                                                     + resource
-                                                            .getValue(Concept.CONCEPT_ONTOLOGY_NAME),
+                                                            .getValue(Concept.ONTOLOGY_ACRONYM),
                                             true);
                                     checkBox.setValue(true);
-                                    ontologyToFilterBox.put(ontologyId,
+                                    ontologyToFilterBox.put(ontologyAcronym,
                                             checkBox);
                                     panel.add(checkBox);
                                     checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {

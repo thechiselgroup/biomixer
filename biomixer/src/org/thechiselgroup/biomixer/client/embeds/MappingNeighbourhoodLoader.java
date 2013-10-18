@@ -15,9 +15,9 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
-import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -36,10 +36,10 @@ import com.google.inject.Inject;
 public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
 
     private class MappingCallback extends
-            TimeoutErrorHandlingAsyncCallback<ResourceNeighbourhood> {
+            ErrorHandlingAsyncCallback<ResourceNeighbourhood> {
 
         private class BasicTermInfoCallback extends
-                TimeoutErrorHandlingAsyncCallback<Resource> {
+                ErrorHandlingAsyncCallback<Resource> {
 
             private final String otherConceptId;
 
@@ -63,7 +63,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
             }
         }
 
-        private final Resource targetResource;
+        private final Resource centralResource;
 
         private final ResourceSet resourceSet;
 
@@ -72,10 +72,10 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         private final View graphView;
 
         private MappingCallback(ErrorHandler errorHandler,
-                Resource targetResource, ResourceSet resourceSet,
+                Resource centralResource, ResourceSet resourceSet,
                 String fullConceptId, View graphView) {
             super(errorHandler);
-            this.targetResource = targetResource;
+            this.centralResource = centralResource;
             this.resourceSet = resourceSet;
             this.fullConceptId = fullConceptId;
             this.graphView = graphView;
@@ -91,22 +91,31 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         protected void runOnSuccess(ResourceNeighbourhood mappingNeighbourhood)
                 throws Exception {
 
-            targetResource.applyPartialProperties(mappingNeighbourhood
+            // The new mapping results give the full terms, but without
+            // relational properties.
+            // We would like to parse those to save REST calls, but we'll need
+            // the relational properties anyway...
+            // Unfortunately, not all concept ids contain the ontology acronym
+            // that is needed for further REST calls; some of them have some
+            // weird short form!
+            centralResource.addRelationalProperties(mappingNeighbourhood
                     .getPartialProperties());
 
             for (Resource mappingResource : mappingNeighbourhood.getResources()) {
-                String sourceUri = Mapping.getSource(mappingResource);
-                String targetUri = Mapping.getTarget(mappingResource);
+                String sourceUri = Mapping.getSourceId(mappingResource);
+                String targetUri = Mapping.getTargetId(mappingResource);
 
-                final String otherUri = targetResource.getUri().equals(
+                final String otherConceptUri = centralResource.getUri().equals(
                         sourceUri) ? targetUri : sourceUri;
 
-                final String otherOntologyId = Concept.getOntologyId(otherUri);
-                final String otherConceptId = Concept.getConceptId(otherUri);
+                final String otherOntologyAcronym = centralResource
+                        .equals(sourceUri) ? Mapping
+                        .getTargetOntology(mappingResource) : Mapping
+                        .getSourceOntology(mappingResource);
 
-                termService.getBasicInformation(otherOntologyId,
-                        otherConceptId, new BasicTermInfoCallback(errorHandler,
-                                otherConceptId));
+                termService.getBasicInformation(otherOntologyAcronym,
+                        otherConceptUri, new BasicTermInfoCallback(
+                                errorHandler, otherConceptUri));
 
             }
 
@@ -130,12 +139,11 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
         super("mappings neighborhood", EMBED_MODE);
     }
 
-    private void doLoadData(final String virtualOntologyId,
+    private void doLoadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
-
-        termService.getBasicInformation(virtualOntologyId, fullConceptId,
-                new TimeoutErrorHandlingAsyncCallback<Resource>(errorHandler) {
+        termService.getBasicInformation(ontologyAcronym, fullConceptId,
+                new ErrorHandlingAsyncCallback<Resource>(errorHandler) {
 
                     @Override
                     protected String getMessage(Throwable caught) {
@@ -149,8 +157,7 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
 
-                        // TODO move to MappedConceptsServiceAsyncImpl
-                        mappingService.getMappings(virtualOntologyId,
+                        mappingService.getMappings(ontologyAcronym,
                                 fullConceptId, true, new MappingCallback(
                                         errorHandler, targetResource,
                                         resourceSet, fullConceptId, graphView));
@@ -173,14 +180,14 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
     }
 
     @Override
-    protected void loadData(final String virtualOntologyId,
+    protected void loadData(final String ontologyAcronym,
             final String fullConceptId, final View graphView,
             final ErrorHandler errorHandler) {
 
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                doLoadData(virtualOntologyId, fullConceptId, graphView,
+                doLoadData(ontologyAcronym, fullConceptId, graphView,
                         errorHandler);
             }
         }, new ViewIsReadyCondition(graphView), 200);

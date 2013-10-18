@@ -63,7 +63,8 @@ public class DirectConceptMappingArcTypeTest {
         String concept2Uri = Concept.toConceptURI(ontologyId, "c");
 
         Resource mapping = createMappingResource("mappingId", concept2Uri,
-                concept.getUri());
+                concept.getUri(), ontologyId,
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM));
         when(resourceAccessor.contains(mapping.getUri())).thenReturn(true);
         when(resourceAccessor.getByUri(mapping.getUri())).thenReturn(mapping);
         concept.getUriListValue(Concept.INCOMING_MAPPINGS)
@@ -83,7 +84,8 @@ public class DirectConceptMappingArcTypeTest {
         String concept2Uri = Concept.toConceptURI(ontologyId, "a");
 
         Resource mapping = createMappingResource("mappingId", concept2Uri,
-                concept.getUri());
+                concept.getUri(), ontologyId,
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM));
         when(resourceAccessor.contains(mapping.getUri())).thenReturn(true);
         when(resourceAccessor.getByUri(mapping.getUri())).thenReturn(mapping);
         concept.getUriListValue(Concept.INCOMING_MAPPINGS)
@@ -103,7 +105,8 @@ public class DirectConceptMappingArcTypeTest {
         String concept2Uri = Concept.toConceptURI(ontologyId, "c");
 
         Resource mapping = createMappingResource("mappingId", concept.getUri(),
-                concept2Uri);
+                concept2Uri,
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM), ontologyId);
         when(resourceAccessor.contains(mapping.getUri())).thenReturn(true);
         when(resourceAccessor.getByUri(mapping.getUri())).thenReturn(mapping);
         concept.getUriListValue(Concept.OUTGOING_MAPPINGS)
@@ -123,7 +126,8 @@ public class DirectConceptMappingArcTypeTest {
         String concept2Uri = Concept.toConceptURI(ontologyId, "a");
 
         Resource mapping = createMappingResource("mappingId", concept.getUri(),
-                concept2Uri);
+                concept2Uri,
+                (String) concept.getValue(Concept.ONTOLOGY_ACRONYM), ontologyId);
         when(resourceAccessor.contains(mapping.getUri())).thenReturn(true);
         when(resourceAccessor.getByUri(mapping.getUri())).thenReturn(mapping);
         concept.getUriListValue(Concept.OUTGOING_MAPPINGS)
@@ -144,7 +148,8 @@ public class DirectConceptMappingArcTypeTest {
         MockitoAnnotations.initMocks(this);
 
         ontologyId = "ontologyId";
-        concept = Concept.createConceptResource(ontologyId, "b");
+        concept = Concept.createConceptResource(ontologyId, "b", "label",
+                "type");
 
         underTest = new DirectConceptMappingArcType(resourceAccessor);
     }

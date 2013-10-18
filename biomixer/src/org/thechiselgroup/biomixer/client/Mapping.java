@@ -24,39 +24,83 @@ public final class Mapping {
     public static final String ID = "id";
 
     /**
-     * URI of the source concept of a mapping.
+     * Resource URI of the source concept of a mapping.
      */
-    public static final String SOURCE = "source";
+    public static final String SOURCE_CONCEPT_URI = "source_uri";
 
     /**
-     * URI of the target concept of a mapping.
+     * Resource URI of the target concept of a mapping.
      */
-    public static final String TARGET = "target";
+    public static final String TARGET_CONCEPT_URI = "target_uri";
 
-    public static final String DATE = "date";
+    public static final String SOURCE_CONCEPT_ID = "source_id";
 
-    public final static String MAPPING_TYPE = "mappingType";
+    public static final String TARGET_CONCEPT_ID = "target_id";
 
-    public final static String MAPPING_SOURCE = "mappingSource";
+    public static final String SOURCE_ONTOLOGY_ACRONYM = "source_ontology_acronym";
 
-    public final static String MAPPING_SOURCE_NAME = "mappingSourceName";
+    public static final String TARGET_ONTOLOGY_ACRONYM = "target_ontology_acronym";
+
+    /**
+     * The processes responsible for creating the mapping
+     */
+    public static final String PROCESSES = "mapping_processes";
+
+    @Deprecated
+    public static final String OLD_DATE = "date";
+
+    @Deprecated
+    public final static String OLD_MAPPING_TYPE = "mappingType";
+
+    @Deprecated
+    public final static String OLD_MAPPING_SOURCE = "mappingSource";
+
+    @Deprecated
+    public final static String OLD_MAPPING_SOURCE_NAME = "mappingSourceName";
 
     public static Resource createMappingResource(String mappingId,
-            String sourceConceptUri, String targetConceptUri) {
+            String sourceConceptId, String targetConceptId,
+            String firstOntologyAcronym, String secondOntologyAcronym) {
 
-        Resource mapping = new Resource(toMappingURI(mappingId));
+        String sourceUri = Concept.toConceptURI(firstOntologyAcronym,
+                sourceConceptId);
+        String targetUri = Concept.toConceptURI(secondOntologyAcronym,
+                targetConceptId);
+
+        Resource mapping = Resource
+                .createIndexedResource(toMappingURI(mappingId));
         mapping.putValue(ID, mappingId);
-        mapping.putValue(SOURCE, sourceConceptUri);
-        mapping.putValue(TARGET, targetConceptUri);
+        mapping.putValue(SOURCE_CONCEPT_ID, sourceConceptId);
+        mapping.putValue(TARGET_CONCEPT_ID, targetConceptId);
+        mapping.putValue(SOURCE_CONCEPT_URI, sourceUri);
+        mapping.putValue(TARGET_CONCEPT_URI, targetUri);
+        mapping.putValue(SOURCE_ONTOLOGY_ACRONYM, firstOntologyAcronym);
+        mapping.putValue(TARGET_ONTOLOGY_ACRONYM, secondOntologyAcronym);
         return mapping;
     }
 
-    public static String getSource(Resource mapping) {
-        return (String) mapping.getValue(SOURCE);
+    public static String getSourceUri(Resource mapping) {
+        return (String) mapping.getValue(SOURCE_CONCEPT_URI);
     }
 
-    public static String getTarget(Resource mapping) {
-        return (String) mapping.getValue(TARGET);
+    public static String getTargetUri(Resource mapping) {
+        return (String) mapping.getValue(TARGET_CONCEPT_URI);
+    }
+
+    public static String getSourceId(Resource mapping) {
+        return (String) mapping.getValue(SOURCE_CONCEPT_ID);
+    }
+
+    public static String getTargetId(Resource mapping) {
+        return (String) mapping.getValue(TARGET_CONCEPT_ID);
+    }
+
+    public static String getSourceOntology(Resource mapping) {
+        return (String) mapping.getValue(SOURCE_ONTOLOGY_ACRONYM);
+    }
+
+    public static String getTargetOntology(Resource mapping) {
+        return (String) mapping.getValue(TARGET_ONTOLOGY_ACRONYM);
     }
 
     public static boolean isMapping(Resource resource) {

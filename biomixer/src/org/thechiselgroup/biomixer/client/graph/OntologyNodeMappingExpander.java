@@ -21,19 +21,21 @@ import java.util.Map;
 import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
+import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollection;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightCollections;
 import org.thechiselgroup.biomixer.client.core.util.collections.LightweightList;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
-import org.thechiselgroup.biomixer.client.embeds.TimeoutErrorHandlingAsyncCallback;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCount;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.OntologyMappingCountServiceAsync;
 import org.thechiselgroup.biomixer.client.services.ontology_overview.TotalMappingCount;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.Graph;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeBulkExpander;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.NodeExpansionCallback;
+
+import com.google.gwt.user.client.Window;
 
 /**
  * Frame for expanding data on a collection of {@link VisualItem}s with a single
@@ -75,17 +77,20 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
         assert visualItems != null && visualItems.size() > 0;
         assert expansionCallback != null;
 
-        LightweightList<String> ontologyIds = LightweightCollections
+        // XXX TODO Fix this!
+        Window.alert("Need to modify REST call and parsing. May not have convenient way of doing this.");
+
+        LightweightList<String> ontologyAcronyms = LightweightCollections
                 .<String> toList();
         for (VisualItem visItem : visualItems) {
             // Makes same assumption regarding first element of each item. This
             // is done elsewhere too.
-            ontologyIds.add((String) visItem.getResources().getFirstElement()
-                    .getValue(Ontology.VIRTUAL_ONTOLOGY_ID));
+            ontologyAcronyms.add((String) visItem.getResources()
+                    .getFirstElement().getValue(Ontology.ONTOLOGY_ACRONYM));
         }
 
-        mappingService.getMappingCounts(ontologyIds,
-                new TimeoutErrorHandlingAsyncCallback<TotalMappingCount>(
+        mappingService.getMappingCounts(ontologyAcronyms,
+                new ErrorHandlingAsyncCallback<TotalMappingCount>(
                         errorHandler) {
 
                     @Override
@@ -114,10 +119,11 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
                         // calculatePartialProperties(). See there for contrast.
                         for (OntologyMappingCount mapping : results) {
                             Resource sourceResource = itemIdMap.get(mapping
-                                    .getSourceId());
+                                    .getSourceOntologyAcronym());
                             Resource targetResource = itemIdMap.get(mapping
-                                    .getTargetId());
-                            int mappingNumberOfConcepts = mapping.getSourceMappingCount();
+                                    .getTargetOntologyAcronym());
+                            int mappingNumberOfConcepts = mapping
+                                    .getSourceMappingCount();
 
                             if (null != sourceResource
                                     && null != targetResource) {
@@ -162,9 +168,9 @@ public class OntologyNodeMappingExpander implements NodeBulkExpander<Graph> {
         if (ontologyName != null) {
             return "(" + ontologyName + ")";
         } else {
-            String virtualOntologyId = (String) resource
-                    .getValue(Concept.VIRTUAL_ONTOLOGY_ID);
-            return "(virtual ontology id: " + virtualOntologyId + ")";
+            String ontologyAcronym = (String) resource
+                    .getValue(Concept.ONTOLOGY_ACRONYM);
+            return "(ontology acronym: " + ontologyAcronym + ")";
         }
     }
 

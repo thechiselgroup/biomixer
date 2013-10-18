@@ -93,24 +93,27 @@ public class OntologyMappingNeighbourhoodLoaderTest {
     private AsyncCallback<ResourceNeighbourhood> callExpand(Resource ontology) {
         ArgumentCaptor<AsyncCallback> captor = ArgumentCaptor
                 .forClass(AsyncCallback.class);
-        List<String> virtualIdList = new ArrayList();
-        virtualIdList.add(Ontology.getOntologyId(ontology));
+        List<String> ontologyAcronymList = new ArrayList();
+        ontologyAcronymList.add(Ontology.getOntologyId(ontology));
 
         // TODO Compare to Concept loader. The ontology loader was incomplete
         // when this was created, but I wanted a failing test in place.
-        doNothing().when(mappingService).getMappingCounts(eq(virtualIdList),
-                captor.capture());
-        underTest.loadView(ontologyResourceSet, virtualIdList, topBarWidget,
-                isWidgetCallback);
+        doNothing().when(mappingService).getMappingCounts(
+                eq(ontologyAcronymList), captor.capture());
+        underTest.loadView(ontologyResourceSet, ontologyAcronymList,
+                topBarWidget, isWidgetCallback);
 
         return captor.getValue();
     }
 
     @Test
     public void mappingsAddedToGraph() {
-        Resource expandedConcept = createConceptResource("o1", "c1");
-        Resource containedConcept = createConceptResource("o2", "c2");
-        Resource uncontainedConcept = createConceptResource("o3", "c3");
+        Resource expandedConcept = createConceptResource("o1", "c1", "label",
+                "type");
+        Resource containedConcept = createConceptResource("o2", "c2", "label",
+                "type");
+        Resource uncontainedConcept = createConceptResource("o3", "c3",
+                "label", "type");
 
         when(visualItem.getResources()).thenReturn(
                 toResourceSet(expandedConcept));
@@ -126,13 +129,15 @@ public class OntologyMappingNeighbourhoodLoaderTest {
                         .getUri())).thenReturn(false);
 
         Resource mapping1 = createMappingResource("m1",
-                expandedConcept.getUri(), containedConcept.getUri());
+                expandedConcept.getUri(), containedConcept.getUri(), "o1", "o2");
         Resource mapping2 = createMappingResource("m2",
-                containedConcept.getUri(), expandedConcept.getUri());
+                containedConcept.getUri(), expandedConcept.getUri(), "o2", "o1");
         Resource mapping3 = createMappingResource("m3",
-                expandedConcept.getUri(), uncontainedConcept.getUri());
+                expandedConcept.getUri(), uncontainedConcept.getUri(), "o1",
+                "o3");
         Resource mapping4 = createMappingResource("m4",
-                uncontainedConcept.getUri(), expandedConcept.getUri());
+                uncontainedConcept.getUri(), expandedConcept.getUri(), "o3",
+                "o1");
 
         List<Resource> mappings = new ArrayList<Resource>();
         mappings.add(mapping1);

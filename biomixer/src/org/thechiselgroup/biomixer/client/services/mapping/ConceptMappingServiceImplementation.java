@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.UriList;
+import org.thechiselgroup.biomixer.client.core.util.UriUtils;
 import org.thechiselgroup.biomixer.client.core.util.callbacks.TransformingAsyncCallback;
 import org.thechiselgroup.biomixer.client.core.util.collections.CollectionFactory;
 import org.thechiselgroup.biomixer.client.core.util.transform.Transformer;
@@ -60,32 +61,25 @@ public class ConceptMappingServiceImplementation implements
         this.urlBuilderFactory = urlBuilderFactory;
     }
 
-    protected String buildUrl(String ontologyId, String conceptId) {
-        return urlBuilderFactory.createUrlBuilder()
-                .path("bioportal/virtual/mappings/concepts/" + ontologyId)
-                .uriParameter("conceptid", conceptId).toString();
+    protected String buildUrl(String ontologyAcronym, String conceptId) {
+        // return urlBuilderFactory.createUrlBuilder()
+        // .path("bioportal/virtual/mappings/concepts/" + ontologyId)
+        // .uriParameter("conceptid", conceptId).toString();
+        return urlBuilderFactory
+                .createUrlBuilder()
+                .path("/ontologies/" + ontologyAcronym + "/classes/"
+                        + UriUtils.encodeURIComponent(conceptId) + "/mappings/")
+                .toString();
     }
 
     private Map<String, Serializable> calculatePartialProperties(
             String conceptUri, List<Resource> mappings) {
-
         UriList outgoingMappings = new UriList();
         UriList incomingMappings = new UriList();
         for (Resource mapping : mappings) {
-            String sourceUri = Mapping.getSource(mapping);
-            String targetUri = Mapping.getTarget(mapping);
+            String sourceUri = Mapping.getSourceUri(mapping);
+            String targetUri = Mapping.getTargetUri(mapping);
 
-            /*
-             * The NCBO mapping service returns results that are not using the
-             * input URI as target or source (2011-07-24). Once this is fixed,
-             * activate the assertion again.
-             */
-            // assert conceptUri.equals(sourceUri) ||
-            // conceptUri.equals(targetUri) : "'"
-            // + conceptUri
-            // + "' does match neither source ('"
-            // + sourceUri
-            // + "') nor target ('" + targetUri + "')";
             if (!(conceptUri.equals(sourceUri) || conceptUri.equals(targetUri))) {
                 continue;
             }
@@ -106,16 +100,15 @@ public class ConceptMappingServiceImplementation implements
 
         partialProperties.put(Concept.INCOMING_MAPPINGS, incomingMappings);
         partialProperties.put(Concept.OUTGOING_MAPPINGS, outgoingMappings);
-
         return partialProperties;
     }
 
     @Override
-    public void getMappings(final String ontologyId, final String conceptId,
-            final boolean mappingNeighbourhood,
+    public void getMappings(final String ontologyAcronym,
+            final String conceptId, final boolean mappingNeighbourhood,
             final AsyncCallback<ResourceNeighbourhood> callback) {
 
-        assert ontologyId != null;
+        assert ontologyAcronym != null;
         assert conceptId != null;
         assert callback != null;
 
@@ -124,7 +117,6 @@ public class ConceptMappingServiceImplementation implements
             @Override
             public ResourceNeighbourhood transform(String value)
                     throws Exception {
-
                 List<Resource> mappings = responseParser
                         .parseForConceptMapping(value);
 
@@ -137,12 +129,13 @@ public class ConceptMappingServiceImplementation implements
                 }
 
                 Map<String, Serializable> partialProperties = calculatePartialProperties(
-                        Concept.toConceptURI(ontologyId, conceptId), mappings);
+                        Concept.toConceptURI(ontologyAcronym, conceptId), mappings);
+
                 return new ResourceNeighbourhood(partialProperties, mappings);
             }
         };
 
-        urlFetchService.fetchURL(buildUrl(ontologyId, conceptId),
+        urlFetchService.fetchURL(buildUrl(ontologyAcronym, conceptId),
                 TransformingAsyncCallback.create(callback, transformer));
     }
 }

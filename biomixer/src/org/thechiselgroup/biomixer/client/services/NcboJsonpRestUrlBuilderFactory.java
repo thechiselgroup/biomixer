@@ -16,7 +16,6 @@
 package org.thechiselgroup.biomixer.client.services;
 
 import org.thechiselgroup.biomixer.client.core.util.url.DefaultUrlBuilder;
-import org.thechiselgroup.biomixer.client.core.util.url.JsonpUrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilderFactory;
 
@@ -24,26 +23,32 @@ public class NcboJsonpRestUrlBuilderFactory implements UrlBuilderFactory {
 
     public static final String PROTOCOL = "http";
 
-    public static final String SERVER = "bioportal.bioontology.org";
+    public static final String SERVER = "data.bioontology.org"; // "stagedata.bioontology.org";
 
     public final static String API_KEY_PARAMETER = "apikey";
 
-    public final static String USER_API_KEY_PARAMETER = "userapikey";
+    // public final static String USER_API_KEY_PARAMETER = "userapikey";
+
+    public static final String FORMAT_PARAMETER = "format";
+
+    public static final String FORMAT_VALUE = "jsonp";
+
+    public static final String REQUIRED_PATH_PREFIX = ""; // "ajax/jsonp";
 
     public static final String CALLBACK = "callback";
 
-    public static final String PATH = "ajax/jsonp";
-
     private String userApiKey;
 
-    private String server = null;
+    private String server = SERVER;
 
     @Override
     public UrlBuilder createUrlBuilder() {
-        return new JsonpUrlBuilder((DefaultUrlBuilder) new DefaultUrlBuilder()
-                .host(this.server).protocol(PROTOCOL).path(PATH)
+        return new DefaultUrlBuilder().host(this.server)
+                .postRootPath(REQUIRED_PATH_PREFIX).protocol(PROTOCOL)
+                .parameter(FORMAT_PARAMETER, FORMAT_VALUE)
                 .parameter(API_KEY_PARAMETER, BIO_MIXER_API_KEY)
-                .parameter(USER_API_KEY_PARAMETER, userApiKey));
+        // .parameter(USER_API_KEY_PARAMETER, userApiKey)
+        ;
     }
 
     @Override
