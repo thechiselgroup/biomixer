@@ -225,6 +225,8 @@ public class TermNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                             throws Exception {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
+                        graphView.getResourceModel()
+                                .addResourceSet(resourceSet);
                         conceptNeighbourhoodService.getNeighbourhood(
                                 ontologyAcronym, fullConceptId,
                                 new ConceptNeighbourhoodCallback(errorHandler,
