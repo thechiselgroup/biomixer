@@ -15,11 +15,15 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client;
 
+import static com.google.gwt.query.client.GQuery.$;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.thechiselgroup.biomixer.client.core.resources.Resource;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
+
+import com.google.gwt.query.client.GQuery;
 
 /**
  * Concept URIs are composed of the virtual ontology id and the encoded full id
@@ -29,6 +33,16 @@ import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
  * @author Lars Grammel
  */
 public final class Concept {
+
+    /**
+     * Hack to fully decode strings containing HTML encoded characters. Some
+     * symbols (e.g. |) were showing up in the LOINC ontology.
+     * JQuery decodes things well, so we use an element to do the dirty work.
+     */
+    private static final GQuery DECODING_HACK;
+    static {
+        DECODING_HACK = $("<span/>").attr("name", "html_decode_hack");
+    }
 
     public static final String RESOURCE_URI_PREFIX = "ncbo-concept";
 
@@ -86,7 +100,7 @@ public final class Concept {
 
         concept.putValue(Concept.ID, conceptId);
         concept.putValue(Concept.ONTOLOGY_ACRONYM, ontologyAcronym);
-        concept.putValue(Concept.LABEL, conceptLabel);
+        concept.putValue(Concept.LABEL, DECODING_HACK.html(conceptLabel).text());
         concept.putValue(Concept.UI_LABEL, constructUiLabel(concept));
         concept.putValue(Concept.TYPE, type);
 
