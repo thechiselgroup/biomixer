@@ -54,7 +54,7 @@ public class OntologyMappingArcTypeTest {
                 Graph.getArcId(OntologyMappingArcType.ID, fromUri, toUri),
                 fromUri, toUri, OntologyMappingArcType.ID,
                 OntologyMappingArcType.ARC_LABEL,
-                OntologyMappingArcType.ARC_DIRECTED);
+                OntologyMappingArcType.ARC_DIRECTED, null);
     }
 
     @Test

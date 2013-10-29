@@ -28,6 +28,7 @@ import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
 import org.thechiselgroup.biomixer.client.graph.MappingArcType;
 import org.thechiselgroup.biomixer.client.graph.OntologyMappingArcType;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedArc;
+import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HTML;
@@ -99,6 +100,15 @@ public class BioMixerDetailsWidgetRenderedArcHelper extends
         return refreshDetailsWidget(arc, verticalPanel);
     }
 
+    private String computedArcLabel(RenderedNode node,
+            String parentheticalProperty) {
+        return node.getNode().getLabel()
+                + " ("
+                + node.getNode().getVisualItem().getResources()
+                        .getFirstElement().getValue(parentheticalProperty)
+                + ")";
+    }
+
     // TODO use dragAvatarFactory (injection)
     @Override
     public Widget refreshDetailsWidget(RenderedArc arc, Widget existingWidget) {
@@ -135,8 +145,10 @@ public class BioMixerDetailsWidgetRenderedArcHelper extends
 
             // The summary url is also clickable. Perhaps they can have
             // different targets? Not sure...
-            String sourceLabel = arc.getSource().getNode().getLabel();
-            String targetLabel = arc.getTarget().getNode().getLabel();
+            String sourceLabel = computedArcLabel(arc.getSource(),
+                    Ontology.ONTOLOGY_ACRONYM);
+            String targetLabel = computedArcLabel(arc.getTarget(),
+                    Ontology.ONTOLOGY_ACRONYM);
 
             addRow("Num of Mappings", arc.getArc().getSize() + "", true,
                     verticalPanel);
@@ -153,23 +165,31 @@ public class BioMixerDetailsWidgetRenderedArcHelper extends
             // verticalPanel);
 
         } else if (type.equals(MappingArcType.ID)) {
-            String sourceLabel = arc.getSource().getNode().getLabel();
-            String targetLabel = arc.getTarget().getNode().getLabel();
+            String sourceLabel = computedArcLabel(arc.getSource(),
+                    Concept.ONTOLOGY_ACRONYM);
+            String targetLabel = computedArcLabel(arc.getTarget(),
+                    Concept.ONTOLOGY_ACRONYM);
             addRow("From", sourceLabel, true, verticalPanel);
             addRow("To", targetLabel, true, verticalPanel);
         } else if (type.equals(ConceptArcType.ID)) {
-            String sourceLabel = arc.getSource().getNode().getLabel();
-            String targetLabel = arc.getTarget().getNode().getLabel();
+            String sourceLabel = computedArcLabel(arc.getSource(),
+                    Concept.ONTOLOGY_ACRONYM);
+            String targetLabel = computedArcLabel(arc.getTarget(),
+                    Concept.ONTOLOGY_ACRONYM);
             addRow("From", sourceLabel, true, verticalPanel);
             addRow("To", targetLabel, true, verticalPanel);
         } else if (type.equals(CompositionArcType.ID)) {
-            String sourceLabel = arc.getSource().getNode().getLabel();
-            String targetLabel = arc.getTarget().getNode().getLabel();
+            String sourceLabel = computedArcLabel(arc.getSource(),
+                    Concept.ONTOLOGY_ACRONYM);
+            String targetLabel = computedArcLabel(arc.getTarget(),
+                    Concept.ONTOLOGY_ACRONYM);
             addRow("From", sourceLabel, true, verticalPanel);
             addRow("To", targetLabel, true, verticalPanel);
         } else if (type.equals(DirectConceptMappingArcType.ID)) {
-            String sourceLabel = arc.getSource().getNode().getLabel();
-            String targetLabel = arc.getTarget().getNode().getLabel();
+            String sourceLabel = computedArcLabel(arc.getSource(),
+                    Concept.ONTOLOGY_ACRONYM);
+            String targetLabel = computedArcLabel(arc.getTarget(),
+                    Concept.ONTOLOGY_ACRONYM);
             addRow("From", sourceLabel, true, verticalPanel);
             addRow("To", targetLabel, true, verticalPanel);
         } else {

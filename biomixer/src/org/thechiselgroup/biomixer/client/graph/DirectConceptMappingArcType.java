@@ -63,7 +63,8 @@ public class DirectConceptMappingArcType implements ArcType {
         this.resourceAccessor = resourceAccessor;
     }
 
-    private Arc createArc(String concept1Uri, String concept2Uri) {
+    private Arc createArc(String concept1Uri, String concept2Uri,
+            VisualItem arcVisualItem) {
         // Stopped doing this in ontology arcs. Had to put this back to prevent
         // duplicate arcs. They were visible as dashed lines that turned into
         // solid as you dragged the nodes. Directed/undirected is sort of
@@ -76,7 +77,7 @@ public class DirectConceptMappingArcType implements ArcType {
         // String secondUri = concept2Uri;
 
         return new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
-                secondUri, ID, ARC_LABEL, ARC_DIRECTED);
+                secondUri, ID, ARC_LABEL, ARC_DIRECTED, arcVisualItem);
     }
 
     @Override
@@ -97,15 +98,18 @@ public class DirectConceptMappingArcType implements ArcType {
                 if (resourceAccessor.contains(uri)) {
                     Resource mapping = resourceAccessor.getByUri(uri);
                     String targetResource = Mapping.getTargetUri(mapping);
-                    arcItems.add(createArc(visualItem.getId(), targetResource));
+                    arcItems.add(createArc(visualItem.getId(), targetResource,
+                            visualItem));
                 }
             }
             for (String uri : resource
                     .getUriListValue(Concept.INCOMING_MAPPINGS)) {
                 if (resourceAccessor.contains(uri)) {
                     Resource mapping = resourceAccessor.getByUri(uri);
-                    String sourceResource = Mapping.getSourceUri(mapping);;
-                    arcItems.add(createArc(sourceResource, visualItem.getId()));
+                    String sourceResource = Mapping.getSourceUri(mapping);
+                    ;
+                    arcItems.add(createArc(sourceResource, visualItem.getId(),
+                            visualItem));
                 }
             }
         }

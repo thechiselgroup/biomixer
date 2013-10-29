@@ -45,9 +45,10 @@ public class MappingArcType implements ArcType {
 
     public static final int ARC_THICKNESS = 1;
 
-    private Arc createArc(String sourceUri, String targetUri) {
+    private Arc createArc(String sourceUri, String targetUri,
+            VisualItem arcVisualItem) {
         return new Arc(Graph.getArcId(ID, sourceUri, targetUri), sourceUri,
-                targetUri, ID, ARC_LABEL, ARC_DIRECTED);
+                targetUri, ID, ARC_LABEL, ARC_DIRECTED, arcVisualItem);
     }
 
     @Override
@@ -64,8 +65,8 @@ public class MappingArcType implements ArcType {
 
             String sourceUri = Mapping.getSourceUri(firstResource);
             String targetUri = Mapping.getTargetUri(firstResource);
-            arcs.add(createArc(sourceUri, visualItemId));
-            arcs.add(createArc(visualItemId, targetUri));
+            arcs.add(createArc(sourceUri, visualItemId, visualItem));
+            arcs.add(createArc(visualItemId, targetUri, visualItem));
         } else if (visualItemId.startsWith(Concept.RESOURCE_URI_PREFIX)) {
             ResourceSet resources = visualItem.getResources();
             assert resources.size() == 1;
@@ -73,12 +74,12 @@ public class MappingArcType implements ArcType {
 
             for (String mappingUri : firstResource
                     .getUriListValue(Concept.OUTGOING_MAPPINGS)) {
-                arcs.add(createArc(visualItemId, mappingUri));
+                arcs.add(createArc(visualItemId, mappingUri, visualItem));
             }
 
             for (String mappingUri : firstResource
                     .getUriListValue(Concept.INCOMING_MAPPINGS)) {
-                arcs.add(createArc(mappingUri, visualItemId));
+                arcs.add(createArc(mappingUri, visualItemId, visualItem));
             }
         }
 

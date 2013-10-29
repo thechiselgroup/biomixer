@@ -5,6 +5,7 @@ import org.thechiselgroup.biomixer.client.core.geometry.PointDouble;
 import org.thechiselgroup.biomixer.client.core.geometry.SizeDouble;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.GraphDisplay;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Node;
 import org.thechiselgroup.biomixer.shared.svg.Svg;
@@ -145,5 +146,10 @@ public class CircularTextSvgRenderedNode extends AbstractSvgRenderedNode
         baseContainer.setAttribute(Svg.X, x);
         baseContainer.setAttribute(Svg.Y, y);
         updateConnectedArcs();
+    }
+
+    @Override
+    public VisualItem getVisualItem() {
+        return getNode().getVisualItem();
     }
 }

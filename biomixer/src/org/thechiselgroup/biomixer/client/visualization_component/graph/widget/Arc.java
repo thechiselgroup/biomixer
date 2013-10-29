@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+
 public class Arc {
 
     private String id;
@@ -48,14 +50,19 @@ public class Arc {
 
     private boolean directed;
 
+    private final VisualItem visualItem;
+
     public Arc(String id, String sourceNodeId, String targetNodeId,
-            String type, String arcLabel, boolean directed) {
+            String type, String arcLabel, boolean directed,
+            VisualItem visualItem) {
 
         assert id != null;
         assert sourceNodeId != null;
         assert targetNodeId != null;
         assert type != null;
+        assert visualItem != null;
 
+        this.visualItem = visualItem;
         this.id = id;
         this.sourceNodeId = sourceNodeId;
         this.targetNodeId = targetNodeId;
@@ -251,5 +258,15 @@ public class Arc {
 
     public String getLabel() {
         return this.arcLabel;
+    }
+
+    /**
+     * More convenient than needing a reference to the Graph object in order to
+     * get at the underlying model with the similarly named method found there.
+     * 
+     * @return
+     */
+    public VisualItem getVisualItem() {
+        return this.visualItem;
     }
 }

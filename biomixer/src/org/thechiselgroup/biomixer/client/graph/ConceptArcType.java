@@ -44,9 +44,10 @@ public class ConceptArcType implements ArcType {
 
     public static final int ARC_THICKNESS = 1;
 
-    private Arc createArc(String sourceUri, String targetUri) {
+    private Arc createArc(String sourceUri, String targetUri,
+            VisualItem arcVisualItem) {
         return new Arc(Graph.getArcId(ID, sourceUri, targetUri), sourceUri,
-                targetUri, ID, ARC_LABEL, ARC_DIRECTED);
+                targetUri, ID, ARC_LABEL, ARC_DIRECTED, arcVisualItem);
     }
 
     @Override
@@ -65,11 +66,11 @@ public class ConceptArcType implements ArcType {
 
             for (String parentUri : firstResource
                     .getUriListValue(Concept.PARENT_CONCEPTS)) {
-                arcItems.add(createArc(visualItemId, parentUri));
+                arcItems.add(createArc(visualItemId, parentUri, visualItem));
             }
             for (String childUri : firstResource
                     .getUriListValue(Concept.CHILD_CONCEPTS)) {
-                arcItems.add(createArc(childUri, visualItemId));
+                arcItems.add(createArc(childUri, visualItemId, visualItem));
             }
         }
 

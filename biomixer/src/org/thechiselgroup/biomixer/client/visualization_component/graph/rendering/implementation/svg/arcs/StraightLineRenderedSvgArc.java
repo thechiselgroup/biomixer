@@ -21,6 +21,7 @@ import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.RenderedNode;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.rendering.implementation.svg.nodes.SvgBareText;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.Arc;
@@ -242,5 +243,10 @@ public class StraightLineRenderedSvgArc extends AbstractSvgRenderedArc
         y -= xFactor * labelShiftY; // Correct
 
         label.setTranslateAndRotation(x, y, angle);
+    }
+
+    @Override
+    public VisualItem getVisualItem() {
+        return getArc().getVisualItem();
     }
 }

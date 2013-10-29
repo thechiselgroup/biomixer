@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.visualization_component.graph.widget;
 
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
+
 public class Node {
 
     private String id;
@@ -25,14 +27,29 @@ public class Node {
 
     private double size;
 
-    public Node(String id, String label, String type, int size) {
+    private final VisualItem visualItem;
+
+    public Node(String id, String label, String type, int size,
+            VisualItem visualItem) {
         this.size = size;
         assert id != null;
         assert type != null;
+        assert visualItem != null;
 
+        this.visualItem = visualItem;
         this.id = id;
         this.label = (label == null) ? "" : label;
         this.type = type;
+    }
+
+    /**
+     * More convenient than needing a reference to the Graph object in order to
+     * get at the underlying model with the similarly named method found there.
+     * 
+     * @return
+     */
+    public VisualItem getVisualItem() {
+        return this.visualItem;
     }
 
     public String getId() {

@@ -56,7 +56,7 @@ public class OntologyMappingArcType implements ArcType {
     public static final String ARC_HEAD = ArcSettings.ARC_HEAD_NONE;
 
     private Arc createArc(String ontology1Uri, String ontology2Uri,
-            int numberOfMappings) {
+            int numberOfMappings, VisualItem arcVisualItem) {
         // boolean isOntology1First = ontology1Uri.compareTo(ontology2Uri) < 0;
         // String firstUri = isOntology1First ? ontology1Uri : ontology2Uri;
         // String secondUri = isOntology1First ? ontology2Uri : ontology1Uri;
@@ -65,7 +65,7 @@ public class OntologyMappingArcType implements ArcType {
         String secondUri = ontology2Uri;
 
         Arc arc = new Arc(Graph.getArcId(ID, firstUri, secondUri), firstUri,
-                secondUri, ID, getArcTypeLabel(), ARC_DIRECTED);
+                secondUri, ID, getArcTypeLabel(), ARC_DIRECTED, arcVisualItem);
         // int scaledThickness =
         // (int) Math.round((1 + Math.sqrt((numberOfMappings) / 1)));
         // arc.setSize(scaledThickness);
@@ -94,7 +94,7 @@ public class OntologyMappingArcType implements ArcType {
                 int numberOfMappings = Ontology.getOntologyCount(targetUri);
                 String pureTargetUri = Ontology.getPureOntologyURI(targetUri);
                 arcItems.add(createArc(visualItemId, pureTargetUri,
-                        numberOfMappings));
+                        numberOfMappings, visualItem));
             }
 
             for (String sourceUri : resource
@@ -102,7 +102,7 @@ public class OntologyMappingArcType implements ArcType {
                 int numberOfMappings = Ontology.getOntologyCount(sourceUri);
                 String pureSourceUri = Ontology.getPureOntologyURI(sourceUri);
                 arcItems.add(createArc(pureSourceUri, visualItemId,
-                        numberOfMappings));
+                        numberOfMappings, visualItem));
             }
 
         }

@@ -249,7 +249,7 @@ public class GraphViewContentDisplayTest {
     }
 
     private Arc createArc(String arcId, String from, String to) {
-        return new Arc(arcId, from, to, arcTypeId, arcLabel, arcDirected);
+        return new Arc(arcId, from, to, arcTypeId, arcLabel, arcDirected, null);
     }
 
     /*

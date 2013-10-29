@@ -96,13 +96,13 @@ public abstract class AbstractOntologyOverviewGraphSvgDisplayTest extends
     protected Arc addArc(String arcId, String sourceNodeId,
             String targetNodeId, String type, String label, boolean directed) {
         Arc arc = new Arc(arcId, sourceNodeId, targetNodeId, type, label,
-                directed);
+                directed, null);
         underTest.addArc(arc);
         return arc;
     }
 
     protected Node addNode(String id, String label, String type) {
-        Node node = new Node(id, label, type, 1);
+        Node node = new Node(id, label, type, 1, null);
         underTest.addNode(node);
         return node;
     }

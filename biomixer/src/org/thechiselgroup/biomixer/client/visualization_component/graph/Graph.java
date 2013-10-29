@@ -766,6 +766,12 @@ public class Graph extends AbstractViewContentDisplay implements
                 NODE_BACKGROUND_COLOR };
     }
 
+    /**
+     * Also see Node and Arc, and RenderedItem getVisualItem() methods.
+     * 
+     * @param node
+     * @return
+     */
     public VisualItem getVisualItem(Node node) {
         return getVisualItem(node.getId());
     }

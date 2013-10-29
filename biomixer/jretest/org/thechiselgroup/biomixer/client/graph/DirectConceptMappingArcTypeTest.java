@@ -55,7 +55,7 @@ public class DirectConceptMappingArcTypeTest {
 
     private Arc createExpectedArc(String fromUri, String toUri) {
         return new Arc(Graph.getArcId(ID, fromUri, toUri), fromUri, toUri, ID,
-                ARC_LABEL, ARC_DIRECTED);
+                ARC_LABEL, ARC_DIRECTED, null);
     }
 
     @Test

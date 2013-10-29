@@ -53,7 +53,8 @@ public class NodeItem {
         this.display = display;
 
         // TODO size resolver
-        node = new Node(visualItem.getId(), getLabelValue(), type, 1);
+        node = new Node(visualItem.getId(), getLabelValue(), type, 1,
+                visualItem);
     }
 
     public String getLabelValue() {

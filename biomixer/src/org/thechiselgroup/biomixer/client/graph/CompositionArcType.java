@@ -44,9 +44,10 @@ public class CompositionArcType implements ArcType {
 
     public static final int ARC_THICKNESS = 1;
 
-    private Arc createArc(String sourceUri, String targetUri) {
+    private Arc createArc(String sourceUri, String targetUri,
+            VisualItem arcVisualItem) {
         return new Arc(Graph.getArcId(ID, sourceUri, targetUri), sourceUri,
-                targetUri, ID, ARC_LABEL, ARC_DIRECTED);
+                targetUri, ID, ARC_LABEL, ARC_DIRECTED, arcVisualItem);
     }
 
     @Override
@@ -65,11 +66,11 @@ public class CompositionArcType implements ArcType {
 
             for (String parentUri : firstResource
                     .getUriListValue(Concept.HAS_PART_CONCEPTS)) {
-                arcItems.add(createArc(parentUri, visualItemId));
+                arcItems.add(createArc(parentUri, visualItemId, visualItem));
             }
             for (String childUri : firstResource
                     .getUriListValue(Concept.PART_OF_CONCEPTS)) {
-                arcItems.add(createArc(visualItemId, childUri));
+                arcItems.add(createArc(visualItemId, childUri, visualItem));
             }
         }
         return arcItems;

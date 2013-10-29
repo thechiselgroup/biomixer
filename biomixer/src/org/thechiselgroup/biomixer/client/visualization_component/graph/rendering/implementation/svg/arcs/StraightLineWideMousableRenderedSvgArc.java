@@ -23,6 +23,7 @@ import org.thechiselgroup.biomixer.client.core.ui.Colors;
 import org.thechiselgroup.biomixer.client.core.util.collections.Identifiable;
 import org.thechiselgroup.biomixer.client.core.util.event.ChooselEventHandler;
 import org.thechiselgroup.biomixer.client.core.util.text.TextBoundsEstimator;
+import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.graph.CompositionArcType;
 import org.thechiselgroup.biomixer.client.graph.ConceptArcType;
 import org.thechiselgroup.biomixer.client.graph.DirectConceptMappingArcType;
@@ -331,5 +332,10 @@ public class StraightLineWideMousableRenderedSvgArc extends
         y -= xFactor * labelShiftY; // Correct
 
         label.setTranslateAndRotation(x, y, angle);
+    }
+
+    @Override
+    public VisualItem getVisualItem() {
+        return getArc().getVisualItem();
     }
 }
