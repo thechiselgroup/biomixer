@@ -3,6 +3,7 @@ package org.thechiselgroup.biomixer.client.embeds;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.resources.DefaultResourceSet;
 import org.thechiselgroup.biomixer.client.core.resources.ResourceSet;
@@ -35,6 +36,13 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
 
     private IdentifiablesList<OntologyEmbedLoader> embedLoaders = new IdentifiablesList<OntologyEmbedLoader>();
 
+    private String centralNodeUri;
+
+    @Override
+    public String getCentralEntityUri() {
+        return centralNodeUri;
+    }
+
     @Inject
     public OntologyCentricEmbedLoader(
             OntologyMappingNeighbourhoodLoader ontologyMappingLoader) {
@@ -60,6 +68,8 @@ public class OntologyCentricEmbedLoader implements EmbeddedViewLoader {
                 .getParameter("ontology_acronym");
         List<String> ontologyAcronyms = new ArrayList<String>();
         ontologyAcronyms.add(ontologyAcronym);
+
+        centralNodeUri = Ontology.toOntologyURI(ontologyAcronym);
 
         // TODO Pulling ontolgoy ids from the current page url works for the
         // embed only...and we are not aiming this feature in the embed version

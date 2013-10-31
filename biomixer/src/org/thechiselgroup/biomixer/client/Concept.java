@@ -140,8 +140,8 @@ public final class Concept {
     }
 
     // TODO use encoded long full id
-    public static String toConceptURI(String ontologyId, String fullId) {
-        return Concept.RESOURCE_URI_PREFIX + ":" + ontologyId + "/" + fullId;
+    public static String toConceptURI(String ontologyAcronym, String fullId) {
+        return Concept.RESOURCE_URI_PREFIX + ":" + ontologyAcronym + "/" + fullId;
     }
 
     private Concept() {

@@ -31,4 +31,6 @@ public interface EmbeddedViewLoader {
     void loadView(WindowLocation windowLocation, String embedMode,
             AsyncCallback<IsWidget> callback, EmbedLoader loader);
 
+    public String getCentralEntityUri();
+
 }

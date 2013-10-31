@@ -86,6 +86,7 @@ import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.N
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOutHandler;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverEvent;
 import org.thechiselgroup.biomixer.client.visualization_component.graph.widget.NodeMouseOverHandler;
+import org.thechiselgroup.biomixer.client.workbench.embed.EmbedInitializer;
 import org.thechiselgroup.biomixer.client.workbench.ui.configuration.ViewWindowContentProducer.VisualItemBehaviorFactory;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -136,7 +137,6 @@ public class Graph extends AbstractViewContentDisplay implements
             // .createConceptArcSizeTransformer(),
                     true);
         }
-
     }
 
     public static class OntologyGraphDisplay extends GraphDisplayController {
@@ -654,7 +654,11 @@ public class Graph extends AbstractViewContentDisplay implements
         actions.add(new GraphLayoutAction(
                 GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
                 new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
-                        nodeAnimator, null)));
+                        nodeAnimator, EmbedInitializer
+                                .getEmbedViewCentralNodeUri())));
+        // EmbedInitializer used out of desire to prevent a single string
+        // from having to be passed through dozens of classes for a single
+        // possible layout's argument.
         actions.add(new GraphLayoutAction(GraphLayouts.HORIZONTAL_TREE_LAYOUT,
                 new HorizontalTreeLayoutAlgorithm(true, errorHandler,
                         nodeAnimator)));
@@ -728,7 +732,11 @@ public class Graph extends AbstractViewContentDisplay implements
             actions.add(new GraphLayoutAction(
                     GraphLayouts.CIRCLE_WITH_CENTRAL_NODE_LAYOUT,
                     new CircleLayoutWithCentralNodeAlgorithm(errorHandler,
-                            nodeAnimator, null)));
+                            nodeAnimator, EmbedInitializer
+                                    .getEmbedViewCentralNodeUri())));
+            // EmbedInitializer used out of desire to prevent a single string
+            // from having to be passed through dozens of classes for a single
+            // possible layout's argument.
         }
 
         if (layoutsToKeep.contains(GraphLayouts.FORCE_DIRECTED_LAYOUT)) {

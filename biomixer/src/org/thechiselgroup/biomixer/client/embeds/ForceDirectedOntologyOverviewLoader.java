@@ -86,4 +86,9 @@ public class ForceDirectedOntologyOverviewLoader implements EmbeddedViewLoader {
 
                 });
     }
+
+    @Override
+    public String getCentralEntityUri() {
+        return null;
+    }
 }

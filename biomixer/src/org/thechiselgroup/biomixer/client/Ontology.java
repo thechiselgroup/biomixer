@@ -142,11 +142,11 @@ public final class Ontology {
      * the virtual id isn't always referred to as a virtual id in the REST
      * service results.
      * 
-     * @param ontologyId
+     * @param ontologyAcronym
      * @return
      */
-    public static String toOntologyURI(String ontologyId) {
-        return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyId + "/";
+    public static String toOntologyURI(String ontologyAcronym) {
+        return Ontology.RESOURCE_URI_PREFIX + ":" + ontologyAcronym + "/";
     }
 
     public static String toOntologyURIWithCount(String ontologyId,

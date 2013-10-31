@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.Concept;
+import org.thechiselgroup.biomixer.client.Ontology;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ExtendedListBox;
 import org.thechiselgroup.biomixer.client.core.ui.widget.listbox.ListBoxControl;
@@ -66,6 +68,13 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
         return embedLoaders.getIds();
     }
 
+    private String centralNodeUri;
+
+    @Override
+    public String getCentralEntityUri() {
+        return centralNodeUri;
+    }
+
     @Override
     public void loadView(WindowLocation windowLocation, String embedMode,
             AsyncCallback<IsWidget> callback, final EmbedLoader embedLoader) {
@@ -76,7 +85,18 @@ public class TermCentricEmbedLoader implements EmbeddedViewLoader {
 
         String fullConceptId = UriUtils.decodeURIComponent(windowLocation
                 .getParameter("full_concept_id"));
-        String ontologyAcronym = windowLocation.getParameter("ontology_acronym");
+        String ontologyAcronym = windowLocation
+                .getParameter("ontology_acronym");
+
+        // Bug waiting to happen...if the url is wrongly supplied with a concept
+        // URL when it is an ontology view, nothing good will come of it.
+        // This should not occur, of course.
+        if (null != fullConceptId) {
+            this.centralNodeUri = Concept.toConceptURI(ontologyAcronym,
+                    fullConceptId);
+        } else {
+            this.centralNodeUri = Ontology.toOntologyURI(ontologyAcronym);
+        }
 
         // TODO pass in switch
         final ListBoxControl<TermEmbedLoader> selector = new ListBoxControl<TermEmbedLoader>(

@@ -60,4 +60,9 @@ public class StoredViewEmbedLoader implements EmbeddedViewLoader {
         });
     }
 
+    @Override
+    public String getCentralEntityUri() {
+        return null;
+    }
+
 }

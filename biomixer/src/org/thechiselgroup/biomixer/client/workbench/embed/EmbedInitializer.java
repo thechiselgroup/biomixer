@@ -46,6 +46,12 @@ public class EmbedInitializer implements ApplicationInitializer {
 
     private Map<String, EmbeddedViewLoader> embedLoaders = new HashMap<String, EmbeddedViewLoader>();
 
+    static private EmbeddedViewLoader embeddedViewLoader;
+
+    public static String getEmbedViewCentralNodeUri() {
+        return embeddedViewLoader.getCentralEntityUri();
+    }
+
     @Override
     public void init() throws Exception {
         if (!browserDetect.isValidBrowser()) {
@@ -76,7 +82,7 @@ public class EmbedInitializer implements ApplicationInitializer {
             return;
         }
 
-        EmbeddedViewLoader embeddedViewLoader = embedLoaders.get(embedMode);
+        embeddedViewLoader = embedLoaders.get(embedMode);
 
         embedContainer.setInfoText("Loading...");
         embeddedViewLoader.loadView(windowLocation, embedMode,
