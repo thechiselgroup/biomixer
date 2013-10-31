@@ -156,7 +156,8 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                             throws Exception {
                         final ResourceSet resourceSet = new DefaultResourceSet();
                         resourceSet.add(targetResource);
-
+                        graphView.getResourceModel()
+                                .addResourceSet(resourceSet);
                         mappingService.getMappings(ontologyAcronym,
                                 fullConceptId, true, new MappingCallback(
                                         errorHandler, targetResource,
