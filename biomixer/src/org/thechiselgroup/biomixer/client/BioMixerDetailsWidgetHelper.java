@@ -27,6 +27,7 @@ import org.thechiselgroup.biomixer.client.core.util.url.UrlBuilder;
 import org.thechiselgroup.biomixer.client.core.visualization.model.VisualItem;
 import org.thechiselgroup.biomixer.client.dnd.resources.DraggableResourceSetAvatar;
 import org.thechiselgroup.biomixer.client.dnd.resources.ResourceSetAvatarDragController;
+import org.thechiselgroup.biomixer.client.utils.HtmlDecoder;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -42,6 +43,15 @@ public class BioMixerDetailsWidgetHelper extends
 
     private final ResourceManager resourceManager;
 
+    /**
+     * Hack to fully decode strings containing HTML encoded characters. Some
+     * symbols (e.g. |) were showing up in the LOINC ontology. JQuery decodes
+     * things well, so we use an element to do the dirty work.
+     */
+
+    // &#8632; //&#10138; //&#10149; //&#10548;
+    static String ARROW_FOR_OUTLINK = " " + HtmlDecoder.decode("&#10138;");
+
     @Inject
     public BioMixerDetailsWidgetHelper(
             ResourceSetAvatarFactory dragAvatarFactory,
@@ -56,8 +66,9 @@ public class BioMixerDetailsWidgetHelper extends
 
     protected ResourceSetAvatar createAvatar(String label,
             ResourceSet resourceSet) {
-        ResourceSetAvatar avatar = new DraggableResourceSetAvatar(label,
-                "avatar-resourceSet", resourceSet, ResourceSetAvatarType.SET);
+        ResourceSetAvatar avatar = new DraggableResourceSetAvatar(label
+                + ARROW_FOR_OUTLINK, "avatar-resourceSet", resourceSet,
+                ResourceSetAvatarType.SET);
         avatar.setEnabled(true);
         dragController.setDraggable(avatar, true);
         return avatar;
