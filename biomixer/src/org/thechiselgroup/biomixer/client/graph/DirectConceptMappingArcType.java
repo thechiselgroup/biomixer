@@ -55,7 +55,7 @@ public class DirectConceptMappingArcType implements ArcType {
 
     public static final boolean ARC_DIRECTED = false;
 
-    public static final int ARC_THICKNESS = 3;
+    public static final int ARC_THICKNESS = 1;
 
     private final ResourceAccessor resourceAccessor;
 
