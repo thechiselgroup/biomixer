@@ -15,92 +15,22 @@
     <link href="cyto_example/css/bootstrap.min.css" rel="stylesheet">
     <link href="cyto_example/css/bootstrap-responsive.min.css" rel="stylesheet">
     <link href="cyto_example/css/font-awesome.min.css" rel="stylesheet">
-    <link href="cyto_example/css/bootswatch.css" rel="stylesheet">
+    <link href="cyto_example/css/graph_styles.css" rel="stylesheet">
 
 </head>
 
-<body class="preview" id="top" data-spy="scroll" data-target=".subnav" data-offset="80">
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container">
-            <a class="brand" href="index.html">cytoscape.js technical demo</a>
-
-            <div class="nav-collapse collapse" id="main-menu">
-                <ul class="nav" id="main-menu-left">
-                    <li><a href="">About</a></li>
-                    <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Samples<b class="caret"></b></a>
-                        <ul class="dropdown-menu" id="swatch-menu">
-                            <li><a href="index.html">Default</a></li>
-                            <li class="divider"></li>
-                            <li><a href="d3-tree.html">NeXO Tree 1</a></li>
-                            <li><a href="d3-tree2.html">NeXO Tree 2</a></li>
-                            <li><a href="samples/demo3.html">Demo 3</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="container">
-
-<header class="jumbotron subhead" id="overview" >
-    <div class="row">
-        <div class="span6">
-            <h1>cytoscape.js</h1>
-            <br/>
-
-            <p class="lead">JavaScript library for network visualization.</p>
-        </div>
-    </div>
-</header>
+<body>
 
 <div id="network-view"></div>
 
-<section id="typography">
-    <div class="page-header">
-        <h2>Demo 0: Network Data from Cytoscape 3</h2>
-    </div>
-
-    <div class="row">
-        <div class="span10">
-            <h3>Description</h3>
-            <p>Network data from Cytoscape 3 exported as JSON.</p>
-
-        </div>
-    </div>
-</section>
-
-<!-- Footer -->
-<hr>
-
-<footer id="footer">
-    <p class="pull-right"><a href="#top">Back to top</a></p>
-
-    <div class="links">
-        <a href="http://www.cytoscape.org/">Cytoscape</a>
-        <a href="http://cytoscape.github.com/cytoscape.js/">cytoscape.js</a>
-        <a href="https://github.com/keiono/">GitHub</a>
-    </div>
-    <small>Designed by Keiichito Ono.  Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License v2.0</a>.
-    Based on <a href="http://twitter.github.com/bootstrap/">Bootstrap</a>.
-    Icons from <a href="http://fortawesome.github.com/Font-Awesome/">Font Awesome</a>. Web fonts from <a
-        href="http://www.google.com/webfonts">Google</a>.</small><p></p>
-</footer>
-
-</div>
-
 <!-- Placed at the end of the document so the pages load faster -->
+<script type="text/javascript" src="d3_graphs/purl.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="cyto_example/jquery.smooth-scroll.min.js"></script>
 <script src="cyto_example/bootstrap.js"></script>
-<script src="cyto_example/bootswatch.js"></script>
 <script src="cyto_example/arbor.js"></script>
-<script src="cyto_example/cytoscape.min.js"></script>
-<script src="cyto_example/draw_graph_bioportal.js"></script>
+<script src="cyto_example/cytoscape.js"></script> <!-- Be sure to use the .min. version in production... -->
+<script src="cyto_example/cyto_ontology_mapping_overview.js"></script>
 
 </body>
 </html>

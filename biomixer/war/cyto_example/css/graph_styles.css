@@ -1,0 +1,25 @@
+/* Using in code styles, at least for now. Easier to track down when programming.*/
+#network-view {
+	/* Use vh and vw to get full window sizing. */
+    height: 98vh;
+    width: 98vw;
+    /*
+    border: 2px solid #888;
+    overflow: hidden !important;
+    border-radius: 0.55em;
+    margin: 1em;
+    color: darkgray;
+    font-weight: 100;
+    float: left;
+    background-color: white;
+    */
+}
+
+html, body {
+	height: 100%;
+}
+
+body{
+	fill: rgb(255,0,0);
+	margin: 0px;
+}
