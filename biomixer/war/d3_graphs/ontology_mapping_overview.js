@@ -190,7 +190,9 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// so this is the first place to try a web worker out.
 
 		// Make some graph parts!
-		var anglePerNode = 360/numberOfMappedOntologies;
+		// Original bug hidden by force layout, but I needed radians not degrees.
+		// It looks very slightly different.
+		var anglePerNode =2*Math.PI / numberOfMappedOntologies; // 360/numberOfMappedOntologies;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
 		$.each(mappingData,
@@ -425,7 +427,7 @@ function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
 //}
 
 function buildOntologyDetailsUrlNewApi(){
-	return "http://stagedata.bioontology.org/ontologies/"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
 
 //function buildOntologyMetricsUrl(ontologyVersionId){
