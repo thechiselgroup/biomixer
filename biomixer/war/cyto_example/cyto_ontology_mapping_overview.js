@@ -185,9 +185,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym, cy){
 				};
 		globalNodePositionMap[centralOntologyAcronym] = centralOntologyNode.p;
 		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
-		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.acronym = centralOntologyAcronym;
-		centralOntologyNode.nodeColor = nextNodeColor();
 		
 		// TODO In the example, 'weight' is added nested within 'data':
 		//	{
@@ -198,9 +196,14 @@ function OntologyMappingCallback(url, centralOntologyAcronym, cy){
 		// If things get funky, look into that. It might be required, or we might clobber cyto properties accidentally.
 		// It also had id nested in data, and source, target, but *not* position or group.
 		
+		
 		// Cytoscape specific stuff (x and y above work for Cytoscape)
 		centralOntologyNode.data = {};
 		centralOntologyNode.data.id = centralOntologyAcronym;
+		centralOntologyNode.data.nodeColor = nextNodeColor();
+		centralOntologyNode.data.nodeDiameterBasis = defaultNumOfTermsForSize; // number of terms
+		// Node size is controlled by a css function map(nodeDiameter) or dataMap(nodeDiameter).
+		centralOntologyNode.data.nodeDiameter = ontologyNodeScalingFunc(centralOntologyNode.data.nodeDiameterBasis);
 		centralOntologyNode.group = "nodes";
 		centralOntologyNode.selected = false,
 		centralOntologyNode.selectable = true,
@@ -223,6 +226,19 @@ function OntologyMappingCallback(url, centralOntologyAcronym, cy){
 		var anglePerNode = 2*Math.PI / numberOfMappedOntologies; // 360/numberOfMappedOntologies;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
+		
+		// This randomizer is to keep nodes at the top and bottom of the circular layout
+		// from completely overlapping their labels. The overall effect was a replication of
+		// the resulting D3 force layout with circular seeding.
+		var distanceSeed = 0;
+		var distanceRandomizer = function(){
+			// vary it between +0.1 and -0.1 in
+			// return (Math.random() - 0.5) / 5;
+			// cycle it through as sine wave
+			distanceSeed += 2*Math.PI * 0.05;
+			return Math.sin(distanceSeed % 2*Math.PI)/10
+		};  
+		
 		$.each(mappingData,
 			function(index, element){
 				var acronym = index;
@@ -248,18 +264,22 @@ function OntologyMappingCallback(url, centralOntologyAcronym, cy){
 				// Compute starting positions to be in a circle for faster layout
 				var angleForNode = i * anglePerNode; i++;
 				 // Cyto needs p instead of naked x and y
+				var randomFactor = distanceRandomizer();
 				ontologyNode.p = {
-						x: visWidth()/2 + arcLength*Math.cos(angleForNode), // start in middle and let them fly outward
-						y: visHeight()/2 + arcLength*Math.sin(angleForNode) // start in middle and let them fly outward
+						x: visWidth()/2 + arcLength*Math.cos(angleForNode) + arcLength*randomFactor, // start in middle and let them fly outward
+						y: visHeight()/2 + arcLength*Math.sin(angleForNode) + arcLength*randomFactor // start in middle and let them fly outward
 				};
 				globalNodePositionMap[acronym] = ontologyNode.p;
-				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.acronym = acronym;
-				ontologyNode.nodeColor = nextNodeColor();
+				
 				
 				// Cytoscape specific stuff (x and y above work for Cytoscape)
 				ontologyNode.data = {};
 				ontologyNode.data.id = acronym;
+				ontologyNode.data.nodeColor = nextNodeColor();
+				ontologyNode.data.nodeDiameterBasis = defaultNumOfTermsForSize; // number of terms
+				// Node size is controlled by a css function map(nodeDiameter) or dataMap(nodeDiameter).
+				ontologyNode.data.nodeDiameter = ontologyNodeScalingFunc(centralOntologyNode.data.nodeDiameterBasis);
 				ontologyNode.group = "nodes";
 				ontologyNode.selected = false,
 				ontologyNode.selectable = true,
@@ -275,16 +295,17 @@ function OntologyMappingCallback(url, centralOntologyAcronym, cy){
 
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
-				ontologyLink.source = centralOntologyNode; // TODO This is in data for Cyto, remove this, right?
-				ontologyLink.target = ontologyNode; // TODO This is in data for Cyto, remove this, right?
-				ontologyLink.value = element; // This gets used for link stroke thickness later.
-				ontologyLink.numMappings = element;
+//				ontologyLink.source = centralOntologyNode; // TODO This is in data for Cyto, remove this, right?
+//				ontologyLink.target = ontologyNode; // TODO This is in data for Cyto, remove this, right?
 				
 				// Cytoscape specific
 				ontologyLink.data = {};
 				ontologyLink.data.id = centralOntologyNode.acronym+"->"+ontologyNode.acronym;
 				ontologyLink.data.source = centralOntologyNode.data.id; //centralOntologyNode;
 				ontologyLink.data.target = ontologyNode.data.id; //ontologyNode;
+				ontologyLink.data.linkThicknessBasis = element; // This gets used for link stroke thickness later.
+				ontologyLink.data.linkThickness = ontologyLinkScalingFunc(ontologyLink.data.linkThicknessBasis);
+				ontologyLink.data.numMappings = element;
 				ontologyLink.group = "edges"; // Cytoscape specific
 				
 				// TODO Cyto doesn't need the structure here...ontologyNeighbourhoodJsonForGraph
@@ -298,14 +319,12 @@ function OntologyMappingCallback(url, centralOntologyAcronym, cy){
 			}
 		);
 
-		console.log("Did I add the node?");
-		
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
 		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
 		
 		applyLayout(cy);
-
+		
 		//----------------------------------------------------------
 		
 		// 2) Get details for all the ontologies (and either create or update the nodes)
@@ -459,15 +478,29 @@ function OntologyMetricsCallback(url, node){
 	        }
 	    }
 	    
-		self.node.weight = 1;
-		self.node.numberOfClasses = numClasses;
-		self.node.numberOfIndividuals = numIndividuals;
-		self.node.numberOfProperties = numProperties;
-		self.node.number = nodeSizeBasis;
+	    
+//		self.node.weight = 1;
+//		self.node.numberOfClasses = numClasses;
+//		self.node.numberOfIndividuals = numIndividuals;
+//		self.node.numberOfProperties = numProperties;
+//		self.node.number = nodeSizeBasis;
 		
+	    var ontologyUpdateMap = {};
+	    var nodeUpdate = {};
+	    ontologyUpdateMap[node.data.id] = nodeUpdate;
+	    
+//	    nodeUpdate.weight = 1;
+	    nodeUpdate.numberOfClasses = numClasses;
+	    nodeUpdate.numberOfIndividuals = numIndividuals;
+	    nodeUpdate.numberOfProperties = numProperties;
+	    nodeUpdate.nodeDiameterBasis = nodeSizeBasis;
+		// Node size is controlled by a css function map(nodeDiameter) or dataMap(nodeDiameter).
+	    // This gets updated en masse later.
+//	    nodeUpdate.nodeDiameter = ontologyNodeScalingFunc(nodeUpdate.nodeDiameterBasis);
+	    
+	    
 		// console.log("ontologyMetricsCallback");
 //		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
-		var ontologyUpdateMap = {};
 		updateDataForNodesAndLinks(ontologyUpdateMap);
 	}
 }
@@ -681,10 +714,15 @@ function cytoRenderedFirstFrame(evt){
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyAcronym, cy);
 	
-	applyLayout(cy);
+	// The other call to applyLayout() is effective; this is not.
+//	applyLayout(cy);
 }
 
 function applyLayout(cy){
+	// Cytoscape.JS layouts include:
+	// arbor (force layout), cose (spring), breadthfirst (concentric option), preset, random, circle, grid, null
+	// They also have demos running that use D3 tree layouts. That must be hacked in, because I didn't see options for it.
+	
 	// Documentation and example differ. Example has layout called in ready,
 	// rather than setting it during initialization.
 	// In fact, this ready function failed to call when I set layout in the init.
@@ -755,15 +793,18 @@ function initGraph(){
 			.selector('node')
 		        .css({
 		          'content': 'data(name)',
-		          'font-family': 'helvetica',
-		          'font-size': 14,
-		          'text-outline-width': 3,
+		          'font-family': 'Times New Roman', //'helvetica',
+		          'font-size': 16, // 14,
+		          'color': '#000', // #FFF // applies to labels
+		          'text-outline-width': 0, // 3
 		          'text-outline-color': '#888',
 		          'text-valign': 'center',
-		          'color': '#fff',
-		          'width': 'mapData(weight, 30, 80, 20, 50)',
-		          'height': 'mapData(height, 0, 200, 10, 45)',
-		          'border-color': '#fff'
+		          // We could control the linear node size mappign using mapData,
+		          // but if we want non-linear, we will need to use the approach I implemented for D3.
+		          'width': 'data(nodeDiameter)', //'mapData(nodeDiameter, 30, 80, 20, 50)',
+		          'height': 'data(nodeDiameter)', //'mapData(nodeDiameter, 0, 200, 10, 45)',
+		          'background-color': 'data(nodeColor)',
+		          'border-color': 'data(nodeColor)',
 		        })
 	        .selector(':selected')
 		        .css({
@@ -774,8 +815,8 @@ function initGraph(){
 		        })
 	        .selector('edge')
 		        .css({
-		          'width': 2,
-		          'target-arrow-shape': 'triangle'
+		          'width': 'data(linkThickness)',
+		          // 'target-arrow-shape': 'triangle'
 		        })
 		}
 	);
@@ -998,7 +1039,7 @@ function populateGraph(json, newElementsExpected){
 //    .style("stroke-linecap", "round")
 //    .attr("data-thickness_basis", function(d) { return d.value;});
 	
-	updateLinkScalingFactor();
+//	updateLinkScalingFactor(); // Called lower down?
 	
 //    links.style("stroke-width", function(d) { return ontologyLinkScalingFunc(d.value); })
 //	;
@@ -1048,14 +1089,17 @@ function populateGraph(json, newElementsExpected){
 //	.on("mouseout", changeColourBack);
 	}
 	
-	
+	var cy = $("#network-view").cytoscape("get"); // now we have a global reference to `cy`
+	var nodes = cy.nodes();
 // TODO Get this working for Cyto
 	// tipsy stickiness from:
 	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-//	d3.selectAll(".circle").each(
-//			function(d){
+	// d3.selectAll(".circle").each(
+//	$.each(nodes,
+//			function(index, node){
+//		// In D3, we grabbed the svg circle, not the node...and Cyto uses canvas...hmmm...
 //		var me = this,
-//		meData = d,
+//		meData = node,
 //	    leaveDelayTimer = null,
 //	    visible = false,
 //	    tipsyId = undefined;
@@ -1253,7 +1297,7 @@ function populateGraph(json, newElementsExpected){
 	// Don't have sizes here, but still...
 	updateNodeScalingFactor();
 	// Do have link sizes though? Now e called it earlier at a better time.
-	// updateLinkScalingFactor();
+	 updateLinkScalingFactor();
 	
 }
 
@@ -1270,7 +1314,7 @@ function populateGraph(json, newElementsExpected){
  * @param json
  */
 var collectedPropertiesToUpdate = {};
-function updateDataForNodesAndLinks(ontologyAcronymNodeMap){
+function updateDataForNodesAndLinks(ontologyAcronymNodeMap, forceFromWithinNodeSizeUpdate){
 	// console.log("Updating with data:");
 	// console.log(json);
 	
@@ -1281,23 +1325,40 @@ function updateDataForNodesAndLinks(ontologyAcronymNodeMap){
     // Doing a direct update is brutally slow if called on single element updates.
     // So...we have ot wrap the call to that in a timer!
     // Duplicating the line thickness one...keep separate and out of sync to prevent longer pauses.
-    $.each(ontologyAcronymNodeMap, function(prop, value) { 
-    	   // if (prop in collectedPropertiesToUpdate) { continue; }
-    	console.log(prop+" is "+value);
-    	   collectedPropertiesToUpdate[prop] = value;
+    $.each(ontologyAcronymNodeMap, function(prop, value) {
+//    	var printIt = true && collectedPropertiesToUpdate[prop];
+//    	if(printIt){
+//    		console.log(prop+" was :");
+//    		console.log(collectedPropertiesToUpdate[prop]);
+//    	}
+    	if (!(prop in collectedPropertiesToUpdate)) {
+    		collectedPropertiesToUpdate[prop] = value;
+    	} else {
+    		$.extend(true, collectedPropertiesToUpdate[prop], value);
+    	}
+//    	if(printIt){
+//    		console.log(prop+" now :");
+//    		console.log(collectedPropertiesToUpdate[prop]);
+//    	}
     });
     
-    if(cytoscapeBatchUpdateTimer == false){
-    	cytoscapeBatchUpdateTimer = true;
-		window.setTimeout(function(){
-				console.log("CYTOSCAPE BATCH TIMER RESET");
-				cytoscapeBatchUpdateTimer = false;
-				// Woudl implement locking for this and the map update if Javascript weren't single threaded
-				cy.batchData(collectedPropertiesToUpdate);
-				collectedPropertiesToUpdate = {};
-			},
-			1200);
-	}
+    if(forceFromWithinNodeSizeUpdate){
+    	cy.batchData(collectedPropertiesToUpdate);
+		collectedPropertiesToUpdate = {};
+		// It's ok if there's a timer waiting and it occurs after this.
+    } else {
+	    if(cytoscapeBatchUpdateTimer == false){
+	    	cytoscapeBatchUpdateTimer = true;
+			window.setTimeout(function(){
+					console.log("CYTOSCAPE BATCH TIMER RESET");
+					cytoscapeBatchUpdateTimer = false;
+					// Would implement locking for this and the map update if Javascript weren't single threaded
+					cy.batchData(collectedPropertiesToUpdate);
+					collectedPropertiesToUpdate = {};
+				},
+				1200);
+		}
+    }
 	
 //	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 //		// Given a json encoded graph element, update all of the nested elements associated with it
@@ -1335,18 +1396,20 @@ function updateDataForNodesAndLinks(ontologyAcronymNodeMap){
 //	$.each(json.links, updateLinksFromJson);
 //	$.each(json.nodes, updateNodesFromJson);
 	
-	if(nodeUpdateTimer == false){
-		nodeUpdateTimer = true;
-		window.setTimeout(function(){
-				console.log("NODE SCALING TIMER RESET");
-				nodeUpdateTimer = false;
-				updateNodeScalingFactor();
-				// The link thickness does not receive new data right now,
-				// otherwise we'd want to call the update factor function here.
-				// updateLinkScalingFactor();
-			},
-			1000);
-	}
+    if(!forceFromWithinNodeSizeUpdate){
+		if(nodeUpdateTimer == false){
+			nodeUpdateTimer = true;
+			window.setTimeout(function(){
+					console.log("NODE SCALING TIMER RESET");
+					nodeUpdateTimer = false;
+					updateNodeScalingFactor();
+					// The link thickness does not receive new data right now,
+					// otherwise we'd want to call the update factor function here.
+					// updateLinkScalingFactor();
+				},
+				1000);
+		}
+    }
     
 
 }
@@ -1458,23 +1521,47 @@ var REFRESH_LOOP_DELAY_MS = 500;
 
 //TODO Update for Cyto
 function updateNodeScalingFactor(){
-//	// Call this prior to redrawing. The alternative is to track on every size
-//	// modification. That worked well for BioMixer, but perhaps we're better
-//	// off doing a bulk computation per size-refreshing redraw that we want to make.
-//	
+	// Call this prior to redrawing. The alternative is to track on every size
+	// modification. That worked well for BioMixer, but perhaps we're better
+	// off doing a bulk computation per size-refreshing redraw that we want to make.
 //	var circles = vis.selectAll(".circle");
-//	circles.each(function(d){
+	var cy = $("#network-view").cytoscape("get"); // now we have a global reference to `cy`
+	var circles = cy.nodes();
+	
+//	console.log("Rescaling from:"+minNodeRawSize+" and "+maxNodeRawSize);
+	$.each(circles, function(index, node){
 //				var basis = parseInt(this.getAttribute("data-radius_basis"));
-//				if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
-//					maxNodeRawSize = basis;
-//				}
-//				if(-1 == minNodeRawSize || basis < minNodeRawSize){
-//					minNodeRawSize = basis;
-//				}
-//		});
-//	
-//	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
-//	
+				var basis = node.data('nodeDiameterBasis');
+				if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
+					maxNodeRawSize = basis;
+				}
+				if(-1 == minNodeRawSize || basis < minNodeRawSize){
+					minNodeRawSize = basis;
+				}
+		});
+//	console.log("Rescaling to:"+minNodeRawSize+" and "+maxNodeRawSize);
+
+	var newDiameters = {};
+	
+	$.each(circles, function(index, node){
+		// TODO I think we need to avoid updating nodeDiameter elsewhere, and that we
+		// only want to do it here, when we have properly updated the range.
+		newDiameters[node.data('id')] = {'nodeDiameter': ontologyNodeScalingFunc(node.data('nodeDiameterBasis'))};
+	});
+	updateDataForNodesAndLinks(newDiameters, true);
+	
+	// Couldn't get the linear mapData approach to work at all, and the animation is incompatible with my approach.
+//	circles.animate(
+//			{css: {
+//				width: 'data(nodeDiameter)', //'mapData(nodeDiameter, 30, 80, 20, 50)',
+//				height: 'data(nodeDiameter)', //'mapData(nodeDiameter, 0, 200, 10, 45)',})
+//				}},
+//			{
+//				duration: '700',
+//				queue: 'true',
+//			}
+//		);
+	
 }
 
 // TODO Update for Cyto
@@ -1485,23 +1572,29 @@ function updateLinkScalingFactor(){
 //	// Call this prior to redrawing. The alternative is to track on every size
 //	// modification. That worked well for BioMixer, but perhaps we're better
 //	// off doing a bulk computation per size-refreshing redraw that we want to make.
-//	$.each(vis.selectAll("line.link")[0], function(i, link){
-//		link = $(link);
-//		var basis = parseInt(link.attr("data-thickness_basis"));
-//		if(-1 == maxLinkRawSize || basis > maxLinkRawSize){
-//			maxLinkRawSize =  basis;
-//		}
-//		if(-1 == minLinkRawSize || basis < minLinkRawSize){
-//			minLinkRawSize =  basis;
-//		}
-//	});
-//		
-//	$.each(vis.selectAll("line.link")[0], function(i, link){
-//		// Given a json encoded graph element, update all of the nested elements associated with it
-//		// cherry pick elements that we might otherwise get by class "node"
-//		link = $(link);
-//		link.css("stroke-width", function(d) { return ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
-//	});
+	var cy = $("#network-view").cytoscape("get"); // now we have a global reference to `cy`
+	var arcs = cy.edges();
+	
+//	console.log("Rescaling from:"+minNodeRawSize+" and "+maxNodeRawSize);
+	$.each(arcs, function(index, link){
+//			var basis = parseInt(link.attr("data-thickness_basis"));
+			var basis = parseInt(link.data('linkThicknessBasis'));
+			if(-1 == maxLinkRawSize || basis > maxLinkRawSize){
+				maxLinkRawSize =  basis;
+			}
+			if(-1 == minLinkRawSize || basis < minLinkRawSize){
+				minLinkRawSize =  basis;
+			}
+		});
+	
+	var newThicknesses = {};
+	$.each(arcs, function(index, link){
+		// TODO I think we need to avoid updating nodeDiameter elsewhere, and that we
+		// only want to do it here, when we have properly updated the range.
+		newThicknesses[link.data('id')] = {'linkThickness': ontologyLinkScalingFunc(link.data('linkThicknessBasis'))};
+	});
+	updateDataForNodesAndLinks(newThicknesses, true);
+	
 }
 
 
@@ -1512,7 +1605,7 @@ function ontologyNodeScalingFunc(rawValue){
 	}
 	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
     var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
-    return diameter/2; // need radius for SVG
+    return diameter; // needed radius for D3 SVG, but diameter for Cytoscape.JS canvas.
 }
 
 
@@ -1555,9 +1648,30 @@ function linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreen
 
 var currentNodeColor = -1;
 //var nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
+// Hard coded, taken from D3 generated colors.
+var nodeOrderedColors = [
+"#1f77b4",
+"#aec7e8",
+"#ff7f0e",
+"#ffbb78",
+"#2ca02c",
+"#98df8a",
+"#d62728",
+"#ff9896",
+"#9467bd",
+"#c5b0d5",
+"#8c564b",
+"#c49c94",
+"#e377c2",
+"#f7b6d2",
+"#7f7f7f",
+"#c7c7c7",
+"#bcbd22",
+"#dbdb8d",
+"#17becf", 
+"#9edae5", 
+];
 function nextNodeColor(){
-//	console.log("Don't use D3 dependency for this!");
-//	currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
-//	return nodeOrderedColors(currentNodeColor);
-	return "#ff0000";
+	currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
+	return nodeOrderedColors[currentNodeColor];
 }
