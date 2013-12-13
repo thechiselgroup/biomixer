@@ -14,20 +14,29 @@
 
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
+// TODO When *not* using a circular force based graph, I don't really need to control arc lengths like this.
 function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
 var alphaCutoff = 0.01; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 var centralOntologyAcronym = purl().param("ontology_acronym");
+var centralConceptUri = purl().param("full_concept_id");
+var uniqueIdCounter = 0;
+
 var dragging = false;
 var ontologyTick; // needs to contain the onTick listener function
 
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
-var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyCircle = null;
+var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyNodeRect = null;
 
 //var defaultNodeColor = "#496BB0";
 var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
 var nodeHighlightColor = "#FC6854";
+var linkThickness = 3;
+var nodeHeight = 8;
+
+var nodeLabelPaddingWidth = 10;
+var nodeLabelPaddingHeight = 10;
 
 // Had to set div#chart.gallery height = 100% in CSS,
 // but this was only required in Firefox. I can't see why.
@@ -37,7 +46,7 @@ var vis = d3.select("#chart").append("svg:svg")
 	.attr("height", visHeight())
 	.attr("pointer-events", "all")
 //  .append('svg:g')
-    .call(d3.behavior.zoom().on("zoom", redraw))
+//  .call(d3.behavior.zoom().on("zoom", redraw))
 //  .append('svg:g')
   ;
 
@@ -57,6 +66,7 @@ var resizedWindow = function()
 	.attr("width", visWidth())
 	.attr("height", visHeight());
 	
+	// TODO Layouts not relying on force need additional support here.
     if(forceLayout){
     	forceLayout.size([visWidth(), visHeight()]).linkDistance(linkMaxDesiredLength());
     	// Put central node in middle of view
@@ -69,43 +79,45 @@ $(window).resize(resizedWindow);
 
 resizedWindow();
 
-function redraw() {
+// called when we zoom...but zoom is not enabled.
+//function redraw() {
 //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
 //  vis.attr("transform",
 //      "translate(" + d3.event.translate + ")"
 //      + " scale(" + d3.event.scale + ")");
-}
+//}
 
-//Seeing if I can modulate graph gravity using bounding boxes...
-// when the nodes are outside the box, tweak the gravity higher by a small amount,
-// and decrease it when the nodes are further from the edge
-// This is happening for each node as it updates, so keep that in mind...
-var minGravity = 0.1;
-var maxGravity = 3.5;
-function gravityAdjust(number, visSize){
-	var alpha = 0.2 / forceLayout.nodes().length;
-	if(number < visSize*0.05 || visSize*0.95 < number){
-		// console.log("increase");
-		forceLayout.gravity(Math.min(maxGravity, forceLayout.gravity() * (1 + alpha)));
-	} else if(visSize*0.20 < number && number < visSize*0.80){
-		// console.log("decrease");
-		forceLayout.gravity(Math.max(minGravity, forceLayout.gravity() * (1 - alpha)));
-	} else {
-		// leave gravity as it is
-	}
-	return number;
-}
-function gravityAdjustX(number){
-	return gravityAdjust(number, visWidth());
-}
-function gravityAdjustY(number){
-	return gravityAdjust(number, visHeight());
-}
+// TODO Gravity adjustment is not going to be needed for non-force layouts
+////Seeing if I can modulate graph gravity using bounding boxes...
+//// when the nodes are outside the box, tweak the gravity higher by a small amount,
+//// and decrease it when the nodes are further from the edge
+//// This is happening for each node as it updates, so keep that in mind...
+//var minGravity = 0.1;
+//var maxGravity = 3.5;
+//function gravityAdjust(number, visSize){
+//	var alpha = 0.2 / forceLayout.nodes().length;
+//	if(number < visSize*0.05 || visSize*0.95 < number){
+//		// console.log("increase");
+//		forceLayout.gravity(Math.min(maxGravity, forceLayout.gravity() * (1 + alpha)));
+//	} else if(visSize*0.20 < number && number < visSize*0.80){
+//		// console.log("decrease");
+//		forceLayout.gravity(Math.max(minGravity, forceLayout.gravity() * (1 - alpha)));
+//	} else {
+//		// leave gravity as it is
+//	}
+//	return number;
+//}
+//function gravityAdjustX(number){
+//	return gravityAdjust(number, visWidth());
+//}
+//function gravityAdjustY(number){
+//	return gravityAdjust(number, visHeight());
+//}
 
 
-var ontologyNeighbourhoodJsonForGraph = new Object();
-ontologyNeighbourhoodJsonForGraph.nodes = [];
-ontologyNeighbourhoodJsonForGraph.links = [];
+var graphJsonFormat = new Object();
+graphJsonFormat.nodes = [];
+graphJsonFormat.links = [];
 
 
 // Run the graph! Don't need the json really, though...
@@ -113,7 +125,14 @@ ontologyNeighbourhoodJsonForGraph.links = [];
 initAndPopulateGraph();
 
 
-function fetchOntologyNeighbourhood(centralOntologyAcronym){
+function conceptLinkSimplePopupFunction(d) { return "From: "+d.source.id+" To: "+d.target.id};
+
+// TODO Fix...but also it doesn't render...
+function conceptNodeSimplePopupFunction(d) { return "Number Of Terms: "+d.number; }
+
+function conceptNodeLabelFunction(d) { return d.name; }
+
+function fetchPathToRoot(centralOntologyAcronym, centralConceptUri){
 	// I have confirmed that this is faster than BioMixer. Without removing
 	// network latency in REST calls, it is approximately half as long from page load to
 	// graph completion (on the order of 11 sec vs 22 sec)
@@ -126,37 +145,37 @@ function fetchOntologyNeighbourhood(centralOntologyAcronym){
 	// and responsivity, as well as to try using web workers (which don't work with GWT 2.5 right now)
 	
 	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
-	1) Get the mapped ontology ids from the target ontology id [starts at line 126 in OntologyMappingNeighbourhood]
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
-	   - can create nodes and links with sparse meta-data now if we want, or we can wait for more data
-	2) Get ontology details, which is one big json return [passed to line 167 for class OntologyMappingNeighbourhoodLoader nested class OntologyDetailsCallback]
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
-	   - fill in nodes with details from this data
-	3) Get ontology metrics for each ontology [line 82 in AutomaticOntologyExpander]
-	   - set node size (# of concepts), and tool tip properties of classes, individuals, properties, and notes
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
+	1) Get the root to path for the central concept
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   - create the nodes, and do any prep for subsequent REST calls
+	2) Get relational data (children, parents and mappings) for all concepts in the path to root
+	   TODO example URL here
+	   - fill in nodes with details from this data TODO Look at Biomixer to see what we need 
+	3) Get properties for all concepts in path to root
+	   TODO example URL here
+	   - set node properties...TODO Look at Biomixer for what to copy
 	*/
 	
-	// 1) Get mappings to central ontology
-	var ontologyMappingUrl = buildOntologyMappingUrlNewApi(centralOntologyAcronym);
-	var ontologyMappingCallback = new OntologyMappingCallback(ontologyMappingUrl, centralOntologyAcronym);
-//	var fetcher = new RetryingJsonpFetcher(ontologyMappingCallback);
+	// 1) Get paths to root for the central concept
+	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
+	var pathsToRootCallback = new PathsToRootCallback(pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
+//	var fetcher = new RetryingJsonpFetcher(pathsToRootCallback);
 //	fetcher.retryFetch();
-	var fetcher = closureRetryingJsonpFetcher(ontologyMappingCallback);
+	var fetcher = closureRetryingJsonpFetcher(pathsToRootCallback);
 	fetcher();
 }
 
-function OntologyMappingCallback(url, centralOntologyAcronym){
+function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
 	this.fetcher = undefined;
 	var self = this;
 	
-	this.callback = function (mappingData, textStatus, jqXHR){
+	this.callback = function (pathsToRootData, textStatus, jqXHR){
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
 //		var errorOrRetry = self.fetcher.retryFetch(mappingData);
-		var errorOrRetry = self.fetcher(mappingData);
+		var errorOrRetry = self.fetcher(pathsToRootData);
 		if(0 == errorOrRetry){
 			return;
 		} else if(-1 == errorOrRetry){
@@ -164,123 +183,149 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 			return;
 		}
 		
-		var numberOfMappedOntologies = Object.keys(mappingData).length;
+		// New API example:
+		// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
 		
-		var defaultNumOfTermsForSize = 10;
+		var numberOfConcepts = Object.keys(pathsToRootData).length;
 		
-		// New API example: http://stagedata.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
-
-		// Create the central node
-		var centralOntologyNode = new Object();
-		centralOntologyNode.name = "fetching";
-		centralOntologyNode.description = "fetching description";
-		centralOntologyNode.fixed = true; // lock central node
-		centralOntologyNode.x = visWidth()/2;
-		centralOntologyNode.y = visHeight()/2;		
-		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
-		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-		centralOntologyNode.acronym = centralOntologyAcronym;
-		centralOntologyNode.nodeColor = nextNodeColor();
-		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
+		var conceptIdNodeMap = new Object();
 		
-		var ontologyAcronymNodeMap = new Object();
-		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyAcronym, centralOntologyNode);
-		
-		// TODO XXX Either the parsing or the looping here causes a visible glitch in rendering,
-		// so this is the first place to try a web worker out.
-
-		// Make some graph parts!
-		// Original bug hidden by force layout, but I needed radians not degrees.
-		// It looks very slightly different.
-		var anglePerNode =2*Math.PI / numberOfMappedOntologies; // 360/numberOfMappedOntologies;
-		var arcLength = linkMaxDesiredLength();
-		var i = 0;
-		$.each(mappingData,
+//		var defaultNumOfTermsForSize = 10;
+//
+//		// Create the central node
+//		var centralOntologyNode = new Object();
+//		centralOntologyNode.name = "fetching";
+//		centralOntologyNode.description = "fetching description";
+//		centralOntologyNode.fixed = true; // lock central node
+//		centralOntologyNode.x = visWidth()/2;
+//		centralOntologyNode.y = visHeight()/2;		
+//		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
+//		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
+//		centralOntologyNode.acronym = centralOntologyAcronym;
+//		centralOntologyNode.nodeColor = nextNodeColor();
+//		graphJsonFormat.nodes.push(centralOntologyNode);
+//		
+//		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyAcronym, centralOntologyNode);
+//		
+//		// TODO XXX Either the parsing or the looping here causes a visible glitch in rendering,
+//		// so this is the first place to try a web worker out.
+//
+//		// Make some graph parts!
+//		// Original bug hidden by force layout, but I needed radians not degrees.
+//		// It looks very slightly different.
+//		var anglePerNode =2*Math.PI / numberOfMappedOntologies; // 360/numberOfMappedOntologies;
+//		var arcLength = linkMaxDesiredLength();
+//		var i = 0;
+		$.each(pathsToRootData[0],
 			function(index, element){
-				var acronym = index;
+//				var acronym = index;
+//
+//				if(typeof acronym === "undefined"){
+//					console.log("Undefined ontology entry");
+//				}
 
-				if(typeof acronym === "undefined"){
-					console.log("Undefined ontology entry");
-				}
-				
-				// Create the neighbouring nodes
-				var ontologyNode = new Object();
-				ontologyNode.name = "fetching";
-				ontologyNode.description = "fetching description";
-				ontologyNode.weight = 1;
-				ontologyNode.fixed = false; // lock central node
-				// Compute starting positions to be in a circle for faster layout
-				var angleForNode = i * anglePerNode; i++;
-				ontologyNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
-				ontologyNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
-				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
-				ontologyNode.acronym = acronym;
-				ontologyNode.nodeColor = nextNodeColor();
-				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
+				// Create the concept nodes that exist on the paths-to-root for the central concept,
+				// including the central concept node.
+				var conceptNode = new Object();
+				conceptNode.id = element["@id"];
+				conceptNode.escapedId = encodeURIComponent(conceptNode.id);
+				conceptNode.name = element.prefLabel;
+				conceptNode.description = "fetching description";
+				conceptNode.weight = 1;
+				conceptNode.fixed = false;
+//				// Compute starting positions to be in a circle for faster layout
+//				var angleForNode = i * anglePerNode; i++;
+//				conceptNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+//				conceptNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+//				conceptNode.number = defaultNumOfTermsForSize; // number of terms
+				var ontologyUri = element.links.ontology;
+				conceptNode.ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf("http://data.bioontology.org/ontologies/"));
+				conceptNode.ontologyUri = ontologyUri.substring(ontologyUri.lastIndexOf("http://data.bioontology.org/ontologies/"));
+				conceptNode.nodeColor = nextNodeColor();
+				var targetIndex = graphJsonFormat.nodes.push(conceptNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
-				$(ontologyAcronymNodeMap).attr("vid:"+acronym, ontologyNode);
+				$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
 				
-				// Make the links at the same time; they are done now!
-				var ontologyLink = new Object();
-				ontologyLink.source = centralOntologyNode;
-				ontologyLink.target = ontologyNode;
-				ontologyLink.value = element; // This gets used for link stroke thickness later.
-				ontologyLink.numMappings = element;
-				ontologyNeighbourhoodJsonForGraph.links.push(ontologyLink);
+				
+				// TODO Concept links come from different calls. We will probably need to use the links container
+				// to collect all possible links that we know about, indexed by the concept that is not currently
+				// included in our graph. When we get another concept added to the graph, we look it up in there,
+				// add all the links to the graph, and remove the entries from the possible-links object.
+				// This works only if we are able to add any given node prior to having to sort through its relations.
+				// This also means that adding links has to be done in a separate process, and can't happen
+				// in a smooth way when processing node information.
+				// In Biomixer, these links were added as unrendered objects as they came up I think. We don't want
+				// unrendered SVG in D3.
+				// In any case, relations don't show up in the paths_to_root data anyway, so we need a separate process
+				// because of that alone :)
+				
+//				// Make the links at the same time; they are done now!
+//				var ontologyLink = new Object();
+//				ontologyLink.source = centralOntologyNode;
+//				ontologyLink.target = ontologyNode;
+//				ontologyLink.value = element; // This gets used for link stroke thickness later.
+//				ontologyLink.numMappings = element;
+//				graphJsonFormat.links.push(ontologyLink);
+				
+				// 2) Fire off REST call for properties (can I bulk this?)
+				
 			}
 		);
 
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
-		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
-
+		populateGraph(graphJsonFormat, true);
+		
 		//----------------------------------------------------------
 		
-		// 2) Get details for all the ontologies (and either create or update the nodes)
-		var ontologyDetailsUrl = buildOntologyDetailsUrlNewApi();
-		var ontologyDetailsCallback = new OntologyDetailsCallback(ontologyDetailsUrl, ontologyAcronymNodeMap);
-//		var fetcher = new RetryingJsonpFetcher(ontologyDetailsCallback);
+		// 2) Get relational data for all the concepts, create links from them
+		var relationsUrlAndPostData = buildBatchRelationUrlAndPostData(conceptIdNodeMap);
+		console.log(relationsUrlAndPostData);
+		var conceptRelationsCallback = new ConceptRelationsCallback(relationsUrlAndPostData, conceptIdNodeMap);
+//		var fetcher = new RetryingJsonpFetcher(conceptRelationsCallback);
 //		fetcher.retryFetch();
-		var fetcher = closureRetryingJsonpFetcher(ontologyDetailsCallback);
+		var fetcher = closureRetryingJsonpFetcher(conceptRelationsCallback);
 		fetcher();
 	}
 	
 }
 
-function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
-	this.url = url;
+function ConceptRelationsCallback(urlAndPostData, conceptIdNodeMap){
+	this.url = urlAndPostData;
 	// Define this fetcher when one is instantiated (circular dependency)
 	this.fetcher = undefined;
 	// Need to fetch existing node objects from this
-	this.ontologyAcronymNodeMap = ontologyAcronymNodeMap;
+	this.conceptIdNodeMap = conceptIdNodeMap;
 	var self = this;
 
-	this.callback  = function ontologyDetailsCallback(detailsDataRaw, textStatus, jqXHR){
+	this.callback  = function conceptRelationsCallback(relationsDataRaw, textStatus, jqXHR){
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
+		console.log("Relations callback");
+console.log(relationsDataRaw);
+console.log(textStatus);
+console.log(jqXHR);
 //		var errorOrRetry = self.fetcher.retryFetch(detailsDataRaw);
-		var errorOrRetry = self.fetcher(detailsDataRaw);
+		var errorOrRetry = self.fetcher(relationsDataRaw);
 		if(0 == errorOrRetry){
 			return;
 		} else if(-1 == errorOrRetry){
 			// have an error. Done?
 			return;
 		}
-		
-		// Loop over ontologies and add their additional properties to the nodes
-		// Recall that getting *all* ontology details is the easiest (only) way,
-		// so we have to skip anything that is not defined.
-		var ontologiesSkipped = 0;
-		$.each(detailsDataRaw,
-				function(index, ontologyDetails){
+		console.log(relationsDataRaw);
+		// Loop over results and grab the relations for each concept
+		$.each(relationsDataRaw,
+				function(index, relations){
+					console.log(relations);
+					return;
 					// I can't cherry pick, because this involves iterating
 					// through the entire set of ontologies to find each ontology entry.
 					// So, I will do a separate loop, and only use data for which there
 					// exists in the graph a corresponding ontology.
 					// Make use of details to add info to ontologies
 					var ontologyAcronym = ontologyDetails.acronym;
-					// var node = ontologyNeighbourhoodJsonForGraph.;
-					var node = $(self.ontologyAcronymNodeMap).attr("vid:"+ontologyAcronym);
+					// var node = graphJsonFormat.;
+					var node = $(self.conceptIdNodeMap).attr("vid:"+ontologyAcronym);
 					
 					if(typeof node === "undefined"){
 						// Skip node details that aren't in our graph
@@ -325,8 +370,8 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 
 		// We usually use very many of the ontologies, so it is likely cheaper to make the one
 		// big call with no ontology acronym arguments than to cherry pick the ones we want details for.
-		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+detailsDataRaw.length);
-		updateDataForNodesAndLinks({nodes:ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
+		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+relationsDataRaw.length);
+		updateDataForNodesAndLinks({nodes:graphJsonFormat.nodes, links:[]});
 			
 	}
 }
@@ -413,34 +458,96 @@ function OntologyDescriptionCallback(url, node){
 	}
 }
 
+// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+function buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
+	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+}
 
-//function buildOntologyMappingUrl(centralOntologyVirtualId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
+// If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
+// If we can use batch calls for parent, child, and mapping for several nodes, we save a lot more, but the response
+// size and response times might be too long. We can use bulk asking for just one of the three relational data
+// properties.
+// Nodes also need a properties call each, which might be done in bulk.
+
+function buildBatchRelationUrlAndPostData(concepts){
+	// Given a set of concepts, create a batch API call to retrieve their parents, children and mappings
+	// http://stagedata.bioontology.org/documentation#nav_batch
+	var url = "http://data.bioontology.org/batch/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	// TEMP TEST
+	url = "http://stagedata.bioontology.org/batch?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
+	var classCollection = [];
+	var postObject = {
+			"http://www.w3.org/2002/07/owl#Class": {
+				"collection": classCollection
+				},
+			"include": "children, parents, mappings, properties",
+			
+	};
+	$.each(concepts, function(i, d){
+		classCollection.push({
+			"class": d.id, // unescaped uri
+			"ontology": d.ontologyUri, // unescaped uri
+		});
+	});
+//	console.log(postObject);
+	
+	// TEMP TEST
+	postObject = {
+        	"http://www.w3.org/2002/07/owl#Class": {
+                "collection": [
+                               {
+									"class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Information_Resource",
+									"ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+                               },
+                               {
+                            	   "class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Data_Resource",
+                            	   "ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+                               },
+                        	   {
+                        		   "class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Clinical_Care_Data",
+                        		   "ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+                               },
+                        	   {
+                        		   "class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Aggregate_Human_Data",
+                        		   "ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+                               }
+                               ],
+            "include": "prefLabel,synonym"   
+        	}
+	};
+	
+	return {
+			"url": url,
+			"data": postObject,
+			};
+}
+
+function buildBasicOntologyUrl(ontologyAcronym){
+	return "http://data.bioontology.org/ontologies/"+ontologyAcronym
+}
+
+/*
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/mappings/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P1.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/parents/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P2.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/children/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&page=1&callback=__gwt_jsonp__.P3.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&include=properties&callback=__gwt_jsonp__.P4.onSuccess
+*/	
+
+//function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
+//	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 //}
-
-function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
-}
-
-//function buildOntologyDetailsUrl(){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F"+"&callback=?";
+//
+//function buildOntologyDetailsUrlNewApi(){
+//	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 //}
-
-function buildOntologyDetailsUrlNewApi(){
-	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
-}
-
-//function buildOntologyMetricsUrl(ontologyVersionId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
+//
+//function buildOntologyMetricsUrlNewApi(ontologyAcronym){
+//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
 //}
-
-function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
-}
-
-function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
-}
+//
+//function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
+//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+//}
 
 //function RetryingJsonpFetcher(callbackObject){
 //	this.callbackObject = callbackObject;
@@ -499,14 +606,97 @@ function closureRetryingJsonpFetcher(callbackObject){
 	// Has circular dependency with the callback
 	var previousRetriesMade = 0;
 
+//	function borrowedTest(){
+////		assert bro, "BRO is not found to execute batch test."
+////	    class_ids = {
+////	      "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Information_Resource" => "Information Resource",
+////	      "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Data_Resource" => "Data Resource",
+////	      "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Clinical_Care_Data" => "Clinical Care Data",
+////	      "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Aggregate_Human_Data" => "Aggregate Human Data"
+////	    }
+////	    collection = class_ids.keys.map { |x| { "class" => x , "ontology" => bro } }
+////	    call_params = {
+////	      "http://www.w3.org/2002/07/owl#Class" => {
+////	        "collection" => collection,
+////	        "include" => "prefLabel,synonym"
+////	      }
+////	    }
+////	    post "/batch/", call_params
+//	    
+//	    $.ajax({
+//	        url: "http://stagedata.bioontology.org/batch?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a",
+//	        type: "POST",
+//	        crossDomain: true,
+//	        data: 
+//	        	{
+//	        	"http://www.w3.org/2002/07/owl#Class": {
+//	                "collection": [
+//	                               {
+//										"class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Information_Resource",
+//										"ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+//	                               },
+//	                               {
+//	                            	   "class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Data_Resource",
+//	                            	   "ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+//	                               },
+//                            	   {
+//                            		   "class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Clinical_Care_Data",
+//                            		   "ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+//	                               },
+//                            	   {
+//                            		   "class": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#Aggregate_Human_Data",
+//                            		   "ontology": "http://bioontology.org/ontologies/BiomedicalResourceOntology.owl#"
+//	                               }
+//	                               ],
+//	            "include": "prefLabel,synonym"   
+//	        	}
+//	        	,
+//	        dataType: "json",
+//	        success: callbackObject.callback,
+////	        error:function(xhr,status,error){
+////	            alert(status);
+////	        }
+////	        error: callbackObject.callback // do I really??
+//	        	}
+//	    });
+//	}
+	
+	function makeCall(){
+		if(typeof callbackObject.url.data === "undefined"){
+			jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+		} else {
+//			jQuery.post(callbackObject.url.url, JSON.stringify(callbackObject.url.data), callbackObject.callback)
+//			borrowedTest();
+//			return;
+			$.ajax({
+		        url: callbackObject.url.url,
+		        type: "POST",
+		        crossDomain: true,
+		        data: JSON.stringify(callbackObject.url.data),
+		        dataType: "json",
+		        success: callbackObject.callback,
+//		        error:function(xhr,status,error){
+//		            alert(status);
+//		        }
+//		        error: callbackObject.callback // do I really??
+		    });
+		}	
+	}
+	
 	/*
 	 * Return values: -1 is non-retry due to error, 0 is retry, 1 is success, no error.
 	 */
-	callbackObject.fetcher = function(resultData){
-			// console.log("retryFetch for "+callbackObject.url);
+	var count = 0;
+	callbackObject.fetcher = function(resultData, something){
+		if(count > 0){
+			 console.log("retryFetch for: "); console.log(callbackObject.url);
+			 console.log(resultData);
+			 console.log("something is "+something);
+		}
+		count++;
 			if(typeof resultData === "undefined"){
 				// If not error, call for first time
-				jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+				makeCall();
 				return 0;
 			}
 			
@@ -524,7 +714,7 @@ function closureRetryingJsonpFetcher(callbackObject){
 		    		if(previousRetriesMade < 4){
 		    			previousRetriesMade++;
 		    			console.log("Retrying: "+callbackObject.url);
-		    			jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+		    			makeCall()
 		    			return 0;
 		    		} else {
 			    		// Error, but we are done retrying.
@@ -546,17 +736,22 @@ function closureRetryingJsonpFetcher(callbackObject){
 }
 
 function initAndPopulateGraph(json){
-	initGraph();
+	initNonForceGraph();
 	
 	// Will do async stuff and add to graph
-	fetchOntologyNeighbourhood(centralOntologyAcronym);
+	fetchPathToRoot(centralOntologyAcronym, centralConceptUri);
 	
 	// If you want to toy with the original static data, try this:
 	//	populateGraph(json);
 }
 
 var nodeDragBehavior;
-function initGraph(){
+function initNonForceGraph(){
+	// We use the force layout, but not really.
+	// We can set the positions of everything, such as to a tree,
+	// and disable the force parameters as necessary.
+	// This is preferable to using any of the D3 Hierarchy visualizations,
+	// since we deal with DAGs, not hierarchies.
 	forceLayout = self.forceLayout = d3.layout.force();
 	
 	//	forceLayout.drag()
@@ -628,7 +823,7 @@ function dragend(d, i) {
     // forceLayout.resume();
 }
 
-function createNodePopupTable(ontologyCircle, ontologyData){
+function createNodePopupTable(ontologyCircle, conceptData){
 	var outerDiv = $("<div></div>");
 	outerDiv.addClass("popups-Popup");
 	
@@ -640,13 +835,13 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 	 tBody.append(
 			 $("<tr></tr>").append(
 				   $("<td></td>").append(
-						   $("<div></div>").text(ontologyData["acronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+						   $("<div></div>").text(conceptData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
 				   )
 		   )
 	 );
    
      
-     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["acronym"]+"?p=summary";
+     var urlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"]+"?p=classes&conceptid="+conceptData["fullConceptId"];
      tBody.append(
     		 $("<tr></tr>").append(
     				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -657,26 +852,10 @@ function createNodePopupTable(ontologyCircle, ontologyData){
     		 )
      );
      
-//     tBody.append(
-//    		 $("<tr></tr>").append(
-//    				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-//    						 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-//    								 $("<b></b>").text("Ontology Name: ")
-//    						 ).append(
-//    								 $("<span></span>").text(ontologyData["name"])
-//    						 )
-//    				 )
-//    		 )
-//     );
-     
      var jsonArgs = {
-    		 "Ontology Name: ": "name",
+    		 "Concept ID": "fullConceptId",
     		 "Ontology Acronym: ": "acronym",
-    		 "Ontology URI: ": "uriId",
-    		 "Description: ": "description",
-    		 "Num Classes: ": "numberOfClasses",
-    		 "Num Individuals: ": "numberOfIndividuals",
-    		 "Num Properties: ": "numberOfProperties",
+    		 "Ontology Homepage: ": "uriId",
      };
      
      $.each(jsonArgs,function(label, key){
@@ -701,6 +880,7 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 * This function should be used when adding brand new nodes and links to the
 * graph. Do not call it to update properties of graph elements.
 * TODO Make this function cleaner and fully compliant with the above description!
+*      This should be easier to do while working on the incrementally-added concept node cases.
 */
 function populateGraph(json, newElementsExpected){
 //	console.log("Populating with:");
@@ -714,14 +894,14 @@ function populateGraph(json, newElementsExpected){
 	
 	// Data constancy via key function() passed to data()
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.acronym+"->"+d.target.acronym});
+	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.id+"->"+d.target.id});
 	// console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 
 	// Add new stuff
 	if(newElementsExpected === true)
 	links.enter().append("svg:line")
 	.attr("class", "link") // Make svg:g like nodes if we need labels
-	.attr("id", function(d){ return "link_line_"+d.source.acronym+"->"+d.target.acronym})
+	.attr("id", function(d){ return "link_line_"+d.source.id+"->"+d.target.id})
 	.on("mouseover", highlightLink())
 	.on("mouseout", changeColourBack);
 	
@@ -736,22 +916,18 @@ function populateGraph(json, newElementsExpected){
     .attr("x2", function(d) { return d.target.x; })
     .attr("y2", function(d) { return d.target.y; })
     .style("stroke-linecap", "round")
+    .style("stroke-width", linkThickness)
     .attr("data-thickness_basis", function(d) { return d.value;});
-	
-	updateLinkScalingFactor();
-	
-    links.style("stroke-width", function(d) { return ontologyLinkScalingFunc(d.value); })
-	;
 
 	// Update Tool tip
 	if(newElementsExpected === true)
 	links.append("title") // How would I *update* this if I needed to?
-		.text(function(d) { return "Number Of Mappings: "+d.numMappings; })
-			.attr("id", function(d){ return "link_title_"+d.source.acronym+"->"+d.target.acronym});
+		.text(conceptLinkSimplePopupFunction)
+			.attr("id", function(d){ return "link_title_"+d.source.id+"->"+d.target.id});
 
 	// Node stuff now
 	
-	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.acronym});
+	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.id});
 	// console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	// Add new stuff
 	if(newElementsExpected === true)
@@ -774,29 +950,32 @@ function populateGraph(json, newElementsExpected){
 	// Basic properties
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes
-	.append("svg:circle") 
-	.attr("id", function(d){ return "node_circle_"+d.acronym})
-    .attr("class", "circle")
-    .attr("cx", "0px")
-    .attr("cy", "0px")
-    .style("fill", defaultNodeColor)
-    // .style("fill", function(d) { return d.nodeColor; })
-	.attr("data-radius_basis", function(d) { return d.number;})
-    .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
+	.append("svg:rect") 
+//	.attr("id", function(d){ return "node_rect_"+d.escapedId})
+	.attr("id", function(d){ return "node_rect_"+(uniqueIdCounter++)})
+    .attr("class", "node_rect")
+    .attr("x", "0px")
+    .attr("y", "0px")
+//    .style("fill", defaultNodeColor)
+     .style("fill", function(d) { return d.nodeColor; })
+    // Concept graphs have fixed node and arc sizes.
+//	.attr("data-radius_basis", function(d) { return d.number;})
+//    .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
+    .attr("height", nodeHeight)
+    .attr("width", nodeHeight)
 	.on("mouseover", changeColour)
 	.on("mouseout", changeColourBack);
 	
-	
+	// TODO Don't I want to do this *only* on new nodes?
 	// tipsy stickiness from:
 	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-	d3.selectAll(".circle").each(function(d){
+	d3.selectAll(".node_rect").each(function(d){
 		var me = this,
 		meData = d,
 	    leaveDelayTimer = null,
 	    visible = false,
 	    tipsyId = undefined;
 		
-		// TODO This creates a timer per popup, which is sort of silly. Figure out another way.
 	    var leaveMissedTimer = undefined;
 	    function missedEventTimer() {
 	    	leaveMissedTimer = setTimeout(missedEventTimer, 1000);
@@ -860,7 +1039,7 @@ function populateGraph(json, newElementsExpected){
 	            var tipsy = $(me).tipsy("tip");
 	            lastDisplayedTipsy = tipsy;
 	            lastDisplayedTipsyData = meData;
-	            lastDisplayedTipsyCircle = me;
+	            lastDisplayedTipsyNodeRect = me;
 	            tipsyId = $(me).attr("id"+"_tipsy");
 	            tipsy.attr("id", tipsyId);
 	            
@@ -894,10 +1073,10 @@ function populateGraph(json, newElementsExpected){
 	// Label
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	nodes.append("svg:text")
-		.attr("id", function(d){ return "node_text_"+d.acronym})
+		.attr("id", function(d){ return "node_text_"+d.id})
 	    .attr("class", "nodetext unselectable")
-	    .attr("dx", 12)
-	    .attr("dy", 1)
+//	    .attr("dx", "0em")
+//	    .attr("dy", "1em") // 1em down to go below baseline, 0.5em to counter padding added below
 	    .text(function(d) { return d.name; })
 	    // Not sure if I want interactions on labels or not. Change following as desired.
 	    .style("pointer-events", "none")
@@ -908,23 +1087,55 @@ function populateGraph(json, newElementsExpected){
 	    // .on("mouseover", changeColour)
 	    // .on("mouseout", changeColourBack)
 	    ;
+	
+	$(".nodetext").each(function(i, d){
+		var textSize = d.getBBox();
+		var rect = $(d).siblings().select(".node_rect");
+		rect.attr("width", textSize.width + nodeLabelPaddingWidth);
+		rect.attr("height", textSize.height + nodeLabelPaddingHeight);
+		// center the label in the resized rect
+		$(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
+	});
 		
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
 	
+	// TODO I refactored the function out here...it highlights the question ofwhether this belongs in
+	// an init rather than populate method. Or is it required when we add new data? Yes, I think so.
+	if(newElementsExpected === true){
+		forceLayout.on("tick", ontologyTick(forceLayout, nodes, links));
+	}
 	
+	// Whenever I call populate, it adds more to this layout.
+	// I need to figure out how to get enter/update/exit sort of things
+	// to work for the layout.
+	if(newElementsExpected === true){
+		// forceLayout
+		// .nodes(nodes.enter())
+	    // .links(links.enter());
+		forceLayout
+		.nodes(json.nodes)
+	    .links(json.links);
+		// Call start() whenever any nodes or links get added or removed
+		forceLayout.start();
+	}
 	
+}
+
+// TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialziation, right?
+function ontologyTick(forceLayout, nodes, links){
+	var lastLabelShiftTime = jQuery.now();
+	var lastGravityAdjustmentTime = jQuery.now();
+	var firstTickTime = jQuery.now();
+	var maxLayoutRunDuration = 10000;
+	var maxGravityFrequency = 4000;
+	return function() {
 	// XXX Doing this a second time destroys the visualization!
 	// How would we do it on only new things?
 	// Oh! It is because we are using the links and nodes references,
 	// and losing references to the existing nodes and links.
 	// I really want to make sure I keep trakc of whether we
 	// have all nodes/links, or just new ones...
-	var lastLabelShiftTime = jQuery.now();
-	var lastGravityAdjustmentTime = jQuery.now();
-	var firstTickTime = jQuery.now();
-	var maxLayoutRunDuration = 10000;
-	var maxGravityFrequency = 4000;
-	ontologyTick = function() {
+
 		// Stop the layout early. The circular initialization makes it ok.
 		if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
 			forceLayout.stop();
@@ -967,14 +1178,14 @@ function populateGraph(json, newElementsExpected){
 		// labels...Bostock is correct in saying that gravity adjustments can get better results.
 		// gravityAdjust() functions are pass through; they want to inspect values,
 		// not modify them!
-		var doLabelUpdateNextTime = false;
-		if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
-			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
-			lastGravityAdjustmentTime = jQuery.now();
-			doLabelUpdateNextTime = true;
-		} else {
+//		var doLabelUpdateNextTime = false;
+//		if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
+//			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
+//			lastGravityAdjustmentTime = jQuery.now();
+//			doLabelUpdateNextTime = true;
+//		} else {
 			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-		}
+//		}
 		
 		links
 		  .attr("x1", function(d) { return d.source.x; })
@@ -999,33 +1210,10 @@ function populateGraph(json, newElementsExpected){
 //			lastLabelShiftTime = jQuery.now();
 //		}
 		
-	
 	}
-	
-	if(newElementsExpected === true){
-		forceLayout.on("tick", ontologyTick);
-	}
-	
-	// Whenever I call populate, it adds more to this layout.
-	// I need to figure out how to get enter/update/exit sort of things
-	// to work for the layout.
-	if(newElementsExpected === true){
-		// forceLayout
-		// .nodes(nodes.enter())
-	    // .links(links.enter());
-		forceLayout
-		.nodes(json.nodes)
-	    .links(json.links);
-		// Call start() whenever any nodes or links get added or removed
-		forceLayout.start();
-	}
-	
-	// Don't have sizes here, but still...
-	updateNodeScalingFactor();
-	// Do have link sizes though? Now e called it earlier at a better time.
-	// updateLinkScalingFactor();
-	
+		
 }
+
 
 /**
  * We cannot update the graph with new node or link properties *efficiently* using D3.
@@ -1046,21 +1234,22 @@ function updateDataForNodesAndLinks(json){
 	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
-		var link = vis.select("#link_line_"+d.source.acronym+"->"+d.target.acronym);
-		link.attr("data-thickness_basis", function(d) { return d.value;})
-		link.select("title").text(function(d) { return "Number Of Mappings: "+d.numMappings; });
+		var link = vis.select("#link_line_"+d.source.id+"->"+d.target.id);
+		// Concept graphs have fixed node and arc sizes.
+//		link.attr("data-thickness_basis", function(d) { return d.value;})
+		link.select("title").text(conceptLinkLabelFunction);
 	}
 	
 	var updateNodesFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
 		var node = vis.select("#node_g_"+d.acronym);
-		var circles = node.select("circle");
-		circles.attr("data-radius_basis", d.number);
-		circles.transition().style("fill", d.nodeColor);
-		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
-		node.select("text")
-		.text(function(d) { return d.name; })
+		var nodeRects = node.select("node_rect");
+		// Concept graphs have fixed node and arc sizes.
+//		nodeRects.attr("data-radius_basis", d.number);
+		nodeRects.transition().style("fill", d.nodeColor);
+		node.select("title").text(conceptNodeSimplePopupFunction);
+		node.select("text").text(conceptNodeLabelFunction)
 		// Firefox renders dx for text poorly, shifting things around oddly,
 		// but x works for both Chrome and Firefox.
 //		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
@@ -1072,27 +1261,28 @@ function updateDataForNodesAndLinks(json){
 				&& lastDisplayedTipsy.css("visibility") == "visible"
 				&& lastDisplayedTipsyData.acronym == d.acronym
 				){
-			$(lastDisplayedTipsy).children(".tipsy-inner").html(createNodePopupTable(lastDisplayedTipsyCircle, lastDisplayedTipsyData));
+			$(lastDisplayedTipsy).children(".tipsy-inner").html(createNodePopupTable(lastDisplayedTipsyNodeRect, lastDisplayedTipsyData));
 		}
 	}
 	
 	$.each(json.links, updateLinksFromJson);
 	$.each(json.nodes, updateNodesFromJson);
 	
-	if(nodeUpdateTimer == false){
-		nodeUpdateTimer = true;
-		window.setTimeout(function(){
-				console.log("TIMER RESET");
-				nodeUpdateTimer = false;
-				updateNodeScalingFactor();
-				// The link thickness does not receive new data right now,
-				// otherwise we'd want to call the update factor function here.
-				// updateLinkScalingFactor();
-			},
-			1000);
-	}
+	// Concept graphs have fixed node and arc sizes.
+//	if(nodeUpdateTimer == false){
+//		nodeUpdateTimer = true;
+//		window.setTimeout(function(){
+//				console.log("TIMER RESET");
+//				nodeUpdateTimer = false;
+//				updateNodeScalingFactor();
+//				// The link thickness does not receive new data right now,
+//				// otherwise we'd want to call the update factor function here.
+//				// updateLinkScalingFactor();
+//			},
+//			1000);
+//	}
 }
-var nodeUpdateTimer = false;
+//var nodeUpdateTimer = false;
 
 
 function highlightLink(){
@@ -1111,7 +1301,7 @@ function highlightLink(){
 			.style("opacity", 1);
 			
 		d3.selectAll("line").style("stroke-opacity", .1);
-		d3.selectAll("circle").style("fill-opacity", .1)
+		d3.selectAll("node_rect").style("fill-opacity", .1)
 			.style("stroke-opacity", .2)
 			.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y})
 			.style("fill-opacity", 1)
@@ -1130,7 +1320,7 @@ function changeColour(d, i){
 	var yPos=d.y;
 	
 	d3.selectAll("line").style("stroke-opacity", .1);
-	d3.selectAll("circle").style("fill-opacity", .1)
+	d3.selectAll("node_rect").style("fill-opacity", .1)
 		.style("stroke-opacity", .2);
 		
 	d3.selectAll("text").style("opacity", .2)
@@ -1138,11 +1328,11 @@ function changeColour(d, i){
 		.style("opacity", 1);
 		
 	var sourceNode;
-	if(d3.select(this).attr("class") == "circle"){
+	if(d3.select(this).attr("class") == "node_rect"){
 		sourceNode = d3.select(this);
 	} else if(d3.select(this).attr("class") == "nodetext"){
 		// If the labels aren't wired for mouse interaction, this is unneeded
-		sourceNode = d3.select(this.parentNode).select(".circle");
+		sourceNode = d3.select(this.parentNode).select(".node_rect");
 	}
 	
 	sourceNode.style("fill", nodeHighlightColor)
@@ -1154,7 +1344,7 @@ function changeColour(d, i){
 		.style("stroke-opacity", 1)
 		.style("stroke", "#3d3d3d")
 		.each(function(d){
-			d3.selectAll("circle")
+			d3.selectAll("node_rect")
 			.filter(function(g, i){return d.target.x==g.x && d.target.y==g.y;})
 			.style("fill-opacity", 1)
 			.style("stroke-opacity", 1)
@@ -1166,7 +1356,7 @@ function changeColour(d, i){
 }
 
 function changeColourBack(d, i){
-	d3.selectAll("circle") // TODO There might be issues with this; only works if circles used *only* for nodes.
+	d3.selectAll("node_rect")
 		.style("fill", function(e, i){ 
 			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
 			})
@@ -1178,121 +1368,126 @@ function changeColourBack(d, i){
 	d3.selectAll("text").style("opacity", 1);
 }
 
-
-// Maintaining relative scaled sizes of arcs and nodes depends on updating
-// the raw size range, which in this implementation, loops over all entities.
-// Only update the ranges when appropriate.
-// BioMixer used a 500 ms delay on re-doing things.
-
-// 20 * 7 seems too big. Got 20 from other transformers.
-var NODE_MAX_ON_SCREEN_SIZE = 20 * 5;
-var NODE_MIN_ON_SCREEN_SIZE = 4;
-var minNodeRawSize = -1;
-var maxNodeRawSize = -1;
-var LINK_MAX_ON_SCREEN_SIZE = 7; // 6 looks good...but if I change colors it may not.
-var LINK_MIN_ON_SCREEN_SIZE = 1;
-var minLinkRawSize = -1;
-var maxLinkRawSize = -1;
-var REFRESH_LOOP_DELAY_MS = 500;
-
-function updateNodeScalingFactor(){
-	// Call this prior to redrawing. The alternative is to track on every size
-	// modification. That worked well for BioMixer, but perhaps we're better
-	// off doing a bulk computation per size-refreshing redraw that we want to make.
-	
-	var circles = vis.selectAll(".circle");
-	circles.each(function(d){
-				var basis = parseInt(this.getAttribute("data-radius_basis"));
-				if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
-					maxNodeRawSize = basis;
-				}
-				if(-1 == minNodeRawSize || basis < minNodeRawSize){
-					minNodeRawSize = basis;
-				}
-		});
-	
-	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
-	
-}
-
-function updateLinkScalingFactor(){
-	// TODO This may not ever need to be called multiple times, but it would take some time to run.
-	// Make sure it actually needs to be run if it is indeed called. 
-	console.log("Ran update link");
-	// Call this prior to redrawing. The alternative is to track on every size
-	// modification. That worked well for BioMixer, but perhaps we're better
-	// off doing a bulk computation per size-refreshing redraw that we want to make.
-	$.each(vis.selectAll("line.link")[0], function(i, link){
-		link = $(link);
-		var basis = parseInt(link.attr("data-thickness_basis"));
-		if(-1 == maxLinkRawSize || basis > maxLinkRawSize){
-			maxLinkRawSize =  basis;
-		}
-		if(-1 == minLinkRawSize || basis < minLinkRawSize){
-			minLinkRawSize =  basis;
-		}
-	});
-		
-	$.each(vis.selectAll("line.link")[0], function(i, link){
-		// Given a json encoded graph element, update all of the nested elements associated with it
-		// cherry pick elements that we might otherwise get by class "node"
-		link = $(link);
-		link.css("stroke-width", function(d) { return ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
-	});
-}
-
-
-function ontologyNodeScalingFunc(rawValue){
-	// return Math.sqrt((rawValue)/10);
-	if(maxNodeRawSize == minNodeRawSize){
-		return rawValue;
-	}
-	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
-    var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
-    return diameter/2; // need radius for SVG
-}
-
-
-function ontologyLinkScalingFunc(rawValue){
-	if(maxLinkRawSize == minLinkRawSize){
-		return rawValue;
-	}
-	var factor = computeFactorOfRange(rawValue, minLinkRawSize, maxLinkRawSize);
-	// The linear area algorithm used for nodes happens to work really well for the edges thickness too.
-    var thickness = linearAreaRelativeScaledRangeValue(factor, LINK_MIN_ON_SCREEN_SIZE, LINK_MAX_ON_SCREEN_SIZE);
-    return thickness/2;
-}
-
-function computeRangeRawSize(minRawSize, maxRawSize) {
-	return Math.max(1, maxRawSize - minRawSize);
-}
-
-function computeFactorOfRange(rawValue, minRawSize, maxRawSize) {
-	return 1.0 - (maxRawSize - rawValue) / computeRangeRawSize(minRawSize, maxRawSize);
-}
-
-function linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
-	var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor
-	      * Math.PI * Math.pow(maxOnScreenSize, 2);
-	var diameter = Math.sqrt(linearArea / Math.PI);
-	return diameter;
-}
-
-/*
-    private double linearFunction(double value) {
-        // Ha! A sqrt makes this not linear. Mis-named now...
-        return 2 * (4 + Math.sqrt((value) / 10));
-        return (1 + Math.sqrt((value)));
-    }
-
-    private double logFunction(double value) {
-        return 4 + Math.log(value) * 10;
-    }
- */
+// Concept graphs have fixed node and arc sizes.
+//// Maintaining relative scaled sizes of arcs and nodes depends on updating
+//// the raw size range, which in this implementation, loops over all entities.
+//// Only update the ranges when appropriate.
+//// BioMixer used a 500 ms delay on re-doing things.
+//
+//// 20 * 7 seems too big. Got 20 from other transformers.
+//var NODE_MAX_ON_SCREEN_SIZE = 20 * 5;
+//var NODE_MIN_ON_SCREEN_SIZE = 4;
+//var minNodeRawSize = -1;
+//var maxNodeRawSize = -1;
+//var LINK_MAX_ON_SCREEN_SIZE = 7; // 6 looks good...but if I change colors it may not.
+//var LINK_MIN_ON_SCREEN_SIZE = 1;
+//var minLinkRawSize = -1;
+//var maxLinkRawSize = -1;
+//var REFRESH_LOOP_DELAY_MS = 500;
+//
+//function updateNodeScalingFactor(){
+//	// Call this prior to redrawing. The alternative is to track on every size
+//	// modification. That worked well for BioMixer, but perhaps we're better
+//	// off doing a bulk computation per size-refreshing redraw that we want to make.
+//	
+//	var circles = vis.selectAll(".circle");
+//	circles.each(function(d){
+//				var basis = parseInt(this.getAttribute("data-radius_basis"));
+//				if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
+//					maxNodeRawSize = basis;
+//				}
+//				if(-1 == minNodeRawSize || basis < minNodeRawSize){
+//					minNodeRawSize = basis;
+//				}
+//		});
+//	
+//	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
+//	
+//}
+//
+//function updateLinkScalingFactor() {
+//	// TODO This may not ever need to be called multiple times, but it would take some time to run.
+//	// Make sure it actually needs to be run if it is indeed called. 
+//	console.log("Ran update link");
+//	// Call this prior to redrawing. The alternative is to track on every size
+//	// modification. That worked well for BioMixer, but perhaps we're better
+//	// off doing a bulk computation per size-refreshing redraw that we want to make.
+//	$.each(vis.selectAll("line.link")[0], function(i, link){
+//		link = $(link);
+//		var basis = parseInt(link.attr("data-thickness_basis"));
+//		if(-1 == maxLinkRawSize || basis > maxLinkRawSize){
+//			maxLinkRawSize =  basis;
+//		}
+//		if(-1 == minLinkRawSize || basis < minLinkRawSize){
+//			minLinkRawSize =  basis;
+//		}
+//	});
+//		
+//	$.each(vis.selectAll("line.link")[0], function(i, link){
+//		// Given a json encoded graph element, update all of the nested elements associated with it
+//		// cherry pick elements that we might otherwise get by class "node"
+//		link = $(link);
+//		link.css("stroke-width", function(d) { return ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
+//	});
+//}
+//
+//
+//function ontologyNodeScalingFunc(rawValue){
+//	// return Math.sqrt((rawValue)/10);
+//	if(maxNodeRawSize == minNodeRawSize){
+//		return rawValue;
+//	}
+//	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
+//    var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
+//    return diameter/2; // need radius for SVG
+//}
+//
+//
+//function ontologyLinkScalingFunc(rawValue){
+//	if(maxLinkRawSize == minLinkRawSize){
+//		return rawValue;
+//	}
+//	var factor = computeFactorOfRange(rawValue, minLinkRawSize, maxLinkRawSize);
+//	// The linear area algorithm used for nodes happens to work really well for the edges thickness too.
+//    var thickness = linearAreaRelativeScaledRangeValue(factor, LINK_MIN_ON_SCREEN_SIZE, LINK_MAX_ON_SCREEN_SIZE);
+//    return thickness/2;
+//}
+//
+//function computeRangeRawSize(minRawSize, maxRawSize) {
+//	return Math.max(1, maxRawSize - minRawSize);
+//}
+//
+//function computeFactorOfRange(rawValue, minRawSize, maxRawSize) {
+//	return 1.0 - (maxRawSize - rawValue) / computeRangeRawSize(minRawSize, maxRawSize);
+//}
+//
+//function linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
+//	var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor
+//	      * Math.PI * Math.pow(maxOnScreenSize, 2);
+//	var diameter = Math.sqrt(linearArea / Math.PI);
+//	return diameter;
+//}
+//
+///*
+//    private double linearFunction(double value) {
+//        // Ha! A sqrt makes this not linear. Mis-named now...
+//        return 2 * (4 + Math.sqrt((value) / 10));
+//        return (1 + Math.sqrt((value)));
+//    }
+//
+//    private double logFunction(double value) {
+//        return 4 + Math.log(value) * 10;
+//    }
+// */
 
 var currentNodeColor = -1;
 var nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
-function nextNodeColor(){
-	currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
-	return nodeOrderedColors(currentNodeColor);
+var ontologyColorMap = {};
+function nextNodeColor(ontologyAcronym){
+	if(typeof ontologyColorMap[ontologyAcronym] === "undefined"){
+		currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
+		ontologyColorMap[ontologyAcronym] = nodeOrderedColors(currentNodeColor);
+	}
+	return ontologyColorMap[ontologyAcronym];
+	
 }

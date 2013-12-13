@@ -7,11 +7,11 @@
 	user-select: none;
 }
 
-circle.node {
+circle.node node_rect.node {
   stroke: #fff;
   stroke-width: 1.5px;
 }
-circle {
+circle node_rect {
   /*
   fill: rgb(31, 119, 180);
   */
