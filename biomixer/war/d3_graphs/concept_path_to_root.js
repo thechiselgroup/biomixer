@@ -281,6 +281,8 @@ function parseNode(index, conceptData){
 		conceptNode.ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
 		conceptNode.ontologyUri = ontologyUri;
 		conceptNode.escapedOntologyUri = encodeURIComponent(conceptNode.ontologyUri);
+//		conceptNode.x = 0;
+//		conceptNode.y = 0;
 		conceptNode.nodeColor = nextNodeColor();
 		var targetIndex = graphJsonFormat.nodes.push(conceptNode) - 1;
 		// TODO I feel like JS doesn't allow references like this...
@@ -382,8 +384,13 @@ function appendJsonpAndApiKeyArgumentsToExistingUrl(url){
 function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	// Either register it as an implicit relation, or manifest it if both nodes are in graph.
 	var edge = new Object();
-	edge.source = parentId;
-	edge.target = childId;
+	// edge source and targe tobjects will be set when manifesting the edge (when we know we have
+	// node objects to add there). They are looked up by these ids.
+	// TODO source/target and parent/child are not clear...which way do we need this to be?
+	// I prefer using parent/child in model, but for the graph, arrow representation is clearer
+	// using source and target.
+	edge.sourceId = parentId;
+	edge.targetId = childId;
 	edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
 	edge.edgeType = relationType;
 	
@@ -436,6 +443,8 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 		
 	} else {
 		// Manifest this edge.We have a matching id in the registry, and the other end of the edge.
+		edge.source = conceptIdNodeMap[edge.sourceId];
+		edge.target = conceptIdNodeMap[edge.targetId];
 		populateGraph({nodes:[{}], links:[edge]}, true);
 		
 		if(matchId){
@@ -455,8 +464,10 @@ function manifestEdgesForNewNode(conceptId){
 	/// them when we are doign so due to a new node appearing.
 	if(conceptId in edgeRegistry){
 		$.each(edgeRegistry[conceptId], function(index, edge){
-			var otherId = (edge.parentId == conceptId) ? edge.parentId : edge.conceptId ;
+			var otherId = (edge.targetId == conceptId) ? edge.targetId : edge.sourceId ;
 
+			edge.source = conceptIdNodeMap[edge.sourceId];
+			edge.target = conceptIdNodeMap[edge.targetId];
 			populateGraph({nodes:[{}], links:[edge]}, true);
 			// TODO Might be populateGraph(?
 			
@@ -1201,7 +1212,7 @@ function populateGraphEdges(json, newElementsExpected){
 //	if(newElementsExpected === true)
 	links
     .attr("class", "link")
-    .attr("x1", function(d) { return d.source.x; })
+    .attr("x1", function(d) { console.log("populate");  console.log(d.source); return d.source.x; })
     .attr("y1", function(d) { return d.source.y; })
     .attr("x2", function(d) { return d.target.x; })
     .attr("y2", function(d) { return d.target.y; })
@@ -1252,8 +1263,8 @@ function populateGraphNodes(json, newElementsExpected){
 //	.attr("id", function(d){ return "node_rect_"+d.escapedId})
 	.attr("id", function(d){ return "node_rect_"+(uniqueIdCounter++)})
     .attr("class", "node_rect")
-    .attr("x", "0px")
-    .attr("y", "0px")
+//    .attr("x", "0px")
+//    .attr("y", "0px")
 //    .style("fill", defaultNodeColor)
      .style("fill", function(d) { return d.nodeColor; })
     // Concept graphs have fixed node and arc sizes.
@@ -1467,11 +1478,13 @@ function ontologyTick(forceLayout, nodes, links){
 //			lastGravityAdjustmentTime = jQuery.now();
 //			doLabelUpdateNextTime = true;
 //		} else {
+		if(nodes.length > 0)
 			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 //		}
 		
+		if(links.length > 0)
 		links
-		  .attr("x1", function(d) { return d.source.x; })
+		  .attr("x1", function(d) {console.log("in tick");console.log(d.source);  return d.source.x; })
 	      .attr("y1", function(d) { return d.source.y; })
 	      .attr("x2", function(d) { return d.target.x; })
 	      .attr("y2", function(d) { return d.target.y; });
@@ -1526,7 +1539,7 @@ function updateDataForNodesAndLinks(json){
 	var updateNodesFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
-		var node = vis.select("#node_g_"+d.escapeId);
+		var node = vis.select("#node_g_"+d.escapedId);
 		var nodeRects = node.select("node_rect");
 		// Concept graphs have fixed node and arc sizes.
 //		nodeRects.attr("data-radius_basis", d.number);
