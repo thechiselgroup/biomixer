@@ -126,14 +126,16 @@ resizedWindow();
 //}
 
 
-var graphJsonFormat = new Object();
-graphJsonFormat.nodes = [];
-graphJsonFormat.links = [];
+var graphD3Format = new Object();
+// Set interior when we ahve initialized the graph
+//graphD3Format.nodes = forceLayout.nodes();
+//graphD3Format.links = forceLayout.links();
 
 
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);
-initAndPopulateGraph();
+initNonForceGraph();
+initPopulateGraph();
 
 
 function conceptLinkSimplePopupFunction(d) { return "From: "+d.source.id+" To: "+d.target.id};
@@ -215,7 +217,7 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 //		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 //		centralOntologyNode.acronym = centralOntologyAcronym;
 //		centralOntologyNode.nodeColor = nextNodeColor();
-//		graphJsonFormat.nodes.push(centralOntologyNode);
+//		graphD3Format.nodes.push(centralOntologyNode);
 //		
 //		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyAcronym, centralOntologyNode);
 //		
@@ -244,7 +246,7 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
-		populateGraph(graphJsonFormat, true);
+		updateGraphPopulation();
 		
 		//----------------------------------------------------------
 		
@@ -284,9 +286,12 @@ function parseNode(index, conceptData){
 //		conceptNode.x = 0;
 //		conceptNode.y = 0;
 		conceptNode.nodeColor = nextNodeColor();
-		var targetIndex = graphJsonFormat.nodes.push(conceptNode) - 1;
+		graphD3Format.nodes.push(conceptNode);
 		// TODO I feel like JS doesn't allow references like this...
 		$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
+		
+		// Could accumulate in caller?
+		updateGraphPopulation();
 		
 		// TODO Concept links come from different calls. We will probably need to use the links container
 		// to collect all possible links that we know about, indexed by the concept that is not currently
@@ -309,7 +314,7 @@ function parseNode(index, conceptData){
 		
 		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
 		// Maybe pass a flag in that controls whether they are accumulated or populated?
-		// populateGraph({nodes:graphJsonFormat.nodes, links:[]}, true);
+		// updateGraphPopulation({nodes:graphD3Format.nodes, links:[]}, true);
 		
 		// If there are implicit edges from before that link from an existing node to this new one,
 		// we can now manifest them.
@@ -321,7 +326,7 @@ function parseNode(index, conceptData){
 //		ontologyLink.target = ontologyNode;
 //		ontologyLink.value = element; // This gets used for link stroke thickness later.
 //		ontologyLink.numMappings = element;
-//		graphJsonFormat.links.push(ontologyLink);
+//		graphD3Format.links.push(ontologyLink);
 					
 		return conceptNode;
 }
@@ -418,20 +423,26 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	// Logic...begs for assertions.
 	var parentIdInGraph = parentId in conceptIdNodeMap;
 	var childIdInGraph = childId in conceptIdNodeMap;
+	console.log(parentIdInGraph+" and "+parentIdInGraph);
 	if((parentIdInGraph && childIdInGraph) && (parentIdInRegistry && childIdInRegistry)){
 		console.log("Problem: Both ids are already in the graph, and both in the registry. Should we be here?");
 	}
-	if(matchId && (parentIdInGraph || childIdInGraph)){
-		console.log("Problem: If matchId is true, there must be exactly at least one of the concepts in the graph already");
+	if(matchId && !(parentIdInGraph || childIdInGraph)){
+		console.log("Problem: If matchId is true, there must be at least one of the concepts in the graph already.");
 	}
+	if(!parentIdInGraph && !childIdInGraph){
+		console.log("Problem: If neither node is in graph already.");
+	}
+	
+	// For non-symmetric relations, this assertion is not valid.
 //	if(!matchId && (!parentIdInGraph != !childIdInGraph)){ // ! != ! is an XOR...with safety in case values aren't boolean
 //		console.log("Problem: If matchId is false, then only one of the concepts can be in the graph already");
-//		console.log(childId+" and parent "+parentId);
-//		console.log(edgeRegistry);
-//		console.log(conceptIdNodeMap);
+////		console.log(childId+" and parent "+parentId);
+////		console.log(edgeRegistry);
+////		console.log(conceptIdNodeMap);
 //	}
 	
-	// If both are in the graph, we'll be manifesting it immediately.
+	// Register edges for which we have one in the graph, and none in the registry.
 	if(!matchId && (!parentIdInGraph != !childIdInGraph)){
 		// Register this implicit edge.
 		var conceptIdNotInGraph = (parentId in conceptIdNodeMap) ?  childId : parentId;
@@ -441,11 +452,13 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 		}
 		edgeRegistry[conceptIdNotInGraph][conceptInGraph] = edge;
 		
-	} else {
-		// Manifest this edge.We have a matching id in the registry, and the other end of the edge.
+	} else if(parentIdInGraph && childIdInGraph) {
+		// If both are in the graph, we'll be manifesting it immediately.
+		// Manifest this edge. We have a matching id in the registry, and the other end of the edge.
 		edge.source = conceptIdNodeMap[edge.sourceId];
 		edge.target = conceptIdNodeMap[edge.targetId];
-		populateGraph({nodes:[{}], links:[edge]}, true);
+		graphD3Format.links.push(edge);
+		updateGraphPopulation();
 		
 		if(matchId){
 			// Clear our cruft
@@ -468,8 +481,8 @@ function manifestEdgesForNewNode(conceptId){
 
 			edge.source = conceptIdNodeMap[edge.sourceId];
 			edge.target = conceptIdNodeMap[edge.targetId];
-			populateGraph({nodes:[{}], links:[edge]}, true);
-			// TODO Might be populateGraph(?
+			graphD3Format.links.push(edge);
+			updateGraphPopulation();
 			
 			// Clear that one out...safe while in the loop?
 			delete edgeRegistry[conceptId][otherId];
@@ -496,7 +509,7 @@ function expandAndParseNodeIfNeeded(conceptId, relatedConceptId, conceptProperti
 	// (node with properties for children and parents, and just node IDs for compositions)
 	// we want to support parsing the data directly as well as fetching additional data.
 	
-	if(relatedConceptId === conceptId && visualization === "term_neighbourhood"
+	if(relatedConceptId === centralConceptUri && visualization === "term_neighbourhood"
 		&& !(conceptId in conceptIdNodeMap)){
 		// Manifest the node; parse the properties if available.
 		// TODO Shall I make any changed so save on REST calls for this?
@@ -626,7 +639,7 @@ function ConceptCompositionRelationsCallback(relationsUrl, conceptNode, conceptI
 				
 		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
 		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		populateGraph({nodes:graphJsonFormat.nodes, links:[]}, true);
+//		updateGraphPopulation({nodes:graphD3Format.nodes, links:[]}, true);
 				
 	}
 }
@@ -677,7 +690,7 @@ function ConceptChildrenRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 		
 		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
 		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateDataForNodesAndLinks({nodes:graphJsonFormat.nodes, links:[]});
+//		updateDataForNodesAndLinks({nodes:graphD3Format.nodes, links:[]});
 		
 		// Children paging...only if children called directly?
 		 var pageNumber = relationsDataRaw["page"];
@@ -728,7 +741,7 @@ function ConceptParentsRelationsCallback(relationsUrl, conceptNode, conceptIdNod
 		
 		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
 		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateDataForNodesAndLinks({nodes:graphJsonFormat.nodes, links:[]});
+//		updateDataForNodesAndLinks({nodes:graphD3Format.nodes, links:[]});
 		
 		
 	}
@@ -757,12 +770,12 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 		$.each(relationsDataRaw,
 				function(index, mapping){
 			// ConceptMappingImplementation, we get partial properties on the basis of the mappings REST call
-			manifestOrRegisterImplicitRelation(mapping["source_uri"], mapping["target_uri"], relationLabelConstants.mapping);
+			manifestOrRegisterImplicitRelation(mapping.classes[0]["@id"], mapping.classes[1]["@id"], relationLabelConstants.mapping);
 		});
 		
 		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
 		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateDataForNodesAndLinks({nodes:[], links:graphJsonFormat.links});
+//		updateDataForNodesAndLinks({nodes:[], links:graphD3Format.links});
 		
 	}
 }
@@ -1003,14 +1016,13 @@ function closureRetryingJsonpFetcher(callbackObject){
 	return callbackObject.fetcher;
 }
 
-function initAndPopulateGraph(json){
-	initNonForceGraph();
+function initPopulateGraph(json){
 	
 	// Will do async stuff and add to graph
 	fetchPathToRoot(centralOntologyAcronym, centralConceptUri);
 	
 	// If you want to toy with the original static data, try this:
-	//	populateGraph(json);
+	//	updateGraphPopulation(json);
 }
 
 var nodeDragBehavior;
@@ -1043,6 +1055,9 @@ function initNonForceGraph(){
     .linkDistance(linkMaxDesiredLength())
     .size([visWidth(), visHeight()])
     .start();
+	
+	graphD3Format.nodes = forceLayout.nodes();
+	graphD3Format.links = forceLayout.links();
 }
 
 function dragstart(d, i) {
@@ -1143,76 +1158,183 @@ function createNodePopupTable(conceptRect, conceptData){
      return outerDiv.prop("outerHTML");
 }
 
+//// From http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
+//function myGraph(el) {
+//	
+//	// I already do all this in initNonForceGraph()
+////	// set up the D3 visualisation in the specified element
+////	var w = $(el).innerWidth(),
+////	h = $(el).innerHeight();
+////	
+////	var vis = this.vis = d3.select(el).append("svg:svg")
+////	.attr("width", w)
+////	.attr("height", h);
+////	
+////	var force = d3.layout.force()
+////	.gravity(.05)
+////	.distance(100)
+////	.charge(-100)
+////	.size([w, h]);
+//	
+//	var nodes = force.nodes(),
+//	links = force.links();
+//
+//    // Add and remove elements on the graph object
+//    this.addNode = function (id) {
+//        nodes.push({"id":id});
+//        update();
+//    }
+//
+//    this.removeNode = function (id) {
+//        var i = 0;
+//        var n = findNode(id);
+//        while (i < links.length) {
+//            if ((links[i]['source'] == n)||(links[i]['target'] == n)) links.splice(i,1);
+//            else i++;
+//        }
+//        nodes.splice(findNodeIndex(id),1);
+//        update();
+//    }
+//
+//    this.addLink = function (source, target) {
+//        links.push({"source":findNode(source),"target":findNode(target)});
+//        update();
+//    }
+//
+//    var findNode = function(id) {
+//        for (var i in nodes) {if (nodes[i]["id"] === id) return nodes[i]};
+//    }
+//
+//    var findNodeIndex = function(id) {
+//        for (var i in nodes) {if (nodes[i]["id"] === id) return i};
+//    }
+//
+//
+//    var update = function () {
+//
+//        var link = vis.selectAll("line.link")
+//            .data(links, function(d) { return d.source.id + "-" + d.target.id; });
+//
+//        link.enter().insert("line")
+//            .attr("class", "link");
+//
+//        link.exit().remove();
+//
+//        var node = vis.selectAll("g.node")
+//            .data(nodes, function(d) { return d.id;});
+//
+//        var nodeEnter = node.enter().append("g")
+//            .attr("class", "node")
+//            .call(force.drag);
+//
+//        nodeEnter.append("image")
+//            .attr("class", "circle")
+//            .attr("xlink:href", "https://d3nwyuy0nl342s.cloudfront.net/images/icons/public.png")
+//            .attr("x", "-8px")
+//            .attr("y", "-8px")
+//            .attr("width", "16px")
+//            .attr("height", "16px");
+//
+//        nodeEnter.append("text")
+//            .attr("class", "nodetext")
+//            .attr("dx", 12)
+//            .attr("dy", ".35em")
+//            .text(function(d) {return d.id});
+//
+//        node.exit().remove();
+//
+//        force.on("tick", function() {
+//          link.attr("x1", function(d) { return d.source.x; })
+//              .attr("y1", function(d) { return d.source.y; })
+//              .attr("x2", function(d) { return d.target.x; })
+//              .attr("y2", function(d) { return d.target.y; });
+//
+//          node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+//        });
+//
+//        // Restart the force layout.
+//        force.start();
+//    }
+//
+//    // Make it all go
+//    update();
+//}
+
+// Add new stuff like this:
+//graph = new myGraph("#graph");
+//
+//// You can do this from the console as much as you like...
+//graph.addNode("Cause");
+//graph.addNode("Effect");
+//graph.addLink("Cause", "Effect");
+//graph.addNode("A");
+//graph.addNode("B");
+//graph.addLink("A", "B");
+
 /**
 * This function should be used when adding brand new nodes and links to the
 * graph. Do not call it to update properties of graph elements.
 * TODO Make this function cleaner and fully compliant with the above description!
 *      This should be easier to do while working on the incrementally-added concept node cases.
 */
-function populateGraph(json, newElementsExpected){
+function updateGraphPopulation(){
 //	console.log("Populating with:");
 //	console.log(json);
 	
-	if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
-		// console.log("skip");
-		// return;
-		newElementsExpected = false;
-	}
+//	if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
+//		// console.log("skip");
+//		// return;
+//		newElementsExpected = false;
+//	}
 	
-	var links = populateGraphEdges(json, newElementsExpected);
+	var boundLinks = populateGraphEdges(graphD3Format.links);
 	
-	var nodes = populateGraphNodes(json, newElementsExpected);
+	var boundNodes = populateGraphNodes(graphD3Format.nodes);
 	
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
 	
 	// TODO I refactored the function out here...it highlights the question ofwhether this belongs in
 	// an init rather than populate method. Or is it required when we add new data? Yes, I think so.
-	if(newElementsExpected === true){
-		forceLayout.on("tick", ontologyTick(forceLayout, nodes, links));
-	}
+//	if(newElementsExpected === true){
+	// Do this after enter() and exit() are handled
+		forceLayout.on("tick", ontologyTick(forceLayout, boundNodes, boundLinks));
+//	}
 	
 	// Whenever I call populate, it adds more to this layout.
 	// I need to figure out how to get enter/update/exit sort of things
 	// to work for the layout.
-	if(newElementsExpected === true){
+//	if(newElementsExpected === true){
 		// forceLayout
 		// .nodes(nodes.enter())
 	    // .links(links.enter());
 		forceLayout
-		.nodes(json.nodes)
-	    .links(json.links);
+//		.nodes(json.nodes)
+//	    .links(json.links);
 		// Call start() whenever any nodes or links get added or removed
 		forceLayout.start();
-	}
+//	}
 	
 }
 
-function populateGraphEdges(json, newElementsExpected){
-	
-	if((!"links" in json) || json.links.length == 0){
+function populateGraphEdges(linksData){
+	if(linksData.length == 0){
 		return [];
 	}
 	
 	// Data constancy via key function() passed to data()
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source+"->"+d.target});
+	var links = vis.selectAll("line.link").data(linksData, function(d){	console.log(d); return d.source.id+"->"+d.target.id});
 	 console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 
+	 
 	// Add new stuff
-	if(newElementsExpected === true)
 	links.enter().append("svg:line")
 	.attr("class", "link") // Make svg:g like nodes if we need labels
-	.attr("id", function(d){ return "link_line_"+d.source+"->"+d.target})
+	.attr("id", function(d){ return "link_line_"+d.source.id+"->"+d.target.id})
 	.on("mouseover", highlightLink())
-	.on("mouseout", changeColourBack);
-	
-	 console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
-	
-	// Update Basic properties
-//	if(newElementsExpected === true)
-	links
+	.on("mouseout", changeColourBack)
     .attr("class", "link")
-    .attr("x1", function(d) { console.log("populate");  console.log(d.source); return d.source.x; })
+    .attr("x1", function(d) { return d.source.x; })
     .attr("y1", function(d) { return d.source.y; })
     .attr("x2", function(d) { return d.target.x; })
     .attr("y2", function(d) { return d.target.y; })
@@ -1220,30 +1342,32 @@ function populateGraphEdges(json, newElementsExpected){
     .style("stroke-width", linkThickness)
     .attr("data-thickness_basis", function(d) { return d.value;});
 
+	console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
+	
 	// Update Tool tip
-	if(newElementsExpected === true)
-	links.append("title") // How would I *update* this if I needed to?
+	links
+	.enter() // this is new...used to do to all linked data...
+	.append("title") // How would I *update* this if I needed to?
 		.text(conceptLinkSimplePopupFunction)
-			.attr("id", function(d){ return "link_title_"+d.source+"->"+d.target});
+			.attr("id", function(d){ return "link_title_"+d.source.id+"->"+d.target.id});
 
+	links.exit().remove();
+	
 	return links;
 }
 
-function populateGraphNodes(json, newElementsExpected){
-	// Node stuff now
+function populateGraphNodes(nodesData){
 	
-	if((!"nodes" in json) || json.nodes.length == 0){
+	if(nodesData.length == 0){
 		return [];
 	}
 	
-	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.id});
+	var nodes = vis.selectAll("g.node").data(nodesData, function(d){return d.id});
 	// console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	// Add new stuff
-	if(newElementsExpected === true)
-	nodes.enter().append("svg:g")
+	var nodesEnter = nodes.enter().append("svg:g")
 	.attr("class", "node")
 	.attr("id", function(d){ return "node_g_"+d.acronym})
-	// Is it ok to do call() here?
     .call(nodeDragBehavior);
 	
 	// console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
@@ -1257,8 +1381,7 @@ function populateGraphNodes(json, newElementsExpected){
 	// Therefore I need to update using JQuery selections on unqiue element IDs
 	
 	// Basic properties
-	if(newElementsExpected === true) // How would I *update* this if I needed to?
-	nodes
+	nodesEnter
 	.append("svg:rect") 
 //	.attr("id", function(d){ return "node_rect_"+d.escapedId})
 	.attr("id", function(d){ return "node_rect_"+(uniqueIdCounter++)})
@@ -1378,14 +1501,12 @@ function populateGraphNodes(json, newElementsExpected){
 	});
 		
 	// Dumb Tool tip...not needed with tipsy popups.
-//	if(newElementsExpected === true)  // How would I *update* this if I needed to?
-//	nodes.append("title")
+//	nodesEnter.append("title")
 //	  .attr("id", function(d){ return "node_title_"+d.acronym})
 //	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
-	if(newElementsExpected === true) // How would I *update* this if I needed to?
-	nodes.append("svg:text")
+		nodesEnter.append("svg:text")
 //		.attr("id", function(d){ return "node_text_"+d.id})
 		.attr("id", function(d){ return "node_text_"+(uniqueIdCounter++)})
 	    .attr("class", "nodetext unselectable")
@@ -1411,12 +1532,14 @@ function populateGraphNodes(json, newElementsExpected){
 		$(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
 	});
 	
+	nodes.exit().remove();
+	
 	return nodes;
 	
 }
 
 // TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialziation, right?
-function ontologyTick(forceLayout, nodes, links){
+function ontologyTick(forceLayout, boundNodes, boundLinks){
 	var lastLabelShiftTime = jQuery.now();
 	var lastGravityAdjustmentTime = jQuery.now();
 	var firstTickTime = jQuery.now();
@@ -1478,13 +1601,13 @@ function ontologyTick(forceLayout, nodes, links){
 //			lastGravityAdjustmentTime = jQuery.now();
 //			doLabelUpdateNextTime = true;
 //		} else {
-		if(nodes.length > 0)
-			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+//		if(nodes.length > 0)
+			boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 //		}
 		
-		if(links.length > 0)
-		links
-		  .attr("x1", function(d) {console.log("in tick");console.log(d.source);  return d.source.x; })
+		if(boundLinks.length > 0)
+			boundLinks
+		  .attr("x1", function(d) { return d.source.x; })
 	      .attr("y1", function(d) { return d.source.y; })
 	      .attr("x2", function(d) { return d.target.x; })
 	      .attr("y2", function(d) { return d.target.y; });
