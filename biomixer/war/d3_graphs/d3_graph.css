@@ -40,6 +40,52 @@ line.link {
   stroke-opacity: .6;
 }
 
+line.inheritanceLink {
+	stroke: #AFC6E5;
+	stroke-width: 1;
+	fill: #FFFFFFFF;
+}
+line.compositionLink {
+	stroke: #D4D4D4;
+	stroke-dasharray: 10,5;
+	stroke-width: 1;
+	fill: #FFFFFF;
+}
+line.mappingLink {
+	stroke-dasharray: 2,2;
+	stroke: #AFC600;
+	stroke-width: 1;
+	fill: #FFFFFF;
+}
+
+/*
+Composition
+<svg overflow="visible"><text font-family="Arial, sans-serif" font-size="12px" transform="translate(463,219) rotate(90 0 0)">part of</text></svg>
+<path d="M-5 -5L-5 5L5 0Z" stroke="#AFC600" transform="translate(455.5,236) rotate(-90 0 0)" fill-opacity="0.0" stroke-opacity="1.0" fill="#AFC600"></path>
+
+Inheritance
+<path d="M-5 -5L-5 5L5 0Z" stroke="#AFC6E5" transform="translate(542.068446927738,299.7607248318769) rotate(-37.49051197509443 0 0)" fill-opacity="1.0" stroke-opacity="1.0" fill="#AFC6E5"></path>
+<svg overflow="visible"><text font-family="Arial, sans-serif" font-size="12px" transform="translate(529.5691802149373,299.8961192271497) rotate(-37.49051197509443 0 0)">is a</text></svg>
+
+Mapping
+<path d="M-5 -5L-5 5L5 0Z" stroke="#D4D4D4" transform="translate(444.5926381551308,179.9697119073198) rotate(-171.8514744544788 0 0)" fill-opacity="0.0" stroke-opacity="0.0" fill="#D4D4D4"></path>
+<svg overflow="visible"><text font-family="Arial, sans-serif" font-size="12px" transform="translate(423.3828463195481,169.35628973107296) rotate(8.148525545521201 0 0)">maps to</text></svg>
+
+*/
+/*
+if (arcStyle.equals(ArcSettings.ARC_STYLE_SOLID)
+                && arcLine.hasAttribute(Svg.STROKE_DASHARRAY)) {
+            arcLine.removeAttribute(Svg.STROKE_DASHARRAY);
+        } else if (arcStyle.equals(ArcSettings.ARC_STYLE_DASHED)) {
+            // 10px dash, 5px gap
+            arcLine.setAttribute(Svg.STROKE_DASHARRAY, "10, 5");
+        } else if (arcStyle.equals(ArcSettings.ARC_STYLE_DOTTED)) {
+            // 10px dash, 5px gap
+            arcLine.setAttribute(Svg.STROKE_DASHARRAY, "2, 2");
+        }
+*/
+        
+
 .line{
 display: block;
 width: 45px;
@@ -79,8 +125,8 @@ div.gallery{
 
 .nodetext {
 	fill: rgb(0,0,0);
-	font-weight: "normal";
-	font-size: "12";
+	font-weight: normal;
+	font-size: 12;
 }
 
 td.vis{

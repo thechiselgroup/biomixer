@@ -22,17 +22,27 @@ var centralOntologyAcronym = purl().param("ontology_acronym");
 var centralConceptUri = purl().param("full_concept_id");
 var uniqueIdCounter = 0;
 
+// TODO Should be queried from dropdown when that is implemented
+var visualization = "term_neighbourhood";
+
 // maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
 var edgeRegistry = {}; 
 var conceptIdNodeMap = new Object();
 
 var dragging = false;
-var ontologyTick; // needs to contain the onTick listener function
+//var ontologyTick; // needs to contain the onTick listener function
 
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
 var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyNodeRect = null;
 
-
+function convertEdgeTypeLabelToEdgeClass(){
+	
+}
+var relationTypeCssClasses = {
+		"is_a": "inheritanceLink",
+		"part_of": "compositionLink",
+		"maps to": "mappingLink",
+};
 var relationLabelConstants = {
 		"inheritance": "is_a",
 		"composition": "part_of",
@@ -127,9 +137,6 @@ resizedWindow();
 
 
 var graphD3Format = new Object();
-// Set interior when we ahve initialized the graph
-//graphD3Format.nodes = forceLayout.nodes();
-//graphD3Format.links = forceLayout.links();
 
 
 // Run the graph! Don't need the json really, though...
@@ -396,6 +403,7 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	// using source and target.
 	edge.sourceId = parentId;
 	edge.targetId = childId;
+	edge.id = edge.sourceId+"->"+edge.targetId;
 	edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
 	edge.edgeType = relationType;
 	
@@ -423,7 +431,6 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	// Logic...begs for assertions.
 	var parentIdInGraph = parentId in conceptIdNodeMap;
 	var childIdInGraph = childId in conceptIdNodeMap;
-	console.log(parentIdInGraph+" and "+parentIdInGraph);
 	if((parentIdInGraph && childIdInGraph) && (parentIdInRegistry && childIdInRegistry)){
 		console.log("Problem: Both ids are already in the graph, and both in the registry. Should we be here?");
 	}
@@ -433,14 +440,6 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	if(!parentIdInGraph && !childIdInGraph){
 		console.log("Problem: If neither node is in graph already.");
 	}
-	
-	// For non-symmetric relations, this assertion is not valid.
-//	if(!matchId && (!parentIdInGraph != !childIdInGraph)){ // ! != ! is an XOR...with safety in case values aren't boolean
-//		console.log("Problem: If matchId is false, then only one of the concepts can be in the graph already");
-////		console.log(childId+" and parent "+parentId);
-////		console.log(edgeRegistry);
-////		console.log(conceptIdNodeMap);
-//	}
 	
 	// Register edges for which we have one in the graph, and none in the registry.
 	if(!matchId && (!parentIdInGraph != !childIdInGraph)){
@@ -457,13 +456,14 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 		// Manifest this edge. We have a matching id in the registry, and the other end of the edge.
 		edge.source = conceptIdNodeMap[edge.sourceId];
 		edge.target = conceptIdNodeMap[edge.targetId];
-		graphD3Format.links.push(edge);
-		updateGraphPopulation();
+		if(edgeNotInGraph(edge)){
+			graphD3Format.links.push(edge);
+			updateGraphPopulation();
+		}
 		
 		if(matchId){
 			// Clear our cruft
 			delete edgeRegistry[matchId][otherId];
-			
 			if(Object.keys(edgeRegistry[matchId]).length == 0){
 				delete edgeRegistry[matchId];
 			}
@@ -474,15 +474,17 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 function manifestEdgesForNewNode(conceptId){
 	// Because registry contains edges for which there *was* no node for the idnex,
 	// and there *are* nodes for the other ends of the edge, we can manifest all of
-	/// them when we are doign so due to a new node appearing.
+	/// them when we are doing so due to a new node appearing.
 	if(conceptId in edgeRegistry){
 		$.each(edgeRegistry[conceptId], function(index, edge){
 			var otherId = (edge.targetId == conceptId) ? edge.targetId : edge.sourceId ;
 
 			edge.source = conceptIdNodeMap[edge.sourceId];
 			edge.target = conceptIdNodeMap[edge.targetId];
-			graphD3Format.links.push(edge);
-			updateGraphPopulation();
+			if(edgeNotInGraph(edge)){
+				graphD3Format.links.push(edge);
+				updateGraphPopulation();
+			}
 			
 			// Clear that one out...safe while in the loop?
 			delete edgeRegistry[conceptId][otherId];
@@ -492,6 +494,25 @@ function manifestEdgesForNewNode(conceptId){
 			delete edgeRegistry[conceptId];
 		}
 	}
+}
+
+/**
+ * This is important because children and parent calls can result in the same relations
+ * being returned. I am not yet confident that we only need one of these calls though.
+ * I am concerned that they may not always return equivalent results.
+ * 
+ * @param edge
+ * @returns {Boolean}
+ */
+function edgeNotInGraph(edge){
+	var length = graphD3Format.links.length;
+	for(var i = 0; i < length; i++) {
+		var item = graphD3Format.links[i];
+        if(item.sourceId == edge.sourceId && item.targetId == edge.targetId && item.edgeType == edge.edgeType){
+            return false;
+        }
+	}
+    return true;
 }
 
 function expandAndParseNodeIfNeeded(conceptId, relatedConceptId, conceptPropertiesData){
@@ -1277,45 +1298,17 @@ function createNodePopupTable(conceptRect, conceptData){
 * TODO Make this function cleaner and fully compliant with the above description!
 *      This should be easier to do while working on the incrementally-added concept node cases.
 */
-function updateGraphPopulation(){
-//	console.log("Populating with:");
-//	console.log(json);
-	
-//	if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
-//		// console.log("skip");
-//		// return;
-//		newElementsExpected = false;
-//	}
-	
+function updateGraphPopulation(){	
 	var boundLinks = populateGraphEdges(graphD3Format.links);
-	
 	var boundNodes = populateGraphNodes(graphD3Format.nodes);
+		
+	forceLayout.on("tick", ontologyTick(forceLayout, boundNodes, boundLinks));
 	
-	// Would do exit().remove() here if it weren't re-entrant, so to speak.
-	
-	// TODO I refactored the function out here...it highlights the question ofwhether this belongs in
-	// an init rather than populate method. Or is it required when we add new data? Yes, I think so.
-//	if(newElementsExpected === true){
-	// Do this after enter() and exit() are handled
-		forceLayout.on("tick", ontologyTick(forceLayout, boundNodes, boundLinks));
-//	}
-	
-	// Whenever I call populate, it adds more to this layout.
-	// I need to figure out how to get enter/update/exit sort of things
-	// to work for the layout.
-//	if(newElementsExpected === true){
-		// forceLayout
-		// .nodes(nodes.enter())
-	    // .links(links.enter());
-		forceLayout
-//		.nodes(json.nodes)
-//	    .links(json.links);
-		// Call start() whenever any nodes or links get added or removed
-		forceLayout.start();
-//	}
+	// Call start() whenever any nodes or links get added or removed
+	forceLayout.start();
 	
 }
-
+var i = 0;
 function populateGraphEdges(linksData){
 	if(linksData.length == 0){
 		return [];
@@ -1323,17 +1316,20 @@ function populateGraphEdges(linksData){
 	
 	// Data constancy via key function() passed to data()
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(linksData, function(d){	console.log(d); return d.source.id+"->"+d.target.id});
-	 console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
-
+	// console.log("enter() getting data for counter time: "+(i=i+1));	console.log(d); 
+	var links = vis.selectAll("line.link").data(linksData, function(d){return d.source.id+"->"+d.target.id});
+//	 console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length);
+//	 console.log(" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	 
 	// Add new stuff
-	links.enter().append("svg:line")
-	.attr("class", "link") // Make svg:g like nodes if we need labels
+	 // Make svg:g like nodes if we need labels
+	var enteringLinks = links.enter();
+	
+	enteringLinks.append("svg:line")
+	.attr("class", function(d){return "link link_"+d.edgeType;}) 
 	.attr("id", function(d){ return "link_line_"+d.source.id+"->"+d.target.id})
-	.on("mouseover", highlightLink())
+	.on("mouseover", highlightLink)
 	.on("mouseout", changeColourBack)
-    .attr("class", "link")
     .attr("x1", function(d) { return d.source.x; })
     .attr("y1", function(d) { return d.source.y; })
     .attr("x2", function(d) { return d.target.x; })
@@ -1342,11 +1338,10 @@ function populateGraphEdges(linksData){
     .style("stroke-width", linkThickness)
     .attr("data-thickness_basis", function(d) { return d.value;});
 
-	console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
+//	console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
 	// Update Tool tip
-	links
-	.enter() // this is new...used to do to all linked data...
+	enteringLinks // this is new...used to do to all linked data...
 	.append("title") // How would I *update* this if I needed to?
 		.text(conceptLinkSimplePopupFunction)
 			.attr("id", function(d){ return "link_title_"+d.source.id+"->"+d.target.id});
@@ -1704,8 +1699,7 @@ function updateDataForNodesAndLinks(json){
 //var nodeUpdateTimer = false;
 
 
-function highlightLink(){
-	return function(d, i){
+function highlightLink(d, i){
 		if(dragging){
 			return;
 		}
@@ -1728,7 +1722,6 @@ function highlightLink(){
 		d3.select(this).style("stroke-opacity", 1)
 			.style("stroke", "#3d3d3d");
 
-	}
 }
 
 function changeColour(d, i){
