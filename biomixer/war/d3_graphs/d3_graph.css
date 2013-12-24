@@ -88,3 +88,26 @@ td.vis{
 	width: 600px;
 	*/
 }
+
+div#trigger {
+   position:absolute;
+   top:0;
+   right:0;
+}
+
+div#hoveringGraphMenu {
+  display: none;
+  position: absolute;
+  right:0;
+  width: 350px;
+  padding: 10px;
+   background: #eeeeee; 
+  /*
+  opacity:0.4;
+filter:alpha(opacity=40); */ /* For IE8 and earlier */
+  
+  /* background: rgba (200, 200, 200, 0.7); */
+  color: #000000;
+  border: 1px solid #1a1a1a;
+  font-size: 90%;
+}
