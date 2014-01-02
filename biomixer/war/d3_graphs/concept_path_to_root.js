@@ -90,8 +90,7 @@ var resizedWindow = function()
 	// TODO Layouts not relying on force need additional support here.
     if(forceLayout){
     	forceLayout.size([visWidth(), visHeight()]).linkDistance(linkMaxDesiredLength());
-    	// Put central node in middle of view
-    	d3.select("#node_g_"+centralOntologyAcronym).each(function(d){d.px = visWidth()/2; d.py = visHeight()/2;});
+    	// If needed, move all the nodes towards the new middle here.
     	forceLayout.resume();
     }  
 };
@@ -1064,6 +1063,8 @@ function initNonForceGraph(){
     .on("dragstart", dragstart)
     .on("drag", dragmove)
     .on("dragend", dragend);
+	
+	forceLayout.on("tick", ontologyTick(forceLayout));
 
 	// See the gravityAdjust(), which is called in tick() and modulates
 	// gravity to keep nodes within the view frame.
@@ -1299,12 +1300,16 @@ function createNodePopupTable(conceptRect, conceptData){
 *      This should be easier to do while working on the incrementally-added concept node cases.
 */
 function updateGraphPopulation(){	
-	var boundLinks = populateGraphEdges(graphD3Format.links);
-	var boundNodes = populateGraphNodes(graphD3Format.nodes);
-		
-	forceLayout.on("tick", ontologyTick(forceLayout, boundNodes, boundLinks));
+	populateGraphEdges(graphD3Format.links);
+	populateGraphNodes(graphD3Format.nodes);
 	
-	// Call start() whenever any nodes or links get added or removed
+	// Moved this to init. No need to redefine after adding nodes or edges, since
+	// the D3 selectALl() method resulted in the correct layout behavior.
+	// forceLayout.on("tick", ontologyTick(forceLayout));
+	
+	// Call start() whenever any nodes or links get added or removed.
+	// I haven't had it work without this. Non-iterative non-force layouts
+	// (e.g. tree) won't really need this I bet.
 	forceLayout.start();
 	
 }
@@ -1348,7 +1353,6 @@ function populateGraphEdges(linksData){
 
 	links.exit().remove();
 	
-	return links;
 }
 
 function populateGraphNodes(nodesData){
@@ -1362,7 +1366,7 @@ function populateGraphNodes(nodesData){
 	// Add new stuff
 	var nodesEnter = nodes.enter().append("svg:g")
 	.attr("class", "node")
-	.attr("id", function(d){ return "node_g_"+d.acronym})
+	.attr("id", function(d){ return "node_g_"+d.escapedId})
     .call(nodeDragBehavior);
 	
 	// console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
@@ -1529,29 +1533,34 @@ function populateGraphNodes(nodesData){
 	
 	nodes.exit().remove();
 	
-	return nodes;
 	
 }
 
-// TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialziation, right?
-function ontologyTick(forceLayout, boundNodes, boundLinks){
+// TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
+function ontologyTick(forceLayout){
 	var lastLabelShiftTime = jQuery.now();
 	var lastGravityAdjustmentTime = jQuery.now();
 	var firstTickTime = jQuery.now();
 	var maxLayoutRunDuration = 10000;
 	var maxGravityFrequency = 4000;
+
 	return function() {
-	// XXX Doing this a second time destroys the visualization!
-	// How would we do it on only new things?
-	// Oh! It is because we are using the links and nodes references,
-	// and losing references to the existing nodes and links.
-	// I really want to make sure I keep trakc of whether we
-	// have all nodes/links, or just new ones...
+		// This improved layout behavior dramatically.
+		var boundNodes = vis.selectAll("g.node");
+		var boundLinks = vis.selectAll("line.link");
+			
+		// XXX Doing this a second time destroys the visualization!
+		// How would we do it on only new things?
+		// Oh! It is because we are using the links and nodes references,
+		// and losing references to the existing nodes and links.
+		// I really want to make sure I keep trakc of whether we
+		// have all nodes/links, or just new ones...
 
 		// Stop the layout early. The circular initialization makes it ok.
 		if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
 			forceLayout.stop();
 		}
+		
 		
 		// Do I want nodes to avoid one another?
 		// http://bl.ocks.org/mbostock/3231298
@@ -1599,7 +1608,6 @@ function ontologyTick(forceLayout, boundNodes, boundLinks){
 //		if(nodes.length > 0)
 			boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 //		}
-		
 		if(boundLinks.length > 0)
 			boundLinks
 		  .attr("x1", function(d) { return d.source.x; })
@@ -1607,9 +1615,12 @@ function ontologyTick(forceLayout, boundNodes, boundLinks){
 	      .attr("x2", function(d) { return d.target.x; })
 	      .attr("y2", function(d) { return d.target.y; });
 		
+		console.log(boundLinks.length);
+
+		
 		// I want labels to aim out of middle of graph, to make more room
 		// It slows rendering, so I will only do it sometimes
-		// Commented all thsi out because I liked centering them instead.
+		// Commented all this out because I liked centering them instead.
 //		if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
 //			$.each($(".nodetext"), function(i, text){
 //				text = $(text);
