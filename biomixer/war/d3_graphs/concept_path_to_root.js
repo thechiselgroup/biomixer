@@ -77,6 +77,10 @@ vis.append('svg:rect')
 	.attr("id", "graphRect")
     .style('fill', 'white');
 
+// Keeps links below nodes, and cleans up document a fair bit.
+vis.append("g").attr("id", "link_container");
+vis.append("g").attr("id", "node_container");
+
 var resizedWindow = function()
 {		
 	d3.select("#graphRect")
@@ -1310,6 +1314,7 @@ function updateGraphPopulation(){
 	// Call start() whenever any nodes or links get added or removed.
 	// I haven't had it work without this. Non-iterative non-force layouts
 	// (e.g. tree) won't really need this I bet.
+	
 	forceLayout.start();
 	
 }
@@ -1322,13 +1327,17 @@ function populateGraphEdges(linksData){
 	// Data constancy via key function() passed to data()
 	// Link stuff first
 	// console.log("enter() getting data for counter time: "+(i=i+1));	console.log(d); 
-	var links = vis.selectAll("line.link").data(linksData, function(d){return d.source.id+"->"+d.target.id});
+	var links = vis.select("#link_container")
+	.selectAll("line.link").data(linksData, function(d){return d.source.id+"->"+d.target.id});
 //	 console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length);
 //	 console.log(" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	 
 	// Add new stuff
-	 // Make svg:g like nodes if we need labels
-	var enteringLinks = links.enter();
+	// Make svg:g like nodes if we need labels
+	// Would skip the g element here for links, but it cleans up the document and bundles text with line.
+	var enteringLinks = links.enter().append("svg:g")
+	.attr("class", "link")
+	.attr("id", function(d){ return "link_g_"+d.source.id+"->"+d.target.id});
 	
 	enteringLinks.append("svg:line")
 	.attr("class", function(d){return "link link_"+d.edgeType;}) 
@@ -1361,7 +1370,8 @@ function populateGraphNodes(nodesData){
 		return [];
 	}
 	
-	var nodes = vis.selectAll("g.node").data(nodesData, function(d){return d.id});
+	var nodes = vis.select("#node_container")
+	.selectAll("g.node").data(nodesData, function(d){return d.id});
 	// console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
 	// Add new stuff
 	var nodesEnter = nodes.enter().append("svg:g")
@@ -1527,8 +1537,14 @@ function populateGraphNodes(nodesData){
 		var rect = $(d).siblings().select(".node_rect");
 		rect.attr("width", textSize.width + nodeLabelPaddingWidth);
 		rect.attr("height", textSize.height + nodeLabelPaddingHeight);
+		// We need to adjust the rectangle position within its svg:g object so that arcs are positioned relative
+		// to the rectangle center. Circles automatically end up this way.
+		rect.attr("x", -textSize.width/2 - nodeLabelPaddingWidth/2);
+		rect.attr("y", -textSize.height/2 - nodeLabelPaddingHeight/2);
 		// center the label in the resized rect
-		$(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
+		$(d).attr("dx", -textSize.width/2).attr("dy", nodeLabelPaddingHeight/2);
+		// The following was for when rects were not centered by accounting for width
+		// $(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
 	});
 	
 	nodes.exit().remove();
@@ -1547,6 +1563,7 @@ function ontologyTick(forceLayout){
 	return function() {
 		// This improved layout behavior dramatically.
 		var boundNodes = vis.selectAll("g.node");
+		// Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
 		var boundLinks = vis.selectAll("line.link");
 			
 		// XXX Doing this a second time destroys the visualization!
@@ -1608,6 +1625,7 @@ function ontologyTick(forceLayout){
 //		if(nodes.length > 0)
 			boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 //		}
+			
 		if(boundLinks.length > 0)
 			boundLinks
 		  .attr("x1", function(d) { return d.source.x; })
