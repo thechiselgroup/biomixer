@@ -378,6 +378,7 @@ function OntologyMetricsCallback(url, node){
 		
 		// console.log("ontologyMetricsCallback");
 		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
+		filterGraph();
 	}
 }
 
@@ -1313,7 +1314,8 @@ function prepGraphMenu(){
 	$('#trigger').hover(
 			function(e) {
 				$(menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
-				$(menuSelector).fadeTo(0, 0.8);
+				 // Looks bad when it's not fully visible, due to children inheriting transparency
+				$(menuSelector).fadeTo(0, 1.0);
 			},
 			function() {
 				$(menuSelector).hide();
@@ -1325,40 +1327,60 @@ function prepGraphMenu(){
 
 function addMenuComponents(menuSelector){
 
+	var minSlider = -2;
+	var maxSlider = 102;
+	
 // Add the sliders to the pop-out panel
-$(menuSelector).append($("<label>").attr("for", "arc-slider-amount-min").text("Arc Mapping Range:"));
-$(menuSelector).append($("<input>").attr("type", "text").attr("id", "arc-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
+$(menuSelector).append($("<label>").attr("for", "arc-slider-amount").text("Arc Mapping Range: "));
+$(menuSelector).append($("<label>").attr("type", "text").attr("id", "arc-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
 $(menuSelector).append($("<div>").attr("id",  "arc-slider-range" ));
 
 $( "#arc-slider-range" ).slider({
 	range: true,
-	min: 0,
-	max: 100,
-	values: [ 0, 100 ],
+	min: minSlider,
+	max: maxSlider,
+	values: [ minSlider, maxSlider ],
 	slide: function( event, ui ) {
 //		$( "#arc-slider-amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
-		$( "#arc-slider-amount" ).val( $( "#arc-slider-range" ).slider( "values", 0 ) + "% -" + $( "#arc-slider-range" ).slider( "values", 1 )+"%" );
+		// Need to make it wider than 100% due to UI bugginess
+		var bottom = $( "#arc-slider-range" ).slider( "values", 0 );
+		var top = $( "#arc-slider-range" ).slider( "values", 1 );
+		bottom = Math.max(0, bottom);
+		top = Math.min(100, top);
+		$( "#arc-slider-amount" ).text( bottom + "% - " + top +"%" );
 		filterGraph();
 		}
 	}
 );
 
-$(menuSelector).append($("<label>").attr("for", "node-slider-amount-min").text("Node Mapping Range:"));
-$(menuSelector).append($("<input>").attr("type", "text").attr("id", "node-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
+$(menuSelector).append($("<div>").attr("id",  "slider-gap" ));
+
+$(menuSelector).append($("<label>").attr("for", "node-slider-amount").text("Node Mapping Range: "));
+$(menuSelector).append($("<label>").attr("type", "text").attr("id", "node-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
 $(menuSelector).append($("<div>").attr("id",  "node-slider-range" ));
 
 $( "#node-slider-range" ).slider({
 	range: true,
-	min: 0,
-	max: 100,
-	values: [ 0, 100 ],
+	min: minSlider,
+	max: maxSlider,
+	values: [ minSlider, maxSlider ],
 	slide: function( event, ui ) {
 //		$( "#node-slider-amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
-		$( "#node-slider-amount" ).val( $( "#node-slider-range" ).slider( "values", 0 ) + "% -" + $( "#node-slider-range" ).slider( "values", 1 )+"%" );
+		// Need to make it wider than 100% due to UI bugginess
+		var bottom = $( "#node-slider-range" ).slider( "values", 0 );
+		var top = $( "#node-slider-range" ).slider( "values", 1 );
+		bottom = Math.max(0, bottom);
+		top = Math.min(100, top);
+		$( "#node-slider-amount" ).text( bottom + "% - " + top +"%" );
 		filterGraph();
 		}
 	}
-);
+)
+
+// Need separate initialization for input text
+$( "#arc-slider-amount" ).text( 0 + "% - " + 100+"%" );
+$( "#node-slider-amount" ).text( 0 + "% - " + 100+"%" );
+
 
 }
 
@@ -1368,6 +1390,12 @@ function filterGraph(){
 	var minNodePercentile = $( "#node-slider-range" ).slider( "values", 0 )/100;
 	var maxNodePercentile = $( "#node-slider-range" ).slider( "values", 1 )/100;
 
+	minArcPercentile = Math.max(0, minArcPercentile);
+	maxNodePercentile = Math.min(100, maxNodePercentile);
+	
+	minNodePercentile = Math.max(0, minNodePercentile);
+	maxArcPercentile = Math.min(100, maxArcPercentile);
+	
 	var nodeMin = Number.MAX_VALUE;
 	var nodeMax = Number.MIN_VALUE;
 	var arcMin = Number.MAX_VALUE;

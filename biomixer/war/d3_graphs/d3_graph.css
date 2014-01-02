@@ -95,14 +95,19 @@ div#trigger {
    right:0;
 }
 
+div#slider-gap {
+	margin: 15px;
+}
+
 div#hoveringGraphMenu {
   display: none;
   position: absolute;
   right:0;
   width: 350px;
-  padding: 10px;
-   background: #eeeeee; 
+  padding: 30px;
+  background: rgb(218,229,243);
   /*
+   background: #eeeeee; 
   opacity:0.4;
 filter:alpha(opacity=40); */ /* For IE8 and earlier */
   
