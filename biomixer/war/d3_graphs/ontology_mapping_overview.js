@@ -31,6 +31,7 @@ var nodeHighlightColor = "#FC6854";
 
 // Had to set div#chart.gallery height = 100% in CSS,
 // but this was only required in Firefox. I can't see why.
+prepGraphMenu();
 var vis = d3.select("#chart").append("svg:svg")
 	.attr("id", "graphSvg")
 	.attr("width", visWidth())
@@ -40,6 +41,8 @@ var vis = d3.select("#chart").append("svg:svg")
     .call(d3.behavior.zoom().on("zoom", redraw))
 //  .append('svg:g')
   ;
+
+
 
 vis.append('svg:rect')
 	.attr("width", visWidth())
@@ -235,7 +238,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
 
 		//----------------------------------------------------------
-		
+
 		// 2) Get details for all the ontologies (and either create or update the nodes)
 		var ontologyDetailsUrl = buildOntologyDetailsUrlNewApi();
 		var ontologyDetailsCallback = new OntologyDetailsCallback(ontologyDetailsUrl, ontologyAcronymNodeMap);
@@ -375,6 +378,7 @@ function OntologyMetricsCallback(url, node){
 		
 		// console.log("ontologyMetricsCallback");
 		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
+		filterGraph();
 	}
 }
 
@@ -547,6 +551,8 @@ function closureRetryingJsonpFetcher(callbackObject){
 
 function initAndPopulateGraph(json){
 	initGraph();
+	
+
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyAcronym);
@@ -1295,4 +1301,169 @@ var nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,
 function nextNodeColor(){
 	currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
 	return nodeOrderedColors(currentNodeColor);
+}
+
+function prepGraphMenu(){
+	// Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
+	var menuSelector = 'div#hoveringGraphMenu';
+	// Append the pop-out panel. It will stay hidden except when moused over.
+	var trigger = $("<div>").attr("id", "trigger");
+	$("#chart").append(trigger);
+	trigger.append($("<p>").text("<< Menu"));
+	trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
+
+	$('#trigger').hover(
+			function(e) {
+				$(menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
+				 // Looks bad when it's not fully visible, due to children inheriting transparency
+				$(menuSelector).fadeTo(0, 1.0);
+			},
+			function() {
+				$(menuSelector).hide();
+			}
+	);
+	
+	addMenuComponents(menuSelector);
+}
+
+function addMenuComponents(menuSelector){
+
+	var minSlider = -2;
+	var maxSlider = 102;
+	
+// Add the sliders to the pop-out panel
+$(menuSelector).append($("<label>").attr("for", "arc-slider-amount").text("Arc Mapping Range: "));
+$(menuSelector).append($("<label>").attr("type", "text").attr("id", "arc-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
+$(menuSelector).append($("<div>").attr("id",  "arc-slider-range" ));
+
+$( "#arc-slider-range" ).slider({
+	range: true,
+	min: minSlider,
+	max: maxSlider,
+	values: [ minSlider, maxSlider ],
+	slide: function( event, ui ) {
+//		$( "#arc-slider-amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+		// Need to make it wider than 100% due to UI bugginess
+		var bottom = $( "#arc-slider-range" ).slider( "values", 0 );
+		var top = $( "#arc-slider-range" ).slider( "values", 1 );
+		bottom = Math.max(0, bottom);
+		top = Math.min(100, top);
+		$( "#arc-slider-amount" ).text( bottom + "% - " + top +"%" );
+		filterGraph();
+		}
+	}
+);
+
+$(menuSelector).append($("<div>").attr("id",  "slider-gap" ));
+
+$(menuSelector).append($("<label>").attr("for", "node-slider-amount").text("Node Mapping Range: "));
+$(menuSelector).append($("<label>").attr("type", "text").attr("id", "node-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
+$(menuSelector).append($("<div>").attr("id",  "node-slider-range" ));
+
+$( "#node-slider-range" ).slider({
+	range: true,
+	min: minSlider,
+	max: maxSlider,
+	values: [ minSlider, maxSlider ],
+	slide: function( event, ui ) {
+//		$( "#node-slider-amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
+		// Need to make it wider than 100% due to UI bugginess
+		var bottom = $( "#node-slider-range" ).slider( "values", 0 );
+		var top = $( "#node-slider-range" ).slider( "values", 1 );
+		bottom = Math.max(0, bottom);
+		top = Math.min(100, top);
+		$( "#node-slider-amount" ).text( bottom + "% - " + top +"%" );
+		filterGraph();
+		}
+	}
+)
+
+// Need separate initialization for input text
+$( "#arc-slider-amount" ).text( 0 + "% - " + 100+"%" );
+$( "#node-slider-amount" ).text( 0 + "% - " + 100+"%" );
+
+
+}
+
+function filterGraph(){
+	var minArcPercentile = $( "#arc-slider-range" ).slider( "values", 0 )/100;
+	var maxArcPercentile = $( "#arc-slider-range" ).slider( "values", 1 )/100;
+	var minNodePercentile = $( "#node-slider-range" ).slider( "values", 0 )/100;
+	var maxNodePercentile = $( "#node-slider-range" ).slider( "values", 1 )/100;
+
+	minArcPercentile = Math.max(0, minArcPercentile);
+	maxNodePercentile = Math.min(100, maxNodePercentile);
+	
+	minNodePercentile = Math.max(0, minNodePercentile);
+	maxArcPercentile = Math.min(100, maxArcPercentile);
+	
+	var nodeMin = Number.MAX_VALUE;
+	var nodeMax = Number.MIN_VALUE;
+	var arcMin = Number.MAX_VALUE;
+	var arcMax = Number.MIN_VALUE;
+	d3.selectAll("line").each( 
+			function(d,i){
+				if(parseInt(d.value) <= arcMin){
+					arcMin = d.value;
+				}
+				if(parseInt(d.value) >= arcMax){
+					arcMax = d.value;
+				}
+				// Source
+				if(parseInt(d.source.number) <= arcMin){
+					arcMin = d.source.number;
+				}
+				if(parseInt(d.source.number) >= arcMax){
+					arcMax = d.source.number;
+				}
+				// Target
+				if(parseInt(d.target.number) <= nodeMin){
+					nodeMin = d.target.number;
+				}
+				if(parseInt(d.target.number) >= nodeMax){
+					nodeMax = d.target.number;
+				}
+			}
+	);
+	
+	var minNodeAbsolute = minNodePercentile * (nodeMax - nodeMin) + nodeMin;
+	var maxNodeAbsolute = maxNodePercentile * (nodeMax - nodeMin) + nodeMin;
+	var minArcAbsolute = minArcPercentile * (arcMax - arcMin) + arcMin;
+	var maxArcAbsolute = maxArcPercentile * (arcMax - arcMin) + arcMin;
+	
+	// Iterate through all arcs, remove if their node or arc fails to pass
+	// We don't need to iterate through all the nodes, because we will do so here.
+	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
+	d3.selectAll("line").each( 
+			function(d,i){
+				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+				var hideSourceNode = (parseInt(d.source.number) < minNodeAbsolute || parseInt(d.source.number) > maxNodeAbsolute);
+				var hideTargetNode = (parseInt(d.target.number) < minNodeAbsolute || parseInt(d.target.number) > maxNodeAbsolute);
+				
+				if(d.source.acronym == centralOntologyAcronym){
+					hideSourceNode = false;
+				}
+				if(d.target.acronym == centralOntologyAcronym){
+					hideTargetNode = false;
+				}
+				
+				// http://svg-whiz.com/svg/HideShow.svg
+				// Opacity is used elsewhere, and is most expensive.
+				// Try display: none, but visibility property can work too.
+				
+//				console.log($(this).first()); //"link_line_"+d.source.acronym+"->"+d.target.acronym
+//				console.log($(this));
+//				$(this).first().css("display", (hideArc || hideSourceNode) ? 0.0 : "");
+//				$("#link_line_"+d.source.acronym+"->"+d.target.acronym).css("display", (hideArc || hideSourceNode || hideTargetNode) ? 0.0 : "");
+				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+				
+				$("#node_circle_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
+				$("#node_circle_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
+				
+				$("#node_text_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
+				$("#node_text_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
+			}
+		);
+	
+	
 }

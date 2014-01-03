@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.thechiselgroup.biomixer.client.embeds;
 
+import org.thechiselgroup.biomixer.client.Concept;
 import org.thechiselgroup.biomixer.client.Mapping;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandler;
 import org.thechiselgroup.biomixer.client.core.error_handling.ErrorHandlingAsyncCallback;
@@ -105,11 +106,12 @@ public class MappingNeighbourhoodLoader extends AbstractTermGraphEmbedLoader {
                 String sourceUri = Mapping.getSourceId(mappingResource);
                 String targetUri = Mapping.getTargetId(mappingResource);
 
-                final String otherConceptUri = centralResource.getUri().equals(
-                        sourceUri) ? targetUri : sourceUri;
+                final String otherConceptUri = Concept.getFullId(
+                        centralResource).equals(sourceUri) ? targetUri
+                        : sourceUri;
 
-                final String otherOntologyAcronym = centralResource
-                        .equals(sourceUri) ? Mapping
+                final String otherOntologyAcronym = Concept.getFullId(
+                        centralResource).equals(sourceUri) ? Mapping
                         .getTargetOntology(mappingResource) : Mapping
                         .getSourceOntology(mappingResource);
 

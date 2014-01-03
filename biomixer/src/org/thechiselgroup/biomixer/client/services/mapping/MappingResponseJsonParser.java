@@ -49,6 +49,11 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         Object firstMapping = get(mappingPair, 0);
         Object secondMapping = get(mappingPair, 1);
 
+        if (null == secondMapping) {
+            // Endpoint is missing (bad data, occurred once, see issue 336)
+            return null;
+        }
+
         // Get process, and mapping endpoints
 
         // We have no mapping id anymore! Combine concept ids instead.
@@ -81,7 +86,10 @@ public class MappingResponseJsonParser extends AbstractJsonResultParser {
         Set<String> keys = getObjectProperties(jsonObject);
         for (String index : keys) {
             Object mappingPair = get(jsonObject, index);
-            result.add(parseForConceptMapping(mappingPair));
+            Resource mappingResource = parseForConceptMapping(mappingPair);
+            if (null != mappingResource) {
+                result.add(mappingResource);
+            }
         }
 
         return result;
