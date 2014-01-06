@@ -270,64 +270,6 @@ function fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri){
 function MappingsNeighborhoodCallback(url, centralOntologyAcronym, centralConceptUri){
 }
 
-// Needs the arguments index, concept because the function will be called in JQuery loop. Write wrappers in callers if you don't like that.
-function parseNode(index, conceptData){
-		// Create the concept nodes that exist on the paths-to-root for the central concept,
-		// including the central concept node.
-		var conceptNode = new Object();
-		conceptNode.id = conceptData["@id"];
-		conceptNode.escapedId = encodeURIComponent(conceptNode.id);
-		conceptNode.name = conceptData.prefLabel;
-		conceptNode.type = conceptData.type;
-		conceptNode.description = "fetching description";
-		conceptNode.weight = 1;
-		conceptNode.fixed = false;
-		// TODO Some layout stuff could conceivably be done here. Or elsewhere.
-		// Note how simple it is to set the x and y of the node to position it.
-		// It is also critical to prevent the layout from running, or to fix the node position.
-//		// Compute starting positions to be in a circle for faster layout
-//		var angleForNode = i * anglePerNode; i++;
-//		conceptNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
-//		conceptNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
-		var ontologyUri = conceptData.links.ontology;
-		// "http://data.bioontology.org/ontologies/<acronym>"
-		var urlBeforeAcronym = "ontologies/";
-		conceptNode.ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
-		conceptNode.ontologyUri = ontologyUri;
-		conceptNode.escapedOntologyUri = encodeURIComponent(conceptNode.ontologyUri);
-		conceptNode.nodeColor = nextNodeColor();
-		graphD3Format.nodes.push(conceptNode);
-		$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
-		
-		// Could accumulate in caller?
-		updateGraphPopulation();
-		
-		// Understanding arcs:
-		// Concept links come from different calls. We will probably need to use the links container
-		// to collect all possible links that we know about, indexed by the concept that is not currently
-		// included in our graph. When we get another concept added to the graph, we look it up in there,
-		// add all the links to the graph, and remove the entries from the possible-links object.
-		// This works only if we are able to add any given node prior to having to sort through its relations.
-		// This also means that adding links has to be done in a separate process, and can't happen
-		// in a smooth way when processing node information.
-		// In Biomixer, these links were added as unrendered objects as they came up I think. We don't want
-		// unrendered SVG in D3.
-		// In any case, relations don't show up in the paths_to_root data anyway, so we need a separate process
-		// because of that alone :)
-		// We will need to inspect for relations in the registry, to see if there are any
-		// implicit ones that have now been fulfilled by this node being added...is that correct to do here?
-		// Registry should probably only have edges indexed by the *non-present* nodes, so that there is a simple
-		// lookup for incoming nodes.
-		// We also check for node endpoints in the graph before registering the implicit edges, so there's no risk of
-		// adding an edge when it should instead be manifested in the graph.
-		
-		// If there are implicit edges from before that link from an existing node to this new one,
-		// we can now manifest them.
-		manifestEdgesForNewNode(conceptNode);
-					
-		return conceptNode;
-}
-
 function fetchConceptRelations(conceptNode, conceptData){
 	// 2) Get relational data for all the concepts, create links from them
 	// fetchBatchRelations(); // don't exist, because of COR issues on server, cross domain, and spec issues.
@@ -371,227 +313,6 @@ function fetchCompositionRelations(conceptNode){
 
 function appendJsonpAndApiKeyArgumentsToExistingUrl(url){
 	return url+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
-}
-
-/*
- * Parent and child arguments determine arrow direction. Relation type can 
- * reflect inheritance, composition, or mapping.
- * I *think* that every time we register one of these, we should check and see if
- * the endpoints are in the graph, and if so, manifest the edge right away.
- * Likewise, I think, we should check for edge inclusions every time a node is
- * manifested. Otherwise we end up with problems...if...data integrity is not perfect
- * in a given ontology (has_part and part_of are not symmetrically stated, even though
- * semantically they necessitate each other; if not symmetrically defined, we will only
- * find the relation when manifesting nodes in one order, unless we always look for
- * edges when manifesting nodes).
- */
-function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
-	if(parentId === childId){
-		// Some mappings data is based off of having the same URI, which is mind boggling to me.
-		// We have no use for self relations in this domain.
-		return;
-	}
-	
-	// Either register it as an implicit relation, or manifest it if both nodes are in graph.
-	var edge = new Object();
-	// edge source and targe tobjects will be set when manifesting the edge (when we know we have
-	// node objects to add there). They are looked up by these ids.
-	// TODO source/target and parent/child are not clear...which way do we need this to be?
-	// I prefer using parent/child in model, but for the graph, arrow representation is clearer
-	// using source and target.
-	edge.sourceId = parentId;
-	edge.targetId = childId;
-	edge.id = edge.sourceId+"->"+edge.targetId;
-	edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
-	edge.edgeType = relationType;
-	
-	
-	// We expect neither or just one of the ids will be in the registry, since we only register
-	// node ids that do not exist in our graph. This should be enforced by processing edges
-	// whenever we add a node to the graph.
-	
-	var matchId = undefined, otherId = undefined;
-	var parentIdInRegistry = false, childIdInRegistry = false;
-	if(parentId in edgeRegistry && childId in edgeRegistry[parentId]){
-		matchId = parentId;
-		otherId = childId;
-		parentIdInRegistry = true;
-	}
-	if(childId in edgeRegistry && parentId in edgeRegistry[childId]){
-		if(matchId){
-			// This can happen due to race conditions among relation calls. There's four, and ndoes are instantiated first...
-			// The parent receive parents, then the child receives children, then the child receives parents and we are in this situation.
-			// So if both match, what do we do? Ah, narrowed logic above to check for the other node beneath in the registry.
-			console.log("Logical error; cannot have both edge ends in the graph already. The edge would have been added before if so.")
-		}
-		matchId = childId;
-		otherId = parentId;
-		childIdInRegistry = true;
-	}
-	
-	
-	// Logic...begs for assertions.
-	var parentIdInGraph = parentId in conceptIdNodeMap;
-	var childIdInGraph = childId in conceptIdNodeMap;
-	if((parentIdInGraph && childIdInGraph) && (parentIdInRegistry && childIdInRegistry)){
-		console.log("Problem: Both ids are already in the graph, and both in the registry. Should we be here?");
-	}
-	if(matchId && !(parentIdInGraph || childIdInGraph)){
-		console.log("Problem: If matchId is true, there must be at least one of the concepts in the graph already.");
-	}
-	if(!parentIdInGraph && !childIdInGraph){
-		console.log("Problem: If neither node is in graph already.");
-	}
-	
-	// Register edges for which we have one in the graph, and none in the registry.
-	if(!matchId && (!parentIdInGraph != !childIdInGraph)){
-		// Register this implicit edge.
-		var conceptIdNotInGraph = (parentId in conceptIdNodeMap) ?  childId : parentId;
-		var conceptInGraph = (parentId in conceptIdNodeMap) ?  parentId : childId;
-		if(!(conceptIdNotInGraph in edgeRegistry)){
-			edgeRegistry[conceptIdNotInGraph] = {};
-		}
-		if(!(conceptInGraph in edgeRegistry[conceptIdNotInGraph])){
-			edgeRegistry[conceptIdNotInGraph][conceptInGraph] = {};
-		}
-		// Need type as an index as well because some ontologies could have multiple edge types between entities.
-		edgeRegistry[conceptIdNotInGraph][conceptInGraph][edge.type] = edge;
-		
-	} else if(parentIdInGraph && childIdInGraph) {
-		// If both are in the graph, we'll be manifesting it immediately.
-		// Manifest this edge. We have a matching id in the registry, and the other end of the edge.
-		edge.source = conceptIdNodeMap[edge.sourceId];
-		edge.target = conceptIdNodeMap[edge.targetId];
-		if(edgeNotInGraph(edge)){
-			graphD3Format.links.push(edge);
-			updateGraphPopulation();
-		}
-		
-		if(matchId){
-			// Clear our cruft
-			delete edgeRegistry[matchId][otherId][edge.type];
-			if(Object.keys(edgeRegistry[matchId][otherId]).length == 0){
-				delete edgeRegistry[matchId][otherId];
-			}
-			if(Object.keys(edgeRegistry[matchId]).length == 0){
-				delete edgeRegistry[matchId];
-			}
-		}
-	}
-}
-
-function manifestEdgesForNewNode(conceptNode){
-	var conceptId = conceptNode.id;
-	// Because registry contains edges for which there *was* no node for the index,
-	// and there *are* nodes for the other ends of the edge, we can manifest all of
-	/// them when we are doing so due to a new node appearing.
-	console.log(conceptId);
-	if(conceptId in edgeRegistry){
-		console.log(edgeRegistry[conceptId]);
-		$.each(edgeRegistry[conceptId], function(index, conceptsEdges){
-			console.log(conceptsEdges);
-			console.log(index);
-			$.each(conceptsEdges, function(index, edge){
-				console.log("found edge");
-				var otherId = (edge.sourceId == conceptId) ? edge.targetId : edge.sourceId ;
-	
-				edge.source = conceptIdNodeMap[edge.sourceId];
-				edge.target = conceptIdNodeMap[edge.targetId];
-				if(edgeNotInGraph(edge)){
-					console.log("manifestEdgesForNewNode");
-					console.log(edge);
-					graphD3Format.links.push(edge);
-					updateGraphPopulation();
-				}
-				
-				// Clear that one out...safe while in the loop?
-				delete edgeRegistry[conceptId][otherId][edge.type];
-				// Might be out of edges for this node pair.
-				if(Object.keys(edgeRegistry[conceptId][otherId]).length == 0){
-					delete edgeRegistry[conceptId][otherId];
-				}
-			})
-		});
-		
-		// Done looking at this conceptId...was that all the edges?
-		if(Object.keys(edgeRegistry[conceptId]).length == 0){
-			delete edgeRegistry[conceptId];
-		}
-	}
-}
-
-/**
- * This is important because children and parent calls can result in the same relations
- * being returned. I am not yet confident that we only need one of these calls though.
- * I am concerned that they may not always return equivalent results.
- * 
- * @param edge
- * @returns {Boolean}
- */
-function edgeNotInGraph(edge){
-	var length = graphD3Format.links.length;
-	for(var i = 0; i < length; i++) {
-		var item = graphD3Format.links[i];
-        if(item.sourceId == edge.sourceId && item.targetId == edge.targetId && item.edgeType == edge.edgeType){
-            return false;
-        }
-	}
-    return true;
-}
-
-function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPropertiesData){
-	// Can determine on the basis of the relatedConceptId if we should request data for the
-	// conceptId provided, or if we should parse provided conceptProperties (if any).
-	// TODO PROBLEM What if the conceptId is already going to be fetched and processed because
-	// it has a fetcher running on the basis of some other relation?
-	// In paths to root, it won't happen, because we would only want to parse from the original call.
-	// In mappings, we only expand mapped nodes in the original call.
-	// In term neighbourhood, we do indeed parse nodes on the basis of parent and child
-	// relations, as well as composition relations. But...only if they are related to the
-	// central one. So simply checking for that combination of facts here works out fine.
-	
-	// For path to root, we only expand those path to root nodes.
-	// For term neighbourhood, we only expand the direct neighbours of the central node.
-	// For mappings, we only expand based on the first mapping call.
-	// This will go through a whole process of adding the node, if the node is supposed to be
-	// expanded for the current visualization (children and parents for term neighbourhood).
-	
-	// Because we expand for term neighbourhood relation calls, and those come in two flavors
-	// (node with properties for children and parents, and just node IDs for compositions)
-	// we want to support parsing the data directly as well as fetching additional data.
-	if(relatedConceptId === centralConceptUri && visualization === termNeighborhoodConstant
-		&& !(newConceptId in conceptIdNodeMap)){
-
-		// Manifest the node; parse the properties if available.
-		// We know that we will get the composition relations via a properties call,
-		// and that has all the data we need from a separate call for properties...
-		// but that subsystem relies on the fact that the node is created already.
-		
-		if(!typeof conceptPropertiesData === "undefined" && Object.keys(conceptPropertiesData).length > 0){
-			// This happens when it is a child or parent inheritance relation for term neighbourhood
-			var conceptNode = parseNode(undefined, conceptPropertiesData);
-			fetchConceptRelations(conceptNode, conceptPropertiesData);
-		} else {
-			// This happens when it is a composite relation for term neighbourhood
-			// Making the call to create it will get all relations automatically.
-			// 1) Get paths to root for the central concept
-			// "http://purl.bioontology.org/ontology/SNOMEDCT/16089004","
-			// Node data for term neighborhood should have the related node's link data section.
-			var ontologyUri = conceptPropertiesData.links.ontology;
-			var urlBeforeAcronym = "ontologies/";
-			var urlAfterAcronym = "/";
-			var ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
-			// var ontologyAcronym = chunk.substring(0, chunk.lastIndexOf(urlAfterAcronym));
-			
-			// TODO Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
-			// Is this a redundant call? Or is it better to follow this route anyway??
-			// I think it isn't redundant, due to limited data that is available when this happens.
-			var url = buildConceptUrlNewApi(ontologyAcronym, newConceptId);
-			var callback = new FetchOneConceptCallback(url, newConceptId);
-			var fetcher = closureRetryingJsonpFetcher(callback);
-			fetcher();
-		}
-	}
 }
 
 function FetchOneConceptCallback(url, conceptUri){
@@ -1095,6 +816,100 @@ function dragend(d, i) {
     d.fixed = true;
 }
 
+//TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
+function onLayoutTick(forceLayout){
+	var lastLabelShiftTime = jQuery.now();
+	var lastGravityAdjustmentTime = jQuery.now();
+	var firstTickTime = jQuery.now();
+	var maxLayoutRunDuration = 10000;
+	var maxGravityFrequency = 4000;
+
+	return function() {
+		// This improved layout behavior dramatically.
+		var boundNodes = vis.selectAll("g.node");
+		// Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
+		var boundLinks = vis.selectAll("line.link");
+			
+		// Stop the layout early. The circular initialization makes it ok.
+		if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
+			forceLayout.stop();
+		}
+		
+		
+		// Do I want nodes to avoid one another?
+		// http://bl.ocks.org/mbostock/3231298
+//		var q = d3.geom.quadtree(nodes),
+//	      i = 0,
+//	      n = nodes.length;
+//		while (++i < n) q.visit(collide(nodes[i]));
+//		function collide(node) {
+//			  var r = node.radius + 16,
+//			      nx1 = node.x - r,
+//			      nx2 = node.x + r,
+//			      ny1 = node.y - r,
+//			      ny2 = node.y + r;
+//			  return function(quad, x1, y1, x2, y2) {
+//			    if (quad.point && (quad.point !== node)) {
+//			      var x = node.x - quad.point.x,
+//			          y = node.y - quad.point.y,
+//			          l = Math.sqrt(x * x + y * y),
+//			          r = node.radius + quad.point.radius;
+//			      if (l < r) {
+//			        l = (l - r) / l * .5;
+//			        node.x -= x *= l;
+//			        node.y -= y *= l;
+//			        quad.point.x += x;
+//			        quad.point.y += y;
+//			      }
+//			    }
+//			    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+//			  };
+//		 svg.selectAll("circle")
+//	      .attr("cx", function(d) { return d.x; })
+//	      .attr("cy", function(d) { return d.y; });
+		
+		// For every iteration of the layout (until it stabilizes)
+		// Using this bounding box on nodes and links works, but leads to way too much overlap for the
+		// labels...Bostock is correct in saying that gravity adjustments can get better results.
+		// gravityAdjust() functions are pass through; they want to inspect values,
+		// not modify them!
+//		var doLabelUpdateNextTime = false;
+//		if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
+//			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
+//			lastGravityAdjustmentTime = jQuery.now();
+//			doLabelUpdateNextTime = true;
+//		} else {
+
+		boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+			
+		if(boundLinks.length > 0)
+			boundLinks
+		  .attr("x1", function(d) { return d.source.x; })
+	      .attr("y1", function(d) { return d.source.y; })
+	      .attr("x2", function(d) { return d.target.x; })
+	      .attr("y2", function(d) { return d.target.y; });
+		
+		// I want labels to aim out of middle of graph, to make more room
+		// It slows rendering, so I will only do it sometimes
+		// Commented all this out because I liked centering them instead.
+//		if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
+//			$.each($(".nodetext"), function(i, text){
+//				text = $(text);
+//				if(text.position().left >= visWidth()/2){
+//					text.attr("dx", 12);
+//					text.attr("x", 12);
+//				} else {
+//					text.attr("dx", - 12 - text.get(0).getComputedTextLength());
+//					text.attr("x", - 12 - text.get(0).getComputedTextLength());
+//				}
+//			})
+//			lastLabelShiftTime = jQuery.now();
+//		}
+		
+	}
+		
+}
+
 function createNodePopupTable(conceptRect, conceptData){
 	var outerDiv = $("<div></div>");
 	outerDiv.addClass("popups-Popup");
@@ -1146,6 +961,74 @@ function createNodePopupTable(conceptRect, conceptData){
 
      return outerDiv.prop("outerHTML");
 }
+
+/**
+ * We cannot update the graph with new node or link properties *efficiently* using D3.
+ * This is because, although you can use the enter() selection, you cannot sub-select within
+ * it to access the children DOM elements, and using other D3 ways of getting at the elements
+ * fails to have them bound to the data as they are in the enter() selection [meaning that
+ * data based property settings fail].
+ * 
+ * Explicit looping allows us to cherry pick data, and do fewer DOM changes than I could
+ * when using D3's data().enter() selection results.
+ * 
+ * @param json
+ */
+function updateDataForNodesAndLinks(json){
+	
+	var updateLinksFromJson = function(i, d){ // JQuery is i, d
+		// Given a json encoded graph element, update all of the nested elements associated with it
+		// cherry pick elements that we might otherwise get by class "link"
+		var link = vis.select("#link_line_"+d.source.id+"->"+d.target.id);
+		// Concept graphs have fixed node and arc sizes.
+		// link.attr("data-thickness_basis", function(d) { return d.value;})
+		link.select("title").text(conceptLinkLabelFunction);
+	}
+	
+	var updateNodesFromJson = function(i, d){ // JQuery is i, d
+		// Given a json encoded graph element, update all of the nested elements associated with it
+		// cherry pick elements that we might otherwise get by class "node"
+		var node = vis.select("#node_g_"+d.escapedId);
+		var nodeRects = node.select("node_rect");
+		// Concept graphs have fixed node and arc sizes.
+		// nodeRects.attr("data-radius_basis", d.number);
+		nodeRects.transition().style("fill", d.nodeColor);
+		node.select("title").text(conceptNodeSimplePopupFunction);
+		node.select("text").text(conceptNodeLabelFunction)
+		// Firefox renders dx for text poorly, shifting things around oddly,
+		// but x works for both Chrome and Firefox.
+		// .attr("dx", function(){ return - this.getComputedTextLength()/2; })
+		.attr("x", function(){ return - this.getComputedTextLength()/2; })
+		;
+		
+		// Refresh popup if currently open
+		if(lastDisplayedTipsy != null
+				&& lastDisplayedTipsy.css("visibility") == "visible"
+				&& lastDisplayedTipsyData.acronym == d.acronym
+				){
+			$(lastDisplayedTipsy).children(".tipsy-inner").html(createNodePopupTable(lastDisplayedTipsyNodeRect, lastDisplayedTipsyData));
+		}
+	}
+	
+	$.each(json.links, updateLinksFromJson);
+	$.each(json.nodes, updateNodesFromJson);
+	
+	// Concept graphs have fixed node and arc sizes.
+//	if(nodeUpdateTimer == false){
+//		nodeUpdateTimer = true;
+//		window.setTimeout(function(){
+//				console.log("TIMER RESET");
+//				nodeUpdateTimer = false;
+//				updateNodeScalingFactor();
+//				// The link thickness does not receive new data right now,
+//				// otherwise we'd want to call the update factor function here.
+//				// updateLinkScalingFactor();
+//			},
+//			1000);
+//	}
+}
+//var nodeUpdateTimer = false;
+
 
 /**
 * This function should be used when adding brand new nodes and links to the
@@ -1384,168 +1267,278 @@ function populateGraphNodes(nodesData){
 	
 }
 
-// TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
-function onLayoutTick(forceLayout){
-	var lastLabelShiftTime = jQuery.now();
-	var lastGravityAdjustmentTime = jQuery.now();
-	var firstTickTime = jQuery.now();
-	var maxLayoutRunDuration = 10000;
-	var maxGravityFrequency = 4000;
-
-	return function() {
-		// This improved layout behavior dramatically.
-		var boundNodes = vis.selectAll("g.node");
-		// Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
-		var boundLinks = vis.selectAll("line.link");
-			
-		// Stop the layout early. The circular initialization makes it ok.
-		if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
-			forceLayout.stop();
-		}
+//Needs the arguments index, concept because the function will be called in JQuery loop. Write wrappers in callers if you don't like that.
+function parseNode(index, conceptData){
+		// Create the concept nodes that exist on the paths-to-root for the central concept,
+		// including the central concept node.
+		var conceptNode = new Object();
+		conceptNode.id = conceptData["@id"];
+		conceptNode.escapedId = encodeURIComponent(conceptNode.id);
+		conceptNode.name = conceptData.prefLabel;
+		conceptNode.type = conceptData.type;
+		conceptNode.description = "fetching description";
+		conceptNode.weight = 1;
+		conceptNode.fixed = false;
+		// TODO Some layout stuff could conceivably be done here. Or elsewhere.
+		// Note how simple it is to set the x and y of the node to position it.
+		// It is also critical to prevent the layout from running, or to fix the node position.
+//		// Compute starting positions to be in a circle for faster layout
+//		var angleForNode = i * anglePerNode; i++;
+//		conceptNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+//		conceptNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+		var ontologyUri = conceptData.links.ontology;
+		// "http://data.bioontology.org/ontologies/<acronym>"
+		var urlBeforeAcronym = "ontologies/";
+		conceptNode.ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
+		conceptNode.ontologyUri = ontologyUri;
+		conceptNode.escapedOntologyUri = encodeURIComponent(conceptNode.ontologyUri);
+		conceptNode.nodeColor = nextNodeColor();
+		graphD3Format.nodes.push(conceptNode);
+		$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
 		
+		// Could accumulate in caller?
+		updateGraphPopulation();
 		
-		// Do I want nodes to avoid one another?
-		// http://bl.ocks.org/mbostock/3231298
-//		var q = d3.geom.quadtree(nodes),
-//	      i = 0,
-//	      n = nodes.length;
-//		while (++i < n) q.visit(collide(nodes[i]));
-//		function collide(node) {
-//			  var r = node.radius + 16,
-//			      nx1 = node.x - r,
-//			      nx2 = node.x + r,
-//			      ny1 = node.y - r,
-//			      ny2 = node.y + r;
-//			  return function(quad, x1, y1, x2, y2) {
-//			    if (quad.point && (quad.point !== node)) {
-//			      var x = node.x - quad.point.x,
-//			          y = node.y - quad.point.y,
-//			          l = Math.sqrt(x * x + y * y),
-//			          r = node.radius + quad.point.radius;
-//			      if (l < r) {
-//			        l = (l - r) / l * .5;
-//			        node.x -= x *= l;
-//			        node.y -= y *= l;
-//			        quad.point.x += x;
-//			        quad.point.y += y;
-//			      }
-//			    }
-//			    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-//			  };
-//		 svg.selectAll("circle")
-//	      .attr("cx", function(d) { return d.x; })
-//	      .attr("cy", function(d) { return d.y; });
+		// Understanding arcs:
+		// Concept links come from different calls. We will probably need to use the links container
+		// to collect all possible links that we know about, indexed by the concept that is not currently
+		// included in our graph. When we get another concept added to the graph, we look it up in there,
+		// add all the links to the graph, and remove the entries from the possible-links object.
+		// This works only if we are able to add any given node prior to having to sort through its relations.
+		// This also means that adding links has to be done in a separate process, and can't happen
+		// in a smooth way when processing node information.
+		// In Biomixer, these links were added as unrendered objects as they came up I think. We don't want
+		// unrendered SVG in D3.
+		// In any case, relations don't show up in the paths_to_root data anyway, so we need a separate process
+		// because of that alone :)
+		// We will need to inspect for relations in the registry, to see if there are any
+		// implicit ones that have now been fulfilled by this node being added...is that correct to do here?
+		// Registry should probably only have edges indexed by the *non-present* nodes, so that there is a simple
+		// lookup for incoming nodes.
+		// We also check for node endpoints in the graph before registering the implicit edges, so there's no risk of
+		// adding an edge when it should instead be manifested in the graph.
 		
-		// For every iteration of the layout (until it stabilizes)
-		// Using this bounding box on nodes and links works, but leads to way too much overlap for the
-		// labels...Bostock is correct in saying that gravity adjustments can get better results.
-		// gravityAdjust() functions are pass through; they want to inspect values,
-		// not modify them!
-//		var doLabelUpdateNextTime = false;
-//		if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
-//			nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
-//			lastGravityAdjustmentTime = jQuery.now();
-//			doLabelUpdateNextTime = true;
-//		} else {
-
-		boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-			
-		if(boundLinks.length > 0)
-			boundLinks
-		  .attr("x1", function(d) { return d.source.x; })
-	      .attr("y1", function(d) { return d.source.y; })
-	      .attr("x2", function(d) { return d.target.x; })
-	      .attr("y2", function(d) { return d.target.y; });
-		
-		// I want labels to aim out of middle of graph, to make more room
-		// It slows rendering, so I will only do it sometimes
-		// Commented all this out because I liked centering them instead.
-//		if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
-//			$.each($(".nodetext"), function(i, text){
-//				text = $(text);
-//				if(text.position().left >= visWidth()/2){
-//					text.attr("dx", 12);
-//					text.attr("x", 12);
-//				} else {
-//					text.attr("dx", - 12 - text.get(0).getComputedTextLength());
-//					text.attr("x", - 12 - text.get(0).getComputedTextLength());
-//				}
-//			})
-//			lastLabelShiftTime = jQuery.now();
-//		}
-		
-	}
-		
+		// If there are implicit edges from before that link from an existing node to this new one,
+		// we can now manifest them.
+		manifestEdgesForNewNode(conceptNode);
+					
+		return conceptNode;
 }
 
+function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPropertiesData){
+	// Can determine on the basis of the relatedConceptId if we should request data for the
+	// conceptId provided, or if we should parse provided conceptProperties (if any).
+	// TODO PROBLEM What if the conceptId is already going to be fetched and processed because
+	// it has a fetcher running on the basis of some other relation?
+	// In paths to root, it won't happen, because we would only want to parse from the original call.
+	// In mappings, we only expand mapped nodes in the original call.
+	// In term neighbourhood, we do indeed parse nodes on the basis of parent and child
+	// relations, as well as composition relations. But...only if they are related to the
+	// central one. So simply checking for that combination of facts here works out fine.
+	
+	// For path to root, we only expand those path to root nodes.
+	// For term neighbourhood, we only expand the direct neighbours of the central node.
+	// For mappings, we only expand based on the first mapping call.
+	// This will go through a whole process of adding the node, if the node is supposed to be
+	// expanded for the current visualization (children and parents for term neighbourhood).
+	
+	// Because we expand for term neighbourhood relation calls, and those come in two flavors
+	// (node with properties for children and parents, and just node IDs for compositions)
+	// we want to support parsing the data directly as well as fetching additional data.
+	if(relatedConceptId === centralConceptUri && visualization === termNeighborhoodConstant
+		&& !(newConceptId in conceptIdNodeMap)){
+
+		// Manifest the node; parse the properties if available.
+		// We know that we will get the composition relations via a properties call,
+		// and that has all the data we need from a separate call for properties...
+		// but that subsystem relies on the fact that the node is created already.
+		
+		if(!typeof conceptPropertiesData === "undefined" && Object.keys(conceptPropertiesData).length > 0){
+			// This happens when it is a child or parent inheritance relation for term neighbourhood
+			var conceptNode = parseNode(undefined, conceptPropertiesData);
+			fetchConceptRelations(conceptNode, conceptPropertiesData);
+		} else {
+			// This happens when it is a composite relation for term neighbourhood
+			// Making the call to create it will get all relations automatically.
+			// 1) Get paths to root for the central concept
+			// "http://purl.bioontology.org/ontology/SNOMEDCT/16089004","
+			// Node data for term neighborhood should have the related node's link data section.
+			var ontologyUri = conceptPropertiesData.links.ontology;
+			var urlBeforeAcronym = "ontologies/";
+			var urlAfterAcronym = "/";
+			var ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
+			// var ontologyAcronym = chunk.substring(0, chunk.lastIndexOf(urlAfterAcronym));
+			
+			// TODO Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
+			// Is this a redundant call? Or is it better to follow this route anyway??
+			// I think it isn't redundant, due to limited data that is available when this happens.
+			var url = buildConceptUrlNewApi(ontologyAcronym, newConceptId);
+			var callback = new FetchOneConceptCallback(url, newConceptId);
+			var fetcher = closureRetryingJsonpFetcher(callback);
+			fetcher();
+		}
+	}
+}
 
 /**
- * We cannot update the graph with new node or link properties *efficiently* using D3.
- * This is because, although you can use the enter() selection, you cannot sub-select within
- * it to access the children DOM elements, and using other D3 ways of getting at the elements
- * fails to have them bound to the data as they are in the enter() selection [meaning that
- * data based property settings fail].
+ * This is important because children and parent calls can result in the same relations
+ * being returned. I am not yet confident that we only need one of these calls though.
+ * I am concerned that they may not always return equivalent results.
  * 
- * Explicit looping allows us to cherry pick data, and do fewer DOM changes than I could
- * when using D3's data().enter() selection results.
- * 
- * @param json
+ * @param edge
+ * @returns {Boolean}
  */
-function updateDataForNodesAndLinks(json){
-	
-	var updateLinksFromJson = function(i, d){ // JQuery is i, d
-		// Given a json encoded graph element, update all of the nested elements associated with it
-		// cherry pick elements that we might otherwise get by class "link"
-		var link = vis.select("#link_line_"+d.source.id+"->"+d.target.id);
-		// Concept graphs have fixed node and arc sizes.
-		// link.attr("data-thickness_basis", function(d) { return d.value;})
-		link.select("title").text(conceptLinkLabelFunction);
+function edgeNotInGraph(edge){
+	var length = graphD3Format.links.length;
+	for(var i = 0; i < length; i++) {
+		var item = graphD3Format.links[i];
+        if(item.sourceId == edge.sourceId && item.targetId == edge.targetId && item.edgeType == edge.edgeType){
+            return false;
+        }
+	}
+    return true;
+}
+
+/*
+ * Parent and child arguments determine arrow direction. Relation type can 
+ * reflect inheritance, composition, or mapping.
+ * I *think* that every time we register one of these, we should check and see if
+ * the endpoints are in the graph, and if so, manifest the edge right away.
+ * Likewise, I think, we should check for edge inclusions every time a node is
+ * manifested. Otherwise we end up with problems...if...data integrity is not perfect
+ * in a given ontology (has_part and part_of are not symmetrically stated, even though
+ * semantically they necessitate each other; if not symmetrically defined, we will only
+ * find the relation when manifesting nodes in one order, unless we always look for
+ * edges when manifesting nodes).
+ */
+function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
+	if(parentId === childId){
+		// Some mappings data is based off of having the same URI, which is mind boggling to me.
+		// We have no use for self relations in this domain.
+		return;
 	}
 	
-	var updateNodesFromJson = function(i, d){ // JQuery is i, d
-		// Given a json encoded graph element, update all of the nested elements associated with it
-		// cherry pick elements that we might otherwise get by class "node"
-		var node = vis.select("#node_g_"+d.escapedId);
-		var nodeRects = node.select("node_rect");
-		// Concept graphs have fixed node and arc sizes.
-		// nodeRects.attr("data-radius_basis", d.number);
-		nodeRects.transition().style("fill", d.nodeColor);
-		node.select("title").text(conceptNodeSimplePopupFunction);
-		node.select("text").text(conceptNodeLabelFunction)
-		// Firefox renders dx for text poorly, shifting things around oddly,
-		// but x works for both Chrome and Firefox.
-		// .attr("dx", function(){ return - this.getComputedTextLength()/2; })
-		.attr("x", function(){ return - this.getComputedTextLength()/2; })
-		;
+	// Either register it as an implicit relation, or manifest it if both nodes are in graph.
+	var edge = new Object();
+	// edge source and targe tobjects will be set when manifesting the edge (when we know we have
+	// node objects to add there). They are looked up by these ids.
+	// TODO source/target and parent/child are not clear...which way do we need this to be?
+	// I prefer using parent/child in model, but for the graph, arrow representation is clearer
+	// using source and target.
+	edge.sourceId = parentId;
+	edge.targetId = childId;
+	edge.id = edge.sourceId+"->"+edge.targetId;
+	edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
+	edge.edgeType = relationType;
+	
+	
+	// We expect neither or just one of the ids will be in the registry, since we only register
+	// node ids that do not exist in our graph. This should be enforced by processing edges
+	// whenever we add a node to the graph.
+	
+	var matchId = undefined, otherId = undefined;
+	var parentIdInRegistry = false, childIdInRegistry = false;
+	if(parentId in edgeRegistry && childId in edgeRegistry[parentId]){
+		matchId = parentId;
+		otherId = childId;
+		parentIdInRegistry = true;
+	}
+	if(childId in edgeRegistry && parentId in edgeRegistry[childId]){
+		if(matchId){
+			// This can happen due to race conditions among relation calls. There's four, and ndoes are instantiated first...
+			// The parent receive parents, then the child receives children, then the child receives parents and we are in this situation.
+			// So if both match, what do we do? Ah, narrowed logic above to check for the other node beneath in the registry.
+			console.log("Logical error; cannot have both edge ends in the graph already. The edge would have been added before if so.")
+		}
+		matchId = childId;
+		otherId = parentId;
+		childIdInRegistry = true;
+	}
+	
+	
+	// Logic...begs for assertions.
+	var parentIdInGraph = parentId in conceptIdNodeMap;
+	var childIdInGraph = childId in conceptIdNodeMap;
+	if((parentIdInGraph && childIdInGraph) && (parentIdInRegistry && childIdInRegistry)){
+		console.log("Problem: Both ids are already in the graph, and both in the registry. Should we be here?");
+	}
+	if(matchId && !(parentIdInGraph || childIdInGraph)){
+		console.log("Problem: If matchId is true, there must be at least one of the concepts in the graph already.");
+	}
+	if(!parentIdInGraph && !childIdInGraph){
+		console.log("Problem: If neither node is in graph already.");
+	}
+	
+	// Register edges for which we have one in the graph, and none in the registry.
+	if(!matchId && (!parentIdInGraph != !childIdInGraph)){
+		// Register this implicit edge.
+		var conceptIdNotInGraph = (parentId in conceptIdNodeMap) ?  childId : parentId;
+		var conceptInGraph = (parentId in conceptIdNodeMap) ?  parentId : childId;
+		if(!(conceptIdNotInGraph in edgeRegistry)){
+			edgeRegistry[conceptIdNotInGraph] = {};
+		}
+		if(!(conceptInGraph in edgeRegistry[conceptIdNotInGraph])){
+			edgeRegistry[conceptIdNotInGraph][conceptInGraph] = {};
+		}
+		// Need type as an index as well because some ontologies could have multiple edge types between entities.
+		edgeRegistry[conceptIdNotInGraph][conceptInGraph][edge.type] = edge;
 		
-		// Refresh popup if currently open
-		if(lastDisplayedTipsy != null
-				&& lastDisplayedTipsy.css("visibility") == "visible"
-				&& lastDisplayedTipsyData.acronym == d.acronym
-				){
-			$(lastDisplayedTipsy).children(".tipsy-inner").html(createNodePopupTable(lastDisplayedTipsyNodeRect, lastDisplayedTipsyData));
+	} else if(parentIdInGraph && childIdInGraph) {
+		// If both are in the graph, we'll be manifesting it immediately.
+		// Manifest this edge. We have a matching id in the registry, and the other end of the edge.
+		edge.source = conceptIdNodeMap[edge.sourceId];
+		edge.target = conceptIdNodeMap[edge.targetId];
+		if(edgeNotInGraph(edge)){
+			graphD3Format.links.push(edge);
+			updateGraphPopulation();
+		}
+		
+		if(matchId){
+			// Clear our cruft
+			delete edgeRegistry[matchId][otherId][edge.type];
+			if(Object.keys(edgeRegistry[matchId][otherId]).length == 0){
+				delete edgeRegistry[matchId][otherId];
+			}
+			if(Object.keys(edgeRegistry[matchId]).length == 0){
+				delete edgeRegistry[matchId];
+			}
 		}
 	}
-	
-	$.each(json.links, updateLinksFromJson);
-	$.each(json.nodes, updateNodesFromJson);
-	
-	// Concept graphs have fixed node and arc sizes.
-//	if(nodeUpdateTimer == false){
-//		nodeUpdateTimer = true;
-//		window.setTimeout(function(){
-//				console.log("TIMER RESET");
-//				nodeUpdateTimer = false;
-//				updateNodeScalingFactor();
-//				// The link thickness does not receive new data right now,
-//				// otherwise we'd want to call the update factor function here.
-//				// updateLinkScalingFactor();
-//			},
-//			1000);
-//	}
 }
-//var nodeUpdateTimer = false;
 
+function manifestEdgesForNewNode(conceptNode){
+	var conceptId = conceptNode.id;
+	// Because registry contains edges for which there *was* no node for the index,
+	// and there *are* nodes for the other ends of the edge, we can manifest all of
+	/// them when we are doing so due to a new node appearing.
+	if(conceptId in edgeRegistry){
+		$.each(edgeRegistry[conceptId], function(index, conceptsEdges){
+			$.each(conceptsEdges, function(index, edge){
+				var otherId = (edge.sourceId == conceptId) ? edge.targetId : edge.sourceId ;
+	
+				edge.source = conceptIdNodeMap[edge.sourceId];
+				edge.target = conceptIdNodeMap[edge.targetId];
+				if(edgeNotInGraph(edge)){
+					console.log(edge);
+					graphD3Format.links.push(edge);
+					updateGraphPopulation();
+				}
+				
+				// Clear that one out...safe while in the loop?
+				delete edgeRegistry[conceptId][otherId][edge.type];
+				// Might be out of edges for this node pair.
+				if(Object.keys(edgeRegistry[conceptId][otherId]).length == 0){
+					delete edgeRegistry[conceptId][otherId];
+				}
+			})
+		});
+		
+		// Done looking at this conceptId...was that all the edges?
+		if(Object.keys(edgeRegistry[conceptId]).length == 0){
+			delete edgeRegistry[conceptId];
+		}
+	}
+}
 
 function highlightLink(d, i){
 		if(dragging){
