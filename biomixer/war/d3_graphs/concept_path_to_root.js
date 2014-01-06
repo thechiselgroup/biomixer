@@ -19,6 +19,8 @@ jQuery(window).load(
 // http://grokbase.com/t/gg/d3-js/12cjmqc2cx/dynamically-updating-nodes-links-in-a-force-layout-diagram
 // Bostock confirms that we shouldn't bind things that aren't truly new, and instead we must
 // update element properties without binding.
+// Also, as noted near where we add nodes and edges, the existing containers for each must be pulled
+// from the forcelayout object and used, rather than passing separate or new containers of nodes and arcs.
 
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
@@ -34,7 +36,6 @@ $("#visualization_selector option").each(
 			// Note we use the values not text, to facilitate URL parameters without having to encode spaces.
 			if($(this).val() == initialVis){
 				$(this).attr("selected", "selected");
-				// console.log("selected another option based on url parameter: "+initialVis);
 			}
 		}
 );
@@ -50,7 +51,6 @@ var edgeRegistry = {};
 var conceptIdNodeMap = new Object();
 
 var dragging = false;
-//var ontologyTick; // needs to contain the onTick listener function
 
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
 var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyNodeRect = null;
@@ -94,9 +94,7 @@ function cleanSlate(){
 		.attr("width", visWidth())
 		.attr("height", visHeight())
 		.attr("pointer-events", "all")
-	//  .append('svg:g')
 	//  .call(d3.behavior.zoom().on("zoom", redraw))
-	//  .append('svg:g')
 	  ;
 	
 	vis.append('svg:rect')
@@ -152,33 +150,6 @@ $(window).resize(resizedWindow);
 //      + " scale(" + d3.event.scale + ")");
 //}
 
-// TODO Gravity adjustment is not going to be needed for non-force layouts
-////Seeing if I can modulate graph gravity using bounding boxes...
-//// when the nodes are outside the box, tweak the gravity higher by a small amount,
-//// and decrease it when the nodes are further from the edge
-//// This is happening for each node as it updates, so keep that in mind...
-//var minGravity = 0.1;
-//var maxGravity = 3.5;
-//function gravityAdjust(number, visSize){
-//	var alpha = 0.2 / forceLayout.nodes().length;
-//	if(number < visSize*0.05 || visSize*0.95 < number){
-//		// console.log("increase");
-//		forceLayout.gravity(Math.min(maxGravity, forceLayout.gravity() * (1 + alpha)));
-//	} else if(visSize*0.20 < number && number < visSize*0.80){
-//		// console.log("decrease");
-//		forceLayout.gravity(Math.max(minGravity, forceLayout.gravity() * (1 - alpha)));
-//	} else {
-//		// leave gravity as it is
-//	}
-//	return number;
-//}
-//function gravityAdjustX(number){
-//	return gravityAdjust(number, visWidth());
-//}
-//function gravityAdjustY(number){
-//	return gravityAdjust(number, visHeight());
-//}
-
 function runGraph(){
 	// Run the graph! Don't need the json really, though...
 	// d3.json("force_files/set_data.json", initAndPopulateGraph);
@@ -186,6 +157,7 @@ function runGraph(){
 	initPopulateGraph();
 }
 
+// TODO I don't believe this is rendering...
 function conceptLinkSimplePopupFunction(d) { return "From: "+d.source.id+" To: "+d.target.id};
 
 // TODO Fix...but also it doesn't render...
@@ -197,31 +169,24 @@ function fetchPathToRoot(centralOntologyAcronym, centralConceptUri){
 	// I have confirmed that this is faster than BioMixer. Without removing
 	// network latency in REST calls, it is approximately half as long from page load to
 	// graph completion (on the order of 11 sec vs 22 sec)
-	// TODO XXX Then try adding web workers around things to see if it affects it further.
-	
-	// TODO XXX I lose all the error handling and retry handling that I set up in BioMixer.
-	// This is our first loss, that we have to futz with that again. It can be recreated, or if this
-	// is fast enough, we can adapt things so that some of the Java work in BioMixer can be used here too
-	// I mostly need to bypass the overall architecture of BioMixer to see how it affects loading speed
-	// and responsivity, as well as to try using web workers (which don't work with GWT 2.5 right now)
+	// Tried web workers, but D3 doesn't play well with that, and they aren't appropriate
+	// for REST call handling.
 	
 	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
 	1) Get the root to path for the central concept
 	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
 	   - create the nodes, and do any prep for subsequent REST calls
 	2) Get relational data (children, parents and mappings) for all concepts in the path to root
-	   TODO example URL here
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/parents/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
 	   - fill in nodes with details from this data TODO Look at Biomixer to see what we need 
 	3) Get properties for all concepts in path to root
-	   TODO example URL here
-	   - set node properties...TODO Look at Biomixer for what to copy
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/properties/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   - set node properties
 	*/
 	
 	// 1) Get paths to root for the central concept
 	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
 	var pathsToRootCallback = new PathsToRootCallback(pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
-//	var fetcher = new RetryingJsonpFetcher(pathsToRootCallback);
-//	fetcher.retryFetch();
 	var fetcher = closureRetryingJsonpFetcher(pathsToRootCallback);
 	fetcher();
 }
@@ -235,7 +200,6 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 	this.callback = function (pathsToRootData, textStatus, jqXHR){
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
-//		var errorOrRetry = self.fetcher.retryFetch(mappingData);
 		var errorOrRetry = self.fetcher(pathsToRootData);
 		if(0 == errorOrRetry){
 			return;
@@ -244,40 +208,8 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 			return;
 		}
 		
-		// New API example:
-		// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
-		
 		var numberOfConcepts = Object.keys(pathsToRootData).length;
 		
-		// Moved to global. If that's wrong, I will catch it. Will hold all node data.
-//		var conceptIdNodeMap = new Object();
-		
-//		var defaultNumOfTermsForSize = 10;
-//
-//		// Create the central node
-//		var centralOntologyNode = new Object();
-//		centralOntologyNode.name = "fetching";
-//		centralOntologyNode.description = "fetching description";
-//		centralOntologyNode.fixed = true; // lock central node
-//		centralOntologyNode.x = visWidth()/2;
-//		centralOntologyNode.y = visHeight()/2;		
-//		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
-//		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-//		centralOntologyNode.acronym = centralOntologyAcronym;
-//		centralOntologyNode.nodeColor = nextNodeColor();
-//		graphD3Format.nodes.push(centralOntologyNode);
-//		
-//		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyAcronym, centralOntologyNode);
-//		
-//		// TODO XXX Either the parsing or the looping here causes a visible glitch in rendering,
-//		// so this is the first place to try a web worker out.
-//
-//		// Make some graph parts!
-//		// Original bug hidden by force layout, but I needed radians not degrees.
-//		// It looks very slightly different.
-//		var anglePerNode =2*Math.PI / numberOfMappedOntologies; // 360/numberOfMappedOntologies;
-//		var arcLength = linkMaxDesiredLength();
-//		var i = 0;
 		$.each(pathsToRootData[0],
 			function(index, nodeData){
 				var conceptNode = parseNode(undefined, nodeData);
@@ -285,19 +217,7 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 			}
 		);
 		
-//		// Separate loop so that we can have the complete set of path-to-root nodes prior to firing off requests for
-//		// relations.
-//		oops! I think his is fubarred. Need conceptNode to this method, but passing raw data.
-//		$.each(pathsToRootData[0],
-//			fetchConceptRelations
-//		);
-
-		// Not sure about whether to do this here or not...
-		// console.log("ontologyMappingCallback");
 		updateGraphPopulation();
-		
-		//----------------------------------------------------------
-		
 	}
 }
 
@@ -305,8 +225,6 @@ function fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri){
 	// 1) Get term neighbourhood for the central concept
 	var termNeighborhoodInitialUrl = buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri);
 	var termNeighborhoodCallback = new TermNeighbourhoodCallback(termNeighborhoodInitialUrl, centralOntologyAcronym, centralConceptUri);
-//	var fetcher = new RetryingJsonpFetcher(termNeighborhoodCallback);
-//	fetcher.retryFetch();
 	var fetcher = closureRetryingJsonpFetcher(termNeighborhoodCallback);
 	fetcher();
 }
@@ -320,7 +238,6 @@ function TermNeighbourhoodCallback(url, centralOntologyAcronym, centralConceptUr
 	this.callback = function (centralConceptData, textStatus, jqXHR){
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
-//		var errorOrRetry = self.fetcher.retryFetch(mappingData);
 		var errorOrRetry = self.fetcher(centralConceptData);
 		if(0 == errorOrRetry){
 			return;
@@ -335,42 +252,17 @@ function TermNeighbourhoodCallback(url, centralOntologyAcronym, centralConceptUr
 		var conceptNode = parseNode(undefined, centralConceptData);
 		fetchConceptRelations(conceptNode, centralConceptData);
 		
-		// Not sure about whether to do this here or not...
-		// console.log("ontologyMappingCallback");
 		updateGraphPopulation();
 	}
 	
 }
 
 function fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri){
-	// I have confirmed that this is faster than BioMixer. Without removing
-	// network latency in REST calls, it is approximately half as long from page load to
-	// graph completion (on the order of 11 sec vs 22 sec)
-	// TODO XXX Then try adding web workers around things to see if it affects it further.
-	
-	// TODO XXX I lose all the error handling and retry handling that I set up in BioMixer.
-	// This is our first loss, that we have to futz with that again. It can be recreated, or if this
-	// is fast enough, we can adapt things so that some of the Java work in BioMixer can be used here too
-	// I mostly need to bypass the overall architecture of BioMixer to see how it affects loading speed
-	// and responsivity, as well as to try using web workers (which don't work with GWT 2.5 right now)
-	
-	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
-	1) Get the root to path for the central concept
-	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
-	   - create the nodes, and do any prep for subsequent REST calls
-	2) Get relational data (children, parents and mappings) for all concepts in the path to root
-	   TODO example URL here
-	   - fill in nodes with details from this data TODO Look at Biomixer to see what we need 
-	3) Get properties for all concepts in path to root
-	   TODO example URL here
-	   - set node properties...TODO Look at Biomixer for what to copy
-	*/
+	console.log("fetchMappingsNeighborhood is Unimplemented.");
 	
 //	// 1) Get paths to root for the central concept
 //	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
 //	var pathsToRootCallback = new PathsToRootCallback(pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
-////	var fetcher = new RetryingJsonpFetcher(pathsToRootCallback);
-////	fetcher.retryFetch();
 //	var fetcher = closureRetryingJsonpFetcher(pathsToRootCallback);
 //	fetcher();
 }
@@ -380,12 +272,6 @@ function MappingsNeighborhoodCallback(url, centralOntologyAcronym, centralConcep
 
 // Needs the arguments index, concept because the function will be called in JQuery loop. Write wrappers in callers if you don't like that.
 function parseNode(index, conceptData){
-//		var acronym = index;
-//
-//		if(typeof acronym === "undefined"){
-//			console.log("Undefined ontology entry");
-//		}
-
 		// Create the concept nodes that exist on the paths-to-root for the central concept,
 		// including the central concept node.
 		var conceptNode = new Object();
@@ -396,28 +282,28 @@ function parseNode(index, conceptData){
 		conceptNode.description = "fetching description";
 		conceptNode.weight = 1;
 		conceptNode.fixed = false;
+		// TODO Some layout stuff could conceivably be done here. Or elsewhere.
+		// Note how simple it is to set the x and y of the node to position it.
+		// It is also critical to prevent the layout from running, or to fix the node position.
 //		// Compute starting positions to be in a circle for faster layout
 //		var angleForNode = i * anglePerNode; i++;
 //		conceptNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 //		conceptNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
-//		conceptNode.number = defaultNumOfTermsForSize; // number of terms
 		var ontologyUri = conceptData.links.ontology;
 		// "http://data.bioontology.org/ontologies/<acronym>"
 		var urlBeforeAcronym = "ontologies/";
 		conceptNode.ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
 		conceptNode.ontologyUri = ontologyUri;
 		conceptNode.escapedOntologyUri = encodeURIComponent(conceptNode.ontologyUri);
-//		conceptNode.x = 0;
-//		conceptNode.y = 0;
 		conceptNode.nodeColor = nextNodeColor();
 		graphD3Format.nodes.push(conceptNode);
-		// TODO I feel like JS doesn't allow references like this...
 		$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
 		
 		// Could accumulate in caller?
 		updateGraphPopulation();
 		
-		// TODO Concept links come from different calls. We will probably need to use the links container
+		// Understanding arcs:
+		// Concept links come from different calls. We will probably need to use the links container
 		// to collect all possible links that we know about, indexed by the concept that is not currently
 		// included in our graph. When we get another concept added to the graph, we look it up in there,
 		// add all the links to the graph, and remove the entries from the possible-links object.
@@ -428,29 +314,16 @@ function parseNode(index, conceptData){
 		// unrendered SVG in D3.
 		// In any case, relations don't show up in the paths_to_root data anyway, so we need a separate process
 		// because of that alone :)
-		
-		// TODO I think that I need to inspect for relations in the registry, to see if there are any
+		// We will need to inspect for relations in the registry, to see if there are any
 		// implicit ones that have now been fulfilled by this node being added...is that correct to do here?
 		// Registry should probably only have edges indexed by the *non-present* nodes, so that there is a simple
 		// lookup for incoming nodes.
 		// We also check for node endpoints in the graph before registering the implicit edges, so there's no risk of
 		// adding an edge when it should instead be manifested in the graph.
 		
-		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
-		// Maybe pass a flag in that controls whether they are accumulated or populated?
-		// updateGraphPopulation({nodes:graphD3Format.nodes, links:[]}, true);
-		
 		// If there are implicit edges from before that link from an existing node to this new one,
 		// we can now manifest them.
 		manifestEdgesForNewNode(conceptNode);
-		
-//		// Make the links at the same time; they are done now!
-//		var ontologyLink = new Object();
-//		ontologyLink.source = centralOntologyNode;
-//		ontologyLink.target = ontologyNode;
-//		ontologyLink.value = element; // This gets used for link stroke thickness later.
-//		ontologyLink.numMappings = element;
-//		graphD3Format.links.push(ontologyLink);
 					
 		return conceptNode;
 }
@@ -458,24 +331,26 @@ function parseNode(index, conceptData){
 function fetchConceptRelations(conceptNode, conceptData){
 	// 2) Get relational data for all the concepts, create links from them
 	// fetchBatchRelations(); // don't exist, because of COR issues on server, cross domain, and spec issues.
-	fetchParents(conceptNode, conceptData.links.parents);
+	
+	// Children requests have paging, which needs cycling internally.
 	fetchChildren(conceptNode, conceptData.links.children, 1);
+	fetchParents(conceptNode, conceptData.links.parents);
 	fetchMappings(conceptNode, conceptData.links.mappings);
 	fetchCompositionRelations(conceptNode);
+}
+
+function fetchChildren(conceptNode, baseUrl, pageRequested){
+	// Children requests have paging, which needs cycling internally.
+	var relationsUrl = appendJsonpAndApiKeyArgumentsToExistingUrl(baseUrl);
+	relationsUrl += "&page="+pageRequested;
+	var conceptRelationsCallback = new ConceptChildrenRelationsCallback(relationsUrl, conceptNode, conceptIdNodeMap);
+	var fetcher = closureRetryingJsonpFetcher(conceptRelationsCallback);
+	fetcher();
 }
 
 function fetchParents(conceptNode, baseUrl){
 	var relationsUrl = appendJsonpAndApiKeyArgumentsToExistingUrl(baseUrl);
 	var conceptRelationsCallback = new ConceptParentsRelationsCallback(relationsUrl, conceptNode, conceptIdNodeMap);
-	var fetcher = closureRetryingJsonpFetcher(conceptRelationsCallback);
-	fetcher();
-}
-
-// Children requests have paging, which needs cycling internally.
-function fetchChildren(conceptNode, baseUrl, pageRequested){
-	var relationsUrl = appendJsonpAndApiKeyArgumentsToExistingUrl(baseUrl);
-	relationsUrl += "&page="+pageRequested;
-	var conceptRelationsCallback = new ConceptChildrenRelationsCallback(relationsUrl, conceptNode, conceptIdNodeMap);
 	var fetcher = closureRetryingJsonpFetcher(conceptRelationsCallback);
 	fetcher();
 }
@@ -675,6 +550,12 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 	// relations, as well as composition relations. But...only if they are related to the
 	// central one. So simply checking for that combination of facts here works out fine.
 	
+	// For path to root, we only expand those path to root nodes.
+	// For term neighbourhood, we only expand the direct neighbours of the central node.
+	// For mappings, we only expand based on the first mapping call.
+	// This will go through a whole process of adding the node, if the node is supposed to be
+	// expanded for the current visualization (children and parents for term neighbourhood).
+	
 	// Because we expand for term neighbourhood relation calls, and those come in two flavors
 	// (node with properties for children and parents, and just node IDs for compositions)
 	// we want to support parsing the data directly as well as fetching additional data.
@@ -682,7 +563,6 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 		&& !(newConceptId in conceptIdNodeMap)){
 
 		// Manifest the node; parse the properties if available.
-		// TODO Shall I make any changed so save on REST calls for this?
 		// We know that we will get the composition relations via a properties call,
 		// and that has all the data we need from a separate call for properties...
 		// but that subsystem relies on the fact that the node is created already.
@@ -690,7 +570,6 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 		if(!typeof conceptPropertiesData === "undefined" && Object.keys(conceptPropertiesData).length > 0){
 			// This happens when it is a child or parent inheritance relation for term neighbourhood
 			var conceptNode = parseNode(undefined, conceptPropertiesData);
-			// Populate or return for callers-in-loops?
 			fetchConceptRelations(conceptNode, conceptPropertiesData);
 		} else {
 			// This happens when it is a composite relation for term neighbourhood
@@ -704,7 +583,9 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 			var ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
 			// var ontologyAcronym = chunk.substring(0, chunk.lastIndexOf(urlAfterAcronym));
 			
-			// Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
+			// TODO Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
+			// Is this a redundant call? Or is it better to follow this route anyway??
+			// I think it isn't redundant, due to limited data that is available when this happens.
 			var url = buildConceptUrlNewApi(ontologyAcronym, newConceptId);
 			var callback = new FetchOneConceptCallback(url, newConceptId);
 			var fetcher = closureRetryingJsonpFetcher(callback);
@@ -767,7 +648,7 @@ function ConceptCompositionRelationsCallback(relationsUrl, conceptNode, conceptI
 		// Loop over results, properties, then mappings, parents, children.
 		$.each(relationsDataRaw.properties,
 			function(index, propertyObject){
-				// Composition relations can only be parsed from properties received with the "include=properties"
+				// NB Composition relations can only be parsed from properties received with the "include=properties"
 				// parameter. This means that although properties are received elsewhere (path to root, children),
 				// those property sets never give us the composition relations. 
 				// But...children property sets do have all the other things we need to get the seed of data for a node
@@ -795,18 +676,13 @@ function ConceptCompositionRelationsCallback(relationsUrl, conceptNode, conceptI
 				
 				if(endsWith(index, "is_part")){
 					$.each(is_part, function(index, parentPartId){
-						expandAndParseNodeIfNeeded(parentPartId, conceptNode.id, {});
 						manifestOrRegisterImplicitRelation(parentPartId, conceptNode.id, relationTypes.composition);
+						expandAndParseNodeIfNeeded(parentPartId, conceptNode.id, {});
 					});
 				}
 				
 			}
 		);
-				
-		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
-		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateGraphPopulation({nodes:graphD3Format.nodes, links:[]}, true);
-				
 	}
 }
 		
@@ -833,30 +709,16 @@ function ConceptChildrenRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 		// Example: http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F91837002/children
 		$.each(relationsDataRaw.collection,
 				function(index, child){
-				// TODO Should we be doing first step property parsing for all nodes in children and parents? Properties come with them...
-				
 				// Was parsed in ConceptRelationshipJsonParser near line 75 (parseNewChildren)
 				// We have a complication though...paged results! Oh great...
 				// That alone is reason to fire these events separately anyway, but we can keep all the parsing stuck in this same
 				// place and fire off an additional REST call.
 				var childId = child["@id"];
 				
-				// TODO Need to register all node ids we get, so that for the different visualizations, we can expand differently.
-				// For path to root, we only expand those path to root nodes.
-				// For term neighbourhood, we only expand the direct neighbours of the central node.
-				// For mappings, we only expand based on the first mapping call.
-				// This will go through a whole process of adding the node, if the node is supposed to be
-				// expanded for the current visualization (children and parents for term neighbourhood).
 				expandAndParseNodeIfNeeded(childId, conceptNode.id, child);
-				
-				// Save the data in case we expand to include this node
 				manifestOrRegisterImplicitRelation(conceptNode.id, childId, relationLabelConstants.inheritance);
 			}
 		);
-		
-		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
-		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateDataForNodesAndLinks({nodes:graphD3Format.nodes, links:[]});
 		
 		// Children paging...only if children called directly?
 		 var pageNumber = relationsDataRaw["page"];
@@ -890,27 +752,12 @@ function ConceptParentsRelationsCallback(relationsUrl, conceptNode, conceptIdNod
 		
 		$.each(relationsDataRaw,
 				function(index, parent){
-			// TODO Should we be doing first step property parsing for all nodes in children and parents? Properties come with them...
-			
 					var parentId = parent["@id"];
 					
 					// Save the data in case we expand to include this node
-					manifestOrRegisterImplicitRelation(parentId, conceptNode.id, relationLabelConstants.inheritance);
-		
-					// TODO Need to register all node ids we get, so that for the different visualizations, we can expand differently.
-					// For path to root, we only expand those path to root nodes.
-					// For term neighbourhood, we only expand the direct neighbours of the central node.
-					// For mappings, we only expand based on the first mapping call.
-					// This will go through a whole process of adding the node, if the node is supposed to be
-					// expanded for the current visualization (children and parents for term neighbourhood).
 					expandAndParseNodeIfNeeded(parentId, conceptNode.id, parent);
+					manifestOrRegisterImplicitRelation(parentId, conceptNode.id, relationLabelConstants.inheritance);
 		});
-		
-		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
-		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateDataForNodesAndLinks({nodes:graphD3Format.nodes, links:[]});
-		
-		
 	}
 }
 		
@@ -943,11 +790,6 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 			}
 			manifestOrRegisterImplicitRelation(mapping.classes[0]["@id"], mapping.classes[1]["@id"], relationLabelConstants.mapping);
 		});
-		
-		// We manifest them inside that function, but we could just as well collect them all and do a bulk populate.
-		// Maybe pass a flag in that controls whether they are accumulated or populated?
-//		updateDataForNodesAndLinks({nodes:[], links:graphD3Format.links});
-		
 	}
 }
 
@@ -964,22 +806,6 @@ function buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUr
 	return buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);		
 }
 
-// If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
-// If we can use batch calls for parent, child, and mapping for several nodes, we save a lot more, but the response
-// size and response times might be too long. We can use bulk asking for just one of the three relational data
-// properties.
-// Nodes also need a properties call each, which might be done in bulk.
-
-function buildBatchRelationUrl(concept){
-	// Unused currently due to specification issues
-	// 400-800 for children, properties each, 500-900 for parents, 500-900 for mappings
-	// 500-1.2s for all four combined. Looks like savings to me.
-	return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
-	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
-	+"&include=children,parents,mappings,properties"
-	+"&callback=?";
-}
-
 function buildConceptUrlNewApi(ontologyAcronym, conceptUri){
 	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/classes/"+encodeURIComponent(conceptUri)
 	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
@@ -990,6 +816,21 @@ function buildConceptCompositionsRelationUrl(concept){
 	return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
 	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
 	+"&include=properties"
+	+"&callback=?";
+}
+
+//If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
+//If we can use batch calls for parent, child, and mapping for several nodes, we save a lot more, but the response
+//size and response times might be too long. We can use bulk asking for just one of the three relational data
+//properties.
+//Nodes also need a properties call each, which might be done in bulk.
+function buildBatchRelationUrl(concept){
+	// Unused currently due to specification issues
+	// 400-800 for children, properties each, 500-900 for parents, 500-900 for mappings
+	// 500-1.2s for all four combined. Looks like savings to me.
+	return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
+	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
+	+"&include=children,parents,mappings,properties"
 	+"&callback=?";
 }
 
@@ -1046,32 +887,6 @@ function buildBatchRelationUrlAndPostData(concepts){
 			};
 }
 
-function buildBasicOntologyUrl(ontologyAcronym){
-	return "http://data.bioontology.org/ontologies/"+ontologyAcronym
-}
-
-/*
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/mappings/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P1.onSuccess
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/parents/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P2.onSuccess
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/children/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&page=1&callback=__gwt_jsonp__.P3.onSuccess
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&include=properties&callback=__gwt_jsonp__.P4.onSuccess
-*/	
-
-//function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-//	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
-//}
-//
-//function buildOntologyDetailsUrlNewApi(){
-//	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
-//}
-//
-//function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
-//}
-//
-//function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
-//}
 
 //function RetryingJsonpFetcher(callbackObject){
 //	this.callbackObject = callbackObject;
@@ -1224,7 +1039,7 @@ function initNonForceGraph(){
     .on("drag", dragmove)
     .on("dragend", dragend);
 	
-	forceLayout.on("tick", ontologyTick(forceLayout));
+	forceLayout.on("tick", onLayoutTick(forceLayout));
 
 	// See the gravityAdjust(), which is called in tick() and modulates
 	// gravity to keep nodes within the view frame.
@@ -1261,10 +1076,6 @@ function dragmove(d, i) {
     d.x += d3.event.dx;
     d.y += d3.event.dy; 
     
-    // Don't need tick if I update the node and associated arcs appropriately.
-    // forceLayout.resume();
-    // ontologyTick(); // this is the key to make it work together with updating both px,py,x,y on d !
-    
     d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
     vis.selectAll("line")
@@ -1282,10 +1093,6 @@ function dragend(d, i) {
 	$(".tipsy").show();
 	// of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
     d.fixed = true;
-    
-    // Don't need the tick(), don't want the resume.
-    // ontologyTick(true);
-    // forceLayout.resume();
 }
 
 function createNodePopupTable(conceptRect, conceptData){
@@ -1340,142 +1147,20 @@ function createNodePopupTable(conceptRect, conceptData){
      return outerDiv.prop("outerHTML");
 }
 
-//// From http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
-//function myGraph(el) {
-//	
-//	// I already do all this in initNonForceGraph()
-////	// set up the D3 visualisation in the specified element
-////	var w = $(el).innerWidth(),
-////	h = $(el).innerHeight();
-////	
-////	var vis = this.vis = d3.select(el).append("svg:svg")
-////	.attr("width", w)
-////	.attr("height", h);
-////	
-////	var force = d3.layout.force()
-////	.gravity(.05)
-////	.distance(100)
-////	.charge(-100)
-////	.size([w, h]);
-//	
-//	var nodes = force.nodes(),
-//	links = force.links();
-//
-//    // Add and remove elements on the graph object
-//    this.addNode = function (id) {
-//        nodes.push({"id":id});
-//        update();
-//    }
-//
-//    this.removeNode = function (id) {
-//        var i = 0;
-//        var n = findNode(id);
-//        while (i < links.length) {
-//            if ((links[i]['source'] == n)||(links[i]['target'] == n)) links.splice(i,1);
-//            else i++;
-//        }
-//        nodes.splice(findNodeIndex(id),1);
-//        update();
-//    }
-//
-//    this.addLink = function (source, target) {
-//        links.push({"source":findNode(source),"target":findNode(target)});
-//        update();
-//    }
-//
-//    var findNode = function(id) {
-//        for (var i in nodes) {if (nodes[i]["id"] === id) return nodes[i]};
-//    }
-//
-//    var findNodeIndex = function(id) {
-//        for (var i in nodes) {if (nodes[i]["id"] === id) return i};
-//    }
-//
-//
-//    var update = function () {
-//
-//        var link = vis.selectAll("line.link")
-//            .data(links, function(d) { return d.source.id + "-" + d.target.id; });
-//
-//        link.enter().insert("line")
-//            .attr("class", "link");
-//
-//        link.exit().remove();
-//
-//        var node = vis.selectAll("g.node")
-//            .data(nodes, function(d) { return d.id;});
-//
-//        var nodeEnter = node.enter().append("g")
-//            .attr("class", "node")
-//            .call(force.drag);
-//
-//        nodeEnter.append("image")
-//            .attr("class", "circle")
-//            .attr("xlink:href", "https://d3nwyuy0nl342s.cloudfront.net/images/icons/public.png")
-//            .attr("x", "-8px")
-//            .attr("y", "-8px")
-//            .attr("width", "16px")
-//            .attr("height", "16px");
-//
-//        nodeEnter.append("text")
-//            .attr("class", "nodetext")
-//            .attr("dx", 12)
-//            .attr("dy", ".35em")
-//            .text(function(d) {return d.id});
-//
-//        node.exit().remove();
-//
-//        force.on("tick", function() {
-//          link.attr("x1", function(d) { return d.source.x; })
-//              .attr("y1", function(d) { return d.source.y; })
-//              .attr("x2", function(d) { return d.target.x; })
-//              .attr("y2", function(d) { return d.target.y; });
-//
-//          node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-//        });
-//
-//        // Restart the force layout.
-//        force.start();
-//    }
-//
-//    // Make it all go
-//    update();
-//}
-
-// Add new stuff like this:
-//graph = new myGraph("#graph");
-//
-//// You can do this from the console as much as you like...
-//graph.addNode("Cause");
-//graph.addNode("Effect");
-//graph.addLink("Cause", "Effect");
-//graph.addNode("A");
-//graph.addNode("B");
-//graph.addLink("A", "B");
-
 /**
 * This function should be used when adding brand new nodes and links to the
 * graph. Do not call it to update properties of graph elements.
-* TODO Make this function cleaner and fully compliant with the above description!
-*      This should be easier to do while working on the incrementally-added concept node cases.
 */
 function updateGraphPopulation(){	
 	populateGraphEdges(graphD3Format.links);
 	populateGraphNodes(graphD3Format.nodes);
-	
-	// Moved this to init. No need to redefine after adding nodes or edges, since
-	// the D3 selectALl() method resulted in the correct layout behavior.
-	// forceLayout.on("tick", ontologyTick(forceLayout));
-	
-	// Call start() whenever any nodes or links get added or removed.
-	// I haven't had it work without this. Non-iterative non-force layouts
-	// (e.g. tree) won't really need this I bet.
-	
 	forceLayout.start();
 	
 }
+
 var i = 0;
 function populateGraphEdges(linksData){
+	// Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
 	if(linksData.length == 0){
 		return [];
 	}
@@ -1485,8 +1170,8 @@ function populateGraphEdges(linksData){
 	// console.log("enter() getting data for counter time: "+(i=i+1));	console.log(d); 
 	var links = vis.select("#link_container")
 	.selectAll("line.link").data(linksData, function(d){return d.source.id+"->"+d.target.id});
-//	 console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length);
-//	 console.log(" links from selectAll: "+vis.selectAll("line.link")[0].length);
+	// console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length);
+	// console.log(" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	 
 	// Add new stuff
 	// Make svg:g like nodes if we need labels
@@ -1508,7 +1193,7 @@ function populateGraphEdges(linksData){
     .style("stroke-width", linkThickness)
     .attr("data-thickness_basis", function(d) { return d.value;});
 
-//	console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
+	// console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
 	// Update Tool tip
 	enteringLinks // this is new...used to do to all linked data...
@@ -1521,7 +1206,7 @@ function populateGraphEdges(linksData){
 }
 
 function populateGraphNodes(nodesData){
-	
+	// Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
 	if(nodesData.length == 0){
 		return [];
 	}
@@ -1548,16 +1233,12 @@ function populateGraphNodes(nodesData){
 	// Basic properties
 	nodesEnter
 	.append("svg:rect") 
-//	.attr("id", function(d){ return "node_rect_"+d.escapedId})
 	.attr("id", function(d){ return "node_rect_"+(uniqueIdCounter++)})
     .attr("class", "node_rect")
-//    .attr("x", "0px")
-//    .attr("y", "0px")
-//    .style("fill", defaultNodeColor)
      .style("fill", function(d) { return d.nodeColor; })
     // Concept graphs have fixed node and arc sizes.
-//	.attr("data-radius_basis", function(d) { return d.number;})
-//    .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
+	// .attr("data-radius_basis", function(d) { return d.number;})
+	// .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
     .attr("height", nodeHeight)
     .attr("width", nodeHeight)
 	.on("mouseover", changeColour)
@@ -1579,7 +1260,7 @@ function populateGraphNodes(nodesData){
 	    	leaveMissedTimer = setTimeout(missedEventTimer, 1000);
 	    	// The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
 	    	if($("#"+me.id+":hover").length != 0 && !$(tipsyId+":hover").length != 0){
-//	    		console.log("Not in thing "+me.id+" and tipsyId "+tipsyId);
+	    		// console.log("Not in thing "+me.id+" and tipsyId "+tipsyId);
 	    		leave();
 	    	}
 	    }
@@ -1641,9 +1322,6 @@ function populateGraphNodes(nodesData){
 	            tipsyId = $(me).attr("id"+"_tipsy");
 	            tipsy.attr("id", tipsyId);
 	            
-	            // <circle id="node_circle_PR" class="circle" cx="0px" cy="0px" data-radius_basis="80856" r="15.569889228495246" original-title="" style="fill: #d62728; fill-opacity: 0.75; stroke-opacity: 1;"></circle>
-	            // <rect id="node_rect_8" class="node_rect" x="0px" y="0px" height="29" width="146" original-title="" style="fill: #fc6854; fill-opacity: 1; stroke-opacity: 1;"></rect>
-	            
 	            // For the tipsy specific listeners, change opacity.
 	            tipsy.mouseenter(function(){tipsy.css("opacity",1.0); enter(); }).mouseleave(function(){tipsy.css("opacity",0.8); leave();});
 	            tipsy.mouseover(function(){
@@ -1659,35 +1337,34 @@ function populateGraphNodes(nodesData){
 	    	clearTimeout(leaveMissedTimer);
 		});
 		
-		
 		// TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
 		// That happens commonly. We'll want to hide stale open tipsy panels when this happens.
-//		 d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
+		// d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
 	});
 		
 	// Dumb Tool tip...not needed with tipsy popups.
-//	nodesEnter.append("title")
-//	  .attr("id", function(d){ return "node_title_"+d.acronym})
-//	  .text(function(d) { return "Number Of Terms: "+d.number; });
+	// nodesEnter.append("title")
+	//	 .attr("id", function(d){ return "node_title_"+d.acronym})
+	//	 .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
-		nodesEnter.append("svg:text")
-//		.attr("id", function(d){ return "node_text_"+d.id})
-		.attr("id", function(d){ return "node_text_"+(uniqueIdCounter++)})
-	    .attr("class", "nodetext unselectable")
-//	    .attr("dx", "0em")
-//	    .attr("dy", "1em") // 1em down to go below baseline, 0.5em to counter padding added below
-	    .text(function(d) { return d.name; })
-	    // Not sure if I want interactions on labels or not. Change following as desired.
-	    .style("pointer-events", "none")
-	    // Why cannot we stop selection in IE? They are rude.
-		.attr("unselectable", "on") // IE 8
-		.attr("onmousedown", "noselect") // IE ?
-		.attr("onselectstart", "function(){ return false;}") // IE 8?
-	    // .on("mouseover", changeColour)
-	    // .on("mouseout", changeColourBack)
-	    ;
+	nodesEnter.append("svg:text")
+	.attr("id", function(d){ return "node_text_"+(uniqueIdCounter++)})
+    .attr("class", "nodetext unselectable")
+    // .attr("dx", "0em")
+    // .attr("dy", "1em") // 1em down to go below baseline, 0.5em to counter padding added below
+    .text(function(d) { return d.name; })
+    // Not sure if I want interactions on labels or not. Change following as desired.
+    .style("pointer-events", "none")
+    // Why cannot we stop selection in IE? They are rude.
+	.attr("unselectable", "on") // IE 8
+	.attr("onmousedown", "noselect") // IE ?
+	.attr("onselectstart", "function(){ return false;}") // IE 8?
+    // .on("mouseover", changeColour)
+    // .on("mouseout", changeColourBack)
+    ;
 	
+	// Resize each node to encompass the label we just created.
 	$(".nodetext").each(function(i, d){
 		var textSize = d.getBBox();
 		var rect = $(d).siblings().select(".node_rect");
@@ -1705,11 +1382,10 @@ function populateGraphNodes(nodesData){
 	
 	nodes.exit().remove();
 	
-	
 }
 
 // TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
-function ontologyTick(forceLayout){
+function onLayoutTick(forceLayout){
 	var lastLabelShiftTime = jQuery.now();
 	var lastGravityAdjustmentTime = jQuery.now();
 	var firstTickTime = jQuery.now();
@@ -1722,13 +1398,6 @@ function ontologyTick(forceLayout){
 		// Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
 		var boundLinks = vis.selectAll("line.link");
 			
-		// XXX Doing this a second time destroys the visualization!
-		// How would we do it on only new things?
-		// Oh! It is because we are using the links and nodes references,
-		// and losing references to the existing nodes and links.
-		// I really want to make sure I keep trakc of whether we
-		// have all nodes/links, or just new ones...
-
 		// Stop the layout early. The circular initialization makes it ok.
 		if (forceLayout.alpha() < alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
 			forceLayout.stop();
@@ -1778,9 +1447,8 @@ function ontologyTick(forceLayout){
 //			lastGravityAdjustmentTime = jQuery.now();
 //			doLabelUpdateNextTime = true;
 //		} else {
-//		if(nodes.length > 0)
-			boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-//		}
+
+		boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 			
 		if(boundLinks.length > 0)
 			boundLinks
@@ -1824,15 +1492,13 @@ function ontologyTick(forceLayout){
  * @param json
  */
 function updateDataForNodesAndLinks(json){
-	// console.log("Updating with data:");
-	// console.log(json);
 	
 	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
 		var link = vis.select("#link_line_"+d.source.id+"->"+d.target.id);
 		// Concept graphs have fixed node and arc sizes.
-//		link.attr("data-thickness_basis", function(d) { return d.value;})
+		// link.attr("data-thickness_basis", function(d) { return d.value;})
 		link.select("title").text(conceptLinkLabelFunction);
 	}
 	
@@ -1842,13 +1508,13 @@ function updateDataForNodesAndLinks(json){
 		var node = vis.select("#node_g_"+d.escapedId);
 		var nodeRects = node.select("node_rect");
 		// Concept graphs have fixed node and arc sizes.
-//		nodeRects.attr("data-radius_basis", d.number);
+		// nodeRects.attr("data-radius_basis", d.number);
 		nodeRects.transition().style("fill", d.nodeColor);
 		node.select("title").text(conceptNodeSimplePopupFunction);
 		node.select("text").text(conceptNodeLabelFunction)
 		// Firefox renders dx for text poorly, shifting things around oddly,
 		// but x works for both Chrome and Firefox.
-//		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
+		// .attr("dx", function(){ return - this.getComputedTextLength()/2; })
 		.attr("x", function(){ return - this.getComputedTextLength()/2; })
 		;
 		
@@ -1961,118 +1627,6 @@ function changeColourBack(d, i){
 		.style("stroke-opacity", .75);
 	d3.selectAll("text").style("opacity", 1);
 }
-
-// Concept graphs have fixed node and arc sizes.
-//// Maintaining relative scaled sizes of arcs and nodes depends on updating
-//// the raw size range, which in this implementation, loops over all entities.
-//// Only update the ranges when appropriate.
-//// BioMixer used a 500 ms delay on re-doing things.
-//
-//// 20 * 7 seems too big. Got 20 from other transformers.
-//var NODE_MAX_ON_SCREEN_SIZE = 20 * 5;
-//var NODE_MIN_ON_SCREEN_SIZE = 4;
-//var minNodeRawSize = -1;
-//var maxNodeRawSize = -1;
-//var LINK_MAX_ON_SCREEN_SIZE = 7; // 6 looks good...but if I change colors it may not.
-//var LINK_MIN_ON_SCREEN_SIZE = 1;
-//var minLinkRawSize = -1;
-//var maxLinkRawSize = -1;
-//var REFRESH_LOOP_DELAY_MS = 500;
-//
-//function updateNodeScalingFactor(){
-//	// Call this prior to redrawing. The alternative is to track on every size
-//	// modification. That worked well for BioMixer, but perhaps we're better
-//	// off doing a bulk computation per size-refreshing redraw that we want to make.
-//	
-//	var circles = vis.selectAll(".circle");
-//	circles.each(function(d){
-//				var basis = parseInt(this.getAttribute("data-radius_basis"));
-//				if(-1 == maxNodeRawSize || basis > maxNodeRawSize){
-//					maxNodeRawSize = basis;
-//				}
-//				if(-1 == minNodeRawSize || basis < minNodeRawSize){
-//					minNodeRawSize = basis;
-//				}
-//		});
-//	
-//	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
-//	
-//}
-//
-//function updateLinkScalingFactor() {
-//	// TODO This may not ever need to be called multiple times, but it would take some time to run.
-//	// Make sure it actually needs to be run if it is indeed called. 
-//	console.log("Ran update link");
-//	// Call this prior to redrawing. The alternative is to track on every size
-//	// modification. That worked well for BioMixer, but perhaps we're better
-//	// off doing a bulk computation per size-refreshing redraw that we want to make.
-//	$.each(vis.selectAll("line.link")[0], function(i, link){
-//		link = $(link);
-//		var basis = parseInt(link.attr("data-thickness_basis"));
-//		if(-1 == maxLinkRawSize || basis > maxLinkRawSize){
-//			maxLinkRawSize =  basis;
-//		}
-//		if(-1 == minLinkRawSize || basis < minLinkRawSize){
-//			minLinkRawSize =  basis;
-//		}
-//	});
-//		
-//	$.each(vis.selectAll("line.link")[0], function(i, link){
-//		// Given a json encoded graph element, update all of the nested elements associated with it
-//		// cherry pick elements that we might otherwise get by class "node"
-//		link = $(link);
-//		link.css("stroke-width", function(d) { return ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
-//	});
-//}
-//
-//
-//function ontologyNodeScalingFunc(rawValue){
-//	// return Math.sqrt((rawValue)/10);
-//	if(maxNodeRawSize == minNodeRawSize){
-//		return rawValue;
-//	}
-//	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
-//    var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
-//    return diameter/2; // need radius for SVG
-//}
-//
-//
-//function ontologyLinkScalingFunc(rawValue){
-//	if(maxLinkRawSize == minLinkRawSize){
-//		return rawValue;
-//	}
-//	var factor = computeFactorOfRange(rawValue, minLinkRawSize, maxLinkRawSize);
-//	// The linear area algorithm used for nodes happens to work really well for the edges thickness too.
-//    var thickness = linearAreaRelativeScaledRangeValue(factor, LINK_MIN_ON_SCREEN_SIZE, LINK_MAX_ON_SCREEN_SIZE);
-//    return thickness/2;
-//}
-//
-//function computeRangeRawSize(minRawSize, maxRawSize) {
-//	return Math.max(1, maxRawSize - minRawSize);
-//}
-//
-//function computeFactorOfRange(rawValue, minRawSize, maxRawSize) {
-//	return 1.0 - (maxRawSize - rawValue) / computeRangeRawSize(minRawSize, maxRawSize);
-//}
-//
-//function linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
-//	var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor
-//	      * Math.PI * Math.pow(maxOnScreenSize, 2);
-//	var diameter = Math.sqrt(linearArea / Math.PI);
-//	return diameter;
-//}
-//
-///*
-//    private double linearFunction(double value) {
-//        // Ha! A sqrt makes this not linear. Mis-named now...
-//        return 2 * (4 + Math.sqrt((value) / 10));
-//        return (1 + Math.sqrt((value)));
-//    }
-//
-//    private double logFunction(double value) {
-//        return 4 + Math.log(value) * 10;
-//    }
-// */
 
 var currentNodeColor = -1;
 var nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
