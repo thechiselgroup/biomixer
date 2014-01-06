@@ -5,6 +5,14 @@
 
 // This is using the new API that is stable in September 2013.
 
+jQuery(window).load(
+		function () {
+			console.log("Window loaded, starting visualization")
+			cleanSlate();
+			runGraph();
+		}
+);
+
 // I eventually came across the post that sort of discusses our update problem, of
 // having new attributes for nodes from late coming JSON:
 // https://groups.google.com/forum/#!msg/d3-js/ENMlOyUGGjk/YiPc8AUKCOwJ
@@ -20,10 +28,22 @@ var alphaCutoff = 0.01; // used to stop the layout early in the tick() callback
 var forceLayout = undefined;
 var centralOntologyAcronym = purl().param("ontology_acronym");
 var centralConceptUri = purl().param("full_concept_id");
-var uniqueIdCounter = 0;
+var initialVis = purl().param("initial_vis");
+$("#visualization_selector option").each(
+		function(){
+			// Note we use the values not text, to facilitate URL parameters without having to encode spaces.
+			if($(this).val() == initialVis){
+				$(this).attr("selected", "selected");
+				// console.log("selected another option based on url parameter: "+initialVis);
+			}
+		}
+);
 
-// TODO Should be queried from dropdown when that is implemented
-var visualization = "term_neighbourhood";
+var termNeighborhoodConstant = "term neighborhood";
+var pathsToRootConstant = "path to root";
+var mappingsNeighborhoodConstant = "mappings neighborhood";
+
+var uniqueIdCounter = 0;
 
 // maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
 var edgeRegistry = {}; 
@@ -59,27 +79,50 @@ var nodeHeight = 8;
 var nodeLabelPaddingWidth = 10;
 var nodeLabelPaddingHeight = 10;
 
-// Had to set div#chart.gallery height = 100% in CSS,
-// but this was only required in Firefox. I can't see why.
-var vis = d3.select("#chart").append("svg:svg")
-	.attr("id", "graphSvg")
-	.attr("width", visWidth())
-	.attr("height", visHeight())
-	.attr("pointer-events", "all")
-//  .append('svg:g')
-//  .call(d3.behavior.zoom().on("zoom", redraw))
-//  .append('svg:g')
-  ;
+var graphD3Format = new Object();
 
-vis.append('svg:rect')
-	.attr("width", visWidth())
-	.attr("height", visHeight())
-	.attr("id", "graphRect")
-    .style('fill', 'white');
+var vis;
 
-// Keeps links below nodes, and cleans up document a fair bit.
-vis.append("g").attr("id", "link_container");
-vis.append("g").attr("id", "node_container");
+function cleanSlate(){
+	// Had to set div#chart.gallery height = 100% in CSS,
+	// but this was only required in Firefox. I can't see why.
+	console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
+	$("#chart").empty();
+	
+	vis = d3.select("#chart").append("svg:svg")
+		.attr("id", "graphSvg")
+		.attr("width", visWidth())
+		.attr("height", visHeight())
+		.attr("pointer-events", "all")
+	//  .append('svg:g')
+	//  .call(d3.behavior.zoom().on("zoom", redraw))
+	//  .append('svg:g')
+	  ;
+	
+	vis.append('svg:rect')
+		.attr("width", visWidth())
+		.attr("height", visHeight())
+		.attr("id", "graphRect")
+	    .style('fill', 'white');
+	
+	// Keeps links below nodes, and cleans up document a fair bit.
+	vis.append("g").attr("id", "link_container");
+	vis.append("g").attr("id", "node_container");
+	
+	resizedWindow();
+}
+
+var visualization = $("#visualization_selector option:selected").text();
+$("#visualization_selector").change(
+	function(){
+		console.log("Changing visualization mode.");
+		if(visualization != $("#visualization_selector option:selected").text()){
+			visualization = $("#visualization_selector option:selected").text();
+			cleanSlate();
+			runGraph();
+		}
+	}
+);
 
 var resizedWindow = function()
 {		
@@ -100,8 +143,6 @@ var resizedWindow = function()
 };
 
 $(window).resize(resizedWindow);
-
-resizedWindow();
 
 // called when we zoom...but zoom is not enabled.
 //function redraw() {
@@ -138,15 +179,12 @@ resizedWindow();
 //	return gravityAdjust(number, visHeight());
 //}
 
-
-var graphD3Format = new Object();
-
-
-// Run the graph! Don't need the json really, though...
-// d3.json("force_files/set_data.json", initAndPopulateGraph);
-initNonForceGraph();
-initPopulateGraph();
-
+function runGraph(){
+	// Run the graph! Don't need the json really, though...
+	// d3.json("force_files/set_data.json", initAndPopulateGraph);
+	initNonForceGraph();
+	initPopulateGraph();
+}
 
 function conceptLinkSimplePopupFunction(d) { return "From: "+d.source.id+" To: "+d.target.id};
 
@@ -261,7 +299,83 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 		//----------------------------------------------------------
 		
 	}
+}
+
+function fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri){
+	// 1) Get term neighbourhood for the central concept
+	var termNeighborhoodInitialUrl = buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri);
+	var termNeighborhoodCallback = new TermNeighbourhoodCallback(termNeighborhoodInitialUrl, centralOntologyAcronym, centralConceptUri);
+//	var fetcher = new RetryingJsonpFetcher(termNeighborhoodCallback);
+//	fetcher.retryFetch();
+	var fetcher = closureRetryingJsonpFetcher(termNeighborhoodCallback);
+	fetcher();
+}
+
+function TermNeighbourhoodCallback(url, centralOntologyAcronym, centralConceptUri){
+	this.url = url;
+	// Define this fetcher when one is instantiated (circular dependency)
+	this.fetcher = undefined;
+	var self = this;
 	
+	this.callback = function (centralConceptData, textStatus, jqXHR){
+		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+
+//		var errorOrRetry = self.fetcher.retryFetch(mappingData);
+		var errorOrRetry = self.fetcher(centralConceptData);
+		if(0 == errorOrRetry){
+			return;
+		} else if(-1 == errorOrRetry){
+			// have an error. Done?
+			return;
+		}
+
+		// Parse central node, and let the relation fetching cascade handle the neighbourhood.
+		// This requires that the relation methods know if we want to actually expand the related
+		// nodes, but that's fine; it's clean, and as efficient as the API allows.
+		var conceptNode = parseNode(undefined, centralConceptData);
+		fetchConceptRelations(conceptNode, centralConceptData);
+		
+		// Not sure about whether to do this here or not...
+		// console.log("ontologyMappingCallback");
+		updateGraphPopulation();
+	}
+	
+}
+
+function fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri){
+	// I have confirmed that this is faster than BioMixer. Without removing
+	// network latency in REST calls, it is approximately half as long from page load to
+	// graph completion (on the order of 11 sec vs 22 sec)
+	// TODO XXX Then try adding web workers around things to see if it affects it further.
+	
+	// TODO XXX I lose all the error handling and retry handling that I set up in BioMixer.
+	// This is our first loss, that we have to futz with that again. It can be recreated, or if this
+	// is fast enough, we can adapt things so that some of the Java work in BioMixer can be used here too
+	// I mostly need to bypass the overall architecture of BioMixer to see how it affects loading speed
+	// and responsivity, as well as to try using web workers (which don't work with GWT 2.5 right now)
+	
+	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
+	1) Get the root to path for the central concept
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   - create the nodes, and do any prep for subsequent REST calls
+	2) Get relational data (children, parents and mappings) for all concepts in the path to root
+	   TODO example URL here
+	   - fill in nodes with details from this data TODO Look at Biomixer to see what we need 
+	3) Get properties for all concepts in path to root
+	   TODO example URL here
+	   - set node properties...TODO Look at Biomixer for what to copy
+	*/
+	
+//	// 1) Get paths to root for the central concept
+//	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
+//	var pathsToRootCallback = new PathsToRootCallback(pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
+////	var fetcher = new RetryingJsonpFetcher(pathsToRootCallback);
+////	fetcher.retryFetch();
+//	var fetcher = closureRetryingJsonpFetcher(pathsToRootCallback);
+//	fetcher();
+}
+
+function MappingsNeighborhoodCallback(url, centralOntologyAcronym, centralConceptUri){
 }
 
 // Needs the arguments index, concept because the function will be called in JQuery loop. Write wrappers in callers if you don't like that.
@@ -397,6 +511,12 @@ function appendJsonpAndApiKeyArgumentsToExistingUrl(url){
  * edges when manifesting nodes).
  */
 function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
+	if(parentId === childId){
+		// Some mappings data is based off of having the same URI, which is mind boggling to me.
+		// We have no use for self relations in this domain.
+		return;
+	}
+	
 	// Either register it as an implicit relation, or manifest it if both nodes are in graph.
 	var edge = new Object();
 	// edge source and targe tobjects will be set when manifesting the edge (when we know we have
@@ -410,20 +530,24 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
 	edge.edgeType = relationType;
 	
+	
 	// We expect neither or just one of the ids will be in the registry, since we only register
 	// node ids that do not exist in our graph. This should be enforced by processing edges
 	// whenever we add a node to the graph.
 	
 	var matchId = undefined, otherId = undefined;
 	var parentIdInRegistry = false, childIdInRegistry = false;
-	if(parentId in edgeRegistry){
+	if(parentId in edgeRegistry && childId in edgeRegistry[parentId]){
 		matchId = parentId;
 		otherId = childId;
 		parentIdInRegistry = true;
 	}
-	if(childId in edgeRegistry){
+	if(childId in edgeRegistry && parentId in edgeRegistry[childId]){
 		if(matchId){
-			console.log("Logical error; cannot have both edge ends in the graph already.")
+			// This can happen due to race conditions among relation calls. There's four, and ndoes are instantiated first...
+			// The parent receive parents, then the child receives children, then the child receives parents and we are in this situation.
+			// So if both match, what do we do? Ah, narrowed logic above to check for the other node beneath in the registry.
+			console.log("Logical error; cannot have both edge ends in the graph already. The edge would have been added before if so.")
 		}
 		matchId = childId;
 		otherId = parentId;
@@ -452,7 +576,11 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 		if(!(conceptIdNotInGraph in edgeRegistry)){
 			edgeRegistry[conceptIdNotInGraph] = {};
 		}
-		edgeRegistry[conceptIdNotInGraph][conceptInGraph] = edge;
+		if(!(conceptInGraph in edgeRegistry[conceptIdNotInGraph])){
+			edgeRegistry[conceptIdNotInGraph][conceptInGraph] = {};
+		}
+		// Need type as an index as well because some ontologies could have multiple edge types between entities.
+		edgeRegistry[conceptIdNotInGraph][conceptInGraph][edge.type] = edge;
 		
 	} else if(parentIdInGraph && childIdInGraph) {
 		// If both are in the graph, we'll be manifesting it immediately.
@@ -466,7 +594,10 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 		
 		if(matchId){
 			// Clear our cruft
-			delete edgeRegistry[matchId][otherId];
+			delete edgeRegistry[matchId][otherId][edge.type];
+			if(Object.keys(edgeRegistry[matchId][otherId]).length == 0){
+				delete edgeRegistry[matchId][otherId];
+			}
 			if(Object.keys(edgeRegistry[matchId]).length == 0){
 				delete edgeRegistry[matchId];
 			}
@@ -474,25 +605,40 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	}
 }
 
-function manifestEdgesForNewNode(conceptId){
-	// Because registry contains edges for which there *was* no node for the idnex,
+function manifestEdgesForNewNode(conceptNode){
+	var conceptId = conceptNode.id;
+	// Because registry contains edges for which there *was* no node for the index,
 	// and there *are* nodes for the other ends of the edge, we can manifest all of
 	/// them when we are doing so due to a new node appearing.
+	console.log(conceptId);
 	if(conceptId in edgeRegistry){
-		$.each(edgeRegistry[conceptId], function(index, edge){
-			var otherId = (edge.targetId == conceptId) ? edge.targetId : edge.sourceId ;
-
-			edge.source = conceptIdNodeMap[edge.sourceId];
-			edge.target = conceptIdNodeMap[edge.targetId];
-			if(edgeNotInGraph(edge)){
-				graphD3Format.links.push(edge);
-				updateGraphPopulation();
-			}
-			
-			// Clear that one out...safe while in the loop?
-			delete edgeRegistry[conceptId][otherId];
+		console.log(edgeRegistry[conceptId]);
+		$.each(edgeRegistry[conceptId], function(index, conceptsEdges){
+			console.log(conceptsEdges);
+			console.log(index);
+			$.each(conceptsEdges, function(index, edge){
+				console.log("found edge");
+				var otherId = (edge.sourceId == conceptId) ? edge.targetId : edge.sourceId ;
+	
+				edge.source = conceptIdNodeMap[edge.sourceId];
+				edge.target = conceptIdNodeMap[edge.targetId];
+				if(edgeNotInGraph(edge)){
+					console.log("manifestEdgesForNewNode");
+					console.log(edge);
+					graphD3Format.links.push(edge);
+					updateGraphPopulation();
+				}
+				
+				// Clear that one out...safe while in the loop?
+				delete edgeRegistry[conceptId][otherId][edge.type];
+				// Might be out of edges for this node pair.
+				if(Object.keys(edgeRegistry[conceptId][otherId]).length == 0){
+					delete edgeRegistry[conceptId][otherId];
+				}
+			})
 		});
 		
+		// Done looking at this conceptId...was that all the edges?
 		if(Object.keys(edgeRegistry[conceptId]).length == 0){
 			delete edgeRegistry[conceptId];
 		}
@@ -518,7 +664,7 @@ function edgeNotInGraph(edge){
     return true;
 }
 
-function expandAndParseNodeIfNeeded(conceptId, relatedConceptId, conceptPropertiesData){
+function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPropertiesData){
 	// Can determine on the basis of the relatedConceptId if we should request data for the
 	// conceptId provided, or if we should parse provided conceptProperties (if any).
 	// TODO PROBLEM What if the conceptId is already going to be fetched and processed because
@@ -532,9 +678,9 @@ function expandAndParseNodeIfNeeded(conceptId, relatedConceptId, conceptProperti
 	// Because we expand for term neighbourhood relation calls, and those come in two flavors
 	// (node with properties for children and parents, and just node IDs for compositions)
 	// we want to support parsing the data directly as well as fetching additional data.
-	
-	if(relatedConceptId === centralConceptUri && visualization === "term_neighbourhood"
-		&& !(conceptId in conceptIdNodeMap)){
+	if(relatedConceptId === centralConceptUri && visualization === termNeighborhoodConstant
+		&& !(newConceptId in conceptIdNodeMap)){
+
 		// Manifest the node; parse the properties if available.
 		// TODO Shall I make any changed so save on REST calls for this?
 		// We know that we will get the composition relations via a properties call,
@@ -551,16 +697,16 @@ function expandAndParseNodeIfNeeded(conceptId, relatedConceptId, conceptProperti
 			// Making the call to create it will get all relations automatically.
 			// 1) Get paths to root for the central concept
 			// "http://purl.bioontology.org/ontology/SNOMEDCT/16089004","
+			// Node data for term neighborhood should have the related node's link data section.
+			var ontologyUri = conceptPropertiesData.links.ontology;
 			var urlBeforeAcronym = "ontologies/";
 			var urlAfterAcronym = "/";
-			var chunk = conceptUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
-			var ontologyAcronym = chunk.substring(0, chunk.lastIndexOf(urlAfterAcronym));
-			console.log("single node ontology acronym is "+ontologyAcronym);
+			var ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
+			// var ontologyAcronym = chunk.substring(0, chunk.lastIndexOf(urlAfterAcronym));
 			
 			// Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
-			
-			var url = buildConceptUrlNewApi(ontologyAcronym, conceptUri);
-			var callback = new FetchOneConceptCallback(url, conceptUri);
+			var url = buildConceptUrlNewApi(ontologyAcronym, newConceptId);
+			var callback = new FetchOneConceptCallback(url, newConceptId);
 			var fetcher = closureRetryingJsonpFetcher(callback);
 			fetcher();
 		}
@@ -583,13 +729,9 @@ function FetchOneConceptCallback(url, conceptUri){
 			// have an error. Done?
 			return;
 		}
-		
-		parseNode(undefined, conceptPropertiesData);
+		var conceptNode = parseNode(undefined, conceptPropertiesData);
 
-		fetchConceptRelations(conceptPropertiesData);
-
-		// Do I need to do the update? Sure I do...
-		console.log("didn't do anything to add to graph now, did I?");
+		fetchConceptRelations(conceptNode, conceptPropertiesData);
 	}
 	
 }
@@ -687,7 +829,7 @@ function ConceptChildrenRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 			// have an error. Done?
 			return;
 		}
-
+		
 		// Example: http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F91837002/children
 		$.each(relationsDataRaw.collection,
 				function(index, child){
@@ -745,6 +887,7 @@ function ConceptParentsRelationsCallback(relationsUrl, conceptNode, conceptIdNod
 			// have an error. Done?
 			return;
 		}
+		
 		$.each(relationsDataRaw,
 				function(index, parent){
 			// TODO Should we be doing first step property parsing for all nodes in children and parents? Properties come with them...
@@ -794,6 +937,10 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 		$.each(relationsDataRaw,
 				function(index, mapping){
 			// ConceptMappingImplementation, we get partial properties on the basis of the mappings REST call
+			if(mapping.classes.length < 2){
+				// Some bad data gets into the database apparently. No big deal but I prefer not seeing the errors.
+				return;
+			}
 			manifestOrRegisterImplicitRelation(mapping.classes[0]["@id"], mapping.classes[1]["@id"], relationLabelConstants.mapping);
 		});
 		
@@ -807,6 +954,14 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
 function buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
 	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+}
+
+function buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
+	// Term neighborhood requires the core concept call, then properties, mappings, children and parents (in no particular order).
+	// Since those all need to be called for *any* node being loaded, this visualization mode relies upon cascading expansion as
+	// relations are parsed. Thus, the URL for this call is really just a concept node URL. The subsquent functions
+	// will check the visualization mode to decide whether they are expanding the fetched relations or not.
+	return buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);		
 }
 
 // If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
@@ -1041,12 +1196,13 @@ function closureRetryingJsonpFetcher(callbackObject){
 }
 
 function initPopulateGraph(json){
-	
-	// Will do async stuff and add to graph
-	fetchPathToRoot(centralOntologyAcronym, centralConceptUri);
-	
-	// If you want to toy with the original static data, try this:
-	//	updateGraphPopulation(json);
+	if(visualization === pathsToRootConstant){
+		fetchPathToRoot(centralOntologyAcronym, centralConceptUri);
+	} else if(visualization === termNeighborhoodConstant){
+		fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri);
+	} else if(visualization === mappingNeighborhoodConstant){
+		fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri);
+	}
 }
 
 var nodeDragBehavior;
@@ -1632,9 +1788,6 @@ function ontologyTick(forceLayout){
 	      .attr("y1", function(d) { return d.source.y; })
 	      .attr("x2", function(d) { return d.target.x; })
 	      .attr("y2", function(d) { return d.target.y; });
-		
-		console.log(boundLinks.length);
-
 		
 		// I want labels to aim out of middle of graph, to make more room
 		// It slows rendering, so I will only do it sometimes
