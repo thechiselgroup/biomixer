@@ -7,7 +7,7 @@
 
 jQuery(window).load(
 		function () {
-			console.log("Window loaded, starting visualization")
+			console.log("Window loaded,starting visualization")
 			cleanSlate();
 			runGraph();
 		}
