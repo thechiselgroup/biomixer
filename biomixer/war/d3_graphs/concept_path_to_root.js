@@ -22,6 +22,9 @@ jQuery(window).load(
 // Also, as noted near where we add nodes and edges, the existing containers for each must be pulled
 // from the forcelayout object and used, rather than passing separate or new containers of nodes and arcs.
 
+
+
+
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
 // TODO When *not* using a circular force based graph, I don't really need to control arc lengths like this.
@@ -31,6 +34,17 @@ var forceLayout = undefined;
 var centralOntologyAcronym = purl().param("ontology_acronym");
 var centralConceptUri = purl().param("full_concept_id");
 var initialVis = purl().param("initial_vis");
+
+var termNeighborhoodConstant = "term neighborhood";
+var pathsToRootConstant = "path to root";
+var mappingsNeighborhoodConstant = "mappings neighborhood";
+
+$("#visualization_selector")
+.append('<option value="paths_to_root">path to root</option>')
+.append('<option value="term_neighborhood">term neighborhood</option>')
+.append('<option value="mappings_neighborhood">mappings neighborhood</option>')
+;
+
 $("#visualization_selector option").each(
 		function(){
 			// Note we use the values not text, to facilitate URL parameters without having to encode spaces.
@@ -39,10 +53,6 @@ $("#visualization_selector option").each(
 			}
 		}
 );
-
-var termNeighborhoodConstant = "term neighborhood";
-var pathsToRootConstant = "path to root";
-var mappingsNeighborhoodConstant = "mappings neighborhood";
 
 var uniqueIdCounter = 0;
 
@@ -261,16 +271,63 @@ function TermNeighbourhoodCallback(url, centralOntologyAcronym, centralConceptUr
 }
 
 function fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri){
-	console.log("fetchMappingsNeighborhood is Unimplemented.");
+	// Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
+	// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P109.onSuccess
 	
-//	// 1) Get paths to root for the central concept
-//	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
-//	var pathsToRootCallback = new PathsToRootCallback(pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
-//	var fetcher = closureRetryingJsonpFetcher(pathsToRootCallback);
-//	fetcher();
+	// 1) Get mappings for the central concept
+	var mappingsNeighborhoodUrl = buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri);
+	var mappingsNeighborhoodCallback = new MappingsNeighborhoodCallback(mappingsNeighborhoodUrl, centralOntologyAcronym, centralConceptUri);
+	var fetcher = closureRetryingJsonpFetcher(mappingsNeighborhoodCallback);
+	fetcher();
 }
 
 function MappingsNeighborhoodCallback(url, centralOntologyAcronym, centralConceptUri){
+	this.url = url;
+	// Define this fetcher when one is instantiated (circular dependency)
+	this.fetcher = undefined;
+	var self = this;
+	
+	this.callback = function (mappingsNeighborhoodData, textStatus, jqXHR){
+		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+
+		var errorOrRetry = self.fetcher(mappingsNeighborhoodData);
+		if(0 == errorOrRetry){
+			return;
+		} else if(-1 == errorOrRetry){
+			// have an error. Done?
+			return;
+		}
+
+		// Get central concept immediately
+		var centralConceptUrl = buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
+		var centralCallback = new FetchOneConceptCallback(centralConceptUrl, centralConceptUri);
+		var fetcher = closureRetryingJsonpFetcher(centralCallback);
+		fetcher();
+		
+		// Get the mappings, and subsequently the concepts mapped to.
+		$.each(mappingsNeighborhoodData,
+			function(index, mappingPair){
+				var process = mappingPair.process;
+				if(mappingPair.classes < 2){
+					// I have personally seen malformed mapping entries that have only one class.
+					return;
+				}
+				
+				var conceptOne = mappingPair.classes[0];
+				var conceptTwo = mappingPair.classes[1];
+				
+				var newConcept = (conceptOne.id === centralConceptUri) ? conceptTwo : conceptOne ;
+				var newConceptId = newConcept["@id"]
+				var newOntologyAcronym = getOntologyAcronymFromOntologyUrl(newConcept.links.ontology);
+				
+				var url = buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
+				var callback = new FetchOneConceptCallback(url, newConceptId);
+				var fetcher = closureRetryingJsonpFetcher(callback);
+				fetcher();
+			}
+		);
+		
+	}
 }
 
 function fetchConceptRelations(conceptNode, conceptData){
@@ -512,7 +569,17 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 				// Some bad data gets into the database apparently. No big deal but I prefer not seeing the errors.
 				return;
 			}
-			manifestOrRegisterImplicitRelation(mapping.classes[0]["@id"], mapping.classes[1]["@id"], relationLabelConstants.mapping);
+			var firstConceptId = mapping.classes[0]["@id"];
+			var secondConceptId = mapping.classes[1]["@id"];
+			var newConceptData = (conceptNode === firstConceptId) ? mapping.classes[1] : mapping.classes[0];
+			var newConceptId = newConceptData["@id"];
+			manifestOrRegisterImplicitRelation(firstConceptId, secondConceptId, relationLabelConstants.mapping);
+			// The conceptNode.id better be the same as the @id we would have gotten!! Our logic relies on that!
+			if(mapping.classes[0]["@id"] !== conceptNode.id && mapping.classes[1]["@id"] !== conceptNode.id){
+				console.log("Mismatch between ids, original is "+conceptNode.id+" and does not appear in mappings ("+mapping.classes[0]["@id"]+" and "+mapping.classes[1]["@id"]+")");
+			}
+
+			expandAndParseNodeIfNeeded(newConceptId, conceptNode.id, newConceptData);
 		});
 	}
 }
@@ -528,6 +595,11 @@ function buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUr
 	// relations are parsed. Thus, the URL for this call is really just a concept node URL. The subsquent functions
 	// will check the visualization mode to decide whether they are expanding the fetched relations or not.
 	return buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);		
+}
+
+function buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
+	// From the mappings results, we add all of the discovered nodes.
+	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/mappings/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
 
 function buildConceptUrlNewApi(ontologyAcronym, conceptUri){
@@ -739,7 +811,7 @@ function initPopulateGraph(json){
 		fetchPathToRoot(centralOntologyAcronym, centralConceptUri);
 	} else if(visualization === termNeighborhoodConstant){
 		fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri);
-	} else if(visualization === mappingNeighborhoodConstant){
+	} else if(visualization === mappingsNeighborhoodConstant){
 		fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri);
 	}
 }
@@ -1295,7 +1367,7 @@ function parseNode(index, conceptData){
 		conceptNode.ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
 		conceptNode.ontologyUri = ontologyUri;
 		conceptNode.escapedOntologyUri = encodeURIComponent(conceptNode.ontologyUri);
-		conceptNode.nodeColor = nextNodeColor();
+		conceptNode.nodeColor = nextNodeColor(conceptNode.ontologyAcronym);
 		graphD3Format.nodes.push(conceptNode);
 		$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
 		
@@ -1366,11 +1438,7 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 			// 1) Get paths to root for the central concept
 			// "http://purl.bioontology.org/ontology/SNOMEDCT/16089004","
 			// Node data for term neighborhood should have the related node's link data section.
-			var ontologyUri = conceptPropertiesData.links.ontology;
-			var urlBeforeAcronym = "ontologies/";
-			var urlAfterAcronym = "/";
-			var ontologyAcronym = ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
-			// var ontologyAcronym = chunk.substring(0, chunk.lastIndexOf(urlAfterAcronym));
+			var ontologyAcronym = getOntologyAcronymFromOntologyUrl(conceptPropertiesData.links.ontology);
 			
 			// TODO Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
 			// Is this a redundant call? Or is it better to follow this route anyway??
@@ -1381,6 +1449,24 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 			fetcher();
 		}
 	}
+	
+	if(relatedConceptId === centralConceptUri && visualization === mappingsNeighborhoodConstant
+			&& !(newConceptId in conceptIdNodeMap)){
+		// conceptPropertiesData here will be the mapping data, and thus incomplete.
+		var newOntologyAcronym = getOntologyAcronymFromOntologyUrl(conceptPropertiesData.links.ontology);
+		
+		var url = buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
+		var callback = new FetchOneConceptCallback(url, newConceptId);
+		var fetcher = closureRetryingJsonpFetcher(callback);
+		fetcher();
+	}
+}
+
+function getOntologyAcronymFromOntologyUrl(ontologyLink){
+	var ontologyUri = ontologyLink;
+	var urlBeforeAcronym = "ontologies/";
+	var urlAfterAcronym = "/";
+	return ontologyUri.substring(ontologyUri.lastIndexOf(urlBeforeAcronym)+urlBeforeAcronym.length);
 }
 
 /**
@@ -1522,7 +1608,6 @@ function manifestEdgesForNewNode(conceptNode){
 				edge.source = conceptIdNodeMap[edge.sourceId];
 				edge.target = conceptIdNodeMap[edge.targetId];
 				if(edgeNotInGraph(edge)){
-					console.log(edge);
 					graphD3Format.links.push(edge);
 					updateGraphPopulation();
 				}
