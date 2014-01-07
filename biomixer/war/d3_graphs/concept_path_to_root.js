@@ -46,10 +46,6 @@ var mappingsNeighborhoodConstant = "mappings neighborhood";
 
 var uniqueIdCounter = 0;
 
-// maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
-var edgeRegistry = {}; 
-var conceptIdNodeMap = new Object();
-
 var dragging = false;
 
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
@@ -79,11 +75,18 @@ var nodeHeight = 8;
 var nodeLabelPaddingWidth = 10;
 var nodeLabelPaddingHeight = 10;
 
-var graphD3Format = new Object();
+var graphD3Format = undefined;
+
+//maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
+var edgeRegistry = undefined; 
+var conceptIdNodeMap = undefined;
 
 var vis;
 
 function cleanSlate(){
+	graphD3Format = new Object();
+	edgeRegistry = {}; 
+	conceptIdNodeMap = new Object();
 	// Had to set div#chart.gallery height = 100% in CSS,
 	// but this was only required in Firefox. I can't see why.
 	console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
