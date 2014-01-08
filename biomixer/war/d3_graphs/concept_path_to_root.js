@@ -64,6 +64,7 @@ var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsy
 function convertEdgeTypeLabelToEdgeClass(){
 	
 }
+
 var relationTypeCssClasses = {
 		"is_a": "inheritanceLink",
 		"part_of": "compositionLink",
@@ -87,9 +88,44 @@ var nodeLabelPaddingHeight = 10;
 
 var graphD3Format = undefined;
 
-//maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
-var edgeRegistry = undefined; 
+
+
+// To track nodes that we have in the graph (by id):
 var conceptIdNodeMap = undefined;
+function addNodeToIdMap(conceptNode){
+	conceptIdNodeMap[conceptNode.id]= conceptNode;
+}
+
+// To track nodes for which we want their neighbours expanded (by id and expansion type):
+var conceptsToExpand = undefined;
+function addConceptIdToExpansionRegistry(centralConceptUri, expansionType){
+	conceptsToExpand[centralConceptUri] = {};
+	conceptsToExpand[centralConceptUri][expansionType] = true;
+}
+
+// Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.:
+// To track edges that we know about that haven't yet been added to the graph (by node not yet in graph and node in graph and type):
+var edgeRegistry = undefined;
+function addEdgeToRegistry(conceptIdNotInGraph, conceptInGraph, edge){
+	if(!(conceptIdNotInGraph in edgeRegistry)){
+		edgeRegistry[conceptIdNotInGraph] = {};
+	}
+	if(!(conceptInGraph in edgeRegistry[conceptIdNotInGraph])){
+		edgeRegistry[conceptIdNotInGraph][conceptInGraph] = {};
+	}
+	// Need type as an index as well because some ontologies could have multiple edge types between entities.
+	edgeRegistry[conceptIdNotInGraph][conceptInGraph][edge.type] = edge;
+}
+
+function clearEdgeFromRegistry(matchIdInRegistry, otherIdInGraph, edge){
+	delete edgeRegistry[matchIdInRegistry][otherIdInGraph][edge.type];
+	if(Object.keys(edgeRegistry[matchIdInRegistry][otherIdInGraph]).length == 0){
+		delete edgeRegistry[matchIdInRegistry][otherIdInGraph];
+	}
+	if(Object.keys(edgeRegistry[matchIdInRegistry]).length == 0){
+		delete edgeRegistry[matchIdInRegistry];
+	}
+}
 
 var vis;
 
@@ -97,6 +133,7 @@ function cleanSlate(){
 	graphD3Format = new Object();
 	edgeRegistry = {}; 
 	conceptIdNodeMap = new Object();
+	conceptsToExpand = new Object();
 	// Had to set div#chart.gallery height = 100% in CSS,
 	// but this was only required in Firefox. I can't see why.
 	console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
@@ -178,6 +215,7 @@ function conceptNodeSimplePopupFunction(d) { return "Number Of Terms: "+d.number
 
 function conceptNodeLabelFunction(d) { return d.name; }
 
+
 function fetchPathToRoot(centralOntologyAcronym, centralConceptUri){
 	// I have confirmed that this is faster than BioMixer. Without removing
 	// network latency in REST calls, it is approximately half as long from page load to
@@ -235,99 +273,31 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 }
 
 function fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri){
-	// 1) Get term neighbourhood for the central concept
-	var termNeighborhoodInitialUrl = buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri);
-	var termNeighborhoodCallback = new TermNeighbourhoodCallback(termNeighborhoodInitialUrl, centralOntologyAcronym, centralConceptUri);
-	var fetcher = closureRetryingJsonpFetcher(termNeighborhoodCallback);
+	// 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion
+	// Parsers that follow will expand neighbourhing concepts.
+	addConceptIdToExpansionRegistry(centralConceptUri, termNeighborhoodConstant);
+	var centralConceptUrl = buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
+	var centralCallback = new FetchOneConceptCallback(centralConceptUrl, centralConceptUri);
+	var fetcher = closureRetryingJsonpFetcher(centralCallback);
 	fetcher();
-}
-
-function TermNeighbourhoodCallback(url, centralOntologyAcronym, centralConceptUri){
-	this.url = url;
-	// Define this fetcher when one is instantiated (circular dependency)
-	this.fetcher = undefined;
-	var self = this;
-	
-	this.callback = function (centralConceptData, textStatus, jqXHR){
-		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-		var errorOrRetry = self.fetcher(centralConceptData);
-		if(0 == errorOrRetry){
-			return;
-		} else if(-1 == errorOrRetry){
-			// have an error. Done?
-			return;
-		}
-
-		// Parse central node, and let the relation fetching cascade handle the neighbourhood.
-		// This requires that the relation methods know if we want to actually expand the related
-		// nodes, but that's fine; it's clean, and as efficient as the API allows.
-		var conceptNode = parseNode(undefined, centralConceptData);
-		fetchConceptRelations(conceptNode, centralConceptData);
-		
-		updateGraphPopulation();
-	}
-	
 }
 
 function fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri){
 	// Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
 	// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P109.onSuccess
 	
-	// 1) Get mappings for the central concept
-	var mappingsNeighborhoodUrl = buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri);
-	var mappingsNeighborhoodCallback = new MappingsNeighborhoodCallback(mappingsNeighborhoodUrl, centralOntologyAcronym, centralConceptUri);
-	var fetcher = closureRetryingJsonpFetcher(mappingsNeighborhoodCallback);
+	// Get central concept immediately, and let the relation parser that will be called expand
+	// related nodes conditioned on whether their related node is this to-be-expanded one.
+	// Loading that node will get the mappings, and subsequently the concepts mapped to.
+	// The mapping parser will fetch individual mapped concepts as it finds them by checking to see
+	// if we are in the mapping visualization. I could make this explicit by copying the mappings code
+	// here, but then we have duplicate code. If we decide it reads poorly to have it so detached
+	// in the process, we can copy it here.
+	addConceptIdToExpansionRegistry(centralConceptUri, mappingsNeighborhoodConstant);
+	var centralConceptUrl = buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
+	var centralCallback = new FetchOneConceptCallback(centralConceptUrl, centralConceptUri);
+	var fetcher = closureRetryingJsonpFetcher(centralCallback);
 	fetcher();
-}
-
-function MappingsNeighborhoodCallback(url, centralOntologyAcronym, centralConceptUri){
-	this.url = url;
-	// Define this fetcher when one is instantiated (circular dependency)
-	this.fetcher = undefined;
-	var self = this;
-	
-	this.callback = function (mappingsNeighborhoodData, textStatus, jqXHR){
-		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-		var errorOrRetry = self.fetcher(mappingsNeighborhoodData);
-		if(0 == errorOrRetry){
-			return;
-		} else if(-1 == errorOrRetry){
-			// have an error. Done?
-			return;
-		}
-
-		// Get central concept immediately
-		var centralConceptUrl = buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
-		var centralCallback = new FetchOneConceptCallback(centralConceptUrl, centralConceptUri);
-		var fetcher = closureRetryingJsonpFetcher(centralCallback);
-		fetcher();
-		
-		// Get the mappings, and subsequently the concepts mapped to.
-		$.each(mappingsNeighborhoodData,
-			function(index, mappingPair){
-				var process = mappingPair.process;
-				if(mappingPair.classes < 2){
-					// I have personally seen malformed mapping entries that have only one class.
-					return;
-				}
-				
-				var conceptOne = mappingPair.classes[0];
-				var conceptTwo = mappingPair.classes[1];
-				
-				var newConcept = (conceptOne.id === centralConceptUri) ? conceptTwo : conceptOne ;
-				var newConceptId = newConcept["@id"]
-				var newOntologyAcronym = getOntologyAcronymFromOntologyUrl(newConcept.links.ontology);
-				
-				var url = buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
-				var callback = new FetchOneConceptCallback(url, newConceptId);
-				var fetcher = closureRetryingJsonpFetcher(callback);
-				fetcher();
-			}
-		);
-		
-	}
 }
 
 function fetchConceptRelations(conceptNode, conceptData){
@@ -451,14 +421,14 @@ function ConceptCompositionRelationsCallback(relationsUrl, conceptNode, conceptI
 						// PROBLEM Seems like I want to manifest nodes before doing arcs, but in this case, I want to know
 						// if the relation exists so I can fetch the node data...
 						manifestOrRegisterImplicitRelation(conceptNode.id, childPartId, relationTypes.composition);
-						expandAndParseNodeIfNeeded(childPartId, conceptNode.id, {});
+						expandAndParseNodeIfNeeded(childPartId, conceptNode.id, {}, termNeighborhoodConstant);
 					});
 				}
 				
 				if(endsWith(index, "is_part")){
 					$.each(is_part, function(index, parentPartId){
 						manifestOrRegisterImplicitRelation(parentPartId, conceptNode.id, relationTypes.composition);
-						expandAndParseNodeIfNeeded(parentPartId, conceptNode.id, {});
+						expandAndParseNodeIfNeeded(parentPartId, conceptNode.id, {}, termNeighborhoodConstant);
 					});
 				}
 				
@@ -496,7 +466,7 @@ function ConceptChildrenRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 				// place and fire off an additional REST call.
 				var childId = child["@id"];
 				
-				expandAndParseNodeIfNeeded(childId, conceptNode.id, child);
+				expandAndParseNodeIfNeeded(childId, conceptNode.id, child, termNeighborhoodConstant);
 				manifestOrRegisterImplicitRelation(conceptNode.id, childId, relationLabelConstants.inheritance);
 			}
 		);
@@ -536,7 +506,7 @@ function ConceptParentsRelationsCallback(relationsUrl, conceptNode, conceptIdNod
 					var parentId = parent["@id"];
 					
 					// Save the data in case we expand to include this node
-					expandAndParseNodeIfNeeded(parentId, conceptNode.id, parent);
+					expandAndParseNodeIfNeeded(parentId, conceptNode.id, parent, termNeighborhoodConstant);
 					manifestOrRegisterImplicitRelation(parentId, conceptNode.id, relationLabelConstants.inheritance);
 		});
 	}
@@ -569,17 +539,16 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 				// Some bad data gets into the database apparently. No big deal but I prefer not seeing the errors.
 				return;
 			}
-			var firstConceptId = mapping.classes[0]["@id"];
-			var secondConceptId = mapping.classes[1]["@id"];
-			var newConceptData = (conceptNode === firstConceptId) ? mapping.classes[1] : mapping.classes[0];
-			var newConceptId = newConceptData["@id"];
-			manifestOrRegisterImplicitRelation(firstConceptId, secondConceptId, relationLabelConstants.mapping);
 			// The conceptNode.id better be the same as the @id we would have gotten!! Our logic relies on that!
 			if(mapping.classes[0]["@id"] !== conceptNode.id && mapping.classes[1]["@id"] !== conceptNode.id){
 				console.log("Mismatch between ids, original is "+conceptNode.id+" and does not appear in mappings ("+mapping.classes[0]["@id"]+" and "+mapping.classes[1]["@id"]+")");
 			}
-
-			expandAndParseNodeIfNeeded(newConceptId, conceptNode.id, newConceptData);
+			var firstConceptId = mapping.classes[0]["@id"];
+			var secondConceptId = mapping.classes[1]["@id"];
+			var newConceptData = (conceptNode === firstConceptId) ? mapping.classes[1] : mapping.classes[0];
+			var newConceptId = newConceptData["@id"];
+			manifestOrRegisterImplicitRelation(newConceptId, conceptNode.id, relationLabelConstants.mapping);
+			expandAndParseNodeIfNeeded(newConceptId, conceptNode.id, newConceptData, mappingsNeighborhoodConstant);
 		});
 	}
 }
@@ -589,6 +558,7 @@ function buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
 	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
 
+// This is unused. See description. Leaving as documentation.
 function buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
 	// Term neighborhood requires the core concept call, then properties, mappings, children and parents (in no particular order).
 	// Since those all need to be called for *any* node being loaded, this visualization mode relies upon cascading expansion as
@@ -597,6 +567,7 @@ function buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUr
 	return buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);		
 }
 
+// This might be unused, because we may navigate to the mappings URL along the link data provided from the new API.
 function buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
 	// From the mappings results, we add all of the discovered nodes.
 	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/mappings/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
@@ -1369,7 +1340,7 @@ function parseNode(index, conceptData){
 		conceptNode.escapedOntologyUri = encodeURIComponent(conceptNode.ontologyUri);
 		conceptNode.nodeColor = nextNodeColor(conceptNode.ontologyAcronym);
 		graphD3Format.nodes.push(conceptNode);
-		$(conceptIdNodeMap).attr(conceptNode.id, conceptNode);
+		addNodeToIdMap(conceptNode);
 		
 		// Could accumulate in caller?
 		updateGraphPopulation();
@@ -1400,7 +1371,7 @@ function parseNode(index, conceptData){
 		return conceptNode;
 }
 
-function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPropertiesData){
+function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPropertiesData, expansionType){
 	// Can determine on the basis of the relatedConceptId if we should request data for the
 	// conceptId provided, or if we should parse provided conceptProperties (if any).
 	// TODO PROBLEM What if the conceptId is already going to be fetched and processed because
@@ -1420,9 +1391,8 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 	// Because we expand for term neighbourhood relation calls, and those come in two flavors
 	// (node with properties for children and parents, and just node IDs for compositions)
 	// we want to support parsing the data directly as well as fetching additional data.
-	if(relatedConceptId === centralConceptUri && visualization === termNeighborhoodConstant
+	if(relatedConceptId in conceptsToExpand && expansionType in conceptsToExpand[relatedConceptId]
 		&& !(newConceptId in conceptIdNodeMap)){
-
 		// Manifest the node; parse the properties if available.
 		// We know that we will get the composition relations via a properties call,
 		// and that has all the data we need from a separate call for properties...
@@ -1438,27 +1408,16 @@ function expandAndParseNodeIfNeeded(newConceptId, relatedConceptId, conceptPrope
 			// 1) Get paths to root for the central concept
 			// "http://purl.bioontology.org/ontology/SNOMEDCT/16089004","
 			// Node data for term neighborhood should have the related node's link data section.
-			var ontologyAcronym = getOntologyAcronymFromOntologyUrl(conceptPropertiesData.links.ontology);
+			var newOntologyAcronym = getOntologyAcronymFromOntologyUrl(conceptPropertiesData.links.ontology);
 			
 			// TODO Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
 			// Is this a redundant call? Or is it better to follow this route anyway??
 			// I think it isn't redundant, due to limited data that is available when this happens.
-			var url = buildConceptUrlNewApi(ontologyAcronym, newConceptId);
+			var url = buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
 			var callback = new FetchOneConceptCallback(url, newConceptId);
 			var fetcher = closureRetryingJsonpFetcher(callback);
 			fetcher();
 		}
-	}
-	
-	if(relatedConceptId === centralConceptUri && visualization === mappingsNeighborhoodConstant
-			&& !(newConceptId in conceptIdNodeMap)){
-		// conceptPropertiesData here will be the mapping data, and thus incomplete.
-		var newOntologyAcronym = getOntologyAcronymFromOntologyUrl(conceptPropertiesData.links.ontology);
-		
-		var url = buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
-		var callback = new FetchOneConceptCallback(url, newConceptId);
-		var fetcher = closureRetryingJsonpFetcher(callback);
-		fetcher();
 	}
 }
 
@@ -1525,22 +1484,22 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	// node ids that do not exist in our graph. This should be enforced by processing edges
 	// whenever we add a node to the graph.
 	
-	var matchId = undefined, otherId = undefined;
+	var matchIdInRegistry = undefined, otherIdInGraph = undefined;
 	var parentIdInRegistry = false, childIdInRegistry = false;
 	if(parentId in edgeRegistry && childId in edgeRegistry[parentId]){
-		matchId = parentId;
-		otherId = childId;
+		matchIdInRegistry = parentId;
+		otherIdInGraph = childId;
 		parentIdInRegistry = true;
 	}
 	if(childId in edgeRegistry && parentId in edgeRegistry[childId]){
-		if(matchId){
+		if(matchIdInRegistry){
 			// This can happen due to race conditions among relation calls. There's four, and ndoes are instantiated first...
 			// The parent receive parents, then the child receives children, then the child receives parents and we are in this situation.
 			// So if both match, what do we do? Ah, narrowed logic above to check for the other node beneath in the registry.
 			console.log("Logical error; cannot have both edge ends in the graph already. The edge would have been added before if so.")
 		}
-		matchId = childId;
-		otherId = parentId;
+		matchIdInRegistry = childId;
+		otherIdInGraph = parentId;
 		childIdInRegistry = true;
 	}
 	
@@ -1551,7 +1510,7 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	if((parentIdInGraph && childIdInGraph) && (parentIdInRegistry && childIdInRegistry)){
 		console.log("Problem: Both ids are already in the graph, and both in the registry. Should we be here?");
 	}
-	if(matchId && !(parentIdInGraph || childIdInGraph)){
+	if(matchIdInRegistry && !(parentIdInGraph || childIdInGraph)){
 		console.log("Problem: If matchId is true, there must be at least one of the concepts in the graph already.");
 	}
 	if(!parentIdInGraph && !childIdInGraph){
@@ -1559,18 +1518,11 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 	}
 	
 	// Register edges for which we have one in the graph, and none in the registry.
-	if(!matchId && (!parentIdInGraph != !childIdInGraph)){
+	if(!matchIdInRegistry && (!parentIdInGraph != !childIdInGraph)){
 		// Register this implicit edge.
 		var conceptIdNotInGraph = (parentId in conceptIdNodeMap) ?  childId : parentId;
 		var conceptInGraph = (parentId in conceptIdNodeMap) ?  parentId : childId;
-		if(!(conceptIdNotInGraph in edgeRegistry)){
-			edgeRegistry[conceptIdNotInGraph] = {};
-		}
-		if(!(conceptInGraph in edgeRegistry[conceptIdNotInGraph])){
-			edgeRegistry[conceptIdNotInGraph][conceptInGraph] = {};
-		}
-		// Need type as an index as well because some ontologies could have multiple edge types between entities.
-		edgeRegistry[conceptIdNotInGraph][conceptInGraph][edge.type] = edge;
+		addEdgeToRegistry(conceptIdNotInGraph, conceptInGraph, edge);
 		
 	} else if(parentIdInGraph && childIdInGraph) {
 		// If both are in the graph, we'll be manifesting it immediately.
@@ -1582,15 +1534,8 @@ function manifestOrRegisterImplicitRelation(parentId, childId, relationType){
 			updateGraphPopulation();
 		}
 		
-		if(matchId){
-			// Clear our cruft
-			delete edgeRegistry[matchId][otherId][edge.type];
-			if(Object.keys(edgeRegistry[matchId][otherId]).length == 0){
-				delete edgeRegistry[matchId][otherId];
-			}
-			if(Object.keys(edgeRegistry[matchId]).length == 0){
-				delete edgeRegistry[matchId];
-			}
+		if(matchIdInRegistry){
+			clearEdgeFromRegistry(matchIdInRegistry, otherIdInGraph, edge);
 		}
 	}
 }
@@ -1613,18 +1558,9 @@ function manifestEdgesForNewNode(conceptNode){
 				}
 				
 				// Clear that one out...safe while in the loop?
-				delete edgeRegistry[conceptId][otherId][edge.type];
-				// Might be out of edges for this node pair.
-				if(Object.keys(edgeRegistry[conceptId][otherId]).length == 0){
-					delete edgeRegistry[conceptId][otherId];
-				}
+				clearEdgeFromRegistry(conceptId, otherId, edge);
 			})
 		});
-		
-		// Done looking at this conceptId...was that all the edges?
-		if(Object.keys(edgeRegistry[conceptId]).length == 0){
-			delete edgeRegistry[conceptId];
-		}
 	}
 }
 
