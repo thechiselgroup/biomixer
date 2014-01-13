@@ -83,6 +83,7 @@ var conceptIdNodeMap = undefined;
 
 var vis;
 
+
 function cleanSlate(){
 	graphD3Format = new Object();
 	edgeRegistry = {}; 
@@ -156,6 +157,7 @@ $(window).resize(resizedWindow);
 function runGraph(){
 	// Run the graph! Don't need the json really, though...
 	// d3.json("force_files/set_data.json", initAndPopulateGraph);
+	prepLayoutMenu();
 	initNonForceGraph();
 	initPopulateGraph();
 }
@@ -1634,4 +1636,32 @@ function nextNodeColor(ontologyAcronym){
 	}
 	return ontologyColorMap[ontologyAcronym];
 	
+}
+
+function prepLayoutMenu(){
+	// Layout selector for concept graphs.
+	var menuSelector = 'div#hoveringLayoutMenu';
+	// Append the pop-out panel. It will stay hidden except when moused over.
+	var trigger = $("<div>").attr("id", "trigger");
+	$("#chart").append(trigger);
+	trigger.append($("<p>").text("<< Menu"));
+	trigger.append($("<div>").attr("id", "hoveringLayoutMenu"));
+
+	$('#trigger').hover(
+			function(e) {
+				$(menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
+				 // Looks bad when it's not fully visible, due to children inheriting transparency
+				$(menuSelector).fadeTo(0, 1.0);
+			},
+			function() {
+				$(menuSelector).hide();
+			}
+	);
+	
+	//addLayoutMenuComponents(menuSelector);
+}
+
+function addLayoutMenuComponents(menuSelector){
+	// Add the sliders to the pop-out panel
+	$(menuSelector).append($("<p>").text("Arc Mapping Range: "));
 }
