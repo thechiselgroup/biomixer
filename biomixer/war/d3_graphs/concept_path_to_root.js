@@ -157,7 +157,7 @@ $(window).resize(resizedWindow);
 function runGraph(){
 	// Run the graph! Don't need the json really, though...
 	// d3.json("force_files/set_data.json", initAndPopulateGraph);
-	prepLayoutMenu();
+	prepGraphMenu();
 	initNonForceGraph();
 	initPopulateGraph();
 }
@@ -741,7 +741,7 @@ function initPopulateGraph(json){
 		fetchPathToRoot(centralOntologyAcronym, centralConceptUri);
 	} else if(visualization === termNeighborhoodConstant){
 		fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri);
-	} else if(visualization === mappingNeighborhoodConstant){
+	} else if(visualization === mappingsNeighborhoodConstant){
 		fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri);
 	}
 }
@@ -1638,14 +1638,14 @@ function nextNodeColor(ontologyAcronym){
 	
 }
 
-function prepLayoutMenu(){
+function prepGraphMenu(){
 	// Layout selector for concept graphs.
-	var menuSelector = 'div#hoveringLayoutMenu';
+	var menuSelector = 'div#hoveringGraphMenu';
 	// Append the pop-out panel. It will stay hidden except when moused over.
 	var trigger = $("<div>").attr("id", "trigger");
 	$("#chart").append(trigger);
-	trigger.append($("<p>").text("<< Menu"));
-	trigger.append($("<div>").attr("id", "hoveringLayoutMenu"));
+	trigger.append($("<p>").text("<< Layouts"));
+	trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
 
 	$('#trigger').hover(
 			function(e) {
@@ -1658,10 +1658,19 @@ function prepLayoutMenu(){
 			}
 	);
 	
-	//addLayoutMenuComponents(menuSelector);
+	addMenuComponents(menuSelector);
 }
 
-function addLayoutMenuComponents(menuSelector){
-	// Add the sliders to the pop-out panel
-	$(menuSelector).append($("<p>").text("Arc Mapping Range: "));
+function addMenuComponents(menuSelector){
+	// Add the butttons to the pop-out panel
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("type", "button")
+			.attr("value", "Force-Directed Layout"));
+			//.on("click",  runGraph());
+	$(menuSelector).append($("<br>"));
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("type", "button")
+			.attr("value", "Circle Layout"));
 }
