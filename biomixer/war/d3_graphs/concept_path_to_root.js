@@ -1638,6 +1638,56 @@ function nextNodeColor(ontologyAcronym){
 	
 }
 
+function updateCircleLayout(url, centralOntologyAcronym, centralConceptUri){
+	return function(){
+		alert("need to update layout");
+		//d3.selectAll("g.node")
+			//.attr("x", 0)
+			//.attr("y", 0);
+		//to select all links
+		//d3.selectAll("line").style("stroke", "red");
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;
+		var graphLinks = graphD3Format.links;
+		    
+		graphNodes[0].x=100.0;
+		graphNodes[1].x=100.0;
+		//alert("updated vlues");
+		
+		var numberOfConcepts = Object.keys(graphNodes).length;
+
+		var anglePerNode =2*Math.PI / numberOfConcepts; // 360/numberOfMappedOntologies;
+		var arcLength = linkMaxDesiredLength();
+		var i = 0;
+		
+		//alert("angle per node:"+anglePerNode);
+		
+		
+		
+		$.each(graphNodes,
+			function(index, element){
+				var acronym = index;
+
+				if(typeof acronym === "undefined"){
+					console.log("Undefined concept entry");
+				}
+				
+				var angleForNode = i * anglePerNode; i++;
+				graphNodes[index].x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+				graphNodes[index].y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+			}
+		);
+		
+	    d3.selectAll("g.node").attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    d3.selectAll("line")
+	    	.attr("x1", function(d){return d.source.x;})
+	    	.attr("y1", function(d){return d.source.y;})
+	    	.attr("x2", function(d){return d.target.x;})
+	    	.attr("y2", function(d){return d.target.y;});
+		
+	};
+}
+
 function prepGraphMenu(){
 	// Layout selector for concept graphs.
 	var menuSelector = 'div#hoveringGraphMenu';
@@ -1665,12 +1715,17 @@ function addMenuComponents(menuSelector){
 	// Add the butttons to the pop-out panel
 	$(menuSelector).append($("<input>")
 			.attr("class", "layoutButton")
+			.attr("id", "forceLayoutButton")
 			.attr("type", "button")
 			.attr("value", "Force-Directed Layout"));
-			//.on("click",  runGraph());
 	$(menuSelector).append($("<br>"));
+	
 	$(menuSelector).append($("<input>")
 			.attr("class", "layoutButton")
+			.attr("id", "circleLayoutButton")
 			.attr("type", "button")
 			.attr("value", "Circle Layout"));
+	
+	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
+	d3.selectAll("#circleLayoutButton").on("click", updateCircleLayout(pathsToRootUrl, centralOntologyAcronym, centralConceptUri));
 }
