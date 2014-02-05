@@ -1640,7 +1640,7 @@ function nextNodeColor(ontologyAcronym){
 
 function updateCircleLayout(url, centralOntologyAcronym, centralConceptUri){
 	return function(){
-		alert("need to update layout");
+		//alert("need to update layout");
 		//d3.selectAll("g.node")
 			//.attr("x", 0)
 			//.attr("y", 0);
@@ -1650,19 +1650,11 @@ function updateCircleLayout(url, centralOntologyAcronym, centralConceptUri){
 		var graphNodes = graphD3Format.nodes;
 		var graphLinks = graphD3Format.links;
 		    
-		graphNodes[0].x=100.0;
-		graphNodes[1].x=100.0;
-		//alert("updated vlues");
-		
 		var numberOfConcepts = Object.keys(graphNodes).length;
 
 		var anglePerNode =2*Math.PI / numberOfConcepts; // 360/numberOfMappedOntologies;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
-		
-		//alert("angle per node:"+anglePerNode);
-		
-		
 		
 		$.each(graphNodes,
 			function(index, element){
@@ -1672,19 +1664,27 @@ function updateCircleLayout(url, centralOntologyAcronym, centralConceptUri){
 					console.log("Undefined concept entry");
 				}
 				
-				var angleForNode = i * anglePerNode; i++;
+				var angleForNode = i * anglePerNode; 
+				i++;
 				graphNodes[index].x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 				graphNodes[index].y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 			}
 		);
 		
-	    d3.selectAll("g.node").attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    d3.selectAll("g.node")
+	    	.transition()
+	    	.duration(2500)
+	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    
 	    d3.selectAll("line")
+	    	.transition()
+	    	.duration(2500)
 	    	.attr("x1", function(d){return d.source.x;})
 	    	.attr("y1", function(d){return d.source.y;})
 	    	.attr("x2", function(d){return d.target.x;})
 	    	.attr("y2", function(d){return d.target.y;});
 		
+
 	};
 }
 
