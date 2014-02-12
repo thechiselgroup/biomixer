@@ -48,6 +48,7 @@ var uniqueIdCounter = 0;
 
 var dragging = false;
 
+
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
 var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyNodeRect = null;
 
@@ -1638,14 +1639,8 @@ function nextNodeColor(ontologyAcronym){
 	
 }
 
-function updateCircleLayout(url, centralOntologyAcronym, centralConceptUri){
+function runCircleLayout(){
 	return function(){
-		//alert("need to update layout");
-		//d3.selectAll("g.node")
-			//.attr("x", 0)
-			//.attr("y", 0);
-		//to select all links
-		//d3.selectAll("line").style("stroke", "red");
 		forceLayout.stop();
 		var graphNodes = graphD3Format.nodes;
 		var graphLinks = graphD3Format.links;
@@ -1683,10 +1678,18 @@ function updateCircleLayout(url, centralOntologyAcronym, centralConceptUri){
 	    	.attr("y1", function(d){return d.source.y;})
 	    	.attr("x2", function(d){return d.target.x;})
 	    	.attr("y2", function(d){return d.target.y;});
-		
 
 	};
 }
+
+function runForceLayout(){
+	return function(){
+		forceLayout.on("tick", onLayoutTick(forceLayout));
+		forceLayout.start();
+
+	};
+}
+
 
 function prepGraphMenu(){
 	// Layout selector for concept graphs.
@@ -1726,6 +1729,6 @@ function addMenuComponents(menuSelector){
 			.attr("type", "button")
 			.attr("value", "Circle Layout"));
 	
-	var pathsToRootUrl = buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
-	d3.selectAll("#circleLayoutButton").on("click", updateCircleLayout(pathsToRootUrl, centralOntologyAcronym, centralConceptUri));
+	d3.selectAll("#circleLayoutButton").on("click", runCircleLayout());
+	d3.selectAll("#forceLayoutButton").on("click", runForceLayout());
 }
