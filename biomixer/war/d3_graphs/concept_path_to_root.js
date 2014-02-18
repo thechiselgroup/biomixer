@@ -40,6 +40,9 @@ $("#visualization_selector option").each(
 		}
 );
 
+var menuSelector = 'div#hoveringGraphMenu';
+function closeMenu(){return function(){ $(menuSelector).hide()};}
+
 var termNeighborhoodConstant = "term neighborhood";
 var pathsToRootConstant = "path to root";
 var mappingsNeighborhoodConstant = "mappings neighborhood";
@@ -99,8 +102,9 @@ function cleanSlate(){
 		.attr("width", visWidth())
 		.attr("height", visHeight())
 		.attr("pointer-events", "all")
+		.on("click", closeMenu());
 	//  .call(d3.behavior.zoom().on("zoom", redraw))
-	  ;
+	  
 	
 	vis.append('svg:rect')
 		.attr("width", visWidth())
@@ -772,10 +776,10 @@ function initNonForceGraph(){
 	// gravity to keep nodes within the view frame.
 	// If charge() is adjusted, the base gravity and tweaking of it probably needs tweaking as well.
 	forceLayout
-	.friction(0.9) // use 0.2 friction to get a very circular layout
-	.gravity(.05) // 0.5
+	.friction(0.3) // use 0.2 friction to get a very circular layout
+	.gravity(0.05) // 0.5
     .distance(Math.min(visWidth(), visHeight())/1.1) // 600
-    .charge(-200) // -100
+    .charge(-30) // -100
     .linkDistance(linkMaxDesiredLength())
     .size([visWidth(), visHeight()])
     .start();
@@ -818,8 +822,9 @@ function dragend(d, i) {
 	dragging = false;
 	// $(this).tipsy('show');
 	$(".tipsy").show();
-	// of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
-    d.fixed = true;
+	// no need to make the node fixed because we stop the layout when drag event begins
+	// if it is set to fixed, the node interferes with other layouts
+    //d.fixed = true;
 }
 
 //TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
@@ -1682,6 +1687,56 @@ function runCircleLayout(){
 	};
 }
 
+function runCenterLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;
+		var graphLinks = graphD3Format.links;
+		    
+		var numberOfConcepts = Object.keys(graphNodes).length-1;
+
+		var anglePerNode =2*Math.PI / numberOfConcepts; // 360/numberOfMappedOntologies;
+		var arcLength = linkMaxDesiredLength();
+		var i = 0;
+		
+		$.each(graphNodes,
+			function(index, element){
+				var acronym = index;
+
+				if(typeof acronym === "undefined"){
+					console.log("Undefined concept entry");
+				}
+				
+				if(index!=numberOfConcepts){
+					var angleForNode = i * anglePerNode; 
+					i++;
+					graphNodes[index].x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+					graphNodes[index].y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+				}else{
+					graphNodes[index].x = visWidth()/2; 
+					graphNodes[index].y = visHeight()/2;
+				}
+			}
+		);
+		
+		
+	    d3.selectAll("g.node")
+	    	.transition()
+	    	.duration(2500)
+	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    
+	    d3.selectAll("line")
+	    	.transition()
+	    	.duration(2500)
+	    	.attr("x1", function(d){return d.source.x;})
+	    	.attr("y1", function(d){return d.source.y;})
+	    	.attr("x2", function(d){return d.target.x;})
+	    	.attr("y2", function(d){return d.target.y;});
+
+	};
+}
+
+
 function runForceLayout(){
 	return function(){
 		forceLayout.on("tick", onLayoutTick(forceLayout));
@@ -1693,7 +1748,7 @@ function runForceLayout(){
 
 function prepGraphMenu(){
 	// Layout selector for concept graphs.
-	var menuSelector = 'div#hoveringGraphMenu';
+	
 	// Append the pop-out panel. It will stay hidden except when moused over.
 	var trigger = $("<div>").attr("id", "trigger");
 	$("#chart").append(trigger);
@@ -1707,7 +1762,7 @@ function prepGraphMenu(){
 				$(menuSelector).fadeTo(0, 1.0);
 			},
 			function() {
-				$(menuSelector).hide();
+			//	$(menuSelector).hide();
 			}
 	);
 	
@@ -1728,7 +1783,17 @@ function addMenuComponents(menuSelector){
 			.attr("id", "circleLayoutButton")
 			.attr("type", "button")
 			.attr("value", "Circle Layout"));
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "centerLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Center Layout"));
+
 	
 	d3.selectAll("#circleLayoutButton").on("click", runCircleLayout());
 	d3.selectAll("#forceLayoutButton").on("click", runForceLayout());
+	d3.selectAll("#centerLayoutButton").on("click", runCenterLayout());
+
 }
