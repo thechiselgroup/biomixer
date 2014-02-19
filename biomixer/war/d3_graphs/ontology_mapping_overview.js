@@ -171,7 +171,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		
 		var defaultNumOfTermsForSize = 10;
 		
-		// New API example: http://stagedata.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
+		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
 
 		// Create the central node
 		var centralOntologyNode = new Object();
@@ -423,7 +423,7 @@ function OntologyDescriptionCallback(url, node){
 //}
 
 function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
 
 //function buildOntologyDetailsUrl(){
@@ -431,7 +431,7 @@ function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
 //}
 
 function buildOntologyDetailsUrlNewApi(){
-	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
 
 //function buildOntologyMetricsUrl(ontologyVersionId){
@@ -439,11 +439,11 @@ function buildOntologyDetailsUrlNewApi(){
 //}
 
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
 }
 
 function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
 }
 
 //function RetryingJsonpFetcher(callbackObject){
