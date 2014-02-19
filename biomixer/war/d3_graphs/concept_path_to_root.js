@@ -1707,7 +1707,7 @@ function runCenterLayout(){
 					console.log("Undefined concept entry");
 				}
 				
-				if(index!=numberOfConcepts){
+				if(graphNodes[index].id!=centralConceptUri){
 					var angleForNode = i * anglePerNode; 
 					i++;
 					graphNodes[index].x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
@@ -1715,6 +1715,8 @@ function runCenterLayout(){
 				}else{
 					graphNodes[index].x = visWidth()/2; 
 					graphNodes[index].y = visHeight()/2;
+					//alert(graphNodes[index].id+centralConceptUri);
+					
 				}
 			}
 		);
