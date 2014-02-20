@@ -12,6 +12,9 @@
 // Bostock confirms that we shouldn't bind things that aren't truly new, and instead we must
 // update element properties without binding.
 
+// Some ontologies now have bad names with dots in them. May need to change out id matching with:
+// '[id="node_g_'+centralOntologyAcronym+'"]'
+
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
 function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
@@ -184,6 +187,8 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.acronym = centralOntologyAcronym;
 		centralOntologyNode.nodeColor = nextNodeColor();
+		centralOntologyNode.innerNodeColor = innerCircleColorTransform(centralOntologyNode.nodeColor);
+		centralOntologyNode.mapped_classes_to_central_node = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
 		var ontologyAcronymNodeMap = new Object();
@@ -219,6 +224,8 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.acronym = acronym;
 				ontologyNode.nodeColor = nextNodeColor();
+				ontologyNode.innerNodeColor = innerCircleColorTransform(ontologyNode.nodeColor);
+				ontologyNode.mapped_classes_to_central_node = 0;
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(ontologyAcronymNodeMap).attr("vid:"+acronym, ontologyNode);
@@ -230,6 +237,9 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				ontologyLink.value = element; // This gets used for link stroke thickness later.
 				ontologyLink.numMappings = element;
 				ontologyNeighbourhoodJsonForGraph.links.push(ontologyLink);
+				
+				// Get the node the data it needs from the link
+				ontologyNode.mapped_classes_to_central_node = ontologyLink.value;
 			}
 		);
 
@@ -683,6 +693,7 @@ function createNodePopupTable(ontologyCircle, ontologyData){
     		 "Num Classes: ": "numberOfClasses",
     		 "Num Individuals: ": "numberOfIndividuals",
     		 "Num Properties: ": "numberOfProperties",
+    		 "Num Mappings: ": "mapped_classes_to_central_node",
      };
      
      $.each(jsonArgs,function(label, key){
@@ -789,6 +800,21 @@ function populateGraph(json, newElementsExpected){
     // .style("fill", function(d) { return d.nodeColor; })
 	.attr("data-radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
+	.on("mouseover", changeColour)
+	.on("mouseout", changeColourBack);
+	
+	if(newElementsExpected === true) // How would I *update* this if I needed to?
+	// Add a second circle that represents the mapped classes of the ontology.
+	nodes
+	.append("svg:circle") 
+	.attr("id", function(d){ return "node_circle_inner_"+d.acronym})
+    .attr("class", "inner_circle")
+    .attr("cx", "0px")
+    .attr("cy", "0px")
+    .style("fill", innerCircleColorTransform(defaultNodeColor))
+    // .style("fill", function(d) { return d.nodeColor; })
+	.attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
+    .attr("r", function(d) { return ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node); })
 	.on("mouseover", changeColour)
 	.on("mouseout", changeColourBack);
 	
@@ -1060,10 +1086,10 @@ function updateDataForNodesAndLinks(json){
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
 		var node = vis.select("#node_g_"+d.acronym);
-		var circles = node.select("circle");
+		var circles = node.select(".circle");
 		circles.attr("data-radius_basis", d.number);
 		circles.transition().style("fill", d.nodeColor);
-		node.select("title").text(function(d) { return "Number Of Terms: "+d.number; });
+		node.select("title").text(function(d) { return "Number Of Terms: "+d.number+"<br/> and <br/>"+"Number Of Mappings: "+d.mapped_classes_to_central_node; });
 		node.select("text")
 		.text(function(d) { return d.name; })
 		// Firefox renders dx for text poorly, shifting things around oddly,
@@ -1071,6 +1097,11 @@ function updateDataForNodesAndLinks(json){
 //		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
 		.attr("x", function(){ return - this.getComputedTextLength()/2; })
 		;
+		
+		// Update the inner circles too
+		var inner_circles = node.select(".inner_circle");
+		inner_circles.attr("data-inner_radius_basis", d.mapped_classes_to_central_node);
+		inner_circles.transition().style("fill", d.innerNodeColor);
 		
 		// Refresh popup if currently open
 		if(lastDisplayedTipsy != null
@@ -1142,15 +1173,18 @@ function changeColour(d, i){
 		.filter(function(g, i){return g.x==d.x})
 		.style("opacity", 1);
 		
-	var sourceNode;
-	if(d3.select(this).attr("class") == "circle"){
-		sourceNode = d3.select(this);
-	} else if(d3.select(this).attr("class") == "nodetext"){
-		// If the labels aren't wired for mouse interaction, this is unneeded
-		sourceNode = d3.select(this.parentNode).select(".circle");
-	}
+	//	if(d3.select(this).attr("class") == "circle"){
+	//	if(d3.select(this).attr("class") == "inner_circle"){
+	//	if(d3.select(this).attr("class") == "nodetext"){
+	// This works when the mouse goes over the nodetext, circle, or inner_circle
+	// If the labels aren't wired for mouse interaction, this is unneeded
+	var sourceNode = d3.select(this.parentNode).select(".circle");
+	var innerSourceNode = d3.select(this.parentNode).select(".inner_circle");
 	
 	sourceNode.style("fill", nodeHighlightColor)
+		.style("fill-opacity", 1)
+		.style("stroke-opacity", 1);
+	innerSourceNode.style("fill", innerCircleColorTransform(nodeHighlightColor))
 		.style("fill-opacity", 1)
 		.style("stroke-opacity", 1);
 		
@@ -1171,12 +1205,20 @@ function changeColour(d, i){
 }
 
 function changeColourBack(d, i){
-	d3.selectAll("circle")
+	d3.selectAll(".circle")
 		.style("fill", function(e, i){ 
 			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
 			})
 		.style("fill-opacity", .75)
 		.style("stroke-opacity", 1);
+	
+	d3.selectAll(".inner_circle")
+		.style("fill", function(e, i){ 
+			return (typeof e.innerNodeColor === undefined ? defaultNodeColor : e.innerNodeColor); 
+		})
+	.style("fill-opacity", .75)
+	.style("stroke-opacity", 1);
+	
 	d3.selectAll("line")
 		.style("stroke", defaultLinkColor)
 		.style("stroke-opacity", .75);
@@ -1218,6 +1260,10 @@ function updateNodeScalingFactor(){
 	
 	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
 	
+	// Inner circles use the same scaling factor.
+	var innerCircles = vis.selectAll(".inner_circle");
+	innerCircles.transition().attr("r", function(d) { return ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"));});
+	
 }
 
 function updateLinkScalingFactor(){
@@ -1254,7 +1300,21 @@ function ontologyNodeScalingFunc(rawValue){
 	}
 	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
     var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
+    if(isNaN(diameter)){
+    	return 0;
+    }
     return diameter/2; // need radius for SVG
+}
+
+function ontologyInnerNodeScalingFunc(rawValue, relativeValue){
+	if(rawValue == 0 || rawValue == minNodeRawSize){
+		// If there is no mapping, I want no dot. This applies to the central node specifically.
+		// I also don't want a teeny weeny inner circle completely covering the outer circle,
+		// so let's scale away thsoe that match the minimum render size.
+		// Otherwise we'll scale exactly the same as the outer circle.
+		return 0;
+	}
+    return ontologyNodeScalingFunc(rawValue);
 }
 
 
@@ -1300,6 +1360,11 @@ var nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,
 function nextNodeColor(){
 	currentNodeColor = currentNodeColor == 19 ? 0 : currentNodeColor + 1;
 	return nodeOrderedColors(currentNodeColor);
+}
+
+function innerCircleColorTransform(outerColor){
+	// Outer color will be a 6 digit hex representation. Let's make it darker across all three factors.
+	return d3.rgb(outerColor).brighter(1).toString();
 }
 
 function prepGraphMenu(){
@@ -1458,6 +1523,11 @@ function filterGraph(){
 				
 				$("#node_circle_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
 				$("#node_circle_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
+				
+				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
+				// These inner circles only really apply to the ontology nodes
+				$("#node_circle_inner_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
+				$("#node_circle_inner_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
 				
 				$("#node_text_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
 				$("#node_text_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
