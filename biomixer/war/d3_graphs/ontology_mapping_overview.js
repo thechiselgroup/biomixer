@@ -847,7 +847,8 @@ function populateGraph(json, newElementsExpected){
 			$(me).tipsy({
 				html: true,
 				fade: true,
-				// offset: parseInt($(me).attr("r")), // works better without this!
+//				 offset: parseInt($(me).attr("r")), // works better without this!
+				offset: 15, // need this for the gravity sout-east cases. It makes it quite far for the other cases though...
 				fallback: "Fetching data...",
 		        title: function() {
 		          // var d = this.__data__, c = d.i; //colors(d.i);
