@@ -9,17 +9,10 @@
 
 circle.node {
   stroke: #fff;
-  stroke-width: 1.5px;
 }
+
 circle {
-  /*
-  fill: rgb(31, 119, 180);
-  */
   fill-opacity: .70;
-  /*
-  stroke: #3D3D3D;
-  */
-  stroke-width: 0px;
 }
 
 /*.circle {

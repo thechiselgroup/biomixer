@@ -152,6 +152,10 @@ function fetchOntologyNeighbourhood(centralOntologyAcronym){
 	fetcher();
 }
 
+function escapeAcronym(acronym){
+	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+}
+
 function OntologyMappingCallback(url, centralOntologyAcronym){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
@@ -172,8 +176,6 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		
 		var numberOfMappedOntologies = Object.keys(mappingData).length;
 		
-		var defaultNumOfTermsForSize = 10;
-		
 		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
 
 		// Create the central node
@@ -184,11 +186,12 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.x = visWidth()/2;
 		centralOntologyNode.y = visHeight()/2;		
 		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
-		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-		centralOntologyNode.acronym = centralOntologyAcronym;
-		centralOntologyNode.nodeColor = nextNodeColor();
-		centralOntologyNode.innerNodeColor = innerCircleColorTransform(centralOntologyNode.nodeColor);
+		centralOntologyNode.number = 0; // number of terms
+		centralOntologyNode.acronym = escapeAcronym(centralOntologyAcronym);
+		centralOntologyNode.displayAcronym = centralOntologyAcronym;
 		centralOntologyNode.mapped_classes_to_central_node = 0;
+		centralOntologyNode.nodeStrokeColor = nextNodeColor();
+		centralOntologyNode.nodeCenterColor = brightenColor(centralOntologyNode.nodeStrokeColor);
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
 		var ontologyAcronymNodeMap = new Object();
@@ -221,11 +224,12 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				var angleForNode = i * anglePerNode; i++;
 				ontologyNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 				ontologyNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
-				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
-				ontologyNode.acronym = acronym;
-				ontologyNode.nodeColor = nextNodeColor();
-				ontologyNode.innerNodeColor = innerCircleColorTransform(ontologyNode.nodeColor);
+				ontologyNode.number = 0; // number of terms
 				ontologyNode.mapped_classes_to_central_node = 0;
+				ontologyNode.acronym = escapeAcronym(acronym);
+				ontologyNode.displayAcronym = acronym;
+				ontologyNode.nodeStrokeColor = nextNodeColor();
+				ontologyNode.nodeCenterColor = brightenColor(ontologyNode.nodeStrokeColor);
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(ontologyAcronymNodeMap).attr("vid:"+acronym, ontologyNode);
@@ -656,13 +660,13 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 	 tBody.append(
 			 $("<tr></tr>").append(
 				   $("<td></td>").append(
-						   $("<div></div>").text(ontologyData["acronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+						   $("<div></div>").text(ontologyData["displayAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
 				   )
 		   )
 	 );
    
      
-     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["acronym"]+"?p=summary";
+     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["displayAcronym"]+"?p=summary";
      tBody.append(
     		 $("<tr></tr>").append(
     				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -687,7 +691,7 @@ function createNodePopupTable(ontologyCircle, ontologyData){
      
      var jsonArgs = {
     		 "Ontology Name: ": "name",
-    		 "Ontology Acronym: ": "acronym",
+    		 "Ontology Acronym: ": "displayAcronym",
     		 "Ontology URI: ": "uriId",
     		 "Description: ": "description",
     		 "Num Classes: ": "numberOfClasses",
@@ -796,25 +800,13 @@ function populateGraph(json, newElementsExpected){
     .attr("class", "circle")
     .attr("cx", "0px")
     .attr("cy", "0px")
-    .style("fill", defaultNodeColor)
-    // .style("fill", function(d) { return d.nodeColor; })
+    .style("fill", brightenColor(defaultNodeColor))
+    .style("stroke", defaultNodeColor)
+    // .style("fill", function(d) { return d.nodeCenterColor; })
 	.attr("data-radius_basis", function(d) { return d.number;})
-    .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
-	.on("mouseover", changeColour)
-	.on("mouseout", changeColourBack);
-	
-	if(newElementsExpected === true) // How would I *update* this if I needed to?
-	// Add a second circle that represents the mapped classes of the ontology.
-	nodes
-	.append("svg:circle") 
-	.attr("id", function(d){ return "node_circle_inner_"+d.acronym})
-    .attr("class", "inner_circle")
-    .attr("cx", "0px")
-    .attr("cy", "0px")
-    .style("fill", innerCircleColorTransform(defaultNodeColor))
-    // .style("fill", function(d) { return d.nodeColor; })
-	.attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
-    .attr("r", function(d) { return ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node); })
+	.attr("data-stroke_width_basis", function(d) { return d.mapped_classes_to_central_node;})
+    .attr("r", function(d) { return comboOntologyNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.acronym).r; })
+    .attr("stroke-width", function(d) { return comboOntologyNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.acronym).w; })
 	.on("mouseover", changeColour)
 	.on("mouseout", changeColourBack);
 	
@@ -1088,7 +1080,10 @@ function updateDataForNodesAndLinks(json){
 		var node = vis.select("#node_g_"+d.acronym);
 		var circles = node.select(".circle");
 		circles.attr("data-radius_basis", d.number);
-		circles.transition().style("fill", d.nodeColor);
+		circles.attr("data-stroke_width_basis", d.mapped_classes_to_central_node);
+		circles.transition()
+			.style("fill", d.nodeCenterColor)
+			.style("stroke", d.nodeStrokeColor);
 		node.select("title").text(function(d) { return "Number Of Terms: "+d.number+"<br/> and <br/>"+"Number Of Mappings: "+d.mapped_classes_to_central_node; });
 		node.select("text")
 		.text(function(d) { return d.name; })
@@ -1097,11 +1092,6 @@ function updateDataForNodesAndLinks(json){
 //		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
 		.attr("x", function(){ return - this.getComputedTextLength()/2; })
 		;
-		
-		// Update the inner circles too
-		var inner_circles = node.select(".inner_circle");
-		inner_circles.attr("data-inner_radius_basis", d.mapped_classes_to_central_node);
-		inner_circles.transition().style("fill", d.innerNodeColor);
 		
 		// Refresh popup if currently open
 		if(lastDisplayedTipsy != null
@@ -1179,14 +1169,12 @@ function changeColour(d, i){
 	// This works when the mouse goes over the nodetext, circle, or inner_circle
 	// If the labels aren't wired for mouse interaction, this is unneeded
 	var sourceNode = d3.select(this.parentNode).select(".circle");
-	var innerSourceNode = d3.select(this.parentNode).select(".inner_circle");
 	
-	sourceNode.style("fill", nodeHighlightColor)
+	sourceNode.style("fill", brightenColor(nodeHighlightColor))
 		.style("fill-opacity", 1)
-		.style("stroke-opacity", 1);
-	innerSourceNode.style("fill", innerCircleColorTransform(nodeHighlightColor))
-		.style("fill-opacity", 1)
-		.style("stroke-opacity", 1);
+		.style("stroke-opacity", 1)
+		.style("stroke", nodeHighlightColor)
+		;
 		
 	var adjacentLinks = d3.selectAll("line")
 		.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
@@ -1207,17 +1195,13 @@ function changeColour(d, i){
 function changeColourBack(d, i){
 	d3.selectAll(".circle")
 		.style("fill", function(e, i){ 
-			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
+			return (typeof e.nodeCenterColor === undefined ? defaultNodeColor : e.nodeCenterColor); 
 			})
 		.style("fill-opacity", .75)
-		.style("stroke-opacity", 1);
-	
-	d3.selectAll(".inner_circle")
-		.style("fill", function(e, i){ 
-			return (typeof e.innerNodeColor === undefined ? defaultNodeColor : e.innerNodeColor); 
+		.style("stroke", function(e, i){ 
+			return (typeof e.nodeStrokeColor === undefined ? defaultNodeColor : e.nodeStrokeColor); 
 		})
-	.style("fill-opacity", .75)
-	.style("stroke-opacity", 1);
+		.style("stroke-opacity", 1);
 	
 	d3.selectAll("line")
 		.style("stroke", defaultLinkColor)
@@ -1258,12 +1242,10 @@ function updateNodeScalingFactor(){
 				}
 		});
 	
-	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"));});
-	
-	// Inner circles use the same scaling factor.
-	var innerCircles = vis.selectAll(".inner_circle");
-	innerCircles.transition().attr("r", function(d) { return ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"));});
-	
+	circles.transition()
+	.attr("r", function(d) { return comboOntologyNodeScalingFunc(this.getAttribute("data-stroke_width_basis"), this.getAttribute("data-radius_basis"), this.getAttribute("id")).r;})
+	.attr("stroke-width", function(d) { return comboOntologyNodeScalingFunc(this.getAttribute("data-stroke_width_basis"), this.getAttribute("data-radius_basis"), this.getAttribute("id")).w;})
+	;
 }
 
 function updateLinkScalingFactor(){
@@ -1292,31 +1274,91 @@ function updateLinkScalingFactor(){
 	});
 }
 
+var defaultNumOfTermsForSize = 10;
 
-function ontologyNodeScalingFunc(rawValue){
-	// return Math.sqrt((rawValue)/10);
+function comboOntologyNodeScalingFunc(rawMappedTermCountValueStr, rawTotalTermCountValueStr, ontologyAcronym){
+	// Experimented online to find the relation:
+    // http://www.w3schools.com/svg/tryit.asp?filename=trysvg_circle
+    // We want some of the radius to be filled by the edge, and some by the circle. The total radius
+    // is such that half the thickness of the edge must be removed from the circle radius to get our
+    // desired circle size. I'm not sure if that expressed the problem precisely enough, but playing
+	// around with circle sizes, radius and thickness values brings the problem home quickly.
+   
+    // Stroke width needs to be relative to the inner circle radius, which depends on both the desired
+    // radius as well as the stroke width, which itself depends on the desired radius. Oh noes!
+    // So what's the complete equation?
+    /* Let's look at examples and infer:
+     * For 50% as edge (1/2), use r=3/4 desired, w=desired*1/2
+     * For 25% as edge (1/4), use r=7/8 desired, w=desired*1/4
+     * So, ya, find ratio needed. Call it tF. The factor for radius is rF.
+     * 
+     * [These numbers only make sense if you try them in the browser and see]
+     * 
+     * tF = thicknessThing / totalThing
+     * rF = (1 - tF) + (0.5 * tF)
+     * 3/4 = (1 - 1/2) + (0.5 * 1/2) // tF = 1/2
+     * 7/8 = (1 - 1/4) + (0.5 * 1/4) // tF = 1/4
+     *     = 6/8 + 1/8 BINGO!
+     * 9/16 = 1/8 + 7/16 = (1 - 7/8) + (0.5 * 7/8) // tF = 7/8  <-- is this one true? It works!
+     * 
+     * This last one is super surprising for the values. I tested it with a pair of circles as seen below:
+     * <circle cx="50" cy="50" r="41" stroke-position="inner" stroke="black" stroke-width="0" fill="red" />
+     * <circle cx="50" cy="50" r="22.5" stroke="black" stroke-width="35" fill="blue" />
+     * The red edge of the first one should be abrely visible. The black edge of the second circle
+     * should take up the equivalent of 7/8 of the radius. There should be a blue dot in the centre that
+     * takes up the equivalent of 1/8 of a radius. Taking a screenshot and doing a pixel count shows that
+     * the center blue dot is indeed one eighth the size of the total circle radius. Perfect! 
+     */
+	
+	var rawMappedTermCount = ~~rawMappedTermCountValueStr; // convert string to int using fastest method ever
+	var rawTotalTermCount = ~~rawTotalTermCountValueStr;
+	
+	if(rawTotalTermCount == 0){
+		// Would do this, but there's a Chrome bug that renders such circles (with widths greater than *2 the radius) as bulls-eyes.
+		// return {r: 0.1, w: 2*defaultNumOfTermsForSize};
+		return {r: defaultNumOfTermsForSize, w: 0};
+	}
+	
+	// Thickness needs to represent entire radius term count, and we need to double thicknesses to achieve desired radius.
+	var result = {r: 0.1, w: 2*rawTotalTermCount};
+	
 	if(maxNodeRawSize == minNodeRawSize){
-		return rawValue;
+		return result;
 	}
-	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
-    var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
-    if(isNaN(diameter)){
-    	return 0;
-    }
-    return diameter/2; // need radius for SVG
-}
-
-function ontologyInnerNodeScalingFunc(rawValue, relativeValue){
-	if(rawValue == 0 || rawValue == minNodeRawSize){
-		// If there is no mapping, I want no dot. This applies to the central node specifically.
-		// I also don't want a teeny weeny inner circle completely covering the outer circle,
-		// so let's scale away thsoe that match the minimum render size.
-		// Otherwise we'll scale exactly the same as the outer circle.
-		return 0;
+	
+	if(rawMappedTermCount > rawTotalTermCount){
+		if(rawTotalTermCount > 0){
+			// I have a problem with some of the nodes having mapping counts greater than their class count. What's up with that?
+			// Look at tool tips, metric call return code, other stuff...
+			// console.log(ontologyAcronym+" mapped is bigger than total: "+rawMappedTermCount +" "+ rawTotalTermCount);
+			// If there are more mappings than elements, let's set it to render as though 95% of the max is mapped.
+			rawMappedTermCount = 0.95*rawTotalTermCount;
+		}
 	}
-    return ontologyNodeScalingFunc(rawValue);
-}
+	
+	
+	// Edge represents unmapped term count, so subtract and figure out ratios.
+    var tF = (rawTotalTermCount - rawMappedTermCount) / rawTotalTermCount; // <-- thickness represents unmapped
+    // Take remainder of radius, in a sense, and strangely enough, add half of the width of the edge
+    var rF =  (1 - tF) + (0.5 * tF);
+    
+    // var realRawThickness = tF * rawThickness; // <-- so really, I renamed things, and this is confusing now...
+    var realRawThickness = tF * (rawTotalTermCount - rawMappedTermCount); // <-- so really, I renamed things, and this is confusing now...
+    
+    var realRawRadius = rF * rawTotalTermCount;
+    // We also have to convert this desired raw radius. We can take the resulting number
+    // and apply it as the radius, then use what we know to compute the necessary thickness.
+    
+    var factor = computeFactorOfRange(rawTotalTermCount, minNodeRawSize, maxNodeRawSize);
+    var desiredOuterRadius = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE)/2;
+    var realScaledRadius = desiredOuterRadius * ( realRawRadius / (realRawRadius + realRawThickness) );
+    var realScaledThickness = desiredOuterRadius * ( realRawThickness / (realRawRadius + realRawThickness) );
+    
+    var result = {r: Math.max(realScaledRadius, 0.1), w: realScaledThickness};
+    
+    return result; // need radius for SV, don't put too close to 0.
 
+}
 
 function ontologyLinkScalingFunc(rawValue){
 	if(maxLinkRawSize == minLinkRawSize){
@@ -1362,9 +1404,10 @@ function nextNodeColor(){
 	return nodeOrderedColors(currentNodeColor);
 }
 
-function innerCircleColorTransform(outerColor){
+function brightenColor(outerColor){
 	// Outer color will be a 6 digit hex representation. Let's make it darker across all three factors.
-	return d3.rgb(outerColor).brighter(1).toString();
+	// Using lab() converts from hex RGB to the Cie L*A*B equivalent.
+	return d3.lab(outerColor).brighter(1).toString();
 }
 
 function prepGraphMenu(){
@@ -1523,12 +1566,7 @@ function filterGraph(){
 				
 				$("#node_circle_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
 				$("#node_circle_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
-				
-				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
-				// These inner circles only really apply to the ontology nodes
-				$("#node_circle_inner_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_inner_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
-				
+								
 				$("#node_text_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
 				$("#node_text_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
 			}
