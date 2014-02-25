@@ -32,6 +32,9 @@ var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
 var nodeHighlightColor = "#FC6854";
 
+// Keep track of node mapping values in order, so we can filter through them in ranks
+var sortedLinksByMapping = [];
+
 // Had to set div#chart.gallery height = 100% in CSS,
 // but this was only required in Firefox. I can't see why.
 prepGraphMenu();
@@ -176,6 +179,13 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		
 		var numberOfMappedOntologies = Object.keys(mappingData).length;
 		
+		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
+		var sortedKeysMappingData = [];
+		$.each(mappingData, function(index, element){sortedKeysMappingData.push(index)});
+		sortedKeysMappingData.sort(function(a,b){return mappingData[b]-mappingData[a]});
+		// console.log(sortedKeysMappingData[0]+""+mappingData[sortedKeysMappingData[0]]);
+
+		
 		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
 
 		// Create the central node
@@ -192,6 +202,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.mapped_classes_to_central_node = 0;
 		centralOntologyNode.nodeStrokeColor = nextNodeColor();
 		centralOntologyNode.nodeCenterColor = brightenColor(centralOntologyNode.nodeStrokeColor);
+		centralOntologyNode.displayedArcs = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
 		var ontologyAcronymNodeMap = new Object();
@@ -206,9 +217,11 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		var anglePerNode =2*Math.PI / numberOfMappedOntologies; // 360/numberOfMappedOntologies;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
-		$.each(mappingData,
-			function(index, element){
-				var acronym = index;
+		// Used to iterate over raw mappingData, but I wanted things loaded and API calls made in order
+		// of mapping counts.
+		$.each(sortedKeysMappingData,
+			function(index, acronym){
+				var mappingCount = mappingData[acronym];
 
 				if(typeof acronym === "undefined"){
 					console.log("Undefined ontology entry");
@@ -230,6 +243,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				ontologyNode.displayAcronym = acronym;
 				ontologyNode.nodeStrokeColor = nextNodeColor();
 				ontologyNode.nodeCenterColor = brightenColor(ontologyNode.nodeStrokeColor);
+				ontologyNode.displayedArcs = 0;
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(ontologyAcronymNodeMap).attr("vid:"+acronym, ontologyNode);
@@ -238,8 +252,10 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				var ontologyLink = new Object();
 				ontologyLink.source = centralOntologyNode;
 				ontologyLink.target = ontologyNode;
-				ontologyLink.value = element; // This gets used for link stroke thickness later.
-				ontologyLink.numMappings = element;
+				ontologyLink.source.displayedArcs++;
+				ontologyLink.target.displayedArcs++;
+				ontologyLink.value = mappingCount; // This gets used for link stroke thickness later.
+				ontologyLink.numMappings = mappingCount;
 				ontologyNeighbourhoodJsonForGraph.links.push(ontologyLink);
 				
 				// Get the node the data it needs from the link
@@ -392,7 +408,7 @@ function OntologyMetricsCallback(url, node){
 		
 		// console.log("ontologyMetricsCallback");
 		updateDataForNodesAndLinks({nodes:[self.node], links:[]});
-		filterGraph();
+		// filterGraph();
 	}
 }
 
@@ -770,6 +786,8 @@ function populateGraph(json, newElementsExpected){
 		.text(function(d) { return "Number Of Mappings: "+d.numMappings; })
 			.attr("id", function(d){ return "link_title_"+d.source.acronym+"->"+d.target.acronym});
 
+	updateTopMappingsSliderRange();
+	
 	// Node stuff now
 	
 	var nodes = vis.selectAll("g.node").data(json.nodes, function(d){return d.acronym});
@@ -1435,105 +1453,64 @@ function prepGraphMenu(){
 }
 
 function addMenuComponents(menuSelector){
-
-	var minSlider = -2;
-	var maxSlider = 102;
+	var minSliderAbsolute = 0;
+	var maxSliderAbsolute = 19; // sortedLinksByMapping.size();
 	
-// Add the sliders to the pop-out panel
-$(menuSelector).append($("<label>").attr("for", "arc-slider-amount").text("Arc Mapping Range: "));
-$(menuSelector).append($("<label>").attr("type", "text").attr("id", "arc-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
-$(menuSelector).append($("<div>").attr("id",  "arc-slider-range" ));
-
-$( "#arc-slider-range" ).slider({
-	range: true,
-	min: minSlider,
-	max: maxSlider,
-	values: [ minSlider, maxSlider ],
-	slide: function( event, ui ) {
-//		$( "#arc-slider-amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
-		// Need to make it wider than 100% due to UI bugginess
-		var bottom = $( "#arc-slider-range" ).slider( "values", 0 );
-		var top = $( "#arc-slider-range" ).slider( "values", 1 );
-		bottom = Math.max(0, bottom);
-		top = Math.min(100, top);
-		$( "#arc-slider-amount" ).text( bottom + "% - " + top +"%" );
-		filterGraph();
-		}
-	}
-);
-
-$(menuSelector).append($("<div>").attr("id",  "slider-gap" ));
-
-$(menuSelector).append($("<label>").attr("for", "node-slider-amount").text("Node Mapping Range: "));
-$(menuSelector).append($("<label>").attr("type", "text").attr("id", "node-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
-$(menuSelector).append($("<div>").attr("id",  "node-slider-range" ));
-
-$( "#node-slider-range" ).slider({
-	range: true,
-	min: minSlider,
-	max: maxSlider,
-	values: [ minSlider, maxSlider ],
-	slide: function( event, ui ) {
-//		$( "#node-slider-amount" ).val( "$" + ui.values[ 0 ] + " - $" + ui.values[ 1 ] );
-		// Need to make it wider than 100% due to UI bugginess
-		var bottom = $( "#node-slider-range" ).slider( "values", 0 );
-		var top = $( "#node-slider-range" ).slider( "values", 1 );
-		bottom = Math.max(0, bottom);
-		top = Math.min(100, top);
-		$( "#node-slider-amount" ).text( bottom + "% - " + top +"%" );
-		filterGraph();
-		}
-	}
-)
-
-// Need separate initialization for input text
-$( "#arc-slider-amount" ).text( 0 + "% - " + 100+"%" );
-$( "#node-slider-amount" ).text( 0 + "% - " + 100+"%" );
-
-
-}
-
-function filterGraph(){
-	var minArcPercentile = $( "#arc-slider-range" ).slider( "values", 0 )/100;
-	var maxArcPercentile = $( "#arc-slider-range" ).slider( "values", 1 )/100;
-	var minNodePercentile = $( "#node-slider-range" ).slider( "values", 0 )/100;
-	var maxNodePercentile = $( "#node-slider-range" ).slider( "values", 1 )/100;
-
-	minArcPercentile = Math.max(0, minArcPercentile);
-	maxNodePercentile = Math.min(100, maxNodePercentile);
+	$(menuSelector).append($("<label>").attr("for", "top-mappings-slider-amount").text("Ranked Mapping Range: "));
+	$(menuSelector).append($("<label>").attr("type", "text").attr("id", "top-mappings-slider-amount")) // .css("border:0; color:#f6931f; font-weight:bold;"));
+	$(menuSelector).append($("<div>").attr("id",  "top-mappings-slider-range" ));
 	
-	minNodePercentile = Math.max(0, minNodePercentile);
-	maxArcPercentile = Math.min(100, maxArcPercentile);
-	
-	var nodeMin = Number.MAX_VALUE;
-	var nodeMax = Number.MIN_VALUE;
-	var arcMin = Number.MAX_VALUE;
-	var arcMax = Number.MIN_VALUE;
-	d3.selectAll("line").each( 
-			function(d,i){
-				if(parseInt(d.value) <= arcMin){
-					arcMin = d.value;
-				}
-				if(parseInt(d.value) >= arcMax){
-					arcMax = d.value;
-				}
-				// Source
-				if(parseInt(d.source.number) <= arcMin){
-					arcMin = d.source.number;
-				}
-				if(parseInt(d.source.number) >= arcMax){
-					arcMax = d.source.number;
-				}
-				// Target
-				if(parseInt(d.target.number) <= nodeMin){
-					nodeMin = d.target.number;
-				}
-				if(parseInt(d.target.number) >= nodeMax){
-					nodeMax = d.target.number;
-				}
+	$( "#top-mappings-slider-range" ).slider({
+		range: true,
+		min: minSliderAbsolute,
+		max: maxSliderAbsolute,
+		values: [ minSliderAbsolute, maxSliderAbsolute ],
+		slide: function( event, ui ) {
+			// Need to make it wider than 100% due to UI bugginess
+			var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
+			var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
+			$( "#top-mappings-slider-amount" ).text( "Top "+ bottom + " - " + top );
+			filterGraphOnMappingCounts();
 			}
+		}
 	);
 	
+	updateTopMappingsSliderRange();
+	
+	// Need separate initialization for input text
+	$( "#top-mappings-slider-amount" ).text( "Top "+ minSliderAbsolute + " - " + maxSliderAbsolute );
+	
+}
+
+function updateTopMappingsSliderRange(){
+	if(typeof(sortedLinksByMapping) === undefined || sortedLinksByMapping.length == 0){
+		sortedLinksByMapping = [];
+		// Fill the sorted set for the first time
+		var i = 0;
+		d3.selectAll("line").each( 
+				function(d,i){
+					sortedLinksByMapping[i] = d.value;
+				}
+		);
+	}
+	
+	// Descending sort so we can pick the top n.
+	sortedLinksByMapping.sort(function(a,b){return b-a});
+	
+	var mappingMin = 1;
+	var mappingMax = sortedLinksByMapping.length;
+	
+	$( "#top-mappings-slider-range" ).slider("option", "min", 0);
+	$( "#top-mappings-slider-range" ).slider("option", "max", sortedLinksByMapping.length - 1);
+	$( "#top-mappings-slider-range" ).slider("option", "values", [0, sortedLinksByMapping.length - 1]);
+	$( "#top-mappings-slider-amount" ).text( "Top "+ mappingMin + " - " + mappingMax );
+}
+
+/**
+ * Old filtering code. Based off of deleted sliders. Filtered on node size and/or arc size.
+ * May be useful later, perhaps.
+ */
+function filterGraph(){
 	var minNodeAbsolute = minNodePercentile * (nodeMax - nodeMin) + nodeMin;
 	var maxNodeAbsolute = maxNodePercentile * (nodeMax - nodeMin) + nodeMin;
 	var minArcAbsolute = minArcPercentile * (arcMax - arcMin) + arcMin;
@@ -1548,21 +1525,13 @@ function filterGraph(){
 				var hideSourceNode = (parseInt(d.source.number) < minNodeAbsolute || parseInt(d.source.number) > maxNodeAbsolute);
 				var hideTargetNode = (parseInt(d.target.number) < minNodeAbsolute || parseInt(d.target.number) > maxNodeAbsolute);
 				
-				if(d.source.acronym == centralOntologyAcronym){
+				if(d.source.displayAcronym == centralOntologyAcronym){
 					hideSourceNode = false;
 				}
-				if(d.target.acronym == centralOntologyAcronym){
+				if(d.target.displayAcronym == centralOntologyAcronym){
 					hideTargetNode = false;
 				}
 				
-				// http://svg-whiz.com/svg/HideShow.svg
-				// Opacity is used elsewhere, and is most expensive.
-				// Try display: none, but visibility property can work too.
-				
-//				console.log($(this).first()); //"link_line_"+d.source.acronym+"->"+d.target.acronym
-//				console.log($(this));
-//				$(this).first().css("display", (hideArc || hideSourceNode) ? 0.0 : "");
-//				$("#link_line_"+d.source.acronym+"->"+d.target.acronym).css("display", (hideArc || hideSourceNode || hideTargetNode) ? 0.0 : "");
 				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
 				
 				$("#node_circle_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
@@ -1573,5 +1542,58 @@ function filterGraph(){
 			}
 		);
 	
+}
 	
+function filterGraphOnMappingCounts(){
+	// Grabbing min from 1 and max from 0 looks funny, but it does the trick. Pinky swear.
+	var minNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )]; // starts at big number
+	var maxNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )]; // starts at 0
+	var minArcAbsolute = minNodeAbsolute;
+	var maxArcAbsolute = maxNodeAbsolute;
+	
+	// Iterate through all arcs, remove if their node or arc fails to pass
+	// We don't need to iterate through all the nodes, because we will do so here.
+	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
+	d3.selectAll("line").each( 
+			function(d,i){
+				// Work with arc first, then the attached nodes.
+				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+				
+				var hideSourceNode = (parseInt(d.source.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.source.mapped_classes_to_central_node) > maxNodeAbsolute);
+				var hideTargetNode = (parseInt(d.target.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.target.mapped_classes_to_central_node) > maxNodeAbsolute);
+				
+				
+				if(d.source.displayAcronym == centralOntologyAcronym){
+					hideSourceNode = false;
+				}
+				if(d.target.displayAcronym == centralOntologyAcronym){
+					hideTargetNode = false;
+				}
+				
+				// For more general graphs than the ontology graph, we'd want to see if all arcs attached
+				// to the node are hidden or not. For ontology mapping graph, there's only one arc so I cheat.
+				// For that method, I'd maintain a counter on each node.
+				var hideSourceNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.source, hideArc);
+				var hideTargetNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.target, hideArc);
+				
+				$("#node_circle_"+d.source.acronym).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+				$("#node_circle_"+d.target.acronym).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+								
+				$("#node_text_"+d.source.acronym).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+				$("#node_text_"+d.target.acronym).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+			}
+		);
+}
+
+function modifyNodeDisplayedArcCounter(node, hidingArc){
+	// The ontology overview system is not currently set up to remove arcs or nodes.
+	// If it adapted to that, or this concept used elsewhere, this counter needs to be
+	// maintained when those arcs or nodes are removed.
+	if(hidingArc){
+		node.displayedArcs--;
+	} else {
+		node.displayedArcs++;
+	}
+	return 0 === node.displayedArcs;
 }
