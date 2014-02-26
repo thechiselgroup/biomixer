@@ -15,6 +15,8 @@
 // Some ontologies now have bad names with dots in them. May need to change out id matching with:
 // '[id="node_g_'+centralOntologyAcronym+'"]'
 
+var hardNodeCap = 0; // 10 and 60 are nice number for dev, but set to 0 for all nodes.
+
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
 function linkMaxDesiredLength(){ return Math.min(visWidth(), visHeight())/2 - 50; }
@@ -177,14 +179,26 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 			return;
 		}
 		
-		var numberOfMappedOntologies = Object.keys(mappingData).length;
 		
 		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
 		var sortedKeysMappingData = [];
-		$.each(mappingData, function(index, element){sortedKeysMappingData.push(index)});
+		$.each(mappingData, function(index, element){
+			// Hard cap on nodes included. Great for dev purposes.
+			if(hardNodeCap != 0 && sortedKeysMappingData.length > hardNodeCap){
+				return;
+			} 
+			sortedKeysMappingData.push(index);
+			}
+		);
 		sortedKeysMappingData.sort(function(a,b){return mappingData[b]-mappingData[a]});
 		// console.log(sortedKeysMappingData[0]+""+mappingData[sortedKeysMappingData[0]]);
 
+		// Base this off of the possibly-filtered list.
+		var numberOfMappedOntologies = sortedKeysMappingData.length;
+		// And base the total off of the original list
+		var originalNumberOfMappedOntologies = Object.keys(mappingData).length;
+		
+		var defaultNumOfTermsForSize = 10;
 		
 		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
 
@@ -196,12 +210,12 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.x = visWidth()/2;
 		centralOntologyNode.y = visHeight()/2;		
 		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
-		centralOntologyNode.number = 0; // number of terms
+		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
 		centralOntologyNode.acronym = escapeAcronym(centralOntologyAcronym);
 		centralOntologyNode.displayAcronym = centralOntologyAcronym;
+		centralOntologyNode.nodeColor = nextNodeColor();
+		centralOntologyNode.innerNodeColor = brightenColor(centralOntologyNode.nodeColor);
 		centralOntologyNode.mapped_classes_to_central_node = 0;
-		centralOntologyNode.nodeStrokeColor = nextNodeColor();
-		centralOntologyNode.nodeCenterColor = brightenColor(centralOntologyNode.nodeStrokeColor);
 		centralOntologyNode.displayedArcs = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
@@ -237,12 +251,12 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				var angleForNode = i * anglePerNode; i++;
 				ontologyNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 				ontologyNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
-				ontologyNode.number = 0; // number of terms
-				ontologyNode.mapped_classes_to_central_node = 0;
+				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.acronym = escapeAcronym(acronym);
 				ontologyNode.displayAcronym = acronym;
-				ontologyNode.nodeStrokeColor = nextNodeColor();
-				ontologyNode.nodeCenterColor = brightenColor(ontologyNode.nodeStrokeColor);
+				ontologyNode.nodeColor = nextNodeColor();
+				ontologyNode.innerNodeColor = brightenColor(ontologyNode.nodeColor);
+				ontologyNode.mapped_classes_to_central_node = 0;
 				ontologyNode.displayedArcs = 0;
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
@@ -323,7 +337,7 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 					
 					node.name = ontologyDetails.name;
 //					node.ONTOLOGY_VERSION_ID = ontologyDetails.id;
-					node.uriId = ontologyDetails["@id"]; // Use the URI isntead of virtual id
+					node.uriId = ontologyDetails["@id"]; // Use the URI instead of virtual id
 					node.LABEL = ontologyDetails.name;
 					// node.description = ontologyDetails.description; // Unavailable in details call
 //					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
@@ -818,16 +832,27 @@ function populateGraph(json, newElementsExpected){
     .attr("class", "circle")
     .attr("cx", "0px")
     .attr("cy", "0px")
-    .style("fill", brightenColor(defaultNodeColor))
-    .style("stroke", defaultNodeColor)
-    // .style("fill", function(d) { return d.nodeCenterColor; })
+    .style("fill", defaultNodeColor)
 	.attr("data-radius_basis", function(d) { return d.number;})
-	.attr("data-stroke_width_basis", function(d) { return d.mapped_classes_to_central_node;})
-    .attr("r", function(d) { return comboOntologyNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.acronym).r; })
-    .attr("stroke-width", function(d) { return comboOntologyNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.acronym).w; })
+    .attr("r", function(d) { return ontologyNodeScalingFunc(d.number, d.acronym); })
 	.on("mouseover", changeColour)
 	.on("mouseout", changeColourBack);
 	
+	if(newElementsExpected === true) // How would I *update* this if I needed to?
+	// Add a second circle that represents the mapped classes of the ontology.
+	nodes
+	.append("svg:circle") 
+	.attr("id", function(d){ return "node_circle_inner_"+d.acronym})
+    .attr("class", "inner_circle")
+    .attr("cx", "0px")
+    .attr("cy", "0px")
+    .attr("pointer-events", "none") // genius SVG API design! Without this, the central circle messes with popups.
+    .style("fill", brightenColor(defaultNodeColor))
+	.attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
+	.attr("data-outer_radius_basis", function(d) { return d.number;})
+    .attr("r", function(d) { return ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.acronym); })
+	.on("mouseover", changeColour)
+	.on("mouseout", changeColourBack);
 	
 	// tipsy stickiness from:
 	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
@@ -1097,12 +1122,7 @@ function updateDataForNodesAndLinks(json){
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "node"
 		var node = vis.select("#node_g_"+d.acronym);
-		var circles = node.select(".circle");
-		circles.attr("data-radius_basis", d.number);
-		circles.attr("data-stroke_width_basis", d.mapped_classes_to_central_node);
-		circles.transition()
-			.style("fill", d.nodeCenterColor)
-			.style("stroke", d.nodeStrokeColor);
+		
 		node.select("title").text(function(d) { return "Number Of Terms: "+d.number+"<br/> and <br/>"+"Number Of Mappings: "+d.mapped_classes_to_central_node; });
 		node.select("text")
 		.text(function(d) { return d.name; })
@@ -1111,6 +1131,16 @@ function updateDataForNodesAndLinks(json){
 //		.attr("dx", function(){ return - this.getComputedTextLength()/2; })
 		.attr("x", function(){ return - this.getComputedTextLength()/2; })
 		;
+		
+		var circles = node.select(".circle");
+		circles.attr("data-radius_basis", d.number);
+		circles.transition().style("fill", d.nodeColor);
+			
+		// Update the inner circles too
+		var inner_circles = node.select(".inner_circle");
+		inner_circles.attr("data-inner_radius_basis", d.mapped_classes_to_central_node);
+		inner_circles.attr("data-outer_radius_basis", d.number);
+		inner_circles.transition().style("fill", d.innerNodeColor);
 		
 		// Refresh popup if currently open
 		if(lastDisplayedTipsy != null
@@ -1188,12 +1218,17 @@ function changeColour(d, i){
 	// This works when the mouse goes over the nodetext, circle, or inner_circle
 	// If the labels aren't wired for mouse interaction, this is unneeded
 	var sourceNode = d3.select(this.parentNode).select(".circle");
-	
-	sourceNode.style("fill", brightenColor(nodeHighlightColor))
+	sourceNode.style("fill", nodeHighlightColor)
 		.style("fill-opacity", 1)
 		.style("stroke-opacity", 1)
-		.style("stroke", nodeHighlightColor)
 		;
+		
+	var innerSourceNode = d3.select(this.parentNode).select(".inner_circle");
+	innerSourceNode.style("fill", brightenColor(nodeHighlightColor))
+		.style("fill-opacity", 1)
+		.style("stroke-opacity", 1)
+	;
+
 		
 	var adjacentLinks = d3.selectAll("line")
 		.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
@@ -1214,13 +1249,18 @@ function changeColour(d, i){
 function changeColourBack(d, i){
 	d3.selectAll(".circle")
 		.style("fill", function(e, i){ 
-			return (typeof e.nodeCenterColor === undefined ? defaultNodeColor : e.nodeCenterColor); 
+			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
 			})
 		.style("fill-opacity", .75)
-		.style("stroke", function(e, i){ 
-			return (typeof e.nodeStrokeColor === undefined ? defaultNodeColor : e.nodeStrokeColor); 
-		})
 		.style("stroke-opacity", 1);
+	
+	d3.selectAll(".inner_circle")
+	.style("fill", function(e, i){ 
+			return (typeof e.innerNodeColor === undefined ? defaultNodeColor : e.innerNodeColor); 
+		})
+	.style("fill-opacity", .75)
+	.style("stroke-opacity", 1);
+
 	
 	d3.selectAll("line")
 		.style("stroke", defaultLinkColor)
@@ -1261,10 +1301,12 @@ function updateNodeScalingFactor(){
 				}
 		});
 	
-	circles.transition()
-	.attr("r", function(d) { return comboOntologyNodeScalingFunc(this.getAttribute("data-stroke_width_basis"), this.getAttribute("data-radius_basis"), this.getAttribute("id")).r;})
-	.attr("stroke-width", function(d) { return comboOntologyNodeScalingFunc(this.getAttribute("data-stroke_width_basis"), this.getAttribute("data-radius_basis"), this.getAttribute("id")).w;})
-	;
+	circles.transition().attr("r", function(d) { return ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));});
+	
+	// Inner circles use the same scaling factor.
+	var innerCircles = vis.selectAll(".inner_circle");
+	innerCircles.transition().attr("r", function(d) { return ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"), this.getAttribute("data-outer_radius_basis"), this.getAttribute("id"));});
+
 }
 
 function updateLinkScalingFactor(){
@@ -1295,88 +1337,39 @@ function updateLinkScalingFactor(){
 
 var defaultNumOfTermsForSize = 10;
 
-function comboOntologyNodeScalingFunc(rawMappedTermCountValueStr, rawTotalTermCountValueStr, ontologyAcronym){
-	// Experimented online to find the relation:
-    // http://www.w3schools.com/svg/tryit.asp?filename=trysvg_circle
-    // We want some of the radius to be filled by the edge, and some by the circle. The total radius
-    // is such that half the thickness of the edge must be removed from the circle radius to get our
-    // desired circle size. I'm not sure if that expressed the problem precisely enough, but playing
-	// around with circle sizes, radius and thickness values brings the problem home quickly.
-   
-    // Stroke width needs to be relative to the inner circle radius, which depends on both the desired
-    // radius as well as the stroke width, which itself depends on the desired radius. Oh noes!
-    // So what's the complete equation?
-    /* Let's look at examples and infer:
-     * For 50% as edge (1/2), use r=3/4 desired, w=desired*1/2
-     * For 25% as edge (1/4), use r=7/8 desired, w=desired*1/4
-     * So, ya, find ratio needed. Call it tF. The factor for radius is rF.
-     * 
-     * [These numbers only make sense if you try them in the browser and see]
-     * 
-     * tF = thicknessThing / totalThing
-     * rF = (1 - tF) + (0.5 * tF)
-     * 3/4 = (1 - 1/2) + (0.5 * 1/2) // tF = 1/2
-     * 7/8 = (1 - 1/4) + (0.5 * 1/4) // tF = 1/4
-     *     = 6/8 + 1/8 BINGO!
-     * 9/16 = 1/8 + 7/16 = (1 - 7/8) + (0.5 * 7/8) // tF = 7/8  <-- is this one true? It works!
-     * 
-     * This last one is super surprising for the values. I tested it with a pair of circles as seen below:
-     * <circle cx="50" cy="50" r="41" stroke-position="inner" stroke="black" stroke-width="0" fill="red" />
-     * <circle cx="50" cy="50" r="22.5" stroke="black" stroke-width="35" fill="blue" />
-     * The red edge of the first one should be abrely visible. The black edge of the second circle
-     * should take up the equivalent of 7/8 of the radius. There should be a blue dot in the centre that
-     * takes up the equivalent of 1/8 of a radius. Taking a screenshot and doing a pixel count shows that
-     * the center blue dot is indeed one eighth the size of the total circle radius. Perfect! 
-     */
-	
-	var rawMappedTermCount = ~~rawMappedTermCountValueStr; // convert string to int using fastest method ever
-	var rawTotalTermCount = ~~rawTotalTermCountValueStr;
-	
-	if(rawTotalTermCount == 0){
-		// Would do this, but there's a Chrome bug that renders such circles (with widths greater than *2 the radius) as bulls-eyes.
-		// return {r: 0.1, w: 2*defaultNumOfTermsForSize};
-		return {r: defaultNumOfTermsForSize, w: 0};
+function ontologyNodeScalingFunc(rawValue, acronym){
+		// return Math.sqrt((rawValue)/10);
+		
+	if(rawValue == 0){
+		return defaultNumOfTermsForSize;
 	}
 	
-	// Thickness needs to represent entire radius term count, and we need to double thicknesses to achieve desired radius.
-	var result = {r: 0.1, w: 2*rawTotalTermCount};
+ 	if(maxNodeRawSize == minNodeRawSize){
+		return defaultNumOfTermsForSize;
+ 	}
+ 	
+	var factor = computeFactorOfRange(rawValue, minNodeRawSize, maxNodeRawSize);
+    var diameter = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE);
+    if(isNaN(diameter)){
+    	return 0;
+    }
+//    console.log(diameter/2+" for "+acronym);
+    return diameter/2; // need radius for SVG
+}
 	
-	if(maxNodeRawSize == minNodeRawSize){
-		return result;
+function ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
+	if(rawValue == 0 || rawValue == minNodeRawSize || maxNodeRawSize == minNodeRawSize || rawValue > outerRawValue){
+		// If there is no mapping, I want no dot. This applies to the central node specifically.
+		// I also don't want a teeny weeny inner circle completely covering the outer circle,
+		// so let's scale away thsoe that match the minimum render size.
+		// Otherwise we'll scale exactly the same as the outer circle.
+		return 0;
 	}
-	
-	if(rawMappedTermCount > rawTotalTermCount){
-		if(rawTotalTermCount > 0){
-			// I have a problem with some of the nodes having mapping counts greater than their class count. What's up with that?
-			// Look at tool tips, metric call return code, other stuff...
-			// console.log(ontologyAcronym+" mapped is bigger than total: "+rawMappedTermCount +" "+ rawTotalTermCount);
-			// If there are more mappings than elements, let's set it to render as though 95% of the max is mapped.
-			rawMappedTermCount = 0.95*rawTotalTermCount;
-		}
-	}
-	
-	
-	// Edge represents unmapped term count, so subtract and figure out ratios.
-    var tF = (rawTotalTermCount - rawMappedTermCount) / rawTotalTermCount; // <-- thickness represents unmapped
-    // Take remainder of radius, in a sense, and strangely enough, add half of the width of the edge
-    var rF =  (1 - tF) + (0.5 * tF);
-    
-    // var realRawThickness = tF * rawThickness; // <-- so really, I renamed things, and this is confusing now...
-    var realRawThickness = tF * (rawTotalTermCount - rawMappedTermCount); // <-- so really, I renamed things, and this is confusing now...
-    
-    var realRawRadius = rF * rawTotalTermCount;
-    // We also have to convert this desired raw radius. We can take the resulting number
-    // and apply it as the radius, then use what we know to compute the necessary thickness.
-    
-    var factor = computeFactorOfRange(rawTotalTermCount, minNodeRawSize, maxNodeRawSize);
-    var desiredOuterRadius = linearAreaRelativeScaledRangeValue(factor, NODE_MIN_ON_SCREEN_SIZE, NODE_MAX_ON_SCREEN_SIZE)/2;
-    var realScaledRadius = desiredOuterRadius * ( realRawRadius / (realRawRadius + realRawThickness) );
-    var realScaledThickness = desiredOuterRadius * ( realRawThickness / (realRawRadius + realRawThickness) );
-    
-    var result = {r: Math.max(realScaledRadius, 0.1), w: realScaledThickness};
-    
-    return result; // need radius for SV, don't put too close to 0.
-
+//	return ontologyNodeScalingFunc(rawValue, acronym);
+	var outerSize = ontologyNodeScalingFunc(rawValue, acronym);
+	var innerSize = outerSize * (rawValue / outerRawValue);
+	console.log([acronym, rawValue / outerRawValue, outerSize, innerSize, rawValue, outerRawValue]);
+	return innerSize;
 }
 
 function ontologyLinkScalingFunc(rawValue){
@@ -1536,6 +1529,11 @@ function filterGraph(){
 				
 				$("#node_circle_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
 				$("#node_circle_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
+				
+				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
+				// These inner circles only really apply to the ontology nodes
+				$("#node_circle_inner_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
+				$("#node_circle_inner_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
 								
 				$("#node_text_"+d.source.acronym).css("display", (hideArc || hideSourceNode) ? "none" : "");
 				$("#node_text_"+d.target.acronym).css("display", (hideArc || hideTargetNode) ? "none" : "");
