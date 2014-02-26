@@ -1593,6 +1593,9 @@ function filterGraphOnMappingCounts(){
 				
 				$("#node_circle_"+d.source.acronym).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
 				$("#node_circle_"+d.target.acronym).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+				
+				$("#node_circle_inner_"+d.source.acronym).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+				$("#node_circle_inner_"+d.target.acronym).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
 								
 				$("#node_text_"+d.source.acronym).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
 				$("#node_text_"+d.target.acronym).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
