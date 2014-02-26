@@ -184,14 +184,15 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		var sortedKeysMappingData = [];
 		$.each(mappingData, function(index, element){
 			// Hard cap on nodes included. Great for dev purposes.
-			if(hardNodeCap != 0 && sortedKeysMappingData.length > hardNodeCap){
-				return;
-			} 
 			sortedKeysMappingData.push(index);
 			}
 		);
 		sortedKeysMappingData.sort(function(a,b){return mappingData[b]-mappingData[a]});
-		// console.log(sortedKeysMappingData[0]+""+mappingData[sortedKeysMappingData[0]]);
+		 
+		// Reduce to a useful number of nodes.
+		if(hardNodeCap != 0 && sortedKeysMappingData.length > hardNodeCap){
+			sortedKeysMappingData = sortedKeysMappingData.slice(0, hardNodeCap);
+		} 
 
 		// Base this off of the possibly-filtered list.
 		var numberOfMappedOntologies = sortedKeysMappingData.length;
@@ -215,6 +216,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.displayAcronym = centralOntologyAcronym;
 		centralOntologyNode.nodeColor = nextNodeColor();
 		centralOntologyNode.innerNodeColor = brightenColor(centralOntologyNode.nodeColor);
+		centralOntologyNode.nodeStrokeColor = darkenColor(centralOntologyNode.nodeColor);
 		centralOntologyNode.mapped_classes_to_central_node = 0;
 		centralOntologyNode.displayedArcs = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
@@ -256,6 +258,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				ontologyNode.displayAcronym = acronym;
 				ontologyNode.nodeColor = nextNodeColor();
 				ontologyNode.innerNodeColor = brightenColor(ontologyNode.nodeColor);
+				ontologyNode.nodeStrokeColor = darkenColor(ontologyNode.nodeColor);
 				ontologyNode.mapped_classes_to_central_node = 0;
 				ontologyNode.displayedArcs = 0;
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
@@ -833,6 +836,7 @@ function populateGraph(json, newElementsExpected){
     .attr("cx", "0px")
     .attr("cy", "0px")
     .style("fill", defaultNodeColor)
+    .style("stroke", darkenColor(defaultNodeColor))
 	.attr("data-radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyNodeScalingFunc(d.number, d.acronym); })
 	.on("mouseover", changeColour)
@@ -848,6 +852,7 @@ function populateGraph(json, newElementsExpected){
     .attr("cy", "0px")
     .attr("pointer-events", "none") // genius SVG API design! Without this, the central circle messes with popups.
     .style("fill", brightenColor(defaultNodeColor))
+    .style("stroke", darkenColor(defaultNodeColor))
 	.attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
 	.attr("data-outer_radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.acronym); })
@@ -1134,13 +1139,13 @@ function updateDataForNodesAndLinks(json){
 		
 		var circles = node.select(".circle");
 		circles.attr("data-radius_basis", d.number);
-		circles.transition().style("fill", d.nodeColor);
+		circles.transition().style("fill", d.nodeColor).style("stroke", d.nodeStrokeColor);
 			
 		// Update the inner circles too
 		var inner_circles = node.select(".inner_circle");
 		inner_circles.attr("data-inner_radius_basis", d.mapped_classes_to_central_node);
 		inner_circles.attr("data-outer_radius_basis", d.number);
-		inner_circles.transition().style("fill", d.innerNodeColor);
+		inner_circles.transition().style("fill", d.innerNodeColor).style("stroke", d.nodeStrokeColor);
 		
 		// Refresh popup if currently open
 		if(lastDisplayedTipsy != null
@@ -1365,11 +1370,16 @@ function ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
 		// Otherwise we'll scale exactly the same as the outer circle.
 		return 0;
 	}
-//	return ontologyNodeScalingFunc(rawValue, acronym);
-	var outerSize = ontologyNodeScalingFunc(rawValue, acronym);
-	var innerSize = outerSize * (rawValue / outerRawValue);
-	console.log([acronym, rawValue / outerRawValue, outerSize, innerSize, rawValue, outerRawValue]);
-	return innerSize;
+	
+	return ontologyNodeScalingFunc(rawValue, acronym);
+	
+	// var outerRadius = ontologyNodeScalingFunc(rawValue, acronym);
+	// var outerArea = Math.PI*(outerRadius*outerRadius);
+	// var innerArea = outerArea * (rawValue / outerRawValue);
+	// var innerRadius = outerRadius * (rawValue / outerRawValue);
+	// // var innerRadius = Math.sqrt(innerArea/Math.PI);
+	//  console.log([acronym, "raw", rawValue / outerRawValue, rawValue, outerRawValue, "area", outerArea/innerArea, outerArea, innerArea, "radius", outerRadius/innerRadius, outerRadius, innerRadius]);
+	// return innerRadius;
 }
 
 function ontologyLinkScalingFunc(rawValue){
@@ -1420,6 +1430,12 @@ function brightenColor(outerColor){
 	// Outer color will be a 6 digit hex representation. Let's make it darker across all three factors.
 	// Using lab() converts from hex RGB to the Cie L*A*B equivalent.
 	return d3.lab(outerColor).brighter(1).toString();
+}
+
+function darkenColor(outerColor){
+	// Outer color will be a 6 digit hex representation. Let's make it darker across all three factors.
+	// Using lab() converts from hex RGB to the Cie L*A*B equivalent.
+	return d3.lab(outerColor).darker(1).toString();
 }
 
 function prepGraphMenu(){
