@@ -935,6 +935,7 @@ function populateGraph(json, newElementsExpected){
 	    visible = false,
 	    tipsyId = undefined;
 		
+		// TODO This creates a timer per popup, which is sort of silly. Figure out another way.
 	    var leaveMissedTimer = undefined;
 	    function missedEventTimer() {
 	    	leaveMissedTimer = setTimeout(missedEventTimer, 1000);
