@@ -7,19 +7,13 @@
 	user-select: none;
 }
 
-circle.node node_rect.node {
+circle.node {
   stroke: #fff;
-  stroke-width: 1.5px;
 }
-circle node_rect {
-  /*
-  fill: rgb(31, 119, 180);
-  */
+
+circle {
+
   fill-opacity: .70;
-  /*
-  stroke: #3D3D3D;
-  */
-  stroke-width: 0px;
 }
 
 /*.circle {

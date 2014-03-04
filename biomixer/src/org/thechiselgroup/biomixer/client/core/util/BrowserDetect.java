@@ -23,6 +23,7 @@ public class BrowserDetect {
         return isValidBrowser(Window.Navigator.getUserAgent());
     }
 
+    @Deprecated
     public boolean isValidBrowser(String userAgent) {
         try {
             if (userAgent == null) {
