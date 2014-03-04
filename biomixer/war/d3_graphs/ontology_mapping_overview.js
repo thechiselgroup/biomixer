@@ -383,10 +383,8 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 					// node.description = ontologyDetails.description; // Unavailable in details call
 //					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
 					
-					// console.log("Don't keep this Eric, just for testing.");
 					// I'm moving this all to on-demand (probably via the filter).
-					 console.log("Swirling layout started when I stopped fetching metrics here...why?");
-					node.fetchMetricsAndDescriptionFunc();
+					// node.fetchMetricsAndDescriptionFunc();
 				}
 		);
 		
@@ -484,7 +482,7 @@ function OntologyMetricsCallback(url, node){
 	        }
 	    }
 	    
-		self.node.weight = 1;
+	    // self.node.weight = 1; // Changing weight re-triggers layout shifting, turns into a swirling mess.
 		self.node.numberOfClasses = numClasses;
 		self.node.numberOfIndividuals = numIndividuals;
 		self.node.numberOfProperties = numProperties;
