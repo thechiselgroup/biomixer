@@ -20,7 +20,7 @@ var hardNodeCap = 0; // 10 and 60 are nice number for dev, but set to 0 for all 
 
 // This cap only affects API dispatch and rendering for nodes past the cap. It is used during
 // initialization only. Set to 0 means all nodes will be used.
-var softNodeCap = 0; 
+var softNodeCap = 20; 
 
 // Stores acronyms sorted by mapping count in descending order.
 // Limit it with hardNodeCap during init in dev only.
@@ -49,9 +49,141 @@ var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
 var nodeHighlightColor = "#FC6854";
 
+
+//This registry is used to track REST call privileges and status.
+var nodeRestCallRegistry = {};
+
+var restCallStatus = {EXCLUDED: "excluded", ALLOWED: "allowed", AWAITING: "awaiting", COMPLETED: "completed", ERROR: "error", FORBIDDEN: "forbidden"};
+/*
+ * We can logically make the following transitions:
+ * <none> -> ALLOWED
+ * <none> -> EXCLUDED
+ * ALLOWED -> EXCLUDED
+ * ALLOWED -> AWAITING
+ * EXCLUDED -> ALLOWED
+ * AWAITING -> FORBIDDEN
+ * AWAITING -> ERROR
+ * AWAITING -> COMPLETED
+ * ERROR -> ALLOWED
+ * 
+ * COMPLETED and FORBIDDEN should never ever be changed.
+ */
+function validRestCallStateTransition(oldStatus, newStatus, node, restCallUriFunction){
+	var isValid = true;
+	switch(oldStatus){
+	case restCallStatus.ALLOWED:
+		if(newStatus !== restCallStatus.AWAITING
+				&& newStatus !== restCallStatus.EXCLUDED){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.EXCLUDED:
+		if(newStatus !== restCallStatus.ALLOWED){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.AWAITING:
+		if(newStatus !== restCallStatus.COMPLETED
+				&& newStatus !== restCallStatus.ERROR
+				&& newStatus !== restCallStatus.FORBIDDEN){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.ERROR:
+		if(newStatus !== restCallStatus.ALLOWED){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.FORBIDDEN:
+		isValid = false;
+		break;
+	case restCallStatus.COMPLETED:
+		isValid = false;
+		break;
+	default:
+		// This is no value at all.
+		if(newStatus !== restCallStatus.ALLOWED
+				&& newStatus !== restCallStatus.EXCLUDED){
+			isValid = false;
+		}
+		break;
+	}
+	
+	if(!isValid && oldStatus != newStatus){
+		// Note that if any nodes are "pre-loaded", this is a likely and acceptable to happen when they are triggered via other means.
+		// This will also happen in the concept graph when multiple relations are followed to the same node.
+		// Only use this for debugging purposes.
+		// console.log("Invalid rest call registry status change requested: "+oldStatus+" to "+newStatus+" for rest call and node: "+restCallUriFunction);
+		// console.log(node);
+	}
+	
+	return isValid;
+	
+	
+}
+
+/**
+ * Nodes have REST calls made when they are made visible to the graph, as opposed to when they are added to it.
+ * Perhaps our needs will change later, but the logic should be extensible for that.
+ * 
+ * Nodes will only have their REST calls made when the call in question hasn't been made, and when they are cleared
+ * to have their call made.
+ * 
+ * @param node
+ * @param restCallUriFunction
+ * @param status	Optional. Defaults to ALLOWED status for the specified REST call.
+ */
+function addNodeToRestCallRegistry(node, restCallUriFunction, status){
+	if(typeof status === "undefined"){
+		status = restCallStatus.ALLOWED;
+	}
+		
+	if(typeof nodeRestCallRegistry[node] === "undefined"){
+		nodeRestCallRegistry[node] = {};
+	} else {
+		var currentStatus = nodeRestCallRegistry[node][restCallUriFunction];
+		if(typeof currentStatus !== "undefined"){
+			if(!validRestCallStateTransition(currentStatus, status, node, restCallUriFunction)){
+				return;
+			}
+		}
+	}
+	
+	nodeRestCallRegistry[node][restCallUriFunction] = status;
+}
+
+/**
+ * Fetcher uses this to update node privileges. Can we used external to fetcher as well,
+ * but if fetches are underway, it is unsafe. Specifically, once permission has been granted,
+ * taking it away is not guaranteed to work.
+ * 
+ * @param node
+ * @param restCallUriFunction
+ * @param status
+ */
+function updateStatusForNodeInRestCallRegistry(node, restCallUriFunction, status){
+	addNodeToRestCallRegistry(node, restCallUriFunction, status);
+}
+
+/**
+ * Call this prior to asking for a REST call. If it returns true, do the call, otherwise do not.
+ * 
+ * @param node
+ * @param restCallUriFunction
+ */
+function checkNodeInRestCallWhiteList(node, restCallUriFunction){
+	if(typeof nodeRestCallRegistry[node] !== "undefined"){
+		return nodeRestCallRegistry[node][restCallUriFunction] === restCallStatus.ALLOWED;
+	} else {
+		return false;
+	}
+}
+
+
+
 function getTime(){
 	var now = new Date();
-	return now.getMinutes()+':'+now.getSeconds();
+	return now.getHours()+":"+now.getMinutes()+':'+now.getSeconds();
 }
 
 
@@ -179,6 +311,7 @@ function escapeAcronym(acronym){
 	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
 }
 
+// Doesn't need REST call registry, so if I refactor, keep that in mind.
 function OntologyMappingCallback(url, centralOntologyAcronym){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
@@ -238,8 +371,6 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.displayedArcs = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
 		
-		attachOnDemandApiFunctions(centralOntologyNode);
-		
 		var ontologyAcronymNodeMap = new Object();
 		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyNode.rawAcronym, centralOntologyNode);
 		
@@ -284,8 +415,6 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				// TODO I feel like JS doesn't allow references like this...
 				$(ontologyAcronymNodeMap).attr("vid:"+ontologyNode.rawAcronym, ontologyNode);
 				
-				attachOnDemandApiFunctions(ontologyNode);
-				
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
 				ontologyLink.source = centralOntologyNode;
@@ -314,6 +443,17 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
 		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
+		
+		// Once we have the graph populated, we have this one node we know we can call REST calls for, the central node!
+		// The other nodes need to wait, since when we get the details call back later, we will see that many
+		// of them are inaccessible. Making calls for those ones is a waste of time.
+		// The easiest way to benchmark is to do *all* nodes right above in the loop
+		// Get to "Processing details" log entry in 45 seconds when all are allowed right away, versus 1 second when
+		// we only get the first one, and let the filter trigger the rest. Labels and node sizes are subsequently
+		// quicker to appear as well.
+		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyMetricsUrlNewApi(centralOntologyNode.rawAcronym));
+		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyLatestSubmissionUrlNewApi(centralOntologyNode.rawAcronym));
+		fetchMetricsAndDescriptionFunc(centralOntologyNode);
 
 		//----------------------------------------------------------
 
@@ -329,7 +469,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 }
 
 
-
+//Doesn't need REST call registry, so if I refactor, keep that in mind.
 function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
@@ -385,6 +525,9 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 					
 					// I'm moving this all to on-demand (probably via the filter).
 					// node.fetchMetricsAndDescriptionFunc();
+					
+					addNodeToRestCallRegistry(node, buildOntologyMetricsUrlNewApi(node.rawAcronym));
+					addNodeToRestCallRegistry(node, buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym));
 				}
 		);
 		
@@ -403,6 +546,8 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 	}
 }
 
+
+
 /**
  * The functions attached to the nodes in here allow us to call per-node APIs as needed, rather than
  * all at once.
@@ -416,34 +561,31 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
  * 
  * @param node
  */
-function attachOnDemandApiFunctions(node){
-	node.fetchMetricsAndDescriptionFunc = function(){
-		{
-			// Combined dispatch for the separate calls for metrics and descriptions.
-			// The metric call has much of the info we need
-			var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
-			var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
-			// var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
-			// fetcher.retryFetch();
-			var fetcher = closureRetryingJsonpFetcher(ontologyMetricsCallback);
-			fetcher();
-		}
+function fetchMetricsAndDescriptionFunc(node){
+	// Check registry for node status
+	var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
+	if(checkNodeInRestCallWhiteList(node, ontologyMetricsUrl)){
+		// Combined dispatch for the separate calls for metrics and descriptions.
+		// The metric call has much of the info we need
+		var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
+		// var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
+		// fetcher.retryFetch();
+		var fetcher = closureRetryingJsonpFetcher(ontologyMetricsCallback);
+		fetcher();
+	}
 
-		{
-			// If we want Description, I think we need to grab the most recent submission
-			// and take it fromt here. This is another API call per ontology.
-			// /ontologies/:acronym:/lastest_submission
-			// Descriptions are in the submissions, so we need an additional call.
-			var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
-			var ontologyDescriptionCallback = new OntologyDescriptionCallback(ontologyDescriptionUrl, node);
-			var fetcher = closureRetryingJsonpFetcher(ontologyDescriptionCallback);
-			fetcher();
-		}
-		
-		node.fetchMetricsAndDescriptionFunc = function(){return false;};
-		
-		return true;
-	};
+	var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
+	if(checkNodeInRestCallWhiteList(node, ontologyDescriptionUrl)){
+		// If we want Description, I think we need to grab the most recent submission
+		// and take it fromt here. This is another API call per ontology.
+		// /ontologies/:acronym:/lastest_submission
+		// Descriptions are in the submissions, so we need an additional call.
+		var ontologyDescriptionCallback = new OntologyDescriptionCallback(ontologyDescriptionUrl, node);
+		var fetcher = closureRetryingJsonpFetcher(ontologyDescriptionCallback);
+		fetcher();
+	}
+	
+	return true;
 }
 
 function OntologyMetricsCallback(url, node){
@@ -530,25 +672,13 @@ function OntologyDescriptionCallback(url, node){
 }
 
 
-//function buildOntologyMappingUrl(centralOntologyVirtualId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
-//}
-
 function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
 	return "http://data.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
 
-//function buildOntologyDetailsUrl(){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F"+"&callback=?";
-//}
-
 function buildOntologyDetailsUrlNewApi(){
 	return "http://data.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
 }
-
-//function buildOntologyMetricsUrl(ontologyVersionId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
-//}
 
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
 	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
@@ -619,10 +749,16 @@ function closureRetryingJsonpFetcher(callbackObject){
 	 * Return values: -1 is non-retry due to error, 0 is retry, 1 is success, no error.
 	 */
 	callbackObject.fetcher = function(resultData){
+			
 			// console.log("retryFetch for "+callbackObject.url);
 			if(typeof resultData === "undefined"){
 				// If not error, call for first time
 				jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+				if(typeof callbackObject.node !== "undefined"){
+					// I would adore classes to handle this. Cases without nodes would not implement
+					// registry functionality.
+					updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.AWAITING);
+				}
 				return 0;
 			}
 			
@@ -630,36 +766,54 @@ function closureRetryingJsonpFetcher(callbackObject){
 				if(resultData.status == "404"){
 					// 404 Error should fill in some popup data points, so let through...
 					console.log("Error: "+callbackObject.url+" --> Data: "+resultData.error);
+					if(typeof callbackObject.node !== "undefined"){
+						updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.ERROR);
+					}
 			    	return 1;
 				} else if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
 					console.log("Forbidden Error, no retry: "
 							+"\nURL: "+callbackObject.url
 							+"\nReply: "+resultData.error);
+					if(typeof callbackObject.node !== "undefined"){
+						updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.FORBIDDEN);
+					}
 		    		return -1;
 				} else if(resultData.status == "500" || resultData.status == "403"){
 		    		if(previousRetriesMade < 4){
 		    			previousRetriesMade++;
 		    			console.log("Retrying: "+callbackObject.url);
 		    			jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+		    			// update to status unnecessary; still awaiting.
 		    			return 0;
 		    		} else {
 			    		// Error, but we are done retrying.
 			    		console.log("No retry, Error: "+resultData);
+			    		if(typeof callbackObject.node !== "undefined"){
+			    			updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.ERROR);
+			    		}
 			    		return -1;
 		    		}
 		    	} else {
 			    	// Don't retry for other errors
 		    		console.log("Error: "+callbackObject.url+" --> Data: "+resultData.error);
+		    		if(typeof callbackObject.node !== "undefined"){
+		    			updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.ERROR);
+		    		}
 			    	return -1;
 		    	}
 		    } else {
 		    	// Success, great!
+		    	if(typeof callbackObject.node !== "undefined"){
+		    		updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.COMPLETED);
+		    	}
 		    	return 1;
 		    }
 		}
 	
 	return callbackObject.fetcher;
 }
+
+
 
 function initAndPopulateGraph(json){
 	initGraph();
@@ -1148,7 +1302,7 @@ function populateGraph(json, newElementsExpected){
 	// Make sure we have initialized the filter slider to be at the softNodeCap.
 	// The filter function will lead to individual API calls being dispatched on nodes.
 	// It will (in the future) also trigger layout adaptation to added or removed nodes.
-	// changeTopMappingSliderValues(null, softNodeCap);
+	 changeTopMappingSliderValues(null, softNodeCap);
 	
 	// We have a situation where only our third REST calls determine which nodes and links actually stay in the graph.
 	// We would like to filter early, based on the soft cap.
@@ -1596,13 +1750,8 @@ function addMenuComponents(menuSelector){
 		min: minSliderAbsolute,
 		max: maxSliderAbsolute,
 		values: [ minSliderAbsolute, maxSliderAbsolute ],
-		slide: function( event, ui ) {
-			// Need to make it wider than 100% due to UI bugginess
-			var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
-			var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
-			$( "#top-mappings-slider-amount" ).text( "Top "+ bottom + " - " + top );
-			filterGraphOnMappingCounts();
-			}
+		slide: rangeSliderSlideEvent,
+		change: rangeSliderSlideEvent
 		}
 	);
 	
@@ -1613,15 +1762,24 @@ function addMenuComponents(menuSelector){
 	
 }
 
+function rangeSliderSlideEvent(event, ui) {
+	// Need to make it wider than 100% due to UI bugginess
+	var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
+	var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
+	$( "#top-mappings-slider-amount" ).text( "Top "+ bottom + " - " + top );
+	filterGraphOnMappingCounts();
+}
+
 function changeTopMappingSliderValues(bottom, top){
+	console.log("Programatically changing node filter cutoff at "+getTime());
 	if(null == bottom){
 		bottom = $( "#top-mappings-slider-range" ).slider('values', 0);
 	}
 	if(null == top){
 		top = $( "#top-mappings-slider-range" ).slider('values', 1);
 	}
+	// The change event is triggered when values are changed. Map change event to appropriate function.
 	$( "#top-mappings-slider-range" ).slider('values', [bottom, top]);
-	// $( "#top-mappings-slider-range" ).slider("refresh");
 }
 
 function updateTopMappingsSliderRange(){
@@ -1690,10 +1848,10 @@ function filterGraphDeprecated(){
 				// The nodes have API calls they might need to make. This might change a little when expansion commands
 				// are added to the system.
 				if(!(hideArc || hideSourceNode)){
-					d.source.fetchMetricsAndDescriptionFunc();
+					fetchMetricsAndDescriptionFunc(d.source);
 				}
 				if(!(hideArc || hideTargetNode)){
-					d.target.fetchMetricsAndDescriptionFunc();
+					fetchMetricsAndDescriptionFunc(d.target);
 				}
 			}
 		);
@@ -1745,10 +1903,10 @@ function filterGraphOnMappingCounts(){
 				// The nodes have API calls they might need to make. This might change a little when expansion commands
 				// are added to the system.
 				if(!(hideSourceNodeBecauseOfHiddenArc || hideSourceNode)){
-					d.source.fetchMetricsAndDescriptionFunc();
+					fetchMetricsAndDescriptionFunc(d.source);
 				}
 				if(!(hideTargetNodeBecauseOfHiddenArc || hideTargetNode)){
-					d.target.fetchMetricsAndDescriptionFunc();
+					fetchMetricsAndDescriptionFunc(d.target);
 				}
 			}
 		);
