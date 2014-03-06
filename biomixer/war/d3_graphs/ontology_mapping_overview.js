@@ -41,6 +41,9 @@ var centralOntologyAcronym = purl().param("ontology_acronym");
 var dragging = false;
 var ontologyTick; // needs to contain the onTick listener function
 
+var menuSelector = 'div#hoveringGraphMenu';
+function closeMenu(){return function(){ $(menuSelector).hide()};}
+
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
 var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyCircle = null;
 
@@ -189,12 +192,12 @@ function getTime(){
 
 // Had to set div#chart.gallery height = 100% in CSS,
 // but this was only required in Firefox. I can't see why.
-prepGraphMenu();
 var vis = d3.select("#chart").append("svg:svg")
 	.attr("id", "graphSvg")
 	.attr("width", visWidth())
 	.attr("height", visHeight())
 	.attr("pointer-events", "all")
+	.on("click", closeMenu())
 //  .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", redraw))
 //  .append('svg:g')
@@ -268,7 +271,7 @@ var ontologyNeighbourhoodJsonForGraph = new Object();
 ontologyNeighbourhoodJsonForGraph.nodes = [];
 ontologyNeighbourhoodJsonForGraph.links = [];
 
-
+prepGraphMenu();
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);
 initAndPopulateGraph();
@@ -1716,7 +1719,7 @@ function darkenColor(outerColor){
 
 function prepGraphMenu(){
 	// Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
-	var menuSelector = 'div#hoveringGraphMenu';
+
 	// Append the pop-out panel. It will stay hidden except when moused over.
 	var trigger = $("<div>").attr("id", "trigger");
 	$("#chart").append(trigger);
@@ -1730,12 +1733,13 @@ function prepGraphMenu(){
 				$(menuSelector).fadeTo(0, 1.0);
 			},
 			function() {
-				$(menuSelector).hide();
+			//	$(menuSelector).hide();
 			}
 	);
 	
 	addMenuComponents(menuSelector);
 }
+
 
 function addMenuComponents(menuSelector){
 	var minSliderAbsolute = 0;
