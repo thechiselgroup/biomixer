@@ -1700,27 +1700,24 @@ function runCenterLayout(){
 		var i = 0;
 		
 		$.each(graphNodes,
-			function(index, element){
-				var acronym = index;
-
-				if(typeof acronym === "undefined"){
+			function(index, node){
+				if(typeof index === "undefined"){
 					console.log("Undefined concept entry");
 				}
 				
-				if(graphNodes[index].id!=centralConceptUri){
+				if(node.id!=centralConceptUri){
 					var angleForNode = i * anglePerNode; 
 					i++;
-					graphNodes[index].x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
-					graphNodes[index].y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+					node.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+					node.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				}else{
-					graphNodes[index].x = visWidth()/2; 
-					graphNodes[index].y = visHeight()/2;
-					//alert(graphNodes[index].id+centralConceptUri);
+					node.x = visWidth()/2; 
+					node.y = visHeight()/2;
+					//alert(node.id+centralConceptUri);
 					
 				}
 			}
 		);
-		
 		
 	    d3.selectAll("g.node")
 	    	.transition()

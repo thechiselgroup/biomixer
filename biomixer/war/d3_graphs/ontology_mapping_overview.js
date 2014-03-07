@@ -25,12 +25,15 @@ var softNodeCap = 20;
 // Stores acronyms sorted by mapping count in descending order.
 // Limit it with hardNodeCap during init in dev only.
 // Slice it with softNodeCap during init.
-var sortedAcronymsByMappingCount= [];
+var sortedAcronymsByMappingCount = [];
 
 //Keep track of node mapping values in order, so we can filter through them in ranks
-// This container is separate from the array of acronyms sorted by mappign counts...shall
+// This container is separate from the array of acronyms sorted by mapping counts...shall
 // they be combined?
 var sortedLinksByMapping = [];
+
+// Collection of nodes that are visible in the graph. Nodes index by id.
+var visibleNodes = {};
 
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
@@ -1321,7 +1324,7 @@ function populateGraph(json, newElementsExpected){
 		forceLayout
 		.nodes(json.nodes)
 	    .links(json.links);
-		// Call start() whenever any nodes or links get added or removed
+		// Call start() whenever any nodes or links get added...maybe not when removed
 		forceLayout.start();
 	}
 	
@@ -1449,9 +1452,12 @@ function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
 	var nodes = vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
 	var links = vis.selectAll("line.link").data(ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"->"+d.target.rawAcronym});
 	
+	//	console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 	nodes.exit().remove();
 	links.exit().remove();
-	forceLayout.start();
+	// Do I need start() or not? Nubmer of elements before and after implies not.
+	//	forceLayout.start();
+	//	console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 }
 
 function highlightLink(){
@@ -1717,6 +1723,60 @@ function darkenColor(outerColor){
 	return d3.lab(outerColor).darker(1).toString();
 }
 
+function runCenterLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = ontologyNeighbourhoodJsonForGraph.nodes;
+		var graphLinks = ontologyNeighbourhoodJsonForGraph.links;
+		    
+		// var numberOfConcepts = Object.keys(graphNodes).length-1;
+		var numberOfConcepts = visibleNodes.length - 1;
+
+		var anglePerNode =2*Math.PI / numberOfConcepts; // 360/numberOfMappedOntologies;
+		var arcLength = linkMaxDesiredLength();
+		var i = 0;
+		
+		$.each(graphNodes,
+			function(index, node){
+
+				if(typeof visibleNodes[node.acronymForIds] == "undefined"){
+					// the unrendered nodes can go anywhere really, so put them in the middle.
+					node.x = visWidth()/2; 
+					node.y = visHeight()/2;
+					return;
+				}
+				
+//				if(node.id!=centralConceptUri){
+				if(node.id!=centralOntologyAcronym){
+					var angleForNode = i * anglePerNode; 
+					i++;
+					node.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+					node.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+				}else{
+					node.x = visWidth()/2; 
+					node.y = visHeight()/2;
+					//alert(graphNodes[index].id+centralConceptUri);
+				}
+			}
+		);
+		
+		// Pretty sure we don't need this step...
+//	    d3.selectAll("g.node")
+//	    	.transition()
+//	    	.duration(2500)
+//	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    
+//	    d3.selectAll("line")
+//	    	.transition()
+//	    	.duration(2500)
+//	    	.attr("x1", function(d){return d.source.x;})
+//	    	.attr("y1", function(d){return d.source.y;})
+//	    	.attr("x2", function(d){return d.target.x;})
+//	    	.attr("y2", function(d){return d.target.y;});
+
+	};
+}
+
 function prepGraphMenu(){
 	// Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
 
@@ -1737,11 +1797,11 @@ function prepGraphMenu(){
 			}
 	);
 	
-	addMenuComponents(menuSelector);
+	addMenuSliderComponents(menuSelector);
 }
 
 
-function addMenuComponents(menuSelector){
+function addMenuSliderComponents(menuSelector){
 	var minSliderAbsolute = 0;
 	var maxSliderAbsolute = 0 == softNodeCap ? sortedLinksByMapping.length : softNodeCap;
 	
@@ -1766,6 +1826,7 @@ function addMenuComponents(menuSelector){
 	
 }
 
+
 function rangeSliderSlideEvent(event, ui) {
 	// Need to make it wider than 100% due to UI bugginess
 	var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
@@ -1784,6 +1845,8 @@ function changeTopMappingSliderValues(bottom, top){
 	}
 	// The change event is triggered when values are changed. Map change event to appropriate function.
 	$( "#top-mappings-slider-range" ).slider('values', [bottom, top]);
+	
+	runCenterLayout()();
 }
 
 function updateTopMappingsSliderRange(){
@@ -1900,7 +1963,7 @@ function filterGraphOnMappingCounts(){
 				
 				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
 				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-								
+				
 				$("#node_text_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
 				$("#node_text_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
 				
@@ -1908,9 +1971,15 @@ function filterGraphOnMappingCounts(){
 				// are added to the system.
 				if(!(hideSourceNodeBecauseOfHiddenArc || hideSourceNode)){
 					fetchMetricsAndDescriptionFunc(d.source);
+					visibleNodes[d.source.acronymForIds] = d.source;
+				} else {
+					delete visibleNodes[d.source.acronymForIds];
 				}
 				if(!(hideTargetNodeBecauseOfHiddenArc || hideTargetNode)){
 					fetchMetricsAndDescriptionFunc(d.target);
+					visibleNodes[d.target.acronymForIds] = d.target;
+				} else {
+					delete visibleNodes[d.target.acronymForIds];
 				}
 			}
 		);
