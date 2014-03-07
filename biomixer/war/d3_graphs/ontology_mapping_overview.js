@@ -22,7 +22,7 @@ var hardNodeCap = 0; // 10 and 60 are nice number for dev, but set to 0 for all 
 // initialization only. Set to 0 means all nodes will be used.
 var softNodeCap = 20; 
 
-// Stores acronyms sorted by mapping count in descending order.
+// Stores {acronyms,node} sorted by mapping count in descending order.
 // Limit it with hardNodeCap during init in dev only.
 // Slice it with softNodeCap during init.
 var sortedAcronymsByMappingCount = [];
@@ -274,7 +274,6 @@ var ontologyNeighbourhoodJsonForGraph = new Object();
 ontologyNeighbourhoodJsonForGraph.nodes = [];
 ontologyNeighbourhoodJsonForGraph.links = [];
 
-prepGraphMenu();
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);
 initAndPopulateGraph();
@@ -340,10 +339,10 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
 		$.each(mappingData, function(index, element){
 			// Hard cap on nodes included. Great for dev purposes.
-			sortedAcronymsByMappingCount.push(index);
+			sortedAcronymsByMappingCount.push({acronym: index, node: undefined});
 			}
 		);
-		sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[b]-mappingData[a]});
+		sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[b.acronym]-mappingData[a.acronym]});
 		 
 		// Reduce to a useful number of nodes.
 		if(hardNodeCap != 0 && sortedAcronymsByMappingCount.length > hardNodeCap){
@@ -376,6 +375,14 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.mapped_classes_to_central_node = 0;
 		centralOntologyNode.displayedArcs = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
+		// Lame loop to find the central node in our sorted set
+		$.each(sortedAcronymsByMappingCount,
+				function(index, sortedAcronym){
+					if(sortedAcronym.acronym == centralOntologyNode.rawAcronym){
+						sortedAcronym.node = centralOntologyNode
+					}
+				}
+		);
 		
 		var ontologyAcronymNodeMap = new Object();
 		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyNode.rawAcronym, centralOntologyNode);
@@ -392,7 +399,8 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Used to iterate over raw mappingData, but I wanted things loaded and API calls made in order
 		// of mapping counts.
 		$.each(sortedAcronymsByMappingCount,
-			function(index, acronym){
+			function(index, sortedAcronym){
+				var acronym = sortedAcronym.acronym;
 				var mappingCount = mappingData[acronym];
 
 				if(typeof acronym === "undefined"){
@@ -420,6 +428,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(ontologyAcronymNodeMap).attr("vid:"+ontologyNode.rawAcronym, ontologyNode);
+				sortedAcronym.node = ontologyNode;
 				
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
@@ -824,7 +833,7 @@ function closureRetryingJsonpFetcher(callbackObject){
 function initAndPopulateGraph(json){
 	initGraph();
 	
-
+	prepGraphMenu();
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyAcronym);
@@ -1182,12 +1191,6 @@ function populateGraph(json, newElementsExpected){
 		// That happens commonly. We'll want to hide stale open tipsy panels when this happens.
 //		 d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
 	});
-		
-	// Dumb Tool tip...not needed with tipsy popups.
-//	if(newElementsExpected === true)  // How would I *update* this if I needed to?
-//	nodes.append("title")
-//	  .attr("id", function(d){ return "node_title_"+d.acronymForIds})
-//	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
@@ -1324,7 +1327,7 @@ function populateGraph(json, newElementsExpected){
 		forceLayout
 		.nodes(json.nodes)
 	    .links(json.links);
-		// Call start() whenever any nodes or links get added...maybe not when removed
+		// Call start() whenever any nodes or links get added...maybe not when removed?
 		forceLayout.start();
 	}
 	
@@ -1455,9 +1458,15 @@ function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
 	//	console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 	nodes.exit().remove();
 	links.exit().remove();
-	// Do I need start() or not? Nubmer of elements before and after implies not.
+	// Do I need start() or not? Number of elements before and after implies not.
 	//	forceLayout.start();
 	//	console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
+	
+	// Update filter sliders
+	updateTopMappingsSliderRange();
+	filterGraphOnMappingCounts();
+	rangeSliderSlideEvent();
+	
 }
 
 function highlightLink(){
@@ -1725,29 +1734,41 @@ function darkenColor(outerColor){
 
 function runCenterLayout(){
 	return function(){
-		forceLayout.stop();
 		var graphNodes = ontologyNeighbourhoodJsonForGraph.nodes;
 		var graphLinks = ontologyNeighbourhoodJsonForGraph.links;
+		var numberOfNodes = Object.keys(visibleNodes).length - 1;
+		if(isNaN(numberOfNodes)){
+			numberOfNodes = Object.keys(graphNodes).length-1;
+		}
+		if(isNaN(numberOfNodes) || numberOfNodes < 1){
+			return;
+		}
+		
+		forceLayout.friction(0.01) // use 0.2 friction to get a very circular layout
+		forceLayout.stop();
 		    
-		// var numberOfConcepts = Object.keys(graphNodes).length-1;
-		var numberOfConcepts = visibleNodes.length - 1;
-
-		var anglePerNode =2*Math.PI / numberOfConcepts; // 360/numberOfMappedOntologies;
+		var anglePerNode =2*Math.PI / numberOfNodes; // 360/numberOfMappedOntologies;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
 		
-		$.each(graphNodes,
-			function(index, node){
+		$.each(sortedAcronymsByMappingCount,
+				function(index, sortedAcronym){
+				var acronym = sortedAcronym.acronym;
+				var node = sortedAcronym.node;
+				// var node = $(ontologyAcronymNodeMap).attr("vid:"+node.acronym);
+	
+				if(typeof node === "undefined"){
+					console.log("Undefined ontology entry");
+				}
 
-				if(typeof visibleNodes[node.acronymForIds] == "undefined"){
+				if(typeof visibleNodes[node.acronymForIds] === "undefined"){
 					// the unrendered nodes can go anywhere really, so put them in the middle.
 					node.x = visWidth()/2; 
 					node.y = visHeight()/2;
 					return;
 				}
 				
-//				if(node.id!=centralConceptUri){
-				if(node.id!=centralOntologyAcronym){
+				if(node.rawAcronym != centralOntologyAcronym){
 					var angleForNode = i * anglePerNode; 
 					i++;
 					node.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
@@ -1755,24 +1776,32 @@ function runCenterLayout(){
 				}else{
 					node.x = visWidth()/2; 
 					node.y = visHeight()/2;
-					//alert(graphNodes[index].id+centralConceptUri);
 				}
 			}
 		);
 		
-		// Pretty sure we don't need this step...
-//	    d3.selectAll("g.node")
-//	    	.transition()
-//	    	.duration(2500)
-//	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-	    
-//	    d3.selectAll("line")
-//	    	.transition()
-//	    	.duration(2500)
-//	    	.attr("x1", function(d){return d.source.x;})
-//	    	.attr("y1", function(d){return d.source.y;})
-//	    	.attr("x2", function(d){return d.target.x;})
-//	    	.attr("y2", function(d){return d.target.y;});
+		// Do we actually need this to execute the placements?
+		// Keeping the positioning code below actually interferes with link placement.
+		//		console.log(d3.selectAll("g.node")[0].length);
+		//		console.log(d3.selectAll("line")[0].length);
+		//	    d3.selectAll("g.node")
+		//		    .filter(function(d){
+		//		    	return  typeof d.x !== "undefined" && !isNaN(d.x) }
+		//		    )
+		//	    	.transition()
+		//	    	.duration(2500)
+		//	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+		//	    
+		//	    d3.selectAll("line")
+		//		    .filter(function(d){
+		//		    	return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && isNaN(d.target.x)  }
+		//		    )
+		//	    	.transition()
+		//	    	.duration(2500)
+		//	    	.attr("x1", function(d){return d.source.x;})
+		//	    	.attr("y1", function(d){return d.source.y;})
+		//	    	.attr("x2", function(d){return d.target.x;})
+		//	    	.attr("y2", function(d){return d.target.y;});
 
 	};
 }
@@ -1845,8 +1874,6 @@ function changeTopMappingSliderValues(bottom, top){
 	}
 	// The change event is triggered when values are changed. Map change event to appropriate function.
 	$( "#top-mappings-slider-range" ).slider('values', [bottom, top]);
-	
-	runCenterLayout()();
 }
 
 function updateTopMappingsSliderRange(){
@@ -1869,7 +1896,7 @@ function updateTopMappingsSliderRange(){
 	
 	$( "#top-mappings-slider-range" ).slider("option", "min", 0);
 	$( "#top-mappings-slider-range" ).slider("option", "max", sortedLinksByMapping.length - 1);
-	$( "#top-mappings-slider-range" ).slider("option", "values", [0, sortedLinksByMapping.length - 1]);
+//	$( "#top-mappings-slider-range" ).slider("option", "values", [0, sortedLinksByMapping.length - 1]);
 	$( "#top-mappings-slider-amount" ).text( "Top "+ mappingMin + " - " + mappingMax );
 }
 
@@ -1983,6 +2010,8 @@ function filterGraphOnMappingCounts(){
 				}
 			}
 		);
+	
+	runCenterLayout()();
 }
 
 function modifyNodeDisplayedArcCounter(node, hidingArc){

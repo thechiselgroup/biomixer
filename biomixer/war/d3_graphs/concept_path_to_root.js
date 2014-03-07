@@ -1700,8 +1700,8 @@ function runCenterLayout(){
 		var i = 0;
 		
 		$.each(graphNodes,
-			function(index, node){
-				if(typeof index === "undefined"){
+			function(acronym, node){
+				if(typeof acronym === "undefined"){
 					console.log("Undefined concept entry");
 				}
 				
