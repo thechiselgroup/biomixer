@@ -313,7 +313,10 @@ function fetchOntologyNeighbourhood(centralOntologyAcronym){
 }
 
 function escapeAcronym(acronym){
-	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+	//	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+	// JQuery selectors do not work with things that need escaping.
+	// Let's use double underscores instead.
+	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '__');
 }
 
 // Doesn't need REST call registry, so if I refactor, keep that in mind.
@@ -343,7 +346,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 			}
 		);
 		sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[b.acronym]-mappingData[a.acronym]});
-		 
+		
 		// Reduce to a useful number of nodes.
 		if(hardNodeCap != 0 && sortedAcronymsByMappingCount.length > hardNodeCap){
 			sortedAcronymsByMappingCount = sortedAcronymsByMappingCount.slice(0, hardNodeCap);
@@ -360,7 +363,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 
 		// Create the central node
 		var centralOntologyNode = new Object();
-		centralOntologyNode.name = "fetching";
+		centralOntologyNode.name = "fetching"+" ("+centralOntologyAcronym+")";
 		centralOntologyNode.description = "fetching description";
 		centralOntologyNode.fixed = true; // lock central node
 		centralOntologyNode.x = visWidth()/2;
@@ -409,7 +412,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				
 				// Create the neighbouring nodes
 				var ontologyNode = new Object();
-				ontologyNode.name = "fetching";
+				ontologyNode.name = "fetching"+" ("+acronym+")";
 				ontologyNode.description = "fetching description";
 				ontologyNode.weight = 1;
 				ontologyNode.fixed = false; // lock central node
@@ -1009,7 +1012,7 @@ function populateGraph(json, newElementsExpected){
 	if(newElementsExpected === true)
 	links.enter().append("svg:line")
 	.attr("class", "link") // Make svg:g like nodes if we need labels
-	.attr("id", function(d){ return "link_line_"+d.source.acronymForIds+"->"+d.target.acronymForIds})
+	.attr("id", function(d){return "link_line_"+d.source.acronymForIds+"->"+d.target.acronymForIds})
 	.on("mouseover", highlightLink())
 	.on("mouseout", changeColourBack);
 	
@@ -1966,7 +1969,6 @@ function filterGraphOnMappingCounts(){
 			function(d,i){
 				// Work with arc first, then the attached nodes.
 				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
-				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
 				
 				var hideSourceNode = (parseInt(d.source.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.source.mapped_classes_to_central_node) > maxNodeAbsolute);
 				var hideTargetNode = (parseInt(d.target.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.target.mapped_classes_to_central_node) > maxNodeAbsolute);
@@ -1979,20 +1981,25 @@ function filterGraphOnMappingCounts(){
 					hideTargetNode = false;
 				}
 				
+				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+				
 				// For more general graphs than the ontology graph, we'd want to see if all arcs attached
 				// to the node are hidden or not. For ontology mapping graph, there's only one arc so I cheat.
 				// For that method, I'd maintain a counter on each node.
 				var hideSourceNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.source, hideArc);
 				var hideTargetNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.target, hideArc);
 				
-				$("#node_circle_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+				$("#node_g_"+d.target.acronymForIds).find("*").css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
 				
-				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-				
-				$("#node_text_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_text_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+//				$("#node_circle_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+//				$("#node_circle_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+//				
+//				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+//				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+//				
+//				$("#node_text_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+//				$("#node_text_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
 				
 				// The nodes have API calls they might need to make. This might change a little when expansion commands
 				// are added to the system.
