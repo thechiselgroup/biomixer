@@ -930,13 +930,13 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 	 tBody.append(
 			 $("<tr></tr>").append(
 				   $("<td></td>").append(
-						   $("<div></div>").text(ontologyData["displayAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+						   $("<div></div>").text(ontologyData["rawAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
 				   )
 		   )
 	 );
    
      
-     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["displayAcronym"]+"?p=summary";
+     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["rawAcronym"]+"?p=summary";
      tBody.append(
     		 $("<tr></tr>").append(
     				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -961,7 +961,7 @@ function createNodePopupTable(ontologyCircle, ontologyData){
      
      var jsonArgs = {
     		 "Ontology Name: ": "name",
-    		 "Ontology Acronym: ": "displayAcronym",
+    		 "Ontology Acronym: ": "rawAcronym",
     		 "Ontology URI: ": "uriId",
     		 "Description: ": "description",
     		 "Num Classes: ": "numberOfClasses",
@@ -1609,6 +1609,8 @@ function updateNodeScalingFactor(){
 	var innerCircles = vis.selectAll(".inner_circle");
 	innerCircles.transition().attr("r", function(d) { return ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"), this.getAttribute("data-outer_radius_basis"), this.getAttribute("id"));});
 
+
+	
 }
 
 function updateLinkScalingFactor(){
@@ -1640,7 +1642,7 @@ function updateLinkScalingFactor(){
 var defaultNumOfTermsForSize = 10;
 
 function ontologyNodeScalingFunc(rawValue, acronym){
-		// return Math.sqrt((rawValue)/10);
+	rawValue = parseInt(rawValue);
 		
 	if(rawValue == 0){
 		return defaultNumOfTermsForSize;
@@ -1655,17 +1657,21 @@ function ontologyNodeScalingFunc(rawValue, acronym){
     if(isNaN(diameter)){
     	return 0;
     }
-//    console.log(diameter/2+" for "+acronym);
     return diameter/2; // need radius for SVG
 }
 	
 function ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
-	if(rawValue == 0 || rawValue == minNodeRawSize || maxNodeRawSize == minNodeRawSize || rawValue > outerRawValue){
+	rawValue = parseInt(rawValue);
+	outerRawValue = parseInt(outerRawValue);
+	if(rawValue == 0 || maxNodeRawSize == minNodeRawSize || rawValue > outerRawValue){
 		// If there is no mapping, I want no dot. This applies to the central node specifically.
 		// I also don't want a teeny weeny inner circle completely covering the outer circle,
-		// so let's scale away thsoe that match the minimum render size.
+		// so let's scale away those that match the minimum render size.
 		// Otherwise we'll scale exactly the same as the outer circle.
 		return 0;
+	}
+	if(outerRawValue == minNodeRawSize){
+		return (rawValue/outerRawValue) * ontologyNodeScalingFunc(outerRawValue, acronym);
 	}
 	
 	return ontologyNodeScalingFunc(rawValue, acronym);
@@ -1680,6 +1686,7 @@ function ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
 }
 
 function ontologyLinkScalingFunc(rawValue){
+	rawValue = parseInt(rawValue);
 	if(maxLinkRawSize == minLinkRawSize){
 		return rawValue;
 	}
