@@ -1886,12 +1886,12 @@ function updateTopMappingsSliderRange(){
 	var i = 0;
 	d3.selectAll("line").each( 
 			function(d,i){
-				sortedLinksByMapping[i] = d.value;
+				sortedLinksByMapping[i] = d;
 			}
 	);
 	
 	// Descending sort so we can pick the top n.
-	sortedLinksByMapping.sort(function(a,b){return b-a});
+	sortedLinksByMapping.sort(function(a,b){return b.value-a.value});
 	
 	var mappingMin = 1;
 	var mappingMax = sortedLinksByMapping.length;
@@ -1907,65 +1907,68 @@ function updateTopMappingsSliderRange(){
  * May be useful later, perhaps. Be sure to check that it still works with changes made since it was deprecated.
  */
 function filterGraphDeprecated(){
-	var minNodeAbsolute = minNodePercentile * (nodeMax - nodeMin) + nodeMin;
-	var maxNodeAbsolute = maxNodePercentile * (nodeMax - nodeMin) + nodeMin;
-	var minArcAbsolute = minArcPercentile * (arcMax - arcMin) + arcMin;
-	var maxArcAbsolute = maxArcPercentile * (arcMax - arcMin) + arcMin;
-	
-	// Iterate through all arcs, remove if their node or arc fails to pass
-	// We don't need to iterate through all the nodes, because we will do so here.
-	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
-	d3.selectAll("line").each( 
-			function(d,i){
-				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
-				var hideSourceNode = (parseInt(d.source.number) < minNodeAbsolute || parseInt(d.source.number) > maxNodeAbsolute);
-				var hideTargetNode = (parseInt(d.target.number) < minNodeAbsolute || parseInt(d.target.number) > maxNodeAbsolute);
-				
-				if(d.source.rawAcronym == centralOntologyAcronym){
-					hideSourceNode = false;
-				}
-				if(d.target.rawAcronym == centralOntologyAcronym){
-					hideTargetNode = false;
-				}
-				
-				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
-				
-				$("#node_circle_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
-				
-				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
-				// These inner circles only really apply to the ontology nodes
-				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
-								
-				$("#node_text_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_text_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
-								
-				// The nodes have API calls they might need to make. This might change a little when expansion commands
-				// are added to the system.
-				if(!(hideArc || hideSourceNode)){
-					fetchMetricsAndDescriptionFunc(d.source);
-				}
-				if(!(hideArc || hideTargetNode)){
-					fetchMetricsAndDescriptionFunc(d.target);
-				}
-			}
-		);
+	alert("Deprecated function called");
+//	var minNodeAbsolute = minNodePercentile * (nodeMax - nodeMin) + nodeMin;
+//	var maxNodeAbsolute = maxNodePercentile * (nodeMax - nodeMin) + nodeMin;
+//	var minArcAbsolute = minArcPercentile * (arcMax - arcMin) + arcMin;
+//	var maxArcAbsolute = maxArcPercentile * (arcMax - arcMin) + arcMin;
+//	
+//	// Iterate through all arcs, remove if their node or arc fails to pass
+//	// We don't need to iterate through all the nodes, because we will do so here.
+//	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
+//	d3.selectAll("line").each( 
+//			function(d,i){
+//				console.log(parseInt(d.value) , minArcAbsolute , maxArcAbsolute);
+//				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+//				var hideSourceNode = (parseInt(d.source.number) < minNodeAbsolute || parseInt(d.source.number) > maxNodeAbsolute);
+//				var hideTargetNode = (parseInt(d.target.number) < minNodeAbsolute || parseInt(d.target.number) > maxNodeAbsolute);
+//				
+//				if(d.source.rawAcronym == centralOntologyAcronym){
+//					hideSourceNode = false;
+//				}
+//				if(d.target.rawAcronym == centralOntologyAcronym){
+//					hideTargetNode = false;
+//				}
+//				
+//				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+//				
+//				$("#node_circle_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
+//				$("#node_circle_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
+//				
+//				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
+//				// These inner circles only really apply to the ontology nodes
+//				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
+//				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
+//								
+//				$("#node_text_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
+//				$("#node_text_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
+//								
+//				// The nodes have API calls they might need to make. This might change a little when expansion commands
+//				// are added to the system.
+//				if(!(hideArc || hideSourceNode)){
+//					fetchMetricsAndDescriptionFunc(d.source);
+//				}
+//				if(!(hideArc || hideTargetNode)){
+//					fetchMetricsAndDescriptionFunc(d.target);
+//				}
+//			}
+//		);
 	
 }
 	
 function filterGraphOnMappingCounts(){
 	// Grabbing min from 1 and max from 0 looks funny, but it does the trick. Pinky swear.
-	var minNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )]; // starts at big number
-	var maxNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )]; // starts at 0
+	var minNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )].value; // starts at big number
+	var maxNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )].value; // starts at 0
 	var minArcAbsolute = minNodeAbsolute;
 	var maxArcAbsolute = maxNodeAbsolute;
 	
 	// Iterate through all arcs, remove if their node or arc fails to pass
 	// We don't need to iterate through all the nodes, because we will do so here.
 	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
-	d3.selectAll("line").each( 
-			function(d,i){
+//	d3.selectAll("line").each(
+	$.each(sortedLinksByMapping, 
+			function(i, d){
 				// Work with arc first, then the attached nodes.
 				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
 				
