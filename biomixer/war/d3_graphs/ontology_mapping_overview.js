@@ -1279,7 +1279,7 @@ function populateGraph(json, newElementsExpected){
 		} else {
 			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 		}
-		
+
 		links
 		  .attr("x1", function(d) { return d.source.x; })
 	      .attr("y1", function(d) { return d.source.y; })
@@ -1288,7 +1288,7 @@ function populateGraph(json, newElementsExpected){
 		
 		// I want labels to aim out of middle of graph, to make more room
 		// It slows rendering, so I will only do it sometimes
-		// Commented all thsi out because I liked centering them instead.
+		// Commented all this out because I liked centering them instead.
 //		if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
 //			$.each($(".nodetext"), function(i, text){
 //				text = $(text);
@@ -1458,6 +1458,8 @@ function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
 	var nodes = vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
 	var links = vis.selectAll("line.link").data(ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"->"+d.target.rawAcronym});
 	
+	
+	
 	//	console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 	nodes.exit().remove();
 	links.exit().remove();
@@ -1465,11 +1467,11 @@ function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
 	//	forceLayout.start();
 	//	console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 	
-	// Update filter sliders
+	// Update filter sliders. Layout and filtering should be updated within the slider event function.
 	updateTopMappingsSliderRange();
-	filterGraphOnMappingCounts();
+//	filterGraphOnMappingCounts();
 	rangeSliderSlideEvent();
-	
+//	runCenterLayout()();
 }
 
 function highlightLink(){
@@ -1789,30 +1791,26 @@ function runCenterLayout(){
 				}
 			}
 		);
-		
-		// Do we actually need this to execute the placements?
-		// Keeping the positioning code below actually interferes with link placement.
-		//		console.log(d3.selectAll("g.node")[0].length);
-		//		console.log(d3.selectAll("line")[0].length);
-		//	    d3.selectAll("g.node")
-		//		    .filter(function(d){
-		//		    	return  typeof d.x !== "undefined" && !isNaN(d.x) }
-		//		    )
-		//	    	.transition()
-		//	    	.duration(2500)
-		//	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-		//	    
-		//	    d3.selectAll("line")
-		//		    .filter(function(d){
-		//		    	return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && isNaN(d.target.x)  }
-		//		    )
-		//	    	.transition()
-		//	    	.duration(2500)
-		//	    	.attr("x1", function(d){return d.source.x;})
-		//	    	.attr("y1", function(d){return d.source.y;})
-		//	    	.attr("x2", function(d){return d.target.x;})
-		//	    	.attr("y2", function(d){return d.target.y;});
-
+		var animationDuration = 400;
+	    d3.selectAll("g.node")
+		    .filter(function(d){
+		    	return  typeof d.x !== "undefined" && !isNaN(d.x) }
+		    )
+	    	.transition()
+	    	.duration(animationDuration)
+	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    
+	    d3.selectAll("line")
+		    .filter(function(d){
+		    	return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && !isNaN(d.target.x)  }
+		    )
+	    	.transition()
+	    	.duration(animationDuration)
+		  .attr("x1", function(d) { return d.source.x; })
+	      .attr("y1", function(d) { return d.source.y; })
+	      .attr("x2", function(d) { return d.target.x; })
+	      .attr("y2", function(d) { return d.target.y; });
+	      
 	};
 }
 
@@ -1887,16 +1885,15 @@ function changeTopMappingSliderValues(bottom, top){
 }
 
 function updateTopMappingsSliderRange(){
-	if(typeof(sortedLinksByMapping) === undefined || sortedLinksByMapping.length == 0){
-		sortedLinksByMapping = [];
-		// Fill the sorted set for the first time
-		var i = 0;
-		d3.selectAll("line").each( 
-				function(d,i){
-					sortedLinksByMapping[i] = d.value;
-				}
-		);
-	}
+	sortedLinksByMapping = [];
+	// Fill the sorted set every time in caase we are updating.
+	// This shouldn't get called too often.
+	var i = 0;
+	d3.selectAll("line").each( 
+			function(d,i){
+				sortedLinksByMapping[i] = d.value;
+			}
+	);
 	
 	// Descending sort so we can pick the top n.
 	sortedLinksByMapping.sort(function(a,b){return b-a});
