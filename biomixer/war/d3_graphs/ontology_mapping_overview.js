@@ -32,8 +32,8 @@ var sortedAcronymsByMappingCount = [];
 // they be combined?
 var sortedLinksByMapping = [];
 
-// Collection of nodes that are visible in the graph. Nodes index by id.
-var visibleNodes = {};
+// Put a re-callable layout function in runCurrentLayout.
+var runCurrentLayout = executeCenterLayout;
 
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
@@ -1449,10 +1449,10 @@ function cropGraphToSubset(acronymsToKeep){
 	// $.each(ontologyNeighbourhoodJsonForGraph.nodes, function(index, node){console.log("After removal: "+node.rawAcronym)});
 	// $.each(ontologyNeighbourhoodJsonForGraph.links, function(index, link){console.log("After removal: "+link.source.rawAcronym+" and "+link.target.rawAcronym)});
 	
-	removeGraphPopulation(ontologyNeighbourhoodJsonForGraph);
+	removeGraphPopulation();
 }
 
-function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
+function removeGraphPopulation(){
 	console.log("Removing some graph elements "+getTime());
 
 	var nodes = vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
@@ -1467,11 +1467,9 @@ function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
 	//	forceLayout.start();
 	//	console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 	
-	// Update filter sliders. Layout and filtering should be updated within the slider event function.
+	// Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
 	updateTopMappingsSliderRange();
-//	filterGraphOnMappingCounts();
 	rangeSliderSlideEvent();
-//	runCenterLayout()();
 }
 
 function highlightLink(){
@@ -1744,22 +1742,18 @@ function darkenColor(outerColor){
 	return d3.lab(outerColor).darker(1).toString();
 }
 
-function runCenterLayout(){
-	return function(){
+function executeCenterLayout(){
 		var graphNodes = ontologyNeighbourhoodJsonForGraph.nodes;
 		var graphLinks = ontologyNeighbourhoodJsonForGraph.links;
-		var numberOfNodes = Object.keys(visibleNodes).length - 1;
-		if(isNaN(numberOfNodes)){
-			numberOfNodes = Object.keys(graphNodes).length-1;
-		}
-		if(isNaN(numberOfNodes) || numberOfNodes < 1){
-			return;
-		}
 		
+		// This is the most up to date way to know how many nodes we are laying out, assuming we don't care to position
+		// undisplayed nodes
+		var numberOfNodes = $(".circle").filter(function(i, d){return $(d).css("display") !== "none"}).length;
 		forceLayout.friction(0.01) // use 0.2 friction to get a very circular layout
 		forceLayout.stop();
-		    
-		var anglePerNode =2*Math.PI / numberOfNodes; // 360/numberOfMappedOntologies;
+		   
+		// We won't be using the central node for this
+		var anglePerNode =2*Math.PI / (numberOfNodes - 1); // 360/nodesToPlace;
 		var arcLength = linkMaxDesiredLength();
 		var i = 0;
 		
@@ -1773,37 +1767,35 @@ function runCenterLayout(){
 					console.log("Undefined ontology entry");
 				}
 
-				if(typeof visibleNodes[node.acronymForIds] === "undefined"){
-					// the unrendered nodes can go anywhere really, so put them in the middle.
-					node.x = visWidth()/2; 
-					node.y = visHeight()/2;
-					return;
-				}
-				
-				if(node.rawAcronym != centralOntologyAcronym){
+//				if(typeof visibleNodes[node.acronymForIds] === "undefined"){
+//				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+				var display = $("#node_circle_"+node.acronymForIds).css("display");
+				if((node.rawAcronym != centralOntologyAcronym) && (typeof display !== "undefined" && display !== "none")){
 					var angleForNode = i * anglePerNode; 
 					i++;
 					node.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 					node.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
-				}else{
+				} else {
+					// Central node goes in middle, and the unrendered nodes can go anywhere really, so put them in the middle.
 					node.x = visWidth()/2; 
 					node.y = visHeight()/2;
 				}
 			}
 		);
+		
 		var animationDuration = 400;
 	    d3.selectAll("g.node")
-		    .filter(function(d){
-		    	return  typeof d.x !== "undefined" && !isNaN(d.x) }
-		    )
+//		    .filter(function(i, d){
+//		    	return typeof d.x !== "undefined" && !isNaN(d.x) }
+//		    )
 	    	.transition()
 	    	.duration(animationDuration)
 	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 	    
 	    d3.selectAll("line")
-		    .filter(function(d){
-		    	return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && !isNaN(d.target.x)  }
-		    )
+//		    .filter(function(d){
+//		    	return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && !isNaN(d.target.x)  }
+//		    )
 	    	.transition()
 	    	.duration(animationDuration)
 		  .attr("x1", function(d) { return d.source.x; })
@@ -1811,7 +1803,6 @@ function runCenterLayout(){
 	      .attr("x2", function(d) { return d.target.x; })
 	      .attr("y2", function(d) { return d.target.y; });
 	      
-	};
 }
 
 function prepGraphMenu(){
@@ -1876,9 +1867,13 @@ function changeTopMappingSliderValues(bottom, top){
 	console.log("Programatically changing node filter cutoff at "+getTime());
 	if(null == bottom){
 		bottom = $( "#top-mappings-slider-range" ).slider('values', 0);
+	} else if(bottom > 0){
+		bottom = bottom - 1;
 	}
 	if(null == top){
 		top = $( "#top-mappings-slider-range" ).slider('values', 1);
+	} else if(top > 0){
+		top = top - 1;
 	}
 	// The change event is triggered when values are changed. Map change event to appropriate function.
 	$( "#top-mappings-slider-range" ).slider('values', [bottom, top]);
@@ -2009,20 +2004,15 @@ function filterGraphOnMappingCounts(){
 				// are added to the system.
 				if(!(hideSourceNodeBecauseOfHiddenArc || hideSourceNode)){
 					fetchMetricsAndDescriptionFunc(d.source);
-					visibleNodes[d.source.acronymForIds] = d.source;
-				} else {
-					delete visibleNodes[d.source.acronymForIds];
-				}
+				} 
+
 				if(!(hideTargetNodeBecauseOfHiddenArc || hideTargetNode)){
 					fetchMetricsAndDescriptionFunc(d.target);
-					visibleNodes[d.target.acronymForIds] = d.target;
-				} else {
-					delete visibleNodes[d.target.acronymForIds];
 				}
 			}
 		);
 	
-	runCenterLayout()();
+	runCurrentLayout();
 }
 
 function modifyNodeDisplayedArcCounter(node, hidingArc){
