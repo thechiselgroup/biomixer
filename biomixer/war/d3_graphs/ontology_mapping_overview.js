@@ -20,7 +20,7 @@ var hardNodeCap = 0; // 10 and 60 are nice number for dev, but set to 0 for all 
 
 // This cap only affects API dispatch and rendering for nodes past the cap. It is used during
 // initialization only. Set to 0 means all nodes will be used.
-var softNodeCap = 20; 
+var softNodeCap = 19; 
 
 // Stores {acronyms,node} sorted by mapping count in descending order.
 // Limit it with hardNodeCap during init in dev only.
@@ -2007,6 +2007,9 @@ function filterGraphOnMappingCounts(){
 				
 				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc) ? "none" : "");
 				$("#node_g_"+d.target.acronymForIds).find("*").css("display", (hideTargetNodeBecauseOfHiddenArc) ? "none" : "");
+//				$("#node_g_"+d.source.acronymForIds).find(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+//				$("#node_g_"+d.target.acronymForIds).find(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+
 				// This should get all fo these:
 				// $("#node_circle_"+d.source.acronymForIds)
 				// $("#node_circle_inner_"+d.source.acronymForIds)
@@ -2023,6 +2026,10 @@ function filterGraphOnMappingCounts(){
 				}
 			}
 		);
+	
+	// Firefox renders dx for text poorly, shifting things around oddly,
+	// but x works for both Chrome and Firefox.
+	$(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
 	
 	runCurrentLayout();
 }
