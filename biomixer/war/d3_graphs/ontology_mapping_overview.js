@@ -1499,54 +1499,42 @@ function highlightLink(){
 	}
 }
 
-function changeColour(d, i){
+function changeColour(nodeData, i){
 	if(dragging){
 		return;
 	}
-	var xPos=d.x;
-	var yPos=d.y;
 	
+	// Start by defocussing all nodes and edges
 	d3.selectAll("line").style("stroke-opacity", .1);
 	d3.selectAll("circle").style("fill-opacity", .1)
 		.style("stroke-opacity", .2);
+	d3.selectAll(".nodetext").style("opacity", .2);
 		
-	d3.selectAll("text").style("opacity", .2)
-		.filter(function(g, i){return g.x==d.x})
-		.style("opacity", 1);
-		
-	//	if(d3.select(this).attr("class") == "circle"){
-	//	if(d3.select(this).attr("class") == "inner_circle"){
-	//	if(d3.select(this).attr("class") == "nodetext"){
-	// This works when the mouse goes over the nodetext, circle, or inner_circle
-	// If the labels aren't wired for mouse interaction, this is unneeded
-	var sourceNode = d3.select(this.parentNode).select(".circle");
-	sourceNode.style("fill", nodeHighlightColor)
-		.style("fill-opacity", 1)
-		.style("stroke-opacity", 1)
-		;
-		
-	var innerSourceNode = d3.select(this.parentNode).select(".inner_circle");
-	innerSourceNode.style("fill", brightenColor(nodeHighlightColor))
-		.style("fill-opacity", 1)
-		.style("stroke-opacity", 1)
-	;
-
-	// TODO This was never a good idea. Use node identities and link source and target properties.
-	// See getAdjacentLinks() function.
-	var adjacentLinks = d3.selectAll("line")
-		.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
-		.style("stroke-opacity", 1)
-		.style("stroke", "#3d3d3d")
-		.each(function(d){
+	var adjacentLinks = getAdjacentLinks(nodeData);
+	adjacentLinks.style("stroke-opacity", 1)
+		.style("stroke", "#3d3d3d");
+	
+	adjacentLinks.each(
+		function(linkLine, i){
 			d3.selectAll("circle")
-			.filter(function(g, i){return d.target.x==g.x && d.target.y==g.y;})
-			.style("fill-opacity", 1)
-			.style("stroke-opacity", 1)
-			.each(function(d){
-				d3.selectAll("text")
-				.filter(function(g, i){return g.x==d.x})
-				.style("opacity", 1);});
-	});
+				.filter(
+						function(circleData, i){
+							return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
+							}
+						)
+				// This fill color thing is sort of fugly. Feel free to experiment with commenting it out.
+				.style("fill", nodeHighlightColor)
+				.style("fill-opacity", 1)
+				.style("stroke-opacity", 1);
+			d3.selectAll(".nodetext")
+				.filter(
+						function(textData, i){
+							return textData.acronymForIds == linkLine.source.acronymForIds || textData.acronymForIds == linkLine.target.acronymForIds;
+							}
+						)
+				.style("opacity", 1);
+		}
+	);
 }
 
 function changeColourBack(d, i){
