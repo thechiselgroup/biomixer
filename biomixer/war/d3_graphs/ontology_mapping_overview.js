@@ -1014,7 +1014,7 @@ function populateGraph(json, newElementsExpected){
 	.attr("class", "link") // Make svg:g like nodes if we need labels
 	.attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
 	.on("mouseover", highlightLink())
-	.on("mouseout", changeColourBack);
+	.on("mouseout", removeNodeAndLinkHighlighting);
 	
 	// console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
@@ -1076,8 +1076,8 @@ function populateGraph(json, newElementsExpected){
     .style("stroke", darkenColor(defaultNodeColor))
 	.attr("data-radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyNodeScalingFunc(d.number, d.rawAcronym); })
-	.on("mouseover", changeColour)
-	.on("mouseout", changeColourBack);
+	.on("mouseover", highlightNode)
+	.on("mouseout", removeNodeAndLinkHighlighting);
 	
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	// Add a second circle that represents the mapped classes of the ontology.
@@ -1093,8 +1093,8 @@ function populateGraph(json, newElementsExpected){
 	.attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
 	.attr("data-outer_radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.rawAcronym); })
-	.on("mouseover", changeColour)
-	.on("mouseout", changeColourBack);
+	.on("mouseover", highlightNode)
+	.on("mouseout", removeNodeAndLinkHighlighting);
 	
 	// tipsy stickiness from:
 	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
@@ -1209,8 +1209,8 @@ function populateGraph(json, newElementsExpected){
 		.attr("unselectable", "on") // IE 8
 		.attr("onmousedown", "noselect") // IE ?
 		.attr("onselectstart", "function(){ return false;}") // IE 8?
-	    // .on("mouseover", changeColour)
-	    // .on("mouseout", changeColourBack)
+	    // .on("mouseover", highlightNode)
+	    // .on("mouseout", removeNodeAndLinkHighlighting)
 	    ;
 		
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
@@ -1473,33 +1473,38 @@ function removeGraphPopulation(){
 }
 
 function highlightLink(){
-	return function(d, i){
+	return function(linkLine, i){
 		if(dragging){
 			return;
 		}
-	
-		var xSourcePos = d.source.x;
-		var ySourcePos = d.source.y;
-		var xTargetPos = d.target.x;
-		var yTargetPos = d.target.y;
 		
 		d3.selectAll("text").style("opacity", .2)
-			.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y;})
+			.filter(
+					function(circleData, i){
+						return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
+						}
+					)
 			.style("opacity", 1);
 			
 		d3.selectAll("line").style("stroke-opacity", .1);
 		d3.selectAll("circle").style("fill-opacity", .1)
 			.style("stroke-opacity", .2)
-			.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y})
+			.filter(
+					function(circleData, i){
+						return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
+						}
+					)
+			.style("fill", nodeHighlightColor)
 			.style("fill-opacity", 1)
 			.style("stroke-opacity", 1);
+		
 		d3.select(this).style("stroke-opacity", 1)
 			.style("stroke", "#3d3d3d");
 
 	}
 }
 
-function changeColour(nodeData, i){
+function highlightNode(nodeData, i){
 	if(dragging){
 		return;
 	}
@@ -1537,7 +1542,7 @@ function changeColour(nodeData, i){
 	);
 }
 
-function changeColourBack(d, i){
+function removeNodeAndLinkHighlighting(d, i){
 	d3.selectAll(".circle")
 		.style("fill", function(e, i){ 
 			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
