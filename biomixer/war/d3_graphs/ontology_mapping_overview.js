@@ -1005,14 +1005,14 @@ function populateGraph(json, newElementsExpected){
 	
 	// Data constancy via key function() passed to data()
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.rawAcronym+"->"+d.target.rawAcronym});
+	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
 	// console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 
 	// Add new stuff
 	if(newElementsExpected === true)
 	links.enter().append("svg:line")
 	.attr("class", "link") // Make svg:g like nodes if we need labels
-	.attr("id", function(d){return "link_line_"+d.source.acronymForIds+"->"+d.target.acronymForIds})
+	.attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
 	.on("mouseover", highlightLink())
 	.on("mouseout", changeColourBack);
 	
@@ -1038,7 +1038,7 @@ function populateGraph(json, newElementsExpected){
 	if(newElementsExpected === true)
 	links.append("title") // How would I *update* this if I needed to?
 		.text(function(d) { return "Number Of Mappings: "+d.numMappings; })
-			.attr("id", function(d){ return "link_title_"+d.source.acronymForIds+"->"+d.target.acronymForIds});
+			.attr("id", function(d){ return "link_title_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds});
 
 	updateTopMappingsSliderRange();
 	
@@ -1360,7 +1360,7 @@ function updateDataForNodesAndLinks(json){
 	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
-		var link = vis.select("#link_line_"+d.source.acronymForIds+"->"+d.target.acronymForIds);
+		var link = vis.select("#link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds);
 		link.attr("data-thickness_basis", function(d) { return d.value;})
 		link.select("title").text(function(d) { return "Number Of Mappings: "+d.numMappings; });
 	}
@@ -1456,7 +1456,7 @@ function removeGraphPopulation(){
 	console.log("Removing some graph elements "+getTime());
 
 	var nodes = vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
-	var links = vis.selectAll("line.link").data(ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"->"+d.target.rawAcronym});
+	var links = vis.selectAll("line.link").data(ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
 	
 	
 	
@@ -1531,7 +1531,8 @@ function changeColour(d, i){
 		.style("stroke-opacity", 1)
 	;
 
-		
+	// TODO This was never a good idea. Use node identities and link source and target properties.
+	// See getAdjacentLinks() function.
 	var adjacentLinks = d3.selectAll("line")
 		.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
 		.style("stroke-opacity", 1)
@@ -1568,6 +1569,15 @@ function changeColourBack(d, i){
 		.style("stroke", defaultLinkColor)
 		.style("stroke-opacity", .75);
 	d3.selectAll("text").style("opacity", 1);
+}
+
+function getAdjacentLinks(node){
+	return d3.selectAll("line.link")
+	.filter(
+		function(d, i) {
+				return d.source == node || d.target == node;
+		}
+	);
 }
 
 
@@ -1963,69 +1973,56 @@ function filterGraphOnMappingCounts(){
 	var minArcAbsolute = minNodeAbsolute;
 	var maxArcAbsolute = maxNodeAbsolute;
 	
+	var topIndex = $( "#top-mappings-slider-range" ).slider( "values", 1 );
+	var bottomIndex = $( "#top-mappings-slider-range" ).slider( "values", 0 );
+	
 	// Iterate through all arcs, remove if their node or arc fails to pass
 	// We don't need to iterate through all the nodes, because we will do so here.
 	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
-//	d3.selectAll("line").each(
-	$.each(sortedLinksByMapping, 
+	$.each(sortedLinksByMapping,
 			function(i, d){
 				// Work with arc first, then the attached nodes.
-				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+				// var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+				// var hideSourceNode = (parseInt(d.source.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.source.mapped_classes_to_central_node) > maxNodeAbsolute);
+				// var hideTargetNode = (parseInt(d.target.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.target.mapped_classes_to_central_node) > maxNodeAbsolute);
+	
+				// Easier to iterate over index on sorted set than to inspect for values liek above. 
+				var hideArc = !(bottomIndex <= i && i <= topIndex);
+
+				// If we default to hiding all nodes, and that if we only set a node to visible if there is
+				// an arc connected to it that is set to visible, we only keep nodes with visible arcs present.
+				var hideSourceNodeBecauseOfHiddenArc = hideArc;
+				var hideTargetNodeBecauseOfHiddenArc = hideArc;
 				
-				var hideSourceNode = (parseInt(d.source.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.source.mapped_classes_to_central_node) > maxNodeAbsolute);
-				var hideTargetNode = (parseInt(d.target.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.target.mapped_classes_to_central_node) > maxNodeAbsolute);
-				
-				
+				// Always show central node
 				if(d.source.rawAcronym == centralOntologyAcronym){
-					hideSourceNode = false;
+					hideSourceNodeBecauseOfHiddenArc = false;
 				}
 				if(d.target.rawAcronym == centralOntologyAcronym){
-					hideTargetNode = false;
+					hideTargetNodeBecauseOfHiddenArc = false;
 				}
 				
-				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+				// $(this).css("display", (hideArc) ? "none" : "");
+				$("#link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds).css("display", (hideArc) ? "none" : "");
 				
-				// For more general graphs than the ontology graph, we'd want to see if all arcs attached
-				// to the node are hidden or not. For ontology mapping graph, there's only one arc so I cheat.
-				// For that method, I'd maintain a counter on each node.
-				var hideSourceNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.source, hideArc);
-				var hideTargetNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.target, hideArc);
-				
-				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_g_"+d.target.acronymForIds).find("*").css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-				
-//				$("#node_circle_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-//				$("#node_circle_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-//				
-//				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-//				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-//				
-//				$("#node_text_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-//				$("#node_text_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc) ? "none" : "");
+				$("#node_g_"+d.target.acronymForIds).find("*").css("display", (hideTargetNodeBecauseOfHiddenArc) ? "none" : "");
+				// This should get all fo these:
+				// $("#node_circle_"+d.source.acronymForIds)
+				// $("#node_circle_inner_"+d.source.acronymForIds)
+				// $("#node_text_"+d.source.acronymForIds)
 				
 				// The nodes have API calls they might need to make. This might change a little when expansion commands
 				// are added to the system.
-				if(!(hideSourceNodeBecauseOfHiddenArc || hideSourceNode)){
+				if(!hideSourceNodeBecauseOfHiddenArc){
 					fetchMetricsAndDescriptionFunc(d.source);
 				} 
 
-				if(!(hideTargetNodeBecauseOfHiddenArc || hideTargetNode)){
+				if(!hideTargetNodeBecauseOfHiddenArc){
 					fetchMetricsAndDescriptionFunc(d.target);
 				}
 			}
 		);
 	
 	runCurrentLayout();
-}
-
-function modifyNodeDisplayedArcCounter(node, hidingArc){
-	// The ontology overview system is not currently set up to remove arcs or nodes.
-	// If it adapted to that, or this concept used elsewhere, this counter needs to be
-	// maintained when those arcs or nodes are removed.
-	if(hidingArc){
-		node.displayedArcs--;
-	} else {
-		node.displayedArcs++;
-	}
-	return 0 === node.displayedArcs;
 }
