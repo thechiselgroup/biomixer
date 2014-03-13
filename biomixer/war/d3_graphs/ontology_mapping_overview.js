@@ -984,8 +984,26 @@ function createNodePopupTable(ontologyCircle, ontologyData){
         		 )
          );
      });
+     
+     // Can't do math in that little loop I made
+     var roundedPercent = precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 0);
+	 tBody.append(
+		 $("<tr></tr>").append(
+			 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+				 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
+					 $("<b></b>").text("Mapped: ")
+				 ).append(
+					 $("<span></span>").text(roundedPercent+"%")
+				 )
+			 )
+		 )
+	 );
 
      return outerDiv.prop("outerHTML");
+}
+
+function precise_round(num,decimals) {
+    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 /**
