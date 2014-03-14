@@ -1747,6 +1747,85 @@ function runForceLayout(){
 	};
 }
 
+function runTreeLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;		
+		var graphLinks = graphD3Format.links;
+		
+		
+		console.log("computing tree layout");
+		//some temporary test data
+		var testGraph = { "nodes":[
+		               		{"name":"Myriel","group":1, "id":0},
+		               		{"name":"Napoleon","group":1, "id":1},
+		               		{"name":"Mlle.Baptistine","group":1, "id":2},
+		               		{"name":"Mme.Magloire","group":1, "id":3},
+		               		{"name":"CountessdeLo","group":1, "id":4},
+		               		{"name":"Geborand","group":1, "id":5},
+		               		{"name":"Champtercier","group":1, "id":6}],
+		               	  "links":[
+		               		{"source":0,"target":1,"value":1},
+		               		{"source":2,"target":5,"value":3},
+		               		{"source":0,"target":3,"value":6},
+		               		{"source":2,"target":4,"value":6},
+		               		{"source":6,"target":0,"value":1},
+		               		{"source":6,"target":2,"value":1}]	
+		               	}
+		
+		//create tree object
+		
+		var tree = d3.layout.tree()
+	    	.size([600,300])
+	    	.children(function(d){  
+				var arrayOfNodes = []; 
+				testGraph.links.forEach(function(b){
+					console.log(b.source+" "+d.id);
+					
+					if(b.source==d.id){
+						console.log("should be success");
+						console.log("target node: "+testGraph.nodes[b.target]);
+						arrayOfNodes.push(testGraph.nodes[b.target]);
+						console.log("Returning array:");
+						console.log(arrayOfNodes);
+						//return arrayOfNodes;
+					}
+					
+				});
+				console.log("Content of node: "+d.content);
+				//return (!d.content || d.content.length === 0) ? null : d.content;
+				return arrayOfNodes;
+	    	});
+		
+	 
+	      var diagonal = d3.svg.diagonal()
+	      // change x and y (for the left to right tree)
+	      .projection(function(d) { return [d.y, d.x]; });
+	      
+	      var treeNodes = tree.nodes(testGraph.nodes[6]);
+	    
+	 
+	      var treeNode = vis.selectAll("g.treenode")
+	      .data(treeNodes)
+	      .enter().append("svg:g")
+	      .attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; })
+	 
+	      // Add the dot at every node
+	      treeNode.append("svg:circle")
+	      .attr("r", 3.5);
+	 
+	      // place the name atribute left or right depending if children
+	      treeNode.append("svg:text")
+	      .attr("dx", function(d) { return d.children ? -8 : 8; })
+	      .attr("dy", 3)
+	      .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
+	      .text(function(d) { return d.name; })
+	      
+	      
+	      
+	};
+}
+
 
 function prepGraphMenu(){
 	// Layout selector for concept graphs.
@@ -1792,10 +1871,18 @@ function addMenuComponents(menuSelector){
 			.attr("id", "centerLayoutButton")
 			.attr("type", "button")
 			.attr("value", "Center Layout"));
-
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "treeLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Tree Layout"));
 	
 	d3.selectAll("#circleLayoutButton").on("click", runCircleLayout());
 	d3.selectAll("#forceLayoutButton").on("click", runForceLayout());
 	d3.selectAll("#centerLayoutButton").on("click", runCenterLayout());
+	d3.selectAll("#treeLayoutButton").on("click", runTreeLayout());
+
 
 }
