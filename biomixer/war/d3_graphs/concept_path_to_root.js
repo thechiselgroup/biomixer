@@ -1755,23 +1755,10 @@ function runTreeLayout(){
 		
 		
 		console.log("computing tree layout");
-		//some temporary test data
-		var testGraph = { "nodes":[
-		               		{"name":"Myriel","group":1, "id":0},
-		               		{"name":"Napoleon","group":1, "id":1},
-		               		{"name":"Mlle.Baptistine","group":1, "id":2},
-		               		{"name":"Mme.Magloire","group":1, "id":3},
-		               		{"name":"CountessdeLo","group":1, "id":4},
-		               		{"name":"Geborand","group":1, "id":5},
-		               		{"name":"Champtercier","group":1, "id":6}],
-		               	  "links":[
-		               		{"source":0,"target":1,"value":1},
-		               		{"source":2,"target":5,"value":3},
-		               		{"source":0,"target":3,"value":6},
-		               		{"source":2,"target":4,"value":6},
-		               		{"source":6,"target":0,"value":1},
-		               		{"source":6,"target":2,"value":1}]	
-		               	}
+		console.log("graphNodes");
+		console.log(graphNodes);
+		console.log("graphLinks");
+		console.log(graphLinks);
 		
 		//create tree object
 		
@@ -1779,20 +1766,31 @@ function runTreeLayout(){
 	    	.size([600,300])
 	    	.children(function(d){  
 				var arrayOfNodes = []; 
-				testGraph.links.forEach(function(b){
-					console.log(b.source+" "+d.id);
+				graphLinks.forEach(function(b){
+					console.log("Id of the root concept "+d.id);
+					console.log(b.sourceId+" "+d.id);
 					
-					if(b.source==d.id){
-						console.log("should be success");
-						console.log("target node: "+testGraph.nodes[b.target]);
-						arrayOfNodes.push(testGraph.nodes[b.target]);
-						console.log("Returning array:");
-						console.log(arrayOfNodes);
+					if(b.sourceId==d.id){
+						//console.log("should be success");
+						//console.log("target node: "+testGraph.nodes[b.target]);
+						
+						var targetNode= {};
+						graphNodes.forEach(function(c){
+							if(c.id==b.targetId){
+								targetNode = c;
+							}
+							
+						});
+						
+						arrayOfNodes.push(targetNode);
+						//arrayOfNodes.push(graphNodes[b.target]);
+						//console.log("Returning array:");
+						//console.log(arrayOfNodes);
 						//return arrayOfNodes;
 					}
 					
 				});
-				console.log("Content of node: "+d.content);
+				//console.log("Content of node: "+d.content);
 				//return (!d.content || d.content.length === 0) ? null : d.content;
 				return arrayOfNodes;
 	    	});
@@ -1802,7 +1800,7 @@ function runTreeLayout(){
 	      // change x and y (for the left to right tree)
 	      .projection(function(d) { return [d.y, d.x]; });
 	      
-	      var treeNodes = tree.nodes(testGraph.nodes[6]);
+	      var treeNodes = tree.nodes(graphNodes[1]);
 	    
 	 
 	      var treeNode = vis.selectAll("g.treenode")
@@ -1821,7 +1819,38 @@ function runTreeLayout(){
 	      .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
 	      .text(function(d) { return d.name; })
 	      
-	      
+	      //apply positions to the force graph
+	    /*  $.each(graphNodes,
+	  			function(index, element){
+	  				var acronym = index;
+
+	  				if(typeof acronym === "undefined"){
+	  					console.log("Undefined concept entry");
+	  				}
+	  				var correspondingNode = {};
+	  				treeNodes.forEach(function(d){
+	  					if(element.id==d.id){
+	  						correspondingNode = d;
+	  					}
+	  				}); 
+	  				
+	  				graphNodes[index].x = correspondingNode.x; 
+	  				graphNodes[index].y = correspondingNode.y; 
+	  			}
+	  		);
+	  		
+	  	    d3.selectAll("g.node")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	  	    
+	  	    d3.selectAll("line")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});*/
 	      
 	};
 }
