@@ -23,7 +23,6 @@ import org.thechiselgroup.biomixer.client.core.util.BrowserDetect;
 import org.thechiselgroup.biomixer.client.workbench.init.ApplicationInitializer;
 import org.thechiselgroup.biomixer.client.workbench.init.WindowLocation;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.inject.Inject;
@@ -55,8 +54,14 @@ public class EmbedInitializer implements ApplicationInitializer {
     @Override
     public void init() throws Exception {
         if (!browserDetect.isValidBrowser()) {
-            Window.alert("Your browser is not supported. "
-                    + "Choosel supports Chrome >=4, Firefox >= 3.5 and Safari >= 5");
+            // It wasn't showing up in IE10, but showed up in IE11. Looks like a
+            // format change to the browser
+            // or user agent ids.
+            // Oh, IE is showing up as Mozilla. How interesting. In any case...
+            // See here if we want to use again:
+            // http://stackoverflow.com/questions/20184589/ie-11-coming-up-as-mozilla-in-google-analytics
+            // Window.alert("Your browser is not supported. "
+            // + "Choosel supports Chrome >=4, Firefox >= 3.5 and Safari >= 5");
         }
 
         embedContainer.init();
