@@ -1,0 +1,3 @@
+build.path.sourceFolder=typescript-source
+compiler.optionDirOption=war/d3_graphs/typescript-output
+eclipse.preferences.version=1
