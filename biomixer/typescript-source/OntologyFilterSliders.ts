@@ -1,21 +1,27 @@
+///<reference path="headers/require.d.ts" />
+
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<reference path="OntologiesGraphs.ts" />
+///<amd-dependency path="Utils" />
+///<amd-dependency path="OntologyGraph" />
+///<amd-dependency path="GraphView" />
 
-module OntologyFilterSliders {
+import Utils = require('./Utils');
+import OntologyGraph = require('./OntologyGraph');
+import GraphView = require('GraphView');
     
 export class MappingRangeSliders {
     
     //Keep track of node mapping values in order, so we can filter through them in ranks
     // This container is separate from the array of acronyms sorted by mapping counts...shall
     // they be combined?
-    private sortedLinksByMapping: OntologiesGraph.Link[] = [];
+    private sortedLinksByMapping: OntologyGraph.Link[] = [];
     
     constructor(
-        private graph: OntologiesGraph.OntologiesGraph,
-        private graphView: GraphView,
-        private centralOntologyAcronym: OntologiesGraph.RawAcronym
+        private graph: OntologyGraph.OntologyGraph,
+        private graphView: GraphView.GraphView,
+        private centralOntologyAcronym: OntologyGraph.RawAcronym
         ){
     }
 
@@ -54,7 +60,7 @@ export class MappingRangeSliders {
     }
     
     changeTopMappingSliderValues(bottom: number, top: number){
-        console.log("Programatically changing node filter cutoff at "+getTime());
+        console.log("Programatically changing node filter cutoff at "+Utils.getTime());
         if(null == bottom){
             bottom = $( "#top-mappings-slider-range" ).slider('values', 0);
         } else if(bottom > 0){
@@ -220,4 +226,3 @@ export class MappingRangeSliders {
     
 }
     
-}

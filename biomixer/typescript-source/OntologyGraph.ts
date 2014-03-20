@@ -1,11 +1,15 @@
-///<reference path="Utils.ts" />
-///<reference path="FetchFromApi.ts" />
-///<reference path="GraphView.ts" />
+///<reference path="headers/require.d.ts" />
+
+///<amd-dependency path="Utils" />
+///<amd-dependency path="FetchFromApi" />
+///<amd-dependency path="GraphView" />
+
+import Utils = require('./Utils');
+import Fetcher = require('./FetchFromApi');
+import GraphView = require('./GraphView');
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!
-
-module OntologiesGraph {
     
 // Use these caps with a sorted array of nodes
 var hardNodeCap: number = 0; // 10 and 60 are nice number for dev, but set to 0 for all nodes.
@@ -87,7 +91,7 @@ function escapeAcronym(acronym){
 
 
 
-export class OntologiesGraph {
+export class OntologyGraph {
     // Need:
     // sortedAcronymsByMappingCount
     // hardNodeCap
@@ -97,7 +101,7 @@ export class OntologiesGraph {
     ontologyNeighbourhoodJsonForGraph: GraphDataForD3 = new GraphDataForD3();
     
     // TODO Get the user of the graph set up here.
-    graphView: GraphView;
+    graphView: GraphView.GraphView;
     
     centralOntologyAcronym: string;
     
@@ -257,7 +261,7 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
-        public graph: OntologiesGraph,
+        public graph: OntologyGraph,
         public url: string,
         public centralOntologyAcronym: string
         ){
@@ -439,7 +443,7 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
-        public graph: OntologiesGraph,
+        public graph: OntologyGraph,
         public url: string,
         public ontologyAcronymNodeMap: OntologyAcronymMap
         ){
@@ -457,7 +461,7 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
 			return;
 		}
 		
-		console.log("Processing details "+getTime());
+		console.log("Processing details "+Utils.getTime());
 		
 		// Loop over ontologies and add their additional properties to the nodes
 		// Recall that getting *all* ontology details is the easiest (only) way,
@@ -499,7 +503,7 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
 				}
 		);
 		
-		console.log("Cropping "+getTime());
+		console.log("Cropping "+Utils.getTime());
 		
 		// We have to remove all nodes and edges which did not appear in details.
 		this.graph.cropGraphToSubset(acronymsNotSkipped);
@@ -508,7 +512,7 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
 
 		// We usually use very many of the ontologies, so it is likely cheaper to make the one
 		// big call with no ontology acronym arguments than to cherry pick the ones we want details for.
-		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+detailsDataRaw.length+" "+getTime());
+		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+detailsDataRaw.length+" "+Utils.getTime());
 		this.graph.graphView.updateDataForNodesAndLinks({nodes:this.graph.ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
 	}
 }
@@ -520,7 +524,7 @@ class OntologyMetricsCallback implements Fetcher.CallbackObject {
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
-        public graph: OntologiesGraph,
+        public graph: OntologyGraph,
         public url: string,
         public node: Node 
         ){
@@ -573,7 +577,7 @@ class OntologyDescriptionCallback implements Fetcher.CallbackObject {
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
-        public graph: OntologiesGraph,
+        public graph: OntologyGraph,
         public url: string,
         public node: Node 
         ){
@@ -624,4 +628,3 @@ function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
 	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
 }
 
-}

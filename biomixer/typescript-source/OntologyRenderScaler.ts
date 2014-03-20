@@ -1,8 +1,12 @@
+///<reference path="headers/require.d.ts" />
+
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-module OntologyRenderScaler {
-    
+///<amd-dependency path="Utils" />
+
+import Utils = require('./Utils');
+
 export class OntologyRenderScaler {
         
     constructor(
@@ -58,7 +62,7 @@ export class OntologyRenderScaler {
     updateLinkScalingFactor(){
         // TODO This may not ever need to be called multiple times, but it would take some time to run.
         // Make sure it actually needs to be run if it is indeed called. 
-        console.log("Ran update link "+getTime());
+        console.log("Ran update link "+Utils.getTime());
         // Call this prior to redrawing. The alternative is to track on every size
         // modification. That worked well for BioMixer, but perhaps we're better
         // off doing a bulk computation per size-refreshing redraw that we want to make.
@@ -162,7 +166,5 @@ export class OntologyRenderScaler {
             return 4 + Math.log(value) * 10;
         }
      */
-    
-}
     
 }

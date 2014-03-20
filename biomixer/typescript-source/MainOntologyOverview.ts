@@ -1,7 +1,11 @@
+///<reference path="headers/require.d.ts" />
+
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<reference path="OntologiesMappingOverview.ts" />
+///<amd-dependency path="OntologyMappingOverview" />
+
+import Overview = require('./OntologyMappingOverview');
 
 // Simplest way to include non-TypeScript defined libraries. Like usual, will need to
 // be served to browser to function.
@@ -28,5 +32,5 @@ var centralOntologyAcronym = purl().param("ontology_acronym");
 
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);
-var graphView = new OntologyMappingOverview();
+var graphView = new Overview.OntologyMappingOverview(centralOntologyAcronym, softNodeCap);
 graphView.initAndPopulateGraph();

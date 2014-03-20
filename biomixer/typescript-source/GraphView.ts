@@ -1,9 +1,13 @@
-///<reference path="OntologiesGraph.ts" />
+///<reference path="headers/require.d.ts" />
 
+///<amd-dependency path="OntologyGraph" />
+
+
+import Graph = require('./OntologyGraph');
 
 // TODO Get the GraphDataForD3, Node, and Link root classes in here, I think.
 
-class BaseGraphView {
+export class BaseGraphView {
 // TODO Review this interface. A lot fo this should probably be made more
 // listener orietented rather than direct call. But the system is shallow now,
 // so maybe this is what we want.
@@ -29,15 +33,15 @@ class BaseGraphView {
     runCurrentLayout: {()};
 }
 
-interface GraphView extends BaseGraphView {
+export interface GraphView extends BaseGraphView {
     removeGraphPopulation();
     visWidth(): number;
     visHeight(): number;
     linkMaxDesiredLength(): number;
     
-    populateGraph(data: OntologiesGraph.GraphDataForD3, expectingNew: boolean);
+    populateGraph(data: Graph.GraphDataForD3, expectingNew: boolean);
     filterGraphOnMappingCounts();
-    updateDataForNodesAndLinks(newDataSubset: OntologiesGraph.GraphDataForD3);
+    updateDataForNodesAndLinks(newDataSubset: Graph.GraphDataForD3);
     
     closeMenu();
 }
