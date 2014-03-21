@@ -50,8 +50,10 @@ export class MappingRangeSliders {
         
     }
     
-    
-    rangeSliderSlideEvent(event, ui) {
+    // Callback needs fat arrow or use of Utils.HasCallback.
+    // Can use fat arrow instead of lambda closure because we don't need
+    // the caller's" this".
+    rangeSliderSlideEvent = (event, ui)=>{
         // Need to make it wider than 100% due to UI bugginess
         var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
         var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
@@ -80,9 +82,10 @@ export class MappingRangeSliders {
         // Fill the sorted set every time in caase we are updating.
         // This shouldn't get called too often.
         var i = 0;
+        var outerThis = this;
         d3.selectAll("line").each( 
                 function(d,i){
-                    this.sortedLinksByMapping[i] = d;
+                    outerThis.sortedLinksByMapping[i] = d;
                 }
         );
         
@@ -162,6 +165,7 @@ export class MappingRangeSliders {
         var topIndex = $( "#top-mappings-slider-range" ).slider( "values", 1 );
         var bottomIndex = $( "#top-mappings-slider-range" ).slider( "values", 0 );
         
+        var outerThis = this;
         // Iterate through all arcs, remove if their node or arc fails to pass
         // We don't need to iterate through all the nodes, because we will do so here.
         // That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
@@ -206,13 +210,13 @@ export class MappingRangeSliders {
                     if(!hideSourceNodeBecauseOfHiddenArc){
                         // Refactor to add a method such as "NewNodeDisplayed" on the graphView instead of the Graph
                         // graph.fetchMetricsAndDescriptionFunc(d.source);
-                        this.graph.fetchNodeRestData(d.source);
+                        outerThis.graph.fetchNodeRestData(d.source);
                         
                     } 
     
                     if(!hideTargetNodeBecauseOfHiddenArc){
                         // graph.fetchMetricsAndDescriptionFunc(d.target);
-                        this.graph.fetchNodeRestData(d.target);
+                        outerThis.graph.fetchNodeRestData(d.target);
                     }
                 }
             );

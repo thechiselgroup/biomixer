@@ -176,6 +176,13 @@ import OntologyGraph = require('./OntologyGraph');
         fetcher: RetryingJsonFetcher; // Gets assigned when fetcher receives callback instance
         url: string;
         
+        // Callbacks are problematic because "this" is in dynamic scope in Javascript, not lexical.
+        // When the callback is actually called, "this" scopes to somethign other than the class we
+        // think "this" refers to.
+        // The solution is definign with the fat arrow (=>) or using a solution such as described by
+        // Steven Ickman, where callbacks must always be prefixed by "cb_" and his code does magic.
+        // see: http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript
+        // I added his code in case we want to use it later...but for now fat arrow is the way to go.
         callback: { (dataReceived: any, textStatus: string, jqXHR: any); } // I think this is right...
 //        assignFetcher: { (fetcher: RetryingJsonFetcher); };
     }

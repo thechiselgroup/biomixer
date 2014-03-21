@@ -44,6 +44,9 @@ export class Node {
     nodeStrokeColor: string; // = darkenColor(centralOntologyNode.nodeColor);
     mapped_classes_to_central_node: number; // = 0;
     
+    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
+    LABEL: string; // = ontologyDetails.name;
+    
     // These come from details REST call
     numberOfClasses: number; // = numClasses;
     numberOfIndividuals: number; // = numIndividuals;
@@ -100,23 +103,19 @@ export class OntologyGraph {
     
     ontologyNeighbourhoodJsonForGraph: GraphDataForD3 = new GraphDataForD3();
     
-    // TODO Get the user of the graph set up here.
-    graphView: GraphView.GraphView;
-    
-    centralOntologyAcronym: string;
-    
     // Stores {acronyms,node} sorted by mapping count in descending order.
     // Limit it with hardNodeCap during init in dev only.
     // Slice it with softNodeCap during init.
     public sortedAcronymsByMappingCount: Array<AcronymNodePair> = [];
 
-    // This cap only affects API dispatch and rendering for nodes past the cap. It is used during
+    // This softNodeCap only affects API dispatch and rendering for nodes past the cap. It is used during
     // initialization only. Set to 0 means all nodes will be used.
-    softNodeCap: number; 
-    
-    constructor(softNodeCap: number, centralOntologyAcronym: string){
-        this.softNodeCap = softNodeCap;
-        this.centralOntologyAcronym = centralOntologyAcronym;
+    constructor(
+        public graphView: GraphView.GraphView,
+        public softNodeCap: number,
+        public centralOntologyAcronym: string
+    ){
+     
     }
     
     fetchOntologyNeighbourhood(centralOntologyAcronym){
@@ -272,7 +271,16 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
 //    	this.fetcher = undefined;
 //    	var self = this;
 	
-	public callback(mappingData: any, textStatus: string, jqXHR: any){
+    // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
+    // "this" to refer to the class instance (a lamda by use of closure, I think) rather than whatever Javascript binds "this" to
+    // when the callback is executed.
+    // As a further complication, when we make anonymous functions within this method, our references to "this" get re-scoped
+    // again. In order to cope with those, we need to use fat arrow => again!
+    // If we are passing such a function to D3, and need "this" to refer to the element that D3 is operating
+    // on, then we stay with fucntion() syntax, and make a new variable pointing to the object-instance "this",
+    // and allow the function() to closure onto that variable. Did you catch all that?
+    // For this case, the caller has no "this" of interest to us, so fat arrow works.
+	public callback = (mappingData: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
 //		var errorOrRetry = self.fetcher.retryFetch(mappingData);
@@ -284,9 +292,8 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
 			return;
 		}
 		
-		
 		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
-		$.each(mappingData, function(index, element){
+		$.each(mappingData, (index, element)=>{
 			// Hard cap on nodes included. Great for dev purposes.
 			this.graph.sortedAcronymsByMappingCount.push({acronym: index, node: undefined});
 			}
@@ -311,15 +318,15 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
         
 		// Create the central node
 		var centralOntologyNode: Node = new Node();
-		centralOntologyNode.name = "fetching"+" ("+centralOntologyAcronym+")";
+		centralOntologyNode.name = "fetching"+" ("+this.centralOntologyAcronym+")";
 		centralOntologyNode.description = "fetching description";
 		centralOntologyNode.fixed = true; // lock central node
 		centralOntologyNode.x = this.graph.graphView.visWidth()/2;
 		centralOntologyNode.y = this.graph.graphView.visHeight()/2;		
 		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-		centralOntologyNode.acronymForIds = escapeAcronym(centralOntologyAcronym);
-		centralOntologyNode.rawAcronym = centralOntologyAcronym;
+		centralOntologyNode.acronymForIds = escapeAcronym(this.centralOntologyAcronym);
+		centralOntologyNode.rawAcronym = this.centralOntologyAcronym;
 		centralOntologyNode.nodeColor = this.graph.nextNodeColor();
 		centralOntologyNode.innerNodeColor = this.graph.brightenColor(centralOntologyNode.nodeColor);
 		centralOntologyNode.nodeStrokeColor = this.graph.darkenColor(centralOntologyNode.nodeColor);
@@ -350,7 +357,7 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
 		// Used to iterate over raw mappingData, but I wanted things loaded and API calls made in order
 		// of mapping counts.
 		$.each(this.graph.sortedAcronymsByMappingCount,
-			function(index, sortedAcronym){
+			(index, sortedAcronym)=>{
 				var acronym = sortedAcronym.acronym;
 				var mappingCount = mappingData[acronym];
 
@@ -366,14 +373,14 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
 				ontologyNode.fixed = false; // lock central node
 				// Compute starting positions to be in a circle for faster layout
 				var angleForNode = i * anglePerNode; i++;
-				ontologyNode.x = this.graphListener.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
-				ontologyNode.y = this.graphListener.visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+				ontologyNode.x = this.graph.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+				ontologyNode.y = this.graph.graphView.visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.acronymForIds = escapeAcronym(acronym);
 				ontologyNode.rawAcronym = acronym;
-				ontologyNode.nodeColor = this.nextNodeColor();
-				ontologyNode.innerNodeColor = this.brightenColor(ontologyNode.nodeColor);
-				ontologyNode.nodeStrokeColor = this.darkenColor(ontologyNode.nodeColor);
+				ontologyNode.nodeColor = this.graph.nextNodeColor();
+				ontologyNode.innerNodeColor = this.graph.brightenColor(ontologyNode.nodeColor);
+				ontologyNode.nodeStrokeColor = this.graph.darkenColor(ontologyNode.nodeColor);
 				ontologyNode.mapped_classes_to_central_node = 0;
 				var targetIndex = this.graph.ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
@@ -449,7 +456,8 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
         ){
     }
     
-    callback(detailsDataRaw: any, textStatus: string, jqXHR: any){
+    // Caller of callback has no "this" of interest, so fat arrow works
+    callback = (detailsDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
 //		var errorOrRetry = self.fetcher.retryFetch(detailsDataRaw);
@@ -469,7 +477,7 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
 		var ontologiesSkipped = 0;
 		var acronymsNotSkipped = [];
 		$.each(detailsDataRaw,
-				function(index, ontologyDetails){
+				(index, ontologyDetails)=>{
 					// I can't cherry pick, because this involves iterating
 					// through the entire set of ontologies to find each ontology entry.
 					// So, I will do a separate loop, and only use data for which there
@@ -529,8 +537,9 @@ class OntologyMetricsCallback implements Fetcher.CallbackObject {
         public node: Node 
         ){
     }
-    
-    callback(metricDataRaw: any, textStatus: string, jqXHR: any){
+
+    // Caller of callback has no "this" of interest, so fat arrow works
+    callback = (metricDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 		
 //		var errorOrRetry = 	self.fetcher.retryFetch(metricDataRaw);
@@ -583,7 +592,8 @@ class OntologyDescriptionCallback implements Fetcher.CallbackObject {
         ){
     }
     
-    callback(latestSubmissionData: any, textStatus: string, jqXHR: any){
+    // Caller of callback has no "this" of interest, so fat arrow works
+    callback = (latestSubmissionData: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 		
 //		var errorOrRetry = 	self.fetcher.retryFetch(metricDataRaw);

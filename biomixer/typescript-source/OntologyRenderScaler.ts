@@ -37,29 +37,30 @@ export class OntologyRenderScaler {
         // Call this prior to redrawing. The alternative is to track on every size
         // modification. That worked well for BioMixer, but perhaps we're better
         // off doing a bulk computation per size-refreshing redraw that we want to make.
-        
+        var outerThis = this;
         var circles = this.vis.selectAll(".circle");
         circles.each(function(d){
                     var basis = parseInt(this.getAttribute("data-radius_basis"));
-                    if(-1 == this.maxNodeRawSize || basis > this.maxNodeRawSize){
+                    if(-1 == outerThis.maxNodeRawSize || basis > outerThis.maxNodeRawSize){
                         this.maxNodeRawSize = basis;
                     }
-                    if(-1 == this.minNodeRawSize || basis < this.minNodeRawSize){
+                    if(-1 == outerThis.minNodeRawSize || basis < outerThis.minNodeRawSize){
                         this.minNodeRawSize = basis;
                     }
             });
-        
-        circles.transition().attr("r", function(d) { return this.ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));});
+
+        circles.transition().attr("r", function(d) { return outerThis.ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));});
         
         // Inner circles use the same scaling factor.
         var innerCircles = this.vis.selectAll(".inner_circle");
-        innerCircles.transition().attr("r", function(d) { return this.ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"), this.getAttribute("data-outer_radius_basis"), this.getAttribute("id"));});
+        innerCircles.transition().attr("r", function(d) { return outerThis.ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"), this.getAttribute("data-outer_radius_basis"), this.getAttribute("id"));});
     
     
         
     }
     
     updateLinkScalingFactor(){
+        var outerThis = this;
         // TODO This may not ever need to be called multiple times, but it would take some time to run.
         // Make sure it actually needs to be run if it is indeed called. 
         console.log("Ran update link "+Utils.getTime());
@@ -69,19 +70,21 @@ export class OntologyRenderScaler {
         $.each(this.vis.selectAll("line.link")[0], function(i, link){
             link = $(link);
             var basis = parseInt(link.attr("data-thickness_basis"));
-            if(-1 == this.maxLinkRawSize || basis > this.maxLinkRawSize){
-                this.maxLinkRawSize =  basis;
+            if(-1 == outerThis.maxLinkRawSize || basis > outerThis.maxLinkRawSize){
+                outerThis.maxLinkRawSize =  basis;
             }
-            if(-1 == this.minLinkRawSize || basis < this.minLinkRawSize){
-                this.minLinkRawSize =  basis;
+            if(-1 == outerThis.minLinkRawSize || basis < outerThis.minLinkRawSize){
+                outerThis.minLinkRawSize =  basis;
             }
         });
-            
+        
+        // Dynamic scoping of "this" required for the D3 function,
+        // but we need an object reference closured into it as well. So....outerThis!
         $.each(this.vis.selectAll("line.link")[0], function(i, link){
             // Given a json encoded graph element, update all of the nested elements associated with it
             // cherry pick elements that we might otherwise get by class "node"
             link = $(link);
-            link.css("stroke-width", function(d) { return this.ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
+            link.css("stroke-width", function(d) { return outerThis.ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
         });
     }
     
