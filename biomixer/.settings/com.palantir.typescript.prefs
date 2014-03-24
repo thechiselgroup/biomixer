@@ -1,7 +1,7 @@
 build.path.sourceFolder=typescript-source
 compiler.codeGenTarget=ECMASCRIPT5
 compiler.compileOnSave=true
-compiler.mapSourceFiles=true
+compiler.mapSourceFiles=false
 compiler.moduleGenTarget=ASYNCHRONOUS
 compiler.noImplicitAny=false
 compiler.noLib=false

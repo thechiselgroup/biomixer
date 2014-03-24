@@ -42,10 +42,10 @@ export class OntologyRenderScaler {
         circles.each(function(d){
                     var basis = parseInt(this.getAttribute("data-radius_basis"));
                     if(-1 == outerThis.maxNodeRawSize || basis > outerThis.maxNodeRawSize){
-                        this.maxNodeRawSize = basis;
+                        outerThis.maxNodeRawSize = basis;
                     }
                     if(-1 == outerThis.minNodeRawSize || basis < outerThis.minNodeRawSize){
-                        this.minNodeRawSize = basis;
+                        outerThis.minNodeRawSize = basis;
                     }
             });
 
@@ -88,7 +88,7 @@ export class OntologyRenderScaler {
         });
     }
     
-    ontologyNodeScalingFunc(rawValue, acronym){
+    ontologyNodeScalingFunc = (rawValue, acronym) => {
         rawValue = parseInt(rawValue);
             
         if(rawValue == 0){
@@ -107,7 +107,7 @@ export class OntologyRenderScaler {
         return diameter/2; // need radius for SVG
     }
         
-    ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
+    ontologyInnerNodeScalingFunc = (rawValue, outerRawValue, acronym) => {
         rawValue = parseInt(rawValue);
         outerRawValue = parseInt(outerRawValue);
         if(rawValue == 0 || this.maxNodeRawSize == this.minNodeRawSize || rawValue > outerRawValue){
@@ -132,7 +132,7 @@ export class OntologyRenderScaler {
         // return innerRadius;
     }
     
-    ontologyLinkScalingFunc(rawValue){
+    ontologyLinkScalingFunc = (rawValue) => {
         rawValue = parseInt(rawValue);
         if(this.maxLinkRawSize == this.minLinkRawSize){
             return rawValue;

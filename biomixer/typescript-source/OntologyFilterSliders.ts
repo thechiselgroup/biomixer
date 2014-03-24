@@ -185,10 +185,10 @@ export class MappingRangeSliders {
                     var hideTargetNodeBecauseOfHiddenArc = hideArc;
                     
                     // Always show central node
-                    if(d.source.rawAcronym == this.centralOntologyAcronym){
+                    if(d.source.rawAcronym == outerThis.centralOntologyAcronym){
                         hideSourceNodeBecauseOfHiddenArc = false;
                     }
-                    if(d.target.rawAcronym == this.centralOntologyAcronym){
+                    if(d.target.rawAcronym == outerThis.centralOntologyAcronym){
                         hideTargetNodeBecauseOfHiddenArc = false;
                     }
                     
@@ -197,8 +197,8 @@ export class MappingRangeSliders {
                     
                     $("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc) ? "none" : "");
                     $("#node_g_"+d.target.acronymForIds).find("*").css("display", (hideTargetNodeBecauseOfHiddenArc) ? "none" : "");
-    //              $("#node_g_"+d.source.acronymForIds).find(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
-    //              $("#node_g_"+d.target.acronymForIds).find(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+    //              $("#node_g_"+d.source.acronymForIds).find(".nodetext").attr("x", function(){ return - outerThis.getComputedTextLength()/2; });
+    //              $("#node_g_"+d.target.acronymForIds).find(".nodetext").attr("x", function(){ return - outerThis.getComputedTextLength()/2; });
     
                     // This should get all fo these:
                     // $("#node_circle_"+d.source.acronymForIds)

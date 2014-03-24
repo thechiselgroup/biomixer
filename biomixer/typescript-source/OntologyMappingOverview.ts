@@ -696,7 +696,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     updateDataForNodesAndLinks(json){
         // console.log("Updating with data:");
         // console.log(json);
-        var outerThis = this;
+        var outerThis = this; // for the callbacks used herein.
         
         var updateLinksFromJson = function(i, d){ // JQuery is i, d
             // Given a json encoded graph element, update all of the nested elements associated with it
