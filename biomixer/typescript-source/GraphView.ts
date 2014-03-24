@@ -26,7 +26,7 @@ export class BaseGraphView {
     visWidth(){ return $("#chart").width(); }
     visHeight(){ return $("#chart").height(); }
     linkMaxDesiredLength(){ return Math.min(this.visWidth(), this.visHeight())/2 - 50; }
-    closeMenu(){return function(){ $(this.menuSelector).hide()};}
+    closeMenu(){return ()=>{ $(this.menuSelector).hide()};}
     
     menuSelector: string = 'div#hoveringGraphMenu';
     

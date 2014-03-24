@@ -732,8 +732,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             
             // Refresh popup if currently open
             if(outerThis.lastDisplayedTipsy != null
-                    && this.lastDisplayedTipsy.css("visibility") == "visible"
-                    && this.lastDisplayedTipsyData.acronymForIds == d.acronymForIds
+                    && outerThis.lastDisplayedTipsy.css("visibility") == "visible"
+                    && outerThis.lastDisplayedTipsyData.acronymForIds == d.acronymForIds
                     ){
                 $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsyCircle, outerThis.lastDisplayedTipsyData));
             }
@@ -982,7 +982,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
     
         $('#trigger').hover(
-                function(e) {
+                (e) => {
                     $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
                      // Looks bad when it's not fully visible, due to children inheriting transparency
                     $(this.menuSelector).fadeTo(0, 1.0);
