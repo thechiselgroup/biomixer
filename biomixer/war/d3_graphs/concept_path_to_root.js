@@ -1773,8 +1773,6 @@ function rootIndex(){
 		
 	});
 	
-	console.log("Root Id "+rootId);
-	
 	graphNodes.forEach(function(n){
 		var i = graphNodes.indexOf(n);
 		console.log("index "+i);
@@ -1786,7 +1784,6 @@ function rootIndex(){
 		}
 	});
 	
-	console.log("index "+index);
 	return index;	
 }
 
@@ -1796,27 +1793,12 @@ function runTreeLayout(){
 		var graphNodes = graphD3Format.nodes;		
 		var graphLinks = graphD3Format.links;
 		
-		
-		//console.log("computing tree layout");
-		//console.log("graphNodes");
-		//console.log(graphNodes);
-		//console.log("graphLinks");
-		//console.log(graphLinks);
-		
-		//create tree object
-		
 		var tree = d3.layout.tree()
 	    	.size([visHeight()-100,visWidth()-300])
 	    	.children(function(d){  
 				var arrayOfNodes = []; 
 				graphLinks.forEach(function(b){
-					//console.log("Id of the root concept "+d.id);
-					//console.log(b.sourceId+" "+d.id);
-					
 					if(b.sourceId==d.id){
-						//console.log("should be success");
-						//console.log("target node: "+testGraph.nodes[b.target]);
-						
 						var targetNode= {};
 						graphNodes.forEach(function(c){
 							if(c.id==b.targetId){
@@ -1824,72 +1806,73 @@ function runTreeLayout(){
 							}
 							
 						});
-						
 						arrayOfNodes.push(targetNode);
-						//arrayOfNodes.push(graphNodes[b.target]);
-						//console.log("Returning array:");
-						//console.log(arrayOfNodes);
-						//return arrayOfNodes;
 					}
 					
 				});
-				//console.log("Content of node: "+d.content);
-				//return (!d.content || d.content.length === 0) ? null : d.content;
 				return arrayOfNodes;
 	    	});
 		
 	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
-	    
-	 
-	    /*  var treeNode = vis.selectAll("g.treenode")
-	      .data(treeNodes)
-	      .enter().append("svg:g")
-	      .attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; });
-	 
-	      // Add the dot at every node
-	      treeNode.append("svg:circle")
-	      .attr("r", 3.5);
-	 
-	      // place the name atribute left or right depending if children
-	      treeNode.append("svg:text")
-	      .attr("dx", function(d) { return d.children ? -8 : 8; })
-	      .attr("dy", 3)
-	      .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
-	      .text(function(d) { return d.name; })
-	      
-	      //apply positions to the force graph
-	    /*  $.each(graphNodes,
-	  			function(index, element){
-	  				var acronym = index;
-
-	  				if(typeof acronym === "undefined"){
-	  					console.log("Undefined concept entry");
-	  				}
-	  				var correspondingNode = {};
-	  				treeNodes.forEach(function(d){
-	  					if(element.id==d.id){
-	  						correspondingNode = d;
-	  					}
-	  				}); 
-	  				
-	  				graphNodes[index].x = correspondingNode.x; 
-	  				graphNodes[index].y = correspondingNode.y; 
-	  			}
-	  		);*/
-	  		
+      
+	      // Adding 150 to y values is probably not the best way of dealing with this
 	  	    d3.selectAll("g.node")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("transform", function(d) { return "translate(" + (d.y) + "," + d.x + ")"; });
+	  	    	.attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; });
 	  	    
 	  	    d3.selectAll("line")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("x1", function(d){return d.source.y;})
+	  	    	.attr("x1", function(d){return d.source.y+150;})
 	  	    	.attr("y1", function(d){return d.source.x;})
-	  	    	.attr("x2", function(d){return d.target.y;})
+	  	    	.attr("x2", function(d){return d.target.y+150;})
 	  	    	.attr("y2", function(d){return d.target.x;});
 	      
+	};
+}
+
+function runRadialLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;		
+		var graphLinks = graphD3Format.links;
+		
+		var tree = d3.layout.tree()
+	    	.size([visHeight()-100,visWidth()-300])
+	    	.children(function(d){  
+				var arrayOfNodes = []; 
+				graphLinks.forEach(function(b){
+					if(b.sourceId==d.id){
+						var targetNode= {};
+						graphNodes.forEach(function(c){
+							if(c.id==b.targetId){
+								targetNode = c;
+							}
+							
+						});
+						arrayOfNodes.push(targetNode);
+					}
+					
+				});
+				return arrayOfNodes;
+	    	});
+		
+	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
+      
+	      // Adding 150 to y values is probably not the best way of dealing with this
+	  	    d3.selectAll("g.node")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; });
+	  	    
+	  	    d3.selectAll("line")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("x1", function(d){return d.source.y+150;})
+	  	    	.attr("y1", function(d){return d.source.x;})
+	  	    	.attr("x2", function(d){return d.target.y+150;})
+	  	    	.attr("y2", function(d){return d.target.x;});    
 	};
 }
 
@@ -1945,11 +1928,20 @@ function addMenuComponents(menuSelector){
 			.attr("id", "treeLayoutButton")
 			.attr("type", "button")
 			.attr("value", "Tree Layout"));
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "radialLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Radial Layout"));
 	
 	d3.selectAll("#circleLayoutButton").on("click", runCircleLayout());
 	d3.selectAll("#forceLayoutButton").on("click", runForceLayout());
 	d3.selectAll("#centerLayoutButton").on("click", runCenterLayout());
 	d3.selectAll("#treeLayoutButton").on("click", runTreeLayout());
+	d3.selectAll("#radialLayoutButton").on("click", runRadialLayout());
+
 
 
 }
