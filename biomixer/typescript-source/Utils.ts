@@ -5,6 +5,10 @@ export function getTime(){
     return now.getHours()+":"+now.getMinutes()+':'+now.getSeconds();
 }
 
+export function endsWith(string, suffix) {
+    return string.indexOf(suffix, string.length - suffix.length) !== -1;
+}
+
 /**
  * I prefer my approach, seen in this code base, of passing the instance into a closure lambda
  * function that returns the actual callback, with 'outerThis' enclosed. The typed parameter helps.

@@ -3,10 +3,10 @@
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<amd-dependency path="OntologyGraph" />
+///<amd-dependency path="GraphView" />
 "use strict";
 
-import OntologyGraph = require('./OntologyGraph');
+import GraphView = require('./GraphView');
     
     // TODO Nested classes would be nice, but need more modules. Avoid or use?
     /**
@@ -172,7 +172,7 @@ import OntologyGraph = require('./OntologyGraph');
     // http://blog.pluralsight.com/extending-classes-and-interfaces-using-typescript
     export interface CallbackObject {
         // node: any; // leave this pretty loose for now
-        graph: OntologyGraph.OntologyGraph; // Make more general when refactoring concept graph into this
+        graph: GraphView.Graph; // Make more general when refactoring concept graph into this
         fetcher: RetryingJsonFetcher; // Gets assigned when fetcher receives callback instance
         url: string;
         

@@ -22,7 +22,7 @@ import GraphView = require('./GraphView');
 // and I won't be forced to define things declared in the interface. Using the interface as the
 // type later leads to a full contract of behavior; the doubling up of interface and base class
 // here is only important for implementations.
-export class OntologyMappingOverview extends GraphView.BaseGraphView implements GraphView.GraphView {
+export class OntologyMappingOverview extends GraphView.BaseGraphView implements GraphView.GraphView<OntologyGraph.Node, OntologyGraph.Link> {
 
     
     // Core objects (used to float around prior to TypeScript)
@@ -35,17 +35,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     
     // TODO Is this overshadowing or is this using the member defined in the parent class?
     // Put a re-callable layout function in runCurrentLayout.
-
-    
-    //var defaultNodeColor = "#496BB0";
-    defaultNodeColor = "#000000";
-    defaultLinkColor = "#999";
-    nodeHighlightColor = "#FC6854";
-    
-    alphaCutoff: number = 0.01; // used to stop the layout early in the tick() callback
-    forceLayout: D3.Layout.ForceLayout = undefined;
-    dragging = false;
-    ontologyTick; // needs to contain the onTick listener function
     
     // TODO Refactor something. Leaving this way to prevent too much code change that isn't simpyl TypeScript refactoring.
     filterGraphOnMappingCounts(){
@@ -329,6 +318,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     * TODO Make this function cleaner and fully compliant with the above description!
     */
     populateGraph(json, newElementsExpected){
+    // populateGraph(json: OntologyGraph.GraphDataForD3, newElementsExpected: boolean){
+        console.log("Fix this up");
+        
     //  console.log("Populating with:");
     //  console.log(json);
         
@@ -508,7 +500,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
                     var tipsy = $(me).tipsy("tip");
                     outerThis.lastDisplayedTipsy = tipsy;
                     outerThis.lastDisplayedTipsyData = meData;
-                    outerThis.lastDisplayedTipsyCircle = me;
+                    outerThis.lastDisplayedTipsySvg = me;
                     tipsyId = $(me).attr("id"+"_tipsy");
                     tipsy.attr("id", tipsyId);
                     
@@ -555,6 +547,135 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
         
         
+//        // XXX Doing this a second time destroys the visualization!
+//        // How would we do it on only new things?
+//        // Oh! It is because we are using the links and nodes references,
+//        // and losing references to the existing nodes and links.
+//        // I really want to make sure I keep trakc of whether we
+//        // have all nodes/links, or just new ones...
+//        var lastLabelShiftTime = jQuery.now();
+//        var lastGravityAdjustmentTime = jQuery.now();
+//        var firstTickTime = jQuery.now();
+//        var maxLayoutRunDuration = 10000;
+//        var maxGravityFrequency = 4000;
+//        // Fat arrow closure because we don't need a dynamic scoped "this" for the tick method.
+//        this.ontologyTick = () => {
+//            // Stop the layout early. The circular initialization makes it ok.
+//            if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
+//                this.forceLayout.stop();
+//            }
+//            
+//            // Do I want nodes to avoid one another?
+//            // http://bl.ocks.org/mbostock/3231298
+//    //      var q = d3.geom.quadtree(nodes),
+//    //        i = 0,
+//    //        n = nodes.length;
+//    //      while (++i < n) q.visit(collide(nodes[i]));
+//    //      function collide(node) {
+//    //            var r = node.radius + 16,
+//    //                nx1 = node.x - r,
+//    //                nx2 = node.x + r,
+//    //                ny1 = node.y - r,
+//    //                ny2 = node.y + r;
+//    //            return function(quad, x1, y1, x2, y2) {
+//    //              if (quad.point && (quad.point !== node)) {
+//    //                var x = node.x - quad.point.x,
+//    //                    y = node.y - quad.point.y,
+//    //                    l = Math.sqrt(x * x + y * y),
+//    //                    r = node.radius + quad.point.radius;
+//    //                if (l < r) {
+//    //                  l = (l - r) / l * .5;
+//    //                  node.x -= x *= l;
+//    //                  node.y -= y *= l;
+//    //                  quad.point.x += x;
+//    //                  quad.point.y += y;
+//    //                }
+//    //              }
+//    //              return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+//    //            };
+//    //       svg.selectAll("circle")
+//    //        .attr("cx", function(d) { return d.x; })
+//    //        .attr("cy", function(d) { return d.y; });
+//    //       }
+//            
+//            // For every iteration of the layout (until it stabilizes)
+//            // Using this bounding box on nodes and links works, but leads to way too much overlap for the
+//            // labels...Bostock is correct in saying that gravity adjustments can get better results.
+//            // gravityAdjust() functions are pass through; they want to inspect values,
+//            // not modify them!
+//            var doLabelUpdateNextTime = false;
+//            if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
+//                nodes.attr("transform", function(d) { return "translate(" + this.gravityAdjustX(d.x) + "," + this.gravityAdjustY(d.y) + ")"; });
+//                lastGravityAdjustmentTime = jQuery.now();
+//                doLabelUpdateNextTime = true;
+//            } else {
+//                nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+//            }
+//    
+//            links
+//              .attr("x1", function(d) { return d.source.x; })
+//              .attr("y1", function(d) { return d.source.y; })
+//              .attr("x2", function(d) { return d.target.x; })
+//              .attr("y2", function(d) { return d.target.y; });
+//            
+//            // I want labels to aim out of middle of graph, to make more room
+//            // It slows rendering, so I will only do it sometimes
+//            // Commented all this out because I liked centering them instead.
+//    //      if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
+//    //          $.each($(".nodetext"), function(i, text){
+//    //              text = $(text);
+//    //              if(text.position().left >= visWidth()/2){
+//    //                  text.attr("dx", 12);
+//    //                  text.attr("x", 12);
+//    //              } else {
+//    //                  text.attr("dx", - 12 - text.get(0).getComputedTextLength());
+//    //                  text.attr("x", - 12 - text.get(0).getComputedTextLength());
+//    //              }
+//    //          })
+//    //          lastLabelShiftTime = jQuery.now();
+//    //      }
+//            
+//        
+//        }
+        
+        
+        if(newElementsExpected === true){
+            this.forceLayout.on("tick", this.onLayoutTick());
+        }
+        
+        // Make sure we have initialized the filter slider to be at the softNodeCap.
+        // The filter function will lead to individual API calls being dispatched on nodes.
+        // It will (in the future) also trigger layout adaptation to added or removed nodes.
+        this.filterSliders.changeTopMappingSliderValues(null, this.softNodeCap);
+        
+        // We have a situation where only our third REST calls determine which nodes and links actually stay in the graph.
+        // We would like to filter early, based on the soft cap.
+    //   filterGraphOnMappingCounts();
+        
+        // Whenever I call populate, it adds more to this layout.
+        // I need to figure out how to get enter/update/exit sort of things
+        // to work for the layout.
+        if(newElementsExpected === true){
+            // forceLayout
+            // .nodes(nodes.enter())
+            // .links(links.enter());
+            this.forceLayout
+            .nodes(json.nodes)
+            .links(json.links);
+            // Call start() whenever any nodes or links get added...maybe not when removed?
+            this.forceLayout.start();
+        }
+        
+        // Don't have sizes here, but still...
+        this.renderScaler.updateNodeScalingFactor();
+        // Do have link sizes though? Now e called it earlier at a better time.
+        // updateLinkScalingFactor();
+        
+    }
+    
+    
+    // Fat arrow closure because we don't need a dynamic scoped "this" for the tick method.
+    onLayoutTick(){
         // XXX Doing this a second time destroys the visualization!
         // How would we do it on only new things?
         // Oh! It is because we are using the links and nodes references,
@@ -566,8 +687,11 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         var firstTickTime = jQuery.now();
         var maxLayoutRunDuration = 10000;
         var maxGravityFrequency = 4000;
-        // Fat arrow closure because we don't need a dynamic scoped "this" for the tick method.
-        this.ontologyTick = () => {
+        // This improved layout behavior dramatically.
+        var nodes = this.vis.selectAll("g.node");
+        // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
+        var links = this.vis.selectAll("line.link");
+        return () => {
             // Stop the layout early. The circular initialization makes it ok.
             if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
                 this.forceLayout.stop();
@@ -643,43 +767,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     //          lastLabelShiftTime = jQuery.now();
     //      }
             
-        
         }
-        
-        
-        if(newElementsExpected === true){
-            this.forceLayout.on("tick", this.ontologyTick);
-        }
-        
-        // Make sure we have initialized the filter slider to be at the softNodeCap.
-        // The filter function will lead to individual API calls being dispatched on nodes.
-        // It will (in the future) also trigger layout adaptation to added or removed nodes.
-        this.filterSliders.changeTopMappingSliderValues(null, this.softNodeCap);
-        
-        // We have a situation where only our third REST calls determine which nodes and links actually stay in the graph.
-        // We would like to filter early, based on the soft cap.
-    //   filterGraphOnMappingCounts();
-        
-        // Whenever I call populate, it adds more to this layout.
-        // I need to figure out how to get enter/update/exit sort of things
-        // to work for the layout.
-        if(newElementsExpected === true){
-            // forceLayout
-            // .nodes(nodes.enter())
-            // .links(links.enter());
-            this.forceLayout
-            .nodes(json.nodes)
-            .links(json.links);
-            // Call start() whenever any nodes or links get added...maybe not when removed?
-            this.forceLayout.start();
-        }
-        
-        // Don't have sizes here, but still...
-        this.renderScaler.updateNodeScalingFactor();
-        // Do have link sizes though? Now e called it earlier at a better time.
-        // updateLinkScalingFactor();
-        
     }
+    
     
     /**
      * We cannot update the graph with new node or link properties *efficiently* using D3.
@@ -735,7 +825,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
                     && outerThis.lastDisplayedTipsy.css("visibility") == "visible"
                     && outerThis.lastDisplayedTipsyData.acronymForIds == d.acronymForIds
                     ){
-                $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsyCircle, outerThis.lastDisplayedTipsyData));
+                $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsySvg, outerThis.lastDisplayedTipsyData));
             }
         }
         
@@ -992,7 +1082,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
                 }
         );
         
-        this.filterSliders.addMenuSliderComponents(this.menuSelector, this.softNodeCap);
+        this.filterSliders.addMenuComponents(this.menuSelector, this.softNodeCap);
     }
 
 }

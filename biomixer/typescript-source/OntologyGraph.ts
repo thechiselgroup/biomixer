@@ -29,13 +29,12 @@ export interface AcronymForIds extends String {
 //    }
 }
 
-export class Node {
-    name: string; // Comes from ontology details REST call // = "fetching"+" ("+centralOntologyAcronym+")";
+export class Node extends GraphView.BaseNode {
+    name: string; // D3 // Comes from ontology details REST call // = "fetching"+" ("+centralOntologyAcronym+")";
     description: string; // Comes from description RETS call // = "fetching description";
-    fixed: boolean; // = true; // lock central node
     x: number; // = visWidth()/2;
     y: number; // = visHeight()/2;      
-    weight: number; // = numberOfMappedOntologies; // will increment as we loop
+    weight: number; // D3 // = numberOfMappedOntologies; // will increment as we loop
     number: number; // = defaultNumOfTermsForSize; // number of terms
     acronymForIds; AcronymForIds; // = escapeAcronym(centralOntologyAcronym);
     rawAcronym; RawAcronym; // = centralOntologyAcronym;
@@ -53,18 +52,18 @@ export class Node {
     numberOfProperties: number; // = numProperties;
     
     constructor(){
-        
+        super();
     }
 }
 
-export class Link {
+export class Link extends GraphView.BaseLink {
     source: Node; // = centralOntologyNode;
     target: Node; // = ontologyNode;
     value: number; // = mappingCount; // This gets used for link stroke thickness later.
     numMappings: number; // = mappingCount;
         
     constructor(){
-        
+        super();
     }
 }
     
@@ -78,9 +77,8 @@ export interface OntologyAcronymMap {
     [acronym: string]: Node;
 }
     
-export class GraphDataForD3 {
-    public nodes: Array<Node> = [];
-    public links: Array<Link> = [];
+export class OntologyD3Data extends GraphView.GraphDataForD3<Node, Link> {
+    
 }
     
 
@@ -94,14 +92,14 @@ function escapeAcronym(acronym){
 
 
 
-export class OntologyGraph {
+export class OntologyGraph implements GraphView.Graph {
     // Need:
     // sortedAcronymsByMappingCount
     // hardNodeCap
     // softNodeCap
     // a view object to get necessary information from the outside through
     
-    ontologyNeighbourhoodJsonForGraph: GraphDataForD3 = new GraphDataForD3();
+    ontologyNeighbourhoodJsonForGraph: OntologyD3Data = new OntologyD3Data();
     
     // Stores {acronyms,node} sorted by mapping count in descending order.
     // Limit it with hardNodeCap during init in dev only.
@@ -111,7 +109,7 @@ export class OntologyGraph {
     // This softNodeCap only affects API dispatch and rendering for nodes past the cap. It is used during
     // initialization only. Set to 0 means all nodes will be used.
     constructor(
-        public graphView: GraphView.GraphView,
+        public graphView: GraphView.GraphView<Node, Link>,
         public softNodeCap: number,
         public centralOntologyAcronym: string
     ){
@@ -145,8 +143,6 @@ export class OntologyGraph {
     	// 1) Get mappings to central ontology
     	var ontologyMappingUrl = buildOntologyMappingUrlNewApi(centralOntologyAcronym);
     	var ontologyMappingCallback = new OntologyMappingCallback(this, ontologyMappingUrl, centralOntologyAcronym);
-    //	var fetcher = new RetryingJsonpFetcher(ontologyMappingCallback);
-    //	fetcher.retryFetch();
     	var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMappingCallback);
     	fetcher.fetch();
     }
@@ -257,6 +253,7 @@ export class OntologyGraph {
 // Doesn't need REST call registry, so if I refactor, keep that in mind.
 class OntologyMappingCallback implements Fetcher.CallbackObject {
 
+    // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
@@ -266,11 +263,6 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
         ){
     }
 
-//    	this.url = url;
-//    	// Define this fetcher when one is instantiated (circular dependency)
-//    	this.fetcher = undefined;
-//    	var self = this;
-	
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
     // "this" to refer to the class instance (a lamda by use of closure, I think) rather than whatever Javascript binds "this" to
     // when the callback is executed.

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-    <title>Ontology Overview Layout</title>
+    <title>Concept Visualizations</title>
 
 <!--
     <script type="text/javascript" src="d3_graphs/d3.v3.min.js"></script>
@@ -21,7 +21,7 @@
     -->
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
-    
+     
     <script type="text/javascript" src="d3_graphs/biomixer.jquery.tipsy.js"></script>
     <link href="d3_graphs/biomixer.tipsy.css" rel="stylesheet" type="text/css" />
     
@@ -39,11 +39,15 @@
   </head>
   <body>
 
+	
+<select id="visualization_selector" class="gwt-ListBox" size="1">
+</select>
+	
 <div class="gallery" id="chart"></div>
 
 <link href="d3_graphs/d3_graph.css" rel="stylesheet" type="text/css">
 
-<script data-main="d3_graphs/typescript-output/MainOntologyOverview" src="scripts/require.js"></script>
+<script data-main="d3_graphs/typescript-output/Concepts/MainConceptGraph" src="scripts/require.js"></script>
 
 </body>
 </html>

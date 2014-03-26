@@ -3,10 +3,12 @@
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
+///<amd-dependency path="OntologyMappingOverview" />
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="OntologyGraph" />
 ///<amd-dependency path="GraphView" />
 
+import OntMap = require('./OntologyMappingOverview');
 import Utils = require('./Utils');
 import OntologyGraph = require('./OntologyGraph');
 import GraphView = require('GraphView');
@@ -20,12 +22,12 @@ export class MappingRangeSliders {
     
     constructor(
         private graph: OntologyGraph.OntologyGraph,
-        private graphView: GraphView.GraphView,
+        private graphView: OntMap.OntologyMappingOverview,
         private centralOntologyAcronym: OntologyGraph.RawAcronym
         ){
     }
 
-    addMenuSliderComponents(menuSelector: string, softNodeCap: number){
+    addMenuComponents(menuSelector: string, softNodeCap: number){
         var minSliderAbsolute = 0;
         var maxSliderAbsolute = 0 == softNodeCap ? this.sortedLinksByMapping.length : softNodeCap; 
         
