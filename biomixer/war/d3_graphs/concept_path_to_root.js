@@ -1747,6 +1747,26 @@ function runForceLayout(){
 	};
 }
 
+function treeRootIndex(){
+	var graphNodes = graphD3Format.nodes;		
+	var graphLinks = graphD3Format.links;
+	
+	var index = 0;
+	var rootId = null;
+	graphLinks.forEach(function(a){
+		//rootId = a.sourceId;
+		graphLinks.forEach(function(b){
+			if(a.sourceId==b.targetId){
+				rootId = b.sourceId;
+			}
+			
+		});
+		
+	});
+	
+	return 1;	
+}
+
 function runTreeLayout(){
 	return function(){
 		forceLayout.stop();
@@ -1754,16 +1774,16 @@ function runTreeLayout(){
 		var graphLinks = graphD3Format.links;
 		
 		
-		console.log("computing tree layout");
-		console.log("graphNodes");
-		console.log(graphNodes);
-		console.log("graphLinks");
-		console.log(graphLinks);
+		//console.log("computing tree layout");
+		//console.log("graphNodes");
+		//console.log(graphNodes);
+		//console.log("graphLinks");
+		//console.log(graphLinks);
 		
 		//create tree object
 		
 		var tree = d3.layout.tree()
-	    	.size([600,300])
+	    	.size([visHeight()-100,visWidth()-300])
 	    	.children(function(d){  
 				var arrayOfNodes = []; 
 				graphLinks.forEach(function(b){
@@ -1795,18 +1815,13 @@ function runTreeLayout(){
 				return arrayOfNodes;
 	    	});
 		
-	 
-	      var diagonal = d3.svg.diagonal()
-	      // change x and y (for the left to right tree)
-	      .projection(function(d) { return [d.y, d.x]; });
-	      
-	      var treeNodes = tree.nodes(graphNodes[1]);
+	      var treeNodes = tree.nodes(graphNodes[treeRootIndex()]);
 	    
 	 
-	      var treeNode = vis.selectAll("g.treenode")
+	    /*  var treeNode = vis.selectAll("g.treenode")
 	      .data(treeNodes)
 	      .enter().append("svg:g")
-	      .attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; })
+	      .attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; });
 	 
 	      // Add the dot at every node
 	      treeNode.append("svg:circle")
@@ -1837,20 +1852,20 @@ function runTreeLayout(){
 	  				graphNodes[index].x = correspondingNode.x; 
 	  				graphNodes[index].y = correspondingNode.y; 
 	  			}
-	  		);
+	  		);*/
 	  		
 	  	    d3.selectAll("g.node")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	  	    	.attr("transform", function(d) { return "translate(" + (d.y) + "," + d.x + ")"; });
 	  	    
 	  	    d3.selectAll("line")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("x1", function(d){return d.source.x;})
-	  	    	.attr("y1", function(d){return d.source.y;})
-	  	    	.attr("x2", function(d){return d.target.x;})
-	  	    	.attr("y2", function(d){return d.target.y;});*/
+	  	    	.attr("x1", function(d){return d.source.y;})
+	  	    	.attr("y1", function(d){return d.source.x;})
+	  	    	.attr("x2", function(d){return d.target.y;})
+	  	    	.attr("y2", function(d){return d.target.x;});
 	      
 	};
 }
