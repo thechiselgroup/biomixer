@@ -1747,24 +1747,47 @@ function runForceLayout(){
 	};
 }
 
-function treeRootIndex(){
+function rootIndex(){
 	var graphNodes = graphD3Format.nodes;		
 	var graphLinks = graphD3Format.links;
 	
 	var index = 0;
 	var rootId = null;
+	var rootFound=false;
+	// not the best algorithm. Need to look into improving it
 	graphLinks.forEach(function(a){
-		//rootId = a.sourceId;
-		graphLinks.forEach(function(b){
-			if(a.sourceId==b.targetId){
-				rootId = b.sourceId;
-			}
+		if(rootFound==false){
+			rootFound=true;
+			graphLinks.forEach(function(b){
+				if(a.sourceId==b.targetId){
+					//rootId = b.sourceId;
+					rootFound = false;
+				}
+				
+			});
 			
-		});
+			if(rootFound==true){
+				rootId = a.sourceId;
+			}
+		}
 		
 	});
 	
-	return 1;	
+	console.log("Root Id "+rootId);
+	
+	graphNodes.forEach(function(n){
+		var i = graphNodes.indexOf(n);
+		console.log("index "+i);
+
+		if(n.id==rootId){
+			index = i;
+			console.log("index "+i);
+
+		}
+	});
+	
+	console.log("index "+index);
+	return index;	
 }
 
 function runTreeLayout(){
@@ -1787,8 +1810,8 @@ function runTreeLayout(){
 	    	.children(function(d){  
 				var arrayOfNodes = []; 
 				graphLinks.forEach(function(b){
-					console.log("Id of the root concept "+d.id);
-					console.log(b.sourceId+" "+d.id);
+					//console.log("Id of the root concept "+d.id);
+					//console.log(b.sourceId+" "+d.id);
 					
 					if(b.sourceId==d.id){
 						//console.log("should be success");
@@ -1815,7 +1838,7 @@ function runTreeLayout(){
 				return arrayOfNodes;
 	    	});
 		
-	      var treeNodes = tree.nodes(graphNodes[treeRootIndex()]);
+	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
 	    
 	 
 	    /*  var treeNode = vis.selectAll("g.treenode")
