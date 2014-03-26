@@ -1787,7 +1787,7 @@ function rootIndex(){
 	return index;	
 }
 
-function runTreeLayout(){
+function runHorizontalTreeLayout(){
 	return function(){
 		forceLayout.stop();
 		var graphNodes = graphD3Format.nodes;		
@@ -1840,9 +1840,61 @@ function runTreeLayout(){
 	};
 }
 
+function runVerticalTreeLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;		
+		var graphLinks = graphD3Format.links;
+		
+		var tree = d3.layout.tree()
+	    	.size([visWidth(),visHeight()-300])
+	    	.children(function(d){  
+				var arrayOfNodes = []; 
+				graphLinks.forEach(function(b){
+					if(b.sourceId==d.id){
+						var targetNode= {};
+						graphNodes.forEach(function(c){
+							if(c.id==b.targetId){
+								targetNode = c;
+							}
+							
+						});
+						arrayOfNodes.push(targetNode);
+					}
+					
+				});
+				return arrayOfNodes;
+	    	});
+		
+	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
+      
+	      
+	      $.each(graphNodes,
+	  			function(index, element){
+		    	  	graphNodes[index].x = element.x; 
+					graphNodes[index].y = element.y+150; 
+	      		}
+	  		);
+	      // Adding 150 to y values is probably not the best way of dealing with this
+	  	    d3.selectAll("g.node")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	  	    
+	  	    d3.selectAll("line")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});
+	      
+	};
+}
+
 function runRadialLayout(){
 	return function(){
-		/*forceLayout.stop();
+		forceLayout.stop();
 		var graphNodes = graphD3Format.nodes;		
 		var graphLinks = graphD3Format.links;
 		
@@ -1868,20 +1920,28 @@ function runRadialLayout(){
 		
 	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
       
+	      
+	      $.each(graphNodes,
+	  			function(index, element){
+	    	  		var xValue = element.x
+		    	  	graphNodes[index].x = element.y+150; 
+					graphNodes[index].y = xValue; 
+	      		}
+	  		);
 	      // Adding 150 to y values is probably not the best way of dealing with this
 	  	    d3.selectAll("g.node")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; });
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 	  	    
 	  	    d3.selectAll("line")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("x1", function(d){return d.source.y+150;})
-	  	    	.attr("y1", function(d){return d.source.x;})
-	  	    	.attr("x2", function(d){return d.target.y+150;})
-	  	    	.attr("y2", function(d){return d.target.x;});   
-	  	    	*/ 
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});
+	      
 	};
 }
 
@@ -1934,9 +1994,16 @@ function addMenuComponents(menuSelector){
 	
 	$(menuSelector).append($("<input>")
 			.attr("class", "layoutButton")
-			.attr("id", "treeLayoutButton")
+			.attr("id", "horizontalTreeLayoutButton")
 			.attr("type", "button")
-			.attr("value", "Tree Layout"));
+			.attr("value", "Horizontal Tree Layout"));
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "verticalTreeLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Vertical Tree Layout"));
 	$(menuSelector).append($("<br>"));
 	
 	$(menuSelector).append($("<input>")
@@ -1948,7 +2015,8 @@ function addMenuComponents(menuSelector){
 	d3.selectAll("#circleLayoutButton").on("click", runCircleLayout());
 	d3.selectAll("#forceLayoutButton").on("click", runForceLayout());
 	d3.selectAll("#centerLayoutButton").on("click", runCenterLayout());
-	d3.selectAll("#treeLayoutButton").on("click", runTreeLayout());
+	d3.selectAll("#horizontalTreeLayoutButton").on("click", runHorizontalTreeLayout());
+	d3.selectAll("#verticalTreeLayoutButton").on("click", runVerticalTreeLayout());
 	d3.selectAll("#radialLayoutButton").on("click", runRadialLayout());
 
 
