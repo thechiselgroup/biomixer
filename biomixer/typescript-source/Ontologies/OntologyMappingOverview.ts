@@ -4,19 +4,19 @@
 ///<reference path="headers/jquery.d.ts" />
 
 ///<amd-dependency path="Utils" />
-///<amd-dependency path="OntologyGraph" />
-///<amd-dependency path="OntologyFilterSliders" />
 ///<amd-dependency path="FetchFromApi" />
-///<amd-dependency path="OntologyRenderScaler" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="Ontologies/OntologyGraph" />
+///<amd-dependency path="Ontologies/OntologyFilterSliders" />
+///<amd-dependency path="Ontologies/OntologyRenderScaler" />
 
 ///<amd-dependency path="JQueryExtension" />
 
-import Utils = require('./Utils');
+import Utils = require('../Utils');
+import GraphView = require('../GraphView');
 import OntologyGraph = require('./OntologyGraph');
 import OntologyRenderScaler = require('./OntologyRenderScaler');
 import OntologyFilterSliders = require('./OntologyFilterSliders');
-import GraphView = require('./GraphView');
 
 // If I don't extend and implement both, I have to define things I want implemented in the base class,
 // and I won't be forced to define things declared in the interface. Using the interface as the

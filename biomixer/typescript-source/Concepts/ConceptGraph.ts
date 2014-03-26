@@ -1,14 +1,14 @@
 ///<reference path="headers/require.d.ts" />
 
-///<amd-dependency path="../Utils" />
-///<amd-dependency path="../FetchFromApi" />
-///<amd-dependency path="../GraphView" />
-///<amd-dependency path="ExpansionManager" />
+///<amd-dependency path="Utils" />
+///<amd-dependency path="FetchFromApi" />
+///<amd-dependency path="GraphView" />
+///<amd-dependency path="Concepts/ExpansionManager" />
 
 import Utils = require('../Utils');
 import Fetcher = require('../FetchFromApi');
 import GraphView = require('../GraphView');
-import ExpansionManager = require('ExpansionManager');
+import ExpansionManager = require('./ExpansionManager');
 
 export class PathOptions {
     static termNeighborhoodConstant = "term neighborhood";

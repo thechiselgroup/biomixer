@@ -3,22 +3,22 @@
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<amd-dependency path="../JQueryExtension" />
+///<amd-dependency path="JQueryExtension" />
 
-///<amd-dependency path="../Utils" />
-///<amd-dependency path="../GraphView" />
-///<amd-dependency path="../FetchFromApi" />
-///<amd-dependency path="ConceptGraph" />
-///<amd-dependency path="ConceptFilterSliders" />
-///<amd-dependency path="ConceptLayouts" />
-///<amd-dependency path="ConceptRenderScaler" />
+///<amd-dependency path="Utils" />
+///<amd-dependency path="GraphView" />
+///<amd-dependency path="FetchFromApi" />
+///<amd-dependency path="Concepts/ConceptGraph" />
+///<amd-dependency path="Concepts/ConceptFilterSliders" />
+///<amd-dependency path="Concepts/ConceptLayouts" />
+///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require('../Utils');
 import GraphView = require('../GraphView');
-import ConceptGraph = require('ConceptGraph');
-import ConceptRenderScaler = require('ConceptRenderScaler');
-import ConceptFilterSliders = require('ConceptFilterSliders');
-import ConceptLayouts = require('ConceptLayouts');
+import ConceptGraph = require('./ConceptGraph');
+import ConceptRenderScaler = require('./ConceptRenderScaler');
+import ConceptFilterSliders = require('./ConceptFilterSliders');
+import ConceptLayouts = require('./ConceptLayouts');
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     

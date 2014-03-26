@@ -1,8 +1,8 @@
 ///<reference path="headers/require.d.ts" />
 
-///<amd-dependency path="ConceptGraph" />
+///<amd-dependency path="Concepts/ConceptGraph" />
 
-import ConceptGraph = require('ConceptGraph');
+import ConceptGraph = require('./ConceptGraph');
 
 export class ExpansionManager{
 

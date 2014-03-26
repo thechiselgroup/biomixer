@@ -3,15 +3,15 @@
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<amd-dependency path="OntologyMappingOverview" />
 ///<amd-dependency path="Utils" />
-///<amd-dependency path="OntologyGraph" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="Ontologies/OntologyMappingOverview" />
+///<amd-dependency path="Ontologies/OntologyGraph" />
 
+import Utils = require('../Utils');
+import GraphView = require('../GraphView');
 import OntMap = require('./OntologyMappingOverview');
-import Utils = require('./Utils');
 import OntologyGraph = require('./OntologyGraph');
-import GraphView = require('GraphView');
     
 export class MappingRangeSliders {
     

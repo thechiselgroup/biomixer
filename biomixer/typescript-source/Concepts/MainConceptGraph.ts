@@ -3,14 +3,9 @@
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<amd-dependency path="ConceptPathsToRoot" />
+///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 
-
-require.config({
-    baseUrl: "d3_graphs/typescript-output",
-    });
-
-import ConceptGraph = require('ConceptPathsToRoot');
+import ConceptGraph = require('./ConceptPathsToRoot');
 
 // Simplest way to include non-TypeScript defined libraries. Like usual, will need to
 // be served to browser to function.

@@ -4,9 +4,9 @@
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
 
-import Utils = require('./Utils');
-import Fetcher = require('./FetchFromApi');
-import GraphView = require('./GraphView');
+import Utils = require('../Utils');
+import Fetcher = require('../FetchFromApi');
+import GraphView = require('../GraphView');
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!

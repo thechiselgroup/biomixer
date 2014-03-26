@@ -3,13 +3,13 @@
 
 ///<amd-dependency path="../JQueryExtension" />
 
-///<amd-dependency path="../GraphView" />
-///<amd-dependency path="ConceptGraph" />
+///<amd-dependency path="GraphView" />
+///<amd-dependency path="Concepts/ConceptGraph" />
 
 
 import GraphView = require('../GraphView');
-import ConceptGraphView = require('ConceptPathsToRoot');
-import ConceptGraph = require('ConceptGraph');
+import ConceptGraphView = require('./ConceptPathsToRoot');
+import ConceptGraph = require('./ConceptGraph');
 
 export class ConceptLayouts {
 

@@ -5,11 +5,11 @@
 
 ///<amd-dependency path="../Utils" />
 ///<amd-dependency path="../GraphView" />
-///<amd-dependency path="ConceptGraph" />
+///<amd-dependency path="Concepts/ConceptGraph" />
 
 import Utils = require('../Utils');
 import GraphView = require('../GraphView');
-import OntologyGraph = require('ConceptGraph');
+import OntologyGraph = require('./ConceptGraph');
     
 export class ConceptRangeSliders {
 

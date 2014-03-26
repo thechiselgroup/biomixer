@@ -5,7 +5,7 @@
 
 ///<amd-dependency path="Utils" />
 
-import Utils = require('./Utils');
+import Utils = require('../Utils');
 
 export class OntologyRenderScaler {
         

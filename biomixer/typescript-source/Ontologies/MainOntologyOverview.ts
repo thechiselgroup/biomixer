@@ -3,7 +3,7 @@
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
 
-///<amd-dependency path="OntologyMappingOverview" />
+///<amd-dependency path="Ontologies/OntologyMappingOverview" />
 
 import Overview = require('./OntologyMappingOverview');
 
