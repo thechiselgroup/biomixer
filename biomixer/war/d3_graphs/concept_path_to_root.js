@@ -1815,26 +1815,34 @@ function runTreeLayout(){
 		
 	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
       
+	      
+	      $.each(graphNodes,
+	  			function(index, element){
+	    	  		var xValue = element.x
+		    	  	graphNodes[index].x = element.y+150; 
+					graphNodes[index].y = xValue; 
+	      		}
+	  		);
 	      // Adding 150 to y values is probably not the best way of dealing with this
 	  	    d3.selectAll("g.node")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("transform", function(d) { return "translate(" + (d.y+150) + "," + d.x + ")"; });
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 	  	    
 	  	    d3.selectAll("line")
 	  	    	.transition()
 	  	    	.duration(2500)
-	  	    	.attr("x1", function(d){return d.source.y+150;})
-	  	    	.attr("y1", function(d){return d.source.x;})
-	  	    	.attr("x2", function(d){return d.target.y+150;})
-	  	    	.attr("y2", function(d){return d.target.x;});
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});
 	      
 	};
 }
 
 function runRadialLayout(){
 	return function(){
-		forceLayout.stop();
+		/*forceLayout.stop();
 		var graphNodes = graphD3Format.nodes;		
 		var graphLinks = graphD3Format.links;
 		
@@ -1872,7 +1880,8 @@ function runRadialLayout(){
 	  	    	.attr("x1", function(d){return d.source.y+150;})
 	  	    	.attr("y1", function(d){return d.source.x;})
 	  	    	.attr("x2", function(d){return d.target.y+150;})
-	  	    	.attr("y2", function(d){return d.target.x;});    
+	  	    	.attr("y2", function(d){return d.target.x;});   
+	  	    	*/ 
 	};
 }
 
