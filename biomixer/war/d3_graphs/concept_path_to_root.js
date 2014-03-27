@@ -1923,10 +1923,13 @@ function runRadialLayout(){
 	      
 	      $.each(graphNodes,
 	  			function(index, element){
-	    	  		var radius = element.y;
-	    	  		var angle = element.x /180 * Math.PI;
+	    	  		var radius = element.y/3;
+	    	  		var angle = element.x/180 * Math.PI;
 		    	  	graphNodes[index].x = visWidth()/2 + radius*Math.cos(angle); 
-					graphNodes[index].y = visHeight()/2 + radius*Math.sin(angle); 
+//		    	  	graphNodes[index].x = 0; 
+//	    	  		graphNodes[index].y = element.y; 
+
+	    	  		graphNodes[index].y = visHeight()/2 + radius*Math.sin(angle); 
 	      		}
 	  		);
 	      // Adding 150 to y values is probably not the best way of dealing with this
