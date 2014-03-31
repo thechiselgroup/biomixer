@@ -1,5 +1,8 @@
 ///<reference path="headers/require.d.ts" />
 
+export var bioportalUrl = "data.bioontology.org";
+//export var bioportalUrl = "stagedata.bioontology.org";
+
 export function getTime(){
     var now = new Date();
     return now.getHours()+":"+now.getMinutes()+':'+now.getSeconds();
@@ -7,6 +10,20 @@ export function getTime(){
 
 export function endsWith(string, suffix) {
     return string.indexOf(suffix, string.length - suffix.length) !== -1;
+}
+
+
+declare var purl;
+export function prepUrlKey(url){
+    var ampersand = "&";
+    if(url.indexOf("?") == -1){
+        url = url+"?";
+        ampersand = "";
+    }
+    // Forced '&' is safe as far as I can tell
+    // OLD API KEY starts 6700... keep if we like 429 errors. Good for testing.
+    //  return url += ampersand+"format=jsonp"+"&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"; // OLD API KEY
+    return url += ampersand+"format=jsonp"+"&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
 }
 
 /**

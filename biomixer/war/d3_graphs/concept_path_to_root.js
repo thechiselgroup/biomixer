@@ -238,13 +238,13 @@ function fetchPathToRoot(centralOntologyAcronym, centralConceptUri){
 	
 	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
 	1) Get the root to path for the central concept
-	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 	   - create the nodes, and do any prep for subsequent REST calls
 	2) Get relational data (children, parents and mappings) for all concepts in the path to root
-	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/parents/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/parents/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 	   - fill in nodes with details from this data TODO Look at Biomixer to see what we need 
 	3) Get properties for all concepts in path to root
-	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/properties/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/properties/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 	   - set node properties
 	*/
 	
@@ -297,7 +297,7 @@ function fetchTermNeighborhood(centralOntologyAcronym, centralConceptUri){
 
 function fetchMappingsNeighborhood(centralOntologyAcronym, centralConceptUri){
 	// Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
-	// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P109.onSuccess
+	// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P109.onSuccess
 	
 	// Get central concept immediately, and let the relation parser that will be called expand
 	// related nodes conditioned on whether their related node is this to-be-expanded one.
@@ -355,7 +355,7 @@ function fetchCompositionRelations(conceptNode){
 }
 
 function appendJsonpAndApiKeyArgumentsToExistingUrl(url){
-	return url+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return url+"?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?"
 }
 
 function FetchOneConceptCallback(url, conceptUri){
@@ -566,9 +566,9 @@ function ConceptMappingsRelationsCallback(relationsUrl, conceptNode, conceptIdNo
 	}
 }
 
-// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 function buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
-	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 }
 
 // This is unused. See description. Leaving as documentation.
@@ -583,18 +583,18 @@ function buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUr
 // This might be unused, because we may navigate to the mappings URL along the link data provided from the new API.
 function buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
 	// From the mappings results, we add all of the discovered nodes.
-	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/mappings/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/mappings/"+"?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 }
 
 function buildConceptUrlNewApi(ontologyAcronym, conceptUri){
 	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/classes/"+encodeURIComponent(conceptUri)
-	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
+	+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"
 	+"&callback=?";
 }
 
 function buildConceptCompositionsRelationUrl(concept){
 	return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
-	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
+	+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"
 	+"&include=properties"
 	+"&callback=?";
 }
@@ -609,7 +609,7 @@ function buildBatchRelationUrl(concept){
 	// 400-800 for children, properties each, 500-900 for parents, 500-900 for mappings
 	// 500-1.2s for all four combined. Looks like savings to me.
 	return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
-	+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
+	+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"
 	+"&include=children,parents,mappings,properties"
 	+"&callback=?";
 }
@@ -617,9 +617,9 @@ function buildBatchRelationUrl(concept){
 function buildBatchRelationUrlAndPostData(concepts){
 	// Given a set of concepts, create a batch API call to retrieve their parents, children and mappings
 	// http://stagedata.bioontology.org/documentation#nav_batch
-	var url = "http://data.bioontology.org/batch/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	var url = "http://data.bioontology.org/batch/"+"?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 	// TEMP TEST
-	url = "http://stagedata.bioontology.org/batch?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
+	// url = "http://stagedata.bioontology.org/batch?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1";
 	var classCollection = [];
 	var postObject = {
 			"http://www.w3.org/2002/07/owl#Class": {

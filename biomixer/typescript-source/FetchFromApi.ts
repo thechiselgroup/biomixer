@@ -2,11 +2,16 @@
 
 ///<reference path="headers/d3.d.ts" />
 ///<reference path="headers/jquery.d.ts" />
+// ///<reference path="headers/jquery.jsonp.amd.d.ts" />
+
+///<amd-dependency path="JQueryExtension" />
 
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="Utils" />
 "use strict";
 
 import GraphView = require('./GraphView');
+import Utils = require('./Utils');
     
     // TODO Nested classes would be nice, but need more modules. Avoid or use?
     /**
@@ -19,6 +24,12 @@ import GraphView = require('./GraphView');
         // [node: string]: {[url: string]: restCallStatus };
         // Converting registry to be URL based rather than node based
             [url: string]: RestCallStatus ;
+    }
+
+        
+    export interface ResultData {
+        error?;
+        status?;
     }
     
     export enum RestCallStatus {EXCLUDED, ALLOWED, AWAITING, COMPLETED, ERROR, FORBIDDEN}
@@ -91,7 +102,7 @@ import GraphView = require('./GraphView');
                 // Note that if any nodes are "pre-loaded", this is a likely and acceptable to happen when they are triggered via other means.
                 // This will also happen in the concept graph when multiple relations are followed to the same node.
                 // Only use this for debugging purposes.
-                // console.log("Invalid rest call registry status change requested: "+oldStatus+" to "+newStatus+" for rest call and node: "+restCallUriFunction);
+                console.log("Invalid rest call registry status change requested: "+oldStatus+" to "+newStatus+" for rest call and node: "+restCallUriFunction);
                 // console.log(node);
             }
             
@@ -152,29 +163,44 @@ import GraphView = require('./GraphView');
          * @param restCallUriFunction
          */
          // public static checkNodeInRestCallWhiteList(node, restCallUriFunction){
-         public static checkUrlInRestCallWhiteList(restCallUriFunction){
+         public static checkUrlInRestCallWhiteList(restCallUriFunction, undefinedOk: boolean = false): boolean{
             // Used to register nodes against URLs, but I realized I can use the URL straight, no chaser.
 //            if(typeof Registry.nodeRestCallRegistry[node] !== "undefined"){
 //                return Registry.nodeRestCallRegistry[node][restCallUriFunction] === restCallStatus.ALLOWED;
 //            } else {
 //                return false;
 //            }
-              if(typeof Registry.nodeRestCallRegistry[restCallUriFunction] !== "undefined"){
-                return Registry.nodeRestCallRegistry[restCallUriFunction] === RestCallStatus.ALLOWED;
+            var entry: RestCallStatus = Registry.nodeRestCallRegistry[restCallUriFunction];
+            if(typeof entry !== "undefined"){
+                return entry === RestCallStatus.ALLOWED
+                    || entry === RestCallStatus.ERROR;
             } else {
-                return false;
+                return undefinedOk || false;
             }
+        }
+    
+        public static checkUrlFirstCallOrError(restCallUriFunction): boolean {
+            return Registry.checkUrlInRestCallWhiteList(restCallUriFunction, true);
         }
     
     }
 
     // Good example here for when we need additional args as we extend a class:
     // http://blog.pluralsight.com/extending-classes-and-interfaces-using-typescript
-    export interface CallbackObject {
+    export class CallbackObject {
         // node: any; // leave this pretty loose for now
         graph: GraphView.Graph; // Make more general when refactoring concept graph into this
-        fetcher: RetryingJsonFetcher; // Gets assigned when fetcher receives callback instance
         url: string;
+        
+        fetcher: RetryingJsonFetcher; // Gets assigned when fetcher receives callback instance
+        
+        constructor(
+            graph: GraphView.Graph,
+            url: string
+            ){
+                this.graph = graph;
+                this.url = Utils.prepUrlKey(url);
+            }
         
         // Callbacks are problematic because "this" is in dynamic scope in Javascript, not lexical.
         // When the callback is actually called, "this" scopes to somethign other than the class we
@@ -184,6 +210,7 @@ import GraphView = require('./GraphView');
         // see: http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript
         // I added his code in case we want to use it later...but for now fat arrow is the way to go.
         callback: { (dataReceived: any, textStatus: string, jqXHR: any); } // I think this is right...
+//        callback: { (dataReceived: any, textStatus: string, xOptions: JQueryJsonp.XOptions); } // Modified for jquery.jsonp lib usage.
 //        assignFetcher: { (fetcher: RetryingJsonFetcher); };
     }
 
@@ -202,23 +229,167 @@ import GraphView = require('./GraphView');
             this.callbackObject.fetcher = this;
         }
         
+    private callAgain(){
+        // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
+        // var browserSupportsCors = typeof XDomainRequest != "undefined";
+//        var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();
+//    
+//        if(!browserSupportsCors){
+        // if CORS isn't available, we cannot receive server status codes off an XHR object,
+        // because JSONP requests don't get that back from the browser. So sad.
+        
+        var outerThis = this;
+//        $.getJSON(this.callbackObject.url, null, this.callbackObject.callback);
+        $.ajax({
+            url: this.callbackObject.url,
+            data: null,
+            dataType: 'jsonp',
+            type: "GET",
+            success: function (data, textStatus, jqXHR){
+                    outerThis.callbackObject.callback(data, textStatus, jqXHR);
+                },
+            error: function (jqXHR, textStatus, errorThrown ){
+                    outerThis.callbackObject.callback({errors: true, status:errorThrown}, textStatus, jqXHR); 
+                },
+            }
+        );
+    
+//        // from the jquery.jsonp library, in case we want more options.
+//        // Would this offer additional responses with cross domain at all?
+//        $.jsonp(
+//        <JQueryJsonp.XOptions>{
+//            url: this.callbackObject.url,
+//            callbackParameter: "callback",
+//            data: null,
+//            success: function (data, textStatus, xOptions){
+//                //console.log("jsonp success");
+//                //console.log(arguments);
+//                //console.log(jqXHR.status+" and text status "+textStatus);
+//                outerThis.callbackObject.callback(data, textStatus, xOptions);
+//            },
+//            error: function(xOptions, textStatus){
+//                // Unless using CORS, there is no way to receive the status code form the browser.
+//                //console.log(textStatus); // either 'error' or 'timeout'
+//                //console.log(xOptions);
+//                var subData = {error: textStatus, status: xOptions};
+//                // Still pass back for processing
+//                outerThis.callbackObject.callback(subData, textStatus, xOptions);
+//            },
+//        });
+//        } else {
+//            var postObject = null;
+//            $.ajax({
+//                // Make sure we don't ask for JSONP for this; normal JSON instead.
+//                url: this.callbackObject.url.replace("format=jsonp", ""),
+//                type: "GET", // POST necessary??
+//                crossDomain: true,
+//                data: postObject,
+//                dataType: "json", // not jsonp, note
+//                success: function (response){ //(data, textStatus, xOptions){
+//                     var resp = JSON.parse(response)
+//                    alert(resp.status);
+//                    outerThis.callbackObject.callback(response, null, null);
+//                },
+//                error: function (xhr, textStatus) {
+//                     alert("CORS error: "+xhr);
+//                     outerThis.callbackObject.callback({errors: true, status: xhr.status}, textStatus, xhr); 
+//                },
+//                statusCode :{
+//                    0: function(){
+//                        console.log("Code 0");
+//                        },
+//                    200: function(){
+//                        console.log("Code 200");
+//                        },
+//                    404: function(){
+//                        console.log("Code 200");
+//                        },
+//                    429: function(xhr){
+//                        // Looking to use setTimer in this case, call again after a pause.
+//                        console.log("Code 429");
+//                        }    
+//                }
+//            });
+//        }
+
+        	// Tried the ajax styler instead, but I still could not catch
+        	// errors...poissibly due to making cross site requests.
+//$.ajax({
+//    url: this.callbackObject.url.replace("mappings","broke"),
+//    data: null,
+//    dataType: 'jsonp',
+//    timeout: 3000,
+//    complete: function(xhr, textStatus) {
+//        console.log("jsonp complete");
+//        console.log(xhr.status+" and text status "+textStatus);
+//    },
+//    error: function(xhr, textStatus, errorThrown) {
+//        console.log('jsonp error');
+//        console.log(arguments);
+//        console.log(xhr.status+" and text status "+textStatus);
+//    },
+//    success: (data, textStatus, jqXHR) => {
+//        console.log("jsonp success");
+//        console.log(arguments);
+//        console.log(jqXHR.status+" and text status "+textStatus);
+//        this.callbackObject.callback(data, textStatus, jqXHR);
+//    },
+////    error: (jqXHR, textStatus, errorThrown ) => {
+////        this.callbackObject.callback({errors: true, status:errorThrown}, textStatus, jqXHR); 
+////    },
+////    fail: (jqXHR, textStatus, errorThrown ) => {
+////        this.callbackObject.callback({errors: true, status:errorThrown}, textStatus, jqXHR); 
+////    },
+////    statusCode :{
+////        0: function(){
+////            },
+////        200: function(){
+////            },
+////    	  429: function(xhr){
+////      		// Looking to use setTimer in this case, call again after a pause.
+////            }    
+////    },
+//    complete: function(xhr, textStatus){
+//            alert("complete: "+textStatus);
+//        }
+//  });
+            
+			
+        }
+
+
         // TODO Using default value of undefined, but we may want the "resultData?: any" optional param syntax instead, or
         // a default to Null...not sure. Wait til it's working to change that.
-        public fetch(resultData: any = undefined) : number {
+        // TODO I think the error codes seen below only worked for the old API. The new one doesn't offer error codes
+        // embedded in a response. Worse yet, browsers do not pass received error codes to AJAX callers for cross-site JSONP.
+        // That means none of this can function anymore, because no such data is passed on at all.
+        public fetch(resultData: ResultData = undefined) : number {
+                if(!Registry.checkUrlFirstCallOrError(this.callbackObject.url)){
+                    // Just in case callers are abusing the system, abort calls for data that we already have.
+                    // TODO There are conceivable occassions where we would want to allow a request again,
+                    // but would serve it from a cache or otherwise cause the data to be found locally.
+                    // I can imagine such cases when MULTIPLE callbacks use the same data; one may have been
+                    // run while the other has not. If such a case occurs, let's index calls by both url and
+                    // callback, use caching, and when a second attempt at the same URL occurs, pass back
+                    // cached data. Otherwise, stop attempts to refetch data or to run a callback that has run
+                    // already.
+                    // If caching, it seems that manual caching in this registry would be ok, because browser caching
+                    // can be unreliable, and we don't want to cache between page loads.
+                    return null;
+                }
                 // console.log("retryFetch for "+callbackObject.url);
                 if(typeof resultData === "undefined"){
                     // If not error, call for first time
-                    $.getJSON(this.callbackObject.url, null, this.callbackObject.callback);
-//                    if(typeof this.callbackObject.node !== "undefined"){
-//                        // I would adore classes to handle this. Cases without nodes would not implement
-//                        // registry functionality.
-                        Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.AWAITING);
-//                    }
+                    this.callAgain();
+                    // I would adore classes to handle this. Cases without nodes would not implement
+                    // registry functionality.
+                    Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.AWAITING);
                     return 0;
                 }
                 
-                if(typeof resultData.errors !== "undefined") {
-                    if(resultData.status == "404"){
+            // TODO If JqueryJsonp is working out, get this all working off the raw XOptions object.
+                if(typeof resultData.error !== "undefined") { // timeout from JQueryJsonp
+                    if(resultData.status == "404" || resultData.error == "timeout"){
                         // 404 Error should fill in some popup data points, so let through...
                         console.log("Error: "+this.callbackObject.url+" --> Data: "+resultData.error);
                         if(typeof this.callbackObject !== "undefined"){
@@ -237,7 +408,7 @@ import GraphView = require('./GraphView');
                         if(this.previousTriesRemade < 4){
                             this.previousTriesRemade++;
                             console.log("Retrying: "+this.callbackObject.url);
-                            $.getJSON(this.callbackObject.url, null, this.callbackObject.callback);
+                            this.callAgain();
                             // update to status unnecessary; still awaiting.
                             return -1;
                         } else {

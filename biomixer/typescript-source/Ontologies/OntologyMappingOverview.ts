@@ -737,7 +737,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             // not modify them!
             var doLabelUpdateNextTime = false;
             if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
-                nodes.attr("transform", function(d) { return "translate(" + this.gravityAdjustX(d.x) + "," + this.gravityAdjustY(d.y) + ")"; });
+                nodes.attr("transform", (d) => { return "translate(" + this.gravityAdjustX(d.x) + "," + this.gravityAdjustY(d.y) + ")"; });
                 lastGravityAdjustmentTime = jQuery.now();
                 doLabelUpdateNextTime = true;
             } else {

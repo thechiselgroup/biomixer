@@ -146,7 +146,7 @@ function fetchPathToRoot(centralOntologyAcronym, centralConceptUri){
 	
 	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
 	1) Get the root to path for the central concept
-	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+	   http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 	   - create the nodes, and do any prep for subsequent REST calls
 	2) Get relational data (children, parents and mappings) for all concepts in the path to root
 	   TODO example URL here
@@ -184,7 +184,7 @@ function PathsToRootCallback(url, centralOntologyAcronym, centralConceptUri){
 		}
 		
 		// New API example:
-		// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+		// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 		
 		var numberOfConcepts = Object.keys(pathsToRootData).length;
 		
@@ -458,9 +458,9 @@ function OntologyDescriptionCallback(url, node){
 	}
 }
 
-// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+// http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
 function buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
-	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 }
 
 // If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
@@ -472,9 +472,9 @@ function buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
 function buildBatchRelationUrlAndPostData(concepts){
 	// Given a set of concepts, create a batch API call to retrieve their parents, children and mappings
 	// http://stagedata.bioontology.org/documentation#nav_batch
-	var url = "http://data.bioontology.org/batch/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	var url = "http://data.bioontology.org/batch/"+"?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 	// TEMP TEST
-	url = "http://stagedata.bioontology.org/batch?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
+	// url = "http://stagedata.bioontology.org/batch?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1";
 	var classCollection = [];
 	var postObject = {
 			"http://www.w3.org/2002/07/owl#Class": {
@@ -527,26 +527,26 @@ function buildBasicOntologyUrl(ontologyAcronym){
 }
 
 /*
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/mappings/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P1.onSuccess
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/parents/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P2.onSuccess
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/children/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&page=1&callback=__gwt_jsonp__.P3.onSuccess
-http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&include=properties&callback=__gwt_jsonp__.P4.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/mappings/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P1.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/parents/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P2.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/children/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&page=1&callback=__gwt_jsonp__.P3.onSuccess
+http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F138875005/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&include=properties&callback=__gwt_jsonp__.P4.onSuccess
 */	
 
 //function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-//	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+//	return "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 //}
 //
 //function buildOntologyDetailsUrlNewApi(){
-//	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+//	return "http://stagedata.bioontology.org/ontologies"+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 //}
 //
 //function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?"
 //}
 //
 //function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+//	return "http://stagedata.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?"
 //}
 
 //function RetryingJsonpFetcher(callbackObject){
@@ -624,7 +624,7 @@ function closureRetryingJsonpFetcher(callbackObject){
 ////	    post "/batch/", call_params
 //	    
 //	    $.ajax({
-//	        url: "http://stagedata.bioontology.org/batch?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a",
+//	        url: "http://stagedata.bioontology.org/batch?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1",
 //	        type: "POST",
 //	        crossDomain: true,
 //	        data: 

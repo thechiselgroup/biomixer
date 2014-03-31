@@ -17,7 +17,7 @@ export class ConceptLayouts {
         public forceLayout: D3.Layout.ForceLayout,
         public graph: ConceptGraph.ConceptGraph,
         public graphView: ConceptGraphView.ConceptPathsToRoot,
-        public centralConceptUri: string
+        public centralConceptUri: ConceptGraph.ConceptURI
     ){
         
     }

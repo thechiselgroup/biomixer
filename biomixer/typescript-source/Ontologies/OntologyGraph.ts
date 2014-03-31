@@ -130,14 +130,14 @@ export class OntologyGraph implements GraphView.Graph {
     	
     	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
     	1) Get the mapped ontology ids from the target ontology id [starts at line 126 in OntologyMappingNeighbourhood]
-    	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
+    	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
     	   - can create nodes and links with sparse meta-data now if we want, or we can wait for more data
     	2) Get ontology details, which is one big json return [passed to line 167 for class OntologyMappingNeighbourhoodLoader nested class OntologyDetailsCallback]
-    	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
+    	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
     	   - fill in nodes with details from this data
     	3) Get ontology metrics for each ontology [line 82 in AutomaticOntologyExpander]
     	   - set node size (# of concepts), and tool tip properties of classes, individuals, properties, and notes
-    	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
+    	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
     	*/
     	
     	// 1) Get mappings to central ontology
@@ -251,16 +251,17 @@ export class OntologyGraph implements GraphView.Graph {
 }
     
 // Doesn't need REST call registry, so if I refactor, keep that in mind.
-class OntologyMappingCallback implements Fetcher.CallbackObject {
+class OntologyMappingCallback extends Fetcher.CallbackObject {
 
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: OntologyGraph,
-        public url: string,
+        url: string,
         public centralOntologyAcronym: string
         ){
+            super(graph, url);
     }
 
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
@@ -304,7 +305,7 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
 		
 		var defaultNumOfTermsForSize = 10;
 		
-		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
+		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1
 
         var centralOntologyAcronym: string = this.graph.centralOntologyAcronym;
         
@@ -437,15 +438,16 @@ class OntologyMappingCallback implements Fetcher.CallbackObject {
 
    
 //Doesn't need REST call registry, so if I refactor, keep that in mind.
-class OntologyDetailsCallback implements Fetcher.CallbackObject {
+class OntologyDetailsCallback extends Fetcher.CallbackObject {
 
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: OntologyGraph,
-        public url: string,
+        url: string,
         public ontologyAcronymNodeMap: OntologyAcronymMap
         ){
+            super(graph, url);
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -519,21 +521,21 @@ class OntologyDetailsCallback implements Fetcher.CallbackObject {
     
     
     
-class OntologyMetricsCallback implements Fetcher.CallbackObject {
+class OntologyMetricsCallback extends Fetcher.CallbackObject {
 
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: OntologyGraph,
-        public url: string,
+        url: string,
         public node: Node 
         ){
+            super(graph, url);
     }
 
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (metricDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-		
 //		var errorOrRetry = 	self.fetcher.retryFetch(metricDataRaw);
 		var errorOrRetry = 	this.fetcher.fetch(metricDataRaw);
 		if(0 == errorOrRetry){
@@ -573,15 +575,16 @@ class OntologyMetricsCallback implements Fetcher.CallbackObject {
 }
     
     
-class OntologyDescriptionCallback implements Fetcher.CallbackObject {
+class OntologyDescriptionCallback extends Fetcher.CallbackObject {
 
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: OntologyGraph,
-        public url: string,
+        url: string,
         public node: Node 
         ){
+            super(graph, url);
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -613,20 +616,19 @@ class OntologyDescriptionCallback implements Fetcher.CallbackObject {
 	}
 }
     
-    
 function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://data.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://"+Utils.bioportalUrl+"/mappings/statistics/ontologies/"+centralOntologyAcronym;
 }
 
 function buildOntologyDetailsUrlNewApi(){
-	return "http://data.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://"+Utils.bioportalUrl+"/ontologies";
 }
 
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/metrics";
 }
 
 function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/latest_submission";
 }
 

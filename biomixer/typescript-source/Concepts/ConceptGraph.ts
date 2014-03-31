@@ -10,14 +10,22 @@ import Fetcher = require('../FetchFromApi');
 import GraphView = require('../GraphView');
 import ExpansionManager = require('./ExpansionManager');
 
+declare var purl;
+
 export class PathOptions {
     static termNeighborhoodConstant = "term neighborhood";
     static pathsToRootConstant = "path to root";
     static mappingsNeighborhoodConstant = "mappings neighborhood";
 }
 
+export interface ConceptURI extends String {
+    // Only assign raw concept URI to this string
+    conceptId; // strengthen duck typing
+}
+
 export interface RawAcronym extends String {
     // Only assign the original unadulterated acronym strings to this
+    rawAcronym; // strengthen duck typing
 }
 
 export interface AcronymForIds extends String {
@@ -29,6 +37,7 @@ export interface AcronymForIds extends String {
 //        // Let's use double underscores instead.
 //        return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '__');
 //    }
+    acronymForId; // strengthen duck typing
 }
 
 export interface ConceptIdMap {
@@ -37,7 +46,7 @@ export interface ConceptIdMap {
 }
 
 export class Node extends GraphView.BaseNode {
-    conceptId: string; // used to be 'id' but that conflicts with D3. Get this id from conceptData["@id"]
+    conceptId: ConceptURI; // used to be 'id' but that conflicts with D3. Get this id from conceptData["@id"]
     escapedId: string; // encodeURIComponent(conceptNode.id);
     name: string; // conceptData.prefLabel
     type: string; // conceptData.type
@@ -91,7 +100,7 @@ export class ConceptGraph implements GraphView.Graph {
     conceptIdNodeMap: ConceptIdMap = {};
     
     addNodeToIdMap(conceptNode: Node){
-        this.conceptIdNodeMap[conceptNode.id]= conceptNode;
+        this.conceptIdNodeMap[String(conceptNode.conceptId)]= conceptNode;
     }
     
     convertEdgeTypeLabelToEdgeClass(){
@@ -111,7 +120,7 @@ export class ConceptGraph implements GraphView.Graph {
     
     constructor(
         public graphView: GraphView.GraphView<Node, Link>,
-        public centralConceptUri: string,
+        public centralConceptUri: ConceptURI,
         public softNodeCap: number
         ){
         
@@ -128,8 +137,8 @@ export class ConceptGraph implements GraphView.Graph {
             // Create the concept nodes that exist on the paths-to-root for the central concept,
             // including the central concept node.
             var conceptNode = new Node();
-            conceptNode.id = conceptData["@id"];
-            conceptNode.escapedId = encodeURIComponent(conceptNode.conceptId);
+            conceptNode.conceptId = <ConceptURI>conceptData["@id"];
+            conceptNode.escapedId = encodeURIComponent(conceptData["@id"]);
             conceptNode.name = conceptData.prefLabel;
             conceptNode.type = conceptData.type;
             conceptNode.description = "fetching description";
@@ -203,7 +212,7 @@ export class ConceptGraph implements GraphView.Graph {
         // Because we expand for term neighbourhood relation calls, and those come in two flavors
         // (node with properties for children and parents, and just node IDs for compositions)
         // we want to support parsing the data directly as well as fetching additional data.
-        if(relatedConceptId in this.expMan.conceptsToExpand && expansionType in this.expMan.conceptsToExpand[relatedConceptId]
+        if(this.expMan.whiteListConcept(relatedConceptId, expansionType)
             && !(newConceptId in this.conceptIdNodeMap)){
             // Manifest the node; parse the properties if available.
             // We know that we will get the composition relations via a properties call,
@@ -334,8 +343,8 @@ export class ConceptGraph implements GraphView.Graph {
         // and there *are* nodes for the other ends of the edge, we can manifest all of
         /// them when we are doing so due to a new node appearing.
         if(conceptId in this.edgeRegistry){
-            $.each(this.edgeRegistry[conceptId], function(index, conceptsEdges){
-                $.each(conceptsEdges, function(index, edge){
+            $.each(this.edgeRegistry[conceptId], (index, conceptsEdges)=>{
+                $.each(conceptsEdges, (index, edge)=>{
                     var otherId = (edge.sourceId == conceptId) ? edge.targetId : edge.sourceId ;
         
                     edge.source = this.conceptIdNodeMap[edge.sourceId];
@@ -373,7 +382,7 @@ export class ConceptGraph implements GraphView.Graph {
         return true;
     }
 
-    public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: string){
+    public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // I have confirmed that this is faster than BioMixer. Without removing
         // network latency in REST calls, it is approximately half as long from page load to
         // graph completion (on the order of 11 sec vs 22 sec)
@@ -382,13 +391,13 @@ export class ConceptGraph implements GraphView.Graph {
         
         /* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
         1) Get the root to path for the central concept
-           http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+           http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
            - create the nodes, and do any prep for subsequent REST calls
         2) Get relational data (children, parents and mappings) for all concepts in the path to root
-           http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/parents/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+           http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/parents/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
            - fill in nodes with details from this data TODO Look at Biomixer to see what we need 
         3) Get properties for all concepts in path to root
-           http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/properties/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
+           http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/properties/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
            - set node properties
         */
         
@@ -401,7 +410,7 @@ export class ConceptGraph implements GraphView.Graph {
     
     
     
-    public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: string){
+    public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion
         // Parsers that follow will expand neighbourhing concepts.
         this.expMan.addConceptIdToExpansionRegistry(centralConceptUri, PathOptions.termNeighborhoodConstant);
@@ -411,9 +420,9 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch();
     }
     
-    public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: string){
+    public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
-        // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P109.onSuccess
+        // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P109.onSuccess
         
         // Get central concept immediately, and let the relation parser that will be called expand
         // related nodes conditioned on whether their related node is this to-be-expanded one.
@@ -442,22 +451,22 @@ export class ConceptGraph implements GraphView.Graph {
     
     fetchChildren(conceptNode, baseUrl, pageRequested){
         // Children requests have paging, which needs cycling internally.
-        var relationsUrl = this.appendJsonpAndApiKeyArgumentsToExistingUrl(baseUrl);
-        relationsUrl += "&page="+pageRequested;
+        var relationsUrl = baseUrl;
+        relationsUrl = purl(relationsUrl).attr("page", pageRequested);
         var conceptRelationsCallback = new ConceptChildrenRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap);
         var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
         fetcher.fetch();
     }
     
     fetchParents(conceptNode, baseUrl){
-        var relationsUrl = this.appendJsonpAndApiKeyArgumentsToExistingUrl(baseUrl);
+        var relationsUrl = baseUrl;
         var conceptRelationsCallback = new ConceptParentsRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap);
         var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
         fetcher.fetch();
     }
     
     fetchMappings(conceptNode, baseUrl){
-        var relationsUrl = this.appendJsonpAndApiKeyArgumentsToExistingUrl(baseUrl);
+        var relationsUrl = baseUrl;
         var conceptRelationsCallback = new ConceptMappingsRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap);
         var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
         fetcher.fetch();
@@ -470,41 +479,37 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch();
     }
     
-    appendJsonpAndApiKeyArgumentsToExistingUrl(url){
-        return url+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
-    }
-    
-    // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&callback=__gwt_jsonp__.P0.onSuccess
-    buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri){
-        return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/paths_to_root/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+    // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
+    buildPathToRootUrlNewApi(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
+        // String() converts object String back to primitive string. Go figure.
+        return "http://"+Utils.bioportalUrl+"/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(String(centralConceptUri))+"/paths_to_root/";
     }
     
     // This is unused. See description. Leaving as documentation.
-    buildTermNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
+    buildTermNeighborhoodUrlNewApi(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // Term neighborhood requires the core concept call, then properties, mappings, children and parents (in no particular order).
         // Since those all need to be called for *any* node being loaded, this visualization mode relies upon cascading expansion as
         // relations are parsed. Thus, the URL for this call is really just a concept node URL. The subsquent functions
         // will check the visualization mode to decide whether they are expanding the fetched relations or not.
-        return this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);        
+        // String() converts object String back to primitive string. Go figure.
+        return this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
     }
     
     // This might be unused, because we may navigate to the mappings URL along the link data provided from the new API.
-    buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym, centralConceptUri){
+    buildMappingsNeighborhoodUrlNewApi(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // From the mappings results, we add all of the discovered nodes.
-        return "http://data.bioontology.org/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(centralConceptUri)+"/mappings/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+        // String() converts object String back to primitive string. Go figure.
+        return "http://"+Utils.bioportalUrl+"/ontologies/"+centralOntologyAcronym+"/classes/"+encodeURIComponent(String(centralConceptUri))+"/mappings/";
     }
     
-    buildConceptUrlNewApi(ontologyAcronym, conceptUri){
-        return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/classes/"+encodeURIComponent(conceptUri)
-        +"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
-        +"&callback=?";
+    buildConceptUrlNewApi(ontologyAcronym: RawAcronym, conceptUri: ConceptURI){
+        // String() converts object String back to primitive string. Go figure.
+        return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/classes/"+encodeURIComponent(String(conceptUri));
     }
     
-    buildConceptCompositionsRelationUrl(concept){
-        return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
-        +"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
-        +"&include=properties"
-        +"&callback=?";
+    buildConceptCompositionsRelationUrl(concept: Node){
+        return "http://"+Utils.bioportalUrl+"/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
+        +"?include=properties";
     }
     
     //If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
@@ -512,22 +517,20 @@ export class ConceptGraph implements GraphView.Graph {
     //size and response times might be too long. We can use bulk asking for just one of the three relational data
     //properties.
     //Nodes also need a properties call each, which might be done in bulk.
-    buildBatchRelationUrl(concept){
+    buildBatchRelationUrl(concept: Node){
         // Unused currently due to specification issues
         // 400-800 for children, properties each, 500-900 for parents, 500-900 for mappings
         // 500-1.2s for all four combined. Looks like savings to me.
-        return "http://data.bioontology.org/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
-        +"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"
-        +"&include=children,parents,mappings,properties"
-        +"&callback=?";
+        return "http://"+Utils.bioportalUrl+"/ontologies/"+concept.ontologyAcronym+"/classes/"+concept.escapedId
+        +"?include=children,parents,mappings,properties";
     }
     
-    buildBatchRelationUrlAndPostData(concepts){
+    buildBatchRelationUrlAndPostData(concepts: Array<Node>){
         // Given a set of concepts, create a batch API call to retrieve their parents, children and mappings
         // http://stagedata.bioontology.org/documentation#nav_batch
-        var url = "http://data.bioontology.org/batch/"+"?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+        var url = "http://"+Utils.bioportalUrl+"/batch/";
         // TEMP TEST
-        url = "http://stagedata.bioontology.org/batch?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
+        // url = "http://stagedata.bioontology.org/batch?";
         var classCollection = [];
         var postObject: any = {
                 "http://www.w3.org/2002/07/owl#Class": {
@@ -603,18 +606,18 @@ export class ConceptGraph implements GraphView.Graph {
     
 }
 
-class PathsToRootCallback implements Fetcher.CallbackObject {
+class PathsToRootCallback extends Fetcher.CallbackObject {
     
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
-        public graph: ConceptGraph,
-        public url: string,
+        public graph: ConceptGraph, // shadowing
+        url: string,
         public centralOntologyAcronym: RawAcronym,
-        public centralConceptUri: string
+        public centralConceptUri: ConceptURI
         ){
-    
+            super(graph, url);
         }
         
     public callback = (pathsToRootData: any, textStatus: string, jqXHR: any) => {
@@ -631,7 +634,7 @@ class PathsToRootCallback implements Fetcher.CallbackObject {
         var numberOfConcepts = Object.keys(pathsToRootData).length;
         
         $.each(pathsToRootData[0],
-            function(index, nodeData){
+            (index, nodeData) => {
                 var conceptNode = this.graph.parseNode(undefined, nodeData);
                 this.graph.fetchConceptRelations(conceptNode, nodeData);
             }
@@ -643,17 +646,17 @@ class PathsToRootCallback implements Fetcher.CallbackObject {
     }
 }
 
-class FetchOneConceptCallback implements Fetcher.CallbackObject {
+class FetchOneConceptCallback extends Fetcher.CallbackObject {
     
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: ConceptGraph,
-        public url: string,
-        public conceptUri: string
+        url: string,
+        public conceptUri: ConceptURI
         ){
-    
+            super(graph, url);
         }
         
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
@@ -676,18 +679,18 @@ class FetchOneConceptCallback implements Fetcher.CallbackObject {
 // for cross domain requests.
 // Can process mapping, parent, properties, and children, even if not all are passed in.
 // This is useful given that parents don't show up if children are requested.
-class ConceptCompositionRelationsCallback implements Fetcher.CallbackObject {
+class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
     
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: ConceptGraph,
-        public url: string,
+        url: string,
         public conceptNode: Node,
         public conceptNodeIdMap: ConceptIdMap
         ){
-    
+            super(graph, url);
         }
 
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -725,15 +728,15 @@ class ConceptCompositionRelationsCallback implements Fetcher.CallbackObject {
                         
                         // PROBLEM Seems like I want to manifest nodes before doing arcs, but in this case, I want to know
                         // if the relation exists so I can fetch the node data...
-                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.id, childPartId, this.graph.relationLabelConstants.composition);
-                        this.graph.expandAndParseNodeIfNeeded(childPartId, this.conceptNode.id, {}, PathOptions.termNeighborhoodConstant);
+                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.conceptId, childPartId, this.graph.relationLabelConstants.composition);
+                        this.graph.expandAndParseNodeIfNeeded(childPartId, this.conceptNode.conceptId, {}, PathOptions.termNeighborhoodConstant);
                     });
                 }
                 
                 if(Utils.endsWith(index, "is_part")){
                     $.each(propertyObject, (index, parentPartId)=>{
-                        this.graph.manifestOrRegisterImplicitRelation(parentPartId, this.conceptNode.id, this.graph.relationLabelConstants.composition);
-                        this.graph.expandAndParseNodeIfNeeded(parentPartId, this.conceptNode.id, {}, PathOptions.termNeighborhoodConstant);
+                        this.graph.manifestOrRegisterImplicitRelation(parentPartId, this.conceptNode.conceptId, this.graph.relationLabelConstants.composition);
+                        this.graph.expandAndParseNodeIfNeeded(parentPartId, this.conceptNode.conceptId, {}, PathOptions.termNeighborhoodConstant);
                     });
                 }
                 
@@ -742,18 +745,18 @@ class ConceptCompositionRelationsCallback implements Fetcher.CallbackObject {
     }
 }
         
-class ConceptChildrenRelationsCallback implements Fetcher.CallbackObject {
+class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
     
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: ConceptGraph,
-        public url: string,
+        url: string,
         public conceptNode: Node,
         public conceptIdNodeMap: ConceptIdMap
         ){
-    
+            super(graph, url);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -776,8 +779,8 @@ class ConceptChildrenRelationsCallback implements Fetcher.CallbackObject {
                 // place and fire off an additional REST call.
                 var childId = child["@id"];
                 
-                this.graph.expandAndParseNodeIfNeeded(childId, this.conceptNode.id, child, PathOptions.termNeighborhoodConstant);
-                this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.id, childId, this.graph.relationLabelConstants.inheritance);
+                this.graph.expandAndParseNodeIfNeeded(childId, this.conceptNode.conceptId, child, PathOptions.termNeighborhoodConstant);
+                this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.conceptId, childId, this.graph.relationLabelConstants.inheritance);
             }
         );
         
@@ -791,18 +794,18 @@ class ConceptChildrenRelationsCallback implements Fetcher.CallbackObject {
 }
 
 
-class ConceptParentsRelationsCallback implements Fetcher.CallbackObject {
+class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
     
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: ConceptGraph,
-        public url: string,
+        url: string,
         public conceptNode: Node,
         public conceptIdNodeMap: ConceptIdMap
         ){
-    
+            super(graph, url);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -817,28 +820,28 @@ class ConceptParentsRelationsCallback implements Fetcher.CallbackObject {
         }
         
         $.each(relationsDataRaw,
-                function(index, parent){
+                (index, parent) => {
                     var parentId = parent["@id"];
                     
                     // Save the data in case we expand to include this node
-                    this.graph.expandAndParseNodeIfNeeded(parentId, this.conceptNode.id, parent, this.graphView.termNeighborhoodConstant);
-                    this.graph.manifestOrRegisterImplicitRelation(parentId, this.conceptNode.id, this.relationLabelConstants.inheritance);
+                    this.graph.expandAndParseNodeIfNeeded(parentId, this.conceptNode.conceptId, parent, PathOptions.termNeighborhoodConstant);
+                    this.graph.manifestOrRegisterImplicitRelation(parentId, this.conceptNode.conceptId, this.graph.relationLabelConstants.inheritance);
         });
     }
 }
         
-class ConceptMappingsRelationsCallback implements Fetcher.CallbackObject {
+class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
     
     // Define this fetcher when one is instantiated (circular dependency)
     fetcher: Fetcher.RetryingJsonFetcher;
     
     constructor(
         public graph: ConceptGraph,
-        public url: string,
+        url: string,
         public conceptNode: Node,
         public conceptNodeIdMap: ConceptIdMap
         ){
-    
+            super(graph, url);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -853,22 +856,22 @@ class ConceptMappingsRelationsCallback implements Fetcher.CallbackObject {
         }
 
         $.each(relationsDataRaw,
-                function(index, mapping){
+                (index, mapping)=>{
             // ConceptMappingImplementation, we get partial properties on the basis of the mappings REST call
             if(mapping.classes.length < 2){
                 // Some bad data gets into the database apparently. No big deal but I prefer not seeing the errors.
                 return;
             }
             // The conceptNode.id better be the same as the @id we would have gotten!! Our logic relies on that!
-            if(mapping.classes[0]["@id"] !== this.conceptNode.id && mapping.classes[1]["@id"] !== this.conceptNode.id){
-                console.log("Mismatch between ids, original is "+this.conceptNode.id+" and does not appear in mappings ("+mapping.classes[0]["@id"]+" and "+mapping.classes[1]["@id"]+")");
+            if(mapping.classes[0]["@id"] !== this.conceptNode.conceptId && mapping.classes[1]["@id"] !== this.conceptNode.conceptId){
+                console.log("Mismatch between ids, original is "+this.conceptNode.conceptId+" and does not appear in mappings ("+mapping.classes[0]["@id"]+" and "+mapping.classes[1]["@id"]+")");
             }
             var firstConceptId = mapping.classes[0]["@id"];
             var secondConceptId = mapping.classes[1]["@id"];
             var newConceptData = (this.conceptNode === firstConceptId) ? mapping.classes[1] : mapping.classes[0];
             var newConceptId = newConceptData["@id"];
-            this.graph.manifestOrRegisterImplicitRelation(newConceptId, this.conceptNode.id, this.graph.relationLabelConstants.mapping);
-            this.graph.expandAndParseNodeIfNeeded(newConceptId, this.conceptNode.id, newConceptData, this.graph.mappingsNeighborhoodConstant);
+            this.graph.manifestOrRegisterImplicitRelation(newConceptId, this.conceptNode.conceptId, this.graph.relationLabelConstants.mapping);
+            this.graph.expandAndParseNodeIfNeeded(newConceptId, this.conceptNode.conceptId, newConceptData, PathOptions.mappingsNeighborhoodConstant);
         });
     }
 }

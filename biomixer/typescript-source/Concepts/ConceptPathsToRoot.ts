@@ -56,7 +56,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     visualization: string;
     
     constructor(
-        public centralConceptUri: string,
+        public centalOntologyAcronym: ConceptGraph.RawAcronym,
+        public centralConceptUri: ConceptGraph.ConceptURI,
         public softNodeCap: number
         ){
         super();
@@ -72,8 +73,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
                 }
             }
         );
-        
-        this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
@@ -171,17 +170,24 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         
         // These here or elsewhere like in runGraph??
         this.conceptGraph = new ConceptGraph.ConceptGraph(this, this.centralConceptUri, this.softNodeCap);
+        
+        this.initGraph();
+        
 //        this.renderScaler = new ConceptRenderScaler.ConceptRenderScaler(this.vis);
 //        this.filterSliders = new ConceptFilterSliders.ConceptRangeSliders(this.conceptGraph, this, this.centralConceptUri);
-        this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
-        }
         
-    runGraph(){
-        this.initGraph();
+        this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
+        
+        this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
         this.prepGraphMenu();
         
         this.initPopulateGraph();
+    }
+        
+    runGraph(){
+        
+        
         
         // Will do async stuff and add to graph
 //        this.conceptGraph.fetchOntologyNeighbourhood(this.centralOntologyAcronym);
@@ -193,11 +199,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
     initPopulateGraph(){
         if(this.visualization === ConceptGraph.PathOptions.pathsToRootConstant){
-            this.conceptGraph.fetchPathToRoot(this.centralConceptUri, this.centralConceptUri);
+            this.conceptGraph.fetchPathToRoot(this.centalOntologyAcronym, this.centralConceptUri);
         } else if(this.visualization === ConceptGraph.PathOptions.termNeighborhoodConstant){
-            this.conceptGraph.fetchTermNeighborhood(this.centralConceptUri, this.centralConceptUri);
+            this.conceptGraph.fetchTermNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
         } else if(this.visualization === ConceptGraph.PathOptions.mappingsNeighborhoodConstant){
-            this.conceptGraph.fetchMappingsNeighborhood(this.centralConceptUri, this.centralConceptUri);
+            this.conceptGraph.fetchMappingsNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
         }
     }
     

@@ -124,14 +124,14 @@ function fetchOntologyNeighbourhood(centralOntologyVirtualId){
 	
 	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
 	1) Get the mapped ontology ids from the target ontology id [starts at line 126 in OntologyMappingNeighbourhood]
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
+	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
 	   - can create nodes and links with sparse meta-data now if we want, or we can wait for more data
 	2) Get ontology details, which is one big json return [passed to line 167 for class OntologyMappingNeighbourhoodLoader nested class OntologyDetailsCallback]
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
+	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
 	   - fill in nodes with details from this data
 	3) Get ontology metrics for each ontology [line 82 in AutomaticOntologyExpander]
 	   - set node size (# of concepts), and tool tip properties of classes, individuals, properties, and notes
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
+	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
 	*/
 	
 	// 1) Get mappings to central ontology
@@ -353,15 +353,15 @@ function OntologyMetricsCallback(url, node){
 
 
 function buildOntologyMappingUrl(centralOntologyVirtualId){
-	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
+	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
 }
 
 function buildOntologyDetailsUrl(){
-	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F"+"&callback=?";
+	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2F"+"&callback=?";
 }
 
 function buildOntologyMetricsUrl(ontologyVersionId){
-	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
+	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
 }
 
 //function RetryingJsonpFetcher(callbackObject){
