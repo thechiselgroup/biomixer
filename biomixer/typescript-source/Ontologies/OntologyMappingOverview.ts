@@ -4,8 +4,10 @@
 ///<reference path="headers/jquery.d.ts" />
 
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="Menu" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="TipsyToolTips" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
@@ -13,7 +15,9 @@
 ///<amd-dependency path="JQueryExtension" />
 
 import Utils = require('../Utils');
+import Menu = require('../Menu');
 import GraphView = require('../GraphView');
+import TipsyToolTips = require('../TipsyToolTips');
 import OntologyGraph = require('./OntologyGraph');
 import OntologyRenderScaler = require('./OntologyRenderScaler');
 import OntologyFilterSliders = require('./OntologyFilterSliders');
@@ -30,6 +34,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     renderScaler: OntologyRenderScaler.OntologyRenderScaler;
     filterSliders: OntologyFilterSliders.MappingRangeSliders;
     
+    menu: Menu.Menu;
     
     vis: D3.Selection;
     
@@ -47,6 +52,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         ){
         super();
         
+        this.menu = new Menu.Menu();
+        
         this.runCurrentLayout = this.executeCenterLayout;
         
         // Had to set div#chart.gallery height = 100% in CSS,
@@ -56,7 +63,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             .attr("width", this.visWidth())
             .attr("height", this.visHeight())
             .attr("pointer-events", "all")
-            .on("click", this.closeMenu())
+            .on("click", this.menu.closeMenuLambda())
         //  .append('svg:g')
             .call(d3.behavior.zoom().on("zoom", this.redraw))
         //  .append('svg:g')
@@ -70,26 +77,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
        
         
-        $(window).resize(this.resizedWindow);
+        $(window).resize(this.resizedWindowLambda);
         
-        this.resizedWindow();
-    }
-    
-    resizedWindow(){   
-        d3.select("#graphRect")
-        .attr("width", this.visWidth())
-        .attr("height", this.visHeight());
-        
-        d3.select("#graphSvg")
-        .attr("width", this.visWidth())
-        .attr("height", this.visHeight());
-        
-        if(this.forceLayout){
-            this.forceLayout.size([this.visWidth(), this.visHeight()]).linkDistance(this.linkMaxDesiredLength());
-            // Put central node in middle of view
-            d3.select("#node_g_"+this.centralOntologyAcronym).each(function(d){d.px = this.visWidth()/2; d.py = this.visHeight()/2;});
-            this.forceLayout.resume();
-        }  
+        this.resizedWindowLambda();
     }
     
     
@@ -292,7 +282,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
          });
          
          // Can't do math in that little loop I made
-         var roundedPercent = this.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 0);
+         var roundedPercent = this.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
          tBody.append(
              $("<tr></tr>").append(
                  $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -317,8 +307,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     * graph. Do not call it to update properties of graph elements.
     * TODO Make this function cleaner and fully compliant with the above description!
     */
-    populateGraph(json, newElementsExpected){
-    // populateGraph(json: OntologyGraph.GraphDataForD3, newElementsExpected: boolean){
+    populateGraph(json: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
         console.log("Fix this up");
         
     //  console.log("Populating with:");
@@ -326,7 +315,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
         var outerThis = this;
         
-        if(json === "undefined" || json.length == 0 || json.nodes.length == 0 && json.links.length == 0){
+        if(typeof json === "undefined" || json.nodes.length == 0 && json.links.length == 0){
             // console.log("skip");
             // return;
             newElementsExpected = false;
@@ -428,102 +417,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(".circle").each(function(d){
-            var me = this,
-            meData = d,
-            leaveDelayTimer = null,
-            visible = false,
-            tipsyId = undefined;
-            
-            // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
-            var leaveMissedTimer = undefined;
-            function missedEventTimer() {
-                leaveMissedTimer = setTimeout(missedEventTimer, 1000);
-                // The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
-                if($("#"+me.id+":hover").length != 0 && $(tipsyId+":hover").length != 0){
-                    console.log("Not in thing");
-                    leave();
-                }
-            }
-            missedEventTimer();
-            
-            function leave() {
-                // We add a 100 ms timeout to give the user a little time
-                // moving the cursor to/from the tipsy object
-                leaveDelayTimer = setTimeout(function () {
-                    $(me).tipsy('hide');
-                    visible = false;
-                }, 100);
-            }
-    
-            function enter() {
-                if(outerThis.dragging){
-                    return;
-                }
-                $(me).tipsy({
-                    html: true,
-                    fade: true,
-    //               offset: parseInt($(me).attr("r")), // works better without this!
-                    offset: 15, // need this for the gravity sout-east cases. It makes it quite far for the other cases though...
-                    fallback: "Fetching data...",
-                    title: function() {
-                      // var d = this.__data__, c = d.i; //colors(d.i);
-                      // return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>';
-                      return outerThis.createNodePopupTable(me, meData);
-                    },
-                    trigger: 'manual',
-                    gravity: function() {
-                        var location = "";
-                        
-                        if($(me).offset().top > ($(document).scrollTop() + $(window).height() / 2)){
-                            location += "s";
-                        } else {
-                            location += "n";
-                        }
-                        
-                        if($(me).offset().left > ($(document).scrollLeft() + $(window).width() / 2)){
-                            location += "e";
-                        } else {
-                            location += "w";
-                        }
-                        // console.log("Location "+location);
-                        return location;
-                    },
-                });
-                
-                if (visible) {
-                    clearTimeout(leaveDelayTimer);
-                } else {
-                    $(me).tipsy('show');
-                    // The .tipsy object is destroyed every time it is hidden,
-                    // so we need to add our listener every time its shown
-                    var tipsy = $(me).tipsy("tip");
-                    outerThis.lastDisplayedTipsy = tipsy;
-                    outerThis.lastDisplayedTipsyData = meData;
-                    outerThis.lastDisplayedTipsySvg = me;
-                    tipsyId = $(me).attr("id"+"_tipsy");
-                    tipsy.attr("id", tipsyId);
-                    
-                    // For the tipsy specific listeners, change opacity.
-                    tipsy.mouseenter(function(){tipsy.css("opacity",1.0); enter(); }).mouseleave(function(){tipsy.css("opacity",0.8); leave();});
-                    tipsy.mouseover(function(){
-                        tipsy.css("opacity",1.0);
-                        clearTimeout(leaveMissedTimer);
-                    });
-                    visible = true;
-                }
-            }
-            
-            $(this).hover(enter, leave);
-            $(this).mouseover(function(){
-                clearTimeout(leaveMissedTimer);
-            });
-            
-            
-            // TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
-            // That happens commonly. We'll want to hide stale open tipsy panels when this happens.
-    //       d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
-        });
+        d3.selectAll(".circle").each(TipsyToolTips.nodeTooltipLambda(this));
         
         // Label
         if(newElementsExpected === true) // How would I *update* this if I needed to?
@@ -823,7 +717,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             // Refresh popup if currently open
             if(outerThis.lastDisplayedTipsy != null
                     && outerThis.lastDisplayedTipsy.css("visibility") == "visible"
-                    && outerThis.lastDisplayedTipsyData.acronymForIds == d.acronymForIds
+//                    && outerThis.lastDisplayedTipsyData.nodeIdentifier == d.acronymForIds
                     ){
                 $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsySvg, outerThis.lastDisplayedTipsyData));
             }
@@ -1064,25 +958,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     
     prepGraphMenu(){
         // Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
-    
-        // Append the pop-out panel. It will stay hidden except when moused over.
-        var trigger = $("<div>").attr("id", "trigger");
-        $("#chart").append(trigger);
-        trigger.append($("<p>").text("<< Menu"));
-        trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
-    
-        $('#trigger').hover(
-                (e) => {
-                    $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
-                     // Looks bad when it's not fully visible, due to children inheriting transparency
-                    $(this.menuSelector).fadeTo(0, 1.0);
-                },
-                function() {
-                //  $(menuSelector).hide();
-                }
-        );
-        
-        this.filterSliders.addMenuComponents(this.menuSelector, this.softNodeCap);
+        this.menu.initializeMenu();
+        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
 
 }

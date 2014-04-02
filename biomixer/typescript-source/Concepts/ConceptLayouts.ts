@@ -115,7 +115,7 @@ export class ConceptLayouts {
                         console.log("Undefined concept entry");
                     }
                     
-                    if(node.conceptId!=outerThis.centralConceptUri){
+                    if(node.rawConceptUri!=outerThis.centralConceptUri){
                         var angleForNode = i * anglePerNode; 
                         i++;
                         node.x = outerThis.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward

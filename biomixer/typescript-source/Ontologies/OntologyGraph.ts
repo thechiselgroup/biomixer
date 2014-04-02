@@ -80,15 +80,6 @@ export interface OntologyAcronymMap {
 export class OntologyD3Data extends GraphView.GraphDataForD3<Node, Link> {
     
 }
-    
-
-
-function escapeAcronym(acronym){
-    //  return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
-    // JQuery selectors do not work with things that need escaping.
-    // Let's use double underscores instead.
-    return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '__');
-}
 
 
 
@@ -318,7 +309,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		centralOntologyNode.y = this.graph.graphView.visHeight()/2;		
 		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-		centralOntologyNode.acronymForIds = escapeAcronym(this.centralOntologyAcronym);
+		centralOntologyNode.acronymForIds = Utils.escapeIdentifierForId(this.centralOntologyAcronym);
 		centralOntologyNode.rawAcronym = this.centralOntologyAcronym;
 		centralOntologyNode.nodeColor = this.graph.nextNodeColor();
 		centralOntologyNode.innerNodeColor = this.graph.brightenColor(centralOntologyNode.nodeColor);
@@ -369,7 +360,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyNode.x = this.graph.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 				ontologyNode.y = this.graph.graphView.visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
-				ontologyNode.acronymForIds = escapeAcronym(acronym);
+				ontologyNode.acronymForIds = Utils.escapeIdentifierForId(acronym);
 				ontologyNode.rawAcronym = acronym;
 				ontologyNode.nodeColor = this.graph.nextNodeColor();
 				ontologyNode.innerNodeColor = this.graph.brightenColor(ontologyNode.nodeColor);

@@ -14,7 +14,7 @@ export function endsWith(string, suffix) {
 
 
 declare var purl;
-export function prepUrlKey(url){
+export function prepUrlKey(url: string){
     var ampersand = "&";
     if(url.indexOf("?") == -1){
         url = url+"?";
@@ -24,6 +24,28 @@ export function prepUrlKey(url){
     // OLD API KEY starts 6700... keep if we like 429 errors. Good for testing.
     //  return url += ampersand+"format=jsonp"+"&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"; // OLD API KEY
     return url += ampersand+"format=jsonp"+"&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
+}
+
+export function addOrUpdateUrlParameter(url: string, paramName: string, value: string): string{
+    if(Object.keys(purl(url).param()).length === 0){
+        // Checkign for the parameter delimiter '?'.
+        // Conceivable that our URL doesn't have one yet.
+        url += "?";
+    }
+    if(typeof purl(url).param("page") === "undefined"){
+        // It should always coem in without page param present, but defensive coding is nice.
+        url += "&"+paramName+"="+value;
+    } else {
+        url = url.replace("&"+paramName+"=[^=&]+(&)*", "&"+paramName+"="+value+"&"); // Ok to tack on ampersand
+    }
+    return url;
+}
+
+export function escapeIdentifierForId(identifier){
+    //  return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+    // JQuery selectors do not work with things that need escaping.
+    // Let's use double underscores instead.
+    return identifier.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|\\\/])/g, '__');
 }
 
 /**

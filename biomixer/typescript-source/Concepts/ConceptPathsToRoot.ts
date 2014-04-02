@@ -6,15 +6,19 @@
 ///<amd-dependency path="JQueryExtension" />
 
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="Menu" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="FetchFromApi" />
+///<amd-dependency path="TipsyToolTips" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require('../Utils');
+import Menu = require('../Menu');
 import GraphView = require('../GraphView');
+import TipsyToolTips = require('../TipsyToolTips');
 import ConceptGraph = require('./ConceptGraph');
 import ConceptRenderScaler = require('./ConceptRenderScaler');
 import ConceptFilterSliders = require('./ConceptFilterSliders');
@@ -28,24 +32,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     filterSliders: ConceptFilterSliders.ConceptRangeSliders;
     layouts: ConceptLayouts.ConceptLayouts;
     
+    menu: Menu.Menu;
+    
     vis: D3.Selection;
     
     // TODO Is this overshadowing or is this using the member defined in the parent class?
     // Put a re-callable layout function in runCurrentLayout.
-
-
     
-    
-    uniqueIdCounter = 0;
- 
     
     linkThickness = 3;
     nodeHeight = 8;
     
     nodeLabelPaddingWidth = 10;
     nodeLabelPaddingHeight = 10;
-    
-  
 
     
     // TODO Refactor something. Leaving this way to prevent too much code change that isn't simpyl TypeScript refactoring.
@@ -62,6 +61,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         ){
         super();
         
+      this.menu = new Menu.Menu();
+        
         this.visualization = $("#visualization_selector option:selected").text();
         $("#visualization_selector").change(
             () => {
@@ -74,30 +75,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             }
         );
         
-        // Had to set div#chart.gallery height = 100% in CSS,
-        // but this was only required in Firefox. I can't see why.
-        this.vis = d3.select("#chart").append("svg:svg")
-            .attr("id", "graphSvg")
-            .attr("width", this.visWidth())
-            .attr("height", this.visHeight())
-            .attr("pointer-events", "all")
-            .on("click", this.closeMenu())
-        //  .append('svg:g')
-            .call(d3.behavior.zoom().on("zoom", this.redraw))
-        //  .append('svg:g')
-          ;
-        
-        this.vis.append('svg:rect')
-            .attr("width", this.visWidth())
-            .attr("height", this.visHeight())
-            .attr("id", "graphRect")
-            .style('fill', 'white');
-        
-       
-        
-        $(window).resize(this.resizedWindow);
-        
-        this.resizedWindow();
+        this.cleanSlate();
     }
     
     cleanSlate(){
@@ -120,7 +98,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             .attr("width", this.visWidth())
             .attr("height", this.visHeight())
             .attr("pointer-events", "all")
-            .on("click", this.closeMenu());
+            .on("click", this.menu.closeMenuLambda());
         //  .call(d3.behavior.zoom().on("zoom", redraw))
           
         
@@ -134,24 +112,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         this.vis.append("g").attr("id", "link_container");
         this.vis.append("g").attr("id", "node_container");
         
-        this.resizedWindow();
-    }
-
-    resizedWindow(){       
-        d3.select("#graphRect")
-        .attr("width", this.visWidth())
-        .attr("height", this.visHeight());
+        $(window).resize(this.resizedWindowLambda);
         
-        d3.select("#graphSvg")
-        .attr("width", this.visWidth())
-        .attr("height", this.visHeight());
-        
-        // TODO Layouts not relying on force need additional support here.
-        if(this.forceLayout){
-            this.forceLayout.size([this.visWidth(), this.visHeight()]).linkDistance(this.linkMaxDesiredLength());
-            // If needed, move all the nodes towards the new middle here.
-            this.forceLayout.resume();
-        }  
+        this.resizedWindowLambda();
     }
     
     
@@ -358,13 +321,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
     dragstartLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
-            this.dragging = true;
+            outerThis.dragging = true;
             // $(this).tipsy('hide');
             $(".tipsy").hide();
             // stops the force auto positioning before you start dragging
             // This will halt the layout entirely, so if it tends to be unfinished for
             // long enough for a user to want to drag a node, we need to make this more complicated...
-            this.forceLayout.stop();
+            outerThis.forceLayout.stop();
         }
     }
     
@@ -380,7 +343,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             
             d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
         
-            this.vis.selectAll("line")
+            outerThis.vis.selectAll("line")
                 .filter(function(e, i){ return e.source == d || e.target == d; })
                 .attr("x1", function(e) { return e.source.x; })
                 .attr("y1", function(e) { return e.source.y; })
@@ -392,7 +355,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
-            this.dragging = false;
+            outerThis.dragging = false;
             // $(this).tipsy('show');
             $(".tipsy").show();
             // no need to make the node fixed because we stop the layout when drag event begins
@@ -431,7 +394,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
          );
          
          var jsonArgs = {
-                 "Concept ID: ": "id",
+                 "Concept ID: ": "rawConceptUri",
                  "Ontology Acronym: ": "ontologyAcronym",
                  "Ontology Homepage: ": "ontologyUri",
          };
@@ -467,20 +430,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
      */
     updateDataForNodesAndLinks(json){
         var outerThis = this;
-        var updateLinksFromJson = function(i, d){ // JQuery is i, d
+        var updateLinksFromJson = function(i, d: ConceptGraph.Link){ // JQuery is i, d
             // Given a json encoded graph element, update all of the nested elements associated with it
             // cherry pick elements that we might otherwise get by class "link"
-            var link = outerThis.vis.select("#link_line_"+d.source.id+"-to-"+d.target.id);
+            var link = outerThis.vis.select("#link_line_"+d.id);
             // Concept graphs have fixed node and arc sizes.
             // link.attr("data-thickness_basis", function(d) { return d.value;})
             // link.select("title").text(outerThis.conceptLinkLabelFunction);
-            link.select("title").text(function(d) { return d.value;});
+            link.select("title").text(function(d: ConceptGraph.Link) { return d.value;});
         }
         
-        var updateNodesFromJson = function(i, d){ // JQuery is i, d
+        var updateNodesFromJson = function(i, d: ConceptGraph.Node){ // JQuery is i, d
             // Given a json encoded graph element, update all of the nested elements associated with it
             // cherry pick elements that we might otherwise get by class "node"
-            var node = outerThis.vis.select("#node_g_"+d.escapedId);
+            var node = outerThis.vis.select("#node_g_"+d.conceptUriForIds);
             var nodeRects = node.select("node_rect");
             // Concept graphs have fixed node and arc sizes.
             // nodeRects.attr("data-radius_basis", d.number);
@@ -496,7 +459,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             // Refresh popup if currently open
             if(outerThis.lastDisplayedTipsy != null
                     && outerThis.lastDisplayedTipsy.css("visibility") == "visible"
-                    && outerThis.lastDisplayedTipsyData.acronym == d.acronym
+//                    && outerThis.lastDisplayedTipsyData.nodeIdentifier == d.rawConceptUri
                     ){
                 $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsySvg, outerThis.lastDisplayedTipsyData));
             }
@@ -534,10 +497,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
     populateGraph(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
         console.log("Design problem...concept and ontology graphs need to be brought into alignment for this method and updateGraphPopulation above");
+        this.populateGraphEdges(graphD3Format.links);
+        this.populateGraphNodes(graphD3Format.nodes);
+        this.forceLayout.start();
     }
     
 //    var i = 0;
-    populateGraphEdges(linksData){
+    populateGraphEdges(linksData: ConceptGraph.Link[]){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
             return [];
@@ -547,7 +513,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // Link stuff first
         // console.log("enter() getting data for counter time: "+(i=i+1));  console.log(d); 
         var links = this.vis.select("#link_container")
-        .selectAll("line.link").data(linksData, function(d){return d.source.id+"-to-"+d.target.id});
+        .selectAll("line.link").data(linksData, function(d: ConceptGraph.Link){return d.rawId});
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length);
         // console.log(" links from selectAll: "+vis.selectAll("line.link")[0].length);
          
@@ -556,17 +522,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // Would skip the g element here for links, but it cleans up the document and bundles text with line.
         var enteringLinks = links.enter().append("svg:g")
         .attr("class", "link")
-        .attr("id", function(d){ return "link_g_"+d.source.id+"-to-"+d.target.id});
+        .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
         enteringLinks.append("svg:line")
-        .attr("class", function(d){return "link link_"+d.edgeType;}) 
-        .attr("id", function(d){ return "link_line_"+d.source.id+"-to-"+d.target.id})
+        .attr("class", function(d: ConceptGraph.Link){return "link link_"+d.relationType;}) 
+        .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightLinkLambda(this))
         .on("mouseout", this.changeColourBackLambda(this))
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; })
+        .attr("x1", function(d: ConceptGraph.Link) { return d.source.x; })
+        .attr("y1", function(d: ConceptGraph.Link) { return d.source.y; })
+        .attr("x2", function(d: ConceptGraph.Link) { return d.target.x; })
+        .attr("y2", function(d: ConceptGraph.Link) { return d.target.y; })
         .style("stroke-linecap", "round")
         .style("stroke-width", this.linkThickness)
         .attr("data-thickness_basis", function(d) { return d.value;});
@@ -577,13 +543,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         enteringLinks // this is new...used to do to all linked data...
         .append("title") // How would I *update* this if I needed to?
             .text(this.conceptLinkSimplePopupFunction)
-                .attr("id", function(d){ return "link_title_"+d.source.id+"-to-"+d.target.id});
+                .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
     
-        links.exit().remove();
+        // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
+        // links.exit().remove();
         
     }
     
-    populateGraphNodes(nodesData){
+    populateGraphNodes(nodesData: ConceptGraph.Node[]){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(nodesData.length == 0){
             return [];
@@ -592,12 +559,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         var outerThis = this;
         
         var nodes = this.vis.select("#node_container")
-        .selectAll("g.node").data(nodesData, function(d){return d.id});
+        .selectAll("g.node").data(nodesData, function(d: ConceptGraph.Node){ return String(d.rawConceptUri)});
         // console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
         // Add new stuff
         var nodesEnter = nodes.enter().append("svg:g")
         .attr("class", "node")
-        .attr("id", function(d){ return "node_g_"+d.escapedId})
+        .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
         .call(this.nodeDragBehavior);
         
         // console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
@@ -613,9 +580,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // Basic properties
         nodesEnter
         .append("svg:rect") 
-        .attr("id", function(d){ return "node_rect_"+(this.uniqueIdCounter++)})
+        .attr("id", function(d: ConceptGraph.Node){ return "node_rect_"+d.conceptUriForIds})
         .attr("class", "node_rect")
-         .style("fill", function(d) { return d.nodeColor; })
+         .style("fill", function(d: ConceptGraph.Node) { return d.nodeColor; })
         // Concept graphs have fixed node and arc sizes.
         // .attr("data-radius_basis", function(d) { return d.number;})
         // .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
@@ -627,100 +594,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // TODO Don't I want to do this *only* on new nodes?
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(".node_rect").each(function(d){
-            var me = this,
-            meData = d,
-            leaveDelayTimer = null,
-            visible = false,
-            tipsyId = undefined;
-            
-            // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
-            var leaveMissedTimer = undefined;
-            function missedEventTimer() {
-                leaveMissedTimer = setTimeout(missedEventTimer, 1000);
-                // The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
-                if($("#"+me.id+":hover").length != 0 && $(tipsyId+":hover").length != 0){
-                    // console.log("Not in thing "+me.id+" and tipsyId "+tipsyId);
-                    leave();
-                }
-            }
-            missedEventTimer();
-            
-            function leave() {
-                // We add a 100 ms timeout to give the user a little time
-                // moving the cursor to/from the tipsy object
-                leaveDelayTimer = setTimeout(function () {
-                    $(me).tipsy('hide');
-                    visible = false;
-                }, 100);
-            }
-    
-            function enter() {
-                if(outerThis.dragging){
-                    return;
-                }
-                $(me).tipsy({
-                    html: true,
-                    fade: true,
-                    // offset: parseInt($(me).attr("r")), // works better without this!
-                    fallback: "Fetching data...",
-                    title: function() {
-                      // var d = this.__data__, c = d.i; //colors(d.i);
-                      // return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>';
-                      return outerThis.createNodePopupTable(me, meData);
-                    },
-                    trigger: 'manual',
-                    gravity: function() {
-                        var location = "";
-                        
-                        if($(me).offset().top > ($(document).scrollTop() + $(window).height() / 2)){
-                            location += "s";
-                        } else {
-                            location += "n";
-                        }
-                        
-                        if($(me).offset().left > ($(document).scrollLeft() + $(window).width() / 2)){
-                            location += "e";
-                        } else {
-                            location += "w";
-                        }
-                        // console.log("Location "+location);
-                        return location;
-                    },
-                });
-                
-                if (visible) {
-                    clearTimeout(leaveDelayTimer);
-                } else {
-                    $(me).tipsy('show');
-                    // The .tipsy object is destroyed every time it is hidden,
-                    // so we need to add our listener every time its shown
-                    var tipsy = $(me).tipsy("tip");
-                    outerThis.lastDisplayedTipsy = tipsy;
-                    outerThis.lastDisplayedTipsyData = meData;
-                    outerThis.lastDisplayedTipsySvg = me;
-                    tipsyId = $(me).attr("id"+"_tipsy");
-                    tipsy.attr("id", tipsyId);
-                    
-                    // For the tipsy specific listeners, change opacity.
-                    tipsy.mouseenter(function(){tipsy.css("opacity",1.0); enter(); }).mouseleave(function(){tipsy.css("opacity",0.8); leave();});
-                    tipsy.mouseover(function(){
-                        tipsy.css("opacity",1.0);
-                        clearTimeout(leaveMissedTimer);
-                    });
-                    visible = true;
-                }
-            }
-            
-            $(this).hover(enter, leave);
-            $(this).mouseover(function(){
-                clearTimeout(leaveMissedTimer);
-            });
-            
-            // TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
-            // That happens commonly. We'll want to hide stale open tipsy panels when this happens.
-            // d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
-        });
+        d3.selectAll(".node_rect").each(TipsyToolTips.nodeTooltipLambda(this));
             
         // Dumb Tool tip...not needed with tipsy popups.
         // nodesEnter.append("title")
@@ -729,11 +603,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         
         // Label
         nodesEnter.append("svg:text")
-        .attr("id", function(d){ return "node_text_"+(outerThis.uniqueIdCounter++)})
+        .attr("id", function(d: ConceptGraph.Node){ return "node_text_"+d.conceptUriForIds})
         .attr("class", "nodetext unselectable")
         // .attr("dx", "0em")
         // .attr("dy", "1em") // 1em down to go below baseline, 0.5em to counter padding added below
-        .text(function(d) { return d.name; })
+        .text(function(d: ConceptGraph.Node) { return d.name; })
         // Not sure if I want interactions on labels or not. Change following as desired.
         .style("pointer-events", "none")
         // Why cannot we stop selection in IE? They are rude.
@@ -745,8 +619,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         ;
         
         // Resize each node to encompass the label we just created.
-        $(".nodetext").each(function(i, d){
-            var textSize = this.getBBox; // d.getBBox();
+        $(".nodetext").each(function(i, d: Element){
+            var textSize = this.getBBox(); // d.getBBox();
             var rect = $(d).siblings().filter(".node_rect"); // .select(".node_rect");
             rect.attr("width", textSize.width + outerThis.nodeLabelPaddingWidth);
             rect.attr("height", textSize.height + outerThis.nodeLabelPaddingHeight);
@@ -760,24 +634,25 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             // $(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
         });
         
-        nodes.exit().remove();
+        // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
+        // nodes.exit().remove();
         
     }
 
     removeGraphPopulation(){
         console.log("Removing some graph elements "+Utils.getTime());
     
-        var nodes = this.vis.selectAll("g.node").data(this.conceptGraph.graphD3Format.nodes, function(d){return d.rawAcronym});
-        var links = this.vis.selectAll("line.link").data(this.conceptGraph.graphD3Format.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var nodes = this.vis.selectAll("g.node").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri)});
+        var links = this.vis.selectAll("line.link").data(this.conceptGraph.graphD3Format.links, function(d: ConceptGraph.Link){return d.rawId});
         
         
         
-        //  console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
+        //  console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawConceptUri}).exit()[0].length);
         nodes.exit().remove();
         links.exit().remove();
         // Do I need start() or not? Number of elements before and after implies not.
         //  forceLayout.start();
-        //  console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
+        //  console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawConceptUri}).exit()[0].length);
         
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
         this.filterSliders.updateTopMappingsSliderRange();
@@ -872,26 +747,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
     prepGraphMenu(){
         // Layout selector for concept graphs.
-        
-        // Append the pop-out panel. It will stay hidden except when moused over.
-        var trigger = $("<div>").attr("id", "trigger");
-        $("#chart").append(trigger);
-        trigger.append($("<p>").text("<< Layouts"));
-        trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
-    
-        $('#trigger').hover(
-                function(e) {
-                    $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
-                     // Looks bad when it's not fully visible, due to children inheriting transparency
-                    $(this.menuSelector).fadeTo(0, 1.0);
-                },
-                function() {
-                //  $(menuSelector).hide();
-                }
-        );
-        
-        this.layouts.addMenuComponents(this.menuSelector, this.softNodeCap);
-//        this.filterSliders.addMenuComponents(this.menuSelector, this.softNodeCap);
+        this.menu.initializeMenu("Layouts");
+        this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+//        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     
     

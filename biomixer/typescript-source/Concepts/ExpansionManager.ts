@@ -23,26 +23,32 @@ export class ExpansionManager{
         return conceptUri in this.conceptsToExpand && expansionType in this.conceptsToExpand[conceptUri];
     }
     
-    addConceptIdToExpansionRegistry(centralConceptUri, expansionType){
+    addConceptIdToExpansionRegistry(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOptions){
         // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
-        this.conceptsToExpand[centralConceptUri] = {};
-        this.conceptsToExpand[centralConceptUri][expansionType] = true;
+        var conceptId = String(conceptUri);
+        this.conceptsToExpand[conceptId] = {};
+        this.conceptsToExpand[conceptId][expansionType] = true;
     }
     
-    addEdgeToRegistry(conceptIdNotInGraph, conceptInGraph, edge: ConceptGraph.Link){
+    // Call context does not allow for ConceptURI typing...
+    addEdgeToRegistry(conceptUriNotInGraph: string, conceptUriInGraph: string, edge: ConceptGraph.Link){
         // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
+        var conceptIdNotInGraph = String(conceptUriNotInGraph);
+        var conceptIdInGraph = String(conceptUriInGraph);
         if(!(conceptIdNotInGraph in this.edgeRegistry)){
             this.edgeRegistry[conceptIdNotInGraph] = {};
         }
-        if(!(conceptInGraph in this.edgeRegistry[conceptIdNotInGraph])){
-            this.edgeRegistry[conceptIdNotInGraph][conceptInGraph] = {};
+        if(!(conceptIdInGraph in this.edgeRegistry[conceptIdNotInGraph])){
+            this.edgeRegistry[conceptIdNotInGraph][conceptIdInGraph] = {};
         }
         // Need type as an index as well because some ontologies could have multiple edge types between entities.
-        this.edgeRegistry[conceptIdNotInGraph][conceptInGraph][edge.relationType] = edge;
+        this.edgeRegistry[conceptIdNotInGraph][conceptIdInGraph][edge.relationType] = edge;
     }
     
-    clearEdgeFromRegistry(matchIdInRegistry, otherIdInGraph, edge: ConceptGraph.Link){
+    clearEdgeFromRegistry(matchUriInRegistry: ConceptGraph.ConceptURI, otherUriInGraph: ConceptGraph.ConceptURI, edge: ConceptGraph.Link){
         // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
+        var matchIdInRegistry = String(matchUriInRegistry);
+        var otherIdInGraph = String(otherUriInGraph);
         delete this.edgeRegistry[matchIdInRegistry][otherIdInGraph][edge.relationType];
         if(Object.keys(this.edgeRegistry[matchIdInRegistry][otherIdInGraph]).length == 0){
             delete this.edgeRegistry[matchIdInRegistry][otherIdInGraph];
