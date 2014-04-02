@@ -1,7 +1,19 @@
 ///<reference path="headers/require.d.ts" />
 
-export var bioportalUrl = "data.bioontology.org";
+var defaultBioportalUrl = "data.bioontology.org";
+var restURLPrefix = undefined;
 //export var bioportalUrl = "stagedata.bioontology.org";
+
+export function getBioportalUrl(): string {
+    if(restURLPrefix === undefined){
+        restURLPrefix = purl().param("restURLPrefix");
+        if(restURLPrefix === undefined){
+            // Still undefined? use default.
+            restURLPrefix = defaultBioportalUrl;
+        }
+    }
+    return restURLPrefix;
+}
 
 export function getTime(){
     var now = new Date();

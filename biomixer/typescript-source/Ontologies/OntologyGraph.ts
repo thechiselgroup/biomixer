@@ -608,18 +608,18 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
 }
     
 function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://"+Utils.bioportalUrl+"/mappings/statistics/ontologies/"+centralOntologyAcronym;
+	return "http://"+Utils.getBioportalUrl()+"/mappings/statistics/ontologies/"+centralOntologyAcronym;
 }
 
 function buildOntologyDetailsUrlNewApi(){
-	return "http://"+Utils.bioportalUrl+"/ontologies";
+	return "http://"+Utils.getBioportalUrl()+"/ontologies";
 }
 
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/metrics";
+	return "http://"+Utils.getBioportalUrl()+"/ontologies/"+ontologyAcronym+"/metrics";
 }
 
 function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-	return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/latest_submission";
+	return "http://"+Utils.getBioportalUrl()+"/ontologies/"+ontologyAcronym+"/latest_submission";
 }
 
