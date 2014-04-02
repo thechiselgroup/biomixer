@@ -1899,7 +1899,7 @@ function runRadialLayout(){
 		var graphLinks = graphD3Format.links;
 		
 		var tree = d3.layout.tree()
-	    	.size([visHeight()-100,visWidth()-300])
+	    	.size([360,visHeight()/2-100])
 	    	.children(function(d){  
 				var arrayOfNodes = []; 
 				graphLinks.forEach(function(b){
@@ -1923,7 +1923,7 @@ function runRadialLayout(){
 	      
 	      $.each(graphNodes,
 	  			function(index, element){
-	    	  		var radius = element.y/3;
+	    	  		var radius = element.y;
 	    	  		var angle = element.x/180 * Math.PI;
 		    	  	graphNodes[index].x = visWidth()/2 + radius*Math.cos(angle); 
 //		    	  	graphNodes[index].x = 0; 
