@@ -158,26 +158,22 @@ export class OntologyGraph implements GraphView.Graph {
     private fetchMetricsAndDescriptionFunc(node: Node){
         // Check registry for node status
         var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
-        if(Fetcher.Registry.checkUrlInRestCallWhiteList(ontologyMetricsUrl)){
-            // Combined dispatch for the separate calls for metrics and descriptions.
-            // The metric call has much of the info we need
-            var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
-            // var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
-            // fetcher.retryFetch();
-            var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsCallback);
-            fetcher.fetch();
-        }
+        // Combined dispatch for the separate calls for metrics and descriptions.
+        // The metric call has much of the info we need
+        var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
+        // var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
+        // fetcher.retryFetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsCallback);
+        fetcher.fetch();
     
         var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
-        if(Fetcher.Registry.checkUrlInRestCallWhiteList(ontologyDescriptionUrl)){
-            // If we want Description, I think we need to grab the most recent submission
-            // and take it fromt here. This is another API call per ontology.
-            // /ontologies/:acronym:/lastest_submission
-            // Descriptions are in the submissions, so we need an additional call.
-            var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
-            var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionCallback);
-            fetcher.fetch();
-        }
+        // If we want Description, I think we need to grab the most recent submission
+        // and take it fromt here. This is another API call per ontology.
+        // /ontologies/:acronym:/lastest_submission
+        // Descriptions are in the submissions, so we need an additional call.
+        var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
+        var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionCallback);
+        fetcher.fetch();
         
         return true;
     }
@@ -406,10 +402,6 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		// Get to "Processing details" log entry in 45 seconds when all are allowed right away, versus 1 second when
 		// we only get the first one, and let the filter trigger the rest. Labels and node sizes are subsequently
 		// quicker to appear as well.
-//		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyMetricsUrlNewApi(centralOntologyNode.rawAcronym));
-//		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyLatestSubmissionUrlNewApi(centralOntologyNode.rawAcronym));
-        Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyMetricsUrlNewApi(centralOntologyNode.rawAcronym));
-        Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyLatestSubmissionUrlNewApi(centralOntologyNode.rawAcronym));
 		this.graph.fetchNodeRestData(centralOntologyNode);
 
 		//----------------------------------------------------------
@@ -490,9 +482,6 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 					
 					// I'm moving this all to on-demand (probably via the filter).
 					// node.fetchMetricsAndDescriptionFunc();
-					
-					Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyMetricsUrlNewApi(node.rawAcronym));
-					Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym));
 				}
 		);
 		

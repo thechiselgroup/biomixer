@@ -224,7 +224,7 @@ export class ConceptGraph implements GraphView.Graph {
         // Because we expand for term neighbourhood relation calls, and those come in two flavors
         // (node with properties for children and parents, and just node IDs for compositions)
         // we want to support parsing the data directly as well as fetching additional data.
-        if(this.expMan.whiteListConcept(relatedConceptId, expansionType)
+        if(this.expMan.isConceptWhitelistedForExpansion(relatedConceptId, expansionType)
             && !(String(newConceptId) in this.conceptIdNodeMap)){
             // Manifest the node; parse the properties if available.
             // We know that we will get the composition relations via a properties call,
@@ -246,10 +246,21 @@ export class ConceptGraph implements GraphView.Graph {
                 // TODO Pretty sure I shouldn't bother using a single fetch to grab what is in front of us...
                 // Is this a redundant call? Or is it better to follow this route anyway??
                 // I think it isn't redundant, due to limited data that is available when this happens.
+                
+//                LEFTOFF Ugh...the concept stuff is working with the whitelist, but when I tried adding in caching on fetch,
+//                I ran into a problem...
+//                
+//                // So...do I just check for whitelisting, then allow all urls just prior to fetching?
+//                // That makes it seem like the registry does nothing in the concept graph...maybe because this is
+//                // node oriented...hmmmm
+//                Fetcher.Registry.addUrlToRestCallRegistry(buildConceptUrlNewApi(newOntologyAcronym, newConceptId));
+
+                
                 var url = this.buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
                 var callback = new FetchOneConceptCallback(this, url, newConceptId, null);
                 var fetcher = new Fetcher.RetryingJsonFetcher(callback);
                 fetcher.fetch();
+                console.log("whitelist url not node");
             }
         }
     }
@@ -341,9 +352,7 @@ export class ConceptGraph implements GraphView.Graph {
             edge.target = this.conceptIdNodeMap[String(edge.targetId)];
             if(this.edgeNotInGraph(edge)){
                 this.graphD3Format.links.push(edge);
-//                this.graphView.updateGraphPopulation();
                 this.graphView.populateGraph(this.graphD3Format, true);
-                console.log("Is this right");
             }
             
             if(matchIdInRegistry){
@@ -366,9 +375,7 @@ export class ConceptGraph implements GraphView.Graph {
                     edge.target = this.conceptIdNodeMap[String(edge.targetId)];
                     if(this.edgeNotInGraph(edge)){
                         this.graphD3Format.links.push(edge);
-//                      1  updateGraphPopulation();
                         this.graphView.populateGraph(this.graphD3Format, true);
-                        console.log("Is this right");
                     }
                     
                     // Clear that one out...safe while in the loop?
@@ -417,10 +424,15 @@ export class ConceptGraph implements GraphView.Graph {
         */
         
         // 1) Get paths to root for the central concept
+        // Technically, the path to root does *not* use the normal wildfire expansion technique,
+        // since we can get the full et of nodes to expand directly from the path to root REST call.
+        // This mean that we don't need to enter the root node (nor path nodes) into the expansion registry...
+        this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptions.pathsToRootConstant);
         var pathsToRootUrl = this.buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
         var pathsToRootCallback = new PathsToRootCallback(this, pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
         var fetcher = new Fetcher.RetryingJsonFetcher(pathsToRootCallback);
         fetcher.fetch();
+        console.log("whitelist url not node");
     }
     
     
@@ -428,11 +440,12 @@ export class ConceptGraph implements GraphView.Graph {
     public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion
         // Parsers that follow will expand neighbourhing concepts.
-        this.expMan.addConceptIdToExpansionRegistry(centralConceptUri, PathOptions.termNeighborhoodConstant);
+        this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptions.termNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
         var centralCallback = new FetchOneConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptions.termNeighborhoodConstant);
         var fetcher = new Fetcher.RetryingJsonFetcher(centralCallback);
         fetcher.fetch();
+        console.log("whitelist url not node");
     }
     
     public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
@@ -446,11 +459,12 @@ export class ConceptGraph implements GraphView.Graph {
         // if we are in the mapping visualization. I could make this explicit by copying the mappings code
         // here, but then we have duplicate code. If we decide it reads poorly to have it so detached
         // in the process, we can copy it here.
-        this.expMan.addConceptIdToExpansionRegistry(centralConceptUri, PathOptions.mappingsNeighborhoodConstant);
+        this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptions.mappingsNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
         var centralCallback = new FetchOneConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptions.mappingsNeighborhoodConstant);
         var fetcher = new Fetcher.RetryingJsonFetcher(centralCallback);
         fetcher.fetch();
+        console.log("whitelist url not node");
     }
     
     public fetchConceptRelations(conceptNode: Node, conceptData, directCallForExpansionType?: PathOptions){
@@ -491,6 +505,7 @@ export class ConceptGraph implements GraphView.Graph {
         var conceptRelationsCallback = new ConceptCompositionRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType);
         var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
         fetcher.fetch();
+        console.log("whitelist url not node");
     }
     
     // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
@@ -655,8 +670,6 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
             }
         );
         
-//        this.graph.graphView.updateGraphPopulation();
-        console.log("Is this right?");
         this.graph.graphView.populateGraph(this.graph.graphD3Format, true);
     }
 }
@@ -745,7 +758,9 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                         // Ergo, we need to expand composition mappings if we are in the term neighbourhood vis.
                         
                         if(this.directCallForExpansionType == PathOptions.termNeighborhoodConstant){
-                            this.graph.expMan.addConceptIdToExpansionRegistry(childPartId, PathOptions.termNeighborhoodConstant);
+//                            this.graph.expMan.addConceptIdToExpansionWhitelist(childPartId, PathOptions.termNeighborhoodConstant);
+                            console.log("whitelist url not node");
+//                            Fetcher.Registry.addUrlToRestCallRegistry();
                         }
                         
                         // PROBLEM Seems like I want to manifest nodes before doing arcs, but in this case, I want to know
@@ -803,7 +818,8 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
                 var childId = child["@id"];
                 
                 if(this.directCallForExpansionType == PathOptions.termNeighborhoodConstant){
-                    this.graph.expMan.addConceptIdToExpansionRegistry(childId, PathOptions.termNeighborhoodConstant);
+//                    this.graph.expMan.addConceptIdToExpansionWhitelist(childId, PathOptions.termNeighborhoodConstant);
+                     console.log("whitelist url not node");
                 }
                 
                 this.graph.expandAndParseNodeIfNeeded(childId, this.conceptNode.rawConceptUri, child, PathOptions.termNeighborhoodConstant);
@@ -852,7 +868,8 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
                     var parentId = parent["@id"];
                     
                     if(this.directCallForExpansionType == PathOptions.termNeighborhoodConstant){
-                        this.graph.expMan.addConceptIdToExpansionRegistry(parentId, PathOptions.termNeighborhoodConstant);
+//                        this.graph.expMan.addConceptIdToExpansionWhitelist(parentId, PathOptions.termNeighborhoodConstant);
+                         console.log("whitelist url not node");
                     }
                     
                     // Save the data in case we expand to include this node
@@ -905,7 +922,8 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
             var newConceptId = newConceptData["@id"];
             
             if(this.directCallForExpansionType == PathOptions.mappingsNeighborhoodConstant){
-                this.graph.expMan.addConceptIdToExpansionRegistry(newConceptId, PathOptions.mappingsNeighborhoodConstant);
+//                this.graph.expMan.addConceptIdToExpansionWhitelist(newConceptId, PathOptions.mappingsNeighborhoodConstant);
+                 console.log("whitelist url not node");
             }
             
             this.graph.manifestOrRegisterImplicitRelation(newConceptId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.mapping);

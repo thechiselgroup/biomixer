@@ -23,23 +23,118 @@ import Utils = require('./Utils');
     interface NodeApiCallRegistry {
         // [node: string]: {[url: string]: restCallStatus };
         // Converting registry to be URL based rather than node based
-            [url: string]: RestCallStatus ;
+            [url: string]: RestCallCache ;
     }
 
         
     export interface ResultData {
         error?;
         status?;
+        responseData?;
     }
     
     export enum RestCallStatus {EXCLUDED, ALLOWED, AWAITING, COMPLETED, ERROR, FORBIDDEN}
+
+    class RestCallCache {
+        // No need to export, used by Registry only.
+        responseData: ResultData = undefined;
+        status: RestCallStatus = undefined;
+        private callbacksEntered: Array<string> = [];
+        
+        constructor(status: RestCallStatus, firstCallback: CallbackObject){
+            this.status = status;
+            this.addCallback(firstCallback);
+        }
     
-    export class Registry {
+        /**
+         * The caller may be updating status only, in which case the callback parameter may be provided with a null value.
+         */
+        update(newStatus: RestCallStatus, additionalCallback: CallbackObject, responseData: ResultData = undefined){
+            // TODO Check validity here...it is checked by caller, the Registry class...
+            this.status = newStatus;
+            if(responseData !== undefined){
+                Cache.updateCacheMemoryUsage(responseData);
+                this.addCallback(additionalCallback);
+                this.responseData = responseData;
+            }
+        }
+        
+        hasCallback(callback: CallbackObject){
+            return this.callbacksEntered.indexOf(callback.getCallbackName()) !== -1;
+        }
+    
+        private addCallback(callback: CallbackObject){
+            if(null == callback){
+                return;
+            }
+            var callbackName = callback.getCallbackName();
+            if(this.callbacksEntered.indexOf(callbackName) == -1){
+                this.callbacksEntered.push(callbackName);
+            }
+        }
+    }
+    
+    // TODO Might want caching to speed up transitions of concept graphs.
+    // Don't use the JQuery cache option, which uses browser caching; we only want caching within a page load.
+    // Implement by keying returned data by URL (not including any JQuery anti-cache random numbers). 
+    export class Cache {
+        
+        static MB = 1024*1024; // 1000 kilobytes is a MB
+        static maxJsonCacheSizeByte = 10 * Cache.MB;
+        static currentJsonCacheSizeByte = 0;
         
         //This registry is used to track REST call privileges and status.
-        private static nodeRestCallRegistry: NodeApiCallRegistry = { };
+        private static restAndCallbackRegistry: NodeApiCallRegistry = { };
         
-        // export static restCallStatus = {EXCLUDED: "excluded", ALLOWED: "allowed", AWAITING: "awaiting", COMPLETED: "completed", ERROR: "error", FORBIDDEN: "forbidden"};
+        static getCachedData(restUrl: string): ResultData {
+            if(Cache.restAndCallbackRegistry[restUrl] == undefined || Cache.restAndCallbackRegistry[restUrl].responseData == undefined ){
+                return undefined;
+            } else {
+                return Cache.restAndCallbackRegistry[restUrl].responseData;
+            }
+        }
+        
+        /**
+         * Track overall size of cached data. If it gets too big, remove some elements.
+         * Browsers *tend* to store object properties in the order created, so we will
+         * *probably* remove things in order from oldest to newest. It shouldn't matter much.
+         */
+        static updateCacheMemoryUsage(responseData: ResultData){
+            var stringVersion = JSON.stringify(responseData);
+            // http://stackoverflow.com/questions/11141136/default-javascript-character-encoding
+            var totalByteSize = stringVersion.length * 2; // 2 bytes, Strings are UTF-16, 16 bits
+            var toRemove = [];
+            
+            if(Cache.currentJsonCacheSizeByte + totalByteSize > Cache.maxJsonCacheSizeByte){
+                
+                // Drop off earliest COMPLETE cache elements. If there are no such, too bad for us; the cache will grow.
+                // Would have used grep but these are object properties, not array items.
+                $.each(Cache.restAndCallbackRegistry, (uriKey, cacheItem: RestCallCache) => {
+                        if(cacheItem.status != RestCallStatus.COMPLETED || cacheItem.responseData === undefined){
+                            return true; // next value...
+                        }
+                        
+                        // Drop it like it's hot.
+                        var droppedSize = JSON.stringify(cacheItem.responseData).length * 2;
+                        Cache.currentJsonCacheSizeByte -= droppedSize;
+                        toRemove.push(uriKey);
+                    
+                        // Jump out if we did enough removal.
+                        if(Cache.currentJsonCacheSizeByte + totalByteSize <= Cache.maxJsonCacheSizeByte){
+                            return false; // break out
+                        }    
+                    }
+                );
+                
+                $.each(toRemove, (i, uriKey) => {
+                    delete Cache.restAndCallbackRegistry[uriKey];
+                });
+            }
+            
+            // Technically we don't add the data until after working on the cache, so this value is the end
+            // value from that point, not this point of execution.
+            Cache.currentJsonCacheSizeByte += totalByteSize;
+        }
         
         /**
          * We can logically make the following transitions:
@@ -55,9 +150,7 @@ import Utils = require('./Utils');
          * 
          * COMPLETED and FORBIDDEN should never ever be changed.
          */
-        private static validRestCallStateTransition(oldStatus: RestCallStatus, newStatus: RestCallStatus,
-//          node: any, 
-            restCallUriFunction: string): boolean{
+        private static validRestCallStateTransition(oldStatus: RestCallStatus, newStatus: RestCallStatus, restCallUriFunction: string): boolean{
             var isValid = true;
             switch(oldStatus){
             case RestCallStatus.ALLOWED:
@@ -122,23 +215,25 @@ import Utils = require('./Utils');
          * @param restCallUriFunction
          * @param status    Optional. Defaults to ALLOWED status for the specified REST call.
          */
-//        public static addNodeToRestCallRegistry(node, restCallUriFunction, status){
-         public static addUrlToRestCallRegistry(restCallUriFunction: string, status: RestCallStatus = RestCallStatus.ALLOWED ){
-//            if(typeof Registry.nodeRestCallRegistry[node] === "undefined"){
-//                Registry.nodeRestCallRegistry[node] = {};
-//            } else {
-                // var currentStatus = Registry.nodeRestCallRegistry[node][restCallUriFunction];
-                var currentStatus = Registry.nodeRestCallRegistry[restCallUriFunction];
-                if(typeof currentStatus !== "undefined"){
-                    // if(!Registry.validRestCallStateTransition(currentStatus, status, node, restCallUriFunction)){
-                    if(!Registry.validRestCallStateTransition(currentStatus, status, restCallUriFunction)){
-                        return;
-                    }
-                }
-//            }
+         public static addUrlToRestCallRegistry(restCallURL: string, callback: CallbackObject, status: RestCallStatus = RestCallStatus.ALLOWED, responseDataToCache: ResultData = undefined ){
+            var currentCache = Cache.restAndCallbackRegistry[restCallURL];
+            var currentStatus = undefined;
+            if(currentCache !== undefined){
+                currentStatus = currentCache.status;
+            } else {
+                // Create a new cache, but we'll abandon it if the new state is invalid. Refactor perhaps
+                currentCache = new RestCallCache(status, callback);
+            }
+            if(currentStatus !== undefined){
+            	if(!Cache.validRestCallStateTransition(currentStatus, status, restCallURL)){
+            	    return;
+            	}
+            }
             
-            // Registry.nodeRestCallRegistry[node][restCallUriFunction] = status;
-             Registry.nodeRestCallRegistry[restCallUriFunction] = status;
+            // BUG Technically, this allows undefined status to jump to any value...
+            // This currently allows the concept graph to work as is though...
+            currentCache.update(status, callback, responseDataToCache);
+            Cache.restAndCallbackRegistry[restCallURL] = currentCache;
         }
         
         /**
@@ -150,10 +245,9 @@ import Utils = require('./Utils');
          * @param restCallUriFunction
          * @param status
          */
-        // public static updateStatusForNodeInRestCallRegistry(node, restCallUriFunction, status){
-        public static updateStatusForUrlInRestCallRegistry(restCallUriFunction, status){
-            // Registry.addNodeToRestCallRegistry(node, restCallUriFunction, status);
-            Registry.addUrlToRestCallRegistry(restCallUriFunction, status);
+        public static updateStatusForUrlInRestCallRegistry(restCallURL, status, responseDataToCache?: ResultData){
+            Cache.addUrlToRestCallRegistry(restCallURL, null, status, responseDataToCache);
+            
         }
         
         /**
@@ -162,25 +256,22 @@ import Utils = require('./Utils');
          * @param node
          * @param restCallUriFunction
          */
-         // public static checkNodeInRestCallWhiteList(node, restCallUriFunction){
-         public static checkUrlInRestCallWhiteList(restCallUriFunction, undefinedOk: boolean = false): boolean{
-            // Used to register nodes against URLs, but I realized I can use the URL straight, no chaser.
-//            if(typeof Registry.nodeRestCallRegistry[node] !== "undefined"){
-//                return Registry.nodeRestCallRegistry[node][restCallUriFunction] === restCallStatus.ALLOWED;
-//            } else {
-//                return false;
-//            }
-            var entry: RestCallStatus = Registry.nodeRestCallRegistry[restCallUriFunction];
-            if(typeof entry !== "undefined"){
+         private static checkUrlInRestCallWhiteList(restCallUriFunction: string, callback: CallbackObject, undefinedOk: boolean = false): boolean{
+            var restCache = Cache.restAndCallbackRegistry[restCallUriFunction];
+            if(restCache !== undefined){
+                // Block multiple usage of callback
+                return !restCache.hasCallback(callback);  
+            } else if(restCache == undefined || restCache.status == undefined){
+                return undefinedOk;
+            }else {
+                var entry: RestCallStatus = restCache.status;
                 return entry === RestCallStatus.ALLOWED
                     || entry === RestCallStatus.ERROR;
-            } else {
-                return undefinedOk || false;
             }
         }
     
-        public static checkUrlFirstCallOrError(restCallUriFunction): boolean {
-            return Registry.checkUrlInRestCallWhiteList(restCallUriFunction, true);
+        public static checkUrlFirstCallOrError(restURL: string, callback: CallbackObject): boolean {
+            return Cache.checkUrlInRestCallWhiteList(restURL, callback, true);
         }
     
     }
@@ -197,10 +288,16 @@ import Utils = require('./Utils');
         constructor(
             graph: GraphView.Graph,
             url: string
-            ){
+        ){
                 this.graph = graph;
                 this.url = Utils.prepUrlKey(url);
-            }
+        }
+        
+        getCallbackName(): string{
+            var funcNameRegex = /function (.{1,})\(/;
+            var results = (funcNameRegex).exec((<any>this).constructor.toString());
+            return (results && results.length > 1) ? results[1] : "";;
+        }
         
         // Callbacks are problematic because "this" is in dynamic scope in Javascript, not lexical.
         // When the callback is actually called, "this" scopes to somethign other than the class we
@@ -230,6 +327,13 @@ import Utils = require('./Utils');
         }
         
     private callAgain(){
+        var cachedData = Cache.getCachedData(this.callbackObject.url);
+        if(cachedData !== undefined){
+            // Skip the dispatch of the call, fake the data back into the normal flow.
+            this.callbackObject.callback(cachedData, "manually cached", null)
+            return;
+        }
+        
         // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
         // var browserSupportsCors = typeof XDomainRequest != "undefined";
 //        var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();
@@ -363,76 +467,74 @@ import Utils = require('./Utils');
         // TODO I think the error codes seen below only worked for the old API. The new one doesn't offer error codes
         // embedded in a response. Worse yet, browsers do not pass received error codes to AJAX callers for cross-site JSONP.
         // That means none of this can function anymore, because no such data is passed on at all.
+        /**
+         * If the REST calls have been made with the same callback to the same URL before, it will rebuff.
+         * If the same REST calls have been made with *different* callbacks within the same page load,
+         * it will use a manually cached version of the data.
+         */
         public fetch(resultData: ResultData = undefined) : number {
-                if(!Registry.checkUrlFirstCallOrError(this.callbackObject.url)){
-                    // Just in case callers are abusing the system, abort calls for data that we already have.
-                    // TODO There are conceivable occassions where we would want to allow a request again,
-                    // but would serve it from a cache or otherwise cause the data to be found locally.
-                    // I can imagine such cases when MULTIPLE callbacks use the same data; one may have been
-                    // run while the other has not. If such a case occurs, let's index calls by both url and
-                    // callback, use caching, and when a second attempt at the same URL occurs, pass back
-                    // cached data. Otherwise, stop attempts to refetch data or to run a callback that has run
-                    // already.
-                    // If caching, it seems that manual caching in this registry would be ok, because browser caching
-                    // can be unreliable, and we don't want to cache between page loads.
-                    return null;
+            
+            // console.log("retryFetch for "+callbackObject.url);
+            // If not error or valid data, call for first time...maybe...
+            if(resultData === undefined){
+                
+                // First things first: we don't allow the same callback to call on the same URL twice.
+                // Second, we have caching...but that will be handled a little bit later.
+               if(!Cache.checkUrlFirstCallOrError(this.callbackObject.url, this.callbackObject)){
+                   // Multiple callbacks may want the same data. If so, let them get it...from the
+                   // manually cached responses. Otherwise, prevent callers from abusing the REST services.
+                   // Really, multipel calls may be programmer errors, but it happens naturally with the
+                   // filtering functionality.
+                   // Browser caching can be unreliable, and we don't want to cache between page loads.
+                   
+                   return null;
                 }
-                // console.log("retryFetch for "+callbackObject.url);
-                if(typeof resultData === "undefined"){
-                    // If not error, call for first time
-                    this.callAgain();
-                    // I would adore classes to handle this. Cases without nodes would not implement
-                    // registry functionality.
-                    Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.AWAITING);
-                    return 0;
-                }
+                    
+                // Make a url and callback entry.
+                // If we are recalling on an erorr this should cope with redundant entries.
+                Cache.addUrlToRestCallRegistry(this.callbackObject.url, this.callbackObject, RestCallStatus.AWAITING);
+                this.callAgain();
+                return 0;
+            }
                 
             // TODO If JqueryJsonp is working out, get this all working off the raw XOptions object.
-                if(typeof resultData.error !== "undefined") { // timeout from JQueryJsonp
-                    if(resultData.status == "404" || resultData.error == "timeout"){
-                        // 404 Error should fill in some popup data points, so let through...
-                        console.log("Error: "+this.callbackObject.url+" --> Data: "+resultData.error);
-                        if(typeof this.callbackObject !== "undefined"){
-                            Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.ERROR);
-                        }
+            if(typeof resultData.error !== "undefined") { // timeout from JQueryJsonp
+                if(resultData.status == "404" || resultData.error == "timeout"){
+                    // 404 Error should fill in some popup data points, so let through...
+                    console.log("Error: "+this.callbackObject.url+" --> Data: "+resultData.error);
+                    if(typeof this.callbackObject !== "undefined"){
+                        Cache.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.ERROR);
+                    }
+                    return -1;
+                } else if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
+                    console.log("Forbidden Error, no retry: "
+                            +"\nURL: "+this.callbackObject.url
+                            +"\nReply: "+resultData.error);
+                    Cache.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.FORBIDDEN);
+                    return 0;
+                } else if(resultData.status == "500" || resultData.status == "403"){
+                    if(this.previousTriesRemade < 4){
+                        this.previousTriesRemade++;
+                        console.log("Retrying: "+this.callbackObject.url);
+                        this.callAgain();
+                        // update to status unnecessary; still awaiting.
                         return -1;
-                    } else if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
-                        console.log("Forbidden Error, no retry: "
-                                +"\nURL: "+this.callbackObject.url
-                                +"\nReply: "+resultData.error);
-//                        if(typeof this.callbackObject !== "undefined"){
-                            Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.FORBIDDEN);
-//                        }
-                        return 0;
-                    } else if(resultData.status == "500" || resultData.status == "403"){
-                        if(this.previousTriesRemade < 4){
-                            this.previousTriesRemade++;
-                            console.log("Retrying: "+this.callbackObject.url);
-                            this.callAgain();
-                            // update to status unnecessary; still awaiting.
-                            return -1;
-                        } else {
-                            // Error, but we are done retrying.
-                            console.log("No retry, Error: "+resultData);
-//                            if(typeof this.callbackObject.node !== "undefined"){
-                                Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.ERROR);
-//                            }
-                            return null;
-                        }
                     } else {
-                        // Don't retry for other errors
-                        console.log("Error: "+this.callbackObject.url+" --> Data: "+resultData.error);
-//                        if(typeof this.callbackObject !== "undefined"){
-                            Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.ERROR);
-//                        }
-                        return 0;
+                        // Error, but we are done retrying.
+                        console.log("No retry, Error: "+resultData);
+                        Cache.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.ERROR);
+                        return null;
                     }
                 } else {
-                    // Success, great!
-//                    if(typeof this.callbackObject.node !== "undefined"){
-                        Registry.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.COMPLETED);
-//                    }
-                    return 1;
+                    // Don't retry for other errors
+                    console.log("Error: "+this.callbackObject.url+" --> Data: "+resultData.error);
+                    Cache.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.ERROR);
+                    return 0;
                 }
+            } else {
+                // Success, great!
+                Cache.updateStatusForUrlInRestCallRegistry(this.callbackObject.url, RestCallStatus.COMPLETED, resultData);
+                return 1;
+            }
         }
     }

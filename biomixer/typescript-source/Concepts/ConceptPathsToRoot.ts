@@ -58,10 +58,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         public centalOntologyAcronym: ConceptGraph.RawAcronym,
         public centralConceptUri: ConceptGraph.ConceptURI,
         public softNodeCap: number
-        ){
+    ){
         super();
+        // Minimal constructor, most work done in initAndPopulateGraph().
         
-      this.menu = new Menu.Menu();
+        this.menu = new Menu.Menu();
         
         this.visualization = $("#visualization_selector option:selected").text();
         $("#visualization_selector").change(
@@ -69,29 +70,24 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
                 console.log("Changing visualization mode.");
                 if(this.visualization != $("#visualization_selector option:selected").text()){
                     this.visualization = $("#visualization_selector option:selected").text();
-                    this.cleanSlate();
-                    this.runGraph();
+                    this.initAndPopulateGraph();
                 }
             }
         );
-        
-        this.cleanSlate();
     }
     
     cleanSlate(){
-        // TODO Much of this is now ConceptGraph territory.
-        // We probably abandon the existing graph and make a new one.
-//        this.graphD3Format = new Object();
-//        this.edgeRegistry = {}; 
-//        this.conceptIdNodeMap = new Object();
-//        this.conceptsToExpand = new Object();
-        
-        console.log("Need to trigger new graph creation here (just use 'new'?");
-        
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
         console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
+        
+        // Experimental...seems like a good idea
+        if(this.forceLayout != undefined){
+            this.forceLayout.nodes([]);
+            this.forceLayout.links([]);
+        }
         $("#chart").empty();
+        d3.select("#chart").remove;
         
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
@@ -129,7 +125,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // Used to happen on window load.
         console.log("Window loaded,starting visualization")
         this.cleanSlate();
-        this.runGraph();
         
         // These here or elsewhere like in runGraph??
         this.conceptGraph = new ConceptGraph.ConceptGraph(this, this.centralConceptUri, this.softNodeCap);
@@ -145,22 +140,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         
         this.prepGraphMenu();
         
-        this.initPopulateGraph();
+        this.fetchInitialExpansion();
     }
         
-    runGraph(){
-        
-        
-        
-        // Will do async stuff and add to graph
-//        this.conceptGraph.fetchOntologyNeighbourhood(this.centralOntologyAcronym);
-        // That snippet is from ontologies. We do that work in initPopulateGraph().
-        
-        // If you want to toy with the original static data, try this:
-        //  populateGraph(json);
-    }
-    
-    initPopulateGraph(){
+    fetchInitialExpansion(){
         if(this.visualization === ConceptGraph.PathOptions.pathsToRootConstant){
             this.conceptGraph.fetchPathToRoot(this.centalOntologyAcronym, this.centralConceptUri);
         } else if(this.visualization === ConceptGraph.PathOptions.termNeighborhoodConstant){
@@ -489,14 +472,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     * This function should be used when adding brand new nodes and links to the
     * graph. Do not call it to update properties of graph elements.
     */
-    updateGraphPopulation(){  
-        this.populateGraphEdges(this.conceptGraph.graphD3Format.links);
-        this.populateGraphNodes(this.conceptGraph.graphD3Format.nodes);
-        this.forceLayout.start();
-    }
-    
     populateGraph(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
-        console.log("Design problem...concept and ontology graphs need to be brought into alignment for this method and updateGraphPopulation above");
         this.populateGraphEdges(graphD3Format.links);
         this.populateGraphNodes(graphD3Format.nodes);
         this.forceLayout.start();

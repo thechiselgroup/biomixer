@@ -19,11 +19,25 @@ export class ExpansionManager{
         
     }
     
-    whiteListConcept(conceptUri, expansionType){
+    /**
+     * If this returns true, the node in question is allowed to fetch and add related nodes within the expansion
+     * type specified. Those nodes do not (normally) inherit this property.
+     * 
+     * If the paths to root functionality were not fulfilled via a special REST call, that system would allow
+     * expanded parent nodes to inherit this privelege and pass it on to their parents.
+     */
+    isConceptWhitelistedForExpansion(conceptUri, expansionType){
         return conceptUri in this.conceptsToExpand && expansionType in this.conceptsToExpand[conceptUri];
     }
     
-    addConceptIdToExpansionRegistry(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOptions){
+    /**
+     * Nodes that should be expanded (that is expanded from, their related nodes of some type fetched and
+     * added to the graph) need to be whitelisted. We have to track them some how, and this is a generic approach.
+     * 
+     * This is normally only called for the central node on the first load of a visualization, and for nodes that
+     * have had their expansion widgets widged.
+     */
+    addConceptIdToExpansionWhitelist(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOptions){
         // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
         var conceptId = String(conceptUri);
         this.conceptsToExpand[conceptId] = {};
