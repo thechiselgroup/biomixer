@@ -15,6 +15,7 @@
 ///<amd-dependency path="JQueryExtension" />
 
 import Utils = require('../Utils');
+import Fetch = require('../FetchFromApi');
 import Menu = require('../Menu');
 import GraphView = require('../GraphView');
 import TipsyToolTips = require('../TipsyToolTips');
@@ -80,6 +81,10 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         $(window).resize(this.resizedWindowLambda);
         
         this.resizedWindowLambda();
+        
+        // We don't really need this right now, but it's a good reminder that we need to clear
+        // service records and keep the cache whenever creating a graph.
+        Fetch.CacheRegistry.clearAllServiceRecordsKeepCacheData();
     }
     
     

@@ -16,6 +16,7 @@
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require('../Utils');
+import Fetch = require('../FetchFromApi');
 import Menu = require('../Menu');
 import GraphView = require('../GraphView');
 import TipsyToolTips = require('../TipsyToolTips');
@@ -111,6 +112,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         $(window).resize(this.resizedWindowLambda);
         
         this.resizedWindowLambda();
+        
+        Fetch.CacheRegistry.clearAllServiceRecordsKeepCacheData();
     }
     
     

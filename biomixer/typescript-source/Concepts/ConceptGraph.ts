@@ -258,8 +258,8 @@ export class ConceptGraph implements GraphView.Graph {
                 
                 var url = this.buildConceptUrlNewApi(newOntologyAcronym, newConceptId);
                 var callback = new FetchOneConceptCallback(this, url, newConceptId, null);
-                var fetcher = new Fetcher.RetryingJsonFetcher(callback);
-                fetcher.fetch();
+                var fetcher = new Fetcher.RetryingJsonFetcher(url);
+                fetcher.fetch(callback);
                 console.log("whitelist url not node");
             }
         }
@@ -430,8 +430,8 @@ export class ConceptGraph implements GraphView.Graph {
         this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptions.pathsToRootConstant);
         var pathsToRootUrl = this.buildPathToRootUrlNewApi(centralOntologyAcronym, centralConceptUri);
         var pathsToRootCallback = new PathsToRootCallback(this, pathsToRootUrl, centralOntologyAcronym, centralConceptUri);
-        var fetcher = new Fetcher.RetryingJsonFetcher(pathsToRootCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(pathsToRootUrl);
+        fetcher.fetch(pathsToRootCallback);
         console.log("whitelist url not node");
     }
     
@@ -443,8 +443,8 @@ export class ConceptGraph implements GraphView.Graph {
         this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptions.termNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
         var centralCallback = new FetchOneConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptions.termNeighborhoodConstant);
-        var fetcher = new Fetcher.RetryingJsonFetcher(centralCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
+        fetcher.fetch(centralCallback);
         console.log("whitelist url not node");
     }
     
@@ -462,8 +462,8 @@ export class ConceptGraph implements GraphView.Graph {
         this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptions.mappingsNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
         var centralCallback = new FetchOneConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptions.mappingsNeighborhoodConstant);
-        var fetcher = new Fetcher.RetryingJsonFetcher(centralCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
+        fetcher.fetch(centralCallback);
         console.log("whitelist url not node");
     }
     
@@ -484,27 +484,27 @@ export class ConceptGraph implements GraphView.Graph {
         // Children requests have paging, which needs cycling internally.
         relationsUrl = Utils.addOrUpdateUrlParameter(relationsUrl, "page", pageRequested+"");
         var conceptRelationsCallback = new ConceptChildrenRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType);
-        var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
+        fetcher.fetch(conceptRelationsCallback);
     }
     
     fetchParents(conceptNode: Node, relationsUrl: string, directCallForExpansionType: PathOptions){
         var conceptRelationsCallback = new ConceptParentsRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType);
-        var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
+        fetcher.fetch(conceptRelationsCallback);
     }
     
     fetchMappings(conceptNode: Node, relationsUrl: string, directCallForExpansionType: PathOptions){
         var conceptRelationsCallback = new ConceptMappingsRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType);
-        var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
+        fetcher.fetch(conceptRelationsCallback);
     }
     
      fetchCompositionRelations(conceptNode: Node, directCallForExpansionType: PathOptions){
         var relationsUrl = this.buildConceptCompositionsRelationUrl(conceptNode);
         var conceptRelationsCallback = new ConceptCompositionRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType);
-        var fetcher = new Fetcher.RetryingJsonFetcher(conceptRelationsCallback);
-        fetcher.fetch();
+        var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
+        fetcher.fetch(conceptRelationsCallback);
         console.log("whitelist url not node");
     }
     
@@ -638,29 +638,18 @@ export class ConceptGraph implements GraphView.Graph {
 
 class PathsToRootCallback extends Fetcher.CallbackObject {
     
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: ConceptGraph, // shadowing
         url: string,
         public centralOntologyAcronym: RawAcronym,
         public centralConceptUri: ConceptURI
         ){
-            super(graph, url);
+            super(graph, url, String(centralOntologyAcronym)+":"+String(centralConceptUri));
         }
         
     public callback = (pathsToRootData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
-        var errorOrRetry = this.fetcher.fetch(pathsToRootData);
-        if(0 == errorOrRetry){
-            return;
-        } else if(-1 == errorOrRetry){
-            // have an error. Done?
-            return;
-        }
-        
         var numberOfConcepts = Object.keys(pathsToRootData).length;
         
         $.each(pathsToRootData[0],
@@ -676,28 +665,18 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
 
 class FetchOneConceptCallback extends Fetcher.CallbackObject {
     
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: ConceptGraph,
         url: string,
         public conceptUri: ConceptURI,
         public directCallForExpansionType: PathOptions
         ){
-            super(graph, url);
+            super(graph, url, String(conceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
-        var errorOrRetry = this.fetcher.fetch(conceptPropertiesData);
-        if(0 == errorOrRetry){
-            return;
-        } else if(-1 == errorOrRetry){
-            // have an error. Done?
-            return;
-        }
         var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData);
 
         // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
@@ -711,9 +690,6 @@ class FetchOneConceptCallback extends Fetcher.CallbackObject {
 // This is useful given that parents don't show up if children are requested.
 class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
     
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: ConceptGraph,
         url: string,
@@ -721,19 +697,11 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
         public conceptNodeIdMap: ConceptIdMap,
         public directCallForExpansionType: PathOptions
         ){
-            super(graph, url);
+            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
 
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-        var errorOrRetry = this.fetcher.fetch(relationsDataRaw);
-        if(0 == errorOrRetry){
-            return;
-        } else if(-1 == errorOrRetry){
-            // have an error. Done?
-            return;
-        }
 
         // Loop over results, properties, then mappings, parents, children.
         $.each(relationsDataRaw.properties,
@@ -784,9 +752,6 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
         
 class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
     
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: ConceptGraph,
         url: string,
@@ -794,19 +759,11 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
         public conceptIdNodeMap: ConceptIdMap,
         public directCallForExpansionType: PathOptions
         ){
-            super(graph, url);
+            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-        var errorOrRetry = this.fetcher.fetch(relationsDataRaw);
-        if(0 == errorOrRetry){
-            return;
-        } else if(-1 == errorOrRetry){
-            // have an error. Done?
-            return;
-        }
         
         // Example: http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F91837002/children
         $.each(relationsDataRaw.collection,
@@ -839,9 +796,6 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
 
 class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
     
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: ConceptGraph,
         url: string,
@@ -849,19 +803,11 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
         public conceptIdNodeMap: ConceptIdMap,
         public directCallForExpansionType: PathOptions
         ){
-            super(graph, url);
+            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-        var errorOrRetry = this.fetcher.fetch(relationsDataRaw);
-        if(0 == errorOrRetry){
-            return;
-        } else if(-1 == errorOrRetry){
-            // have an error. Done?
-            return;
-        }
         
         $.each(relationsDataRaw,
                 (index, parent) => {
@@ -881,9 +827,6 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
         
 class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
     
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: ConceptGraph,
         url: string,
@@ -891,19 +834,11 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         public conceptNodeIdMap: ConceptIdMap,
         public directCallForExpansionType: PathOptions
         ){
-            super(graph, url);
+            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-        var errorOrRetry = this.fetcher.fetch(relationsDataRaw);
-        if(0 == errorOrRetry){
-            return;
-        } else if(-1 == errorOrRetry){
-            // have an error. Done?
-            return;
-        }
 
         $.each(relationsDataRaw,
                 (index, mapping)=>{
