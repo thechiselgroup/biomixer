@@ -106,8 +106,6 @@ export class ConceptGraph implements GraphView.Graph {
     
     graphD3Format: ConceptD3Data = new ConceptD3Data();
     
-    edgeRegistry: Array<Link> = [];
-    
       // To track nodes that we have in the graph (by id):
     conceptIdNodeMap: ConceptIdMap = {};
     
@@ -231,8 +229,12 @@ export class ConceptGraph implements GraphView.Graph {
             // and that has all the data we need from a separate call for properties...
             // but that subsystem relies on the fact that the node is created already.
             
-            if(!(typeof conceptPropertiesData === "undefined") && Object.keys(conceptPropertiesData).length > 0){
-                // This happens when it is a child or parent inheritance relation for term neighbourhood
+            if(!(typeof conceptPropertiesData === "undefined") && Object.keys(conceptPropertiesData).length > 0
+                && expansionType !== PathOptions.mappingsNeighborhoodConstant){
+                // Would process the node data available for mappings, but we need the "prefLabel" property,
+                // which is not included therein, so we need a separate call rather than immediate parsing.
+                // The delay in rendering seems to be negligable in practice.
+                // Otherwise, we parse such as when it is a child or parent inheritance relation for term neighbourhood
                 var conceptNode = this.parseNode(undefined, conceptPropertiesData);
                 this.fetchConceptRelations(conceptNode, conceptPropertiesData);
             } else {
@@ -307,12 +309,12 @@ export class ConceptGraph implements GraphView.Graph {
         
         var matchIdInRegistry = undefined, otherIdInGraph = undefined;
         var parentIdInRegistry = false, childIdInRegistry = false;
-        if(parentId in this.edgeRegistry && childId in this.edgeRegistry[parentId]){
+        if(this.expMan.hasEdgeRegistryEntry(parentId, childId)){
             matchIdInRegistry = parentId;
             otherIdInGraph = childId;
             parentIdInRegistry = true;
         }
-        if(childId in this.edgeRegistry && parentId in this.edgeRegistry[childId]){
+        if(this.expMan.hasEdgeRegistryEntry(childId, parentId)){
             if(matchIdInRegistry){
                 // This can happen due to race conditions among relation calls. There's four, and ndoes are instantiated first...
                 // The parent receive parents, then the child receives children, then the child receives parents and we are in this situation.
@@ -366,8 +368,8 @@ export class ConceptGraph implements GraphView.Graph {
         // Because registry contains edges for which there *was* no node for the index,
         // and there *are* nodes for the other ends of the edge, we can manifest all of
         /// them when we are doing so due to a new node appearing.
-        if(conceptId in this.edgeRegistry){
-            $.each(this.edgeRegistry[conceptId], (index, conceptsEdges)=>{
+        if(this.expMan.hasEdgeRegistryEntry(conceptId, undefined)){
+            $.each(this.expMan.getRegisteredEdgeTargetsFor(conceptId), (index, conceptsEdges)=>{
                 $.each(conceptsEdges, (index, edge: Link)=>{
                     var otherId = (edge.sourceId == conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId ;
         
@@ -613,8 +615,8 @@ export class ConceptGraph implements GraphView.Graph {
     nodeOrderedColors = d3.scale.category20().domain([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]);
     ontologyColorMap = {};
     nextNodeColor(ontologyRawAcronym: RawAcronym){
-        var ontologyAcronym: string = String(ontologyAcronym);
-        if(typeof this.ontologyColorMap[ontologyAcronym] === "undefined"){
+        var ontologyAcronym: string = String(ontologyRawAcronym);
+        if(!(ontologyAcronym in this.ontologyColorMap)){
             this.currentNodeColor = this.currentNodeColor == 19 ? 0 : this.currentNodeColor + 1;
             this.ontologyColorMap[ontologyAcronym] = this.nodeOrderedColors(this.currentNodeColor);
         }

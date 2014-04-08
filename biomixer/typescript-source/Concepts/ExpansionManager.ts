@@ -9,14 +9,29 @@ export class ExpansionManager{
     // To track nodes for which we want their neighbours expanded (by id and expansion type):
     private conceptsToExpand = {};
     
-       // Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.:
+    // Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.:
     // To track edges that we know about that haven't yet been added to the graph (by node not yet in graph and node in graph and type):
-    private edgeRegistry = {};
+    private edgeRegistry: {[sourceNodeId: string]: {[targetNodeId: string]: {[relationType: string]: ConceptGraph.Link }} } = {};
 
     constructor(
         
     ){
         
+    }
+    
+    /**
+     * Checks if the one or two node ids provided have corresponding (nested) entries in the registry.
+     */
+    hasEdgeRegistryEntry(firstNodeId: string, secondNodeId?: string): boolean{
+        // I'd use overloading, but it turns out the same anyway.
+        if(secondNodeId === undefined){
+            return firstNodeId in this.edgeRegistry;
+        }
+        return firstNodeId in this.edgeRegistry && secondNodeId in this.edgeRegistry[firstNodeId];
+    }
+    
+    getRegisteredEdgeTargetsFor(nodeId: string): {[targetNodeId: string]: {[relationType: string]: ConceptGraph.Link }}{
+        return this.edgeRegistry[nodeId];
     }
     
     /**
