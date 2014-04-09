@@ -80,15 +80,6 @@ export interface OntologyAcronymMap {
 export class OntologyD3Data extends GraphView.GraphDataForD3<Node, Link> {
     
 }
-    
-
-
-function escapeAcronym(acronym){
-    //  return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
-    // JQuery selectors do not work with things that need escaping.
-    // Let's use double underscores instead.
-    return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '__');
-}
 
 
 
@@ -143,15 +134,11 @@ export class OntologyGraph implements GraphView.Graph {
     	// 1) Get mappings to central ontology
     	var ontologyMappingUrl = buildOntologyMappingUrlNewApi(centralOntologyAcronym);
     	var ontologyMappingCallback = new OntologyMappingCallback(this, ontologyMappingUrl, centralOntologyAcronym);
-    	var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMappingCallback);
-    	fetcher.fetch();
+    	var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMappingUrl);
+    	fetcher.fetch(ontologyMappingCallback);
     }
-    
-    fetchNodeRestData(node: Node){
-        this.fetchMetricsAndDescriptionFunc(node);
-    }
-    
-      /**
+   
+    /**
      * The functions attached to the nodes in here allow us to call per-node APIs as needed, rather than
      * all at once.
      * 
@@ -164,29 +151,23 @@ export class OntologyGraph implements GraphView.Graph {
      * 
      * @param node
      */
-    private fetchMetricsAndDescriptionFunc(node: Node){
+     fetchNodeRestData(node: Node){
         // Check registry for node status
         var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
-        if(Fetcher.Registry.checkUrlInRestCallWhiteList(ontologyMetricsUrl)){
-            // Combined dispatch for the separate calls for metrics and descriptions.
-            // The metric call has much of the info we need
-            var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
-            // var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
-            // fetcher.retryFetch();
-            var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsCallback);
-            fetcher.fetch();
-        }
+        // Combined dispatch for the separate calls for metrics and descriptions.
+        // The metric call has much of the info we need
+        var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
+        var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsUrl);
+        fetcher.fetch(ontologyMetricsCallback);
     
         var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
-        if(Fetcher.Registry.checkUrlInRestCallWhiteList(ontologyDescriptionUrl)){
-            // If we want Description, I think we need to grab the most recent submission
-            // and take it fromt here. This is another API call per ontology.
-            // /ontologies/:acronym:/lastest_submission
-            // Descriptions are in the submissions, so we need an additional call.
-            var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
-            var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionCallback);
-            fetcher.fetch();
-        }
+        // If we want Description, I think we need to grab the most recent submission
+        // and take it fromt here. This is another API call per ontology.
+        // /ontologies/:acronym:/lastest_submission
+        // Descriptions are in the submissions, so we need an additional call.
+        var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
+        var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionUrl);
+        fetcher.fetch(ontologyDescriptionCallback);
         
         return true;
     }
@@ -253,15 +234,12 @@ export class OntologyGraph implements GraphView.Graph {
 // Doesn't need REST call registry, so if I refactor, keep that in mind.
 class OntologyMappingCallback extends Fetcher.CallbackObject {
 
-    // Define this fetcher when one is instantiated (circular dependency)
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: OntologyGraph,
         url: string,
         public centralOntologyAcronym: string
         ){
-            super(graph, url);
+            super(graph, url, centralOntologyAcronym);
     }
 
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
@@ -275,15 +253,6 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
     // For this case, the caller has no "this" of interest to us, so fat arrow works.
 	public callback = (mappingData: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
-//		var errorOrRetry = self.fetcher.retryFetch(mappingData);
-		var errorOrRetry = this.fetcher.fetch(mappingData);
-		if(0 == errorOrRetry){
-			return;
-		} else if(-1 == errorOrRetry){
-			// have an error. Done?
-			return;
-		}
 		
 		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
 		$.each(mappingData, (index, element)=>{
@@ -318,7 +287,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		centralOntologyNode.y = this.graph.graphView.visHeight()/2;		
 		centralOntologyNode.weight = numberOfMappedOntologies; // will increment as we loop
 		centralOntologyNode.number = defaultNumOfTermsForSize; // number of terms
-		centralOntologyNode.acronymForIds = escapeAcronym(this.centralOntologyAcronym);
+		centralOntologyNode.acronymForIds = Utils.escapeIdentifierForId(this.centralOntologyAcronym);
 		centralOntologyNode.rawAcronym = this.centralOntologyAcronym;
 		centralOntologyNode.nodeColor = this.graph.nextNodeColor();
 		centralOntologyNode.innerNodeColor = this.graph.brightenColor(centralOntologyNode.nodeColor);
@@ -369,7 +338,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyNode.x = this.graph.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
 				ontologyNode.y = this.graph.graphView.visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
-				ontologyNode.acronymForIds = escapeAcronym(acronym);
+				ontologyNode.acronymForIds = Utils.escapeIdentifierForId(acronym);
 				ontologyNode.rawAcronym = acronym;
 				ontologyNode.nodeColor = this.graph.nextNodeColor();
 				ontologyNode.innerNodeColor = this.graph.brightenColor(ontologyNode.nodeColor);
@@ -401,7 +370,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		//		$.each(sortedAcronymsByMappingCount, function(index, rawAcronym){
 		//			// fetch the node, make the individual calls
 		//			var node = $(ontologyAcronymNodeMap).attr("vid:"+rawAcronym);
-		//			node.fetchMetricsAndDescriptionFunc();
+		//			node.fetchNodeRestData();
 		//		})
 		
 		// Not sure about whether to do this here or not...
@@ -415,10 +384,6 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		// Get to "Processing details" log entry in 45 seconds when all are allowed right away, versus 1 second when
 		// we only get the first one, and let the filter trigger the rest. Labels and node sizes are subsequently
 		// quicker to appear as well.
-//		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyMetricsUrlNewApi(centralOntologyNode.rawAcronym));
-//		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyLatestSubmissionUrlNewApi(centralOntologyNode.rawAcronym));
-        Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyMetricsUrlNewApi(centralOntologyNode.rawAcronym));
-        Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyLatestSubmissionUrlNewApi(centralOntologyNode.rawAcronym));
 		this.graph.fetchNodeRestData(centralOntologyNode);
 
 		//----------------------------------------------------------
@@ -428,8 +393,8 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		var ontologyDetailsCallback = new OntologyDetailsCallback(this.graph, ontologyDetailsUrl, ontologyAcronymNodeMap);
 //		var fetcher = new RetryingJsonpFetcher(ontologyDetailsCallback);
 //		fetcher.retryFetch();
-		var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDetailsCallback);
-		fetcher.fetch();
+		var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDetailsUrl);
+		fetcher.fetch(ontologyDetailsCallback);
 	}
 	
 }
@@ -440,29 +405,18 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 //Doesn't need REST call registry, so if I refactor, keep that in mind.
 class OntologyDetailsCallback extends Fetcher.CallbackObject {
 
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: OntologyGraph,
         url: string,
         public ontologyAcronymNodeMap: OntologyAcronymMap
         ){
-            super(graph, url);
+            super(graph, url, ""); // only gets called once normally
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (detailsDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
-//		var errorOrRetry = self.fetcher.retryFetch(detailsDataRaw);
-		var errorOrRetry = this.fetcher.fetch(detailsDataRaw);
-		if(0 == errorOrRetry){
-			return;
-		} else if(-1 == errorOrRetry){
-			// have an error. Done?
-			return;
-		}
-		
 		console.log("Processing details "+Utils.getTime());
 		
 		// Loop over ontologies and add their additional properties to the nodes
@@ -498,10 +452,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 //					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
 					
 					// I'm moving this all to on-demand (probably via the filter).
-					// node.fetchMetricsAndDescriptionFunc();
-					
-					Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyMetricsUrlNewApi(node.rawAcronym));
-					Fetcher.Registry.addUrlToRestCallRegistry(buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym));
+					// node.fetchNodeRestData();
 				}
 		);
 		
@@ -523,27 +474,17 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
     
 class OntologyMetricsCallback extends Fetcher.CallbackObject {
 
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: OntologyGraph,
         url: string,
         public node: Node 
         ){
-            super(graph, url);
+            super(graph, url, String(node.rawAcronym));
     }
 
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (metricDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-//		var errorOrRetry = 	self.fetcher.retryFetch(metricDataRaw);
-		var errorOrRetry = 	this.fetcher.fetch(metricDataRaw);
-		if(0 == errorOrRetry){
-			return;
-		} else if(-1 == errorOrRetry){
-			// have an error. Done?
-			return;
-		}
 		
 		var metricData = metricDataRaw;
 		
@@ -577,28 +518,17 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
     
 class OntologyDescriptionCallback extends Fetcher.CallbackObject {
 
-    fetcher: Fetcher.RetryingJsonFetcher;
-    
     constructor(
         public graph: OntologyGraph,
         url: string,
         public node: Node 
         ){
-            super(graph, url);
+            super(graph, url, String(node.rawAcronym));
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (latestSubmissionData: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-		
-//		var errorOrRetry = 	self.fetcher.retryFetch(metricDataRaw);
-		var errorOrRetry = 	this.fetcher.fetch(latestSubmissionData);
-		if(0 == errorOrRetry){
-			return;
-		} else if(-1 == errorOrRetry){
-			// have an error. Done?
-			return;
-		}
 		
 		var description="";
 	    if (typeof latestSubmissionData !== "undefined") {
@@ -617,18 +547,18 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
 }
     
 function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://"+Utils.bioportalUrl+"/mappings/statistics/ontologies/"+centralOntologyAcronym;
+	return "http://"+Utils.getBioportalUrl()+"/mappings/statistics/ontologies/"+centralOntologyAcronym;
 }
 
 function buildOntologyDetailsUrlNewApi(){
-	return "http://"+Utils.bioportalUrl+"/ontologies";
+	return "http://"+Utils.getBioportalUrl()+"/ontologies";
 }
 
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/metrics";
+	return "http://"+Utils.getBioportalUrl()+"/ontologies/"+ontologyAcronym+"/metrics";
 }
 
 function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-	return "http://"+Utils.bioportalUrl+"/ontologies/"+ontologyAcronym+"/latest_submission";
+	return "http://"+Utils.getBioportalUrl()+"/ontologies/"+ontologyAcronym+"/latest_submission";
 }
 

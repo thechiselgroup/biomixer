@@ -115,7 +115,7 @@ export class ConceptLayouts {
                         console.log("Undefined concept entry");
                     }
                     
-                    if(node.conceptId!=outerThis.centralConceptUri){
+                    if(node.rawConceptUri!=outerThis.centralConceptUri){
                         var angleForNode = i * anglePerNode; 
                         i++;
                         node.x = outerThis.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
@@ -149,6 +149,10 @@ export class ConceptLayouts {
     runForceLayoutLambda(){
         var outerThis = this;
         return function(){
+            outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
+            .gravity(0.05) // 0.5
+            .charge(-30) // -100
+            ;
             outerThis.forceLayout.on("tick", outerThis.graphView.onLayoutTick());
             outerThis.forceLayout.start();
     

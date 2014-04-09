@@ -1,5 +1,7 @@
 ///<reference path="headers/require.d.ts" />
 
+///<reference path="headers/d3.d.ts" />
+
 export class GraphDataForD3<N extends BaseNode, L extends BaseLink> {
     public nodes: Array<N> = [];
     public links: Array<L> = [];
@@ -60,9 +62,24 @@ export class BaseGraphView {
     visWidth(){ return $("#chart").width(); }
     visHeight(){ return $("#chart").height(); }
     linkMaxDesiredLength(){ return Math.min(this.visWidth(), this.visHeight())/2 - 50; }
-    closeMenu(){return ()=>{ $(this.menuSelector).hide()};}
     
-    menuSelector: string = 'div#hoveringGraphMenu';
+     resizedWindowLambda  = () => {
+        d3.select("#graphRect")
+        .attr("width", this.visWidth())
+        .attr("height", this.visHeight());
+        
+        d3.select("#graphSvg")
+        .attr("width", this.visWidth())
+        .attr("height", this.visHeight());
+        
+        // TODO Layouts not relying on force need additional support here.
+         // This might need to call back into an instance method named something like "layoutResized"
+        if(this.forceLayout){
+            this.forceLayout.size([this.visWidth(), this.visHeight()]).linkDistance(this.linkMaxDesiredLength());
+            // If needed, move all the nodes towards the new middle here.
+            this.forceLayout.resume();
+        }  
+    }
     
     // These are needed to do a refresh of popups when new data arrives and the user has the popup open
     lastDisplayedTipsy = null;
@@ -80,7 +97,6 @@ export interface GraphView<N extends BaseNode, L extends BaseLink> extends BaseG
     visWidth(): number;
     visHeight(): number;
     linkMaxDesiredLength(): number;
-    closeMenu();
     // needs to contain the onTick listener function
     onLayoutTick(): {()} ;
     
@@ -88,4 +104,5 @@ export interface GraphView<N extends BaseNode, L extends BaseLink> extends BaseG
     removeGraphPopulation();
     filterGraphOnMappingCounts();
     updateDataForNodesAndLinks(newDataSubset: GraphDataForD3<N, L>);
+    createNodePopupTable(nodeSvg, nodeData);
 }
