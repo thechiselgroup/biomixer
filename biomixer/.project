@@ -30,6 +30,11 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>com.palantir.typescript.typeScriptBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
@@ -37,5 +42,6 @@
 		<nature>com.google.gdt.eclipse.core.webAppNature</nature>
 		<nature>net.sourceforge.metrics.nature</nature>
 		<nature>com.google.appengine.eclipse.core.gaeNature</nature>
+		<nature>com.palantir.typescript.typeScriptNature</nature>
 	</natures>
 </projectDescription>

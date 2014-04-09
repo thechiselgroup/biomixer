@@ -20,17 +20,20 @@ var hardNodeCap = 0; // 10 and 60 are nice number for dev, but set to 0 for all 
 
 // This cap only affects API dispatch and rendering for nodes past the cap. It is used during
 // initialization only. Set to 0 means all nodes will be used.
-var softNodeCap = 0; 
+var softNodeCap = 19; 
 
-// Stores acronyms sorted by mapping count in descending order.
+// Stores {acronyms,node} sorted by mapping count in descending order.
 // Limit it with hardNodeCap during init in dev only.
 // Slice it with softNodeCap during init.
-var sortedAcronymsByMappingCount= [];
+var sortedAcronymsByMappingCount = [];
 
 //Keep track of node mapping values in order, so we can filter through them in ranks
-// This container is separate from the array of acronyms sorted by mappign counts...shall
+// This container is separate from the array of acronyms sorted by mapping counts...shall
 // they be combined?
 var sortedLinksByMapping = [];
+
+// Put a re-callable layout function in runCurrentLayout.
+var runCurrentLayout = executeCenterLayout;
 
 function visWidth(){ return $("#chart").width(); }
 function visHeight(){ return $("#chart").height(); }
@@ -41,6 +44,9 @@ var centralOntologyAcronym = purl().param("ontology_acronym");
 var dragging = false;
 var ontologyTick; // needs to contain the onTick listener function
 
+var menuSelector = 'div#hoveringGraphMenu';
+function closeMenu(){return function(){ $(menuSelector).hide()};}
+
 // These are needed to do a refresh of popups when new data arrives and the user has the popup open
 var lastDisplayedTipsy = null, lastDisplayedTipsyData = null, lastDisplayedTipsyCircle = null;
 
@@ -49,20 +55,152 @@ var defaultNodeColor = "#000000";
 var defaultLinkColor = "#999";
 var nodeHighlightColor = "#FC6854";
 
+
+//This registry is used to track REST call privileges and status.
+var nodeRestCallRegistry = {};
+
+var restCallStatus = {EXCLUDED: "excluded", ALLOWED: "allowed", AWAITING: "awaiting", COMPLETED: "completed", ERROR: "error", FORBIDDEN: "forbidden"};
+/*
+ * We can logically make the following transitions:
+ * <none> -> ALLOWED
+ * <none> -> EXCLUDED
+ * ALLOWED -> EXCLUDED
+ * ALLOWED -> AWAITING
+ * EXCLUDED -> ALLOWED
+ * AWAITING -> FORBIDDEN
+ * AWAITING -> ERROR
+ * AWAITING -> COMPLETED
+ * ERROR -> ALLOWED
+ * 
+ * COMPLETED and FORBIDDEN should never ever be changed.
+ */
+function validRestCallStateTransition(oldStatus, newStatus, node, restCallUriFunction){
+	var isValid = true;
+	switch(oldStatus){
+	case restCallStatus.ALLOWED:
+		if(newStatus !== restCallStatus.AWAITING
+				&& newStatus !== restCallStatus.EXCLUDED){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.EXCLUDED:
+		if(newStatus !== restCallStatus.ALLOWED){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.AWAITING:
+		if(newStatus !== restCallStatus.COMPLETED
+				&& newStatus !== restCallStatus.ERROR
+				&& newStatus !== restCallStatus.FORBIDDEN){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.ERROR:
+		if(newStatus !== restCallStatus.ALLOWED){
+			isValid = false;
+		}
+		break;
+	case restCallStatus.FORBIDDEN:
+		isValid = false;
+		break;
+	case restCallStatus.COMPLETED:
+		isValid = false;
+		break;
+	default:
+		// This is no value at all.
+		if(newStatus !== restCallStatus.ALLOWED
+				&& newStatus !== restCallStatus.EXCLUDED){
+			isValid = false;
+		}
+		break;
+	}
+	
+	if(!isValid && oldStatus != newStatus){
+		// Note that if any nodes are "pre-loaded", this is a likely and acceptable to happen when they are triggered via other means.
+		// This will also happen in the concept graph when multiple relations are followed to the same node.
+		// Only use this for debugging purposes.
+		// console.log("Invalid rest call registry status change requested: "+oldStatus+" to "+newStatus+" for rest call and node: "+restCallUriFunction);
+		// console.log(node);
+	}
+	
+	return isValid;
+	
+	
+}
+
+/**
+ * Nodes have REST calls made when they are made visible to the graph, as opposed to when they are added to it.
+ * Perhaps our needs will change later, but the logic should be extensible for that.
+ * 
+ * Nodes will only have their REST calls made when the call in question hasn't been made, and when they are cleared
+ * to have their call made.
+ * 
+ * @param node
+ * @param restCallUriFunction
+ * @param status	Optional. Defaults to ALLOWED status for the specified REST call.
+ */
+function addNodeToRestCallRegistry(node, restCallUriFunction, status){
+	if(typeof status === "undefined"){
+		status = restCallStatus.ALLOWED;
+	}
+		
+	if(typeof nodeRestCallRegistry[node] === "undefined"){
+		nodeRestCallRegistry[node] = {};
+	} else {
+		var currentStatus = nodeRestCallRegistry[node][restCallUriFunction];
+		if(typeof currentStatus !== "undefined"){
+			if(!validRestCallStateTransition(currentStatus, status, node, restCallUriFunction)){
+				return;
+			}
+		}
+	}
+	
+	nodeRestCallRegistry[node][restCallUriFunction] = status;
+}
+
+/**
+ * Fetcher uses this to update node privileges. Can we used external to fetcher as well,
+ * but if fetches are underway, it is unsafe. Specifically, once permission has been granted,
+ * taking it away is not guaranteed to work.
+ * 
+ * @param node
+ * @param restCallUriFunction
+ * @param status
+ */
+function updateStatusForNodeInRestCallRegistry(node, restCallUriFunction, status){
+	addNodeToRestCallRegistry(node, restCallUriFunction, status);
+}
+
+/**
+ * Call this prior to asking for a REST call. If it returns true, do the call, otherwise do not.
+ * 
+ * @param node
+ * @param restCallUriFunction
+ */
+function checkNodeInRestCallWhiteList(node, restCallUriFunction){
+	if(typeof nodeRestCallRegistry[node] !== "undefined"){
+		return nodeRestCallRegistry[node][restCallUriFunction] === restCallStatus.ALLOWED;
+	} else {
+		return false;
+	}
+}
+
+
+
 function getTime(){
 	var now = new Date();
-	return now.getMinutes()+':'+now.getSeconds();
+	return now.getHours()+":"+now.getMinutes()+':'+now.getSeconds();
 }
 
 
 // Had to set div#chart.gallery height = 100% in CSS,
 // but this was only required in Firefox. I can't see why.
-prepGraphMenu();
 var vis = d3.select("#chart").append("svg:svg")
 	.attr("id", "graphSvg")
 	.attr("width", visWidth())
 	.attr("height", visHeight())
 	.attr("pointer-events", "all")
+	.on("click", closeMenu())
 //  .append('svg:g')
     .call(d3.behavior.zoom().on("zoom", redraw))
 //  .append('svg:g')
@@ -136,7 +274,6 @@ var ontologyNeighbourhoodJsonForGraph = new Object();
 ontologyNeighbourhoodJsonForGraph.nodes = [];
 ontologyNeighbourhoodJsonForGraph.links = [];
 
-
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);
 initAndPopulateGraph();
@@ -156,14 +293,14 @@ function fetchOntologyNeighbourhood(centralOntologyAcronym){
 	
 	/* Adding BioPortal data for ontology overview graph (mapping neighbourhood of a single ontology node)
 	1) Get the mapped ontology ids from the target ontology id [starts at line 126 in OntologyMappingNeighbourhood]
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
+	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F1033&callback=__gwt_jsonp__.P0.onSuccess
 	   - can create nodes and links with sparse meta-data now if we want, or we can wait for more data
 	2) Get ontology details, which is one big json return [passed to line 167 for class OntologyMappingNeighbourhoodLoader nested class OntologyDetailsCallback]
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
+	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2F&callback=__gwt_jsonp__.P1.onSuccess
 	   - fill in nodes with details from this data
 	3) Get ontology metrics for each ontology [line 82 in AutomaticOntologyExpander]
 	   - set node size (# of concepts), and tool tip properties of classes, individuals, properties, and notes
-	   http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
+	   http://bioportal.bioontology.org/ajax/jsonp?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&userapikey=&path=%2Fontologies%2Fmetrics%2F45254&callback=__gwt_jsonp__.P7.onSuccess
 	*/
 	
 	// 1) Get mappings to central ontology
@@ -176,9 +313,13 @@ function fetchOntologyNeighbourhood(centralOntologyAcronym){
 }
 
 function escapeAcronym(acronym){
-	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+	//	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
+	// JQuery selectors do not work with things that need escaping.
+	// Let's use double underscores instead.
+	return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '__');
 }
 
+// Doesn't need REST call registry, so if I refactor, keep that in mind.
 function OntologyMappingCallback(url, centralOntologyAcronym){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
@@ -201,11 +342,11 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
 		$.each(mappingData, function(index, element){
 			// Hard cap on nodes included. Great for dev purposes.
-			sortedAcronymsByMappingCount.push(index);
+			sortedAcronymsByMappingCount.push({acronym: index, node: undefined});
 			}
 		);
-		sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[b]-mappingData[a]});
-		 
+		sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[b.acronym]-mappingData[a.acronym]});
+		
 		// Reduce to a useful number of nodes.
 		if(hardNodeCap != 0 && sortedAcronymsByMappingCount.length > hardNodeCap){
 			sortedAcronymsByMappingCount = sortedAcronymsByMappingCount.slice(0, hardNodeCap);
@@ -218,11 +359,11 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		
 		var defaultNumOfTermsForSize = 10;
 		
-		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a
+		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1
 
 		// Create the central node
 		var centralOntologyNode = new Object();
-		centralOntologyNode.name = "fetching";
+		centralOntologyNode.name = "fetching"+" ("+centralOntologyAcronym+")";
 		centralOntologyNode.description = "fetching description";
 		centralOntologyNode.fixed = true; // lock central node
 		centralOntologyNode.x = visWidth()/2;
@@ -237,8 +378,14 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		centralOntologyNode.mapped_classes_to_central_node = 0;
 		centralOntologyNode.displayedArcs = 0;
 		ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
-		
-		attachOnDemandApiFunctions(centralOntologyNode);
+		// Lame loop to find the central node in our sorted set
+		$.each(sortedAcronymsByMappingCount,
+				function(index, sortedAcronym){
+					if(sortedAcronym.acronym == centralOntologyNode.rawAcronym){
+						sortedAcronym.node = centralOntologyNode
+					}
+				}
+		);
 		
 		var ontologyAcronymNodeMap = new Object();
 		$(ontologyAcronymNodeMap).attr("vid:"+centralOntologyNode.rawAcronym, centralOntologyNode);
@@ -255,7 +402,8 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Used to iterate over raw mappingData, but I wanted things loaded and API calls made in order
 		// of mapping counts.
 		$.each(sortedAcronymsByMappingCount,
-			function(index, acronym){
+			function(index, sortedAcronym){
+				var acronym = sortedAcronym.acronym;
 				var mappingCount = mappingData[acronym];
 
 				if(typeof acronym === "undefined"){
@@ -264,7 +412,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				
 				// Create the neighbouring nodes
 				var ontologyNode = new Object();
-				ontologyNode.name = "fetching";
+				ontologyNode.name = "fetching"+" ("+acronym+")";
 				ontologyNode.description = "fetching description";
 				ontologyNode.weight = 1;
 				ontologyNode.fixed = false; // lock central node
@@ -283,8 +431,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 				var targetIndex = ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
 				// TODO I feel like JS doesn't allow references like this...
 				$(ontologyAcronymNodeMap).attr("vid:"+ontologyNode.rawAcronym, ontologyNode);
-				
-				attachOnDemandApiFunctions(ontologyNode);
+				sortedAcronym.node = ontologyNode;
 				
 				// Make the links at the same time; they are done now!
 				var ontologyLink = new Object();
@@ -314,6 +461,17 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
 		populateGraph(ontologyNeighbourhoodJsonForGraph, true);
+		
+		// Once we have the graph populated, we have this one node we know we can call REST calls for, the central node!
+		// The other nodes need to wait, since when we get the details call back later, we will see that many
+		// of them are inaccessible. Making calls for those ones is a waste of time.
+		// The easiest way to benchmark is to do *all* nodes right above in the loop
+		// Get to "Processing details" log entry in 45 seconds when all are allowed right away, versus 1 second when
+		// we only get the first one, and let the filter trigger the rest. Labels and node sizes are subsequently
+		// quicker to appear as well.
+		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyMetricsUrlNewApi(centralOntologyNode.rawAcronym));
+		addNodeToRestCallRegistry(centralOntologyNode, buildOntologyLatestSubmissionUrlNewApi(centralOntologyNode.rawAcronym));
+		fetchMetricsAndDescriptionFunc(centralOntologyNode);
 
 		//----------------------------------------------------------
 
@@ -329,7 +487,7 @@ function OntologyMappingCallback(url, centralOntologyAcronym){
 }
 
 
-
+//Doesn't need REST call registry, so if I refactor, keep that in mind.
 function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 	this.url = url;
 	// Define this fetcher when one is instantiated (circular dependency)
@@ -383,10 +541,11 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 					// node.description = ontologyDetails.description; // Unavailable in details call
 //					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
 					
-					// console.log("Don't keep this Eric, just for testing.");
 					// I'm moving this all to on-demand (probably via the filter).
-					 console.log("Swirling layout started when I stopped fetching metrics here...why?");
-					node.fetchMetricsAndDescriptionFunc();
+					// node.fetchMetricsAndDescriptionFunc();
+					
+					addNodeToRestCallRegistry(node, buildOntologyMetricsUrlNewApi(node.rawAcronym));
+					addNodeToRestCallRegistry(node, buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym));
 				}
 		);
 		
@@ -405,6 +564,8 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
 	}
 }
 
+
+
 /**
  * The functions attached to the nodes in here allow us to call per-node APIs as needed, rather than
  * all at once.
@@ -418,34 +579,31 @@ function OntologyDetailsCallback(url, ontologyAcronymNodeMap){
  * 
  * @param node
  */
-function attachOnDemandApiFunctions(node){
-	node.fetchMetricsAndDescriptionFunc = function(){
-		{
-			// Combined dispatch for the separate calls for metrics and descriptions.
-			// The metric call has much of the info we need
-			var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
-			var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
-			// var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
-			// fetcher.retryFetch();
-			var fetcher = closureRetryingJsonpFetcher(ontologyMetricsCallback);
-			fetcher();
-		}
+function fetchMetricsAndDescriptionFunc(node){
+	// Check registry for node status
+	var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
+	if(checkNodeInRestCallWhiteList(node, ontologyMetricsUrl)){
+		// Combined dispatch for the separate calls for metrics and descriptions.
+		// The metric call has much of the info we need
+		var ontologyMetricsCallback = new OntologyMetricsCallback(ontologyMetricsUrl, node);
+		// var fetcher = new RetryingJsonpFetcher(ontologyMetricsCallback);
+		// fetcher.retryFetch();
+		var fetcher = closureRetryingJsonpFetcher(ontologyMetricsCallback);
+		fetcher();
+	}
 
-		{
-			// If we want Description, I think we need to grab the most recent submission
-			// and take it fromt here. This is another API call per ontology.
-			// /ontologies/:acronym:/lastest_submission
-			// Descriptions are in the submissions, so we need an additional call.
-			var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
-			var ontologyDescriptionCallback = new OntologyDescriptionCallback(ontologyDescriptionUrl, node);
-			var fetcher = closureRetryingJsonpFetcher(ontologyDescriptionCallback);
-			fetcher();
-		}
-		
-		node.fetchMetricsAndDescriptionFunc = function(){return false;};
-		
-		return true;
-	};
+	var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
+	if(checkNodeInRestCallWhiteList(node, ontologyDescriptionUrl)){
+		// If we want Description, I think we need to grab the most recent submission
+		// and take it fromt here. This is another API call per ontology.
+		// /ontologies/:acronym:/lastest_submission
+		// Descriptions are in the submissions, so we need an additional call.
+		var ontologyDescriptionCallback = new OntologyDescriptionCallback(ontologyDescriptionUrl, node);
+		var fetcher = closureRetryingJsonpFetcher(ontologyDescriptionCallback);
+		fetcher();
+	}
+	
+	return true;
 }
 
 function OntologyMetricsCallback(url, node){
@@ -484,7 +642,7 @@ function OntologyMetricsCallback(url, node){
 	        }
 	    }
 	    
-		self.node.weight = 1;
+	    // self.node.weight = 1; // Changing weight re-triggers layout shifting, turns into a swirling mess.
 		self.node.numberOfClasses = numClasses;
 		self.node.numberOfIndividuals = numIndividuals;
 		self.node.numberOfProperties = numProperties;
@@ -532,32 +690,20 @@ function OntologyDescriptionCallback(url, node){
 }
 
 
-//function buildOntologyMappingUrl(centralOntologyVirtualId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fvirtual%2Fmappings%2Fstats%2Fontologies%2F"+centralOntologyVirtualId+"&callback=?";
-//}
-
 function buildOntologyMappingUrlNewApi(centralOntologyAcronym){
-	return "http://data.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 }
-
-//function buildOntologyDetailsUrl(){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2F"+"&callback=?";
-//}
 
 function buildOntologyDetailsUrlNewApi(){
-	return "http://data.bioontology.org/ontologies"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+	return "http://data.bioontology.org/ontologies"+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 }
 
-//function buildOntologyMetricsUrl(ontologyVersionId){
-//	return "http://bioportal.bioontology.org/ajax/jsonp?apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a&userapikey=&path=%2Fontologies%2Fmetrics%2F"+ontologyVersionId+"&callback=?";
-//}
-
 function buildOntologyMetricsUrlNewApi(ontologyAcronym){
-	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/metrics"+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?"
 }
 
 function buildOntologyLatestSubmissionUrlNewApi(ontologyAcronym){
-	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?"
+	return "http://data.bioontology.org/ontologies/"+ontologyAcronym+"/latest_submission"+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?"
 }
 
 //function RetryingJsonpFetcher(callbackObject){
@@ -621,10 +767,16 @@ function closureRetryingJsonpFetcher(callbackObject){
 	 * Return values: -1 is non-retry due to error, 0 is retry, 1 is success, no error.
 	 */
 	callbackObject.fetcher = function(resultData){
+			
 			// console.log("retryFetch for "+callbackObject.url);
 			if(typeof resultData === "undefined"){
 				// If not error, call for first time
 				jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+				if(typeof callbackObject.node !== "undefined"){
+					// I would adore classes to handle this. Cases without nodes would not implement
+					// registry functionality.
+					updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.AWAITING);
+				}
 				return 0;
 			}
 			
@@ -632,30 +784,46 @@ function closureRetryingJsonpFetcher(callbackObject){
 				if(resultData.status == "404"){
 					// 404 Error should fill in some popup data points, so let through...
 					console.log("Error: "+callbackObject.url+" --> Data: "+resultData.error);
+					if(typeof callbackObject.node !== "undefined"){
+						updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.ERROR);
+					}
 			    	return 1;
 				} else if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
 					console.log("Forbidden Error, no retry: "
 							+"\nURL: "+callbackObject.url
 							+"\nReply: "+resultData.error);
+					if(typeof callbackObject.node !== "undefined"){
+						updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.FORBIDDEN);
+					}
 		    		return -1;
 				} else if(resultData.status == "500" || resultData.status == "403"){
 		    		if(previousRetriesMade < 4){
 		    			previousRetriesMade++;
 		    			console.log("Retrying: "+callbackObject.url);
 		    			jQuery.getJSON(callbackObject.url, null, callbackObject.callback);
+		    			// update to status unnecessary; still awaiting.
 		    			return 0;
 		    		} else {
 			    		// Error, but we are done retrying.
 			    		console.log("No retry, Error: "+resultData);
+			    		if(typeof callbackObject.node !== "undefined"){
+			    			updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.ERROR);
+			    		}
 			    		return -1;
 		    		}
 		    	} else {
 			    	// Don't retry for other errors
 		    		console.log("Error: "+callbackObject.url+" --> Data: "+resultData.error);
+		    		if(typeof callbackObject.node !== "undefined"){
+		    			updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.ERROR);
+		    		}
 			    	return -1;
 		    	}
 		    } else {
 		    	// Success, great!
+		    	if(typeof callbackObject.node !== "undefined"){
+		    		updateStatusForNodeInRestCallRegistry(callbackObject.node, callbackObject.url, restCallStatus.COMPLETED);
+		    	}
 		    	return 1;
 		    }
 		}
@@ -663,10 +831,12 @@ function closureRetryingJsonpFetcher(callbackObject){
 	return callbackObject.fetcher;
 }
 
+
+
 function initAndPopulateGraph(json){
 	initGraph();
 	
-
+	prepGraphMenu();
 	
 	// Will do async stuff and add to graph
 	fetchOntologyNeighbourhood(centralOntologyAcronym);
@@ -760,13 +930,13 @@ function createNodePopupTable(ontologyCircle, ontologyData){
 	 tBody.append(
 			 $("<tr></tr>").append(
 				   $("<td></td>").append(
-						   $("<div></div>").text(ontologyData["displayAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+						   $("<div></div>").text(ontologyData["rawAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
 				   )
 		   )
 	 );
    
      
-     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["displayAcronym"]+"?p=summary";
+     var urlText = "http://bioportal.bioontology.org/ontologies/"+ontologyData["rawAcronym"]+"?p=summary";
      tBody.append(
     		 $("<tr></tr>").append(
     				 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -791,7 +961,7 @@ function createNodePopupTable(ontologyCircle, ontologyData){
      
      var jsonArgs = {
     		 "Ontology Name: ": "name",
-    		 "Ontology Acronym: ": "displayAcronym",
+    		 "Ontology Acronym: ": "rawAcronym",
     		 "Ontology URI: ": "uriId",
     		 "Description: ": "description",
     		 "Num Classes: ": "numberOfClasses",
@@ -814,8 +984,26 @@ function createNodePopupTable(ontologyCircle, ontologyData){
         		 )
          );
      });
+     
+     // Can't do math in that little loop I made
+     var roundedPercent = precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 0);
+	 tBody.append(
+		 $("<tr></tr>").append(
+			 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+				 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
+					 $("<b></b>").text("Mapped: ")
+				 ).append(
+					 $("<span></span>").text(roundedPercent+"%")
+				 )
+			 )
+		 )
+	 );
 
      return outerDiv.prop("outerHTML");
+}
+
+function precise_round(num,decimals) {
+    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 /**
@@ -835,16 +1023,16 @@ function populateGraph(json, newElementsExpected){
 	
 	// Data constancy via key function() passed to data()
 	// Link stuff first
-	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.rawAcronym+"->"+d.target.rawAcronym});
+	var links = vis.selectAll("line.link").data(json.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
 	// console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 
 	// Add new stuff
 	if(newElementsExpected === true)
 	links.enter().append("svg:line")
 	.attr("class", "link") // Make svg:g like nodes if we need labels
-	.attr("id", function(d){ return "link_line_"+d.source.acronymForIds+"->"+d.target.acronymForIds})
+	.attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
 	.on("mouseover", highlightLink())
-	.on("mouseout", changeColourBack);
+	.on("mouseout", removeNodeAndLinkHighlighting);
 	
 	// console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
 	
@@ -868,7 +1056,7 @@ function populateGraph(json, newElementsExpected){
 	if(newElementsExpected === true)
 	links.append("title") // How would I *update* this if I needed to?
 		.text(function(d) { return "Number Of Mappings: "+d.numMappings; })
-			.attr("id", function(d){ return "link_title_"+d.source.acronymForIds+"->"+d.target.acronymForIds});
+			.attr("id", function(d){ return "link_title_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds});
 
 	updateTopMappingsSliderRange();
 	
@@ -906,8 +1094,8 @@ function populateGraph(json, newElementsExpected){
     .style("stroke", darkenColor(defaultNodeColor))
 	.attr("data-radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyNodeScalingFunc(d.number, d.rawAcronym); })
-	.on("mouseover", changeColour)
-	.on("mouseout", changeColourBack);
+	.on("mouseover", highlightNode)
+	.on("mouseout", removeNodeAndLinkHighlighting);
 	
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
 	// Add a second circle that represents the mapped classes of the ontology.
@@ -923,8 +1111,8 @@ function populateGraph(json, newElementsExpected){
 	.attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
 	.attr("data-outer_radius_basis", function(d) { return d.number;})
     .attr("r", function(d) { return ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.rawAcronym); })
-	.on("mouseover", changeColour)
-	.on("mouseout", changeColourBack);
+	.on("mouseover", highlightNode)
+	.on("mouseout", removeNodeAndLinkHighlighting);
 	
 	// tipsy stickiness from:
 	// http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
@@ -1024,12 +1212,6 @@ function populateGraph(json, newElementsExpected){
 		// That happens commonly. We'll want to hide stale open tipsy panels when this happens.
 //		 d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
 	});
-		
-	// Dumb Tool tip...not needed with tipsy popups.
-//	if(newElementsExpected === true)  // How would I *update* this if I needed to?
-//	nodes.append("title")
-//	  .attr("id", function(d){ return "node_title_"+d.acronymForIds})
-//	  .text(function(d) { return "Number Of Terms: "+d.number; });
 	
 	// Label
 	if(newElementsExpected === true) // How would I *update* this if I needed to?
@@ -1045,8 +1227,8 @@ function populateGraph(json, newElementsExpected){
 		.attr("unselectable", "on") // IE 8
 		.attr("onmousedown", "noselect") // IE ?
 		.attr("onselectstart", "function(){ return false;}") // IE 8?
-	    // .on("mouseover", changeColour)
-	    // .on("mouseout", changeColourBack)
+	    // .on("mouseover", highlightNode)
+	    // .on("mouseout", removeNodeAndLinkHighlighting)
 	    ;
 		
 	// Would do exit().remove() here if it weren't re-entrant, so to speak.
@@ -1115,7 +1297,7 @@ function populateGraph(json, newElementsExpected){
 		} else {
 			nodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 		}
-		
+
 		links
 		  .attr("x1", function(d) { return d.source.x; })
 	      .attr("y1", function(d) { return d.source.y; })
@@ -1124,7 +1306,7 @@ function populateGraph(json, newElementsExpected){
 		
 		// I want labels to aim out of middle of graph, to make more room
 		// It slows rendering, so I will only do it sometimes
-		// Commented all thsi out because I liked centering them instead.
+		// Commented all this out because I liked centering them instead.
 //		if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
 //			$.each($(".nodetext"), function(i, text){
 //				text = $(text);
@@ -1150,7 +1332,7 @@ function populateGraph(json, newElementsExpected){
 	// Make sure we have initialized the filter slider to be at the softNodeCap.
 	// The filter function will lead to individual API calls being dispatched on nodes.
 	// It will (in the future) also trigger layout adaptation to added or removed nodes.
-	// changeTopMappingSliderValues(null, softNodeCap);
+	 changeTopMappingSliderValues(null, softNodeCap);
 	
 	// We have a situation where only our third REST calls determine which nodes and links actually stay in the graph.
 	// We would like to filter early, based on the soft cap.
@@ -1166,7 +1348,7 @@ function populateGraph(json, newElementsExpected){
 		forceLayout
 		.nodes(json.nodes)
 	    .links(json.links);
-		// Call start() whenever any nodes or links get added or removed
+		// Call start() whenever any nodes or links get added...maybe not when removed?
 		forceLayout.start();
 	}
 	
@@ -1196,7 +1378,7 @@ function updateDataForNodesAndLinks(json){
 	var updateLinksFromJson = function(i, d){ // JQuery is i, d
 		// Given a json encoded graph element, update all of the nested elements associated with it
 		// cherry pick elements that we might otherwise get by class "link"
-		var link = vis.select("#link_line_"+d.source.acronymForIds+"->"+d.target.acronymForIds);
+		var link = vis.select("#link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds);
 		link.attr("data-thickness_basis", function(d) { return d.value;})
 		link.select("title").text(function(d) { return "Number Of Mappings: "+d.numMappings; });
 	}
@@ -1285,97 +1467,100 @@ function cropGraphToSubset(acronymsToKeep){
 	// $.each(ontologyNeighbourhoodJsonForGraph.nodes, function(index, node){console.log("After removal: "+node.rawAcronym)});
 	// $.each(ontologyNeighbourhoodJsonForGraph.links, function(index, link){console.log("After removal: "+link.source.rawAcronym+" and "+link.target.rawAcronym)});
 	
-	removeGraphPopulation(ontologyNeighbourhoodJsonForGraph);
+	removeGraphPopulation();
 }
 
-function removeGraphPopulation(ontologyNeighbourhoodJsonForGraph){
+function removeGraphPopulation(){
 	console.log("Removing some graph elements "+getTime());
 
 	var nodes = vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
-	var links = vis.selectAll("line.link").data(ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"->"+d.target.rawAcronym});
+	var links = vis.selectAll("line.link").data(ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
 	
+	
+	
+	//	console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
 	nodes.exit().remove();
 	links.exit().remove();
-	forceLayout.start();
+	// Do I need start() or not? Number of elements before and after implies not.
+	//	forceLayout.start();
+	//	console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
+	
+	// Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
+	updateTopMappingsSliderRange();
+	rangeSliderSlideEvent();
 }
 
 function highlightLink(){
-	return function(d, i){
+	return function(linkLine, i){
 		if(dragging){
 			return;
 		}
-	
-		var xSourcePos = d.source.x;
-		var ySourcePos = d.source.y;
-		var xTargetPos = d.target.x;
-		var yTargetPos = d.target.y;
 		
 		d3.selectAll("text").style("opacity", .2)
-			.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y;})
+			.filter(
+					function(circleData, i){
+						return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
+						}
+					)
 			.style("opacity", 1);
 			
 		d3.selectAll("line").style("stroke-opacity", .1);
 		d3.selectAll("circle").style("fill-opacity", .1)
 			.style("stroke-opacity", .2)
-			.filter(function(g, i){return g.x==d.source.x||g.y==d.source.y||g.x==d.target.x||g.y==d.target.y})
+			.filter(
+					function(circleData, i){
+						return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
+						}
+					)
+			.style("fill", nodeHighlightColor)
 			.style("fill-opacity", 1)
 			.style("stroke-opacity", 1);
+		
 		d3.select(this).style("stroke-opacity", 1)
 			.style("stroke", "#3d3d3d");
 
 	}
 }
 
-function changeColour(d, i){
+function highlightNode(nodeData, i){
 	if(dragging){
 		return;
 	}
-	var xPos=d.x;
-	var yPos=d.y;
 	
+	// Start by defocussing all nodes and edges
 	d3.selectAll("line").style("stroke-opacity", .1);
 	d3.selectAll("circle").style("fill-opacity", .1)
 		.style("stroke-opacity", .2);
+	d3.selectAll(".nodetext").style("opacity", .2);
 		
-	d3.selectAll("text").style("opacity", .2)
-		.filter(function(g, i){return g.x==d.x})
-		.style("opacity", 1);
-		
-	//	if(d3.select(this).attr("class") == "circle"){
-	//	if(d3.select(this).attr("class") == "inner_circle"){
-	//	if(d3.select(this).attr("class") == "nodetext"){
-	// This works when the mouse goes over the nodetext, circle, or inner_circle
-	// If the labels aren't wired for mouse interaction, this is unneeded
-	var sourceNode = d3.select(this.parentNode).select(".circle");
-	sourceNode.style("fill", nodeHighlightColor)
-		.style("fill-opacity", 1)
-		.style("stroke-opacity", 1)
-		;
-		
-	var innerSourceNode = d3.select(this.parentNode).select(".inner_circle");
-	innerSourceNode.style("fill", brightenColor(nodeHighlightColor))
-		.style("fill-opacity", 1)
-		.style("stroke-opacity", 1)
-	;
-
-		
-	var adjacentLinks = d3.selectAll("line")
-		.filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
-		.style("stroke-opacity", 1)
-		.style("stroke", "#3d3d3d")
-		.each(function(d){
+	var adjacentLinks = getAdjacentLinks(nodeData);
+	adjacentLinks.style("stroke-opacity", 1)
+		.style("stroke", "#3d3d3d");
+	
+	adjacentLinks.each(
+		function(linkLine, i){
 			d3.selectAll("circle")
-			.filter(function(g, i){return d.target.x==g.x && d.target.y==g.y;})
-			.style("fill-opacity", 1)
-			.style("stroke-opacity", 1)
-			.each(function(d){
-				d3.selectAll("text")
-				.filter(function(g, i){return g.x==d.x})
-				.style("opacity", 1);});
-	});
+				.filter(
+						function(circleData, i){
+							return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
+							}
+						)
+				// This fill color thing is sort of fugly. Feel free to experiment with commenting it out.
+				.style("fill", nodeHighlightColor)
+				.style("fill-opacity", 1)
+				.style("stroke-opacity", 1);
+			d3.selectAll(".nodetext")
+				.filter(
+						function(textData, i){
+							return textData.acronymForIds == linkLine.source.acronymForIds || textData.acronymForIds == linkLine.target.acronymForIds;
+							}
+						)
+				.style("opacity", 1);
+		}
+	);
 }
 
-function changeColourBack(d, i){
+function removeNodeAndLinkHighlighting(d, i){
 	d3.selectAll(".circle")
 		.style("fill", function(e, i){ 
 			return (typeof e.nodeColor === undefined ? defaultNodeColor : e.nodeColor); 
@@ -1395,6 +1580,15 @@ function changeColourBack(d, i){
 		.style("stroke", defaultLinkColor)
 		.style("stroke-opacity", .75);
 	d3.selectAll("text").style("opacity", 1);
+}
+
+function getAdjacentLinks(node){
+	return d3.selectAll("line.link")
+	.filter(
+		function(d, i) {
+				return d.source == node || d.target == node;
+		}
+	);
 }
 
 
@@ -1436,6 +1630,8 @@ function updateNodeScalingFactor(){
 	var innerCircles = vis.selectAll(".inner_circle");
 	innerCircles.transition().attr("r", function(d) { return ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"), this.getAttribute("data-outer_radius_basis"), this.getAttribute("id"));});
 
+
+	
 }
 
 function updateLinkScalingFactor(){
@@ -1467,7 +1663,7 @@ function updateLinkScalingFactor(){
 var defaultNumOfTermsForSize = 10;
 
 function ontologyNodeScalingFunc(rawValue, acronym){
-		// return Math.sqrt((rawValue)/10);
+	rawValue = parseInt(rawValue);
 		
 	if(rawValue == 0){
 		return defaultNumOfTermsForSize;
@@ -1482,17 +1678,21 @@ function ontologyNodeScalingFunc(rawValue, acronym){
     if(isNaN(diameter)){
     	return 0;
     }
-//    console.log(diameter/2+" for "+acronym);
     return diameter/2; // need radius for SVG
 }
 	
 function ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
-	if(rawValue == 0 || rawValue == minNodeRawSize || maxNodeRawSize == minNodeRawSize || rawValue > outerRawValue){
+	rawValue = parseInt(rawValue);
+	outerRawValue = parseInt(outerRawValue);
+	if(rawValue == 0 || maxNodeRawSize == minNodeRawSize || rawValue > outerRawValue){
 		// If there is no mapping, I want no dot. This applies to the central node specifically.
 		// I also don't want a teeny weeny inner circle completely covering the outer circle,
-		// so let's scale away thsoe that match the minimum render size.
+		// so let's scale away those that match the minimum render size.
 		// Otherwise we'll scale exactly the same as the outer circle.
 		return 0;
+	}
+	if(outerRawValue == minNodeRawSize){
+		return (rawValue/outerRawValue) * ontologyNodeScalingFunc(outerRawValue, acronym);
 	}
 	
 	return ontologyNodeScalingFunc(rawValue, acronym);
@@ -1507,6 +1707,7 @@ function ontologyInnerNodeScalingFunc(rawValue, outerRawValue, acronym){
 }
 
 function ontologyLinkScalingFunc(rawValue){
+	rawValue = parseInt(rawValue);
 	if(maxLinkRawSize == minLinkRawSize){
 		return rawValue;
 	}
@@ -1562,9 +1763,72 @@ function darkenColor(outerColor){
 	return d3.lab(outerColor).darker(1).toString();
 }
 
+function executeCenterLayout(){
+		var graphNodes = ontologyNeighbourhoodJsonForGraph.nodes;
+		var graphLinks = ontologyNeighbourhoodJsonForGraph.links;
+		
+		// This is the most up to date way to know how many nodes we are laying out, assuming we don't care to position
+		// undisplayed nodes
+		var numberOfNodes = $(".circle").filter(function(i, d){return $(d).css("display") !== "none"}).length;
+		forceLayout.friction(0.01) // use 0.2 friction to get a very circular layout
+		forceLayout.stop();
+		   
+		// We won't be using the central node for this
+		var anglePerNode =2*Math.PI / (numberOfNodes - 1); // 360/nodesToPlace;
+		var arcLength = linkMaxDesiredLength();
+		var i = 0;
+		
+		$.each(sortedAcronymsByMappingCount,
+				function(index, sortedAcronym){
+				var acronym = sortedAcronym.acronym;
+				var node = sortedAcronym.node;
+				// var node = $(ontologyAcronymNodeMap).attr("vid:"+node.acronym);
+	
+				if(typeof node === "undefined"){
+					console.log("Undefined ontology entry");
+				}
+
+//				if(typeof visibleNodes[node.acronymForIds] === "undefined"){
+//				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
+				var display = $("#node_circle_"+node.acronymForIds).css("display");
+				if((node.rawAcronym != centralOntologyAcronym) && (typeof display !== "undefined" && display !== "none")){
+					var angleForNode = i * anglePerNode; 
+					i++;
+					node.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
+					node.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+				} else {
+					// Central node goes in middle, and the unrendered nodes can go anywhere really, so put them in the middle.
+					node.x = visWidth()/2; 
+					node.y = visHeight()/2;
+				}
+			}
+		);
+		
+		var animationDuration = 400;
+	    d3.selectAll("g.node")
+//		    .filter(function(i, d){
+//		    	return typeof d.x !== "undefined" && !isNaN(d.x) }
+//		    )
+	    	.transition()
+	    	.duration(animationDuration)
+	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	    
+	    d3.selectAll("line")
+//		    .filter(function(d){
+//		    	return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && !isNaN(d.target.x)  }
+//		    )
+	    	.transition()
+	    	.duration(animationDuration)
+		  .attr("x1", function(d) { return d.source.x; })
+	      .attr("y1", function(d) { return d.source.y; })
+	      .attr("x2", function(d) { return d.target.x; })
+	      .attr("y2", function(d) { return d.target.y; });
+	      
+}
+
 function prepGraphMenu(){
 	// Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
-	var menuSelector = 'div#hoveringGraphMenu';
+
 	// Append the pop-out panel. It will stay hidden except when moused over.
 	var trigger = $("<div>").attr("id", "trigger");
 	$("#chart").append(trigger);
@@ -1578,14 +1842,15 @@ function prepGraphMenu(){
 				$(menuSelector).fadeTo(0, 1.0);
 			},
 			function() {
-				$(menuSelector).hide();
+			//	$(menuSelector).hide();
 			}
 	);
 	
-	addMenuComponents(menuSelector);
+	addMenuSliderComponents(menuSelector);
 }
 
-function addMenuComponents(menuSelector){
+
+function addMenuSliderComponents(menuSelector){
 	var minSliderAbsolute = 0;
 	var maxSliderAbsolute = 0 == softNodeCap ? sortedLinksByMapping.length : softNodeCap;
 	
@@ -1598,13 +1863,8 @@ function addMenuComponents(menuSelector){
 		min: minSliderAbsolute,
 		max: maxSliderAbsolute,
 		values: [ minSliderAbsolute, maxSliderAbsolute ],
-		slide: function( event, ui ) {
-			// Need to make it wider than 100% due to UI bugginess
-			var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
-			var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
-			$( "#top-mappings-slider-amount" ).text( "Top "+ bottom + " - " + top );
-			filterGraphOnMappingCounts();
-			}
+		slide: rangeSliderSlideEvent,
+		change: rangeSliderSlideEvent
 		}
 	);
 	
@@ -1615,38 +1875,51 @@ function addMenuComponents(menuSelector){
 	
 }
 
+
+function rangeSliderSlideEvent(event, ui) {
+	// Need to make it wider than 100% due to UI bugginess
+	var bottom = $( "#top-mappings-slider-range" ).slider( "values", 0 ) + 1;
+	var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
+	$( "#top-mappings-slider-amount" ).text( "Top "+ bottom + " - " + top );
+	filterGraphOnMappingCounts();
+}
+
 function changeTopMappingSliderValues(bottom, top){
+	console.log("Programatically changing node filter cutoff at "+getTime());
 	if(null == bottom){
 		bottom = $( "#top-mappings-slider-range" ).slider('values', 0);
+	} else if(bottom > 0){
+		bottom = bottom - 1;
 	}
 	if(null == top){
 		top = $( "#top-mappings-slider-range" ).slider('values', 1);
+	} else if(top > 0){
+		top = top - 1;
 	}
+	// The change event is triggered when values are changed. Map change event to appropriate function.
 	$( "#top-mappings-slider-range" ).slider('values', [bottom, top]);
-	// $( "#top-mappings-slider-range" ).slider("refresh");
 }
 
 function updateTopMappingsSliderRange(){
-	if(typeof(sortedLinksByMapping) === undefined || sortedLinksByMapping.length == 0){
-		sortedLinksByMapping = [];
-		// Fill the sorted set for the first time
-		var i = 0;
-		d3.selectAll("line").each( 
-				function(d,i){
-					sortedLinksByMapping[i] = d.value;
-				}
-		);
-	}
+	sortedLinksByMapping = [];
+	// Fill the sorted set every time in caase we are updating.
+	// This shouldn't get called too often.
+	var i = 0;
+	d3.selectAll("line").each( 
+			function(d,i){
+				sortedLinksByMapping[i] = d;
+			}
+	);
 	
 	// Descending sort so we can pick the top n.
-	sortedLinksByMapping.sort(function(a,b){return b-a});
+	sortedLinksByMapping.sort(function(a,b){return b.value-a.value});
 	
 	var mappingMin = 1;
 	var mappingMax = sortedLinksByMapping.length;
 	
 	$( "#top-mappings-slider-range" ).slider("option", "min", 0);
 	$( "#top-mappings-slider-range" ).slider("option", "max", sortedLinksByMapping.length - 1);
-	$( "#top-mappings-slider-range" ).slider("option", "values", [0, sortedLinksByMapping.length - 1]);
+//	$( "#top-mappings-slider-range" ).slider("option", "values", [0, sortedLinksByMapping.length - 1]);
 	$( "#top-mappings-slider-amount" ).text( "Top "+ mappingMin + " - " + mappingMax );
 }
 
@@ -1655,115 +1928,119 @@ function updateTopMappingsSliderRange(){
  * May be useful later, perhaps. Be sure to check that it still works with changes made since it was deprecated.
  */
 function filterGraphDeprecated(){
-	var minNodeAbsolute = minNodePercentile * (nodeMax - nodeMin) + nodeMin;
-	var maxNodeAbsolute = maxNodePercentile * (nodeMax - nodeMin) + nodeMin;
-	var minArcAbsolute = minArcPercentile * (arcMax - arcMin) + arcMin;
-	var maxArcAbsolute = maxArcPercentile * (arcMax - arcMin) + arcMin;
-	
-	// Iterate through all arcs, remove if their node or arc fails to pass
-	// We don't need to iterate through all the nodes, because we will do so here.
-	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
-	d3.selectAll("line").each( 
-			function(d,i){
-				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
-				var hideSourceNode = (parseInt(d.source.number) < minNodeAbsolute || parseInt(d.source.number) > maxNodeAbsolute);
-				var hideTargetNode = (parseInt(d.target.number) < minNodeAbsolute || parseInt(d.target.number) > maxNodeAbsolute);
-				
-				if(d.source.rawAcronym == centralOntologyAcronym){
-					hideSourceNode = false;
-				}
-				if(d.target.rawAcronym == centralOntologyAcronym){
-					hideTargetNode = false;
-				}
-				
-				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
-				
-				$("#node_circle_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
-				
-				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
-				// These inner circles only really apply to the ontology nodes
-				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
-								
-				$("#node_text_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
-				$("#node_text_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
-								
-				// The nodes have API calls they might need to make. This might change a little when expansion commands
-				// are added to the system.
-				if(!(hideArc || hideSourceNode)){
-					d.source.fetchMetricsAndDescriptionFunc();
-				}
-				if(!(hideArc || hideTargetNode)){
-					d.target.fetchMetricsAndDescriptionFunc();
-				}
-			}
-		);
+	alert("Deprecated function called");
+//	var minNodeAbsolute = minNodePercentile * (nodeMax - nodeMin) + nodeMin;
+//	var maxNodeAbsolute = maxNodePercentile * (nodeMax - nodeMin) + nodeMin;
+//	var minArcAbsolute = minArcPercentile * (arcMax - arcMin) + arcMin;
+//	var maxArcAbsolute = maxArcPercentile * (arcMax - arcMin) + arcMin;
+//	
+//	// Iterate through all arcs, remove if their node or arc fails to pass
+//	// We don't need to iterate through all the nodes, because we will do so here.
+//	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
+//	d3.selectAll("line").each( 
+//			function(d,i){
+//				console.log(parseInt(d.value) , minArcAbsolute , maxArcAbsolute);
+//				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+//				var hideSourceNode = (parseInt(d.source.number) < minNodeAbsolute || parseInt(d.source.number) > maxNodeAbsolute);
+//				var hideTargetNode = (parseInt(d.target.number) < minNodeAbsolute || parseInt(d.target.number) > maxNodeAbsolute);
+//				
+//				if(d.source.rawAcronym == centralOntologyAcronym){
+//					hideSourceNode = false;
+//				}
+//				if(d.target.rawAcronym == centralOntologyAcronym){
+//					hideTargetNode = false;
+//				}
+//				
+//				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+//				
+//				$("#node_circle_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
+//				$("#node_circle_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
+//				
+//				// TODO If we want this to be generic and refactorable, we should iterate over the parent of the circles...
+//				// These inner circles only really apply to the ontology nodes
+//				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
+//				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
+//								
+//				$("#node_text_"+d.source.acronymForIds).css("display", (hideArc || hideSourceNode) ? "none" : "");
+//				$("#node_text_"+d.target.acronymForIds).css("display", (hideArc || hideTargetNode) ? "none" : "");
+//								
+//				// The nodes have API calls they might need to make. This might change a little when expansion commands
+//				// are added to the system.
+//				if(!(hideArc || hideSourceNode)){
+//					fetchMetricsAndDescriptionFunc(d.source);
+//				}
+//				if(!(hideArc || hideTargetNode)){
+//					fetchMetricsAndDescriptionFunc(d.target);
+//				}
+//			}
+//		);
 	
 }
 	
 function filterGraphOnMappingCounts(){
 	// Grabbing min from 1 and max from 0 looks funny, but it does the trick. Pinky swear.
-	var minNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )]; // starts at big number
-	var maxNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )]; // starts at 0
+	var minNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )].value; // starts at big number
+	var maxNodeAbsolute = sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )].value; // starts at 0
 	var minArcAbsolute = minNodeAbsolute;
 	var maxArcAbsolute = maxNodeAbsolute;
+	
+	var topIndex = $( "#top-mappings-slider-range" ).slider( "values", 1 );
+	var bottomIndex = $( "#top-mappings-slider-range" ).slider( "values", 0 );
 	
 	// Iterate through all arcs, remove if their node or arc fails to pass
 	// We don't need to iterate through all the nodes, because we will do so here.
 	// That is, we know that our ontologies do not have detached nodes, so going over all arcs gets us all nodes.
-	d3.selectAll("line").each( 
-			function(d,i){
+	$.each(sortedLinksByMapping,
+			function(i, d){
 				// Work with arc first, then the attached nodes.
-				var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
-				$(this).css("display", (hideArc || hideSourceNode || hideTargetNode) ? "none" : "");
+				// var hideArc = (parseInt(d.value) < minArcAbsolute || parseInt(d.value) > maxArcAbsolute);
+				// var hideSourceNode = (parseInt(d.source.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.source.mapped_classes_to_central_node) > maxNodeAbsolute);
+				// var hideTargetNode = (parseInt(d.target.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.target.mapped_classes_to_central_node) > maxNodeAbsolute);
+	
+				// Easier to iterate over index on sorted set than to inspect for values liek above. 
+				var hideArc = !(bottomIndex <= i && i <= topIndex);
+
+				// If we default to hiding all nodes, and that if we only set a node to visible if there is
+				// an arc connected to it that is set to visible, we only keep nodes with visible arcs present.
+				var hideSourceNodeBecauseOfHiddenArc = hideArc;
+				var hideTargetNodeBecauseOfHiddenArc = hideArc;
 				
-				var hideSourceNode = (parseInt(d.source.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.source.mapped_classes_to_central_node) > maxNodeAbsolute);
-				var hideTargetNode = (parseInt(d.target.mapped_classes_to_central_node) < minNodeAbsolute || parseInt(d.target.mapped_classes_to_central_node) > maxNodeAbsolute);
-				
-				
+				// Always show central node
 				if(d.source.rawAcronym == centralOntologyAcronym){
-					hideSourceNode = false;
+					hideSourceNodeBecauseOfHiddenArc = false;
 				}
 				if(d.target.rawAcronym == centralOntologyAcronym){
-					hideTargetNode = false;
+					hideTargetNodeBecauseOfHiddenArc = false;
 				}
 				
-				// For more general graphs than the ontology graph, we'd want to see if all arcs attached
-				// to the node are hidden or not. For ontology mapping graph, there's only one arc so I cheat.
-				// For that method, I'd maintain a counter on each node.
-				var hideSourceNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.source, hideArc);
-				var hideTargetNodeBecauseOfHiddenArc = modifyNodeDisplayedArcCounter(d.target, hideArc);
+				// $(this).css("display", (hideArc) ? "none" : "");
+				$("#link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds).css("display", (hideArc) ? "none" : "");
 				
-				$("#node_circle_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-				
-				$("#node_circle_inner_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_circle_inner_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
-								
-				$("#node_text_"+d.source.acronymForIds).css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
-				$("#node_text_"+d.target.acronymForIds).css("display", (hideTargetNodeBecauseOfHiddenArc || hideTargetNode) ? "none" : "");
+				$("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc) ? "none" : "");
+				$("#node_g_"+d.target.acronymForIds).find("*").css("display", (hideTargetNodeBecauseOfHiddenArc) ? "none" : "");
+//				$("#node_g_"+d.source.acronymForIds).find(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+//				$("#node_g_"+d.target.acronymForIds).find(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+
+				// This should get all fo these:
+				// $("#node_circle_"+d.source.acronymForIds)
+				// $("#node_circle_inner_"+d.source.acronymForIds)
+				// $("#node_text_"+d.source.acronymForIds)
 				
 				// The nodes have API calls they might need to make. This might change a little when expansion commands
 				// are added to the system.
-				if(!(hideSourceNodeBecauseOfHiddenArc || hideSourceNode)){
-					d.source.fetchMetricsAndDescriptionFunc();
-				}
-				if(!(hideTargetNodeBecauseOfHiddenArc || hideTargetNode)){
-					d.target.fetchMetricsAndDescriptionFunc();
+				if(!hideSourceNodeBecauseOfHiddenArc){
+					fetchMetricsAndDescriptionFunc(d.source);
+				} 
+
+				if(!hideTargetNodeBecauseOfHiddenArc){
+					fetchMetricsAndDescriptionFunc(d.target);
 				}
 			}
 		);
-}
-
-function modifyNodeDisplayedArcCounter(node, hidingArc){
-	// The ontology overview system is not currently set up to remove arcs or nodes.
-	// If it adapted to that, or this concept used elsewhere, this counter needs to be
-	// maintained when those arcs or nodes are removed.
-	if(hidingArc){
-		node.displayedArcs--;
-	} else {
-		node.displayedArcs++;
-	}
-	return 0 === node.displayedArcs;
+	
+	// Firefox renders dx for text poorly, shifting things around oddly,
+	// but x works for both Chrome and Firefox.
+	$(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+	
+	runCurrentLayout();
 }

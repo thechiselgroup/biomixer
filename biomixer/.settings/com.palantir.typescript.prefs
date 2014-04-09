@@ -1,0 +1,10 @@
+build.path.sourceFolder=typescript-source
+compiler.codeGenTarget=ECMASCRIPT5
+compiler.compileOnSave=true
+compiler.mapSourceFiles=false
+compiler.moduleGenTarget=ASYNCHRONOUS
+compiler.noImplicitAny=false
+compiler.noLib=false
+compiler.optionDirOption=war/d3_graphs/typescript-output
+compiler.removeComments=false
+eclipse.preferences.version=1

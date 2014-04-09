@@ -72,7 +72,7 @@ public class OntologyMappingCountServiceAsyncImplementation extends
 
     private String buildUrlForCentralOntologyQuery(String ontologyAcronym) {
         // New API Target:
-        // "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"+"&callback=?";
+        // "http://stagedata.bioontology.org/mappings/statistics/ontologies/"+centralOntologyAcronym+"/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"+"&callback=?";
 
         // Stage Rest service only, at the moment. No on-line documentation of
         // this.

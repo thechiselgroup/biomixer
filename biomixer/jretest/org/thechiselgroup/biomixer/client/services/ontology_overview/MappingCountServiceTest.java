@@ -29,7 +29,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class MappingCountServiceTest {
 
-    private static final String URL = "http://stagerest.bioontology.org/bioportal/mappings/stats/ontologies?ontologyids=1009,1099&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a";
+    private static final String URL = "http://stagerest.bioontology.org/bioportal/mappings/stats/ontologies?ontologyids=1009,1099&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1";
 
     @Mock
     private UrlFetchService urlFetchService;
