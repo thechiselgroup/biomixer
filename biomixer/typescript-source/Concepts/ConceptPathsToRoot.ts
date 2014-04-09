@@ -141,6 +141,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
+        // TODO Trying to get layout to begin anew when we swap visualization subtypes.
+        // Why do none of these achieve that?
+        this.forceLayout.stop();
+        this.forceLayout.start();
+        this.forceLayout.resume();
+        this.runCurrentLayout();
+        
         this.prepGraphMenu();
         
         this.fetchInitialExpansion();
@@ -179,9 +186,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // since we deal with DAGs, not hierarchies.
         this.forceLayout = d3.layout.force();
         
-        //  forceLayout.drag()
-        //  .on("dragstart", function(){})
-        //  .on("dragend", function(){dragging = false;});
+        // TODO Do I actually need these?
+        this.conceptGraph.graphD3Format.nodes = <ConceptGraph.Node[]>this.forceLayout.nodes();
+        this.conceptGraph.graphD3Format.links = <ConceptGraph.Link[]>this.forceLayout.links();
         
         // nodeDragBehavior = forceLayout.drag;
         this.nodeDragBehavior = d3.behavior.drag()
@@ -189,26 +196,18 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         .on("drag", this.dragmoveLambda(this))
         .on("dragend", this.dragendLambda(this));
         
-        this.forceLayout.on("tick", this.onLayoutTick());
-    
         // See the gravityAdjust(), which is called in tick() and modulates
         // gravity to keep nodes within the view frame.
         // If charge() is adjusted, the base gravity and tweaking of it probably needs tweaking as well.
         this.forceLayout
-        .friction(0.3) // use 0.2 friction to get a very circular layout
-        .gravity(0.05) // 0.5
+        .size([this.visWidth(), this.visHeight()])
+        .linkDistance(this.linkMaxDesiredLength())
         // .distance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .linkDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .forceDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
-        .charge(-30) // -100
-        .linkDistance(this.linkMaxDesiredLength())
-        .size([this.visWidth(), this.visHeight()])
-        .start();
+        ;
         console.log("Is it force distance or link distance above?");
         
-        // TODO Do I actually need these?
-        this.conceptGraph.graphD3Format.nodes = <ConceptGraph.Node[]>this.forceLayout.nodes();
-        this.conceptGraph.graphD3Format.links = <ConceptGraph.Link[]>this.forceLayout.links();
     }
     
     //TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
@@ -478,10 +477,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     populateGraph(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
         this.populateGraphEdges(graphD3Format.links);
         this.populateGraphNodes(graphD3Format.nodes);
+        // this.runCurrentLayout();
         this.forceLayout.start();
     }
     
-//    var i = 0;
     populateGraphEdges(linksData: ConceptGraph.Link[]){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
