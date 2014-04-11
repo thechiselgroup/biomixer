@@ -271,15 +271,15 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
                  "Num Mappings: ": "mapped_classes_to_central_node",
          };
          
-         $.each(jsonArgs,function(label, key){
-             var style = (key === "description" ? {} : {"white-space":"nowrap"});
+         $.each(jsonArgs,function(label, propertyKey){
+             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
                                      $("<div></div>").addClass("gwt-HTML").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
-                                             $("<span></span>").text(ontologyData[key])
+                                             $("<span></span>").text(ontologyData[propertyKey])
                                      )
                              )
                      )
@@ -312,8 +312,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     * graph. Do not call it to update properties of graph elements.
     * TODO Make this function cleaner and fully compliant with the above description!
     */
-    populateGraph(json: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
-        console.log("Fix this up");
+    populateNewGraphElements(json: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
+        console.log("Fix this up with the newElements arg, and refactor into node and edge populate methods");
         
     //  console.log("Populating with:");
     //  console.log(json);
@@ -333,7 +333,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     
         // Add new stuff
         if(newElementsExpected === true)
-        links.enter().append("svg:line")
+        var enteringLinks = links.enter().append("svg:line")
         .attr("class", "link") // Make svg:g like nodes if we need labels
         .attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
         .on("mouseover", this.highlightLinkLambda(this))
@@ -372,7 +372,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         // console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
         // Add new stuff
         if(newElementsExpected === true)
-        nodes.enter().append("svg:g")
+        var enteringNodes = nodes.enter().append("svg:g")
         .attr("class", "node")
         .attr("id", function(d){ return "node_g_"+d.acronymForIds})
         // Is it ok to do call() here?
@@ -561,14 +561,28 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             this.forceLayout
             .nodes(json.nodes)
             .links(json.links);
-            // Call start() whenever any nodes or links get added...maybe not when removed?
-            this.forceLayout.start();
+            
+            if(!enteringNodes.empty() || !enteringLinks.empty()){
+                this.updateStartWithoutResume();
+            }
         }
         
         // Don't have sizes here, but still...
         this.renderScaler.updateNodeScalingFactor();
-        // Do have link sizes though? Now e called it earlier at a better time.
+        // Do have link sizes though? No, we called it earlier at a better time.
         // updateLinkScalingFactor();
+        
+    }
+    
+    populateNewGraphEdges(links: Array<OntologyGraph.Link>){
+    
+    }
+    
+    populateNewGraphNodes(nodes: Array<OntologyGraph.Node>){
+    
+    }
+    
+    removeMissingGraphElements(json: OntologyGraph.OntologyD3Data){
         
     }
     
@@ -746,7 +760,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     }
     nodeUpdateTimer: boolean = false;
     
-    removeGraphPopulation(){
+    removeGraphPopulation(data: GraphView.GraphDataForD3<OntologyGraph.Node, OntologyGraph.Link>){
         console.log("Removing some graph elements "+Utils.getTime());
     
         var nodes = this.vis.selectAll("g.node").data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
@@ -755,10 +769,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
         
         //  console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
-        nodes.exit().remove();
-        links.exit().remove();
+        var nodesRemoved = nodes.exit().remove();
+        var linksRemoved = links.exit().remove();
         // Do I need start() or not? Number of elements before and after implies not.
-        //  forceLayout.start();
+        if(!nodesRemoved.empty() || !linksRemoved.empty()){
+            this.updateStartWithoutResume();
+        }
         //  console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
         
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.

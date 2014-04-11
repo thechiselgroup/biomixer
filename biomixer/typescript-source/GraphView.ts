@@ -81,6 +81,15 @@ export class BaseGraphView {
         }  
     }
     
+    updateStartWithoutResume(){
+        // When start(0 is called, the last thing it does is to call resume(),
+        // which calls alpha(.1). I need this to not occur...
+        var resume = this.forceLayout.resume;
+        this.forceLayout.resume = ()=>{ return this.forceLayout; };
+        this.forceLayout.start();
+        this.forceLayout.resume = resume;
+    }
+    
     // These are needed to do a refresh of popups when new data arrives and the user has the popup open
     lastDisplayedTipsy = null;
     lastDisplayedTipsyData = null;
@@ -100,8 +109,10 @@ export interface GraphView<N extends BaseNode, L extends BaseLink> extends BaseG
     // needs to contain the onTick listener function
     onLayoutTick(): {()} ;
     
-    populateGraph(data: GraphDataForD3<N, L>, expectingNew: boolean);
-    removeGraphPopulation();
+    populateNewGraphElements(data: GraphDataForD3<N, L>, expectingNew: boolean);
+    populateNewGraphEdges(links: Array<L>);
+    populateNewGraphNodes(nodes: Array<N>);
+    removeMissingGraphElements(data: GraphDataForD3<N, L>);
     filterGraphOnMappingCounts();
     updateDataForNodesAndLinks(newDataSubset: GraphDataForD3<N, L>);
     createNodePopupTable(nodeSvg, nodeData);

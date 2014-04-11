@@ -7,12 +7,20 @@
 ///<amd-dependency path="../GraphView" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
-import Utils = require('../Utils');
-import GraphView = require('../GraphView');
-import OntologyGraph = require('./ConceptGraph');
+import Utils = require("../Utils");
+import GraphView = require("./ConceptPathsToRoot");
+import ConceptGraph = require("./ConceptGraph");
     
 export class ConceptRangeSliders {
 
+    constructor(
+        private graph: ConceptGraph.ConceptGraph,
+        private graphView: GraphView.ConceptPathsToRoot,
+        private centralConceptUri: ConceptGraph.ConceptURI
+        ){
+    }
+
+    
     addMenuComponents(menuSelector: string, softNodeCap: number){
 //        var minSliderAbsolute = 0;
 //        var maxSliderAbsolute = 0 == softNodeCap ? this.sortedLinksByMapping.length : softNodeCap; 
@@ -70,6 +78,6 @@ export class ConceptRangeSliders {
 //        var top = $( "#top-mappings-slider-range" ).slider( "values", 1 ) + 1;
 //        $( "#top-mappings-slider-amount" ).text( "Top "+ bottom + " - " + top );
 //        this.filterGraphOnMappingCounts();
-    }
+    };
     
 }
