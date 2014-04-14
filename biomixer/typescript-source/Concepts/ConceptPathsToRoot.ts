@@ -166,7 +166,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
     // TODO I don't believe this is rendering...
     conceptLinkSimplePopupFunction(d){
-        return "From: "+d.source.id+" To: "+d.target.id;
+        return "From: "+d.source.name+" ("+d.source.ontologyAcronym+")"+" To: "+d.target.name+" ("+d.target.ontologyAcronym+")";
     }
     
     // TODO Fix...but also it doesn't render...
@@ -628,7 +628,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     }
 
     removeMissingGraphElements(graphD3Format: ConceptGraph.ConceptD3Data){
-        console.log("Removing some graph elements "+Utils.getTime());
+        //console.log("Removing some graph elements "+Utils.getTime());
         
         var nodes = this.vis.selectAll("g.node").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri);});
         var links = this.vis.selectAll("line.link").data(this.conceptGraph.graphD3Format.links, function(d: ConceptGraph.Link){return d.rawId;});
@@ -655,15 +655,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
                 return;
             }
             
-            d3.selectAll("text")
+            d3.selectAll(".nodetext")
                 .style("opacity", .2)
                 .filter(function(aText, i){return aText.rawConceptUri ===linkLine.source.rawConceptUri || aText.rawConceptUri ===linkLine.target.rawConceptUri;})
                 .style("opacity", 1);
                 
-            d3.selectAll("line")
+            d3.selectAll(".link")
                 .style("stroke-opacity", .1);
             
-            d3.selectAll("node_rect")
+            d3.selectAll(".node_rect")
                 .style("fill-opacity", .1)
                 .style("stroke-opacity", .2)
                 .filter(function(aNode, i){return aNode.rawConceptUri === linkLine.source.rawConceptUri || aNode.rawConceptUri === linkLine.target.rawConceptUri;})
@@ -681,15 +681,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             }
             
             outerThis.conceptGraph.manifestTemporaryHoverEdges(nodeData);
-            console.log("Temporary edges get added, seen graphically when paused in debugger");
-            d3.selectAll("line")
+            d3.selectAll(".link")
                 .style("stroke-opacity", .1);
             
-            d3.selectAll("node_rect")
+            d3.selectAll(".node_rect")
                 .style("fill-opacity", .1)
                 .style("stroke-opacity", .2);
                 
-            d3.selectAll("text").style("opacity", .2)
+            d3.selectAll(".nodetext").style("opacity", .2)
                 .filter(function(aText, i){return aText.rawConceptUri === nodeData.rawConceptUri;})
                 .style("opacity", 1);
             
@@ -708,19 +707,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
              // There must be a less loopy, data oriented way to achieve this.
              // I recently modified it to *not* use x and y coordinates to identify ndoes and edges, which was heinous.
              // Looping over everything is just as ugly (but fast enough in practice).
-             var adjacentLinks = d3.selectAll("line")
-                .filter(function(d, i) {return d.source.rawConceptUri === nodeData.rawConceptUri ||  d.target.rawConceptUri === nodeData.rawConceptUri;})
+             var adjacentLinks = d3.selectAll(".link")
+                .filter(function(aLink, i) {return aLink.source.rawConceptUri === nodeData.rawConceptUri ||  aLink.target.rawConceptUri === nodeData.rawConceptUri;});
+            adjacentLinks
                 .style("stroke-opacity", 1)
-                .style("stroke", "#3d3d3d")
-                .each(function(aLink){
-                    d3.selectAll("node_rect")
-                    .filter(function(otherNode, i){return aLink.source.rawConceptUri === otherNode.rawConceptUri || aLink.target.rawConceptUri === otherNode.rawConceptUri;})
-                    .style("fill-opacity", 1)
-                    .style("stroke-opacity", 1)
-                    .each(function(aLink){
-                        d3.selectAll("text")
-                        .filter(function(text, i){return aLink.rawConceptUri === text.rawConceptUri})
-                        .style("opacity", 1);});
+                .style("stroke", "#3d3d3d");
+            adjacentLinks.each(function(aLink){
+                d3.selectAll(".node_rect")
+                .filter(function(otherNode, i){return aLink.source.rawConceptUri === otherNode.rawConceptUri || aLink.target.rawConceptUri === otherNode.rawConceptUri;})
+                .style("fill-opacity", 1)
+                .style("stroke-opacity", 1)
+                .each(function(aNode){
+                    d3.selectAll(".nodetext")
+                    .filter(function(text, i){return aNode.rawConceptUri === text.rawConceptUri})
+                    .style("opacity", 1);});
             });
         }
     }
@@ -750,10 +750,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     }
     
     private removeAllLinkHighlighting(){
-        d3.selectAll("line")
+        d3.selectAll(".link")
             .style("stroke", this.defaultLinkColor)
             .style("stroke-opacity", .75);
-        d3.selectAll("text").style("opacity", 1);
+        d3.selectAll(".nodetext").style("opacity", 1);
     }
     
     
