@@ -51,12 +51,16 @@ export class Node extends GraphView.BaseNode {
     numberOfIndividuals: number; // = numIndividuals;
     numberOfProperties: number; // = numProperties;
     
+    getEntityId(): string{
+        return String(this.acronymForIds);
+    }
+    
     constructor(){
         super();
     }
 }
 
-export class Link extends GraphView.BaseLink {
+export class Link extends GraphView.BaseLink<Node> {
     source: Node; // = centralOntologyNode;
     target: Node; // = ontologyNode;
     value: number; // = mappingCount; // This gets used for link stroke thickness later.

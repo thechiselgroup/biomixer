@@ -5,7 +5,8 @@
 
 ///<amd-dependency path="Utils" />
 
-import Utils = require('../Utils');
+import Utils = require("../Utils");
+import GraphView = require("../GraphView");
 
 export class OntologyRenderScaler {
         
@@ -38,7 +39,7 @@ export class OntologyRenderScaler {
         // modification. That worked well for BioMixer, but perhaps we're better
         // off doing a bulk computation per size-refreshing redraw that we want to make.
         var outerThis = this;
-        var circles = this.vis.selectAll(".circle");
+        var circles = this.vis.selectAll(GraphView.BaseGraphView.nodeSvgClass);
         circles.each(function(d){
                     var basis = parseInt(this.getAttribute("data-radius_basis"));
                     if(-1 == outerThis.maxNodeRawSize || basis > outerThis.maxNodeRawSize){
@@ -52,7 +53,7 @@ export class OntologyRenderScaler {
         circles.transition().attr("r", function(d) { return outerThis.ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));});
         
         // Inner circles use the same scaling factor.
-        var innerCircles = this.vis.selectAll(".inner_circle");
+        var innerCircles = this.vis.selectAll(GraphView.BaseGraphView.nodeInnerSvgClass);
         innerCircles.transition().attr("r", function(d) { return outerThis.ontologyInnerNodeScalingFunc(this.getAttribute("data-inner_radius_basis"), this.getAttribute("data-outer_radius_basis"), this.getAttribute("id"));});
     
     
@@ -67,7 +68,7 @@ export class OntologyRenderScaler {
         // Call this prior to redrawing. The alternative is to track on every size
         // modification. That worked well for BioMixer, but perhaps we're better
         // off doing a bulk computation per size-refreshing redraw that we want to make.
-        $.each(this.vis.selectAll("line.link")[0], function(i, link){
+        $.each(this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass)[0], function(i, link){
             link = $(link);
             var basis = parseInt(link.attr("data-thickness_basis"));
             if(-1 == outerThis.maxLinkRawSize || basis > outerThis.maxLinkRawSize){
@@ -80,7 +81,7 @@ export class OntologyRenderScaler {
         
         // Dynamic scoping of "this" required for the D3 function,
         // but we need an object reference closured into it as well. So....outerThis!
-        $.each(this.vis.selectAll("line.link")[0], function(i, link){
+        $.each(this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass)[0], function(i, link){
             // Given a json encoded graph element, update all of the nested elements associated with it
             // cherry pick elements that we might otherwise get by class "node"
             link = $(link);

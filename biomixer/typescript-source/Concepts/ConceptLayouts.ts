@@ -80,18 +80,16 @@ export class ConceptLayouts {
                 }
             );
             
-            d3.selectAll("g.node")
+            d3.selectAll("g.node_g")
                 .transition()
                 .duration(2500)
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             
-            d3.selectAll("line")
+            d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(2500)
-                .attr("x1", function(d){return d.source.x;})
-                .attr("y1", function(d){return d.source.y;})
-                .attr("x2", function(d){return d.target.x;})
-                .attr("y2", function(d){return d.target.y;});
+                .attr("points", outerThis.graphView.computePolyLineLinkPoints)
+                ;
     
         };
     }
@@ -129,18 +127,16 @@ export class ConceptLayouts {
                 }
             );
             
-            d3.selectAll("g.node")
+            d3.selectAll("g.node_g")
                 .transition()
                 .duration(2500)
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             
-            d3.selectAll("line")
+            d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(2500)
-                .attr("x1", function(d){return d.source.x;})
-                .attr("y1", function(d){return d.source.y;})
-                .attr("x2", function(d){return d.target.x;})
-                .attr("y2", function(d){return d.target.y;});
+                .attr("points", outerThis.graphView.computePolyLineLinkPoints)
+                ;
     
         };
     }

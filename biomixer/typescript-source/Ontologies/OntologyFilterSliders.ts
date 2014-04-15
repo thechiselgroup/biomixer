@@ -8,10 +8,10 @@
 ///<amd-dependency path="Ontologies/OntologyMappingOverview" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 
-import Utils = require('../Utils');
-import GraphView = require('../GraphView');
-import OntMap = require('./OntologyMappingOverview');
-import OntologyGraph = require('./OntologyGraph');
+import Utils = require("../Utils");
+import GraphView = require("../GraphView");
+import OntMap = require("./OntologyMappingOverview");
+import OntologyGraph = require("./OntologyGraph");
     
 export class MappingRangeSliders {
     
@@ -85,7 +85,7 @@ export class MappingRangeSliders {
         // This shouldn't get called too often.
         var i = 0;
         var outerThis = this;
-        d3.selectAll("line").each( 
+        d3.selectAll(GraphView.BaseGraphView.linkSvgClass).each( 
                 function(d,i){
                     outerThis.sortedLinksByMapping[i] = d;
                 }
@@ -194,6 +194,10 @@ export class MappingRangeSliders {
                         hideTargetNodeBecauseOfHiddenArc = false;
                     }
                     
+                    if(!hideArc){
+                        console.log("Not hide arc: "+d.source.acronymForIds+"-to-"+d.target.acronymForIds);
+                    }
+                    
                     // $(this).css("display", (hideArc) ? "none" : "");
                     $("#link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds).css("display", (hideArc) ? "none" : "");
                     
@@ -225,7 +229,7 @@ export class MappingRangeSliders {
         
         // Firefox renders dx for text poorly, shifting things around oddly,
         // but x works for both Chrome and Firefox.
-        $(".nodetext").attr("x", function(){ return - this.getComputedTextLength()/2; });
+        $(GraphView.BaseGraphView.nodeLabelSvgClass).attr("x", function(){ return - this.getComputedTextLength()/2; });
         
         this.graphView.runCurrentLayout();
     }

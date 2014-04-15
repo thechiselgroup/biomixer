@@ -81,12 +81,16 @@ export class Node extends GraphView.BaseNode {
 //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
 //    LABEL: string; // = ontologyDetails.name;
 
+    getEntityId(): string{
+        return String(this.conceptUriForIds);
+    }
+    
     constructor(){
         super();
     }
 }
 
-export class Link extends GraphView.BaseLink {
+export class Link extends GraphView.BaseLink<Node> {
     // We get the ids before we can construct the nodes...
     sourceId: ConceptURI; // = parentId;
     targetId: ConceptURI; // = childId;
