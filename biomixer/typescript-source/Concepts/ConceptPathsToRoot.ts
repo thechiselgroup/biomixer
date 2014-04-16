@@ -503,7 +503,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("points", this.computePolyLineLinkPoints)
         .attr("marker-mid", (e: ConceptGraph.Link)=>{return "url(#"+"LinkHeadMarker_"+this.getLinkCssClass(e.relationType)+")"; } )
         .attr("data-thickness_basis", function(d) { return d.value;})
-            
+                    
         // Update Tool tip
         enteringLinks // this is new...used to do to all linked data...
         .append("title") // How would I *update* this if I needed to?
@@ -536,25 +536,46 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // http://www.alt-soft.com/tutorial/svg_tutorial/marker.html
         // http://stackoverflow.com/questions/3290392/creating-svg-markers-programatically-with-javascript        
         var arcCssClassArray = ["inheritanceLink", "compositionLink", "mappingLink"];
+        var arcCssLabelArray = ["is a", "has a", "maps to"];
         for(var i = 0; i < arcCssClassArray.length; i++){
-            var cssClass = arcCssClassArray[i];
-            var marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
-            marker.setAttribute("id", "LinkHeadMarker_"+cssClass);
-            marker.setAttribute("class", cssClass+" linkMarker");
-            marker.setAttribute("viewBox", "0 0 10 10");
-            marker.setAttribute("refX", "0");
-            marker.setAttribute("refY", "5");
-            marker.setAttribute("markerUnits", "strokeWidth");
-            marker.setAttribute("markerWidth", "4");
-            marker.setAttribute("markerHeight", "30");
-            marker.setAttribute("orient", "auto");
-            var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
-            path.setAttribute("class", "linkMarker "+cssClass);
-            marker.appendChild(path);
-            
-            svgNode.append(defs);
-            defs.appendChild(marker);
+            // Do the arrow markers first
+            {
+                var cssClass = arcCssClassArray[i];
+                var marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+                marker.setAttribute("id", "LinkHeadMarker_"+cssClass);
+                marker.setAttribute("class", cssClass+" linkMarker");
+                marker.setAttribute("viewBox", "0 0 10 10");
+                marker.setAttribute("refX", "0");
+                marker.setAttribute("refY", "5");
+                //  marker.setAttribute("markerUnits", "strokeWidth");
+                marker.setAttribute("markerUnits", "userSpaceOnUse");
+                marker.setAttribute("markerWidth", "10");
+                marker.setAttribute("markerHeight", "8");
+                marker.setAttribute("orient", "auto");
+                marker.setAttribute("overflow", "visible");
+                
+                var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+                path.setAttribute("class", "linkMarker "+cssClass);
+                marker.appendChild(path);
+                
+                // These labels make the visualization slow down a lot. If someone asks for them, we'll add them.
+                // We should brainstorm alternatives.
+//                var label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+//                label.textContent = arcCssLabelArray[i];
+//                label.setAttribute("id", "LinkLabelMarker_"+cssClass);
+//                label.setAttribute("class", "linkText "+cssClass);
+//                label.setAttribute("unselectable", "on"); // IE 8
+//                //  label.setAttribute("font-size", "10px"); // IE 8
+//                label.setAttribute("onmousedown", "noselect"); // IE ?
+//                label.setAttribute("onselectstart", "function(){ return false;}"); // IE 8?
+//                label.setAttribute("dx", "1em");
+//                label.setAttribute("dy", "1em"); // 1em down to go below baseline, 0.5em to counter padding added below
+//                marker.appendChild(label);
+                
+                svgNode.append(defs);
+                defs.appendChild(marker);
+            }
         }
     }
     

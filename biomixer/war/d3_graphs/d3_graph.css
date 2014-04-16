@@ -23,6 +23,18 @@
 	fill: rgb(0,0,0);
 	font-weight: normal;
 	font-size: 12;
+	pointer-events: none;
+}
+
+.linktext {
+	fill: rgb(0,0,0);
+	stroke: rgb(0,0,0);
+	font-weight: normal;
+	font-size: 10;
+	stroke-width: 1;
+	stroke: #000;
+	transform: translate3d(0,0,0);
+	pointer-events: none;
 }
 
 .link {

@@ -79,6 +79,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeInnerSvgClassSansDot = "inner_node"; // Needed for ontology double-node effect
     static nodeLabelSvgClassSansDot = "nodetext";
     static linkSvgClassSansDot = "link";
+    static linkLabelSvgClassSansDot = "linktext";
     
     static ontologyNodeSvgClassSansDot = "ontologyNode";
     static ontologyLinkSvgClassSansDot = "ontologyMappingLink"
@@ -90,6 +91,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeInnerSvgClass = "."+BaseGraphView.nodeInnerSvgClassSansDot;
     static nodeLabelSvgClass = "."+BaseGraphView.nodeLabelSvgClassSansDot;
     static linkSvgClass = "."+BaseGraphView.linkSvgClassSansDot;
+    static linkLabelSvgClass = "."+BaseGraphView.linkLabelSvgClassSansDot;
     
     
     
