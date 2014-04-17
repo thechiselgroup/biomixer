@@ -105,11 +105,11 @@ export class ConceptLayouts {
         
         graphNodes.forEach(function(n){
             var i = graphNodes.indexOf(n);
-            console.log("index "+i);
+           // console.log("index "+i);
     
-            if(n.id==rootId){
+            if(n.rawConceptUri==rootId){
                 index = i;
-                console.log("index "+i);
+               // console.log("index "+i);
     
             }
         });
@@ -129,7 +129,7 @@ export class ConceptLayouts {
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.id){
+                        if(b.sourceId==d.rawConceptUri){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                 if(c.rawConceptUri==b.targetId){
@@ -141,6 +141,7 @@ export class ConceptLayouts {
                         }
                         
                     });
+                   
                     return arrayOfNodes;
                 });
             
@@ -185,7 +186,7 @@ export class ConceptLayouts {
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.id){
+                        if(b.sourceId==d.rawConceptUri){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                 if(c.rawConceptUri==b.targetId){
@@ -236,19 +237,18 @@ export class ConceptLayouts {
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.id){
+                        if(b.sourceId==d.rawConceptUri){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                if(c.rawConceptUri==b.targetId){
                                     targetNode = c;
                                 }
-                                
-                                //console.log(b.targetId);
                             });
                             arrayOfNodes.push(targetNode);
                         }
                         
                     });
+                     
                     return arrayOfNodes;
                 });
             
