@@ -44,12 +44,243 @@ export class ConceptLayouts {
                 .attr("id", "centerLayoutButton")
                 .attr("type", "button")
                 .attr("value", "Center Layout"));
+        $(menuSelector).append($("<br>"));
+        
+        $(menuSelector).append($("<input>")
+            .attr("class", "layoutButton")
+            .attr("id", "horizontalTreeLayoutButton")
+            .attr("type", "button")
+            .attr("value", "Horizontal Tree Layout"));
+        $(menuSelector).append($("<br>"));
+    
+        $(menuSelector).append($("<input>")
+            .attr("class", "layoutButton")
+            .attr("id", "verticalTreeLayoutButton")
+            .attr("type", "button")
+            .attr("value", "Vertical Tree Layout"));
+        $(menuSelector).append($("<br>"));
+    
+       $(menuSelector).append($("<input>")
+            .attr("class", "layoutButton")
+            .attr("id", "radialLayoutButton")
+            .attr("type", "button")
+            .attr("value", "Radial Layout"));
     
         
         d3.selectAll("#circleLayoutButton").on("click", this.runCircleLayoutLambda());
         d3.selectAll("#forceLayoutButton").on("click", this.runForceLayoutLambda());
         d3.selectAll("#centerLayoutButton").on("click", this.runCenterLayoutLambda());
+        d3.selectAll("#horizontalTreeLayoutButton").on("click", this.runHorizontalTreeLayoutLambda());
+        d3.selectAll("#verticalTreeLayoutButton").on("click", this.runVerticalTreeLayoutLambda());
+        d3.selectAll("#radialLayoutButton").on("click", this.runRadialLayoutLambda());
     
+    }
+    
+    rootIndex(){
+        var outerThis = this;
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.graph.graphD3Format.links;
+        
+        var index = 0;
+        var rootId = null;
+        var rootFound=false;
+        // not the best algorithm. Need to look into improving it
+        graphLinks.forEach(function(a){
+            if(rootFound==false){
+                rootFound=true;
+                graphLinks.forEach(function(b){
+                    if(a.sourceId==b.targetId){
+                        //rootId = b.sourceId;
+                        rootFound = false;
+                    }
+                    
+                });
+                
+                if(rootFound==true){
+                    rootId = a.sourceId;
+                }
+            }
+            
+        });
+        
+        graphNodes.forEach(function(n){
+            var i = graphNodes.indexOf(n);
+            console.log("index "+i);
+    
+            if(n.id==rootId){
+                index = i;
+                console.log("index "+i);
+    
+            }
+        });
+        
+        return index;   
+    }
+    
+    runRadialLayoutLambda(){
+        var outerThis = this;
+        return function(){
+            outerThis.forceLayout.stop();
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
+            var graphLinks = outerThis.graph.graphD3Format.links;
+            
+            var tree = d3.layout.tree()
+                .size([360,outerThis.graphView.visHeight()/2-100])
+                .children(function(d){  
+                    var arrayOfNodes = []; 
+                    graphLinks.forEach(function(b){
+                        if(b.sourceId==d.id){
+                            var targetNode= {};
+                            graphNodes.forEach(function(c){
+                                if(c.rawConceptUri==b.targetId){
+                                    targetNode = c;
+                                }
+                                
+                            });
+                            arrayOfNodes.push(targetNode);
+                        }
+                        
+                    });
+                    return arrayOfNodes;
+                });
+            
+              var treeNodes = tree.nodes(graphNodes[outerThis.rootIndex()]);
+          
+              
+              $.each(graphNodes,
+                    function(index, element){
+                        var radius = element.y;
+                        var angle = element.x/180 * Math.PI;
+                        graphNodes[index].x = outerThis.graphView.visWidth()/2 + radius*Math.cos(angle); 
+    //                  graphNodes[index].x = 0; 
+    //                  graphNodes[index].y = element.y; 
+    
+                        graphNodes[index].y = outerThis.graphView.visHeight()/2 + radius*Math.sin(angle); 
+                    }
+                );
+              // Adding 150 to y values is probably not the best way of dealing with this
+                d3.selectAll("g.node")
+                    .transition()
+                    .duration(2500)
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                
+                d3.selectAll("line")
+                    .transition()
+                    .duration(2500)
+                    .attr("x1", function(d){return d.source.x;})
+                    .attr("y1", function(d){return d.source.y;})
+                    .attr("x2", function(d){return d.target.x;})
+                    .attr("y2", function(d){return d.target.y;});
+              
+        };
+    }
+
+    runVerticalTreeLayoutLambda(){
+        var outerThis = this;
+        return function(){
+            outerThis.forceLayout.stop();
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
+            var graphLinks = outerThis.graph.graphD3Format.links;
+            
+            var tree = d3.layout.tree()
+                .size([outerThis.graphView.visWidth(), outerThis.graphView.visHeight()-300])
+                .children(function(d){  
+                    var arrayOfNodes = []; 
+                    graphLinks.forEach(function(b){
+                        if(b.sourceId==d.id){
+                            var targetNode= {};
+                            graphNodes.forEach(function(c){
+                                if(c.rawConceptUri==b.targetId){
+                                    targetNode = c;
+                                }
+                                
+                            });
+                            arrayOfNodes.push(targetNode);
+                        }
+                        
+                    });
+                    return arrayOfNodes;
+                });
+            
+              var treeNodes = tree.nodes(graphNodes[outerThis.rootIndex()]);
+          
+              
+              $.each(graphNodes,
+                    function(index, element){
+                        graphNodes[index].x = element.x; 
+                        graphNodes[index].y = element.y+150; 
+                    }
+                );
+              // Adding 150 to y values is probably not the best way of dealing with this
+                d3.selectAll("g.node")
+                    .transition()
+                    .duration(2500)
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                
+                d3.selectAll("line")
+                    .transition()
+                    .duration(2500)
+                    .attr("x1", function(d){return d.source.x;})
+                    .attr("y1", function(d){return d.source.y;})
+                    .attr("x2", function(d){return d.target.x;})
+                    .attr("y2", function(d){return d.target.y;});
+              
+        };
+    }
+    
+    runHorizontalTreeLayoutLambda(){
+        var outerThis = this;
+        return function(){
+            outerThis.forceLayout.stop();
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
+            var graphLinks = outerThis.graph.graphD3Format.links;
+            
+            var tree = d3.layout.tree()
+                .size([outerThis.graphView.visHeight()-100,outerThis.graphView.visWidth()-300])
+                .children(function(d){  
+                    var arrayOfNodes = []; 
+                    graphLinks.forEach(function(b){
+                        if(b.sourceId==d.id){
+                            var targetNode= {};
+                            graphNodes.forEach(function(c){
+                               if(c.rawConceptUri==b.targetId){
+                                    targetNode = c;
+                                }
+                                
+                                //console.log(b.targetId);
+                            });
+                            arrayOfNodes.push(targetNode);
+                        }
+                        
+                    });
+                    return arrayOfNodes;
+                });
+            
+                var treeNodes = tree.nodes(graphNodes[outerThis.rootIndex()]);
+              
+                  
+                $.each(graphNodes,
+                      function(index, element){
+                          var xValue = element.x
+                          graphNodes[index].x = element.y+150; 
+                          graphNodes[index].y = xValue; 
+                      }
+                );
+                d3.selectAll("g.node")
+                      .transition()
+                      .duration(2500)
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                    
+                d3.selectAll("line")
+                      .transition()
+                      .duration(2500)
+                      .attr("x1", function(d){return d.source.x;})
+                      .attr("y1", function(d){return d.source.y;})
+                      .attr("x2", function(d){return d.target.x;})
+                      .attr("y2", function(d){return d.target.y;});
+              
+        };
+      
     }
     
     runCircleLayoutLambda(){
