@@ -15,17 +15,17 @@
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
-import Utils = require('../Utils');
-import Fetch = require('../FetchFromApi');
-import Menu = require('../Menu');
-import GraphView = require('../GraphView');
-import TipsyToolTips = require('../TipsyToolTips');
-import ConceptGraph = require('./ConceptGraph');
-import ConceptRenderScaler = require('./ConceptRenderScaler');
-import ConceptFilterSliders = require('./ConceptFilterSliders');
-import ConceptLayouts = require('./ConceptLayouts');
+import Utils = require("../Utils");
+import Fetch = require("../FetchFromApi");
+import Menu = require("../Menu");
+import GraphView = require("../GraphView");
+import TipsyToolTips = require("../TipsyToolTips");
+import ConceptGraph = require("./ConceptGraph");
+import ConceptRenderScaler = require("./ConceptRenderScaler");
+import ConceptFilterSliders = require("./ConceptFilterSliders");
+import ConceptLayouts = require("./ConceptLayouts");
 
-export class ConceptPathsToRoot extends GraphView.BaseGraphView implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
+export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     
     // Core objects (used to float around prior to TypeScript)
     conceptGraph: ConceptGraph.ConceptGraph;
@@ -40,15 +40,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     // TODO Is this overshadowing or is this using the member defined in the parent class?
     // Put a re-callable layout function in runCurrentLayout.
     
-    
-    linkThickness = 3;
     nodeHeight = 8;
     
     nodeLabelPaddingWidth = 10;
     nodeLabelPaddingHeight = 10;
 
     
-    // TODO Refactor something. Leaving this way to prevent too much code change that isn't simpyl TypeScript refactoring.
+    // TODO Refactor something. Leaving this way to prevent too much code change that isn't simply TypeScript refactoring.
     filterGraphOnMappingCounts(){
 //        this.filterSliders.filterGraphOnOntologyAndLinkSelections();
     }
@@ -62,14 +60,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     ){
         super();
         // Minimal constructor, most work done in initAndPopulateGraph().
-        
+               
         this.menu = new Menu.Menu();
         
         this.visualization = $("#visualization_selector option:selected").text();
         $("#visualization_selector").change(
             () => {
                 console.log("Changing visualization mode.");
-                if(this.visualization != $("#visualization_selector option:selected").text()){
+                if(this.visualization !== $("#visualization_selector option:selected").text()){
                     this.visualization = $("#visualization_selector option:selected").text();
                     this.initAndPopulateGraph();
                 }
@@ -83,7 +81,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
         
         // Experimental...seems like a good idea
-        if(this.forceLayout != undefined){
+        if(this.forceLayout !== undefined){
             this.forceLayout.nodes([]);
             this.forceLayout.links([]);
         }
@@ -98,12 +96,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             .on("click", this.menu.closeMenuLambda());
         //  .call(d3.behavior.zoom().on("zoom", redraw))
           
+        this.defineCustomSVG();
         
-        this.vis.append('svg:rect')
+        this.vis.append("svg:rect")
             .attr("width", this.visWidth())
             .attr("height", this.visHeight())
             .attr("id", "graphRect")
-            .style('fill', 'white');
+            .style("fill", "white");
         
         // Keeps links below nodes, and cleans up document a fair bit.
         this.vis.append("g").attr("id", "link_container");
@@ -135,7 +134,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         this.initGraph();
         
 //        this.renderScaler = new ConceptRenderScaler.ConceptRenderScaler(this.vis);
-//        this.filterSliders = new ConceptFilterSliders.ConceptRangeSliders(this.conceptGraph, this, this.centralConceptUri);
+        this.filterSliders = new ConceptFilterSliders.ConceptRangeSliders(this.conceptGraph, this, this.centralConceptUri);
         
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
         
@@ -154,18 +153,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     }
         
     fetchInitialExpansion(){
-        if(this.visualization === ConceptGraph.PathOptions.pathsToRootConstant){
+        if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
             this.conceptGraph.fetchPathToRoot(this.centalOntologyAcronym, this.centralConceptUri);
-        } else if(this.visualization === ConceptGraph.PathOptions.termNeighborhoodConstant){
+        } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
             this.conceptGraph.fetchTermNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
-        } else if(this.visualization === ConceptGraph.PathOptions.mappingsNeighborhoodConstant){
+        } else if(this.visualization === String(ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
+            this.runCurrentLayout = this.layouts.runCenterLayoutLambda();
             this.conceptGraph.fetchMappingsNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
         }
     }
     
     // TODO I don't believe this is rendering...
     conceptLinkSimplePopupFunction(d){
-        return "From: "+d.source.id+" To: "+d.target.id;
+        return "From: "+d.source.name+" ("+d.source.ontologyAcronym+")"+" To: "+d.target.name+" ("+d.target.ontologyAcronym+")";
     }
     
     // TODO Fix...but also it doesn't render...
@@ -220,13 +220,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     
         return () => {
             // This improved layout behavior dramatically.
-            var boundNodes = this.vis.selectAll("g.node");
+            var boundNodes = this.vis.selectAll("g.node_g");
             // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
-            var boundLinks = this.vis.selectAll("line.link");
+            var boundLinks = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass);
                 
             // Stop the layout early. The circular initialization makes it ok.
             if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
                 this.forceLayout.stop();
+                this.forceLayout.alpha(0);
             }
             
             
@@ -274,14 +275,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
     //          doLabelUpdateNextTime = true;
     //      } else {
     
-            boundNodes.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            boundNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
                 
-            if(boundLinks.length > 0)
+            if(boundLinks.length > 0){
                 boundLinks
-              .attr("x1", function(d) { return d.source.x; })
-              .attr("y1", function(d) { return d.source.y; })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; });
+                .attr("points", this.computePolyLineLinkPoints)
+                ;
+            }
             
             // I want labels to aim out of middle of graph, to make more room
             // It slows rendering, so I will only do it sometimes
@@ -328,14 +328,21 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             
             d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
         
-            outerThis.vis.selectAll("line")
-                .filter(function(e, i){ return e.source == d || e.target == d; })
-                .attr("x1", function(e) { return e.source.x; })
-                .attr("y1", function(e) { return e.source.y; })
-                .attr("x2", function(e) { return e.target.x; })
-                .attr("y2", function(e) { return e.target.y; });
+            
+            
+            outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass)
+                .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
+                .attr("points", outerThis.computePolyLineLinkPoints)
+                ;
            
         }
+    }
+    
+    public computePolyLineLinkPoints(e: ConceptGraph.Link){
+        var midPointX = e.source.x + (e.target.x - e.source.x)/2;
+        var midPointY = e.source.y + (e.target.y - e.source.y)/2;
+        var midPointString = midPointX+","+midPointY;
+        return e.source.x+","+e.source.y+"  "+midPointString+"  "+e.target.x+","+e.target.y;
     }
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
@@ -367,7 +374,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
          );
        
          
-         var urlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"]+"?p=classes&conceptid="+conceptData["escapedId"];
+         var urlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"]+"?p=classes&conceptid="+conceptData["rawConceptUri"];
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -383,15 +390,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
                  "Ontology Acronym: ": "ontologyAcronym",
                  "Ontology Homepage: ": "ontologyUri",
          };
-         $.each(jsonArgs,function(label, key){
-             var style = (key === "description" ? {} : {"white-space":"nowrap"});
+         $.each(jsonArgs,function(label, propertyKey){
+             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
                                      $("<div></div>").addClass("gwt-HTML").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
-                                             $("<span></span>").text(conceptData[key])
+                                             $("<span></span>").text(conceptData[propertyKey])
                                      )
                              )
                      )
@@ -429,7 +436,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
             // Given a json encoded graph element, update all of the nested elements associated with it
             // cherry pick elements that we might otherwise get by class "node"
             var node = outerThis.vis.select("#node_g_"+d.conceptUriForIds);
-            var nodeRects = node.select("node_rect");
+            var nodeRects = node.select(GraphView.BaseGraphView.nodeSvgClassSansDot);
             // Concept graphs have fixed node and arc sizes.
             // nodeRects.attr("data-radius_basis", d.number);
             nodeRects.transition().style("fill", d.nodeColor);
@@ -452,83 +459,127 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         
         $.each(json.links, updateLinksFromJson);
         $.each(json.nodes, updateNodesFromJson);
-        
-        // Concept graphs have fixed node and arc sizes.
-    //  if(nodeUpdateTimer == false){
-    //      nodeUpdateTimer = true;
-    //      window.setTimeout(function(){
-    //              console.log("TIMER RESET");
-    //              nodeUpdateTimer = false;
-    //              updateNodeScalingFactor();
-    //              // The link thickness does not receive new data right now,
-    //              // otherwise we'd want to call the update factor function here.
-    //              // updateLinkScalingFactor();
-    //          },
-    //          1000);
-    //  }
     }
-    //var nodeUpdateTimer = false;
     
     
     /**
     * This function should be used when adding brand new nodes and links to the
     * graph. Do not call it to update properties of graph elements.
     */
-    populateGraph(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
-        this.populateGraphEdges(graphD3Format.links);
-        this.populateGraphNodes(graphD3Format.nodes);
+    populateNewGraphElements(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
+        console.log("Stop using passed argument since this class owns that data. Get rid of newElementsExpected.");
+        this.populateNewGraphEdges(graphD3Format.links);
+        this.populateNewGraphNodes(graphD3Format.nodes);
         // this.runCurrentLayout();
-        this.forceLayout.start();
+        // Call start() only if we actually added (or removed) anything
+        // this.forceLayout.start();
     }
     
-    populateGraphEdges(linksData: ConceptGraph.Link[]){
+    populateNewGraphEdges(linksData: ConceptGraph.Link[]){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
             return [];
         }
         
+        var outerThis = this;
+        
         // Data constancy via key function() passed to data()
         // Link stuff first
-        // console.log("enter() getting data for counter time: "+(i=i+1));  console.log(d); 
         var links = this.vis.select("#link_container")
-        .selectAll("line.link").data(linksData, function(d: ConceptGraph.Link){return d.rawId});
-        // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length);
-        // console.log(" links from selectAll: "+vis.selectAll("line.link")[0].length);
-         
+        .selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(linksData, function(d: ConceptGraph.Link){return d.rawId});
+        
         // Add new stuff
         // Make svg:g like nodes if we need labels
         // Would skip the g element here for links, but it cleans up the document and bundles text with line.
         var enteringLinks = links.enter().append("svg:g")
-        .attr("class", "link")
+        .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.conceptLinkSvgClassSansDot)
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
-        enteringLinks.append("svg:line")
-        .attr("class", function(d: ConceptGraph.Link){return "link link_"+d.relationType;}) 
+        enteringLinks.append("svg:polyline")
+        .attr("class", function(d: ConceptGraph.Link){return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
-        .on("mouseover", this.highlightLinkLambda(this))
-        .on("mouseout", this.changeColourBackLambda(this))
-        .attr("x1", function(d: ConceptGraph.Link) { return d.source.x; })
-        .attr("y1", function(d: ConceptGraph.Link) { return d.source.y; })
-        .attr("x2", function(d: ConceptGraph.Link) { return d.target.x; })
-        .attr("y2", function(d: ConceptGraph.Link) { return d.target.y; })
-        .style("stroke-linecap", "round")
-        .style("stroke-width", this.linkThickness)
-        .attr("data-thickness_basis", function(d) { return d.value;});
-    
-        // console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
-        
+        .on("mouseover", this.highlightHoveredLinkLambda(this))
+        .on("mouseout", this.unhighlightHoveredLinkLambda(this))
+        .attr("points", this.computePolyLineLinkPoints)
+        .attr("marker-mid", (e: ConceptGraph.Link)=>{return "url(#"+"LinkHeadMarker_"+this.getLinkCssClass(e.relationType)+")"; } )
+        .attr("data-thickness_basis", function(d) { return d.value;})
+                    
         // Update Tool tip
         enteringLinks // this is new...used to do to all linked data...
         .append("title") // How would I *update* this if I needed to?
             .text(this.conceptLinkSimplePopupFunction)
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
-    
-        // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
-        // links.exit().remove();
         
+        if(!enteringLinks.empty()){
+            this.updateStartWithoutResume();
+        }
     }
     
-    populateGraphNodes(nodesData: ConceptGraph.Node[]){
+    private getLinkCssClass(relationType: string): string{
+        if(-1 !== relationType.indexOf("is_a")){
+            return "inheritanceLink"
+        } else if(-1 !== relationType.indexOf("part_of") || -1 !== relationType.indexOf("has_part")){
+            return "compositionLink";
+        } else if($.inArray(relationType, ["ncbo-mapping", "maps to"])){
+            return "mappingLink";
+        } else {
+            console.log("Unidentified arc type: "+relationType);
+            return "";
+        }
+    }
+    
+    private defineCustomSVG(){
+        // Define markers to be used as heads on arcs
+        var svgNode = $("#graphSvg");
+        var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+        
+        // http://www.alt-soft.com/tutorial/svg_tutorial/marker.html
+        // http://stackoverflow.com/questions/3290392/creating-svg-markers-programatically-with-javascript        
+        var arcCssClassArray = ["inheritanceLink", "compositionLink", "mappingLink"];
+        var arcCssLabelArray = ["is a", "has a", "maps to"];
+        for(var i = 0; i < arcCssClassArray.length; i++){
+            // Do the arrow markers first
+            {
+                var cssClass = arcCssClassArray[i];
+                var marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+                marker.setAttribute("id", "LinkHeadMarker_"+cssClass);
+                marker.setAttribute("class", cssClass+" linkMarker");
+                marker.setAttribute("viewBox", "0 0 10 10");
+                marker.setAttribute("refX", "0");
+                marker.setAttribute("refY", "5");
+                //  marker.setAttribute("markerUnits", "strokeWidth");
+                marker.setAttribute("markerUnits", "userSpaceOnUse");
+                marker.setAttribute("markerWidth", "10");
+                marker.setAttribute("markerHeight", "8");
+                marker.setAttribute("orient", "auto");
+                marker.setAttribute("overflow", "visible");
+                
+                var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+                path.setAttribute("class", "linkMarker "+cssClass);
+                marker.appendChild(path);
+                
+                // These labels make the visualization slow down a lot. If someone asks for them, we'll add them.
+                // We should brainstorm alternatives.
+//                var label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+//                label.textContent = arcCssLabelArray[i];
+//                label.setAttribute("id", "LinkLabelMarker_"+cssClass);
+//                label.setAttribute("class", "linkText "+cssClass);
+//                label.setAttribute("unselectable", "on"); // IE 8
+//                //  label.setAttribute("font-size", "10px"); // IE 8
+//                label.setAttribute("onmousedown", "noselect"); // IE ?
+//                label.setAttribute("onselectstart", "function(){ return false;}"); // IE 8?
+//                label.setAttribute("dx", "1em");
+//                label.setAttribute("dy", "1em"); // 1em down to go below baseline, 0.5em to counter padding added below
+//                marker.appendChild(label);
+                
+                svgNode.append(defs);
+                defs.appendChild(marker);
+            }
+        }
+    }
+    
+    populateNewGraphNodes(nodesData: ConceptGraph.Node[]){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(nodesData.length == 0){
             return [];
@@ -537,15 +588,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         var outerThis = this;
         
         var nodes = this.vis.select("#node_container")
-        .selectAll("g.node").data(nodesData, function(d: ConceptGraph.Node){ return String(d.rawConceptUri)});
-        // console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
+        .selectAll("g.node_g").data(nodesData, function(d: ConceptGraph.Node){ return String(d.rawConceptUri)});
         // Add new stuff
-        var nodesEnter = nodes.enter().append("svg:g")
-        .attr("class", "node")
+        var enteringNodes = nodes.enter().append("svg:g")
+        .attr("class", "node_g")
         .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
         .call(this.nodeDragBehavior);
         
-        // console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
         
         // Easiest to use JQuery to get at existing enter() circles
         // Otherwise we futz with things like the enter()select(function) below
@@ -556,23 +605,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // Therefore I need to update using JQuery selections on unqiue element IDs
         
         // Basic properties
-        nodesEnter
+        enteringNodes
         .append("svg:rect") 
         .attr("id", function(d: ConceptGraph.Node){ return "node_rect_"+d.conceptUriForIds})
-        .attr("class", "node_rect")
+        .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot)
          .style("fill", function(d: ConceptGraph.Node) { return d.nodeColor; })
-        // Concept graphs have fixed node and arc sizes.
-        // .attr("data-radius_basis", function(d) { return d.number;})
-        // .attr("r", function(d) { return ontologyNodeScalingFunc(d.number); })
         .attr("height", this.nodeHeight)
         .attr("width", this.nodeHeight)
-        .on("mouseover", this.changeColourLambda(this))
-        .on("mouseout", this.changeColourBackLambda(this));
+        .on("mouseover", this.highlightHoveredNodeLambda(this))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this));
         
         // TODO Don't I want to do this *only* on new nodes?
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(".node_rect").each(TipsyToolTips.nodeTooltipLambda(this));
+        d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipLambda(this));
             
         // Dumb Tool tip...not needed with tipsy popups.
         // nodesEnter.append("title")
@@ -580,9 +626,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         //   .text(function(d) { return "Number Of Terms: "+d.number; });
         
         // Label
-        nodesEnter.append("svg:text")
+        enteringNodes.append("svg:text")
         .attr("id", function(d: ConceptGraph.Node){ return "node_text_"+d.conceptUriForIds})
-        .attr("class", "nodetext unselectable")
+        .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
         // .attr("dx", "0em")
         // .attr("dy", "1em") // 1em down to go below baseline, 0.5em to counter padding added below
         .text(function(d: ConceptGraph.Node) { return d.name; })
@@ -592,14 +638,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         .attr("unselectable", "on") // IE 8
         .attr("onmousedown", "noselect") // IE ?
         .attr("onselectstart", "function(){ return false;}") // IE 8?
-        // .on("mouseover", changeColour)
-        // .on("mouseout", changeColourBack)
         ;
         
         // Resize each node to encompass the label we just created.
-        $(".nodetext").each(function(i, d: Element){
+        $(GraphView.BaseGraphView.nodeLabelSvgClass).each(function(i, d: Element){
             var textSize = this.getBBox(); // d.getBBox();
-            var rect = $(d).siblings().filter(".node_rect"); // .select(".node_rect");
+            var rect = $(d).siblings().filter(GraphView.BaseGraphView.nodeSvgClass);
             rect.attr("width", textSize.width + outerThis.nodeLabelPaddingWidth);
             rect.attr("height", textSize.height + outerThis.nodeLabelPaddingHeight);
             // We need to adjust the rectangle position within its svg:g object so that arcs are positioned relative
@@ -615,113 +659,29 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView implements Graph
         // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
         // nodes.exit().remove();
         
+        if(!enteringNodes.empty()){
+            this.updateStartWithoutResume();
+        }
     }
 
-    removeGraphPopulation(){
-        console.log("Removing some graph elements "+Utils.getTime());
-    
-        var nodes = this.vis.selectAll("g.node").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri)});
-        var links = this.vis.selectAll("line.link").data(this.conceptGraph.graphD3Format.links, function(d: ConceptGraph.Link){return d.rawId});
+    removeMissingGraphElements(graphD3Format: ConceptGraph.ConceptD3Data){
+        //console.log("Removing some graph elements "+Utils.getTime());
         
+        var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri);});
+        var links = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(this.conceptGraph.graphD3Format.links, function(d: ConceptGraph.Link){return d.rawId;});
         
-        
-        //  console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawConceptUri}).exit()[0].length);
-        nodes.exit().remove();
-        links.exit().remove();
-        // Do I need start() or not? Number of elements before and after implies not.
-        //  forceLayout.start();
-        //  console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawConceptUri}).exit()[0].length);
+        var nodesRemoved = nodes.exit().remove();
+        var linksRemoved = links.exit().remove();
         
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
         this.filterSliders.updateTopMappingsSliderRange();
         this.filterSliders.rangeSliderSlideEvent(null, null); // Bad to pass nulls when I know it will work, or ok?
-    }
-    
-    highlightLinkLambda(outerThis: ConceptPathsToRoot){
-        return function(linkLine, i){
-            if(outerThis.dragging){
-                return;
-            }
         
-            var xSourcePos = linkLine.source.x;
-            var ySourcePos = linkLine.source.y;
-            var xTargetPos = linkLine.target.x;
-            var yTargetPos = linkLine.target.y;
-            
-            d3.selectAll("text").style("opacity", .2)
-                .filter(function(g, i){return g.x==linkLine.source.x||g.y==linkLine.source.y||g.x==linkLine.target.x||g.y==linkLine.target.y;})
-                .style("opacity", 1);
-                
-            d3.selectAll("line").style("stroke-opacity", .1);
-            d3.selectAll("node_rect").style("fill-opacity", .1)
-                .style("stroke-opacity", .2)
-                .filter(function(g, i){return g.x==linkLine.source.x||g.y==linkLine.source.y||g.x==linkLine.target.x||g.y==linkLine.target.y})
-                .style("fill-opacity", 1)
-                .style("stroke-opacity", 1);
-            d3.select(this).style("stroke-opacity", 1)
-                .style("stroke", "#3d3d3d");
+        if(!nodesRemoved.empty() || !linksRemoved.empty()){
+            this.updateStartWithoutResume();
         }
     }
     
-    changeColourLambda(outerThis: ConceptPathsToRoot){
-        return function(nodeData, i){
-            if(outerThis.dragging){
-                return;
-            }
-            var xPos=nodeData.x;
-            var yPos=nodeData.y;
-            
-            d3.selectAll("line").style("stroke-opacity", .1);
-            d3.selectAll("node_rect").style("fill-opacity", .1)
-                .style("stroke-opacity", .2);
-                
-            d3.selectAll("text").style("opacity", .2)
-                .filter(function(g, i){return g.x==nodeData.x})
-                .style("opacity", 1);
-                
-            var sourceNode;
-            if(d3.select(this).attr("class") == "node_rect"){
-                sourceNode = d3.select(this);
-            } else if(d3.select(this).attr("class") == "nodetext"){
-                // If the labels aren't wired for mouse interaction, this is unneeded
-                sourceNode = d3.select(this.parentNode).select(".node_rect");
-            }
-            
-            sourceNode.style("fill", outerThis.nodeHighlightColor)
-                .style("fill-opacity", 1)
-                .style("stroke-opacity", 1);
-                
-            var adjacentLinks = d3.selectAll("line")
-                .filter(function(d, i) {return d.source.x==xPos && d.source.y==yPos;})
-                .style("stroke-opacity", 1)
-                .style("stroke", "#3d3d3d")
-                .each(function(d){
-                    d3.selectAll("node_rect")
-                    .filter(function(g, i){return d.target.x==g.x && d.target.y==g.y;})
-                    .style("fill-opacity", 1)
-                    .style("stroke-opacity", 1)
-                    .each(function(d){
-                        d3.selectAll("text")
-                        .filter(function(g, i){return g.x==d.x})
-                        .style("opacity", 1);});
-            });
-        }
-    }
-    
-    changeColourBackLambda(outerThis: ConceptPathsToRoot){
-        return function(nodeData, i){
-            d3.selectAll(".node_rect")
-                .style("fill", function(e, i){ 
-                    return (typeof e.nodeColor === undefined ? outerThis.defaultNodeColor : e.nodeColor); 
-                    })
-                .style("fill-opacity", .75)
-                .style("stroke-opacity", 1);
-            d3.selectAll("line")
-                .style("stroke", outerThis.defaultLinkColor)
-                .style("stroke-opacity", .75);
-            d3.selectAll("text").style("opacity", 1);
-        }
-    }
     
     prepGraphMenu(){
         // Layout selector for concept graphs.

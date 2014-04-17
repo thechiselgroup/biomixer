@@ -51,12 +51,16 @@ export class Node extends GraphView.BaseNode {
     numberOfIndividuals: number; // = numIndividuals;
     numberOfProperties: number; // = numProperties;
     
+    getEntityId(): string{
+        return String(this.acronymForIds);
+    }
+    
     constructor(){
         super();
     }
 }
 
-export class Link extends GraphView.BaseLink {
+export class Link extends GraphView.BaseLink<Node> {
     source: Node; // = centralOntologyNode;
     target: Node; // = ontologyNode;
     value: number; // = mappingCount; // This gets used for link stroke thickness later.
@@ -205,7 +209,7 @@ export class OntologyGraph implements GraphView.Graph {
         // $.each(ontologyNeighbourhoodJsonForGraph.nodes, function(index, node){console.log("After removal: "+node.rawAcronym)});
         // $.each(ontologyNeighbourhoodJsonForGraph.links, function(index, link){console.log("After removal: "+link.source.rawAcronym+" and "+link.target.rawAcronym)});
         
-        this.graphView.removeGraphPopulation();
+        this.graphView.removeMissingGraphElements(this.ontologyNeighbourhoodJsonForGraph);
     }
     
     // Graph is responsible for its own node coloration...debate what this is: model attribute or view render?
@@ -375,7 +379,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
-		this.graph.graphView.populateGraph(this.graph.ontologyNeighbourhoodJsonForGraph, true);
+		this.graph.graphView.populateNewGraphElements(this.graph.ontologyNeighbourhoodJsonForGraph, true);
 		
 		// Once we have the graph populated, we have this one node we know we can call REST calls for, the central node!
 		// The other nodes need to wait, since when we get the details call back later, we will see that many

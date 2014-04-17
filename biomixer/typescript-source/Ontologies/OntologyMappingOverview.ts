@@ -14,20 +14,20 @@
 
 ///<amd-dependency path="JQueryExtension" />
 
-import Utils = require('../Utils');
-import Fetch = require('../FetchFromApi');
-import Menu = require('../Menu');
-import GraphView = require('../GraphView');
-import TipsyToolTips = require('../TipsyToolTips');
-import OntologyGraph = require('./OntologyGraph');
-import OntologyRenderScaler = require('./OntologyRenderScaler');
-import OntologyFilterSliders = require('./OntologyFilterSliders');
+import Utils = require("../Utils");
+import Fetch = require("../FetchFromApi");
+import Menu = require("../Menu");
+import GraphView = require("../GraphView");
+import TipsyToolTips = require("../TipsyToolTips");
+import OntologyGraph = require("./OntologyGraph");
+import OntologyRenderScaler = require("./OntologyRenderScaler");
+import OntologyFilterSliders = require("./OntologyFilterSliders");
 
 // If I don't extend and implement both, I have to define things I want implemented in the base class,
 // and I won't be forced to define things declared in the interface. Using the interface as the
 // type later leads to a full contract of behavior; the doubling up of interface and base class
 // here is only important for implementations.
-export class OntologyMappingOverview extends GraphView.BaseGraphView implements GraphView.GraphView<OntologyGraph.Node, OntologyGraph.Link> {
+export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGraph.Node, OntologyGraph.Link> implements GraphView.GraphView<OntologyGraph.Node, OntologyGraph.Link> {
 
     
     // Core objects (used to float around prior to TypeScript)
@@ -195,7 +195,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             
             d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
         
-            outerThis.vis.selectAll("line")
+            outerThis.vis.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e, i){ return e.source == d || e.target == d; })
                 .attr("x1", function(e) { return e.source.x; })
                 .attr("y1", function(e) { return e.source.y; })
@@ -271,15 +271,15 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
                  "Num Mappings: ": "mapped_classes_to_central_node",
          };
          
-         $.each(jsonArgs,function(label, key){
-             var style = (key === "description" ? {} : {"white-space":"nowrap"});
+         $.each(jsonArgs,function(label, propertyKey){
+             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
                                      $("<div></div>").addClass("gwt-HTML").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
-                                             $("<span></span>").text(ontologyData[key])
+                                             $("<span></span>").text(ontologyData[propertyKey])
                                      )
                              )
                      )
@@ -312,8 +312,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     * graph. Do not call it to update properties of graph elements.
     * TODO Make this function cleaner and fully compliant with the above description!
     */
-    populateGraph(json: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
-        console.log("Fix this up");
+    populateNewGraphElements(json: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
+        console.log("Fix this up with the newElements arg, and refactor into node and edge populate methods");
         
     //  console.log("Populating with:");
     //  console.log(json);
@@ -328,28 +328,26 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
         // Data constancy via key function() passed to data()
         // Link stuff first
-        var links = this.vis.selectAll("line.link").data(json.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(json.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
     
         // Add new stuff
         if(newElementsExpected === true)
-        links.enter().append("svg:line")
-        .attr("class", "link") // Make svg:g like nodes if we need labels
+        var enteringLinks = links.enter().append("svg:line")
+        .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyLinkSvgClassSansDot) // Make svg:g like nodes if we need labels
         .attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
-        .on("mouseover", this.highlightLinkLambda(this))
-        .on("mouseout", this.removeNodeAndLinkHighlightingLambda(this));
+        .on("mouseover", this.highlightHoveredLinkLambda(this)) // this.highlightLinkLambda(this))
+        .on("mouseout", this.unhighlightHoveredLinkLambda(this)); //this.removeNodeAndLinkHighlightingLambda(this));
         
         // console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
         
         // Update Basic properties
     //  if(newElementsExpected === true)
         links
-        .attr("class", "link")
         .attr("x1", function(d) { return d.source.x; })
         .attr("y1", function(d) { return d.source.y; })
         .attr("x2", function(d) { return d.target.x; })
         .attr("y2", function(d) { return d.target.y; })
-        .style("stroke-linecap", "round")
         .attr("data-thickness_basis", function(d) { return d.value;});
         
         this.renderScaler.updateLinkScalingFactor();
@@ -368,17 +366,14 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         
         // Node stuff now
         
-        var nodes = this.vis.selectAll("g.node").data(json.nodes, function(d){return d.rawAcronym});
-        // console.log("Before append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
+        var nodes = this.vis.selectAll("g.node_g").data(json.nodes, function(d){return d.rawAcronym});
         // Add new stuff
         if(newElementsExpected === true)
-        nodes.enter().append("svg:g")
-        .attr("class", "node")
+        var enteringNodes = nodes.enter().append("svg:g")
+        .attr("class", "node_g")
         .attr("id", function(d){ return "node_g_"+d.acronymForIds})
         // Is it ok to do call() here?
         .call(this.nodeDragBehavior);
-        
-        // console.log("After append nodes: "+nodes[0].length+" nodes.enter(): "+nodes.enter()[0].length+" nodes.exit(): "+nodes.exit()[0].length+" Nodes from selectAll: "+vis.selectAll("g.node")[0].length);
         
         // Easiest to use JQuery to get at existing enter() circles
         // Otherwise we futz with things like the enter()select(function) below
@@ -393,22 +388,22 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         nodes
         .append("svg:circle") 
         .attr("id", function(d){ return "node_circle_"+d.acronymForIds})
-        .attr("class", "circle")
+        .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyNodeSvgClassSansDot)
         .attr("cx", "0px")
         .attr("cy", "0px")
         .style("fill", this.defaultNodeColor)
         .style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor))
         .attr("data-radius_basis", function(d) { return d.number;})
         .attr("r", function(d) { return outerThis.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym); })
-        .on("mouseover", this.highlightNodeLambda(this))
-        .on("mouseout", this.removeNodeAndLinkHighlightingLambda(this));
+        .on("mouseover", this.highlightHoveredNodeLambda(this))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this));
         
         if(newElementsExpected === true) // How would I *update* this if I needed to?
         // Add a second circle that represents the mapped classes of the ontology.
         nodes
         .append("svg:circle") 
         .attr("id", function(d){ return "node_circle_inner_"+d.acronymForIds})
-        .attr("class", "inner_circle")
+        .attr("class", GraphView.BaseGraphView.nodeInnerSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyNodeSvgClassSansDot)
         .attr("cx", "0px")
         .attr("cy", "0px")
         .attr("pointer-events", "none") // genius SVG API design! Without this, the central circle messes with popups.
@@ -417,18 +412,18 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         .attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
         .attr("data-outer_radius_basis", function(d) { return d.number;})
         .attr("r", function(d) { return outerThis.renderScaler.ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.rawAcronym); })
-        .on("mouseover", this.highlightNodeLambda(this))
-        .on("mouseout", this.removeNodeAndLinkHighlightingLambda(this));
+        .on("mouseover", this.highlightHoveredNodeLambda(this))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this));
         
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(".circle").each(TipsyToolTips.nodeTooltipLambda(this));
+        d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipLambda(this));
         
         // Label
         if(newElementsExpected === true) // How would I *update* this if I needed to?
         nodes.append("svg:text")
             .attr("id", function(d){ return "node_text_"+d.acronymForIds})
-            .attr("class", "nodetext unselectable")
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
             .attr("dx", 12)
             .attr("dy", 1)
             .text(function(d) { return d.name; })
@@ -438,8 +433,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             .attr("unselectable", "on") // IE 8
             .attr("onmousedown", "noselect") // IE ?
             .attr("onselectstart", "function(){ return false;}") // IE 8?
-            // .on("mouseover", highlightNode)
-            // .on("mouseout", removeNodeAndLinkHighlighting)
+            // .on("mouseover", this.highlightHoveredNodeLambda(this))
+            // .on("mouseout", this.unhighlightHoveredNodeLambda(this))
             ;
             
         // Would do exit().remove() here if it weren't re-entrant, so to speak.
@@ -561,14 +556,28 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             this.forceLayout
             .nodes(json.nodes)
             .links(json.links);
-            // Call start() whenever any nodes or links get added...maybe not when removed?
-            this.forceLayout.start();
+            
+            if(!enteringNodes.empty() || !enteringLinks.empty()){
+                this.updateStartWithoutResume();
+            }
         }
         
         // Don't have sizes here, but still...
         this.renderScaler.updateNodeScalingFactor();
-        // Do have link sizes though? Now e called it earlier at a better time.
+        // Do have link sizes though? No, we called it earlier at a better time.
         // updateLinkScalingFactor();
+        
+    }
+    
+    populateNewGraphEdges(links: Array<OntologyGraph.Link>){
+    
+    }
+    
+    populateNewGraphNodes(nodes: Array<OntologyGraph.Node>){
+    
+    }
+    
+    removeMissingGraphElements(json: OntologyGraph.OntologyD3Data){
         
     }
     
@@ -587,9 +596,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
         var maxLayoutRunDuration = 10000;
         var maxGravityFrequency = 4000;
         // This improved layout behavior dramatically.
-        var nodes = this.vis.selectAll("g.node");
+        var nodes = this.vis.selectAll("g.node_g");
         // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
-        var links = this.vis.selectAll("line.link");
+        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass);
         return () => {
             // Stop the layout early. The circular initialization makes it ok.
             if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
@@ -709,12 +718,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             .attr("x", function(){ return - this.getComputedTextLength()/2; })
             ;
             
-            var circles = node.select(".circle");
+            var circles = node.select(GraphView.BaseGraphView.nodeSvgClass);
             circles.attr("data-radius_basis", d.number);
             circles.transition().style("fill", d.nodeColor).style("stroke", d.nodeStrokeColor);
                 
             // Update the inner circles too
-            var inner_circles = node.select(".inner_circle");
+            var inner_circles = node.select(GraphView.BaseGraphView.nodeInnerSvgClass);
             inner_circles.attr("data-inner_radius_basis", d.mapped_classes_to_central_node);
             inner_circles.attr("data-outer_radius_basis", d.number);
             inner_circles.transition().style("fill", d.innerNodeColor).style("stroke", d.nodeStrokeColor);
@@ -746,132 +755,27 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
     }
     nodeUpdateTimer: boolean = false;
     
-    removeGraphPopulation(){
+    removeGraphPopulation(data: GraphView.GraphDataForD3<OntologyGraph.Node, OntologyGraph.Link>){
         console.log("Removing some graph elements "+Utils.getTime());
     
-        var nodes = this.vis.selectAll("g.node").data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
-        var links = this.vis.selectAll("line.link").data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var nodes = this.vis.selectAll("g.node_g").data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
+        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
         
         
         
-        //  console.log("Before "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
-        nodes.exit().remove();
-        links.exit().remove();
+        var nodesRemoved = nodes.exit().remove();
+        var linksRemoved = links.exit().remove();
         // Do I need start() or not? Number of elements before and after implies not.
-        //  forceLayout.start();
-        //  console.log("After "+vis.selectAll("g.node").data(ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym}).exit()[0].length);
+        if(!nodesRemoved.empty() || !linksRemoved.empty()){
+            this.updateStartWithoutResume();
+        }
         
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
         this.filterSliders.updateTopMappingsSliderRange();
         this.filterSliders.rangeSliderSlideEvent(null, null); // Bad to pass nulls when I know it will work, or ok?
     }
     
-    highlightLinkLambda(outerThis: OntologyMappingOverview){
-        return function(linkLine, i){
-            if(outerThis.dragging){
-                return;
-            }
-            
-            d3.selectAll("text").style("opacity", .2)
-                .filter(
-                        function(circleData, i){
-                            return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
-                            }
-                        )
-                .style("opacity", 1);
-                
-            d3.selectAll("line").style("stroke-opacity", .1);
-            d3.selectAll("circle").style("fill-opacity", .1)
-                .style("stroke-opacity", .2)
-                .filter(
-                        function(circleData, i){
-                            return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
-                            }
-                        )
-                .style("fill", this.nodeHighlightColor)
-                .style("fill-opacity", 1)
-                .style("stroke-opacity", 1);
-            
-            d3.select(this).style("stroke-opacity", 1)
-                .style("stroke", "#3d3d3d");
-    
-        }
-    }
-    
-    highlightNodeLambda(outerThis: OntologyMappingOverview){
-        return function(nodeData, i) {
-            if(outerThis.dragging){
-                return;
-            }
-            
-            // Start by defocussing all nodes and edges
-            d3.selectAll("line").style("stroke-opacity", .1);
-            d3.selectAll("circle").style("fill-opacity", .1)
-                .style("stroke-opacity", .2);
-            d3.selectAll(".nodetext").style("opacity", .2);
-                
-            var adjacentLinks = outerThis.getAdjacentLinks(nodeData);
-            adjacentLinks.style("stroke-opacity", 1)
-                .style("stroke", "#3d3d3d");
-            
-            adjacentLinks.each(
-                function(linkLine, i){
-                    d3.selectAll("circle")
-                        .filter(
-                                function(circleData, i){
-                                    return circleData.acronymForIds == linkLine.source.acronymForIds || circleData.acronymForIds == linkLine.target.acronymForIds;
-                                    }
-                                )
-                        // This fill color thing is sort of fugly. Feel free to experiment with commenting it out.
-                        .style("fill", this.nodeHighlightColor)
-                        .style("fill-opacity", 1)
-                        .style("stroke-opacity", 1);
-                    d3.selectAll(".nodetext")
-                        .filter(
-                                function(textData, i){
-                                    return textData.acronymForIds == linkLine.source.acronymForIds || textData.acronymForIds == linkLine.target.acronymForIds;
-                                    }
-                                )
-                        .style("opacity", 1);
-                }
-            );
-        }
-    }
-    
-    removeNodeAndLinkHighlightingLambda(outerThis: OntologyMappingOverview){
-        return function(d, i){
-            d3.selectAll(".circle")
-                .style("fill", function(e, i){ 
-                    return (typeof e.nodeColor === undefined ? this.defaultNodeColor : e.nodeColor); 
-                    })
-                .style("fill-opacity", .75)
-                .style("stroke-opacity", 1);
-            
-            d3.selectAll(".inner_circle")
-            .style("fill", function(e, i){ 
-                    return (typeof e.innerNodeColor === undefined ? this.defaultNodeColor : e.innerNodeColor); 
-                })
-            .style("fill-opacity", .75)
-            .style("stroke-opacity", 1);
-        
-            
-            d3.selectAll("line")
-                .style("stroke", this.defaultLinkColor)
-                .style("stroke-opacity", .75);
-            d3.selectAll("text").style("opacity", 1);
-        }
-    }
-    
-    getAdjacentLinks(node){
-        return d3.selectAll("line.link")
-        .filter(
-            function(d, i) {
-                    return d.source == node || d.target == node;
-            }
-        );
-    }
-    
-    //Seeing if I can modulate graph gravity using bounding boxes...
+    // Seeing if I can modulate graph gravity using bounding boxes...
     // when the nodes are outside the box, tweak the gravity higher by a small amount,
     // and decrease it when the nodes are further from the edge
     // This is happening for each node as it updates, so keep that in mind...
@@ -903,7 +807,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             
             // This is the most up to date way to know how many nodes we are laying out, assuming we don't care to position
             // undisplayed nodes
-            var numberOfNodes = $(".circle").filter(function(i, d){return $(d).css("display") !== "none"}).length;
+            var numberOfNodes = $(GraphView.BaseGraphView.nodeSvgClass).filter(function(i, d){return $(d).css("display") !== "none"}).length;
             this.forceLayout.friction(0.01) // use 0.2 friction to get a very circular layout
             this.forceLayout.stop();
                
@@ -940,18 +844,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView implements 
             );
             
             var animationDuration = 400;
-            d3.selectAll("g.node")
-    //          .filter(function(i, d){
-    //              return typeof d.x !== "undefined" && !isNaN(d.x) }
-    //          )
+            d3.selectAll("g.node_g")
                 .transition()
                 .duration(animationDuration)
                 .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
             
-            d3.selectAll("line")
-    //          .filter(function(d){
-    //              return  typeof d.source.x !== "undefined" && typeof d.target.x !== "undefined" && !isNaN(d.source.x) && !isNaN(d.target.x)  }
-    //          )
+            d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(animationDuration)
               .attr("x1", function(d) { return d.source.x; })
