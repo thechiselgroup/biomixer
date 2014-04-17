@@ -517,7 +517,15 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(pathsToRootCallback);
     }
     
+    public expandConceptNeighbourhood(nodeData: Node){
+        console.log("expanding concepts");
+        this.fetchTermNeighborhood(nodeData.ontologyAcronym, nodeData.rawConceptUri);
+    }
     
+    public expandMappingNeighbourhood(nodeData: Node){
+        console.log("expanding mappings");
+        this.fetchMappingsNeighborhood(nodeData.ontologyAcronym, nodeData.rawConceptUri);
+    }
     
     public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI){
         // 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion

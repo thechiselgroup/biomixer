@@ -42,6 +42,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     nodeHeight = 8;
     
+    expansionBoxWidth = 30;
+    expansionBoxHeight = 8;
+    
     nodeLabelPaddingWidth = 10;
     nodeLabelPaddingHeight = 10;
 
@@ -590,7 +593,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var nodes = this.vis.select("#node_container")
         .selectAll("g.node_g").data(nodesData, function(d: ConceptGraph.Node){ return String(d.rawConceptUri)});
         // Add new stuff
-        var enteringNodes = nodes.enter().append("svg:g")
+        var enteringNodes = nodes.enter()
+        .append("svg:g")
         .attr("class", "node_g")
         .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
         .call(this.nodeDragBehavior);
@@ -656,6 +660,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // $(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
         });
         
+        this.attachNodeMenu(enteringNodes);
+        
         // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
         // nodes.exit().remove();
         
@@ -682,6 +688,95 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    attachNodeMenu(enteringNodes: D3.Selection){
+        // Menu indicator:
+        var expanderSvgs = enteringNodes
+        .append("svg:svg").attr("overflow", "visible")
+        .attr("x", function(d: ConceptGraph.Node){ return -1 * parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; } )
+        .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
+        .on("click", this.showNodeExpanderPopupMenuLambda(this))
+        // .on("mouseover", this.highlightHoveredNodeLambda(this))
+        // .on("mouseout", this.unhighlightHoveredNodeLambda(this))
+        ;
+        
+        expanderSvgs
+        .append("svg:rect")
+        .attr("id", function(d: ConceptGraph.Node){ return "node_expander_indicator_"+d.conceptUriForIds})
+        // .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot)
+        .style("fill", "#c5effd")
+        .style("stroke", "#afc6e5")
+        .attr("height", this.expansionBoxHeight)
+        .attr("width", this.expansionBoxWidth)
+        .attr("overflow", "visible")
+
+        ;
+        
+        expanderSvgs
+        .append("svg:polygon")
+        .attr("points", "11.25,2 18.75,2 15,6 ")
+        .style("fill", "#000000")
+        .attr("x", function(d: ConceptGraph.Node){ return -1 * (this.getAttribute("width")/2);} )
+        .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
+        .attr("overflow", "visible")
+        ;
+     }
+    
+    showNodeExpanderPopupMenuLambda(outerThis: ConceptPathsToRoot){
+        return function(nodeData: ConceptGraph.Node){           
+            var rectWidth = 74;
+            var rectHeight = 35;
+            var fontXOffset = 10;
+            var fontYOffset = 25;
+            
+            // JQuery does not allow the specification of a namespace when creating elements.
+            // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
+            // To do so, you need to do verbose things like: document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            // So, I don't get to use JQuery as much as D3 it turns out.
+            
+            var innerSvg = d3.select(this).append("svg:svg")
+                    .attr("id", "expanderMenu")
+                    .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (rectWidth/2 + parseInt(d3.select(this).attr("x"), 0)))
+                    .attr("width", rectWidth).attr("height", rectHeight * 2)
+                    .on("mouseleave", function(){ $(this).first().remove(); })
+            ;
+            
+            var conceptExpandSvg = innerSvg.append("svg:svg")
+                    .attr("overflow", "visible").attr("y", 0)
+            ;
+            conceptExpandSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("click", function(){outerThis.conceptGraph.expandConceptNeighbourhood(nodeData);})
+            ;
+            conceptExpandSvg.append("svg:text")
+                .text("Concepts")
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("dx", fontXOffset).attr("dy", fontYOffset)
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("pointer-events", "none")
+                // Why cannot we stop selection in IE? They are rude.
+                .attr("unselectable", "on") // IE 8
+                .attr("onmousedown", "noselect") // IE ?
+                .attr("onselectstart", "function(){ return false;}") // IE 8?
+            ;
+                
+            var mappingExpandSvg = innerSvg.append("svg:svg")
+                    .attr("overflow", "visible").attr("y", rectHeight)
+            ;
+            mappingExpandSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("click", function(){outerThis.conceptGraph.expandMappingNeighbourhood(nodeData);})
+            ;
+            mappingExpandSvg.append("svg:text")
+                .text("Mappings")
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("pointer-events", "none")
+                // Why cannot we stop selection in IE? They are rude.
+                .attr("unselectable", "on") // IE 8
+                .attr("onmousedown", "noselect") // IE ?
+                .attr("onselectstart", "function(){ return false;}") // IE 8?
+            ;
+        }
+    }
     
     prepGraphMenu(){
         // Layout selector for concept graphs.
