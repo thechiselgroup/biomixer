@@ -515,6 +515,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
+            enteringLinks.attr("points", this.computePolyLineLinkPoints);
         }
     }
     
@@ -667,6 +668,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         if(!enteringNodes.empty()){
             this.updateStartWithoutResume();
+            enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         }
     }
 
@@ -737,7 +739,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .attr("id", "expanderMenu")
                     .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (rectWidth/2 + parseInt(d3.select(this).attr("x"), 0)))
                     .attr("width", rectWidth).attr("height", rectHeight * 2)
-                    .on("mouseleave", function(){ $(this).first().remove(); })
+                    .style("z-index", 100)
+                    .on("mouseleave", function(){ $("#expanderMenu").first().remove(); })
             ;
             
             var conceptExpandSvg = innerSvg.append("svg:svg")
@@ -745,7 +748,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ;
             conceptExpandSvg.append("svg:rect")
                     .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("click", function(){outerThis.conceptGraph.expandConceptNeighbourhood(nodeData);})
+                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandConceptNeighbourhood(nodeData);})
             ;
             conceptExpandSvg.append("svg:text")
                 .text("Concepts")
@@ -763,7 +766,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ;
             mappingExpandSvg.append("svg:rect")
                     .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("click", function(){outerThis.conceptGraph.expandMappingNeighbourhood(nodeData);})
+                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandMappingNeighbourhood(nodeData);})
             ;
             mappingExpandSvg.append("svg:text")
                 .text("Mappings")
