@@ -226,7 +226,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var boundNodes = this.vis.selectAll("g.node_g");
             // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
             var boundLinks = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass);
-                
             // Stop the layout early. The circular initialization makes it ok.
             if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
                 this.forceLayout.stop();
@@ -282,7 +281,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 
             if(boundLinks.length > 0){
                 boundLinks
-                .attr("points", this.computePolyLineLinkPoints)
+                .attr("points", this.computePolyLineLinkPointsFunc)
                 ;
             }
             
@@ -335,13 +334,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             
             outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
-                .attr("points", outerThis.computePolyLineLinkPoints)
+                .attr("points", outerThis.computePolyLineLinkPointsFunc)
                 ;
            
         }
     }
     
-    public computePolyLineLinkPoints(e: ConceptGraph.Link){
+    public computePolyLineLinkPointsFunc(e: ConceptGraph.Link){
         var midPointX = e.source.x + (e.target.x - e.source.x)/2;
         var midPointY = e.source.y + (e.target.y - e.source.y)/2;
         var midPointString = midPointX+","+midPointY;
@@ -503,7 +502,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
-        .attr("points", this.computePolyLineLinkPoints)
         .attr("marker-mid", (e: ConceptGraph.Link)=>{return "url(#"+"LinkHeadMarker_"+this.getLinkCssClass(e.relationType)+")"; } )
         .attr("data-thickness_basis", function(d) { return d.value;})
                     
@@ -515,7 +513,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
-            enteringLinks.attr("points", this.computePolyLineLinkPoints);
+            enteringLinks.attr("points", this.computePolyLineLinkPointsFunc);
         }
     }
     
@@ -600,15 +598,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
         .call(this.nodeDragBehavior);
         
-        
-        // Easiest to use JQuery to get at existing enter() circles
-        // Otherwise we futz with things like the enter()select(function) below
-        
-        // I think that the lack of way to grab child elements from the enter() selection while they are
-        // data bound (as is usual for most D3 selections), is what is preventing me from udpating using D3
-        // idioms. This means no D3 implicit selection loops.
-        // Therefore I need to update using JQuery selections on unqiue element IDs
-        
         // Basic properties
         enteringNodes
         .append("svg:rect") 
@@ -672,7 +661,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
 
-    removeMissingGraphElements(graphD3Format: ConceptGraph.ConceptD3Data){
+    removeMissingGraphElements(){
         //console.log("Removing some graph elements "+Utils.getTime());
         
         var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri);});

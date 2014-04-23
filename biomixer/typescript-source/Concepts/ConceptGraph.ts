@@ -169,13 +169,8 @@ export class ConceptGraph implements GraphView.Graph {
             conceptNode.description = "fetching description";
             conceptNode.weight = 1;
             conceptNode.fixed = false;
-            // TODO Some layout stuff could conceivably be done here. Or elsewhere.
-            // Note how simple it is to set the x and y of the node to position it.
-            // It is also critical to prevent the layout from running, or to fix the node position.
-    //      // Compute starting positions to be in a circle for faster layout
-    //      var angleForNode = i * anglePerNode; i++;
-    //      conceptNode.x = visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
-    //      conceptNode.y = visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
+            // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
+            // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward
             var ontologyUri = conceptData.links.ontology;
             // "http://data.bioontology.org/ontologies/<acronym>"
             var urlBeforeAcronym = "ontologies/";
@@ -258,7 +253,7 @@ export class ConceptGraph implements GraphView.Graph {
             // and that has all the data we need from a separate call for properties...
             // but that subsystem relies on the fact that the node is created already.
             
-            if(!(typeof conceptPropertiesData === undefined) && Object.keys(conceptPropertiesData).length > 0
+            if(!(conceptPropertiesData === undefined) && Object.keys(conceptPropertiesData).length > 0
                 && expansionType !== PathOptionConstants.mappingsNeighborhoodConstant){
                 // Would process the node data available for mappings, but we need the "prefLabel" property,
                 // which is not included therein, so we need a separate call rather than immediate parsing.
@@ -302,10 +297,10 @@ export class ConceptGraph implements GraphView.Graph {
         // using source and target.
         edge.sourceId = parentIdUri;
         edge.targetId = childIdUri;
-        edge.rawId = edge.sourceId+"-to-"+edge.targetId;
-        edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId);
-        edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
+        edge.rawId = edge.sourceId+"-to-"+edge.targetId+"-of-"+relationType;
         edge.relationType = relationType;
+        edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationType;
+        edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
         
         if(this.isEdgeForTemporaryRenderOnly(edge)){
             this.registerTemporaryRenderEdge(edge);
@@ -828,7 +823,7 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                 // This is properties such as: "http://purl.bioontology.org/ontology/SNOMEDCT/has_part"
                 // I know, not the most general property name...
                 if(Utils.endsWith(index, "has_part")){
-                    $.each(propertyObject, (index, childPartId)=>{
+                    $.each(propertyObject, (index, childPartId: ConceptURI)=>{
                         // TODO Need to register all node ids we get, so that for the different visualizations, we can expand differently.
                         // For path to root, we only expand those path to root nodes (determined at beginning)
                         // For term neighbourhood, we only expand the direct neighbours of the central node (determined during fetches).
@@ -843,7 +838,7 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                 }
                 
                 if(Utils.endsWith(index, "is_part")){
-                    $.each(propertyObject, (index, parentPartId)=>{
+                    $.each(propertyObject, (index, parentPartId: ConceptURI)=>{
                         this.graph.manifestOrRegisterImplicitRelation(parentPartId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.composition);
                         this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym,parentPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant);
                     });

@@ -88,7 +88,7 @@ export class ConceptLayouts {
             d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(2500)
-                .attr("points", outerThis.graphView.computePolyLineLinkPoints)
+                .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc)
                 ;
     
         };
@@ -135,7 +135,7 @@ export class ConceptLayouts {
             d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(2500)
-                .attr("points", outerThis.graphView.computePolyLineLinkPoints)
+                .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc)
                 ;
     
         };
