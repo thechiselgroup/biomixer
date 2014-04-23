@@ -344,7 +344,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var midPointX = e.source.x + (e.target.x - e.source.x)/2;
         var midPointY = e.source.y + (e.target.y - e.source.y)/2;
         var midPointString = midPointX+","+midPointY;
-        return e.source.x+","+e.source.y+"  "+midPointString+"  "+e.target.x+","+e.target.y;
+        var points = e.source.x+","+e.source.y+"  "+midPointString+"  "+e.target.x+","+e.target.y;
+        return points;
     }
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
@@ -497,7 +498,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.conceptLinkSvgClassSansDot)
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
-        enteringLinks.append("svg:polyline")
+        var enteringPolylines = enteringLinks.append("svg:polyline")
         .attr("class", function(d: ConceptGraph.Link){return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
@@ -513,7 +514,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
-            enteringLinks.attr("points", this.computePolyLineLinkPointsFunc);
+            enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
         }
     }
     

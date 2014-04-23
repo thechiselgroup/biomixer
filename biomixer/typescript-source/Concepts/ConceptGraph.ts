@@ -459,7 +459,7 @@ export class ConceptGraph implements GraphView.Graph {
         this.graphView.removeMissingGraphElements(this.graphD3Format);
     }
     
-      /**
+    /**
      * This is important because children and parent calls can result in the same relations
      * being returned. I am not yet confident that we only need one of these calls though.
      * I am concerned that they may not always return equivalent results.
@@ -471,7 +471,7 @@ export class ConceptGraph implements GraphView.Graph {
         var length = this.graphD3Format.links.length;
         for(var i = 0; i < length; i++) {
             var item = this.graphD3Format.links[i];
-            if(item.sourceId == edge.sourceId && item.targetId == edge.targetId && item.relationType == edge.relationType){
+            if(item.sourceId === edge.sourceId && item.targetId === edge.targetId && item.relationType === edge.relationType){
                 return false;
             }
         }
