@@ -213,7 +213,22 @@ export class ConceptGraph implements GraphView.Graph {
     
     /**
      * Created for composition expansions, where we never have node data available. Can be used any time we need to expand a specific node,
-     * and when we knoe the ontology of that node (such as when doing concept expansions).
+     * and when we know the ontology of that node (such as when doing concept expansions).
+     */
+    public expandMappedConcept(newConceptId: ConceptURI, newConceptMappingData, relatedConceptId: ConceptURI, expansionType: PathOption){
+        if(expansionType === PathOptionConstants.mappingsNeighborhoodConstant
+            && this.expMan.isConceptWhitelistedForExpansion(relatedConceptId, PathOptionConstants.mappingsNeighborhoodConstant)
+            && !(String(newConceptId) in this.conceptIdNodeMap)){
+            var url = newConceptMappingData.links.self;
+            var callback = new FetchOneConceptCallback(this, url, newConceptId, null);
+            var fetcher = new Fetcher.RetryingJsonFetcher(url);
+            fetcher.fetch(callback);
+        }
+    }
+    
+    /**
+     * Created for composition expansions, where we never have node data available. Can be used any time we need to expand a specific node,
+     * and when we know the ontology of that node (such as when doing concept expansions).
      */
     public expandRelatedConcept(conceptsOntology: RawAcronym, newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption){
         if(this.expMan.isConceptWhitelistedForExpansion(relatedConceptId, expansionType)
@@ -302,10 +317,11 @@ export class ConceptGraph implements GraphView.Graph {
         edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationType;
         edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
         
-        if(this.isEdgeForTemporaryRenderOnly(edge)){
-            this.registerTemporaryRenderEdge(edge);
-            return;
-        }
+        console.log("Re-enable temporary edge registration");
+//        if(this.isEdgeForTemporaryRenderOnly(edge)){
+//            this.registerTemporaryRenderEdge(edge);
+//            return;
+//        }
         
         
         // We expect neither or just one of the ids will be in the registry, since we only register
@@ -416,11 +432,15 @@ export class ConceptGraph implements GraphView.Graph {
         }
     }
     
+    hidingMappings = false;
+    
     isEdgeForTemporaryRenderOnly(edge: Link) : boolean{
-        // For mapping edges, if neither endpoint has triggered a mappign expansion, we won't
+        // For mapping edges, if neither endpoint has triggered a mapping expansion, we won't
         // want to render the edge all the time.
         
-        if(edge.relationType !== this.relationLabelConstants["mapping"]){
+        if(edge.relationType !== this.relationLabelConstants["mapping"]
+            || !this.hidingMappings
+            ){
             // Not mapping edge? We render all composition and inheritance edges
             // console.log("****NOT MAPPING: "+edge.relationType+" for " +edge.rawId);
             return false;
@@ -517,6 +537,7 @@ export class ConceptGraph implements GraphView.Graph {
     }
     
     public expandMappingNeighbourhood(nodeData: Node){
+        // Cannot just call fetchMappings() directly because we need the link from the base concept URL
         this.expMan.addConceptIdToExpansionWhitelist(nodeData.rawConceptUri, PathOptionConstants.mappingsNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(nodeData.ontologyAcronym, nodeData.rawConceptUri);
         var centralCallback = new FetchConceptRelationsCallback(this, centralConceptUrl, nodeData, PathOptionConstants.mappingsNeighborhoodConstant);
@@ -928,25 +949,42 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
+        // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
+        var mappingTargets = {};
         $.each(relationsDataRaw,
                 (index, mapping)=>{
-            // ConceptMappingImplementation, we get partial properties on the basis of the mappings REST call
-            if(mapping.classes.length < 2){
-                // Some bad data gets into the database apparently. No big deal but I prefer not seeing the errors.
-                return;
-            }
-            // The conceptNode.id better be the same as the @id we would have gotten!! Our logic relies on that!
-            if(mapping.classes[0]["@id"] !== this.conceptNode.rawConceptUri && mapping.classes[1]["@id"] !== this.conceptNode.rawConceptUri){
-                console.log("Mismatch between ids, original is "+this.conceptNode.rawConceptUri+" and does not appear in mappings ("+mapping.classes[0]["@id"]+" and "+mapping.classes[1]["@id"]+")");
-            }
             var firstConceptId = mapping.classes[0]["@id"];
             var secondConceptId = mapping.classes[1]["@id"];
-            var newConceptData = (this.conceptNode === firstConceptId) ? mapping.classes[1] : mapping.classes[0];
+            
+            // Check the ids, grab the one opposite the sourcing concept
+            var newConceptData = undefined;
+            if(this.conceptNode.rawConceptUri === firstConceptId){
+                newConceptData = mapping.classes[1];
+            }
+            if(this.conceptNode.rawConceptUri === secondConceptId){
+                newConceptData = mapping.classes[0];
+            }
+            
             var newConceptId = newConceptData["@id"];
             
-            this.graph.manifestOrRegisterImplicitRelation(newConceptId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.mapping);
-            this.graph.expandAndParseNodeIfNeeded(newConceptId, this.conceptNode.rawConceptUri, newConceptData, PathOptionConstants.mappingsNeighborhoodConstant);
+            if(newConceptId === this.conceptNode.rawConceptUri){
+                // This data error is not very helpful to see...
+                // console.log("Error: mapping occurred without source as at both endpoints: "+firstConceptId+" and "+secondConceptId+" for call to "+this.url);   
+            } else if(newConceptId === undefined || newConceptId === "" || newConceptId === null){
+                console.log("Error: mapping occurred without source as an endpoint: "+firstConceptId+" and "+secondConceptId+" for source "+this.conceptNode.rawConceptUri+" for call to "+this.url);   
+            }  else {
+                // Catches self referential maps,
+                mappingTargets[newConceptId] = newConceptData;
+            }
+        
         });
+        
+        $.each(mappingTargets, (newConceptId, newConceptData) => {
+            // Sort endpoints to make mapping edges singular. Otherwise we get an edge going each way.
+            var firstId = newConceptId > this.conceptNode.rawConceptUri ? newConceptId : this.conceptNode.rawConceptUri ;
+            var secondId = newConceptId > this.conceptNode.rawConceptUri ? this.conceptNode.rawConceptUri : newConceptId ;
+            this.graph.manifestOrRegisterImplicitRelation(firstId, secondId, this.graph.relationLabelConstants.mapping);
+            this.graph.expandMappedConcept(newConceptId, newConceptData, this.conceptNode.rawConceptUri, this.directCallForExpansionType);
+            });
     }
 }
