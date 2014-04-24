@@ -1771,6 +1771,208 @@ function runForceLayout(){
 	};
 }
 
+function rootIndex(){
+	var graphNodes = graphD3Format.nodes;		
+	var graphLinks = graphD3Format.links;
+	
+	var index = 0;
+	var rootId = null;
+	var rootFound=false;
+	// not the best algorithm. Need to look into improving it
+	graphLinks.forEach(function(a){
+		if(rootFound==false){
+			rootFound=true;
+			graphLinks.forEach(function(b){
+				if(a.sourceId==b.targetId){
+					//rootId = b.sourceId;
+					rootFound = false;
+				}
+				
+			});
+			
+			if(rootFound==true){
+				rootId = a.sourceId;
+			}
+		}
+		
+	});
+	
+	graphNodes.forEach(function(n){
+		var i = graphNodes.indexOf(n);
+		console.log("index "+i);
+
+		if(n.id==rootId){
+			index = i;
+			console.log("index "+i);
+
+		}
+	});
+	
+	return index;	
+}
+
+function runHorizontalTreeLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;		
+		var graphLinks = graphD3Format.links;
+		
+		var tree = d3.layout.tree()
+	    	.size([visHeight()-100,visWidth()-300])
+	    	.children(function(d){  
+				var arrayOfNodes = []; 
+				graphLinks.forEach(function(b){
+					if(b.sourceId==d.id){
+						var targetNode= {};
+						graphNodes.forEach(function(c){
+							if(c.id==b.targetId){
+								targetNode = c;
+							}
+							
+						});
+						arrayOfNodes.push(targetNode);
+					}
+					
+				});
+				return arrayOfNodes;
+	    	});
+		
+	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
+      
+	      
+	      $.each(graphNodes,
+	  			function(index, element){
+	    	  		var xValue = element.x
+		    	  	graphNodes[index].x = element.y+150; 
+					graphNodes[index].y = xValue; 
+	      		}
+	  		);
+	      // Adding 150 to y values is probably not the best way of dealing with this
+	  	    d3.selectAll("g.node")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	  	    
+	  	    d3.selectAll("line")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});
+	      
+	};
+}
+
+function runVerticalTreeLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;		
+		var graphLinks = graphD3Format.links;
+		
+		var tree = d3.layout.tree()
+	    	.size([visWidth(),visHeight()-300])
+	    	.children(function(d){  
+				var arrayOfNodes = []; 
+				graphLinks.forEach(function(b){
+					if(b.sourceId==d.id){
+						var targetNode= {};
+						graphNodes.forEach(function(c){
+							if(c.id==b.targetId){
+								targetNode = c;
+							}
+							
+						});
+						arrayOfNodes.push(targetNode);
+					}
+					
+				});
+				return arrayOfNodes;
+	    	});
+		
+	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
+      
+	      
+	      $.each(graphNodes,
+	  			function(index, element){
+		    	  	graphNodes[index].x = element.x; 
+					graphNodes[index].y = element.y+150; 
+	      		}
+	  		);
+	      // Adding 150 to y values is probably not the best way of dealing with this
+	  	    d3.selectAll("g.node")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	  	    
+	  	    d3.selectAll("line")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});
+	      
+	};
+}
+
+function runRadialLayout(){
+	return function(){
+		forceLayout.stop();
+		var graphNodes = graphD3Format.nodes;		
+		var graphLinks = graphD3Format.links;
+		
+		var tree = d3.layout.tree()
+	    	.size([360,visHeight()/2-100])
+	    	.children(function(d){  
+				var arrayOfNodes = []; 
+				graphLinks.forEach(function(b){
+					if(b.sourceId==d.id){
+						var targetNode= {};
+						graphNodes.forEach(function(c){
+							if(c.id==b.targetId){
+								targetNode = c;
+							}
+							
+						});
+						arrayOfNodes.push(targetNode);
+					}
+					
+				});
+				return arrayOfNodes;
+	    	});
+		
+	      var treeNodes = tree.nodes(graphNodes[rootIndex()]);
+      
+	      
+	      $.each(graphNodes,
+	  			function(index, element){
+	    	  		var radius = element.y;
+	    	  		var angle = element.x/180 * Math.PI;
+		    	  	graphNodes[index].x = visWidth()/2 + radius*Math.cos(angle); 
+//		    	  	graphNodes[index].x = 0; 
+//	    	  		graphNodes[index].y = element.y; 
+
+	    	  		graphNodes[index].y = visHeight()/2 + radius*Math.sin(angle); 
+	      		}
+	  		);
+	      // Adding 150 to y values is probably not the best way of dealing with this
+	  	    d3.selectAll("g.node")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	  	    
+	  	    d3.selectAll("line")
+	  	    	.transition()
+	  	    	.duration(2500)
+	  	    	.attr("x1", function(d){return d.source.x;})
+	  	    	.attr("y1", function(d){return d.source.y;})
+	  	    	.attr("x2", function(d){return d.target.x;})
+	  	    	.attr("y2", function(d){return d.target.y;});
+	      
+	};
+}
+
 
 function prepGraphMenu(){
 	// Layout selector for concept graphs.
@@ -1816,10 +2018,35 @@ function addMenuComponents(menuSelector){
 			.attr("id", "centerLayoutButton")
 			.attr("type", "button")
 			.attr("value", "Center Layout"));
-
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "horizontalTreeLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Horizontal Tree Layout"));
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "verticalTreeLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Vertical Tree Layout"));
+	$(menuSelector).append($("<br>"));
+	
+	$(menuSelector).append($("<input>")
+			.attr("class", "layoutButton")
+			.attr("id", "radialLayoutButton")
+			.attr("type", "button")
+			.attr("value", "Radial Layout"));
 	
 	d3.selectAll("#circleLayoutButton").on("click", runCircleLayout());
 	d3.selectAll("#forceLayoutButton").on("click", runForceLayout());
 	d3.selectAll("#centerLayoutButton").on("click", runCenterLayout());
+	d3.selectAll("#horizontalTreeLayoutButton").on("click", runHorizontalTreeLayout());
+	d3.selectAll("#verticalTreeLayoutButton").on("click", runVerticalTreeLayout());
+	d3.selectAll("#radialLayoutButton").on("click", runRadialLayout());
+
+
 
 }
