@@ -105,11 +105,11 @@ export class ConceptLayouts {
         
         graphNodes.forEach(function(n){
             var i = graphNodes.indexOf(n);
-            console.log("index "+i);
+           // console.log("index "+i);
     
-            if(n.id==rootId){
+            if(n.rawConceptUri==rootId){
                 index = i;
-                console.log("index "+i);
+               // console.log("index "+i);
     
             }
         });
@@ -129,7 +129,7 @@ export class ConceptLayouts {
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.id){
+                        if(b.sourceId==d.rawConceptUri){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                 if(c.rawConceptUri==b.targetId){
@@ -141,6 +141,7 @@ export class ConceptLayouts {
                         }
                         
                     });
+                   
                     return arrayOfNodes;
                 });
             
@@ -159,7 +160,8 @@ export class ConceptLayouts {
                     }
                 );
               // Adding 150 to y values is probably not the best way of dealing with this
-                d3.selectAll("g.node_g")
+                 d3.selectAll("g.node_g")
+
                     .transition()
                     .duration(2500)
                     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
@@ -184,7 +186,7 @@ export class ConceptLayouts {
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.id){
+                        if(b.sourceId==d.rawConceptUri){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                 if(c.rawConceptUri==b.targetId){
@@ -209,7 +211,7 @@ export class ConceptLayouts {
                     }
                 );
               // Adding 150 to y values is probably not the best way of dealing with this
-                d3.selectAll("g.node_g")
+                 d3.selectAll("g.node_g")
                     .transition()
                     .duration(2500)
                     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
@@ -234,19 +236,18 @@ export class ConceptLayouts {
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.id){
+                        if(b.sourceId==d.rawConceptUri){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                if(c.rawConceptUri==b.targetId){
                                     targetNode = c;
                                 }
-                                
-                                //console.log(b.targetId);
                             });
                             arrayOfNodes.push(targetNode);
                         }
                         
                     });
+                     
                     return arrayOfNodes;
                 });
             
@@ -260,15 +261,16 @@ export class ConceptLayouts {
                           graphNodes[index].y = xValue; 
                       }
                 );
-                d3.selectAll("g.node_g")
-                      .transition()
-                      .duration(2500)
-                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-                    
+
+                 d3.selectAll("g.node_g")
+                    .transition()
+                    .duration(2500)
+                    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                
                 d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
-                      .transition()
-                      .duration(2500)
-                      .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
+                    .transition()
+                    .duration(2500)
+                    .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
               
         };
       
