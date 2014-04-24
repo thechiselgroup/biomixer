@@ -317,11 +317,10 @@ export class ConceptGraph implements GraphView.Graph {
         edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationType;
         edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
         
-        console.log("Re-enable temporary edge registration");
-//        if(this.isEdgeForTemporaryRenderOnly(edge)){
-//            this.registerTemporaryRenderEdge(edge);
-//            return;
-//        }
+        if(this.isEdgeForTemporaryRenderOnly(edge)){
+            this.registerTemporaryRenderEdge(edge);
+            return;
+        }
         
         
         // We expect neither or just one of the ids will be in the registry, since we only register
@@ -432,29 +431,22 @@ export class ConceptGraph implements GraphView.Graph {
         }
     }
     
-    hidingMappings = false;
-    
     isEdgeForTemporaryRenderOnly(edge: Link) : boolean{
         // For mapping edges, if neither endpoint has triggered a mapping expansion, we won't
         // want to render the edge all the time.
         
-        if(edge.relationType !== this.relationLabelConstants["mapping"]
-            || !this.hidingMappings
+        if(edge.relationType === this.relationLabelConstants["mapping"]){
+            if(this.expMan.isConceptWhitelistedForExpansion(edge.sourceId, PathOptionConstants.mappingsNeighborhoodConstant)
+                || this.expMan.isConceptWhitelistedForExpansion(edge.targetId, PathOptionConstants.mappingsNeighborhoodConstant)
             ){
-            // Not mapping edge? We render all composition and inheritance edges
-            // console.log("****NOT MAPPING: "+edge.relationType+" for " +edge.rawId);
-            return false;
+                // If one of the endpoints was expanded along mapping neighbourhood space, we will render the edge.
+                return false;
+            } else {
+                return true;   
+            }
         }
         
-        if(this.expMan.isConceptWhitelistedForExpansion(edge.sourceId, PathOptionConstants.mappingsNeighborhoodConstant)
-            || this.expMan.isConceptWhitelistedForExpansion(edge.targetId, PathOptionConstants.mappingsNeighborhoodConstant)
-            ){
-            // If one of the endpoints was expanded along mapping neighbourhood space, we will render the edge.
-            return false;
-        }
-        
-        // Everything else (mapping edges that have no important endpoint)
-        return true;
+        return false;
     }
     
     registerTemporaryRenderEdge(edge: Link){

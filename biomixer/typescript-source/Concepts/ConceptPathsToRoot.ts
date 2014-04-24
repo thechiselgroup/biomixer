@@ -771,6 +771,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    beforeNodeHighlight(targetNodeData){
+         this.conceptGraph.manifestTemporaryHoverEdges(targetNodeData);
+    }
+    
+    afterNodeUnhighlight(targetNodeData){
+        this.conceptGraph.removeTemporaryHoverEdges(targetNodeData);
+    }
+    
     prepGraphMenu(){
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layouts");
