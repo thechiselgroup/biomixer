@@ -341,13 +341,43 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
-    public computePolyLineLinkPointsFunc(e: ConceptGraph.Link){
-        var midPointX = e.source.x + (e.target.x - e.source.x)/2;
-        var midPointY = e.source.y + (e.target.y - e.source.y)/2;
+    public computePolyLineLinkPointsFunc = (linkData: ConceptGraph.Link) => {
+        var offset = 10;
+        
+        var sourceX = linkData.source.x;
+        var sourceY = linkData.source.y;
+        var targetX = linkData.target.x;
+        var targetY = linkData.target.y;
+    
+        // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
+        // We'll want the vector relative to source, then the same repeated for target...but since
+        // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
+        // infer it.
+        var targetVectorX = targetX - sourceX;
+        var targetVectorY = targetY - sourceY;
+        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
+        var targetOrthVectorX = -1 * targetVectorY / norm;
+        var targetOrthVectorY = targetVectorX / norm;
+        var xDist = offset * targetOrthVectorX;
+        var yDist = offset * targetOrthVectorY;
+        
+        // Make is_a and has_a arcs move away from eachother by enough that we can see them both
+        // for when both relations exist in a pair of nodes
+        if(linkData.relationType === this.conceptGraph.relationLabelConstants["composition"]){
+            // Kick the composition arcs a coupel pixels away
+            sourceX += xDist;
+            sourceY += yDist;
+            targetX += xDist;
+            targetY += yDist;
+        }
+        
+        var midPointX = sourceX + (targetX - sourceX)/2;
+        var midPointY = sourceY + (targetY - sourceY)/2;
         var midPointString = midPointX+","+midPointY;
-        var points = e.source.x+","+e.source.y+"  "+midPointString+"  "+e.target.x+","+e.target.y;
+        var points = sourceX+","+sourceY+"  "+midPointString+"  "+targetX+","+targetY;
         return points;
     }
+    
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
