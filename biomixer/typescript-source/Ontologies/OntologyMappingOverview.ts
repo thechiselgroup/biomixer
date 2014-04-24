@@ -801,7 +801,10 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         return this.gravityAdjust(numb, this.visHeight());
     }
     
-    executeCenterLayout(){
+    executeCenterLayout(refreshLayout?: boolean){
+    		if(refreshLayout){
+    			// Act normal, redo the whole layout
+    		}
             var graphNodes = this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes;
             var graphLinks = this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.links;
             

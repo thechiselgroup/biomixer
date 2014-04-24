@@ -119,7 +119,11 @@ export class ConceptLayouts {
     
     runRadialLayoutLambda(){
         var outerThis = this;
-        return function(){
+        return function(refreshLayout?: boolean){
+        	if(refreshLayout){
+    			// Act normal, redo the whole layout
+    		}
+    		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -176,7 +180,11 @@ export class ConceptLayouts {
 
     runVerticalTreeLayoutLambda(){
         var outerThis = this;
-        return function(){
+        return function(refreshLayout?: boolean){
+        	if(refreshLayout){
+    			// Act normal, redo the whole layout
+    		}
+    		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -226,7 +234,11 @@ export class ConceptLayouts {
     
     runHorizontalTreeLayoutLambda(){
         var outerThis = this;
-        return function(){
+        return function(refreshLayout?: boolean){
+        	if(refreshLayout){
+    			// Act normal, redo the whole layout
+    		}
+    		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -278,7 +290,11 @@ export class ConceptLayouts {
     
     runCircleLayoutLambda(){
         var outerThis = this;
-        return function(){
+        return function(refreshLayout?: boolean){
+        	if(refreshLayout){
+    			// Act normal, redo the whole layout
+    		}
+    		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -320,7 +336,11 @@ export class ConceptLayouts {
     
     runCenterLayoutLambda(){
         var outerThis = this;
-        return function(){
+        return function(refreshLayout?: boolean){
+        	if(refreshLayout){
+    			// Act normal, redo the whole layout
+    		}
+    		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -368,7 +388,13 @@ export class ConceptLayouts {
     
     runForceLayoutLambda(){
         var outerThis = this;
-        return function(){
+        return function(refreshLayout?: boolean): void{
+            if(refreshLayout){
+                // If we add a node to force layout, reheat it slightly
+                outerThis.forceLayout.resume();
+                return;
+            }
+            
             outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
             .gravity(0.05) // 0.5
             .charge(-30) // -100

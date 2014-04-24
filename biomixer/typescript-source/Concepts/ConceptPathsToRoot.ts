@@ -163,6 +163,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
             this.runCurrentLayout = this.layouts.runCenterLayoutLambda();
             this.conceptGraph.fetchMappingsNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
+            this.runCurrentLayout();
         }
     }
     
@@ -655,6 +656,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
         // nodes.exit().remove();
+        
+        this.runCurrentLayout(true);
         
         if(!enteringNodes.empty()){
             this.updateStartWithoutResume();

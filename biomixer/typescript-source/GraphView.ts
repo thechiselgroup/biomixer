@@ -139,7 +139,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
      * Set this function to whichever function has most recently been
      * used or is about to be used. Allows refreshing or resetting of layouts.
      */
-    runCurrentLayout: {()}; // ()=>void; is newer syntax?
+    runCurrentLayout: (refreshLayout?: boolean) => void ;
     
     getAdjacentLinks(node){
         return d3.selectAll(BaseGraphView.linkSvgClass)
