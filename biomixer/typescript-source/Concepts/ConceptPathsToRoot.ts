@@ -42,6 +42,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     nodeHeight = 8;
     
+    expansionBoxWidth = 30;
+    expansionBoxHeight = 8;
+    
     nodeLabelPaddingWidth = 10;
     nodeLabelPaddingHeight = 10;
 
@@ -223,7 +226,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var boundNodes = this.vis.selectAll("g.node_g");
             // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
             var boundLinks = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass);
-                
             // Stop the layout early. The circular initialization makes it ok.
             if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
                 this.forceLayout.stop();
@@ -279,7 +281,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 
             if(boundLinks.length > 0){
                 boundLinks
-                .attr("points", this.computePolyLineLinkPoints)
+                .attr("points", this.computePolyLineLinkPointsFunc)
                 ;
             }
             
@@ -332,17 +334,18 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             
             outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
-                .attr("points", outerThis.computePolyLineLinkPoints)
+                .attr("points", outerThis.computePolyLineLinkPointsFunc)
                 ;
            
         }
     }
     
-    public computePolyLineLinkPoints(e: ConceptGraph.Link){
+    public computePolyLineLinkPointsFunc(e: ConceptGraph.Link){
         var midPointX = e.source.x + (e.target.x - e.source.x)/2;
         var midPointY = e.source.y + (e.target.y - e.source.y)/2;
         var midPointString = midPointX+","+midPointY;
-        return e.source.x+","+e.source.y+"  "+midPointString+"  "+e.target.x+","+e.target.y;
+        var points = e.source.x+","+e.source.y+"  "+midPointString+"  "+e.target.x+","+e.target.y;
+        return points;
     }
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
@@ -495,12 +498,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.conceptLinkSvgClassSansDot)
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
-        enteringLinks.append("svg:polyline")
+        var enteringPolylines = enteringLinks.append("svg:polyline")
         .attr("class", function(d: ConceptGraph.Link){return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
-        .attr("points", this.computePolyLineLinkPoints)
         .attr("marker-mid", (e: ConceptGraph.Link)=>{return "url(#"+"LinkHeadMarker_"+this.getLinkCssClass(e.relationType)+")"; } )
         .attr("data-thickness_basis", function(d) { return d.value;})
                     
@@ -512,6 +514,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
+            enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
         }
     }
     
@@ -590,19 +593,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var nodes = this.vis.select("#node_container")
         .selectAll("g.node_g").data(nodesData, function(d: ConceptGraph.Node){ return String(d.rawConceptUri)});
         // Add new stuff
-        var enteringNodes = nodes.enter().append("svg:g")
+        var enteringNodes = nodes.enter()
+        .append("svg:g")
         .attr("class", "node_g")
         .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
         .call(this.nodeDragBehavior);
-        
-        
-        // Easiest to use JQuery to get at existing enter() circles
-        // Otherwise we futz with things like the enter()select(function) below
-        
-        // I think that the lack of way to grab child elements from the enter() selection while they are
-        // data bound (as is usual for most D3 selections), is what is preventing me from udpating using D3
-        // idioms. This means no D3 implicit selection loops.
-        // Therefore I need to update using JQuery selections on unqiue element IDs
         
         // Basic properties
         enteringNodes
@@ -656,15 +651,18 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // $(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
         });
         
+        this.attachNodeMenu(enteringNodes);
+        
         // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
         // nodes.exit().remove();
         
         if(!enteringNodes.empty()){
             this.updateStartWithoutResume();
+            enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         }
     }
 
-    removeMissingGraphElements(graphD3Format: ConceptGraph.ConceptD3Data){
+    removeMissingGraphElements(){
         //console.log("Removing some graph elements "+Utils.getTime());
         
         var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri);});
@@ -682,6 +680,104 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    attachNodeMenu(enteringNodes: D3.Selection){
+        // Menu indicator:
+        var expanderSvgs = enteringNodes
+        .append("svg:svg").attr("overflow", "visible")
+        .attr("x", function(d: ConceptGraph.Node){ return -1 * parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; } )
+        .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
+        .on("click", this.showNodeExpanderPopupMenuLambda(this))
+        // .on("mouseover", this.highlightHoveredNodeLambda(this))
+        // .on("mouseout", this.unhighlightHoveredNodeLambda(this))
+        ;
+        
+        expanderSvgs
+        .append("svg:rect")
+        .attr("id", function(d: ConceptGraph.Node){ return "node_expander_indicator_"+d.conceptUriForIds})
+        // .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot)
+        .style("fill", "#c5effd")
+        .style("stroke", "#afc6e5")
+        .attr("height", this.expansionBoxHeight)
+        .attr("width", this.expansionBoxWidth)
+        .attr("overflow", "visible")
+
+        ;
+        
+        expanderSvgs
+        .append("svg:polygon")
+        .attr("points", "11.25,2 18.75,2 15,6 ")
+        .style("fill", "#000000")
+        .attr("x", function(d: ConceptGraph.Node){ return -1 * (this.getAttribute("width")/2);} )
+        .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
+        .attr("overflow", "visible")
+        ;
+     }
+    
+    showNodeExpanderPopupMenuLambda(outerThis: ConceptPathsToRoot){
+        return function(nodeData: ConceptGraph.Node){           
+            var rectWidth = 74;
+            var rectHeight = 35;
+            var fontXOffset = 10;
+            var fontYOffset = 25;
+            
+            // JQuery does not allow the specification of a namespace when creating elements.
+            // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
+            // To do so, you need to do verbose things like: document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            // So, I don't get to use JQuery as much as D3 it turns out.
+            
+            var innerSvg = d3.select(this).append("svg:svg")
+                    .attr("id", "expanderMenu")
+                    .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (rectWidth/2 + parseInt(d3.select(this).attr("x"), 0)))
+                    .attr("width", rectWidth).attr("height", rectHeight * 2)
+                    .style("z-index", 100)
+                    .on("mouseleave", function(){ $("#expanderMenu").first().remove(); })
+            ;
+            
+            var conceptExpandSvg = innerSvg.append("svg:svg")
+                    .attr("overflow", "visible").attr("y", 0)
+            ;
+            conceptExpandSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandConceptNeighbourhood(nodeData);})
+            ;
+            conceptExpandSvg.append("svg:text")
+                .text("Concepts")
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("dx", fontXOffset).attr("dy", fontYOffset)
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("pointer-events", "none")
+                // Why cannot we stop selection in IE? They are rude.
+                .attr("unselectable", "on") // IE 8
+                .attr("onmousedown", "noselect") // IE ?
+                .attr("onselectstart", "function(){ return false;}") // IE 8?
+            ;
+                
+            var mappingExpandSvg = innerSvg.append("svg:svg")
+                    .attr("overflow", "visible").attr("y", rectHeight)
+            ;
+            mappingExpandSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandMappingNeighbourhood(nodeData);})
+            ;
+            mappingExpandSvg.append("svg:text")
+                .text("Mappings")
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("pointer-events", "none")
+                // Why cannot we stop selection in IE? They are rude.
+                .attr("unselectable", "on") // IE 8
+                .attr("onmousedown", "noselect") // IE ?
+                .attr("onselectstart", "function(){ return false;}") // IE 8?
+            ;
+        }
+    }
+    
+    beforeNodeHighlight(targetNodeData){
+         this.conceptGraph.manifestTemporaryHoverEdges(targetNodeData);
+    }
+    
+    afterNodeUnhighlight(targetNodeData){
+        this.conceptGraph.removeTemporaryHoverEdges(targetNodeData);
+    }
     
     prepGraphMenu(){
         // Layout selector for concept graphs.

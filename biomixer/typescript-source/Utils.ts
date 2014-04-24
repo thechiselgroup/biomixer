@@ -44,11 +44,17 @@ export function addOrUpdateUrlParameter(url: string, paramName: string, value: s
         // Conceivable that our URL doesn't have one yet.
         url += "?";
     }
-    if(typeof purl(url).param("page") === "undefined"){
-        // It should always coem in without page param present, but defensive coding is nice.
+    if(purl(url).param(paramName) === undefined){
+        // It should always come in without page param present, but defensive coding is nice.
         url += "&"+paramName+"="+value;
     } else {
-        url = url.replace("&"+paramName+"=[^=&]+(&)*", "&"+paramName+"="+value+"&"); // Ok to tack on ampersand
+        var replaceHead = "";
+        if(-1 !== url.indexOf("&"+paramName)){
+            replaceHead = "&"+paramName;
+        } else {
+            replaceHead = paramName
+        }
+        url = url.replace(new RegExp(replaceHead+"=[^=&]+(&)*"), replaceHead+"="+value+"&"); // Ok to tack on ampersand
     }
     return url;
 }
