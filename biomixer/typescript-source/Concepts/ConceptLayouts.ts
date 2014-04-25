@@ -85,8 +85,9 @@ export class ConceptLayouts {
         var rootId = null;
         var rootFound=false;
         // not the best algorithm. Need to look into improving it
+        console.log(graphLinks);
         graphLinks.forEach(function(a){
-            if(rootFound==false){
+            if(rootFound==false&&a.relationType=="is_a"){
                 rootFound=true;
                 graphLinks.forEach(function(b){
                     if(a.sourceId==b.targetId){
@@ -102,6 +103,7 @@ export class ConceptLayouts {
             }
             
         });
+        
         
         graphNodes.forEach(function(n){
             var i = graphNodes.indexOf(n);
