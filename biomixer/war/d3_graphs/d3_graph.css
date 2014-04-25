@@ -11,6 +11,12 @@
   
 }
 
+.centralNode {
+  stroke-width: 2;
+  stroke-opacity: 1;
+  stroke: #000;
+}
+
 .ontologyNode {
   fill-opacity: 0.75;
 }

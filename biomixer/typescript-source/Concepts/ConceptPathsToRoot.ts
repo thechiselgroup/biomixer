@@ -78,6 +78,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         );
     }
     
+    public recomputeVisualizationOntoNode(nodeData: ConceptGraph.Node){
+
+        var message = "Are you sure you want to recreate the graph focussed on '"+nodeData.name+"' ("+nodeData.ontologyAcronym+")?";
+        
+        if(confirm(message)){
+            this.centralConceptUri = nodeData.rawConceptUri;
+            this.centalOntologyAcronym = nodeData.ontologyAcronym;
+            this.initAndPopulateGraph();
+        }
+    }
+    
     cleanSlate(){
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
@@ -634,12 +645,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         enteringNodes
         .append("svg:rect") 
         .attr("id", function(d: ConceptGraph.Node){ return "node_rect_"+d.conceptUriForIds})
-        .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot)
-         .style("fill", function(d: ConceptGraph.Node) { return d.nodeColor; })
+        .attr("class", 
+            function(d: ConceptGraph.Node){ 
+                var classes = GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot;
+                if(d.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
+                    classes += " centralNode";
+                }
+                return classes;
+            })
+        .style("fill", function(d: ConceptGraph.Node) { return d.nodeColor; })
         .attr("height", this.nodeHeight)
         .attr("width", this.nodeHeight)
         .on("mouseover", this.highlightHoveredNodeLambda(this))
         .on("mouseout", this.unhighlightHoveredNodeLambda(this));
+        
         
         // TODO Don't I want to do this *only* on new nodes?
         // tipsy stickiness from:
@@ -748,10 +767,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     showNodeExpanderPopupMenuLambda(outerThis: ConceptPathsToRoot){
         return function(nodeData: ConceptGraph.Node){           
-            var rectWidth = 74;
+            var rectWidth = 110;
             var rectHeight = 35;
-            var fontXOffset = 10;
-            var fontYOffset = 25;
+            var fontXOffset = 7;
+            var fontYOffset = 23;
             
             // JQuery does not allow the specification of a namespace when creating elements.
             // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
@@ -774,7 +793,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandConceptNeighbourhood(nodeData);})
             ;
             conceptExpandSvg.append("svg:text")
-                .text("Concepts")
+                .text("Expand Concepts")
                 .style("font-family","Arial, sans-serif").style("font-size","12px").attr("dx", fontXOffset).attr("dy", fontYOffset)
                 .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
                 .style("pointer-events", "none")
@@ -792,7 +811,25 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandMappingNeighbourhood(nodeData);})
             ;
             mappingExpandSvg.append("svg:text")
-                .text("Mappings")
+                .text("Expand Mappings")
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("pointer-events", "none")
+                // Why cannot we stop selection in IE? They are rude.
+                .attr("unselectable", "on") // IE 8
+                .attr("onmousedown", "noselect") // IE ?
+                .attr("onselectstart", "function(){ return false;}") // IE 8?
+            ;
+            
+            var centralizeNodeSvg = innerSvg.append("svg:svg")
+                    .attr("overflow", "visible").attr("y", 2*rectHeight)
+            ;
+            centralizeNodeSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.recomputeVisualizationOntoNode(nodeData); })
+            ;
+            centralizeNodeSvg.append("svg:text")
+                .text("Refocus Node")
                 .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
                 .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
                 .style("pointer-events", "none")
