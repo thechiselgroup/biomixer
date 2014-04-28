@@ -159,6 +159,13 @@ export class ConceptGraph implements GraphView.Graph {
     
      //Needs the arguments index, concept because the function will be called in JQuery loop. Write wrappers in callers if you don't like that.
     public parseNode(index, conceptData){
+            if(this.conceptIdNodeMap[conceptData["@id"]] !== undefined){
+            	// Race conditions involving REST latency can lead to multiple
+            	// attempts to create the same node, particularly when composition
+            	// and inheritance overlap (regardless if that is desireable in ontologies).
+                return this.conceptIdNodeMap[conceptData["@id"]];
+            }
+            
             // Create the concept nodes that exist on the paths-to-root for the central concept,
             // including the central concept node.
             var conceptNode = new Node();
