@@ -66,6 +66,18 @@ export function escapeIdentifierForId(identifier){
     return identifier.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|\\\/])/g, '__');
 }
 
+export function getClassName(instance: any){
+//    if(instance === null)return "[object Null]"; // special case
+//    return Object.prototype.toString.call(instance);
+    var funcNameRegex = /function (.{1,})\(/;
+    var results = (funcNameRegex).exec((<any>instance).constructor.toString());
+    var className = "";
+    if(results && results.length > 1){
+        className = results[1];
+    }
+    return className;
+}
+
 /**
  * I prefer my approach, seen in this code base, of passing the instance into a closure lambda
  * function that returns the actual callback, with 'outerThis' enclosed. The typed parameter helps.

@@ -141,11 +141,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
      */
     runCurrentLayout: (refreshLayout?: boolean) => void ;
     
-    getAdjacentLinks(node){
+    getAdjacentLinks(node: N){
         return d3.selectAll(BaseGraphView.linkSvgClass)
         .filter(
-            function(d, i) {
-                    return d.source == node || d.target == node;
+            function(d: L, i) {
+                    return d.source === node || d.target === node;
             }
         );
     }
@@ -174,7 +174,13 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 .classed("dimmedLink", true)
                 ;
             
-            d3.select(this)
+            // if we ever use this method attached to anything other than a link hover over, it won't
+            // work, because the "this" reference below won't be a line rendered, but whatever we
+            // attached the method to.
+            // d3.select(this)
+            // Defensively, I changed it to grab the correct link via d3.select().filter() instead.
+            d3.select(BaseGraphView.linkSvgClass)
+                .filter(function(d: L, i){return d === linkLine; })
                 .classed("dimmedLink", false)
                 .classed("highlightedLink", true)
                 ;
@@ -201,13 +207,10 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 .classed("dimmedNodeLabel", false)
                 .classed("highlightedNodeLabel", true);
             
-            var sourceNode: D3.Selection;
-            if(d3.select(this).attr("class").indexOf(BaseGraphView.nodeSvgClassSansDot) !== -1){
-                sourceNode = d3.select(this);
-            } else if(d3.select(this).attr("class").indexOf(BaseGraphView.nodeLabelSvgClassSansDot) !== -1){
-                // If the labels aren't wired for mouse interaction, this is unneeded
-                sourceNode = d3.select(this.parentNode).select(BaseGraphView.nodeSvgClass);
-            }
+            // D3 doesn't have a way to get from bound data to what it is bound to?
+            // Doing it thsi way isntead of d3.select(this) so I can re-use this method with things like
+            // checkboxes outside the graph, which will trigger graph behaviors.
+            var sourceNode: D3.Selection = d3.select(BaseGraphView.nodeLabelSvgClassSansDot).filter(function(d: N, i){return d === nodeData; });
             
             sourceNode
              .classed("highlightedNode", true);
@@ -215,8 +218,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
              // There must be a less loopy, data oriented way to achieve this.
              // I recently modified it to *not* use x and y coordinates to identify ndoes and edges, which was heinous.
              // Looping over everything is just as ugly (but fast enough in practice).
-             var adjacentLinks = d3.selectAll(BaseGraphView.linkSvgClass)
-                .filter(function(aLink: L, i) {return aLink.source.getEntityId() === nodeData.getEntityId() ||  aLink.target.getEntityId() === nodeData.getEntityId();});
+             var adjacentLinks = outerThis.getAdjacentLinks(nodeData);
             adjacentLinks
                 .classed("dimmedLink", false)
                 .classed("highlightedLink", true)
@@ -270,6 +272,51 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             .classed("highlightedLink", false)
             ;
         
+    }
+    
+    hideNodeLambda(outerThis: BaseGraphView<N, L>){
+        return function(nodeData: N, i){
+            outerThis.hider(nodeData, true);
+        }
+    
+    }
+    
+    unhideNodeLambda(outerThis: BaseGraphView<N, L>){
+        return function(nodeData: N, i){
+            outerThis.hider(nodeData, false);
+        }
+    
+    }
+    
+    private hider(nodeData: N, hiding: boolean){
+        // Hide the node and label away first
+        var sourceGNode = d3.selectAll(BaseGraphView.nodeSvgClass)
+            .filter(function(d: N, i){ return d === nodeData; })
+            .node().parentNode;
+        // In order to hide any baggage (like expander menu indicators), we need to grab the parent
+        d3.select(sourceGNode)
+            .classed("hiddenNode", hiding);
+        
+        d3.selectAll(BaseGraphView.nodeLabelSvgClass)
+            .filter(function(d: N, i){ return d === nodeData;})
+            .classed("hiddenNodeLabel", hiding);
+        
+        // Hide edges too
+        var adjacentLinks = this.getAdjacentLinks(nodeData);
+        adjacentLinks
+            .classed("hiddenLink",
+                function(linkData: L, i){
+                    // Look at both endpoints of link, see if both are hidden
+                    var source: D3.Selection = d3.selectAll(BaseGraphView.nodeSvgClass)
+                        .filter(function(d: N, i){ return d === linkData.source; });
+                    var target: D3.Selection = d3.selectAll(BaseGraphView.nodeSvgClass)
+                        .filter(function(d: N, i){ return d === linkData.target; });
+                    // if hiding, we hide the link no matter what
+                    // if not hiding, then we pass false if either node is hidden
+                    console.log(hiding || source.classed("hiddenNode") || target.classed("hiddenNode"));
+                    return hiding || source.classed("hiddenNode") || target.classed("hiddenNode");
+                })
+        ;
     }
     
     beforeNodeHighlight(targetNodeData){

@@ -3,6 +3,8 @@ export class Menu {
     static defaultMenuName = "Menu";
     static menuArrowPrefix = "<< ";
     
+    static menuLabelClass = "menuLabel";
+    
     private menuSelector: string = 'div#hoveringGraphMenu';
     
     initializeMenu(menuName: string = Menu.defaultMenuName){

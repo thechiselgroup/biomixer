@@ -4,10 +4,12 @@
 ///<amd-dependency path="../JQueryExtension" />
 
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="Menu" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
 
 import GraphView = require('../GraphView');
+import Menu = require('../Menu');
 import ConceptGraphView = require('./ConceptPathsToRoot');
 import ConceptGraph = require('./ConceptGraph');
 
@@ -25,42 +27,48 @@ export class ConceptLayouts {
     
     addMenuComponents(menuSelector: string, softNodeCap: number){
         // Add the butttons to the pop-out panel
-        $(menuSelector).append($("<input>")
+        var layoutsContainer = $("<div>").attr("id", "layoutMenuContainer");
+        $(menuSelector).append(layoutsContainer);
+                
+        layoutsContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Layouts"));
+        layoutsContainer.append($("<br>"));
+        
+        layoutsContainer.append($("<input>")
                 .attr("class", "layoutButton")
                 .attr("id", "forceLayoutButton")
                 .attr("type", "button")
                 .attr("value", "Force-Directed Layout"));
-        $(menuSelector).append($("<br>"));
+        layoutsContainer.append($("<br>"));
         
-        $(menuSelector).append($("<input>")
+        layoutsContainer.append($("<input>")
                 .attr("class", "layoutButton")
                 .attr("id", "circleLayoutButton")
                 .attr("type", "button")
                 .attr("value", "Circle Layout"));
-        $(menuSelector).append($("<br>"));
+        layoutsContainer.append($("<br>"));
         
-        $(menuSelector).append($("<input>")
+        layoutsContainer.append($("<input>")
                 .attr("class", "layoutButton")
                 .attr("id", "centerLayoutButton")
                 .attr("type", "button")
                 .attr("value", "Center Layout"));
-        $(menuSelector).append($("<br>"));
+        layoutsContainer.append($("<br>"));
         
-        $(menuSelector).append($("<input>")
+        layoutsContainer.append($("<input>")
             .attr("class", "layoutButton")
             .attr("id", "horizontalTreeLayoutButton")
             .attr("type", "button")
             .attr("value", "Horizontal Tree Layout"));
-        $(menuSelector).append($("<br>"));
+        layoutsContainer.append($("<br>"));
     
-        $(menuSelector).append($("<input>")
+        layoutsContainer.append($("<input>")
             .attr("class", "layoutButton")
             .attr("id", "verticalTreeLayoutButton")
             .attr("type", "button")
             .attr("value", "Vertical Tree Layout"));
-        $(menuSelector).append($("<br>"));
+        layoutsContainer.append($("<br>"));
     
-       $(menuSelector).append($("<input>")
+       layoutsContainer.append($("<input>")
             .attr("class", "layoutButton")
             .attr("id", "radialLayoutButton")
             .attr("type", "button")

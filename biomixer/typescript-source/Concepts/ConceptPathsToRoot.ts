@@ -12,6 +12,9 @@
 ///<amd-dependency path="TipsyToolTips" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
+///<amd-dependency path="Concepts/CherryPickConceptFilter" />
+///<amd-dependency path="Concepts/OntologyConceptFilter" />
+///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
@@ -22,6 +25,8 @@ import GraphView = require("../GraphView");
 import TipsyToolTips = require("../TipsyToolTips");
 import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
+import CherryPickConceptFilter = require("./CherryPickConceptFilter");
+import OntologyConceptFilter = require("./OntologyConceptFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
 
@@ -32,6 +37,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     renderScaler: ConceptRenderScaler.ConceptRendererScaler;
     filterSliders: ConceptFilterSliders.ConceptRangeSliders;
     layouts: ConceptLayouts.ConceptLayouts;
+    individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
+    ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
+    // edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
+    // expansionSetFiler: ExpansionSetFilter;
     
     menu: Menu.Menu;
     
@@ -57,7 +66,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     visualization: string;
     
     constructor(
-        public centalOntologyAcronym: ConceptGraph.RawAcronym,
+        public centralOntologyAcronym: ConceptGraph.RawAcronym,
         public centralConceptUri: ConceptGraph.ConceptURI,
         public softNodeCap: number
     ){
@@ -84,7 +93,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         if(confirm(message)){
             this.centralConceptUri = nodeData.rawConceptUri;
-            this.centalOntologyAcronym = nodeData.ontologyAcronym;
+            this.centralOntologyAcronym = nodeData.ontologyAcronym;
             this.initAndPopulateGraph();
         }
     }
@@ -151,6 +160,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.filterSliders = new ConceptFilterSliders.ConceptRangeSliders(this.conceptGraph, this, this.centralConceptUri);
         
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
+         
+        this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
+        this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
@@ -168,12 +180,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
     fetchInitialExpansion(){
         if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
-            this.conceptGraph.fetchPathToRoot(this.centalOntologyAcronym, this.centralConceptUri);
+            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
-            this.conceptGraph.fetchTermNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
+            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
             this.runCurrentLayout = this.layouts.runCenterLayoutLambda();
-            this.conceptGraph.fetchMappingsNeighborhood(this.centalOntologyAcronym, this.centralConceptUri);
+            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri);
             this.runCurrentLayout();
         }
     }
@@ -537,7 +549,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Make svg:g like nodes if we need labels
         // Would skip the g element here for links, but it cleans up the document and bundles text with line.
         var enteringLinks = links.enter().append("svg:g")
-        .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.conceptLinkSvgClassSansDot)
+        .attr("class", GraphView.BaseGraphView.conceptLinkSvgClassSansDot) //GraphView.BaseGraphView.linkSvgClassSansDot+" "+
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
         var enteringPolylines = enteringLinks.append("svg:polyline")
@@ -712,6 +724,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.updateStartWithoutResume();
             enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         }
+        
+        this.individualConceptFilter.updateFilterUI();
     }
 
     removeMissingGraphElements(){
@@ -853,10 +867,43 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layouts");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     
-    
+    sortConceptNodesCentralOntologyName(){
+        var outerThis = this;
+        return this.conceptGraph.graphD3Format.nodes.sort(
+            function(a: ConceptGraph.Node, b: ConceptGraph.Node) {
+                if(a.rawConceptUri === b.rawConceptUri){
+                    // Exact same unqiue identifiers?
+                    return 0;
+                }
+                
+                // Is one of these the central node?
+                if(a.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
+                    return -1;
+                } else if(b.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
+                    return 1;
+                }
+                
+                // Put central node ontologies above non-central ontologies, rest ontologies alphabetical
+                if(a.ontologyAcronym !== b.ontologyAcronym){
+                    if(a.ontologyAcronym === outerThis.centralOntologyAcronym){
+                        return -1;
+                    } else if(b.ontologyAcronym === outerThis.centralOntologyAcronym){
+                        return 1;
+                    } else {
+                        return (a.ontologyAcronym < b.ontologyAcronym) ? -1 : 1;
+                    }
+                }
+                
+                // Alphabetical on concept names within ontologies
+                return (a.name < b.name) ? -1 : 1;
+            }
+        );
+    }
     
 }
 
