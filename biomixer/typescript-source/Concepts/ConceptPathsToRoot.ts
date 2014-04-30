@@ -577,7 +577,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             return "inheritanceLink"
         } else if(-1 !== relationType.indexOf("part_of") || -1 !== relationType.indexOf("has_part")){
             return "compositionLink";
-        } else if($.inArray(relationType, ["ncbo-mapping", "maps to"])){
+        } else if(-1 !== $.inArray(relationType, ["ncbo-mapping", "maps to"])){
             return "mappingLink";
         } else {
             console.log("Unidentified arc type: "+relationType);
@@ -726,6 +726,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
         
         this.individualConceptFilter.updateFilterUI();
+        this.ontologyFilter.updateFilterUI();
     }
 
     removeMissingGraphElements(){

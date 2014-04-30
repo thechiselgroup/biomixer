@@ -313,7 +313,6 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                         .filter(function(d: N, i){ return d === linkData.target; });
                     // if hiding, we hide the link no matter what
                     // if not hiding, then we pass false if either node is hidden
-                    console.log(hiding || source.classed("hiddenNode") || target.classed("hiddenNode"));
                     return hiding || source.classed("hiddenNode") || target.classed("hiddenNode");
                 })
         ;

@@ -15,7 +15,7 @@ import ConceptGraph = require("./ConceptGraph");
     
 export class CherryPickConceptFilter extends FilterWidget.FilterWidget {
     
-    filterContainer: JQuery;
+    subMenuTitle = "Concepts Rendered";
     
     constructor(
         private conceptGraph: ConceptGraph.ConceptGraph,
@@ -24,14 +24,7 @@ export class CherryPickConceptFilter extends FilterWidget.FilterWidget {
         ){
         super();
     }
-    
-    addMenuComponents(menuSelector: string){
-        this.filterContainer = $("<div>").attr("id", "cherryPickConceptFilterContainer").addClass("scroll-div").css("height", 100);
-        $(menuSelector).append(this.filterContainer);
-        
-        this.filterContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Concepts Rendered"));
-    }
-    
+
     updateFilterUI(){
         // Remove missing ones, whatever is left over in this collection
         var checkboxSpanClass = this.className+"_filterCheckboxSpan";
