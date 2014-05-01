@@ -63,6 +63,7 @@ export interface GraphView<N extends BaseNode, L extends BaseLink<BaseNode>> ext
     filterGraphOnMappingCounts();
     updateDataForNodesAndLinks(newDataSubset: GraphDataForD3<N, L>);
     createNodePopupTable(nodeSvg, nodeData);
+    sortConceptNodesCentralOntologyName(): Array<N>;
 }
 
 export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {

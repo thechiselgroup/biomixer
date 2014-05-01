@@ -867,6 +867,21 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.menu.initializeMenu();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
+    
+    sortConceptNodesCentralOntologyName(){
+        var outerThis = this;
+        return this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes.sort(
+            function(a: OntologyGraph.Node, b: OntologyGraph.Node) {
+                if(a.rawAcronym === b.rawAcronym){
+                    // Exact same unqiue identifiers?
+                    return 0;
+                }
+                
+                // Alphabetical ontologies
+                return (a.rawAcronym < b.rawAcronym) ? -1 : 1;
+            }
+        );
+    }
 
 }
 
