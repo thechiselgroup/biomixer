@@ -76,46 +76,62 @@ export class ConceptLayouts {
     
     }
     
-    rootIndex(){
+    getOntologyAcronym(conceptUri){
+        var outerThis = this;
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        console.log(graphNodes);
+        var ontologyAcronym;
+        
+        graphNodes.forEach(function(node){
+            if(node.rawConceptUri===conceptUri){
+                ontologyAcronym = node.ontologyAcronym;    
+            }
+        });
+        
+        console.log(ontologyAcronym);
+        return ontologyAcronym;
+    }
+    
+    getRootIndex(ontologyAcronym){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
+       // var centralUri = outerThis.graph.
         
         var index = 0;
         var rootId = null;
         var rootFound=false;
         // not the best algorithm. Need to look into improving it
         console.log(graphLinks);
+        
+      //  var centralOntologyAcronym = outerThis.graph.graphD3Format.
+        
         graphLinks.forEach(function(a){
-            if(rootFound==false&&a.relationType=="is_a"){
-                rootFound=true;
-                graphLinks.forEach(function(b){
-                    if(a.sourceId==b.targetId){
-                        //rootId = b.sourceId;
-                        rootFound = false;
-                    }
+            if(outerThis.getOntologyAcronym(a.sourceId)===ontologyAcronym&&outerThis.getOntologyAcronym(a.targetId)===ontologyAcronym){
+                if(rootFound==false&&a.relationType!="maps to"){
+                    rootFound=true;
+                    graphLinks.forEach(function(b){
+                        if(a.sourceId==b.targetId){
+                            //rootId = b.sourceId;
+                            rootFound = false;
+                        }
+                    });
+                                        
+                   if(rootFound==true){
+                       rootId = a.sourceId;
+                   }
                     
-                });
-                
-                if(rootFound==true){
-                    rootId = a.sourceId;
                 }
             }
             
         });
         
-        
         graphNodes.forEach(function(n){
             var i = graphNodes.indexOf(n);
-           // console.log("index "+i);
-    
             if(n.rawConceptUri==rootId){
                 index = i;
-               // console.log("index "+i);
-    
             }
         });
-        
         return index;   
     }
     
@@ -125,6 +141,8 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
+            var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
+
             
             var tree = d3.layout.tree()
                 .size([360,outerThis.graphView.visHeight()/2-100])
@@ -147,7 +165,7 @@ export class ConceptLayouts {
                     return arrayOfNodes;
                 });
             
-              var treeNodes = tree.nodes(graphNodes[outerThis.rootIndex()]);
+                var treeNodes = tree.nodes(graphNodes[outerThis.getRootIndex(ontologyAcronym)]);
           
               
               $.each(graphNodes,
@@ -182,6 +200,8 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
+            var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
+
             
             var tree = d3.layout.tree()
                 .size([outerThis.graphView.visWidth(), outerThis.graphView.visHeight()-300])
@@ -203,7 +223,7 @@ export class ConceptLayouts {
                     return arrayOfNodes;
                 });
             
-              var treeNodes = tree.nodes(graphNodes[outerThis.rootIndex()]);
+                var treeNodes = tree.nodes(graphNodes[outerThis.getRootIndex(ontologyAcronym)]);
           
               
               $.each(graphNodes,
@@ -232,13 +252,13 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
-            
+            var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
             var tree = d3.layout.tree()
                 .size([outerThis.graphView.visHeight()-100,outerThis.graphView.visWidth()-300])
                 .children(function(d){  
                     var arrayOfNodes = []; 
                     graphLinks.forEach(function(b){
-                        if(b.sourceId==d.rawConceptUri){
+                        if(b.sourceId==d.rawConceptUri&&outerThis.getOntologyAcronym(b.targetId)===ontologyAcronym){
                             var targetNode= {};
                             graphNodes.forEach(function(c){
                                if(c.rawConceptUri==b.targetId){
@@ -253,14 +273,14 @@ export class ConceptLayouts {
                     return arrayOfNodes;
                 });
             
-                var treeNodes = tree.nodes(graphNodes[outerThis.rootIndex()]);
+                var treeNodes = tree.nodes(graphNodes[outerThis.getRootIndex(ontologyAcronym)]);
               
                   
                 $.each(graphNodes,
                       function(index, element){
-                          var xValue = element.x
-                          graphNodes[index].x = element.y+150; 
-                          graphNodes[index].y = xValue; 
+                         var xValue = element.x
+                         graphNodes[index].x = element.y+150; 
+                         graphNodes[index].y = xValue; 
                       }
                 );
 
