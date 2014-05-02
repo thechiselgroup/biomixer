@@ -13,16 +13,17 @@ import Menu = require("../Menu");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
     
-export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGraph.Node, ConceptGraph.Link> implements FilterWidget.IFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
     
     subMenuTitle = "Ontologies Rendered";
     
     constructor(
-        private conceptGraph: ConceptGraph.ConceptGraph,
+        public conceptGraph: ConceptGraph.ConceptGraph,
         graphView: PathToRoot.ConceptPathsToRoot,
-        private centralConceptUri: ConceptGraph.ConceptURI
+        public centralConceptUri: ConceptGraph.ConceptURI
         ){
         super(graphView);
+        this.implementation = this;
     }
     
     generateCheckboxLabel(node: ConceptGraph.Node): string {
@@ -50,7 +51,7 @@ export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGrap
             );
     }
     
-    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates, checkbox: JQuery){
+    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
         var outerThis = this;
         if (checkbox.is(':checked')) {
             // Unhide those that are checked, as well as edges with both endpoints visible
@@ -75,26 +76,31 @@ export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGrap
         }
     }
     
-    checkboxHoveredLambda(node: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void {
+    checkboxHoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void {
         // TODO Do we want multi-node hover for ontology checkboxes? Maybe?
-        return function(event: JQueryMouseEventObject){};
-//        var graphView: PathToRoot.ConceptPathsToRoot = this.graphView;
-//        return function(eventObject: JQueryMouseEventObject){
-//            // Technically, the span over the checkbox is the element
-//            // Find the graph node that corresponds, and fire its mouse enter behavior.
-//            graphView.highlightHoveredNodeLambda(graphView)(node, 0);
-//        }
+        var graphView = this.graphView;
+        return function(eventObject: JQueryMouseEventObject){
+            // Technically, the span over the checkbox is the element
+            // Find the graph node that corresponds, and fire its mouse enter behavior.
+            $.each(setOfHideCandidates,
+                function(i, node: ConceptGraph.Node){
+                    graphView.highlightHoveredNodeLambda(graphView)(node, 0);
+                }
+            );
+        }
     }
     
-    checkboxUnhoveredLambda(node: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
+    checkboxUnhoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void{
         // TODO Do we want multi-node hover for ontology checkboxes? Maybe?
-        return function(event: JQueryMouseEventObject){};
-//        var graphView: PathToRoot.ConceptPathsToRoot = this.graphView;
-//        return function(eventObject: JQueryMouseEventObject){
-//            // Technically, the span over the checkbox is the element
-//            // Find the graph node that corresponds, and fire its mouse leave behavior.
-//            graphView.unhighlightHoveredNodeLambda(graphView)(node, 0);
-//        };
+        var graphView = this.graphView;
+        return function(eventObject: JQueryMouseEventObject){
+            // Technically, the span over the checkbox is the element
+            // Find the graph node that corresponds, and fire its mouse leave behavior.
+            $.each(setOfHideCandidates,
+                function(i, node: ConceptGraph.Node){
+                    graphView.unhighlightHoveredNodeLambda(graphView)(node, 0);
+                }
+            );
+        };
     }
-    
 }

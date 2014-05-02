@@ -524,7 +524,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     * graph. Do not call it to update properties of graph elements.
     */
     populateNewGraphElements(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
-        console.log("Stop using passed argument since this class owns that data. Get rid of newElementsExpected.");
+        // console.log("Stop using passed argument since this class owns that data. Get rid of newElementsExpected.");
         this.populateNewGraphEdges(graphD3Format.links);
         this.populateNewGraphNodes(graphD3Format.nodes);
         // this.runCurrentLayout();
