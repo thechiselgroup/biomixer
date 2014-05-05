@@ -277,19 +277,19 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     hideNodeLambda(outerThis: BaseGraphView<N, L>){
         return function(nodeData: N, i){
-            outerThis.hider(nodeData, true);
+            outerThis.nodeHider(nodeData, true);
         }
     
     }
     
     unhideNodeLambda(outerThis: BaseGraphView<N, L>){
         return function(nodeData: N, i){
-            outerThis.hider(nodeData, false);
+            outerThis.nodeHider(nodeData, false);
         }
     
     }
     
-    private hider(nodeData: N, hiding: boolean){
+    private nodeHider(nodeData: N, hiding: boolean){
         // Hide the node and label away first
         var sourceGNode = d3.selectAll(BaseGraphView.nodeSvgClass)
             .filter(function(d: N, i){ return d === nodeData; })
@@ -305,7 +305,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         // Hide edges too
         var adjacentLinks = this.getAdjacentLinks(nodeData);
         adjacentLinks
-            .classed("hiddenLink",
+            .classed("hiddenBecauseOfNodeLink",
                 function(linkData: L, i){
                     // Look at both endpoints of link, see if both are hidden
                     var source: D3.Selection = d3.selectAll(BaseGraphView.nodeSvgClass)
@@ -317,6 +317,19 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                     return hiding || source.classed("hiddenNode") || target.classed("hiddenNode");
                 })
         ;
+    }
+    
+    hideLinks(links: D3.Selection){
+        this.linkHider(links, true);
+    }
+    
+    unhideLinks(links: D3.Selection){
+        this.linkHider(links, false);
+    }
+    
+    private linkHider(links: D3.Selection, hiding: boolean){
+        // Different style from the node hider() above, but I don't mind much.
+        links.classed("hiddenLink", hiding);
     }
     
     beforeNodeHighlight(targetNodeData){

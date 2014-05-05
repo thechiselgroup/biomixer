@@ -4,25 +4,25 @@
 ///<reference path="headers/jquery.d.ts" />
 
 ///<amd-dependency path="../Utils" />
-///<amd-dependency path="../FilterWidget" />
+///<amd-dependency path="../NodeFilterWidget" />
 ///<amd-dependency path="../Menu" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
-import FilterWidget = require("../FilterWidget");
+import FilterWidget = require("../NodeFilterWidget");
 import Menu = require("../Menu");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
     
-export class CherryPickConceptFilter extends FilterWidget.FilterWidget<ConceptGraph.Node, ConceptGraph.Link> implements FilterWidget.IFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
     
-    subMenuTitle = "Concepts Rendered";
+    static SUB_MENU_TITLE = "Concepts Rendered";
     
     constructor(
         private conceptGraph: ConceptGraph.ConceptGraph,
         graphView: PathToRoot.ConceptPathsToRoot,
         private centralConceptUri: ConceptGraph.ConceptURI
         ){
-        super(graphView);
+        super(CherryPickConceptFilter.SUB_MENU_TITLE, graphView);
         this.implementation = this;
     }
     
@@ -31,7 +31,7 @@ export class CherryPickConceptFilter extends FilterWidget.FilterWidget<ConceptGr
     }
     
     generateColoredSquareIndicator(node: ConceptGraph.Node): string{
-        return "<span style='color: "+node.nodeColor+"'>\u25A0</span>";
+        return "<span style='font-size: large; color: "+node.nodeColor+"'>\u25A0</span>";
     }
     
     styleAsCentralNode(node: ConceptGraph.Node): boolean {
@@ -39,7 +39,7 @@ export class CherryPickConceptFilter extends FilterWidget.FilterWidget<ConceptGr
     }
     
     computeCheckId(node: ConceptGraph.Node): string {
-        return this.className+"_for_"+String(node.conceptUriForIds)
+        return this.getClassName()+"_for_"+String(node.conceptUriForIds)
     }
     
     computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{

@@ -67,6 +67,7 @@
 .inheritanceLink {
 	stroke: #AFC6E5;
 	fill: #AFC6E5;
+	color: #AFC6E5;
 }
 polyLine.inheritanceLink {
 	stroke-dasharray: none;
@@ -74,8 +75,8 @@ polyLine.inheritanceLink {
 
 .compositionLink {
 	stroke: #AFC600;
-	/*fill: #FFFFFF;*/
-	fill: #AFC600
+	fill: #AFC600;
+	color: #AFC600;
 }
 polyline.compositionLink{
 	stroke-dasharray: 4,4;
@@ -84,6 +85,7 @@ polyline.compositionLink{
 .mappingLink {
 	stroke: #D4D4D4;
 	fill: #D4D4D4;
+	color: #D4D4D4;
 }
 polyline.mappingLink{
 	stroke-dasharray: 10,5;
@@ -96,6 +98,9 @@ polyline.mappingLink{
 	opacity: 0.10;
 }
 .hiddenLink {
+	opacity: 0.10;
+}
+.hiddenBecauseOfNodeLink {
 	opacity: 0.10;
 }
 

@@ -14,6 +14,7 @@
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/CherryPickConceptFilter" />
 ///<amd-dependency path="Concepts/OntologyConceptFilter" />
+///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
@@ -27,6 +28,7 @@ import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
+import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
 
@@ -39,7 +41,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     layouts: ConceptLayouts.ConceptLayouts;
     individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
     ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
-    // edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
+    edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
     // expansionSetFiler: ExpansionSetFilter;
     
     menu: Menu.Menu;
@@ -163,6 +165,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          
         this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
+        this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
@@ -549,11 +552,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Make svg:g like nodes if we need labels
         // Would skip the g element here for links, but it cleans up the document and bundles text with line.
         var enteringLinks = links.enter().append("svg:g")
-        .attr("class", GraphView.BaseGraphView.conceptLinkSvgClassSansDot) //GraphView.BaseGraphView.linkSvgClassSansDot+" "+
+        .attr("class", (e: ConceptGraph.Link)=>{ return this.getLinkCssClass(e.relationType); }) //GraphView.BaseGraphView.linkSvgClassSansDot+" "+
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
         var enteringPolylines = enteringLinks.append("svg:polyline")
-        .attr("class", function(d: ConceptGraph.Link){return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
+        .attr("class", function(d: ConceptGraph.Link){ return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
@@ -727,6 +730,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         this.individualConceptFilter.updateFilterUI();
         this.ontologyFilter.updateFilterUI();
+        this.edgeTypeFilter.updateFilterUI();
     }
 
     removeMissingGraphElements(){
@@ -870,6 +874,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
         this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     

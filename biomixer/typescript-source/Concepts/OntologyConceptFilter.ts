@@ -4,25 +4,25 @@
 ///<reference path="headers/jquery.d.ts" />
 
 ///<amd-dependency path="../Utils" />
-///<amd-dependency path="../FilterWidget" />
+///<amd-dependency path="../NodeFilterWidget" />
 ///<amd-dependency path="../Menu" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
-import FilterWidget = require("../FilterWidget");
+import FilterWidget = require("../NodeFilterWidget");
 import Menu = require("../Menu");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
     
-export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGraph.Node, ConceptGraph.Link> implements FilterWidget.IFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
     
-    subMenuTitle = "Ontologies Rendered";
+    static SUB_MENU_TITLE = "Ontologies Rendered";
     
     constructor(
         public conceptGraph: ConceptGraph.ConceptGraph,
         graphView: PathToRoot.ConceptPathsToRoot,
         public centralConceptUri: ConceptGraph.ConceptURI
         ){
-        super(graphView);
+        super(OntologyConceptFilter.SUB_MENU_TITLE, graphView);
         this.implementation = this;
     }
     
@@ -31,7 +31,7 @@ export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGrap
     }
     
     generateColoredSquareIndicator(node: ConceptGraph.Node): string {
-        return "<span style='color: "+node.nodeColor+"'>\u25A0</span>";
+        return "<span style='font-size: large; color: "+node.nodeColor+";'>\u25A0</span>";
     }
     
     styleAsCentralNode(node: ConceptGraph.Node): boolean {
@@ -39,7 +39,7 @@ export class OntologyConceptFilter extends FilterWidget.FilterWidget<ConceptGrap
     }
     
     computeCheckId(node: ConceptGraph.Node): string {
-        return this.className+"_for_"+String(node.ontologyAcronym);
+        return this.getClassName()+"_for_"+String(node.ontologyAcronym);
     }
     
     computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node> {
