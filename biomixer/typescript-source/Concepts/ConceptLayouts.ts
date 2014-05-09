@@ -95,7 +95,7 @@ export class ConceptLayouts {
     getOntologyAcronym(conceptUri){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-        console.log(graphNodes);
+       // console.log(graphNodes);
         var ontologyAcronym;
         
         graphNodes.forEach(function(node){
@@ -104,7 +104,7 @@ export class ConceptLayouts {
             }
         });
         
-        console.log(ontologyAcronym);
+       // console.log(ontologyAcronym);
         return ontologyAcronym;
     }
     
@@ -118,7 +118,7 @@ export class ConceptLayouts {
         var rootId = null;
         var rootFound=false;
         // not the best algorithm. Need to look into improving it
-        console.log(graphLinks);
+       // console.log(graphLinks);
         
       //  var centralOntologyAcronym = outerThis.graph.graphD3Format.
         
@@ -136,7 +136,6 @@ export class ConceptLayouts {
                    if(rootFound==true){
                        rootId = a.sourceId;
                    }
-                    
                 }
             }
             
@@ -151,8 +150,8 @@ export class ConceptLayouts {
         return index;   
     }
     
-    
-    buildTree(width, height){
+  //old buildTree function  
+  /*  buildTree(width, height){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
@@ -167,6 +166,12 @@ export class ConceptLayouts {
                         var targetNode= {};
                         graphNodes.forEach(function(c){
                            if(c.rawConceptUri==b.targetId){
+                               //then check target node c has more than one parent
+                               //if node has more than one parent
+                               //compare depths of parents
+                               //if d has a higher rank, make 
+                               
+                               
                                targetNode = c;
                            }
                         });
@@ -178,6 +183,83 @@ export class ConceptLayouts {
             });
     
         tree.nodes(graphNodes[outerThis.getRootIndex(ontologyAcronym)]);
+        return tree;
+    }*/
+    
+    getChildren(rootIndex){
+        var children = [];
+        var outerThis = this;
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.graph.graphD3Format.links;
+        var rootNode = graphNodes[rootIndex];
+        graphLinks.forEach(function(b){
+            if(b.sourceId==rootNode.rawConceptUri&&b.relationType!="maps to"){
+                var child= {};
+                graphNodes.forEach(function(c){
+                    if(c.rawConceptUri==b.targetId){
+                        child = c;
+                    }
+                });
+                children.push(child);
+            }
+        });
+    
+        return children;
+    }
+    
+    calculateDepth(rootIndex){
+        var outerThis = this;
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.graph.graphD3Format.links;
+        var children = outerThis.getChildren(rootIndex);
+        console.log(children);
+        if(children.length<=0){
+            return;
+        }else{
+            children.forEach(function(child){
+                //child.depth = graphNodes[rootIndex].depth+1;
+                
+                console.log(child);
+                //var index = outerThis.getIndex(child);
+                outerThis.calculateDepth(graphNodes.indexOf(child));
+            });
+        }
+    }
+    
+    buildTree(width, height){
+        var outerThis = this;
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.graph.graphD3Format.links;
+        var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
+        
+        var index = outerThis.getRootIndex(ontologyAcronym);
+        outerThis.calculateDepth(index);
+        var tree = d3.layout.tree()
+            .size([width, height])
+            .children(function(d){  
+                var arrayOfNodes = []; 
+                graphLinks.forEach(function(b){
+                    if(b.sourceId==d.rawConceptUri&&b.relationType!="maps to"){
+                        var targetNode= {};
+                        graphNodes.forEach(function(c){
+                           if(c.rawConceptUri==b.targetId){
+                               //then check target node c has more than one parent
+                               //if node has more than one parent
+                               //compare depths of parents
+                               //if d has a higher rank, make 
+                               
+                               
+                               targetNode = c;
+                           }
+                        });
+                        arrayOfNodes.push(targetNode);
+                     }
+                });
+                     
+                return arrayOfNodes;
+            });
+    
+        tree.nodes(graphNodes[index]);
         return tree;
     }
     
@@ -216,8 +298,11 @@ export class ConceptLayouts {
             var tree = outerThis.buildTree(treeWidth, treeHeight);
             $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
                   function(index, element){
-                       graphNodes[index].x = element.x; 
-                       graphNodes[index].y = element.y+150; 
+                      graphNodes[index].x = element.x; 
+                      graphNodes[index].y = element.y+150; 
+                     // console.log(graphNodes[index]);
+                     // console.log(graphNodes[index].depth);
+
                   }
             );
             outerThis.transitionNodes();
@@ -306,8 +391,8 @@ export class ConceptLayouts {
                     }else{
                         node.x = outerThis.graphView.visWidth()/2; 
                         node.y = outerThis.graphView.visHeight()/2;
-                        //alert(node.id+centralConceptUri);
                         
+                        //alert(node.id+centralConceptUri);
                     }
                 }
             );
