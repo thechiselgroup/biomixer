@@ -187,14 +187,16 @@ export class ConceptLayouts {
     }*/
     
     getChildren(rootIndex){
-        var children = [];
+        var children: ConceptGraph.Node[];
+        children = [];
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
         var rootNode = graphNodes[rootIndex];
         graphLinks.forEach(function(b){
             if(b.sourceId==rootNode.rawConceptUri&&b.relationType!="maps to"){
-                var child= {};
+                var child: ConceptGraph.Node;
+                child = new ConceptGraph.Node;
                 graphNodes.forEach(function(c){
                     if(c.rawConceptUri==b.targetId){
                         child = c;
@@ -212,14 +214,17 @@ export class ConceptLayouts {
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
         var children = outerThis.getChildren(rootIndex);
-        console.log(children);
+        //console.log(children);
         if(children.length<=0){
             return;
         }else{
             children.forEach(function(child){
-                //child.depth = graphNodes[rootIndex].depth+1;
+                if(child.depth<=graphNodes[rootIndex].depth){
+                    child.depth = graphNodes[rootIndex].depth+1;
+                }
+                //console.log(graphNodes[rootIndex].depth);
+                //console.log(child.depth);
                 
-                console.log(child);
                 //var index = outerThis.getIndex(child);
                 outerThis.calculateDepth(graphNodes.indexOf(child));
             });
@@ -234,10 +239,16 @@ export class ConceptLayouts {
         
         var index = outerThis.getRootIndex(ontologyAcronym);
         outerThis.calculateDepth(index);
+        
+        graphNodes.forEach(function(a){
+            console.log(a.depth);
+        });
+        
         var tree = d3.layout.tree()
             .size([width, height])
-            .children(function(d){  
-                var arrayOfNodes = []; 
+            .children(function(d: ConceptGraph.Node){  
+                 
+                /*
                 graphLinks.forEach(function(b){
                     if(b.sourceId==d.rawConceptUri&&b.relationType!="maps to"){
                         var targetNode= {};
@@ -255,8 +266,19 @@ export class ConceptLayouts {
                         arrayOfNodes.push(targetNode);
                      }
                 });
-                     
-                return arrayOfNodes;
+                 */
+                
+                var arrayOfNodes = outerThis.getChildren(graphNodes.indexOf(d)); 
+                var children: ConceptGraph.Node[];
+                children = []; 
+                //console.log(arrayOfNodes);
+                arrayOfNodes.forEach(function(b){
+                    if(b.depth==d.depth+1){
+                        children.push(b);    
+                    }
+                
+                });
+                return children;
             });
     
         tree.nodes(graphNodes[index]);
