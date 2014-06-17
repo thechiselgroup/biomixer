@@ -32,7 +32,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
     
     updateFilterUI(){
         // Remove missing ones, whatever is left over in this collection
-        var checkboxSpanClass = this.getClassName()+"_filterCheckboxSpan";
+        var checkboxSpanClass = this.getCheckboxSpanClass();
         var preExistingCheckboxes = $("."+checkboxSpanClass);
         var checkboxesPopulatedOrReUsed = $("");
         var outerThis = this;

@@ -204,9 +204,14 @@ div#hoveringGraphMenu {
 	background-color: white;
 }
 
-.filterCheckbox{
+.filterCheckbox {
 	width: auto;
 	display: block;
+}
+
+.filterCheckboxSomeSelected {
+	opacity: 0.5;
+    filter: alpha(opacity=50);
 }
 
 .menuLabel {

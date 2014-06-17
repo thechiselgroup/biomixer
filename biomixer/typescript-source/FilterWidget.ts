@@ -7,7 +7,7 @@ import Utils = require("./Utils");
 import Menu = require("./Menu");
 
 export interface IFilterWidget extends AbstractFilterWidget {
-    updateFilterUI();
+    updateFilterUI(): void;
 }
 
 export class AbstractFilterWidget {
@@ -17,12 +17,12 @@ export class AbstractFilterWidget {
     filterContainer: JQuery;
     
     constructor(
-        public subMenuTitle: string   
+        public subMenuTitle: string
         ){
     
     }
    
-    getClassName(){
+    getClassName(): String {
         if(undefined !== this.className){
             return this.className;
         } else {
@@ -31,7 +31,15 @@ export class AbstractFilterWidget {
         
     }
     
-   addMenuComponents(menuSelector: string){
+    getCheckboxSpanClass(): string {
+        return this.getClassName()+"_filterCheckboxSpan";
+    }
+    
+    getCheckboxClass(): string {
+        return this.getClassName()+"_filterCheckbox";
+    }
+    
+   addMenuComponents(menuSelector: string): void {
         var outerContainer = $("<div>").attr("id", this.getClassName()+"OuterContainer");
         $(menuSelector).append(outerContainer);
         

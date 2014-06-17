@@ -157,7 +157,7 @@ export class MappingRangeSliders {
         
     }
         
-    filterGraphOnMappingCounts(){        
+    filterGraphOnMappingCounts(){
         // Grabbing min from 1 and max from 0 looks funny, but it does the trick. Pinky swear.
         var minNodeAbsolute = this.sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )].value; // starts at big number
         var maxNodeAbsolute = this.sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )].value; // starts at 0

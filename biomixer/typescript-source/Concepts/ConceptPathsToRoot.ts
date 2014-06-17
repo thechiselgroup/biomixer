@@ -652,7 +652,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Add new stuff
         var enteringNodes = nodes.enter()
         .append("svg:g")
-        .attr("class", "node_g")
+        .attr("class", GraphView.BaseGraphView.nodeGSvgClassSansDot)
         .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
         .call(this.nodeDragBehavior);
         
@@ -876,6 +876,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+    }
+    
+    /**
+     * Synchronzie checkboxes with changes made via other checkboxes.
+     */
+    refreshNodeCheckboxState(affectedNodes: ConceptGraph.Node[]){
+        this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
+    }
+    
+    /**
+     * Synchronzie checkboxes with changes made via other checkboxes.
+     */
+    refreshOntologyCheckboxState(cherryPickedNodes: ConceptGraph.Node[]){
+        this.ontologyFilter.updateCheckboxStateFromView(cherryPickedNodes);
     }
     
     sortConceptNodesCentralOntologyName(){

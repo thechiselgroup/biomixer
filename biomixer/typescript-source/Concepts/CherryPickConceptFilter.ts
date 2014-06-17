@@ -17,6 +17,8 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
     
     static SUB_MENU_TITLE = "Concepts Rendered";
     
+    pathToRootView: PathToRoot.ConceptPathsToRoot;
+    
     constructor(
         private conceptGraph: ConceptGraph.ConceptGraph,
         graphView: PathToRoot.ConceptPathsToRoot,
@@ -24,6 +26,7 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
         ){
         super(CherryPickConceptFilter.SUB_MENU_TITLE, graphView);
         this.implementation = this;
+        this.pathToRootView = graphView;
     }
     
     generateCheckboxLabel(node: ConceptGraph.Node): string {
@@ -46,7 +49,7 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
         return [node];
     }
     
-    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates, checkbox: JQuery){
+    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
         // The checkbox domain here is known to be the single node associated with the checkbox.
         if (checkbox.is(':checked')) {
             // Unhide those that are checked, as well as edges with both endpoints visible
@@ -55,6 +58,8 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
             // Hide those that are unchecked, as well as edges with no endpoints visible
             this.graphView.hideNodeLambda(this.graphView)(checkboxContextData, 0);
         }
+        // The ontology checkboxes need to be updated based on changes in visibility 
+        this.pathToRootView.refreshOntologyCheckboxState([checkboxContextData]);
     }
     
     checkboxHoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void{
@@ -73,6 +78,18 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
             // Find the graph node that corresponds, and fire its mouse leave behavior.
             outerThis.graphView.unhighlightHoveredNodeLambda(outerThis.graphView)(setOfHideCandidates[0], 0);
         };
+    }
+    
+    /**
+     * Synchronize checkboxes with changes made via other checkboxes.
+     */
+    updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
+        var outerThis = this;
+        $.each(affectedNodes, function(i, node: ConceptGraph.Node){
+                var checkId = outerThis.implementation.computeCheckId(node);
+                $("#"+checkId).prop("checked", !outerThis.graphView.isNodeHidden(node));
+            }
+        );
     }
     
 }

@@ -78,6 +78,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     static nodeSvgClassSansDot = "node";
     static nodeInnerSvgClassSansDot = "inner_node"; // Needed for ontology double-node effect
+    static nodeGSvgClassSansDot = "node_g";
     static nodeLabelSvgClassSansDot = "nodetext";
     static linkSvgClassSansDot = "link";
     static linkLabelSvgClassSansDot = "linktext";
@@ -88,8 +89,12 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static conceptNodeSvgClassSansDot = "conceptNode";
     static conceptLinkSvgClassSansDot = "conceptLink"
     
+    static hiddenNodeClass: string = "hiddenNode";
+    static hiddenNodeLabelClass: string = "hiddenNodeLabel";
+    
     static nodeSvgClass = "."+BaseGraphView.nodeSvgClassSansDot;
     static nodeInnerSvgClass = "."+BaseGraphView.nodeInnerSvgClassSansDot;
+    static nodeGSvgClass = "."+BaseGraphView.nodeGSvgClassSansDot;
     static nodeLabelSvgClass = "."+BaseGraphView.nodeLabelSvgClassSansDot;
     static linkSvgClass = "."+BaseGraphView.linkSvgClassSansDot;
     static linkLabelSvgClass = "."+BaseGraphView.linkLabelSvgClassSansDot;
@@ -149,6 +154,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                     return d.source === node || d.target === node;
             }
         );
+    }
+    
+    isNodeHidden(node: N): boolean {
+        // TODO Refactor these #node_g_ constants! There's an issue for this.
+        return d3.select("#node_g_"+node.getEntityId()).classed(BaseGraphView.hiddenNodeClass);
     }
     
     highlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){
@@ -296,11 +306,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             .node().parentNode;
         // In order to hide any baggage (like expander menu indicators), we need to grab the parent
         d3.select(sourceGNode)
-            .classed("hiddenNode", hiding);
+            .classed(BaseGraphView.hiddenNodeClass, hiding);
         
         d3.selectAll(BaseGraphView.nodeLabelSvgClass)
             .filter(function(d: N, i){ return d === nodeData;})
-            .classed("hiddenNodeLabel", hiding);
+            .classed(BaseGraphView.hiddenNodeLabelClass, hiding);
         
         // Hide edges too
         var adjacentLinks = this.getAdjacentLinks(nodeData);
@@ -308,13 +318,13 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             .classed("hiddenBecauseOfNodeLink",
                 function(linkData: L, i){
                     // Look at both endpoints of link, see if both are hidden
-                    var source: D3.Selection = d3.selectAll(BaseGraphView.nodeSvgClass)
+                    var source: D3.Selection = d3.selectAll(BaseGraphView.nodeGSvgClass)
                         .filter(function(d: N, i){ return d === linkData.source; });
-                    var target: D3.Selection = d3.selectAll(BaseGraphView.nodeSvgClass)
+                    var target: D3.Selection = d3.selectAll(BaseGraphView.nodeGSvgClass)
                         .filter(function(d: N, i){ return d === linkData.target; });
                     // if hiding, we hide the link no matter what
                     // if not hiding, then we pass false if either node is hidden
-                    return hiding || source.classed("hiddenNode") || target.classed("hiddenNode");
+                    return hiding || source.classed(BaseGraphView.hiddenNodeClass) || target.classed(BaseGraphView.hiddenNodeClass);
                 })
         ;
     }

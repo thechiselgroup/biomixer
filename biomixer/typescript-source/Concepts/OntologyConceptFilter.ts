@@ -17,6 +17,8 @@ export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget
     
     static SUB_MENU_TITLE = "Ontologies Rendered";
     
+    pathToRootView: PathToRoot.ConceptPathsToRoot;
+    
     constructor(
         public conceptGraph: ConceptGraph.ConceptGraph,
         graphView: PathToRoot.ConceptPathsToRoot,
@@ -24,6 +26,7 @@ export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget
         ){
         super(OntologyConceptFilter.SUB_MENU_TITLE, graphView);
         this.implementation = this;
+        this.pathToRootView = graphView;
     }
     
     generateCheckboxLabel(node: ConceptGraph.Node): string {
@@ -53,27 +56,34 @@ export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget
     
     checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
         var outerThis = this;
+        var affectedNodes: ConceptGraph.Node[] = [];
+        checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
         if (checkbox.is(':checked')) {
             // Unhide those that are checked, as well as edges with both endpoints visible
+            // Also, we will re-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
                     if(node.ontologyAcronym !== checkboxContextData.ontologyAcronym){
                         return;
                     }
                     outerThis.graphView.unhideNodeLambda(outerThis.graphView)(node, 0);
+                    affectedNodes.push(node);
                 }
             );
         } else {
             // Hide those that are unchecked, as well as edges with no endpoints visible
+            // Also, we will un-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
                     if(node.ontologyAcronym !== checkboxContextData.ontologyAcronym){
                         return;
                     }
                     outerThis.graphView.hideNodeLambda(outerThis.graphView)(node, 0);
+                    affectedNodes.push(node);
                 }
             );
         }
+        outerThis.pathToRootView.refreshNodeCheckboxState(affectedNodes);
     }
     
     checkboxHoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void {
@@ -102,5 +112,24 @@ export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget
                 }
             );
         };
+    }
+    
+    /**
+     * Synchronize checkboxes with changes made via other checkboxes.
+     * Will make the ontology checkboxes less opaque if any of the individual
+     * nodes in the ontology differ in their state from the most recent toggled
+     * state of this checkbox. That is, if all were hidden or shown, then one
+     * was shown or hidden, the ontology checkbox will be changed visually
+     * to indicate inconsistent state. 
+     */
+    updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
+        var outerThis = this;
+        $.each(affectedNodes, function(i, node: ConceptGraph.Node){
+                var checkId = outerThis.implementation.computeCheckId(node);
+                // Won't uncheck in this case, but instead gets transparent to indicate
+                // mixed state
+                $("#"+checkId).addClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+            }
+        );
     }
 }

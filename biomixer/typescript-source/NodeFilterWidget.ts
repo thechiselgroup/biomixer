@@ -12,6 +12,8 @@ import GraphView = require("./GraphView");
 
 export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends FilterWidget.AbstractFilterWidget implements FilterWidget.IFilterWidget {
     
+    static SOME_SELECTED_CSS = "filterCheckboxSomeSelected";
+    
     public implementation: INodeFilterWidget<N, L>
     
     constructor(
@@ -23,7 +25,7 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
     
     updateFilterUI(){
         // Remove missing ones, whatever is left over in this collection
-        var checkboxSpanClass = this.getClassName()+"_filterCheckboxSpan";
+        var checkboxSpanClass = this.getCheckboxSpanClass();
         var preExistingCheckboxes = $("."+checkboxSpanClass);
         var checkboxesPopulatedOrReUsed = $("");
         var outerThis = this;
@@ -45,21 +47,22 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
                         .mouseenter(
-                                function(){ 
+                                function(){
                                     var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(node);
                                     outerThis.implementation.checkboxHoveredLambda(nodeHideCandidates);
                                 }
                             )
                         .mouseleave(
-                                function(){ 
+                                function(){
                                     var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(node);
                                     outerThis.implementation.checkboxUnhoveredLambda(nodeHideCandidates);
                                 }
                             )
                         .append(
                             $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
+                            .addClass(this.getCheckboxClass())
                             .change(
-                                function(){ 
+                                function(){
                                     var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(node);
                                     outerThis.implementation.checkboxChanged(node, nodeHideCandidates, $(this));
                                 }
@@ -80,7 +83,7 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
         // Keep only those checkboxes for which we looped over a node
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
     }
-
+    
 }
 
 export interface INodeFilterWidget<N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends AbstractNodeFilterWidget<N, L> {
@@ -100,4 +103,6 @@ export interface INodeFilterWidget<N extends GraphView.BaseNode, L extends Graph
     checkboxHoveredLambda(setOfHideCandidates: Array<N>): (event: JQueryMouseEventObject)=>void;
     
     checkboxUnhoveredLambda(setOfHideCandidates: Array<N>): (event: JQueryMouseEventObject)=>void;
+    
+    updateCheckboxStateFromView(affectedNodes: N[]): void;
 }

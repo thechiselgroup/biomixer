@@ -713,7 +713,8 @@ declare module D3 {
         };
 
         classed: {
-            (name: string): string;
+            // (name: string): string; // try again; this is a boolean. I should fix and do pull request...
+            (name: string): boolean;
             (name: string, value: any): Selection;
             (name: string, valueFunction: (data: any, index: number) => any): Selection;
         };

@@ -370,7 +370,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Add new stuff
         if(newElementsExpected === true)
         var enteringNodes = nodes.enter().append("svg:g")
-        .attr("class", "node_g")
+        .attr("class", GraphView.BaseGraphView.nodeGSvgClassSansDot)
         .attr("id", function(d){ return "node_g_"+d.acronymForIds})
         // Is it ok to do call() here?
         .call(this.nodeDragBehavior);
