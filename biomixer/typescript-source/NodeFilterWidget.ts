@@ -47,16 +47,10 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
                         .mouseenter(
-                                function(){
-                                    var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(node);
-                                    outerThis.implementation.checkboxHoveredLambda(nodeHideCandidates);
-                                }
+                                outerThis.implementation.checkboxHoveredLambda(node)
                             )
                         .mouseleave(
-                                function(){
-                                    var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(node);
-                                    outerThis.implementation.checkboxUnhoveredLambda(nodeHideCandidates);
-                                }
+                                outerThis.implementation.checkboxUnhoveredLambda(node)
                             )
                         .append(
                             $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
@@ -100,9 +94,9 @@ export interface INodeFilterWidget<N extends GraphView.BaseNode, L extends Graph
     
     checkboxChanged(checkboxContextData: N, setOfHideCandidates: Array<N>, checkboxIsChecked: JQuery): void;
     
-    checkboxHoveredLambda(setOfHideCandidates: Array<N>): (event: JQueryMouseEventObject)=>void;
+    checkboxHoveredLambda(nodeRelatedToCheckbox: N): (event: JQueryMouseEventObject)=>void;
     
-    checkboxUnhoveredLambda(setOfHideCandidates: Array<N>): (event: JQueryMouseEventObject)=>void;
-    
+    checkboxUnhoveredLambda(nodeRelatedToCheckbox: N): (event: JQueryMouseEventObject)=>void;
+
     updateCheckboxStateFromView(affectedNodes: N[]): void;
 }

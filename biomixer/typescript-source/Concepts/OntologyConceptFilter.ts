@@ -86,13 +86,14 @@ export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget
         outerThis.pathToRootView.refreshNodeCheckboxState(affectedNodes);
     }
     
-    checkboxHoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void {
-        // TODO Do we want multi-node hover for ontology checkboxes? Maybe?
+    checkboxHoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
         var graphView = this.graphView;
+        var outerThis = this;
         return function(eventObject: JQueryMouseEventObject){
+            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
             // Technically, the span over the checkbox is the element
             // Find the graph node that corresponds, and fire its mouse enter behavior.
-            $.each(setOfHideCandidates,
+            $.each(nodeHideCandidates,
                 function(i, node: ConceptGraph.Node){
                     graphView.highlightHoveredNodeLambda(graphView)(node, 0);
                 }
@@ -100,13 +101,15 @@ export class OntologyConceptFilter extends FilterWidget.AbstractNodeFilterWidget
         }
     }
     
-    checkboxUnhoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void{
+    checkboxUnhoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
         // TODO Do we want multi-node hover for ontology checkboxes? Maybe?
         var graphView = this.graphView;
+        var outerThis = this;
         return function(eventObject: JQueryMouseEventObject){
+            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
             // Technically, the span over the checkbox is the element
             // Find the graph node that corresponds, and fire its mouse leave behavior.
-            $.each(setOfHideCandidates,
+            $.each(nodeHideCandidates,
                 function(i, node: ConceptGraph.Node){
                     graphView.unhighlightHoveredNodeLambda(graphView)(node, 0);
                 }

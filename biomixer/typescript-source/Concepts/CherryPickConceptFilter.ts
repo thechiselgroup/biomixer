@@ -62,21 +62,23 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
         this.pathToRootView.refreshOntologyCheckboxState([checkboxContextData]);
     }
     
-    checkboxHoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void{
+    checkboxHoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
         var outerThis = this;
         return function(eventObject: JQueryMouseEventObject){
+            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
             // Technically, the span over the checkbox is the element
             // Find the graph node that corresponds, and fire its mouse enter behavior.
-            outerThis.graphView.highlightHoveredNodeLambda(outerThis.graphView)(setOfHideCandidates[0], 0);
+            outerThis.graphView.highlightHoveredNodeLambda(outerThis.graphView)(nodeHideCandidates[0], 0);
         }
     }
     
-    checkboxUnhoveredLambda(setOfHideCandidates: Array<ConceptGraph.Node>): (event: JQueryMouseEventObject)=>void{
+   checkboxUnhoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
         var outerThis = this;
         return function(eventObject: JQueryMouseEventObject){
+            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
             // Technically, the span over the checkbox is the element
             // Find the graph node that corresponds, and fire its mouse leave behavior.
-            outerThis.graphView.unhighlightHoveredNodeLambda(outerThis.graphView)(setOfHideCandidates[0], 0);
+            outerThis.graphView.unhighlightHoveredNodeLambda(outerThis.graphView)(nodeHideCandidates[0], 0);
         };
     }
     
