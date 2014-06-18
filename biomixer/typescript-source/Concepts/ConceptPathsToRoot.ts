@@ -130,8 +130,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .style("fill", "white");
         
         // Keeps links below nodes, and cleans up document a fair bit.
-        this.vis.append("g").attr("id", "link_container");
-        this.vis.append("g").attr("id", "node_container");
+        this.vis.append("svg:g").attr("id", "link_container");
+        this.vis.append("svg:g").attr("id", "node_container");
         
         $(window).resize(this.resizedWindowLambda);
         
@@ -358,7 +358,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
         
             
-            
             outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
                 .attr("points", outerThis.computePolyLineLinkPointsFunc)
@@ -560,7 +559,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
-        .attr("marker-mid", (e: ConceptGraph.Link)=>{return "url(#"+"LinkHeadMarker_"+this.getLinkCssClass(e.relationType)+")"; } )
+        .attr("marker-mid", this.markerAdderLambda() )
         .attr("data-thickness_basis", function(d) { return d.value;})
                     
         // Update Tool tip
@@ -572,6 +571,24 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
             enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
+        }
+    }
+    
+    private giveIEMarkerWarning = true;
+    private markerAdderLambda(){
+        var outerThis = this;
+        return function(e: ConceptGraph.Link){
+        // IE doesn't support defs for markers, or at least *use* of markers.
+        // See marker def construction for details.
+           if(outerThis.isIE()){
+                if(outerThis.giveIEMarkerWarning){
+                    console.log("WARNING: Line markers not used for IE due to lack of support for valid SVG marker defs. Known IE SVG bug, they won't fix it.");
+                    outerThis.giveIEMarkerWarning = false;
+                }
+                return "";
+            } else {
+                return "url(#"+"LinkHeadMarker_"+outerThis.getLinkCssClass(e.relationType)+")";
+            }
         }
     }
     
@@ -588,9 +605,34 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    // Modified from http://stackoverflow.com/questions/2400935/browser-detection-in-javascript
+    private isIE(): boolean {
+        var ua= navigator.userAgent, tem, 
+        M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+        if(/trident/i.test(M[1])){
+            return true;
+        } else if(/msie/i.test(M[1])){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     private defineCustomSVG(){
         // Define markers to be used as heads on arcs
         var svgNode = $("#graphSvg");
+        // HacK: IE does not support markers on lines. It is recognized as a bug, with the "Won't Fix"
+        // closure status: https://connect.microsoft.com/IE/feedback/details/781964/
+        // Therefore, for now, we simply don't define the markers for any IE version.
+        // Versions with the bug are uncertain, but run the gamut from 9 to 11 (confirmed 11).
+        // So, for IE< don't run this function!
+        // Hmm...doign thsi here doesn't fix it, even though deleting the def in browser fixes it.
+        // Preventing adding of marker to polylines instead, when we populate the graph.
+        // if(this.isIE()){
+        //     console.log("Line markers not used for IE due to lack of support for valid SVG marker defs.");
+        //     return;
+        // }
+        
         var defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
         
         // http://www.alt-soft.com/tutorial/svg_tutorial/marker.html
@@ -633,10 +675,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 //                label.setAttribute("dy", "1em"); // 1em down to go below baseline, 0.5em to counter padding added below
 //                marker.appendChild(label);
                 
-                svgNode.append(defs);
                 defs.appendChild(marker);
             }
         }
+        svgNode.append(defs);
     }
     
     populateNewGraphNodes(nodesData: ConceptGraph.Node[]){
@@ -658,10 +700,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // Basic properties
         enteringNodes
-        .append("svg:rect") 
+        .append("svg:rect")
         .attr("id", function(d: ConceptGraph.Node){ return "node_rect_"+d.conceptUriForIds})
-        .attr("class", 
-            function(d: ConceptGraph.Node){ 
+        .attr("class",
+            function(d: ConceptGraph.Node){
                 var classes = GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot;
                 if(d.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
                     classes += " centralNode";

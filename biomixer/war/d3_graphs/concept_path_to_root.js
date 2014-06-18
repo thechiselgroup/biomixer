@@ -166,8 +166,8 @@ function cleanSlate(){
 	    .style('fill', 'white');
 	
 	// Keeps links below nodes, and cleans up document a fair bit.
-	vis.append("g").attr("id", "link_container");
-	vis.append("g").attr("id", "node_container");
+	vis.append("svg.g").attr("id", "link_container");
+	vis.append("svg.g").attr("id", "node_container");
 	
 	resizedWindow();
 }

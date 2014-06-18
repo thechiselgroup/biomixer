@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html><head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<html>
+	<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Concept Visualizations</title>
 
-<!--
+    <!--
     <script type="text/javascript" src="d3_graphs/d3.v3.min.js"></script>
     -->
     <script type="text/javascript" src="d3_graphs/d3.v3.js"></script>
@@ -20,25 +21,23 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     -->
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" />
      
     <script type="text/javascript" src="d3_graphs/biomixer.jquery.tipsy.js"></script>
     <link href="d3_graphs/biomixer.tipsy.css" rel="stylesheet" type="text/css" />
+    
+    <link href="d3_graphs/d3_graph.css" rel="stylesheet" type="text/css">
     
     <!--
     <script type="text/javascript" src="d3_graphs/jquery.jsonp.amdmod.js"></script>
     -->
     
-    <!-- 
-    Choosel CSS...might be crufty overkill for this
-    <stylesheet src="css/choosel.css"></stylesheet>
-  	<stylesheet src="css/choosel-dnd.css"></stylesheet>
-  	<stylesheet src="css/choosel-window.css"></stylesheet>
-  	<stylesheet src="css/choosel-actionbar.css"></stylesheet>
-  	<stylesheet src="css/choosel-dnd.css"></stylesheet>
-     -->
+    <!--
     <stylesheet src="css/reset.css"></stylesheet>
   	<stylesheet src="css/reset-fonts.css"></stylesheet>
+	-->
+	<link href="d3_graphs/reset.css" rel="stylesheet" type="text/css" />
+	<link href="d3_graphs/reset-fonts.css" rel="stylesheet" type="text/css" />
 
   </head>
   <body>
@@ -48,8 +47,6 @@
 </select>
 	
 <div class="gallery" id="chart"></div>
-
-<link href="d3_graphs/d3_graph.css" rel="stylesheet" type="text/css">
 
 <script src="require_config.js"></script>
 <script data-main="Concepts/MainConceptGraph" src="scripts/require.js"></script>
