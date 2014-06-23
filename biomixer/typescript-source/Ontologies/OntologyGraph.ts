@@ -16,10 +16,13 @@ var hardNodeCap: number = 0; // 10 and 60 are nice number for dev, but set to 0 
 
 export interface RawAcronym extends String {
     // Only assign the original unadulterated acronym strings to this
+    rawAcronym; // strengthen duck typing
 }
 
 export interface AcronymForIds extends String {
     // Assign id-escaped acronyms here. These are made safe for use in HTML and SVG ids.
+    
+    acronymForIDs; // strengthen duck typing
     
 //    escapeAcronym(acronym: RawAcronym){
 //        //  return acronym.replace(/([;&,\.\+\*\~':"\!\^#$%@\[\]\(\)=>\|])/g, '\\$1');
@@ -106,12 +109,12 @@ export class OntologyGraph implements GraphView.Graph {
     constructor(
         public graphView: GraphView.GraphView<Node, Link>,
         public softNodeCap: number,
-        public centralOntologyAcronym: string
+        public centralOntologyAcronym: RawAcronym
     ){
      
     }
     
-    fetchOntologyNeighbourhood(centralOntologyAcronym){
+    fetchOntologyNeighbourhood(centralOntologyAcronym: RawAcronym, expansionSet: GraphView.ExpansionSet<Node>){
     	// I have confirmed that this is faster than BioMixer. Without removing
     	// network latency in REST calls, it is approximately half as long from page load to
     	// graph completion (on the order of 11 sec vs 22 sec)
@@ -137,7 +140,7 @@ export class OntologyGraph implements GraphView.Graph {
     	
     	// 1) Get mappings to central ontology
     	var ontologyMappingUrl = buildOntologyMappingUrlNewApi(centralOntologyAcronym);
-    	var ontologyMappingCallback = new OntologyMappingCallback(this, ontologyMappingUrl, centralOntologyAcronym);
+    	var ontologyMappingCallback = new OntologyMappingCallback(this, ontologyMappingUrl, centralOntologyAcronym, expansionSet);
     	var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMappingUrl);
     	fetcher.fetch(ontologyMappingCallback);
     }
@@ -241,7 +244,8 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
     constructor(
         public graph: OntologyGraph,
         url: string,
-        public centralOntologyAcronym: string
+        public centralOntologyAcronym: RawAcronym,
+        public expansionSet: GraphView.ExpansionSet<Node>
         ){
             super(graph, url, centralOntologyAcronym);
     }
@@ -277,10 +281,10 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		var originalNumberOfMappedOntologies = Object.keys(mappingData).length;
 		
 		var defaultNumOfTermsForSize = 10;
+        
+        var newNodesForExpansionSet: Array<Node> = [];
 		
 		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1
-
-        var centralOntologyAcronym: string = this.graph.centralOntologyAcronym;
         
 		// Create the central node
 		var centralOntologyNode: Node = new Node();
@@ -298,6 +302,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		centralOntologyNode.nodeStrokeColor = this.graph.darkenColor(centralOntologyNode.nodeColor);
 		centralOntologyNode.mapped_classes_to_central_node = 0;
 		this.graph.ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
+        newNodesForExpansionSet.push(centralOntologyNode);
 		// Lame loop to find the central node in our sorted set
 		$.each(this.graph.sortedAcronymsByMappingCount,
 				function(index, sortedAcronym){
@@ -349,6 +354,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyNode.nodeStrokeColor = this.graph.darkenColor(ontologyNode.nodeColor);
 				ontologyNode.mapped_classes_to_central_node = 0;
 				var targetIndex = this.graph.ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
+                newNodesForExpansionSet.push(ontologyNode);
 				// TODO I feel like JS doesn't allow references like this...
 //				$(ontologyAcronymNodeMap).attr("vid:"+ontologyNode.rawAcronym, ontologyNode);
                 ontologyAcronymNodeMap["vid:"+ontologyNode.rawAcronym] = ontologyNode;
@@ -376,9 +382,12 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		//			var node = $(ontologyAcronymNodeMap).attr("vid:"+rawAcronym);
 		//			node.fetchNodeRestData();
 		//		})
+        
+                
 		
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
+        this.expansionSet.addAll(newNodesForExpansionSet);
 		this.graph.graphView.populateNewGraphElements(this.graph.ontologyNeighbourhoodJsonForGraph, true);
 		
 		// Once we have the graph populated, we have this one node we know we can call REST calls for, the central node!

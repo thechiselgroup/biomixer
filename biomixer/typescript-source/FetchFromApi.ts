@@ -307,13 +307,13 @@ import Utils = require('./Utils');
         // node: any; // leave this pretty loose for now
         graph: GraphView.Graph; // Make more general when refactoring concept graph into this
         url: string;
-        uniqueContextId: string;
+        uniqueContextId: String;
         callbackName: string;
         
         constructor(
             graph: GraphView.Graph,
             url: string,
-            uniqueContextId: string
+            uniqueContextId: String
         ){
             this.graph = graph;
             this.url = url;

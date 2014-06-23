@@ -4,11 +4,13 @@
 ///<amd-dependency path="./FilterWidget" />
 ///<amd-dependency path="./Menu" />
 ///<amd-dependency path="./GraphView" />
+///<amd-dependency path="./Concepts/ConceptGraph" />
 
 import Utils = require("./Utils");
 import FilterWidget = require("./FilterWidget");
 import Menu = require("./Menu");
 import GraphView = require("./GraphView");
+import ConceptGraph = require("./Concepts/ConceptGraph");
 
 export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends FilterWidget.AbstractFilterWidget implements FilterWidget.IFilterWidget {
     
@@ -97,6 +99,8 @@ export interface INodeFilterWidget<N extends GraphView.BaseNode, L extends Graph
     checkboxHoveredLambda(nodeRelatedToCheckbox: N): (event: JQueryMouseEventObject)=>void;
     
     checkboxUnhoveredLambda(nodeRelatedToCheckbox: N): (event: JQueryMouseEventObject)=>void;
+    
+    getHoverNeedsAdjacentHighlighting(): boolean;
 
     updateCheckboxStateFromView(affectedNodes: N[]): void;
 }

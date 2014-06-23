@@ -8,61 +8,72 @@
 ///<amd-dependency path="./ConceptNodeFilterWidget" />
 ///<amd-dependency path="./ConceptPathsToRoot" />
 ///<amd-dependency path="./ConceptGraph" />
+///<amd-dependency path="../GraphView" />
 
 import FilterWidget = require("../NodeFilterWidget");
 import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
+import GraphView = require("../GraphView");
 
-export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+/**
+ * Vaguely resembles the sibling node filtering classes, with similarly named method names, but the
+ * requirements are different enough that it doesn't share specialized behaviors with them.
+ */
+export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget
+    implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link>
+    {
     
-    static SUB_MENU_TITLE = "Ontologies Rendered";
+    static SUB_MENU_TITLE: string = "Expansion Sets";
+    
+    expRegistry: GraphView.ExpansionSetRegistry<ConceptGraph.Node>;
     
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
     constructor(
         conceptGraph: ConceptGraph.ConceptGraph,
-        graphView: PathToRoot.ConceptPathsToRoot,
-        public centralConceptUri: ConceptGraph.ConceptURI
+        graphView: PathToRoot.ConceptPathsToRoot
         ){
-        super(OntologyConceptFilter.SUB_MENU_TITLE, graphView, conceptGraph);
+        super(ExpansionSetFilter.SUB_MENU_TITLE, graphView, conceptGraph);
         this.implementation = this;
         this.pathToRootView = graphView;
+        this.expRegistry = this.graphView.expSetReg;
     }
-    
+
     generateCheckboxLabel(node: ConceptGraph.Node): string {
-        return String(node.ontologyAcronym);
+        var expSetLabel = node.getExpansionSetId();
+        if(expSetLabel == undefined){
+            return "undefined";
+        }
+        return "\""+expSetLabel.displayId+"\"";
     }
     
     generateColoredSquareIndicator(node: ConceptGraph.Node): string {
-        return "<span style='font-size: large; color: "+node.nodeColor+";'>\u25A0</span>";
+        // Node need be nothing.
+        // Constant. No color to associate with a set, right?
+        return "<span style='font-size: large; color: #223344'>\u25A0</span>";
     }
     
     computeCheckId(node: ConceptGraph.Node): string {
-        return this.getClassName()+"_for_"+String(node.ontologyAcronym);
+        if(node.getExpansionSetId() == undefined){
+            return null;
+        }
+        return this.getClassName()+"_for_"+node.getExpansionSetId().internalId;
     }
     
-    computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node> {
-        return this.graphView.sortConceptNodesCentralOntologyName()
-            .filter(
-                function(d: ConceptGraph.Node, i: number){
-                    return d.ontologyAcronym === node.ontologyAcronym;
-                }
-            );
+    computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{
+        return this.expRegistry.findExpansionSet(node.getExpansionSetId()).nodes;
     }
-    
-    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
+
+    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkboxIsChecked: JQuery): void {
         var outerThis = this;
         var affectedNodes: ConceptGraph.Node[] = [];
-        checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
-        if (checkbox.is(':checked')) {
+        checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
+        if (checkboxIsChecked.is(':checked')) {
             // Unhide those that are checked, as well as edges with both endpoints visible
             // Also, we will re-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
-                    if(node.ontologyAcronym !== checkboxContextData.ontologyAcronym){
-                        return;
-                    }
                     outerThis.graphView.unhideNodeLambda(outerThis.graphView)(node, 0);
                     affectedNodes.push(node);
                 }
@@ -72,9 +83,6 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
             // Also, we will un-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
-                    if(node.ontologyAcronym !== checkboxContextData.ontologyAcronym){
-                        return;
-                    }
                     outerThis.graphView.hideNodeLambda(outerThis.graphView)(node, 0);
                     affectedNodes.push(node);
                 }
@@ -85,8 +93,8 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
     
     /**
      * Synchronize checkboxes with changes made via other checkboxes.
-     * Will make the ontology checkboxes less opaque if any of the individual
-     * nodes in the ontology differ in their state from the most recent toggled
+     * Will make the expansion set checkboxes less opaque if any of the individual
+     * nodes in the differ in their state from the most recent toggled
      * state of this checkbox. That is, if all were hidden or shown, then one
      * was shown or hidden, the ontology checkbox will be changed visually
      * to indicate inconsistent state. 
@@ -95,9 +103,12 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
         var outerThis = this;
         $.each(affectedNodes, function(i, node: ConceptGraph.Node){
                 var checkId = outerThis.implementation.computeCheckId(node);
+                if(null == checkId){
+                    return;
+                }
                 // Won't uncheck in this case, but instead gets transparent to indicate
                 // mixed state
-                $("#"+checkId).addClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+                $("#"+checkId).addClass(ExpansionSetFilter.SOME_SELECTED_CSS);
             }
         );
     }

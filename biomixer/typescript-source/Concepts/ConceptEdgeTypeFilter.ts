@@ -5,12 +5,10 @@
 
 ///<amd-dependency path="../Utils" />
 ///<amd-dependency path="../FilterWidget" />
-///<amd-dependency path="../Menu" />
+///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
 import FilterWidget = require("../FilterWidget");
-import Menu = require("../Menu");
-import Utils = require("../Utils");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
 

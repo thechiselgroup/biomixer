@@ -15,6 +15,7 @@
 ///<amd-dependency path="Concepts/CherryPickConceptFilter" />
 ///<amd-dependency path="Concepts/OntologyConceptFilter" />
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
+///<amd-dependency path="Concepts/ExpansionSetFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
@@ -29,6 +30,7 @@ import ConceptRenderScaler = require("./ConceptRenderScaler");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
+import ExpansionSetFilter = require("./ExpansionSetFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
 
@@ -42,7 +44,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
     ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
     edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
-    // expansionSetFiler: ExpansionSetFilter;
+    expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     
     menu: Menu.Menu;
     
@@ -166,6 +168,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
+        this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph,this);
         
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
@@ -180,15 +183,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         this.fetchInitialExpansion();
     }
-        
+    
     fetchInitialExpansion(){
+        var expId = new GraphView.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), "Initial Expansion");
+        var expansionSet = this.expSetReg.createExpansionSet(expId);
         if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
-            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri);
+            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
-            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri);
+            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
             this.runCurrentLayout = this.layouts.runCenterLayoutLambda();
-            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri);
+            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
             this.runCurrentLayout();
         }
     }
@@ -713,8 +718,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .style("fill", function(d: ConceptGraph.Node) { return d.nodeColor; })
         .attr("height", this.nodeHeight)
         .attr("width", this.nodeHeight)
-        .on("mouseover", this.highlightHoveredNodeLambda(this))
-        .on("mouseout", this.unhighlightHoveredNodeLambda(this));
+        .on("mouseover", this.highlightHoveredNodeLambda(this, true))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
         
         // TODO Don't I want to do this *only* on new nodes?
@@ -773,6 +778,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.individualConceptFilter.updateFilterUI();
         this.ontologyFilter.updateFilterUI();
         this.edgeTypeFilter.updateFilterUI();
+        this.expansionSetFilter.updateFilterUI();
     }
 
     removeMissingGraphElements(){
@@ -827,7 +833,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      }
     
     showNodeExpanderPopupMenuLambda(outerThis: ConceptPathsToRoot){
-        return function(nodeData: ConceptGraph.Node){           
+        return function(nodeData: ConceptGraph.Node){
             var rectWidth = 110;
             var rectHeight = 35;
             var fontXOffset = 7;
@@ -851,8 +857,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ;
             conceptExpandSvg.append("svg:rect")
                     .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandConceptNeighbourhood(nodeData);})
-            ;
+                    .on("mouseup",
+                        function(){
+                            $("#expanderMenu").first().remove();
+                            var expId = new GraphView.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+"("+nodeData.ontologyAcronym+")");
+                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId);
+                            outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
+                        }
+                    );
             conceptExpandSvg.append("svg:text")
                 .text("Expand Concepts")
                 .style("font-family","Arial, sans-serif").style("font-size","12px").attr("dx", fontXOffset).attr("dy", fontYOffset)
@@ -869,8 +881,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ;
             mappingExpandSvg.append("svg:rect")
                     .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.conceptGraph.expandMappingNeighbourhood(nodeData);})
-            ;
+                    .on("mouseup",
+                        function(){
+                            $("#expanderMenu").first().remove();
+                            var expId = new GraphView.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+"("+nodeData.ontologyAcronym+")")
+                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId);
+                            outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
+                        }
+                );
             mappingExpandSvg.append("svg:text")
                 .text("Expand Mappings")
                 .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
@@ -917,18 +935,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector());
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     
     /**
-     * Synchronzie checkboxes with changes made via other checkboxes.
+     * Synchronize checkboxes with changes made via other checkboxes.
      */
     refreshNodeCheckboxState(affectedNodes: ConceptGraph.Node[]){
         this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
     }
     
     /**
-     * Synchronzie checkboxes with changes made via other checkboxes.
+     * Synchronize checkboxes with changes made via other checkboxes.
      */
     refreshOntologyCheckboxState(cherryPickedNodes: ConceptGraph.Node[]){
         this.ontologyFilter.updateCheckboxStateFromView(cherryPickedNodes);

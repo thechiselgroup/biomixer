@@ -48,7 +48,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     }
     
     constructor(
-        public centralOntologyAcronym: string,
+        public centralOntologyAcronym: OntologyGraph.RawAcronym,
         public softNodeCap: number
         ){
         super();
@@ -107,7 +107,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.prepGraphMenu();
         
         // Will do async stuff and add to graph
-        this.ontologyGraph.fetchOntologyNeighbourhood(this.centralOntologyAcronym);
+        var expId = new GraphView.ExpansionSetIdentifer("ontology_neighbourhood_"+this.centralOntologyAcronym, "Initial load: "+this.centralOntologyAcronym);
+        var expansionSet = this.expSetReg.createExpansionSet(expId);
+        this.ontologyGraph.fetchOntologyNeighbourhood(this.centralOntologyAcronym, expansionSet);
         
         // If you want to toy with the original static data, try this:
         //  populateGraph(json);
@@ -312,7 +314,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     * graph. Do not call it to update properties of graph elements.
     * TODO Make this function cleaner and fully compliant with the above description!
     */
-    populateNewGraphElements(json: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
+    populateNewGraphElements(graphD3Format: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
         console.log("Fix this up with the newElements arg, and refactor into node and edge populate methods");
         
     //  console.log("Populating with:");
@@ -320,7 +322,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         var outerThis = this;
         
-        if(typeof json === "undefined" || json.nodes.length == 0 && json.links.length == 0){
+        if(typeof graphD3Format === "undefined" || graphD3Format.nodes.length == 0 && graphD3Format.links.length == 0){
             // console.log("skip");
             // return;
             newElementsExpected = false;
@@ -328,7 +330,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         // Data constancy via key function() passed to data()
         // Link stuff first
-        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(json.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(graphD3Format.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
     
         // Add new stuff
@@ -366,7 +368,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         // Node stuff now
         
-        var nodes = this.vis.selectAll("g.node_g").data(json.nodes, function(d){return d.rawAcronym});
+        var nodes = this.vis.selectAll("g.node_g").data(graphD3Format.nodes, function(d){return d.rawAcronym});
         // Add new stuff
         if(newElementsExpected === true)
         var enteringNodes = nodes.enter().append("svg:g")
@@ -395,8 +397,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor))
         .attr("data-radius_basis", function(d) { return d.number;})
         .attr("r", function(d) { return outerThis.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym); })
-        .on("mouseover", this.highlightHoveredNodeLambda(this))
-        .on("mouseout", this.unhighlightHoveredNodeLambda(this));
+        .on("mouseover", this.highlightHoveredNodeLambda(this, true))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
         if(newElementsExpected === true) // How would I *update* this if I needed to?
         // Add a second circle that represents the mapped classes of the ontology.
@@ -412,8 +414,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
         .attr("data-outer_radius_basis", function(d) { return d.number;})
         .attr("r", function(d) { return outerThis.renderScaler.ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.rawAcronym); })
-        .on("mouseover", this.highlightHoveredNodeLambda(this))
-        .on("mouseout", this.unhighlightHoveredNodeLambda(this));
+        .on("mouseover", this.highlightHoveredNodeLambda(this, true))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
@@ -554,8 +556,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             // .nodes(nodes.enter())
             // .links(links.enter());
             this.forceLayout
-            .nodes(json.nodes)
-            .links(json.links);
+            .nodes(graphD3Format.nodes)
+            .links(graphD3Format.links);
             
             if(!enteringNodes.empty() || !enteringLinks.empty()){
                 this.updateStartWithoutResume();
@@ -566,7 +568,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.renderScaler.updateNodeScalingFactor();
         // Do have link sizes though? No, we called it earlier at a better time.
         // updateLinkScalingFactor();
-        
     }
     
     populateNewGraphEdges(links: Array<OntologyGraph.Link>){

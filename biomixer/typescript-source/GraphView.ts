@@ -27,9 +27,21 @@ export class BaseNode implements D3.Layout.GraphNode {
     parent: D3.Layout.GraphNode;
     depth: number;
     
+    // facilitates ExpansionSets with far less code complexity
+    expansionSetIdentifier: ExpansionSetIdentifer;
+    
     getEntityId(): string{
         return "Error, must override this method.";
     }
+    
+    /**
+     * Enables us to very easily have mapping back from nodes to their owning ExpansionSet
+     * without having a more complicated registry.
+     */
+    getExpansionSetId(): ExpansionSetIdentifer{
+        return this.expansionSetIdentifier;
+    }
+    
 }
 
 export class BaseLink<N extends BaseNode> {
@@ -39,6 +51,81 @@ export class BaseLink<N extends BaseNode> {
 
 export interface Graph {
     
+}
+
+
+/**
+ * Expansion sets are a way of collecting together nodes that were loaded for a common
+ * purpose; I would say at the same time, but loading is done with so much asynchonicity
+ * that this would be inaccurate.
+ * 
+ * By collecting nodes loaded as cohorts, we can then filter them in and out, or use that
+ * data to drive an undo-redo engine.
+ * 
+ * Other uses might arise. 
+ */
+export class ExpansionSet<N extends BaseNode> {
+    
+    nodes: Array<N> = new Array<N>();
+    
+    constructor(
+        public id: ExpansionSetIdentifer
+        ){
+    }
+    
+    addAll(nodes: Array<N>): void{
+        nodes.forEach(
+            (node: N, i: number, arr: Array<N>)=>{
+                if(node.expansionSetIdentifier != undefined && node.expansionSetIdentifier != this.id){
+                    // The natural flow of the graph populating logic results in multiple passes, due to D3 idioms.
+                    // The best place to add nodes to expansion sets are right as we are finally populating the graph
+                    // with nodes from an expasions, so we will handle redundant expasion set additions here.
+                    // Also, I want to know if there are attempts to add a node to multiple expansion sets.
+                    // We don't want that, because it would complicate semantics, especially for undo-redo
+                    // functionality that relies on expansion sets.
+                    console.log("Attempted change of set expansion ID on node: "+this.id.displayId+", expansion ID "+node.getEntityId());
+                } else {
+                    node.expansionSetIdentifier = this.id;
+                    this.nodes.push(node);
+                }
+            }
+        );
+    }
+    
+}
+
+export class ExpansionSetRegistry<N extends BaseNode> {
+    
+    private registry: {[key: string]: ExpansionSet<N>} = {};
+    
+    createExpansionSet(id: ExpansionSetIdentifer): ExpansionSet<N> {
+        this.registry[id.internalId] = new ExpansionSet<N>(id);
+        return this.registry[id.internalId];
+    }
+    
+    findExpansionSet(id: ExpansionSetIdentifer): ExpansionSet<N>{
+        return this.registry[id.internalId];
+    }
+    
+    // TODO Do we really need or want edges in the set? Probably not.
+    addToExpansionSet(nodes: Array<N>, id: ExpansionSetIdentifer): void{
+        var expSet: ExpansionSet<N> = this.registry[id.internalId];
+        expSet.addAll(nodes);
+    }
+    
+    getAllExpansionSets(): {[key: string]: ExpansionSet<N>} {
+        return this.registry;
+    }
+}
+
+export class ExpansionSetIdentifer {
+    // Only assign raw concept URI to this string
+//    expansionSetIdentifer; // strengthen duck typing
+    constructor(
+        public internalId: string,
+        public displayId: string
+    ){
+    }
 }
 
 // Notes on usage with this pattern:
@@ -99,7 +186,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static linkSvgClass = "."+BaseGraphView.linkSvgClassSansDot;
     static linkLabelSvgClass = "."+BaseGraphView.linkLabelSvgClassSansDot;
     
-    
+    public expSetReg: ExpansionSetRegistry<N> = new ExpansionSetRegistry<N>();
     
     alphaCutoff: number = 0.01; // used to stop the layout early in the tick() callback
     forceLayout: D3.Layout.ForceLayout = undefined;
@@ -198,7 +285,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         }
     }
     
-    highlightHoveredNodeLambda(outerThis: BaseGraphView<N, L>){
+    highlightHoveredNodeLambda(outerThis: BaseGraphView<N, L>, highlightAdjacentNodes: boolean){
         return function(nodeData: N, i){
             if(outerThis.dragging){
                 return;
@@ -206,14 +293,23 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             
             outerThis.beforeNodeHighlight(nodeData);
             
+            // In a previous pass, we may have highlighted a link. Don't clobber it!
             d3.selectAll(BaseGraphView.linkSvgClass)
-            .classed("dimmedLink", true);
+            .classed("dimmedLink", function(aLink: L, i){
+                    return !d3.select(this).classed("highlightedLink");
+                }
+            );
             
             d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
-            .classed("dimmedNode", true);
+            .classed("dimmedNode", function(aNode: N, i){
+                    return !d3.select(this).classed("highlightedNode");
+                });
                 
             d3.selectAll(BaseGraphView.nodeLabelSvgClass)
-                .classed("dimmedNodeLabel", true)
+                .classed("dimmedNodeLabel", function(aNode: N, i){
+                    return !d3.select(this).classed("highlightedNodeLabel");
+                })
+                // But highlight the central label
                 .filter(function(aText: N, i){return aText.getEntityId() === nodeData.getEntityId();})
                 .classed("dimmedNodeLabel", false)
                 .classed("highlightedNodeLabel", true);
@@ -221,33 +317,55 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             // D3 doesn't have a way to get from bound data to what it is bound to?
             // Doing it thsi way isntead of d3.select(this) so I can re-use this method with things like
             // checkboxes outside the graph, which will trigger graph behaviors.
-            var sourceNode: D3.Selection = d3.select(BaseGraphView.nodeLabelSvgClassSansDot).filter(function(d: N, i){return d === nodeData; });
+            var sourceNode: D3.Selection = d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
+                .filter(function(d: N, i){return d === nodeData; });
             
             sourceNode
              .classed("highlightedNode", true);
             
-             // There must be a less loopy, data oriented way to achieve this.
-             // I recently modified it to *not* use x and y coordinates to identify ndoes and edges, which was heinous.
-             // Looping over everything is just as ugly (but fast enough in practice).
-             var adjacentLinks = outerThis.getAdjacentLinks(nodeData);
+            // There must be a less loopy, data oriented way to achieve this.
+            // I recently modified it to *not* use x and y coordinates to identify ndoes and edges, which was heinous.
+            // Looping over everything is just as ugly (but fast enough in practice).
+            var adjacentLinks = outerThis.getAdjacentLinks(nodeData);
+                
+            if(highlightAdjacentNodes){
+                adjacentLinks.each(function(aLink: L){
+                    d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
+                    .filter(function(otherNode: N, i){return aLink.source.getEntityId() === otherNode.getEntityId() || aLink.target.getEntityId() === otherNode.getEntityId();})
+                    .classed("dimmedNode", false)
+                    .classed("highlightedNode", true)
+                    .each(function(aNode: N){
+                        d3.selectAll(BaseGraphView.nodeLabelSvgClass)
+                        .filter(function(text: N, i){return aNode.getEntityId() === text.getEntityId()})
+                        .classed("dimmedNodeLabel", false)
+                        .classed("highlightedNodeLabel", true)
+                        ;
+                    });
+                });
+            }
+            
+            // Hide all edges, then show those that have both endpoints shown
             adjacentLinks
                 .classed("dimmedLink", false)
-                .classed("highlightedLink", true)
-            ;
+                .classed("highlightedLink", function(aLink: L, i){
+                        // Would use JQuery, but across diff node types we could have future problems with ID creation.
+                        // This is more future proof.
+                        var firstEndpoints = d3.selectAll(BaseGraphView.nodeSvgClass)
+                            .filter(
+                                function(otherNode: N, i){
+                                    return aLink.source.getEntityId() === otherNode.getEntityId();
+                                }
+                            );
+                        var secondEndpoint = d3.selectAll(BaseGraphView.nodeSvgClass)
+                            .filter(
+                                function(otherNode: N, i){
+                                    return aLink.target.getEntityId() === otherNode.getEntityId();
+                                }
+                            );
+                        return firstEndpoints.classed("highlightedNode") && secondEndpoint.classed("highlightedNode");
+                    }
+                );
             
-            adjacentLinks.each(function(aLink: L){
-                d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
-                .filter(function(otherNode: N, i){return aLink.source.getEntityId() === otherNode.getEntityId() || aLink.target.getEntityId() === otherNode.getEntityId();})
-                .classed("dimmedNode", false)
-                .classed("highlightedNode", true)
-                .each(function(aNode: N){
-                    d3.selectAll(BaseGraphView.nodeLabelSvgClass)
-                    .filter(function(text: N, i){return aNode.getEntityId() === text.getEntityId()})
-                    .classed("dimmedNodeLabel", false)
-                    .classed("highlightedNodeLabel", true)
-                    ;
-                });
-            });
         }
     }
     
@@ -258,7 +376,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         }
     }
     
-    unhighlightHoveredNodeLambda(outerThis: BaseGraphView<N, L>){
+    unhighlightHoveredNodeLambda(outerThis: BaseGraphView<N, L>, hoverAdjacent: boolean){
         return function(nodeData, i){
             outerThis.removeAllNodeHighlighting();
             outerThis.removeAllLinkHighlighting();
@@ -282,7 +400,6 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             .classed("dimmedLink", false)
             .classed("highlightedLink", false)
             ;
-        
     }
     
     hideNodeLambda(outerThis: BaseGraphView<N, L>){

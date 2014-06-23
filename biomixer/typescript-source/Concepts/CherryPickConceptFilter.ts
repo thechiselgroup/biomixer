@@ -5,26 +5,27 @@
 
 ///<amd-dependency path="../Utils" />
 ///<amd-dependency path="../NodeFilterWidget" />
-///<amd-dependency path="../Menu" />
-///<amd-dependency path="Concepts/ConceptGraph" />
+///<amd-dependency path="./ConceptNodeFilterWidget" />
+///<amd-dependency path="./ConceptPathsToRoot" />
+///<amd-dependency path="./ConceptGraph" />
 
 import FilterWidget = require("../NodeFilterWidget");
-import Menu = require("../Menu");
+import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
     
-export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
     
     static SUB_MENU_TITLE = "Concepts Rendered";
     
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
     constructor(
-        private conceptGraph: ConceptGraph.ConceptGraph,
+        conceptGraph: ConceptGraph.ConceptGraph,
         graphView: PathToRoot.ConceptPathsToRoot,
         private centralConceptUri: ConceptGraph.ConceptURI
         ){
-        super(CherryPickConceptFilter.SUB_MENU_TITLE, graphView);
+        super(CherryPickConceptFilter.SUB_MENU_TITLE, graphView, conceptGraph);
         this.implementation = this;
         this.pathToRootView = graphView;
     }
@@ -35,10 +36,6 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
     
     generateColoredSquareIndicator(node: ConceptGraph.Node): string{
         return "<span style='font-size: large; color: "+node.nodeColor+"'>\u25A0</span>";
-    }
-    
-    styleAsCentralNode(node: ConceptGraph.Node): boolean {
-        return node.rawConceptUri === this.conceptGraph.centralConceptUri;
     }
     
     computeCheckId(node: ConceptGraph.Node): string {
@@ -62,26 +59,6 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
         this.pathToRootView.refreshOntologyCheckboxState([checkboxContextData]);
     }
     
-    checkboxHoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
-        var outerThis = this;
-        return function(eventObject: JQueryMouseEventObject){
-            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
-            // Technically, the span over the checkbox is the element
-            // Find the graph node that corresponds, and fire its mouse enter behavior.
-            outerThis.graphView.highlightHoveredNodeLambda(outerThis.graphView)(nodeHideCandidates[0], 0);
-        }
-    }
-    
-   checkboxUnhoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
-        var outerThis = this;
-        return function(eventObject: JQueryMouseEventObject){
-            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
-            // Technically, the span over the checkbox is the element
-            // Find the graph node that corresponds, and fire its mouse leave behavior.
-            outerThis.graphView.unhighlightHoveredNodeLambda(outerThis.graphView)(nodeHideCandidates[0], 0);
-        };
-    }
-    
     /**
      * Synchronize checkboxes with changes made via other checkboxes.
      */
@@ -92,6 +69,10 @@ export class CherryPickConceptFilter extends FilterWidget.AbstractNodeFilterWidg
                 $("#"+checkId).prop("checked", !outerThis.graphView.isNodeHidden(node));
             }
         );
+    }
+    
+    getHoverNeedsAdjacentHighlighting(): boolean{
+        return true;
     }
     
 }
