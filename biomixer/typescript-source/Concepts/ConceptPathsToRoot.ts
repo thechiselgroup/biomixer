@@ -14,8 +14,9 @@
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/CherryPickConceptFilter" />
 ///<amd-dependency path="Concepts/OntologyConceptFilter" />
-///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ExpansionSetFilter" />
+///<amd-dependency path="Concepts/ConceptNodeFilterWidget" />
+///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
@@ -29,8 +30,9 @@ import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
-import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ExpansionSetFilter = require("./ExpansionSetFilter");
+import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
+import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
 
@@ -942,15 +944,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     /**
      * Synchronize checkboxes with changes made via other checkboxes.
      */
-    refreshNodeCheckboxState(affectedNodes: ConceptGraph.Node[]){
+    refreshOtherFilterCheckboxStates(affectedNodes: ConceptGraph.Node[], triggeringFilter: ConceptFilterWidget.AbstractConceptNodeFilterWidget){
+        if(triggeringFilter != this.individualConceptFilter){
         this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
-    }
-    
-    /**
-     * Synchronize checkboxes with changes made via other checkboxes.
-     */
-    refreshOntologyCheckboxState(cherryPickedNodes: ConceptGraph.Node[]){
-        this.ontologyFilter.updateCheckboxStateFromView(cherryPickedNodes);
+        }
+        if(triggeringFilter != this.ontologyFilter){
+            this.ontologyFilter.updateCheckboxStateFromView(affectedNodes);
+        }
+        if(triggeringFilter != this.expansionSetFilter){
+            this.expansionSetFilter.updateCheckboxStateFromView(affectedNodes);
+        }
     }
     
     sortConceptNodesCentralOntologyName(){

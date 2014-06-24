@@ -45,7 +45,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         if(expSetLabel == undefined){
             return "undefined";
         }
-        return "\""+expSetLabel.displayId+"\"";
+        return expSetLabel.displayId;
     }
     
     generateColoredSquareIndicator(node: ConceptGraph.Node): string {
@@ -88,7 +88,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
                 }
             );
         }
-        outerThis.pathToRootView.refreshNodeCheckboxState(affectedNodes);
+        outerThis.pathToRootView.refreshOtherFilterCheckboxStates(affectedNodes, this);
     }
     
     /**
@@ -112,8 +112,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
             }
         );
     }
-    
-        
+            
     getHoverNeedsAdjacentHighlighting(): boolean{
         return false;
     }

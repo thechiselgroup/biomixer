@@ -56,7 +56,7 @@ export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConcept
             this.graphView.hideNodeLambda(this.graphView)(checkboxContextData, 0);
         }
         // The ontology checkboxes need to be updated based on changes in visibility 
-        this.pathToRootView.refreshOntologyCheckboxState([checkboxContextData]);
+        this.pathToRootView.refreshOtherFilterCheckboxStates([checkboxContextData], this);
     }
     
     /**

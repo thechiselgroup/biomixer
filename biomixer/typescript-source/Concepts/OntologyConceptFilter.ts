@@ -80,7 +80,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
                 }
             );
         }
-        outerThis.pathToRootView.refreshNodeCheckboxState(affectedNodes);
+        outerThis.pathToRootView.refreshOtherFilterCheckboxStates(affectedNodes, this);
     }
     
     /**
