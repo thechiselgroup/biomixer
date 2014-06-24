@@ -188,7 +188,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     fetchInitialExpansion(){
         var expId = new GraphView.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), "Initial Expansion");
-        var expansionSet = this.expSetReg.createExpansionSet(expId);
+        var expansionSet = this.expSetReg.createExpansionSet(expId, null);
         if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
@@ -862,8 +862,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",
                         function(){
                             $("#expanderMenu").first().remove();
-                            var expId = new GraphView.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+"("+nodeData.ontologyAcronym+")");
-                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId);
+                            var expId = new GraphView.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
+                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData);
                             outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
                         }
                     );
@@ -886,8 +886,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",
                         function(){
                             $("#expanderMenu").first().remove();
-                            var expId = new GraphView.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+"("+nodeData.ontologyAcronym+")")
-                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId);
+                            var expId = new GraphView.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
+                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData);
                             outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
                         }
                 );

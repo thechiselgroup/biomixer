@@ -61,15 +61,37 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         return this.getClassName()+"_for_"+node.getExpansionSetId().internalId;
     }
     
+    computeParentingCheckId(node: ConceptGraph.Node): string {
+        if(null == node){
+            return null;
+        }
+        if(node.expansionSetIdentifierAsMemberAsParent == undefined){
+            return null;
+        }
+        return this.getClassName()+"_for_"+node.expansionSetIdentifierAsMemberAsParent.internalId;
+    }
+    
     computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{
         return this.expRegistry.findExpansionSet(node.getExpansionSetId()).nodes;
     }
 
+    /**
+     * The expansion set implementation of this is particularly convoluted since we want parent nodes
+     * to stay visible when their own expansion sets are hidden, and we want to hide them if both their
+     * parent and child sets are hidden.
+     */
     checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkboxIsChecked: JQuery): void {
         var outerThis = this;
         var affectedNodes: ConceptGraph.Node[] = [];
+        // For this one, we pull a trick: we don't want to hide the parent node when we hide the expansion, but we sure
+        // want it to stay around when we show the expansion. It's trickier to keep the parent around
+        // when other expansion sets hide it, so we can leave that be.
+        
+        var expSet = this.expRegistry.findExpansionSet(checkboxContextData.getExpansionSetId());
+        var parentNode = expSet.parentNode;
+        
         checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
-        if (checkboxIsChecked.is(':checked')) {
+        if (checkboxIsChecked.is(":checked")) {
             // Unhide those that are checked, as well as edges with both endpoints visible
             // Also, we will re-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
@@ -78,15 +100,48 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
                     affectedNodes.push(node);
                 }
             );
+            // When unhiding, we want to ensure that the parent node is itself is uhidden.
+            if(null != parentNode){
+                outerThis.graphView.unhideNodeLambda(outerThis.graphView)(parentNode, 0);
+                affectedNodes.push(parentNode);
+            }
+            
         } else {
             // Hide those that are unchecked, as well as edges with no endpoints visible
             // Also, we will un-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
-                    outerThis.graphView.hideNodeLambda(outerThis.graphView)(node, 0);
-                    affectedNodes.push(node);
+                    // When hiding, we also need to check to see if the nodes we are hiding are parents
+                    // of other visible expansion sets. If so, we don't hide them.
+                    var safeToHide = true;
+                    if(node.expansionSetIdentifierAsMemberAsParent !== undefined){
+                        // Convoluted.
+                        var anotherCheckbox = outerThis.computeParentingCheckId(node);
+                        if($("#"+anotherCheckbox).is(":checked")){
+                            // If the node is a parent of a *visible* set, do not hide it with the rest of
+                            // its expansion set.
+                            safeToHide = false;
+                        }
+                    }
+                    
+                    if(safeToHide){
+                        outerThis.graphView.hideNodeLambda(outerThis.graphView)(node, 0);
+                        affectedNodes.push(node);
+                    }
                 }
             );
+            // When hiding expansion sets, we have to hide the parent if the expansion set that it
+            // belongs to is itself hidden (it was kept visible due to being a parent of this current
+            // expansion set).
+            // Convoluted.
+            if(null !== parentNode){
+                var anotherCheckbox = outerThis.computeCheckId(parentNode); // Yes, the normal checkbox id of the parent node
+                if(!$("#"+anotherCheckbox).is(":checked")){
+                    // If the parent node is a member of a *hidden* set, we will hide it along with its child set.
+                    outerThis.graphView.hideNodeLambda(outerThis.graphView)(parentNode, 0);
+                    affectedNodes.push(parentNode);
+                }
+            }
         }
         outerThis.pathToRootView.refreshOtherFilterCheckboxStates(affectedNodes, this);
     }

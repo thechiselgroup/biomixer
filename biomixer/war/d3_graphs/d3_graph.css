@@ -91,6 +91,18 @@ polyline.mappingLink{
 	stroke-dasharray: 10,5;
 }
 
+/* Highlighting takes priority over hiding */
+.highlightedLink {
+	stroke-opacity: 1;
+}
+.highlightedNode {
+	fill-opacity: 1;
+	stroke-opacity: 1;
+}
+.highlightedNodeLabel {
+	opacity: 1;
+}
+
 .hiddenNode {
 	opacity: 0.10;
 }
@@ -115,16 +127,7 @@ polyline.mappingLink{
 .dimmedNodeLabel{
 	opacity: 0.25; /* Keep text readable */
 }
-.highlightedLink {
-	stroke-opacity: 1;
-}
-.highlightedNode {
-	fill-opacity: 1;
-	stroke-opacity: 1;
-}
-.highlightedNodeLabel {
-	opacity: 1;
-}
+
 
 
 

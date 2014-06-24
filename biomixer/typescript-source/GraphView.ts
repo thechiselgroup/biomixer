@@ -28,7 +28,8 @@ export class BaseNode implements D3.Layout.GraphNode {
     depth: number;
     
     // facilitates ExpansionSets with far less code complexity
-    expansionSetIdentifier: ExpansionSetIdentifer;
+    expansionSetIdentifierAsMember: ExpansionSetIdentifer;
+    expansionSetIdentifierAsMemberAsParent: ExpansionSetIdentifer;
     
     getEntityId(): string{
         return "Error, must override this method.";
@@ -39,7 +40,7 @@ export class BaseNode implements D3.Layout.GraphNode {
      * without having a more complicated registry.
      */
     getExpansionSetId(): ExpansionSetIdentifer{
-        return this.expansionSetIdentifier;
+        return this.expansionSetIdentifierAsMember;
     }
     
 }
@@ -68,15 +69,23 @@ export class ExpansionSet<N extends BaseNode> {
     
     nodes: Array<N> = new Array<N>();
     
+    /**
+     * Parent node can be null for the initial expansion, when the expansion is not triggered
+     * by a menu on an existing node.
+     */
     constructor(
-        public id: ExpansionSetIdentifer
+        public id: ExpansionSetIdentifer,
+        public parentNode: N
         ){
+        if(null != parentNode){
+            parentNode.expansionSetIdentifierAsMemberAsParent = id;
+        }
     }
     
     addAll(nodes: Array<N>): void{
         nodes.forEach(
             (node: N, i: number, arr: Array<N>)=>{
-                if(node.expansionSetIdentifier != undefined && node.expansionSetIdentifier != this.id){
+                if(node.expansionSetIdentifierAsMember != undefined && node.expansionSetIdentifierAsMember != this.id){
                     // The natural flow of the graph populating logic results in multiple passes, due to D3 idioms.
                     // The best place to add nodes to expansion sets are right as we are finally populating the graph
                     // with nodes from an expasions, so we will handle redundant expasion set additions here.
@@ -85,7 +94,7 @@ export class ExpansionSet<N extends BaseNode> {
                     // functionality that relies on expansion sets.
                     console.log("Attempted change of set expansion ID on node: "+this.id.displayId+", expansion ID "+node.getEntityId());
                 } else {
-                    node.expansionSetIdentifier = this.id;
+                    node.expansionSetIdentifierAsMember = this.id;
                     this.nodes.push(node);
                 }
             }
@@ -98,8 +107,12 @@ export class ExpansionSetRegistry<N extends BaseNode> {
     
     private registry: {[key: string]: ExpansionSet<N>} = {};
     
-    createExpansionSet(id: ExpansionSetIdentifer): ExpansionSet<N> {
-        this.registry[id.internalId] = new ExpansionSet<N>(id);
+    /**
+     * Parent node can be null for the initial expansion, when the expansion is not triggered
+     * by a menu on an existing node.
+     */
+    createExpansionSet(id: ExpansionSetIdentifer, parentNode: N): ExpansionSet<N> {
+        this.registry[id.internalId] = new ExpansionSet<N>(id, parentNode);
         return this.registry[id.internalId];
     }
     
@@ -262,7 +275,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 ;
             
             d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
-                .classed("dimmedNode", true)
+                .classed("highlightedNode", true)
                 .filter(function(aNode: N, i){return aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId();})
                 .classed("dimmedNode", false)
                 .classed("highlightedNode", true)
