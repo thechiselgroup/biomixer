@@ -305,17 +305,14 @@ import Utils = require('./Utils');
     // http://blog.pluralsight.com/extending-classes-and-interfaces-using-typescript
     export class CallbackObject {
         // node: any; // leave this pretty loose for now
-        graph: GraphView.Graph; // Make more general when refactoring concept graph into this
         url: string;
         uniqueContextId: String;
         callbackName: string;
         
         constructor(
-            graph: GraphView.Graph,
             url: string,
             uniqueContextId: String
         ){
-            this.graph = graph;
             this.url = url;
             this.uniqueContextId = uniqueContextId;
             this.callbackName = this.computeCallbackName();

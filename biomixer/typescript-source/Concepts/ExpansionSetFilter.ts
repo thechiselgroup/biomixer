@@ -9,12 +9,14 @@
 ///<amd-dependency path="./ConceptPathsToRoot" />
 ///<amd-dependency path="./ConceptGraph" />
 ///<amd-dependency path="../GraphView" />
+///<amd-dependency path="../ExpansionSets" />
 
 import FilterWidget = require("../NodeFilterWidget");
 import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
 import GraphView = require("../GraphView");
+import ExpansionSets = require("../ExpansionSets");
 
 /**
  * Vaguely resembles the sibling node filtering classes, with similarly named method names, but the
@@ -26,7 +28,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
     
     static SUB_MENU_TITLE: string = "Expansion Sets";
     
-    expRegistry: GraphView.ExpansionSetRegistry<ConceptGraph.Node>;
+    expRegistry: ExpansionSets.ExpansionSetRegistry<ConceptGraph.Node>;
     
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     

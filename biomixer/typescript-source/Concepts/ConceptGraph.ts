@@ -3,11 +3,13 @@
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="Concepts/ExpansionManager" />
 
 import Utils = require('../Utils');
 import Fetcher = require('../FetchFromApi');
 import GraphView = require('../GraphView');
+import ExpansionSets = require('../ExpansionSets');
 import ExpansionManager = require('./ExpansionManager');
 
 declare var purl;
@@ -114,7 +116,7 @@ export class ConceptD3Data extends GraphView.GraphDataForD3<Node, Link> {
 }
 
 
-export class ConceptGraph implements GraphView.Graph {
+export class ConceptGraph implements GraphView.Graph<Node> {
     
     expMan: ExpansionManager.ExpansionManager = new ExpansionManager.ExpansionManager();
     
@@ -153,6 +155,33 @@ export class ConceptGraph implements GraphView.Graph {
         ){
         
     }
+
+    addNodes(newNodes: Array<Node>, expansionSet: ExpansionSets.ExpansionSet<Node>){
+        expansionSet.addAll(newNodes);
+        for(var i = 0; i < newNodes.length; i++){
+            // Only implementing here rather than in graphView because of this container...
+            this.graphD3Format.nodes.push(newNodes[i]);
+            // Also, we like looking them up by id
+            this.addNodeToIdMap(newNodes[i]);
+        }
+        this.graphView.populateNewGraphElements(this.graphD3Format)
+    }
+    
+    removeNodes(nodesToRemove: Array<Node>){
+        console.log("Unimplemented. Get on it!");
+    }
+    
+    addEdges(newEdges: Array<Link>){
+         for(var i = 0; i < newEdges.length; i++){
+            // Only implementing here rather than in graphView because of this container...
+            this.graphD3Format.links.push(newEdges[i]);
+        }
+        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+    }
+    
+    removeEdge(){
+        console.log("Unimplemented. Get it done!");
+    }
     
     private getOntologyAcronymFromOntologyUrl(ontologyUri){
         var urlBeforeAcronym = "ontologies/";
@@ -161,7 +190,7 @@ export class ConceptGraph implements GraphView.Graph {
     }   
     
      //Needs the arguments index, concept because the function will be called in JQuery loop. Write wrappers in callers if you don't like that.
-    public parseNode(index, conceptData, expansionSet: GraphView.ExpansionSet<Node>){
+    public parseNode(index, conceptData, expansionSet: ExpansionSets.ExpansionSet<Node>){
             if(this.conceptIdNodeMap[conceptData["@id"]] !== undefined){
             	// Race conditions involving REST latency can lead to multiple
             	// attempts to create the same node, particularly when composition
@@ -189,12 +218,9 @@ export class ConceptGraph implements GraphView.Graph {
             conceptNode.ontologyUriForIds = encodeURIComponent(conceptNode.ontologyUri);
             conceptNode.nodeColor = this.nextNodeColor(conceptNode.ontologyAcronym);
             
-            this.graphD3Format.nodes.push(conceptNode);
-            this.addNodeToIdMap(conceptNode);
             // TODO Shall I reference the caller, or handle these in another way? How did I do similar stuff in ontology graph?
             // Could accumulate in caller?
-            expansionSet.addAll([conceptNode]);
-            this.graphView.populateNewGraphElements(this.graphD3Format, true);
+            this.addNodes([conceptNode], expansionSet);
             
             // Understanding arcs:
             // Concept links come from different calls. We will probably need to use the links container
@@ -218,7 +244,7 @@ export class ConceptGraph implements GraphView.Graph {
             // If there are implicit edges from before that link from an existing node to this new one,
             // we can now manifest them.
             this.manifestEdgesForNewNode(conceptNode);
-                        
+            
             return conceptNode;
     }
     
@@ -226,7 +252,7 @@ export class ConceptGraph implements GraphView.Graph {
      * Created for composition expansions, where we never have node data available. Can be used any time we need to expand a specific node,
      * and when we know the ontology of that node (such as when doing concept expansions).
      */
-    public expandMappedConcept(newConceptId: ConceptURI, newConceptMappingData, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+    public expandMappedConcept(newConceptId: ConceptURI, newConceptMappingData, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         if(expansionType === PathOptionConstants.mappingsNeighborhoodConstant
             && this.expMan.isConceptWhitelistedForExpansion(relatedConceptId, PathOptionConstants.mappingsNeighborhoodConstant)
             && !(String(newConceptId) in this.conceptIdNodeMap)){
@@ -241,7 +267,7 @@ export class ConceptGraph implements GraphView.Graph {
      * Created for composition expansions, where we never have node data available. Can be used any time we need to expand a specific node,
      * and when we know the ontology of that node (such as when doing concept expansions).
      */
-    public expandRelatedConcept(conceptsOntology: RawAcronym, newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+    public expandRelatedConcept(conceptsOntology: RawAcronym, newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         if(this.expMan.isConceptWhitelistedForExpansion(relatedConceptId, expansionType)
             && !(String(newConceptId) in this.conceptIdNodeMap)){
             
@@ -252,7 +278,7 @@ export class ConceptGraph implements GraphView.Graph {
         }
     }
     
-    public expandAndParseNodeIfNeeded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, conceptPropertiesData, expansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+    public expandAndParseNodeIfNeeded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, conceptPropertiesData, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // Can determine on the basis of the relatedConceptId if we should request data for the
         // conceptId provided, or if we should parse provided conceptProperties (if any).
         // TODO PROBLEM What if the conceptId is already going to be fetched and processed because
@@ -392,9 +418,7 @@ export class ConceptGraph implements GraphView.Graph {
         edge.source = this.conceptIdNodeMap[String(edge.sourceId)];
         edge.target = this.conceptIdNodeMap[String(edge.targetId)];
         if(this.edgeNotInGraph(edge)){
-            this.graphD3Format.links.push(edge);
-            this.graphView.populateNewGraphEdges(this.graphD3Format.links);
-            
+            this.addEdges([edge]);
         }
         
         if(matchIdInRegistry){
@@ -431,8 +455,7 @@ export class ConceptGraph implements GraphView.Graph {
                     edge.source = this.conceptIdNodeMap[String(edge.sourceId)];
                     edge.target = this.conceptIdNodeMap[String(edge.targetId)];
                     if(this.edgeNotInGraph(edge)){
-                        this.graphD3Format.links.push(edge);
-                        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+                        this.addEdges([edge]);
                     }
                     
                     // Clear that one out...safe while in the loop?
@@ -501,7 +524,7 @@ export class ConceptGraph implements GraphView.Graph {
         return true;
     }
 
-    public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: GraphView.ExpansionSet<Node>){
+    public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // I have confirmed that this is faster than BioMixer. Without removing
         // network latency in REST calls, it is approximately half as long from page load to
         // graph completion (on the order of 11 sec vs 22 sec)
@@ -531,7 +554,7 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(pathsToRootCallback);
     }
     
-    public expandConceptNeighbourhood(nodeData: Node, expansionSet: GraphView.ExpansionSet<Node>){
+    public expandConceptNeighbourhood(nodeData: Node, expansionSet: ExpansionSets.ExpansionSet<Node>){
         this.expMan.addConceptIdToExpansionWhitelist(nodeData.rawConceptUri, PathOptionConstants.termNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(nodeData.ontologyAcronym, nodeData.rawConceptUri);
         var centralCallback = new FetchConceptRelationsCallback(this, centralConceptUrl, nodeData, PathOptionConstants.termNeighborhoodConstant, expansionSet);
@@ -539,7 +562,7 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(centralCallback);
     }
     
-    public expandMappingNeighbourhood(nodeData: Node, expansionSet: GraphView.ExpansionSet<Node>){
+    public expandMappingNeighbourhood(nodeData: Node, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // Cannot just call fetchMappings() directly because we need the link from the base concept URL
         this.expMan.addConceptIdToExpansionWhitelist(nodeData.rawConceptUri, PathOptionConstants.mappingsNeighborhoodConstant);
         var centralConceptUrl = this.buildConceptUrlNewApi(nodeData.ontologyAcronym, nodeData.rawConceptUri);
@@ -548,7 +571,7 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(centralCallback);
     }
     
-    public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: GraphView.ExpansionSet<Node>){
+    public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion
         // Parsers that follow will expand neighbourhing concepts.
         this.expMan.addConceptIdToExpansionWhitelist(centralConceptUri, PathOptionConstants.termNeighborhoodConstant);
@@ -558,7 +581,7 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(centralCallback);
     }
     
-    public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: GraphView.ExpansionSet<Node>){
+    public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
         // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P109.onSuccess
         
@@ -576,7 +599,7 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(centralCallback);
     }
     
-    public fetchConceptRelations(conceptNode: Node, conceptData, expansionSet: GraphView.ExpansionSet<Node>, directCallForExpansionType?: PathOption){
+    public fetchConceptRelations(conceptNode: Node, conceptData, expansionSet: ExpansionSets.ExpansionSet<Node>, directCallForExpansionType?: PathOption){
         // 2) Get relational data for all the concepts, create links from them
         // fetchBatchRelations(); // don't exist, because of COR issues on server, cross domain, and spec issues.
         
@@ -589,7 +612,7 @@ export class ConceptGraph implements GraphView.Graph {
         this.fetchCompositionRelations(conceptNode, directCallForExpansionType, expansionSet);
     }
     
-    fetchChildren(conceptNode: Node, relationsUrl: string, pageRequested: number, directCallForExpansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+    fetchChildren(conceptNode: Node, relationsUrl: string, pageRequested: number, directCallForExpansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // Children requests have paging, which needs cycling internally.
         relationsUrl = Utils.addOrUpdateUrlParameter(relationsUrl, "page", pageRequested+"");
         var conceptRelationsCallback = new ConceptChildrenRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType, expansionSet);
@@ -597,19 +620,19 @@ export class ConceptGraph implements GraphView.Graph {
         fetcher.fetch(conceptRelationsCallback);
     }
     
-    fetchParents(conceptNode: Node, relationsUrl: string, directCallForExpansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+    fetchParents(conceptNode: Node, relationsUrl: string, directCallForExpansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         var conceptRelationsCallback = new ConceptParentsRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType, expansionSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
         fetcher.fetch(conceptRelationsCallback);
     }
     
-    fetchMappings(conceptNode: Node, relationsUrl: string, directCallForExpansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+    fetchMappings(conceptNode: Node, relationsUrl: string, directCallForExpansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         var conceptRelationsCallback = new ConceptMappingsRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType, expansionSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
         fetcher.fetch(conceptRelationsCallback);
     }
     
-     fetchCompositionRelations(conceptNode: Node, directCallForExpansionType: PathOption, expansionSet: GraphView.ExpansionSet<Node>){
+     fetchCompositionRelations(conceptNode: Node, directCallForExpansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         var relationsUrl = this.buildConceptCompositionsRelationUrl(conceptNode);
         var conceptRelationsCallback = new ConceptCompositionRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType, expansionSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
@@ -751,9 +774,9 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
         url: string,
         public centralOntologyAcronym: RawAcronym,
         public centralConceptUri: ConceptURI,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(centralOntologyAcronym)+":"+String(centralConceptUri));
+            super(url, String(centralOntologyAcronym)+":"+String(centralConceptUri));
         }
         
     public callback = (pathsToRootData: any, textStatus: string, jqXHR: any) => {
@@ -768,11 +791,6 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
                 this.graph.fetchConceptRelations(conceptNode, this.expansionSet, nodeData);
             }
         );
-        
-        
-        // This populate call could be unnecessary, since the parseNode() does it too.
-        this.expansionSet.addAll(newNodesForExpansionGraph);
-        this.graph.graphView.populateNewGraphElements(this.graph.graphD3Format, true);
     }
 }
 
@@ -783,9 +801,9 @@ class FetchOneConceptCallback extends Fetcher.CallbackObject {
         url: string,
         public conceptUri: ConceptURI,
         public directCallForExpansionType: PathOption,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(conceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(conceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
@@ -808,9 +826,9 @@ class FetchConceptRelationsCallback extends Fetcher.CallbackObject {
         url: string,
         public node: Node,
         public directCallForExpansionType: PathOption,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(node.rawConceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(node.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
@@ -832,9 +850,9 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
         public conceptNode: Node,
         public conceptNodeIdMap: ConceptIdMap,
         public directCallForExpansionType: PathOption,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
 
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -889,9 +907,9 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
         public conceptNode: Node,
         public conceptIdNodeMap: ConceptIdMap,
         public directCallForExpansionType: PathOption,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -929,9 +947,9 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
         public conceptNode: Node,
         public conceptIdNodeMap: ConceptIdMap,
         public directCallForExpansionType: PathOption,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
@@ -956,9 +974,9 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         public conceptNode: Node,
         public conceptNodeIdMap: ConceptIdMap,
         public directCallForExpansionType: PathOption,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(conceptNode.rawConceptUri)); //+":"+directCallForExpansionType);
         }
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {

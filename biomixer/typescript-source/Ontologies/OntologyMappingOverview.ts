@@ -7,6 +7,7 @@
 ///<amd-dependency path="Menu" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="TipsyToolTips" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
@@ -18,6 +19,7 @@ import Utils = require("../Utils");
 import Fetch = require("../FetchFromApi");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
+import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
@@ -107,8 +109,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.prepGraphMenu();
         
         // Will do async stuff and add to graph
-        var expId = new GraphView.ExpansionSetIdentifer("ontology_neighbourhood_"+this.centralOntologyAcronym, "Initial load: "+this.centralOntologyAcronym);
-        var expansionSet = this.expSetReg.createExpansionSet(expId, null);
+        var expId = new ExpansionSets.ExpansionSetIdentifer("ontology_neighbourhood_"+this.centralOntologyAcronym, "Initial load: "+this.centralOntologyAcronym);
+        var expansionSet = this.expSetReg.createExpansionSet(expId, null, this.ontologyGraph);
         this.ontologyGraph.fetchOntologyNeighbourhood(this.centralOntologyAcronym, expansionSet);
         
         // If you want to toy with the original static data, try this:
@@ -314,18 +316,21 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     * graph. Do not call it to update properties of graph elements.
     * TODO Make this function cleaner and fully compliant with the above description!
     */
-    populateNewGraphElements(graphD3Format: OntologyGraph.OntologyD3Data, newElementsExpected: boolean){
+    populateNewGraphElements(graphD3Format: OntologyGraph.OntologyD3Data){
         console.log("Fix this up with the newElements arg, and refactor into node and edge populate methods");
         
     //  console.log("Populating with:");
     //  console.log(json);
         
         var outerThis = this;
-        
+        var newElementsExpected: boolean;
+        // One small step towards removing this element of ontology graph logic...
         if(typeof graphD3Format === "undefined" || graphD3Format.nodes.length == 0 && graphD3Format.links.length == 0){
             // console.log("skip");
             // return;
             newElementsExpected = false;
+        } else {
+            newElementsExpected = true;
         }
         
         // Data constancy via key function() passed to data()
@@ -759,8 +764,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     removeGraphPopulation(data: GraphView.GraphDataForD3<OntologyGraph.Node, OntologyGraph.Link>){
         console.log("Removing some graph elements "+Utils.getTime());
     
-        var nodes = this.vis.selectAll("g.node_g").data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes, function(d){return d.rawAcronym});
-        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var nodes = this.vis.selectAll("g.node_g").data(this.ontologyGraph.graphD3Format.nodes, function(d){return d.rawAcronym});
+        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(this.ontologyGraph.graphD3Format.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
         
         
         
@@ -806,8 +811,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     		if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-            var graphNodes = this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes;
-            var graphLinks = this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.links;
+            var graphNodes = this.ontologyGraph.graphD3Format.nodes;
+            var graphLinks = this.ontologyGraph.graphD3Format.links;
             
             // This is the most up to date way to know how many nodes we are laying out, assuming we don't care to position
             // undisplayed nodes
@@ -871,7 +876,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     
     sortConceptNodesCentralOntologyName(){
         var outerThis = this;
-        return this.ontologyGraph.ontologyNeighbourhoodJsonForGraph.nodes.sort(
+        return this.ontologyGraph.graphD3Format.nodes.sort(
             function(a: OntologyGraph.Node, b: OntologyGraph.Node) {
                 if(a.rawAcronym === b.rawAcronym){
                     // Exact same unqiue identifiers?

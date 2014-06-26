@@ -3,10 +3,12 @@
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="ExpansionSets" />
 
 import Utils = require('../Utils');
 import Fetcher = require('../FetchFromApi');
 import GraphView = require('../GraphView');
+import ExpansionSets = require('../ExpansionSets');
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!
@@ -90,14 +92,14 @@ export class OntologyD3Data extends GraphView.GraphDataForD3<Node, Link> {
 
 
 
-export class OntologyGraph implements GraphView.Graph {
+export class OntologyGraph implements GraphView.Graph<Node> {
     // Need:
     // sortedAcronymsByMappingCount
     // hardNodeCap
     // softNodeCap
     // a view object to get necessary information from the outside through
     
-    ontologyNeighbourhoodJsonForGraph: OntologyD3Data = new OntologyD3Data();
+    graphD3Format: OntologyD3Data = new OntologyD3Data();
     
     // Stores {acronyms,node} sorted by mapping count in descending order.
     // Limit it with hardNodeCap during init in dev only.
@@ -107,14 +109,39 @@ export class OntologyGraph implements GraphView.Graph {
     // This softNodeCap only affects API dispatch and rendering for nodes past the cap. It is used during
     // initialization only. Set to 0 means all nodes will be used.
     constructor(
-        public graphView: GraphView.GraphView<Node, Link>,
-        public softNodeCap: number,
-        public centralOntologyAcronym: RawAcronym
-    ){
+            public graphView: GraphView.GraphView<Node, Link>,
+            public softNodeCap: number,
+            public centralOntologyAcronym: RawAcronym
+        ){
      
     }
     
-    fetchOntologyNeighbourhood(centralOntologyAcronym: RawAcronym, expansionSet: GraphView.ExpansionSet<Node>){
+    addNodes(newNodes: Array<Node>, expansionSet: ExpansionSets.ExpansionSet<Node>){
+        expansionSet.addAll(newNodes);
+        for(var i = 0; i++; i < newNodes.length){
+            // Only implementing here rather than in graphView because of this container...
+            this.graphD3Format.nodes.push(newNodes[i]);
+        }
+        this.graphView.populateNewGraphElements(this.graphD3Format)
+    }
+    
+    removeNodes(nodesToRemove: Array<Node>){
+        console.log("Unimplemented. Get on it!");
+    }
+    
+    addEdges(newEdges: Array<Link>){
+         for(var i = 0; i++; i < newEdges.length){
+            // Only implementing here rather than in graphView because of this container...
+            this.graphD3Format.links.push(newEdges[i]);
+        }
+        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+    }
+    
+    removeEdge(){
+        console.log("Unimplemented. Get it done!");
+    }
+    
+    fetchOntologyNeighbourhood(centralOntologyAcronym: RawAcronym, expansionSet: ExpansionSets.ExpansionSet<Node>){
     	// I have confirmed that this is faster than BioMixer. Without removing
     	// network latency in REST calls, it is approximately half as long from page load to
     	// graph completion (on the order of 11 sec vs 22 sec)
@@ -192,17 +219,17 @@ export class OntologyGraph implements GraphView.Graph {
         // $.each(ontologyNeighbourhoodJsonForGraph.nodes, function(index, node){console.log("Before removal: "+node.rawAcronym)});
         // $.each(ontologyNeighbourhoodJsonForGraph.links, function(index, link){console.log("Before removal: "+link.source.rawAcronym+" and "+link.target.rawAcronym)});
         
-        this.ontologyNeighbourhoodJsonForGraph.nodes
+        this.graphD3Format.nodes
         = $.grep(
-                this.ontologyNeighbourhoodJsonForGraph.nodes,
+                this.graphD3Format.nodes,
                 function(value) {
                   return $.inArray(value.rawAcronym, acronymsToKeep) != -1;
                 }
         );
         
-        this.ontologyNeighbourhoodJsonForGraph.links
+        this.graphD3Format.links
         = $.grep(
-                this.ontologyNeighbourhoodJsonForGraph.links,
+                this.graphD3Format.links,
                 function(value) {
                   return $.inArray(value.source.rawAcronym, acronymsToKeep) != -1
                   && $.inArray(value.target.rawAcronym, acronymsToKeep) != -1;
@@ -212,7 +239,7 @@ export class OntologyGraph implements GraphView.Graph {
         // $.each(ontologyNeighbourhoodJsonForGraph.nodes, function(index, node){console.log("After removal: "+node.rawAcronym)});
         // $.each(ontologyNeighbourhoodJsonForGraph.links, function(index, link){console.log("After removal: "+link.source.rawAcronym+" and "+link.target.rawAcronym)});
         
-        this.graphView.removeMissingGraphElements(this.ontologyNeighbourhoodJsonForGraph);
+        this.graphView.removeMissingGraphElements(this.graphD3Format);
     }
     
     // Graph is responsible for its own node coloration...debate what this is: model attribute or view render?
@@ -245,9 +272,9 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
         public graph: OntologyGraph,
         url: string,
         public centralOntologyAcronym: RawAcronym,
-        public expansionSet: GraphView.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(graph, url, centralOntologyAcronym);
+            super(url, centralOntologyAcronym);
     }
 
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
@@ -283,6 +310,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		var defaultNumOfTermsForSize = 10;
         
         var newNodesForExpansionSet: Array<Node> = [];
+        var newLinks: Array<Link> = [];
 		
 		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1
         
@@ -301,7 +329,6 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		centralOntologyNode.innerNodeColor = this.graph.brightenColor(centralOntologyNode.nodeColor);
 		centralOntologyNode.nodeStrokeColor = this.graph.darkenColor(centralOntologyNode.nodeColor);
 		centralOntologyNode.mapped_classes_to_central_node = 0;
-		this.graph.ontologyNeighbourhoodJsonForGraph.nodes.push(centralOntologyNode);
         newNodesForExpansionSet.push(centralOntologyNode);
 		// Lame loop to find the central node in our sorted set
 		$.each(this.graph.sortedAcronymsByMappingCount,
@@ -353,7 +380,6 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyNode.innerNodeColor = this.graph.brightenColor(ontologyNode.nodeColor);
 				ontologyNode.nodeStrokeColor = this.graph.darkenColor(ontologyNode.nodeColor);
 				ontologyNode.mapped_classes_to_central_node = 0;
-				var targetIndex = this.graph.ontologyNeighbourhoodJsonForGraph.nodes.push(ontologyNode) - 1;
                 newNodesForExpansionSet.push(ontologyNode);
 				// TODO I feel like JS doesn't allow references like this...
 //				$(ontologyAcronymNodeMap).attr("vid:"+ontologyNode.rawAcronym, ontologyNode);
@@ -366,7 +392,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyLink.target = ontologyNode;
 				ontologyLink.value = mappingCount; // This gets used for link stroke thickness later.
 				ontologyLink.numMappings = mappingCount;
-				this.graph.ontologyNeighbourhoodJsonForGraph.links.push(ontologyLink);
+                newLinks.push(ontologyLink);
 				
 				// Get the node the data it needs from the link
 				ontologyNode.mapped_classes_to_central_node = ontologyLink.value;
@@ -387,8 +413,8 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		
 		// Not sure about whether to do this here or not...
 		// console.log("ontologyMappingCallback");
-        this.expansionSet.addAll(newNodesForExpansionSet);
-		this.graph.graphView.populateNewGraphElements(this.graph.ontologyNeighbourhoodJsonForGraph, true);
+        this.graph.addNodes(newNodesForExpansionSet, this.expansionSet);
+        this.graph.addEdges(newLinks);
 		
 		// Once we have the graph populated, we have this one node we know we can call REST calls for, the central node!
 		// The other nodes need to wait, since when we get the details call back later, we will see that many
@@ -423,7 +449,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
         url: string,
         public ontologyAcronymNodeMap: OntologyAcronymMap
         ){
-            super(graph, url, ""); // only gets called once normally
+            super(url, ""); // only gets called once normally
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -479,7 +505,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 		// We usually use very many of the ontologies, so it is likely cheaper to make the one
 		// big call with no ontology acronym arguments than to cherry pick the ones we want details for.
 		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+detailsDataRaw.length+" "+Utils.getTime());
-		this.graph.graphView.updateDataForNodesAndLinks({nodes:this.graph.ontologyNeighbourhoodJsonForGraph.nodes, links:[]});
+		this.graph.graphView.updateDataForNodesAndLinks({nodes:this.graph.graphD3Format.nodes, links:[]});
 	}
 }
     
@@ -492,7 +518,7 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
         url: string,
         public node: Node 
         ){
-            super(graph, url, String(node.rawAcronym));
+            super(url, String(node.rawAcronym));
     }
 
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -534,9 +560,9 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
     constructor(
         public graph: OntologyGraph,
         url: string,
-        public node: Node 
+        public node: Node
         ){
-            super(graph, url, String(node.rawAcronym));
+            super(url, String(node.rawAcronym));
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works

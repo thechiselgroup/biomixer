@@ -2,6 +2,12 @@
 
 ///<reference path="headers/d3.d.ts" />
 
+///<amd-dependency path="ExpansionSets" />
+///<amd-dependency path="UndoRedoBreadcrumbs" />
+
+import ExpansionSets = require("./ExpansionSets");
+import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+
 export class GraphDataForD3<N extends BaseNode, L extends BaseLink<any>> {
     public nodes: Array<N> = [];
     public links: Array<L> = [];
@@ -28,8 +34,8 @@ export class BaseNode implements D3.Layout.GraphNode {
     depth: number;
     
     // facilitates ExpansionSets with far less code complexity
-    expansionSetIdentifierAsMember: ExpansionSetIdentifer;
-    expansionSetIdentifierAsMemberAsParent: ExpansionSetIdentifer;
+    expansionSetIdentifierAsMember: ExpansionSets.ExpansionSetIdentifer;
+    expansionSetIdentifierAsMemberAsParent: ExpansionSets.ExpansionSetIdentifer;
     
     getEntityId(): string{
         return "Error, must override this method.";
@@ -39,7 +45,7 @@ export class BaseNode implements D3.Layout.GraphNode {
      * Enables us to very easily have mapping back from nodes to their owning ExpansionSet
      * without having a more complicated registry.
      */
-    getExpansionSetId(): ExpansionSetIdentifer{
+    getExpansionSetId(): ExpansionSets.ExpansionSetIdentifer{
         return this.expansionSetIdentifierAsMember;
     }
     
@@ -50,96 +56,12 @@ export class BaseLink<N extends BaseNode> {
     target: N;
 }
 
-export interface Graph {
-    
+export interface Graph<N extends BaseNode>  {
+   addNodes(newNodes: Array<N>, expansionSet: ExpansionSets.ExpansionSet<N>);
+   removeNodes(nodesToRemove: Array<N>);
 }
 
 
-/**
- * Expansion sets are a way of collecting together nodes that were loaded for a common
- * purpose; I would say at the same time, but loading is done with so much asynchonicity
- * that this would be inaccurate.
- * 
- * By collecting nodes loaded as cohorts, we can then filter them in and out, or use that
- * data to drive an undo-redo engine.
- * 
- * Other uses might arise. 
- */
-export class ExpansionSet<N extends BaseNode> {
-    
-    nodes: Array<N> = new Array<N>();
-    
-    /**
-     * Parent node can be null for the initial expansion, when the expansion is not triggered
-     * by a menu on an existing node.
-     */
-    constructor(
-        public id: ExpansionSetIdentifer,
-        public parentNode: N
-        ){
-        if(null != parentNode){
-            parentNode.expansionSetIdentifierAsMemberAsParent = id;
-        }
-    }
-    
-    addAll(nodes: Array<N>): void{
-        nodes.forEach(
-            (node: N, i: number, arr: Array<N>)=>{
-                if(node.expansionSetIdentifierAsMember != undefined && node.expansionSetIdentifierAsMember != this.id){
-                    // The natural flow of the graph populating logic results in multiple passes, due to D3 idioms.
-                    // The best place to add nodes to expansion sets are right as we are finally populating the graph
-                    // with nodes from an expasions, so we will handle redundant expasion set additions here.
-                    // Also, I want to know if there are attempts to add a node to multiple expansion sets.
-                    // We don't want that, because it would complicate semantics, especially for undo-redo
-                    // functionality that relies on expansion sets.
-                    console.log("Attempted change of set expansion ID on node: "+this.id.displayId+", expansion ID "+node.getEntityId());
-                } else {
-                    node.expansionSetIdentifierAsMember = this.id;
-                    this.nodes.push(node);
-                }
-            }
-        );
-    }
-    
-}
-
-export class ExpansionSetRegistry<N extends BaseNode> {
-    
-    private registry: {[key: string]: ExpansionSet<N>} = {};
-    
-    /**
-     * Parent node can be null for the initial expansion, when the expansion is not triggered
-     * by a menu on an existing node.
-     */
-    createExpansionSet(id: ExpansionSetIdentifer, parentNode: N): ExpansionSet<N> {
-        this.registry[id.internalId] = new ExpansionSet<N>(id, parentNode);
-        return this.registry[id.internalId];
-    }
-    
-    findExpansionSet(id: ExpansionSetIdentifer): ExpansionSet<N>{
-        return this.registry[id.internalId];
-    }
-    
-    // TODO Do we really need or want edges in the set? Probably not.
-    addToExpansionSet(nodes: Array<N>, id: ExpansionSetIdentifer): void{
-        var expSet: ExpansionSet<N> = this.registry[id.internalId];
-        expSet.addAll(nodes);
-    }
-    
-    getAllExpansionSets(): {[key: string]: ExpansionSet<N>} {
-        return this.registry;
-    }
-}
-
-export class ExpansionSetIdentifer {
-    // Only assign raw concept URI to this string
-//    expansionSetIdentifer; // strengthen duck typing
-    constructor(
-        public internalId: string,
-        public displayId: string
-    ){
-    }
-}
 
 // Notes on usage with this pattern:
 // If I don't extend and implement both GraphView and BaseGraphView, I have to define things I want implemented in the base class,
@@ -156,7 +78,7 @@ export interface GraphView<N extends BaseNode, L extends BaseLink<BaseNode>> ext
     // needs to contain the onTick listener function
     onLayoutTick(): {()} ;
     
-    populateNewGraphElements(data: GraphDataForD3<N, L>, expectingNew: boolean);
+    populateNewGraphElements(data: GraphDataForD3<N, L>);
     populateNewGraphEdges(links: Array<L>);
     populateNewGraphNodes(nodes: Array<N>);
     removeMissingGraphElements(data: GraphDataForD3<N, L>);
@@ -170,6 +92,16 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
 // TODO Review this interface. A lot fo this should probably be made more
 // listener orietented rather than direct call. But the system is shallow now,
 // so maybe this is what we want.
+    
+    public expSetReg: ExpansionSets.ExpansionSetRegistry<N>;
+    
+    public undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager;
+    
+    constructor(
+        ){
+        this.undoRedoBoss = new UndoRedoBreadcrumbs.UndoRedoManager();
+        this.expSetReg = new ExpansionSets.ExpansionSetRegistry<N>(this.undoRedoBoss);
+    }
     
     //var defaultNodeColor = "#496BB0";
     defaultNodeColor = "#000000";
@@ -198,8 +130,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeLabelSvgClass = "."+BaseGraphView.nodeLabelSvgClassSansDot;
     static linkSvgClass = "."+BaseGraphView.linkSvgClassSansDot;
     static linkLabelSvgClass = "."+BaseGraphView.linkLabelSvgClassSansDot;
-    
-    public expSetReg: ExpansionSetRegistry<N> = new ExpansionSetRegistry<N>();
+
     
     alphaCutoff: number = 0.01; // used to stop the layout early in the tick() callback
     forceLayout: D3.Layout.ForceLayout = undefined;

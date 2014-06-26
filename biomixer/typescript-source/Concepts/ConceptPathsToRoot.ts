@@ -8,8 +8,10 @@
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="Menu" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="TipsyToolTips" />
+///<amd-dependency path="UndoRedoBreadcrumbs" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/CherryPickConceptFilter" />
@@ -25,7 +27,9 @@ import Utils = require("../Utils");
 import Fetch = require("../FetchFromApi");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
+import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
+import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
 import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
@@ -170,7 +174,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
-        this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph,this);
+        this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
         
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
@@ -187,8 +191,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     }
     
     fetchInitialExpansion(){
-        var expId = new GraphView.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), "Initial Expansion");
-        var expansionSet = this.expSetReg.createExpansionSet(expId, null);
+        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), "Initial Expansion");
+        var expansionSet = this.expSetReg.createExpansionSet(expId, null, this.conceptGraph);
         if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
@@ -532,8 +536,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     * This function should be used when adding brand new nodes and links to the
     * graph. Do not call it to update properties of graph elements.
     */
-    populateNewGraphElements(graphD3Format: ConceptGraph.ConceptD3Data, newElementsExpected: boolean){
-        // console.log("Stop using passed argument since this class owns that data. Get rid of newElementsExpected.");
+    populateNewGraphElements(graphD3Format: ConceptGraph.ConceptD3Data){
         this.populateNewGraphEdges(graphD3Format.links);
         this.populateNewGraphNodes(graphD3Format.nodes);
         // this.runCurrentLayout();
@@ -862,8 +865,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",
                         function(){
                             $("#expanderMenu").first().remove();
-                            var expId = new GraphView.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
-                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData);
+                            var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
+                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData, outerThis.conceptGraph);
                             outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
                         }
                     );
@@ -886,8 +889,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",
                         function(){
                             $("#expanderMenu").first().remove();
-                            var expId = new GraphView.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
-                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData);
+                            var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
+                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData, outerThis.conceptGraph);
                             outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
                         }
                 );
