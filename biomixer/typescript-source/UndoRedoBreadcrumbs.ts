@@ -9,7 +9,7 @@ export class UndoRedoManager {
     
     public crumblez: BreadcrumbTrail;
     private trail = new Array<ICommand>();
-    private currentTrailIndex: number = 0;
+    private currentTrailIndex: number = -1;
     
     constructor(
         ){
@@ -25,11 +25,18 @@ export class UndoRedoManager {
      * memory use for example), go ahead and add that functionality.
      */
     addCommand(newCommand: ICommand): void{
-        var removed = this.trail.splice(this.currentTrailIndex, (this.trail.length - 1 - this.currentTrailIndex), newCommand);
+        console.log("Adding to trail at: "+(this.currentTrailIndex + 1));
+        console.log("Remove from trail: "+(this.trail.length-1 - this.currentTrailIndex));
+        // If we have 10 items, and the current item is 7 (index 0, so 8th item), then when we splice, we want to
+        // insert at 8 (after 7, so at 7+1), and we want to remove from the array 2 items (index 8 and 9), which is
+        // 10 - 1 - 7
+        var removed = this.trail.splice(this.currentTrailIndex + 1, (this.trail.length-1 - this.currentTrailIndex), newCommand);
+        console.log(this.trail[this.trail.length-1].getDisplayName());
         this.currentTrailIndex = this.trail.length - 1;
         // TODO Should we bother deleting the removed commands?
         // That is with the delete keyword?
-        this.refreshBreadcrumbs();
+        this.crumblez.updateView(this.trail, newCommand);
+//        this.trail.indexOf(activeCommand)
     }
     
     /**
@@ -37,11 +44,13 @@ export class UndoRedoManager {
      * we will know whether it is a redo or undo internally.
      */
     undoOneStep(): void{
-        this.changeCurrentTrailPosition(this.trail[this.currentTrailIndex - 1]);
+        var index = Math.max(0, this.currentTrailIndex - 1);
+        this.changeCurrentTrailPosition(this.trail[index]);
     }
     
     redoOneStep(): void{
-        this.changeCurrentTrailPosition(this.trail[this.currentTrailIndex + 1]);
+        var index = Math.min(this.currentTrailIndex + 1, this.trail.length - 1);
+        this.changeCurrentTrailPosition(this.trail[index]);
     }
     
     changeCurrentTrailPosition(command: ICommand): void{
@@ -49,8 +58,10 @@ export class UndoRedoManager {
             // No change.
             return;
         }
+        
+        // Current active? Do nothing.
         var commandIndex = this.trail.indexOf(command);
-        if(commandIndex == this.currentTrailIndex){
+        if(commandIndex === this.currentTrailIndex){
             return;
         }
         
@@ -72,20 +83,11 @@ export class UndoRedoManager {
         }
         for(var i = oldIndex; i += increment; ){
             if(undo){
-                command.executeUndo();
+                  command.executeUndo();
             } else {
-                command.executeRedo();
+                  command.executeRedo();
             }
         }
-    }
-    
-    /**
-     * Call this when the command stack has changed (do to an add always,
-     * whether or not the add also resulted in truncating the
-     * stack).
-     */
-    refreshBreadcrumbs(): void{
-        this.crumblez.updateView(this.trail, this.trail[this.currentTrailIndex]);
     }
     
 }
@@ -128,7 +130,7 @@ export class BreadcrumbTrail {
     updateView(stack: Array<ICommand>, activeCommand: ICommand): void{
         // Walk stack and see what differs from rendered
         
-         // Locate elements to remove; don't wreck loop by changing container contents, right?
+        // Locate elements to remove; don't wreck loop by changing container contents, right?
         var toRemove: Breadcrumb[] = [];
         for(var i = 0; i < this.trailOfCrumbs.length; i++){
             // Order doesn't matter, so we can use the unordered map.
@@ -167,17 +169,21 @@ export class BreadcrumbTrail {
             crumbElementPredecessor = this.selectCrumbElement(finalCrumb.getCommand());
         }
         
+        var newCrumb = new Breadcrumb(command, this)
         // Make it
         var newCrumbElement = $("<div>")
             .attr("id", this.generateCrumbElementId(command))
-            .addClass(BreadcrumbTrail.crumbIdPrefixAndClassName);
+            .addClass(BreadcrumbTrail.crumbIdPrefixAndClassName)
+            .click(newCrumb.breadcrumbClickedLambda(newCrumb))
+            .hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb))
+            ;
         newCrumbElement.append($("<p>").text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix));
         // Use it
         crumbElementPredecessor.after(newCrumbElement);
         // Sort it
         this.trailOfCrumbs.push(command.getUniqueId());
         // Store it
-        this.trailMap[command.getUniqueId()] = new Breadcrumb(command, this);
+        this.trailMap[command.getUniqueId()] = newCrumb;
     }
     
     removeCrumbElement(command: ICommand){
@@ -252,20 +258,33 @@ export class Breadcrumb {
         
     }
     
-    breadcrumbClicked(){
-        // TODO How do we guarantee that the command is valid? This isn't tied as tightly as the
-        // undo/redo model is internally.
-        this.breadcrumbTrail.undoRedoModel.changeCurrentTrailPosition(this.command);
+    // Just a reminder on why I do Lambda(classInstance)...
+    // If we don't, we might misuse the lambda by not *calling* it, but instead providing it.
+    // Doing so would rescope "this" to be the calling context rather than the lexical scope.
+    // Setting outerThis inside the method but outside the function that is returned will
+    // be subject to dynamic rescoping, whereas forcing the caller to explicitly provide a
+    // first argument that is the object on which we are operating is safer, though very
+    // slightly verbose. It is the safest way.
+    breadcrumbClickedLambda(outerThis: Breadcrumb){
+        return function(){
+            // TODO How do we guarantee that the command is valid? This isn't tied as tightly as the
+            // undo/redo model is internally.
+            outerThis.breadcrumbTrail.undoRedoModel.changeCurrentTrailPosition(outerThis.command);
+        }
     }
     
-    breadcrumbHovered(){
-        // Very advanced functionality. Might not be implemented.
-        this.command.preview();
+    breadcrumbHoveredLambda(outerThis: Breadcrumb){
+        return function(){
+            // Very advanced functionality. Might not be implemented.
+            outerThis.command.preview();
+        }
     }
     
-    breadcrumbUnhovered(){
-        // Very advanced functionality. Might not be implemented.
-        this.command.preview();
+    breadcrumbUnhoveredLambda(outerThis: Breadcrumb){
+        return function(){
+            // Very advanced functionality. Might not be implemented.
+            outerThis.command.preview();
+        }
     }
     
     getCommand(): ICommand{
