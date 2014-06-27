@@ -11,13 +11,17 @@ import GraphView = require("./GraphView");
 import ExpansionSets = require("./ExpansionSets");
 
 
- /**
+/**
  * This command allows for the addition of nodes (and undo and redo). Edges are not really
  * added and removed in the same sense, so there is no related class for edges at this time.
  * If they were, we'd would bundle edges to be added or removed with the nodes they were
  * added or removed with.
  */
 export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+    
+    static counter = 0;
+    
+    private id: string;
     
     constructor(
         public graph: GraphView.Graph<N>,
@@ -28,7 +32,14 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     }
     
     getUniqueId(): string{
-        return this.expansionSet.id.internalId;
+        if(undefined == this.id){
+            this.id = this.expansionSet.id.internalId+"_"+(GraphAddNodesCommand.counter++);
+        }
+        return this.id;
+    }
+    
+    getDisplayName(): string{
+        return this.expansionSet.id.displayId;
     }
     
     // TODO This implies that nodes should be added to the graph only
@@ -59,6 +70,10 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
     
     getUniqueId(): string{
         return "";
+    }
+    
+    getDisplayName(): string{
+        return "Removed Nodes";
     }
     
     executeRedo(): void{

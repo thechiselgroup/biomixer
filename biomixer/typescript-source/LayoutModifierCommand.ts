@@ -10,7 +10,8 @@ import GraphView = require("./GraphView");
 
 
  
-
+// TODO Will likely use one for layout triggers (to allow naming) and another for
+// arbitrary layout change snapshots.
 export class LayoutModifier<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
     constructor(
     ){
@@ -18,7 +19,11 @@ export class LayoutModifier<N extends GraphView.BaseNode> implements UndoRedoBre
     }
     
     getUniqueId(): string{
-        return "";
+        return ""; // timestamps especially for layouts!
+    }
+    
+    getDisplayName(): string{
+        return "Modified Layout";
     }
     
     // TODO This implies that nodes should be added to the graph only

@@ -178,6 +178,7 @@ div#trigger {
    position:absolute;
    top:0;
    right:0;
+   background-color: rgb(255,255,255);
 }
 
 div#slider-gap {
@@ -228,6 +229,46 @@ div#hoveringGraphMenu {
 	width: auto;
 	display: block;
 }
+
+.view_selection_box {
+	float: left;
+}
+
+div#undo_redo_breadcrumb_label {
+	
+}
+
+.crumb_for_, div#undo_redo_breadcrumb_label {
+	float: left;
+	margin-right: 1em;
+	padding: 2px;
+}
+
+.crumb_for_ {
+	border-style: solid;
+	border-color: rgb(100,100,100);
+	border-width: 1px;
+	opacity: 50%
+}
+
+.active_crumb {
+	opacity: 100%;
+	font-weight: bold;
+	border-width: 2px;
+}
+.crumb_for_:hover {
+	color: rgb(150,40,40);
+	border-color: rgb(150,40,40);
+}
+
+.undo_redo_breadcrumb_trail {
+	overflow: hidden;
+	background-color: rgb(200,220,255);
+	border-color: rgb(0,20,55);
+	border-style: solid;
+	border-width: 1px;
+}
+
 
 
 

@@ -25,8 +25,10 @@ export class UndoRedoManager {
      * memory use for example), go ahead and add that functionality.
      */
     addCommand(newCommand: ICommand): void{
-        this.trail.splice(this.currentTrailIndex, (this.trail.length - 1 - this.currentTrailIndex), newCommand);
+        var removed = this.trail.splice(this.currentTrailIndex, (this.trail.length - 1 - this.currentTrailIndex), newCommand);
         this.currentTrailIndex = this.trail.length - 1;
+        // TODO Should we bother deleting the removed commands?
+        // That is with the delete keyword?
         this.refreshBreadcrumbs();
     }
     
@@ -90,15 +92,34 @@ export class UndoRedoManager {
 
 export class BreadcrumbTrail {
  
-    static breadcrumbMenuId = "undo_redo_breadcrumb";
+    // This is external id, set up by main html page.
+    static breadcrumbMenuId = "undo_redo_breadcrumb_trail";
+    static breadcrumbTrailLabelId = "undo_redo_breadcrumb_label";
+    
+    static crumbIdPrefixAndClassName = "crumb_for_";
+    
+    static activeCrumbClassName = "active_crumb";
+    
+    static undoMenuText = "Undo/Redo >> ";
+    static undoButtonSuffix = " >";
     
     undoRedoModel: UndoRedoManager;
     
-    trailOfCrumbs = new Array<String>();
+    trailOfCrumbs = new Array<string>();
     trailMap: { [key: string]: Breadcrumb }= {};
     
     constructor(){
-        
+        this.initGui();
+    }
+    
+    initGui(){
+        $("#"+BreadcrumbTrail.breadcrumbMenuId)
+        .append(
+            $("<div>").attr("id", BreadcrumbTrail.breadcrumbTrailLabelId)
+                .append(
+                    $("<p>").text(BreadcrumbTrail.undoMenuText)
+                )
+        );
     }
     
     /**
@@ -107,17 +128,108 @@ export class BreadcrumbTrail {
     updateView(stack: Array<ICommand>, activeCommand: ICommand): void{
         // Walk stack and see what differs from rendered
         
-        // Remove any clobbered ones, and add any new ones.
-        // todo
+         // Locate elements to remove; don't wreck loop by changing container contents, right?
+        var toRemove: Breadcrumb[] = [];
+        for(var i = 0; i < this.trailOfCrumbs.length; i++){
+            // Order doesn't matter, so we can use the unordered map.
+            var crumbCommand = this.trailMap[this.trailOfCrumbs[i]];
+            if(undefined === crumbCommand){
+                // Nothing; this one is new and unadded.
+            } else if(stack.indexOf(crumbCommand.command) < 0){
+                toRemove.push(crumbCommand);
+            }
+        }
+        
+        // Actually remove
+        for(var i = 0; i < toRemove.length; i++){
+            this.removeCrumbElement(toRemove[i].command);
+        }
+        
+        // Now, add the new ones
+        for(var i = 0; i < stack.length; i++){
+            var crumbElement = this.selectCrumbElement(stack[i]);
+            if(0 === crumbElement.length || undefined === this.trailMap[stack[i].getUniqueId()]){
+                this.addCrumbElement(stack[i]);
+            }
+        }
         
         // Set the active rendered breadcrumb
         this.updateActiveCommand(activeCommand);
     }
     
-    updateActiveCommand(activeCommand: ICommand): void{
-        var crumb = this.getCrumb(activeCommand);
+    addCrumbElement(command: ICommand){
+        var finalCrumb = this.getFinalCrumb();
+        var crumbElementPredecessor;
+        if(null === finalCrumb){
+            // No prev breadcrumb? Use label as sibling.
+            crumbElementPredecessor = $("#"+BreadcrumbTrail.breadcrumbTrailLabelId);
+        } else {
+            crumbElementPredecessor = this.selectCrumbElement(finalCrumb.getCommand());
+        }
         
-        // todo
+        // Make it
+        var newCrumbElement = $("<div>")
+            .attr("id", this.generateCrumbElementId(command))
+            .addClass(BreadcrumbTrail.crumbIdPrefixAndClassName);
+        newCrumbElement.append($("<p>").text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix));
+        // Use it
+        crumbElementPredecessor.after(newCrumbElement);
+        // Sort it
+        this.trailOfCrumbs.push(command.getUniqueId());
+        // Store it
+        this.trailMap[command.getUniqueId()] = new Breadcrumb(command, this);
+    }
+    
+    removeCrumbElement(command: ICommand){
+        // Remove the crumb's element from the GUI
+        this.selectCrumbElement(command).remove();
+        
+        // Clean up three containers
+        var popped: string = this.trailOfCrumbs.pop();
+        if(popped !== command.getUniqueId()){
+            console.log("Sequence problem in breadcrumbs: popped element does not match expected.");
+        }
+        var crumbElement = this.selectCrumbElement(this.trailMap[command.getUniqueId()].command);
+        var isActiveCrumb = crumbElement.hasClass(BreadcrumbTrail.activeCrumbClassName);
+        delete this.trailMap[command.getUniqueId()];
+        
+        // Activate next crumb if this popped one was indeed the active one.
+        if(isActiveCrumb){
+            this.updateActiveCommand(this.getNthCrumb(this.trailOfCrumbs.length).command);
+        }
+    }
+    
+    getNthCrumb(n: number): Breadcrumb{
+        if(n > this.trailOfCrumbs.length || n < 0){
+            return null;
+        }
+        return this.trailMap[this.trailOfCrumbs[n]];
+    }
+    
+    getFinalCrumb(){
+        return this.getNthCrumb(this.trailOfCrumbs.length-1);
+    }
+    
+    updateActiveCommand(activeCommand: ICommand): void{
+        this.selectAllCrumbElements()
+            .removeClass(BreadcrumbTrail.activeCrumbClassName);
+        
+        if(activeCommand != null){
+            this.selectCrumbElement(activeCommand)
+            .addClass(BreadcrumbTrail.activeCrumbClassName);
+        }
+    }
+    
+    selectAllCrumbElements(): JQuery{
+        return $("."+BreadcrumbTrail.crumbIdPrefixAndClassName);
+    }
+    
+    selectCrumbElement(crumbCommand: ICommand): JQuery{
+        return $("#"+this.generateCrumbElementId(crumbCommand));
+    }
+    
+    generateCrumbElementId(crumbCommand: ICommand): string{
+        return BreadcrumbTrail.crumbIdPrefixAndClassName+crumbCommand.getUniqueId();
     }
     
     getCrumb(activeCommand: ICommand): Breadcrumb{
@@ -175,6 +287,8 @@ export class Breadcrumb {
 export interface ICommand {
     
     getUniqueId(): string;
+    
+    getDisplayName(): string;
     
     /**
      * Add or remove elements as appropriate. Must be reversable.
