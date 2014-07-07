@@ -23,6 +23,8 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     
     private id: string;
     
+    private redidLast = true;
+    
     constructor(
         public graph: GraphView.Graph<N>,
         public expansionSet: ExpansionSets.ExpansionSet<N>
@@ -32,7 +34,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     }
     
     getUniqueId(): string{
-        if(undefined == this.id){
+        if(undefined === this.id){
             this.id = this.expansionSet.id.internalId+"_"+(GraphAddNodesCommand.counter++);
         }
         return this.id;
@@ -46,11 +48,21 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     // via the ExpansionSet, so that the logic is the same when adding a node
     // as when redoing the addition of a set. Hmmm...
     executeRedo(): void{
-        this.graph.addNodes(this.expansionSet.nodes, this.expansionSet);
+        if(!this.redidLast){
+            this.graph.addNodes(this.expansionSet.nodes, this.expansionSet);
+            this.redidLast = true;
+        } else {
+            console.log("Trying to redo same command twice in a row");
+        }
     }
     
     executeUndo(): void{
-        this.graph.removeNodes(this.expansionSet.nodes);
+        if(this.redidLast){
+            this.graph.removeNodes(this.expansionSet.nodes);
+            this.redidLast = false;
+        } else {
+            console.log("Trying to undo same command twice in a row");
+        }
     }
     
     preview(): void{

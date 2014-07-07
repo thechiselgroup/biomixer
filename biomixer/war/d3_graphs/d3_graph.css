@@ -256,6 +256,10 @@ div#undo_redo_breadcrumb_label {
 	font-weight: bold;
 	border-width: 2px;
 }
+.undone_crumb{
+	color: rgb(180,180,180);
+	border-color: rgb(180,180,180);
+}
 .crumb_for_:hover {
 	color: rgb(150,40,40);
 	border-color: rgb(150,40,40);

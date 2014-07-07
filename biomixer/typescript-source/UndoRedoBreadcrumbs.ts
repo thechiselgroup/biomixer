@@ -1,6 +1,7 @@
 ///<reference path="headers/require.d.ts" />
 
 ///<reference path="headers/d3.d.ts" />
+///<reference path="headers/jquery.d.ts" />
 
 /**
  * An undo model with a breadcrumb view composited into it.
@@ -60,7 +61,7 @@ export class UndoRedoManager {
         }
         
         // Current active? Do nothing.
-        var commandIndex = this.trail.indexOf(command);
+        var commandIndex = this.getCommandIndex(command);
         if(commandIndex === this.currentTrailIndex){
             return;
         }
@@ -81,13 +82,17 @@ export class UndoRedoManager {
             increment = +1;
             undo = false; //redoing
         }
-        for(var i = oldIndex; i += increment; ){
+        for(var i = oldIndex; i !== commandIndex; i += increment){
             if(undo){
                   command.executeUndo();
             } else {
                   command.executeRedo();
             }
         }
+    }
+    
+    getCommandIndex(command: ICommand): number{
+        return this.trail.indexOf(command);   
     }
     
 }
@@ -101,6 +106,8 @@ export class BreadcrumbTrail {
     static crumbIdPrefixAndClassName = "crumb_for_";
     
     static activeCrumbClassName = "active_crumb";
+    
+    static undoneCrumbClassName = "undone_crumb";
     
     static undoMenuText = "Undo/Redo >> ";
     static undoButtonSuffix = " >";
@@ -220,9 +227,21 @@ export class BreadcrumbTrail {
         this.selectAllCrumbElements()
             .removeClass(BreadcrumbTrail.activeCrumbClassName);
         
+        var activeCrumb = this.selectCrumbElement(activeCommand);
+        var activeCommandIndex = this.undoRedoModel.getCommandIndex(activeCommand);
+        
         if(activeCommand != null){
             this.selectCrumbElement(activeCommand)
             .addClass(BreadcrumbTrail.activeCrumbClassName);
+        }
+        
+        for(var i = this.trailOfCrumbs.length - 1; i >= 0; i--){
+            var crumb = this.selectCrumbElement(this.trailMap[this.trailOfCrumbs[i]].command);
+            if(i <= activeCommandIndex){
+                crumb.removeClass(BreadcrumbTrail.undoneCrumbClassName);
+            } else {
+                crumb.addClass(BreadcrumbTrail.undoneCrumbClassName);
+            }
         }
     }
     
