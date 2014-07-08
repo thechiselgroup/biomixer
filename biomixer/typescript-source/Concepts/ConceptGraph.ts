@@ -129,6 +129,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         this.conceptIdNodeMap[String(conceptNode.rawConceptUri)]= conceptNode;
     }
     
+    removeNodeFromIdMap(conceptNode: Node){
+        this.conceptIdNodeMap[String(conceptNode.rawConceptUri)]= conceptNode;
+    }
+    
     getNodeByUri(uri: ConceptURI): Node{
         return this.conceptIdNodeMap[String(uri)];
     }
@@ -156,6 +160,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         
     }
 
+    /**
+     * Used with expansion sets. Note that the node is already created here.
+     */
     addNodes(newNodes: Array<Node>, expansionSet: ExpansionSets.ExpansionSet<Node>){
         expansionSet.addAll(newNodes);
         for(var i = 0; i < newNodes.length; i++){
@@ -165,13 +172,32 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             this.addNodeToIdMap(newNodes[i]);
         }
         this.graphView.populateNewGraphElements(this.graphD3Format)
+        for(var i = 0; i < newNodes.length; i++){
+            // If there are implicit edges from before that link from an existing node to this new one,
+            // we can now manifest them.
+            this.manifestEdgesForNewNode(newNodes[i]);
+        }
     }
     
     removeNodes(nodesToRemove: Array<Node>){
-        console.log("Unimplemented. Get on it!");
+        this.graphD3Format.nodes = this.graphD3Format.nodes.filter(
+            function(node: Node, index: number, nodes: Node[]): boolean {
+                // Keep only those that do not appear in the removal array
+                return nodesToRemove.indexOf(node) === -1;
+            }
+        );
+        for(var i = 0; i < nodesToRemove.length; i++){
+            // Only implementing here rather than in graphView because of this container...
+            // Also, we like looking them up by id
+            this.removeNodeFromIdMap(nodesToRemove[i]);
+        }
+        // Edges depend on nodes when rendering, but not vice versa, so let's
+        // remove them first
+        this.removeManifestEdges(nodesToRemove);
+        this.graphView.removeMissingGraphElements(this.graphD3Format);
     }
     
-    addEdges(newEdges: Array<Link>){
+    private addEdges(newEdges: Array<Link>){
          for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
             this.graphD3Format.links.push(newEdges[i]);
@@ -179,8 +205,37 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         this.graphView.populateNewGraphEdges(this.graphD3Format.links);
     }
     
-    removeEdge(){
-        console.log("Unimplemented. Get it done!");
+    /**
+     * See removeManifestEdges for model book keeping that must be done
+     * prior to removing edges from the view.
+     */
+    private removeEdges(edgesToRemove: Array<Link>){
+        this.graphD3Format.links = this.graphD3Format.links.filter(
+            function(link: Link, index: number, links: Link[]): boolean {
+                // Keep only those that do not appear in the removal array
+                return edgesToRemove.indexOf(link) === -1;
+            }
+        );
+        this.graphView.removeMissingGraphElements(this.graphD3Format);
+    }
+    
+    private removeManifestEdges(nodesToRemove: Array<Node>){
+        var edgesToDelete = [];
+        for(var i = 0; i < nodesToRemove.length; i++){
+            // For each node we are removing, we de-manifest its edges, and re-register it into the
+            // registry so it can be manifested again later. Annoying, but the register system was
+            // extremely vital to prevent wasteful REST calls.
+            var node = nodesToRemove[i];
+            var incidentEdges = this.getAdjacentLinks(node);
+            for(var l = 0; l < incidentEdges.length; l++){
+                var edge = incidentEdges[l];
+                edge.source = null;
+                edge.target = null;
+                this.registerImplicitEdge((String)(edge.sourceId), (String)(edge.targetId), edge);
+                edgesToDelete.push(edge);
+            }
+        }
+        this.removeEdges(edgesToDelete);
     }
     
     private getOntologyAcronymFromOntologyUrl(ontologyUri){
@@ -241,9 +296,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // We also check for node endpoints in the graph before registering the implicit edges, so there's no risk of
             // adding an edge when it should instead be manifested in the graph.
             
-            // If there are implicit edges from before that link from an existing node to this new one,
-            // we can now manifest them.
-            this.manifestEdgesForNewNode(conceptNode);
+            // Moved this into the addNodes() call
+            // this.manifestEdgesForNewNode(conceptNode);
             
             return conceptNode;
     }
@@ -522,6 +576,18 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             }
         }
         return true;
+    }
+    
+    getAdjacentLinks(node: Node): Array<Link>{
+        var adjacentEdges = [];
+        var length = this.graphD3Format.links.length;
+        for(var i = 0; i < length; i++) {
+            var link = this.graphD3Format.links[i];
+            if(link.source === node || link.target === node){
+                adjacentEdges.push(link);
+            }
+        }
+        return adjacentEdges;
     }
 
     public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){

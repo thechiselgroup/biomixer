@@ -75,24 +75,28 @@ export class UndoRedoManager {
         
         var increment;
         var undo;
+        var stopAtIndex;
         if(commandIndex < oldIndex){
             increment = -1;
             undo = true; //undoing
+            stopAtIndex = commandIndex;
         } else {
             increment = +1;
             undo = false; //redoing
+            stopAtIndex = commandIndex + 1;
         }
-        for(var i = oldIndex; i !== commandIndex; i += increment){
+        for(var i = oldIndex; i !== stopAtIndex; i += increment){
+            var anotherCommand = this.trail[i];
             if(undo){
-                  command.executeUndo();
+                  anotherCommand.executeUndo();
             } else {
-                  command.executeRedo();
+                  anotherCommand.executeRedo();
             }
         }
     }
     
     getCommandIndex(command: ICommand): number{
-        return this.trail.indexOf(command);   
+        return this.trail.indexOf(command);
     }
     
 }

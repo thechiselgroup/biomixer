@@ -802,6 +802,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(!nodesRemoved.empty() || !linksRemoved.empty()){
             this.updateStartWithoutResume();
         }
+                
+        this.individualConceptFilter.updateFilterUI();
+        this.ontologyFilter.updateFilterUI();
+        this.edgeTypeFilter.updateFilterUI();
+        this.expansionSetFilter.updateFilterUI();
     }
     
     attachNodeMenu(enteringNodes: D3.Selection){
