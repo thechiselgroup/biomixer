@@ -76,16 +76,19 @@ export class UndoRedoManager {
         var increment;
         var undo;
         var stopAtIndex;
+        var startAtIndex;
         if(commandIndex < oldIndex){
             increment = -1;
             undo = true; //undoing
-            stopAtIndex = commandIndex;
+            startAtIndex = oldIndex; // From current downward, undo
+            stopAtIndex = commandIndex; // DOn't undo our target
         } else {
             increment = +1;
             undo = false; //redoing
-            stopAtIndex = commandIndex + 1;
+            startAtIndex = oldIndex + 1; // From next after current, redo
+            stopAtIndex = commandIndex + 1; // Redo the target one, not past
         }
-        for(var i = oldIndex; i !== stopAtIndex; i += increment){
+        for(var i = startAtIndex; i !== stopAtIndex; i += increment){
             var anotherCommand = this.trail[i];
             if(undo){
                   anotherCommand.executeUndo();

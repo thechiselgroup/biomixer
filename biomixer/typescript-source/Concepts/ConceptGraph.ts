@@ -126,11 +126,11 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     conceptIdNodeMap: ConceptIdMap = {};
     
     addNodeToIdMap(conceptNode: Node){
-        this.conceptIdNodeMap[String(conceptNode.rawConceptUri)]= conceptNode;
+        this.conceptIdNodeMap[String(conceptNode.rawConceptUri)] = conceptNode;
     }
     
     removeNodeFromIdMap(conceptNode: Node){
-        this.conceptIdNodeMap[String(conceptNode.rawConceptUri)]= conceptNode;
+        delete this.conceptIdNodeMap[String(conceptNode.rawConceptUri)];
     }
     
     getNodeByUri(uri: ConceptURI): Node{
@@ -176,6 +176,15 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // If there are implicit edges from before that link from an existing node to this new one,
             // we can now manifest them.
             this.manifestEdgesForNewNode(newNodes[i]);
+        }
+        
+        // Special case...
+        // Trying to get mapping expansions to have their mapping edges added when redoing
+        // an undo. Without this, the mapping arcs don't get processed for the target nodes
+        // as they run through the manifestEdgesForNewNode() because they are registered on
+        // the source node only.
+        if(null != expansionSet && null != expansionSet.parentNode){
+            this.manifestEdgesForNewNode(expansionSet.parentNode);
         }
     }
     
@@ -505,15 +514,16 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             $.each(this.expMan.getRegisteredEdgeTargetsFor(conceptId), (index, conceptsEdges)=>{
                 $.each(conceptsEdges, (index, edge: Link)=>{
                     var otherId = (edge.sourceId == conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId ;
-        
+
                     edge.source = this.conceptIdNodeMap[String(edge.sourceId)];
                     edge.target = this.conceptIdNodeMap[String(edge.targetId)];
                     if(this.edgeNotInGraph(edge)){
                         this.addEdges([edge]);
                     }
-                    
                     // Clear that one out...safe while in the loop?
                     this.expMan.clearEdgeFromRegistry(conceptNode.rawConceptUri, otherId, edge);
+                    
+                    
                 })
             });
         }
@@ -530,7 +540,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 // If one of the endpoints was expanded along mapping neighbourhood space, we will render the edge.
                 return false;
             } else {
-                return true;   
+                return true;
             }
         }
         
@@ -567,7 +577,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * @param edge
      * @returns {Boolean}
      */
-    private edgeNotInGraph(edge: Link){
+    private edgeNotInGraph(edge: Link): boolean{
         var length = this.graphD3Format.links.length;
         for(var i = 0; i < length; i++) {
             var item = this.graphD3Format.links[i];
@@ -576,6 +586,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             }
         }
         return true;
+    }
+    
+    private nodeInGraph(node: Node): boolean{
+        return this.conceptIdNodeMap[(String)(node.rawConceptUri)] !== undefined;
     }
     
     getAdjacentLinks(node: Node): Array<Link>{
