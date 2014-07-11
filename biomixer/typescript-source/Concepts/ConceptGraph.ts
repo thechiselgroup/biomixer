@@ -93,6 +93,13 @@ export class Node extends GraphView.BaseNode {
     constructor(){
         super();
     }
+    
+    /**
+     * Use with the D3 data() method for binding link models into D3.
+     */
+    static d3IdentityFunc(d: Node){
+        return String(d.rawConceptUri);
+    }
 }
 
 export class Link extends GraphView.BaseLink<Node> {
@@ -109,6 +116,13 @@ export class Link extends GraphView.BaseLink<Node> {
     constructor(){
         super();
     }
+    
+    /**
+     * Use with the D3 data() method for binding link models into D3.
+     */
+    static d3IdentityFunc(d: Link){
+        return d.rawId;
+    }
 }
 
 export class ConceptD3Data extends GraphView.GraphDataForD3<Node, Link> {
@@ -122,19 +136,38 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     
     graphD3Format: ConceptD3Data = new ConceptD3Data();
     
-      // To track nodes that we have in the graph (by id):
+    // To track nodes that we have in the graph (by id):
     conceptIdNodeMap: ConceptIdMap = {};
+    elementIdNodeMap: ConceptIdMap = {};
     
     addNodeToIdMap(conceptNode: Node){
-        this.conceptIdNodeMap[String(conceptNode.rawConceptUri)] = conceptNode;
+		this.conceptIdNodeMap[String(conceptNode.rawConceptUri)] = conceptNode;
+        this.elementIdNodeMap[String(conceptNode.conceptUriForIds)] = conceptNode;
     }
     
     removeNodeFromIdMap(conceptNode: Node){
         delete this.conceptIdNodeMap[String(conceptNode.rawConceptUri)];
+        delete this.elementIdNodeMap[String(conceptNode.conceptUriForIds)];
+    }
+    
+    /**
+     * Perfect for testing to see if nodes are deleted, when other entities hold on
+     * to them for a good reason (expansion sets).
+     */
+    nodeIsInIdMap(node): boolean{
+        return undefined !== this.getNodeByUri(node.rawConceptUri);
     }
     
     getNodeByUri(uri: ConceptURI): Node{
         return this.conceptIdNodeMap[String(uri)];
+    }
+    
+    /**
+     * Accepts strings because this will be used when we have an SVG elment and need
+     * the node model that corresponds; thus it comes off the element as a string.
+     */
+    getNodeByIdUri(idSafeUri: String): Node{
+        return this.elementIdNodeMap[String(idSafeUri)];
     }
     
     convertEdgeTypeLabelToEdgeClass(){
@@ -164,7 +197,11 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * Used with expansion sets. Note that the node is already created here.
      */
     addNodes(newNodes: Array<Node>, expansionSet: ExpansionSets.ExpansionSet<Node>){
-        expansionSet.addAll(newNodes);
+        // Deletion sets lead back into addNodes() when done, but both they and expansion
+        // sets are ignorant of eachother. Allow null to be passed here.
+        if(null !== expansionSet){
+            expansionSet.addAll(newNodes);
+        }
         for(var i = 0; i < newNodes.length; i++){
             // Only implementing here rather than in graphView because of this container...
             this.graphD3Format.nodes.push(newNodes[i]);
@@ -226,6 +263,14 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             }
         );
         this.graphView.removeMissingGraphElements(this.graphD3Format);
+        
+        for(var l = 0; l < edgesToRemove.length; l++){
+            // Was doing this earlier, but D3 cries if I do it before re-binding,
+            // I think because I use the source and target as parts of the
+            // identifier function.
+            edgesToRemove[l].source = null;
+            edgesToRemove[l].target = null;
+        }
     }
     
     private removeManifestEdges(nodesToRemove: Array<Node>){
@@ -238,8 +283,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             var incidentEdges = this.getAdjacentLinks(node);
             for(var l = 0; l < incidentEdges.length; l++){
                 var edge = incidentEdges[l];
-                edge.source = null;
-                edge.target = null;
+                // edge.source = null;
+                // edge.target = null;
                 this.registerImplicitEdge((String)(edge.sourceId), (String)(edge.targetId), edge);
                 edgesToDelete.push(edge);
             }

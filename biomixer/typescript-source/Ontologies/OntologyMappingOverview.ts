@@ -583,8 +583,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     
     }
     
-    removeMissingGraphElements(json: OntologyGraph.OntologyD3Data){
-        
+    removeMissingGraphElements(graphD3Format: OntologyGraph.OntologyD3Data){
+        // Have problems if we don't pass the containers back in like this.
+        // Removed edges will not be properly removed, and exceptions will
+        // be thrown.
+        this.forceLayout.nodes(graphD3Format.nodes);
+        this.forceLayout.links(graphD3Format.links);
     }
     
     

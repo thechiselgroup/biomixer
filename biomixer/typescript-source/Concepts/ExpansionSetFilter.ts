@@ -74,7 +74,20 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
     }
     
     computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{
-        return this.expRegistry.findExpansionSet(node.getExpansionSetId()).nodes;
+        var setNodes = this.expRegistry.findExpansionSet(node.getExpansionSetId()).nodes;
+        // We filter out any nodes that are (currently) deleted from the graph.
+        // We always need to hold on to nodes that are deleted, since they could be re-added
+        // via an undo.
+        // TODO A gotchya here is that if a node is added via a different expansion operation,
+        // then this expansion set things it has the node, while the new expansion set thinks it
+        // has the node (and should) and the node will think it belongs to the new expansion set.
+        // Making an issue...but not sure when I will deal with it.
+        var setNodesInGraph = setNodes.filter(
+            (node: ConceptGraph.Node, index: number)=>{
+                return this.pathToRootView.conceptGraph.nodeIsInIdMap(node);
+            }
+        );
+        return setNodesInGraph;
     }
 
     /**

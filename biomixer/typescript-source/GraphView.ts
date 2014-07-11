@@ -89,7 +89,7 @@ export interface GraphView<N extends BaseNode, L extends BaseLink<BaseNode>> ext
 }
 
 export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
-// TODO Review this interface. A lot fo this should probably be made more
+// TODO Review this interface. A lot of this should probably be made more
 // listener orietented rather than direct call. But the system is shallow now,
 // so maybe this is what we want.
     
@@ -362,9 +362,20 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     private nodeHider(nodeData: N, hiding: boolean){
         // Hide the node and label away first
-        var sourceGNode = d3.selectAll(BaseGraphView.nodeSvgClass)
+        var subnode = d3.selectAll(BaseGraphView.nodeSvgClass)
             .filter(function(d: N, i){ return d === nodeData; })
-            .node().parentNode;
+            .node()
+        
+        if(subnode === null){
+            // When we have deleted nodes (which can be re-done), then hide an expansion
+            // set that included some deleted nodes, we need to fall out fo this. There
+            // might be other occassions where this happens, and I don't want expansion
+            // sets, nor ontology filter systems, to be aware of deletion status, so
+            // I will recover from the error here.
+            return;
+        }
+        
+        var sourceGNode = subnode.parentNode;
         // In order to hide any baggage (like expander menu indicators), we need to grab the parent
         d3.select(sourceGNode)
             .classed(BaseGraphView.hiddenNodeClass, hiding);

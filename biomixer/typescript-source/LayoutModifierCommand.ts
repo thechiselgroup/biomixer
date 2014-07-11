@@ -12,7 +12,7 @@ import GraphView = require("./GraphView");
  
 // TODO Will likely use one for layout triggers (to allow naming) and another for
 // arbitrary layout change snapshots.
-export class LayoutModifier<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+export class LayoutModificationCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
     constructor(
     ){
         // LEFTOFF

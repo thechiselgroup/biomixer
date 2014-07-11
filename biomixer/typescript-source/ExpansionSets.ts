@@ -11,6 +11,7 @@ import GraphView = require("./GraphView");
 import GraphModifierCommand = require("./GraphModifierCommand");
 
 
+
 /**
  * Expansion sets are a way of collecting together nodes that were loaded for a common
  * purpose; I would say at the same time, but loading is done with so much asynchonicity
@@ -70,6 +71,22 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
     
 }
 
+/**
+ * This class tracks node expansion sets, so that they may be identifed later via view component
+ * interactions. When a user wants to redo or undo an expansion, we will look up the expansion
+ * on the basis of the view element id. These lookups also occur when we have a node model and
+ * need to know what expansion set it entered the graph with.
+ * 
+ * TODO That should really be done with callbacks or pointers directly to expansion sets.
+ * Is there another reason for a centralized registry?
+ * 
+ * The one benefit of the registry occurs if we actually ever need an actual listing of expansion
+ * sets. The filters currently function on the basis of nodes, looking up their expansion
+ * sets to create the checkboxes. There could be future need for a complete listing,
+ * in which case the refactoring should be to get rid of the ids as the mechanism of lookup
+ * from nodes, and use direct references instead.
+ * 
+ */
 export class ExpansionSetRegistry<N extends GraphView.BaseNode> {
     
     private registry: {[key: string]: ExpansionSet<N>} = {};
@@ -83,6 +100,9 @@ export class ExpansionSetRegistry<N extends GraphView.BaseNode> {
      * Parent node can be null for the initial expansion, when the expansion is not triggered
      * by a menu on an existing node.
      */
+    /**
+     * Deprecated. This can be removed if we tag actual set references onto nodes rather than their set ids. 
+     */
     createExpansionSet(id: ExpansionSetIdentifer, parentNode: N, graph: GraphView.Graph<N>): ExpansionSet<N> {
         this.registry[id.internalId] = new ExpansionSet<N>(id, parentNode, graph);
         this.undoRedoBoss.addCommand(this.registry[id.internalId].getGraphModifier());
@@ -94,6 +114,9 @@ export class ExpansionSetRegistry<N extends GraphView.BaseNode> {
     }
     
     // TODO Do we really need or want edges in the set? Probably not.
+    /**
+     * Deprecated. This appears to be unused and I anticipate no need for it. 
+     */
     addToExpansionSet(nodes: Array<N>, id: ExpansionSetIdentifer): void{
         var expSet: ExpansionSet<N> = this.registry[id.internalId];
         expSet.addAll(nodes);

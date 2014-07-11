@@ -26,18 +26,17 @@ export class UndoRedoManager {
      * memory use for example), go ahead and add that functionality.
      */
     addCommand(newCommand: ICommand): void{
-        console.log("Adding to trail at: "+(this.currentTrailIndex + 1));
-        console.log("Remove from trail: "+(this.trail.length-1 - this.currentTrailIndex));
+        // console.log("Adding to trail at: "+(this.currentTrailIndex + 1));
+        // console.log("Remove from trail: "+(this.trail.length-1 - this.currentTrailIndex));
         // If we have 10 items, and the current item is 7 (index 0, so 8th item), then when we splice, we want to
         // insert at 8 (after 7, so at 7+1), and we want to remove from the array 2 items (index 8 and 9), which is
         // 10 - 1 - 7
-        var removed = this.trail.splice(this.currentTrailIndex + 1, (this.trail.length-1 - this.currentTrailIndex), newCommand);
-        console.log(this.trail[this.trail.length-1].getDisplayName());
+         var removed = this.trail.splice(this.currentTrailIndex + 1, (this.trail.length-1 - this.currentTrailIndex), newCommand);
+        // console.log(this.trail[this.trail.length-1].getDisplayName());
         this.currentTrailIndex = this.trail.length - 1;
         // TODO Should we bother deleting the removed commands?
         // That is with the delete keyword?
         this.crumblez.updateView(this.trail, newCommand);
-//        this.trail.indexOf(activeCommand)
     }
     
     /**
@@ -96,12 +95,26 @@ export class UndoRedoManager {
                   anotherCommand.executeRedo();
             }
         }
+        
+        // TODO Filters may need some refreshing, but the design separates the undo/redo in model from filters in view.
+        // Fix if the inconsistency is a problem. Filters could be moved to be model oriented, but I have
+        // them more as controller/views, due to the fact they only change the view. It might be tricky
+        // to refactor to facilitate refreshing those on redo/undo!
+        // When we do this, we also need to refresh filters. So, let's tell the graph model
+        // that things have been undone, and it can carry out any additional cleanup as necessary.
+        // this.graphView.afterUndoRedoPerformed();
     }
     
     getCommandIndex(command: ICommand): number{
         return this.trail.indexOf(command);
     }
     
+}
+
+// Unused for now.
+// We need it, but I am defering the refactoring necessary to hook it up.
+export interface UndoRedoListener {
+    afterUndoRedoPerformed();
 }
 
 export class BreadcrumbTrail {

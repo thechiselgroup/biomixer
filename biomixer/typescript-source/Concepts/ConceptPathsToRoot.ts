@@ -21,6 +21,7 @@
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
+///<amd-dependency path="Concepts/NodeDeleter" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require("../Utils");
@@ -39,6 +40,7 @@ import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
+import NodeDeleter = require("./NodeDeleter");
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     
@@ -47,6 +49,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     renderScaler: ConceptRenderScaler.ConceptRendererScaler;
     filterSliders: ConceptFilterSliders.ConceptRangeSliders;
     layouts: ConceptLayouts.ConceptLayouts;
+    nodeDeleter: NodeDeleter.NodeDeleter;
     individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
     ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
     edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
@@ -176,6 +179,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
         
+        this.nodeDeleter = new NodeDeleter.NodeDeleter(this.conceptGraph, this.undoRedoBoss);
+        
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
         // TODO Trying to get layout to begin anew when we swap visualization subtypes.
@@ -227,9 +232,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // since we deal with DAGs, not hierarchies.
         this.forceLayout = d3.layout.force();
         
-        // TODO Do I actually need these?
-        this.conceptGraph.graphD3Format.nodes = <ConceptGraph.Node[]>this.forceLayout.nodes();
-        this.conceptGraph.graphD3Format.links = <ConceptGraph.Link[]>this.forceLayout.links();
+        // Can inject or extract these arrays. Either way, we need to re-inject
+        // them whenever the model changes and D3 needs to respond.
+        this.forceLayout.nodes(this.conceptGraph.graphD3Format.nodes);
+        this.forceLayout.links(this.conceptGraph.graphD3Format.links);
         
         // nodeDragBehavior = forceLayout.drag;
         this.nodeDragBehavior = d3.behavior.drag()
@@ -555,7 +561,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Data constancy via key function() passed to data()
         // Link stuff first
         var links = this.vis.select("#link_container")
-        .selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(linksData, function(d: ConceptGraph.Link){return d.rawId});
+        .selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(linksData, ConceptGraph.Link.d3IdentityFunc);
         
         // Add new stuff
         // Make svg:g like nodes if we need labels
@@ -700,7 +706,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var outerThis = this;
         
         var nodes = this.vis.select("#node_container")
-        .selectAll("g.node_g").data(nodesData, function(d: ConceptGraph.Node){ return String(d.rawConceptUri)});
+        .selectAll("g.node_g").data(nodesData, ConceptGraph.Node.d3IdentityFunc);
         // Add new stuff
         var enteringNodes = nodes.enter()
         .append("svg:g")
@@ -789,8 +795,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     removeMissingGraphElements(){
         //console.log("Removing some graph elements "+Utils.getTime());
         
-        var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, function(d: ConceptGraph.Node){return String(d.rawConceptUri);});
-        var links = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(this.conceptGraph.graphD3Format.links, function(d: ConceptGraph.Link){return d.rawId;});
+        // Have problems if we don't pass the containers back in like this.
+        // Removed edges will not be properly removed, and exceptions will
+        // be thrown.
+        this.forceLayout.nodes(this.conceptGraph.graphD3Format.nodes);
+        this.forceLayout.links(this.conceptGraph.graphD3Format.links);
+        
+        // I would null out the source and target of the edges we are removing,
+        // but we don't kow if the caller has other plans for deleted edges .
+        
+        var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, ConceptGraph.Node.d3IdentityFunc);
+        var links = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(this.conceptGraph.graphD3Format.links, ConceptGraph.Link.d3IdentityFunc);
         
         var nodesRemoved = nodes.exit().remove();
         var linksRemoved = links.exit().remove();
@@ -799,14 +814,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.filterSliders.updateTopMappingsSliderRange();
         this.filterSliders.rangeSliderSlideEvent(null, null); // Bad to pass nulls when I know it will work, or ok?
         
+        // Note that the length of the Selection is not the definition of empty().
         if(!nodesRemoved.empty() || !linksRemoved.empty()){
             this.updateStartWithoutResume();
+            this.individualConceptFilter.updateFilterUI();
+            this.ontologyFilter.updateFilterUI();
+            this.edgeTypeFilter.updateFilterUI();
+            this.expansionSetFilter.updateFilterUI();
         }
-                
-        this.individualConceptFilter.updateFilterUI();
-        this.ontologyFilter.updateFilterUI();
-        this.edgeTypeFilter.updateFilterUI();
-        this.expansionSetFilter.updateFilterUI();
     }
     
     attachNodeMenu(enteringNodes: D3.Selection){
@@ -942,6 +957,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layouts");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
         this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
@@ -954,7 +970,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      */
     refreshOtherFilterCheckboxStates(affectedNodes: ConceptGraph.Node[], triggeringFilter: ConceptFilterWidget.AbstractConceptNodeFilterWidget){
         if(triggeringFilter != this.individualConceptFilter){
-        this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
+            this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
         }
         if(triggeringFilter != this.ontologyFilter){
             this.ontologyFilter.updateCheckboxStateFromView(affectedNodes);

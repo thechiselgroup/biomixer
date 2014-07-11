@@ -5,13 +5,14 @@
 
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="Menu" />
+///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
 
-import GraphView = require('../GraphView');
-import Menu = require('../Menu');
-import ConceptGraphView = require('./ConceptPathsToRoot');
-import ConceptGraph = require('./ConceptGraph');
+import GraphView = require("../GraphView");
+import Menu = require("../Menu");
+import ConceptGraphView = require("./ConceptPathsToRoot");
+import ConceptGraph = require("./ConceptGraph");
 
 export class ConceptLayouts {
 
