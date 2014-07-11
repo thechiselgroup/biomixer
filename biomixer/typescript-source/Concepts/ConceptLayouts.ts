@@ -76,6 +76,21 @@ export class ConceptLayouts {
     
     }
     
+    getOntologyAcronyms(){
+        console.log("returning ontologies");
+        var ontologies = [];
+        var outerThis = this;
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        graphNodes.forEach(function(node){
+            console.log(node.ontologyAcronym);
+            if($.inArray(node.ontologyAcronym, ontologies)==-1){
+                ontologies[ontologies.length]=node.ontologyAcronym;
+                console.log("adding ontology");
+            }
+        });
+           
+        return ontologies;
+    }
     
     transitionNodes(){
         var outerThis = this;
@@ -111,42 +126,45 @@ export class ConceptLayouts {
     getRootIndex(ontologyAcronym){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-        var graphLinks = outerThis.graph.graphD3Format.links;
-       // var centralUri = outerThis.graph.
-        
+        var graphLinks = outerThis.graph.graphD3Format.links;        
         var index = 0;
         var rootId = null;
         var rootFound=false;
-        // not the best algorithm. Need to look into improving it
-       // console.log(graphLinks);
-        
-      //  var centralOntologyAcronym = outerThis.graph.graphD3Format.
-        
-        graphLinks.forEach(function(a){
-            if((outerThis.getOntologyAcronym(a.sourceId)===ontologyAcronym)&&(outerThis.getOntologyAcronym(a.targetId)===ontologyAcronym)){
-                if(rootFound==false){
-                    rootFound=true;
-                    graphLinks.forEach(function(b){
-                        if(a.sourceId==b.targetId){
-                            //rootId = b.sourceId;
-                            rootFound = false;
-                        }
-                    });
-                                        
-                   if(rootFound==true){
-                       rootId = a.sourceId;
-                   }
-                }
-            }
-            
-        });
-        
+        var conceptCount = 0; 
         graphNodes.forEach(function(n){
-            var i = graphNodes.indexOf(n);
-            if(n.rawConceptUri==rootId){
-                index = i;
+            if(outerThis.getOntologyAcronym(n.rawConceptUri)==ontologyAcronym){
+                conceptCount++;
+                index = graphNodes.indexOf(n);
             }
         });
+        
+        if(conceptCount>1){
+            graphLinks.forEach(function(a){
+                if((outerThis.getOntologyAcronym(a.sourceId)===ontologyAcronym)&&(outerThis.getOntologyAcronym(a.targetId)===ontologyAcronym)){
+                    if(rootFound==false){
+                        rootFound=true;
+                        graphLinks.forEach(function(b){
+                            if(a.sourceId==b.targetId){
+                                //rootId = b.sourceId;
+                                rootFound = false;
+                            }
+                        });
+                                            
+                       if(rootFound==true){
+                           rootId = a.sourceId;
+                       }
+                    }
+                }
+                
+            });
+            graphNodes.forEach(function(n){
+                if(n.rawConceptUri==rootId){
+                    index = graphNodes.indexOf(n);;
+                }
+            });
+        }
+        
+       
         return index;   
     }
     
@@ -222,10 +240,6 @@ export class ConceptLayouts {
                 if(child.depth<=graphNodes[rootIndex].depth){
                     child.depth = graphNodes[rootIndex].depth+1;
                 }
-                //console.log(graphNodes[rootIndex].depth);
-                //console.log(child.depth);
-                
-                //var index = outerThis.getIndex(child);
                 outerThis.calculateDepth(graphNodes.indexOf(child));
             });
         }
@@ -235,54 +249,55 @@ export class ConceptLayouts {
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
-        var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
+       // var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
         
-        var index = outerThis.getRootIndex(ontologyAcronym);
-        outerThis.calculateDepth(index);
+        var ontologies = outerThis.getOntologyAcronyms();
+        console.log(ontologies.length);
+        var trees = [];
         
-        graphNodes.forEach(function(a){
-            console.log(a.depth);
-        });
-        
-        var tree = d3.layout.tree()
-            .size([width, height])
-            .children(function(d: ConceptGraph.Node){  
-                 
-                /*
-                graphLinks.forEach(function(b){
-                    if(b.sourceId==d.rawConceptUri&&b.relationType!="maps to"){
-                        var targetNode= {};
-                        graphNodes.forEach(function(c){
-                           if(c.rawConceptUri==b.targetId){
-                               //then check target node c has more than one parent
-                               //if node has more than one parent
-                               //compare depths of parents
-                               //if d has a higher rank, make 
-                               
-                               
-                               targetNode = c;
-                           }
-                        });
-                        arrayOfNodes.push(targetNode);
-                     }
-                });
-                 */
-                
-                var arrayOfNodes = outerThis.getChildren(graphNodes.indexOf(d)); 
-                var children: ConceptGraph.Node[];
-                children = []; 
-                //console.log(arrayOfNodes);
-                arrayOfNodes.forEach(function(b){
-                    if(b.depth==d.depth+1){
-                        children.push(b);    
-                    }
-                
-                });
-                return children;
+        for (var i=0; i< ontologies.length; i++){
+           var index = outerThis.getRootIndex(ontologies[i]);
+           console.log(index);
+           outerThis.calculateDepth(index);
+
+           trees[i] = d3.layout.tree()
+                .size([width/ontologies.length, height])
+                .children(function(d: ConceptGraph.Node){   
+                    var arrayOfNodes = outerThis.getChildren(graphNodes.indexOf(d)); 
+                    var children: ConceptGraph.Node[];
+                    children = []; 
+                    //console.log(arrayOfNodes);
+                    arrayOfNodes.forEach(function(b){
+                        if(b.depth==d.depth+1){
+                            children.push(b);    
+                        }
+                    
+                    });
+                    return children;
             });
-    
-        tree.nodes(graphNodes[index]);
-        return tree;
+            trees[i].nodes(graphNodes[index]);
+        }
+       
+        /*
+                    graphLinks.forEach(function(b){
+                        if(b.sourceId==d.rawConceptUri&&b.relationType!="maps to"){
+                            var targetNode= {};
+                            graphNodes.forEach(function(c){
+                               if(c.rawConceptUri==b.targetId){
+                                   //then check target node c has more than one parent
+                                   //if node has more than one parent
+                                   //compare depths of parents
+                                   //if d has a higher rank, make 
+                                   
+                                   
+                                   targetNode = c;
+                               }
+                            });
+                            arrayOfNodes.push(targetNode);
+                         }
+                    });
+                     */
+                    
     }
     
     runRadialLayoutLambda(){
@@ -294,7 +309,7 @@ export class ConceptLayouts {
             var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
             var treeWidth = 360;
             var treeHeight = outerThis.graphView.visHeight()/2-100; 
-            var tree = outerThis.buildTree(treeWidth, treeHeight);
+            outerThis.buildTree(treeWidth, treeHeight);
   
             $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
                 function(index, element){
@@ -317,7 +332,7 @@ export class ConceptLayouts {
             var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
             var treeWidth = outerThis.graphView.visWidth();
             var treeHeight = outerThis.graphView.visHeight()-300; 
-            var tree = outerThis.buildTree(treeWidth, treeHeight);
+            outerThis.buildTree(treeWidth, treeHeight);
             $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
                   function(index, element){
                       graphNodes[index].x = element.x; 
@@ -334,21 +349,32 @@ export class ConceptLayouts {
     runHorizontalTreeLayoutLambda(){
         var outerThis = this;
         return function(){
+            //var numOfOntogies = outerThis.getNumOfOntologies();
+            //console.log(numOfOntogies);
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
             var treeWidth = outerThis.graphView.visHeight()-100;
             var treeHeight = outerThis.graphView.visWidth()-300;
-            var tree = outerThis.buildTree(treeWidth, treeHeight);
-            var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
+            outerThis.buildTree(treeWidth, treeHeight);
 
-            $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
-                  function(index, element){
-                      var xValue = element.x
-                      graphNodes[index].x = element.y+150; 
-                      graphNodes[index].y = xValue; 
-                  }
-            );
+            var ontologies = outerThis.getOntologyAcronyms();
+            for (var j=0; j<ontologies.length; j++){
+                var increment= treeWidth/ontologies.length*j;
+                var ontology = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
+                $.each(ontology,
+                    function(index, element){
+
+                      var xValue = element.x;
+                      ontology[index].x = element.y+150; 
+                      ontology[index].y = xValue+ increment; 
+                      console.log("inc");
+                      console.log(ontologies[j]);  
+                       console.log(ontology[index].ontologyAcronym);
+                      console.log(increment);  
+                });
+            }
+            
             outerThis.transitionNodes();
         };
     }
