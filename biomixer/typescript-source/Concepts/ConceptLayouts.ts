@@ -77,15 +77,15 @@ export class ConceptLayouts {
     }
     
     getOntologyAcronyms(){
-        console.log("returning ontologies");
+       // console.log("returning ontologies");
         var ontologies = [];
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         graphNodes.forEach(function(node){
-            console.log(node.ontologyAcronym);
+            //console.log(node.ontologyAcronym);
             if($.inArray(node.ontologyAcronym, ontologies)==-1){
                 ontologies[ontologies.length]=node.ontologyAcronym;
-                console.log("adding ontology");
+              //  console.log("adding ontology");
             }
         });
            
@@ -245,19 +245,19 @@ export class ConceptLayouts {
         }
     }
     
-    buildTree(width, height){
+    buildTree(width, height, ontologies){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
        // var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
         
-        var ontologies = outerThis.getOntologyAcronyms();
-        console.log(ontologies.length);
+       // var ontologies = outerThis.getOntologyAcronyms();
+       // console.log(ontologies.length);
         var trees = [];
         
         for (var i=0; i< ontologies.length; i++){
            var index = outerThis.getRootIndex(ontologies[i]);
-           console.log(index);
+           //console.log(index);
            outerThis.calculateDepth(index);
 
            trees[i] = d3.layout.tree()
@@ -309,7 +309,9 @@ export class ConceptLayouts {
             var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
             var treeWidth = 360;
             var treeHeight = outerThis.graphView.visHeight()/2-100; 
-            outerThis.buildTree(treeWidth, treeHeight);
+            var ontologies = outerThis.getOntologyAcronyms();
+
+            outerThis.buildTree(treeWidth, treeHeight, ontologies);
   
             $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
                 function(index, element){
@@ -329,19 +331,25 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
-            var ontologyAcronym = outerThis.getOntologyAcronym(outerThis.centralConceptUri);
             var treeWidth = outerThis.graphView.visWidth();
             var treeHeight = outerThis.graphView.visHeight()-300; 
-            outerThis.buildTree(treeWidth, treeHeight);
-            $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
-                  function(index, element){
-                      graphNodes[index].x = element.x; 
-                      graphNodes[index].y = element.y+150; 
-                     // console.log(graphNodes[index]);
-                     // console.log(graphNodes[index].depth);
+            
+            var ontologies = outerThis.getOntologyAcronyms();
+            outerThis.buildTree(treeWidth, treeHeight, ontologies);
+            
+            for (var j=0; j<ontologies.length; j++){
+                var increment= treeWidth/ontologies.length*j;
+                var ontologyNodes = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
+               
 
-                  }
-            );
+                $.each(ontologyNodes, function(index, element){
+                      ontologyNodes[index].x = element.x+increment; 
+                      ontologyNodes[index].y = element.y+150; 
+
+                    }
+                );
+            }
+            
             outerThis.transitionNodes();
         };
     }
@@ -349,29 +357,22 @@ export class ConceptLayouts {
     runHorizontalTreeLayoutLambda(){
         var outerThis = this;
         return function(){
-            //var numOfOntogies = outerThis.getNumOfOntologies();
-            //console.log(numOfOntogies);
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
             var treeWidth = outerThis.graphView.visHeight()-100;
             var treeHeight = outerThis.graphView.visWidth()-300;
-            outerThis.buildTree(treeWidth, treeHeight);
-
+            
             var ontologies = outerThis.getOntologyAcronyms();
+            outerThis.buildTree(treeWidth, treeHeight, ontologies);
+
             for (var j=0; j<ontologies.length; j++){
                 var increment= treeWidth/ontologies.length*j;
-                var ontology = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
-                $.each(ontology,
-                    function(index, element){
-
+                var ontologyNodes = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
+                $.each(ontologyNodes, function(index, element){
                       var xValue = element.x;
-                      ontology[index].x = element.y+150; 
-                      ontology[index].y = xValue+ increment; 
-                      console.log("inc");
-                      console.log(ontologies[j]);  
-                       console.log(ontology[index].ontologyAcronym);
-                      console.log(increment);  
+                      ontologyNodes[index].x = element.y+150; 
+                      ontologyNodes[index].y = xValue+ increment;  
                 });
             }
             
