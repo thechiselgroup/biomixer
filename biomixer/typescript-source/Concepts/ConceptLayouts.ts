@@ -312,15 +312,19 @@ export class ConceptLayouts {
             var ontologies = outerThis.getOntologyAcronyms();
 
             outerThis.buildTree(treeWidth, treeHeight, ontologies);
-  
-            $.each(graphNodes.filter(function (d, i){return d.ontologyAcronym===ontologyAcronym}),
-                function(index, element){
-                    var radius = element.y;
-                    var angle = element.x/180 * Math.PI;
-                    graphNodes[index].x = outerThis.graphView.visWidth()/2 + radius*Math.cos(angle); 
-                    graphNodes[index].y = outerThis.graphView.visHeight()/2 + radius*Math.sin(angle); 
-                }
-            );
+            for (var j=0; j<ontologies.length; j++){
+                var increment= treeWidth/ontologies.length*j;
+                var ontologyNodes = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
+            
+                $.each(ontologyNodes, function(index, element){
+                        var radius = element.y+20*(ontologies.length-1);//make an offset if more than one ontology
+                        var angle = (element.x+increment)/180 * Math.PI;
+                        ontologyNodes[index].x = outerThis.graphView.visWidth()/2 + radius*Math.cos(angle); 
+                        ontologyNodes[index].y = outerThis.graphView.visHeight()/2 + radius*Math.sin(angle); 
+                    }
+                );
+            }
+            
             outerThis.transitionNodes();
         };
     }
