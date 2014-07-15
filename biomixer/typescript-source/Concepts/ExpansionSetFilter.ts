@@ -26,7 +26,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
     implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link>
     {
     
-    static SUB_MENU_TITLE: string = "Expansion Sets";
+    static SUB_MENU_TITLE: string = "Node Expansion Sets Displayed";
     
     expRegistry: ExpansionSets.ExpansionSetRegistry<ConceptGraph.Node>;
     

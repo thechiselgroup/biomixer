@@ -80,6 +80,14 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
     }
     
+    /**
+     * Sets all checkboxes to be checked. Does not (appear!) to *trigger* the checkboxes though; this affects
+     * the view only.
+     */
+    checkmarkAllCheckboxes(){
+        $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
+    }
+    
 }
 
 export interface INodeFilterWidget<N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends AbstractNodeFilterWidget<N, L> {

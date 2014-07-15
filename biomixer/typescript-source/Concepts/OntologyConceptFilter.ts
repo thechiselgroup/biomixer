@@ -16,7 +16,7 @@ import ConceptGraph = require("./ConceptGraph");
 
 export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
     
-    static SUB_MENU_TITLE = "Ontologies Rendered";
+    static SUB_MENU_TITLE = "Ontologies Displayed";
     
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     

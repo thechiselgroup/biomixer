@@ -18,7 +18,7 @@ import ConceptGraph = require("./ConceptGraph");
  */
 export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget implements FilterWidget.IFilterWidget {
     
-    static SUB_MENU_TITLE: string = "Edge Types Rendered";
+    static SUB_MENU_TITLE: string = "Edge Types Displayed";
     
     constructor(
         public conceptGraph: ConceptGraph.ConceptGraph,

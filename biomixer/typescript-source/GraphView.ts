@@ -267,6 +267,23 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             sourceNode
              .classed("highlightedNode", true);
             
+            // Get the hovered node to the top of the SVG render stack.
+            // This is important for node menu rendering, so that it will inherit
+            // the z-order of the node, and be above other nodes rather than beneath.
+            d3.select("#node_container").selectAll('.node_g')
+                .sort(function(a: N, b: N) {
+                    if (a.getEntityId() === nodeData.getEntityId()){ //sourceNode.attr("id")) {
+                        return 1;
+                    } else {
+                        if (b.getEntityId() === nodeData.getEntityId()){ //sourceNode.attr("id")) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+            );
+            
             // There must be a less loopy, data oriented way to achieve this.
             // I recently modified it to *not* use x and y coordinates to identify ndoes and edges, which was heinous.
             // Looping over everything is just as ugly (but fast enough in practice).

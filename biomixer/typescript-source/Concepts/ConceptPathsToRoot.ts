@@ -21,7 +21,7 @@
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
-///<amd-dependency path="Concepts/NodeDeleter" />
+///<amd-dependency path="Concepts/NodeDeleterWidgets" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require("../Utils");
@@ -40,7 +40,7 @@ import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
-import NodeDeleter = require("./NodeDeleter");
+import NodeDeleter = require("./NodeDeleterWidgets");
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     
@@ -49,10 +49,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     renderScaler: ConceptRenderScaler.ConceptRendererScaler;
     filterSliders: ConceptFilterSliders.ConceptRangeSliders;
     layouts: ConceptLayouts.ConceptLayouts;
-    nodeDeleter: NodeDeleter.NodeDeleter;
+    edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
+    nodeDeleter: NodeDeleter.NodeDeleterWidgets;
     individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
     ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
-    edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
     expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     
     menu: Menu.Menu;
@@ -174,12 +174,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
          
+        this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
-        this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
         
-        this.nodeDeleter = new NodeDeleter.NodeDeleter(this.conceptGraph, this.undoRedoBoss);
+        this.nodeDeleter = new NodeDeleter.NodeDeleterWidgets(this.conceptGraph, this, this.undoRedoBoss);
         
         this.runCurrentLayout = this.layouts.runForceLayoutLambda();
         
@@ -786,9 +786,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         }
         
+        this.edgeTypeFilter.updateFilterUI();
         this.individualConceptFilter.updateFilterUI();
         this.ontologyFilter.updateFilterUI();
-        this.edgeTypeFilter.updateFilterUI();
         this.expansionSetFilter.updateFilterUI();
     }
 
@@ -957,10 +957,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layouts");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
         this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
-        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
         this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector());
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
@@ -969,15 +969,37 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      * Synchronize checkboxes with changes made via other checkboxes.
      */
     refreshOtherFilterCheckboxStates(affectedNodes: ConceptGraph.Node[], triggeringFilter: ConceptFilterWidget.AbstractConceptNodeFilterWidget){
-        if(triggeringFilter != this.individualConceptFilter){
+        if(triggeringFilter !== this.individualConceptFilter){
             this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
         }
-        if(triggeringFilter != this.ontologyFilter){
+        if(triggeringFilter !== this.ontologyFilter){
             this.ontologyFilter.updateCheckboxStateFromView(affectedNodes);
         }
-        if(triggeringFilter != this.expansionSetFilter){
+        if(triggeringFilter !== this.expansionSetFilter){
             this.expansionSetFilter.updateCheckboxStateFromView(affectedNodes);
         }
+    }
+    
+    revealAllNodesAndRefreshFilterCheckboxes(){
+        // Add expansion sets, ontologies, and individual nodes all on the basis
+        // of their hidden status (as determined via CSS classes set by the filters).
+        // We are actually pretty agnostic about how they got that way...but if we
+        // use that CSS class via any other thing that filter boxes, we could have a problem.
+        // Trying to use filter statuses directly would have worse repercussions.
+        // Grab all the hidden nodes and remove that class.
+        // JQuery doesn't get along with SVG, so we have to use D3 for this work
+        d3.selectAll("."+GraphView.BaseGraphView.hiddenNodeClass).classed(GraphView.BaseGraphView.hiddenNodeClass, false);
+        d3.selectAll("."+GraphView.BaseGraphView.hiddenNodeLabelClass).classed(GraphView.BaseGraphView.hiddenNodeLabelClass, false);
+        
+        this.individualConceptFilter.updateFilterUI();
+        this.ontologyFilter.updateFilterUI();
+        this.expansionSetFilter.updateFilterUI();
+        
+        this.individualConceptFilter.checkmarkAllCheckboxes();
+        this.ontologyFilter.checkmarkAllCheckboxes();
+        this.expansionSetFilter.checkmarkAllCheckboxes();
+        
+        this.runCurrentLayout(true);
     }
     
     sortConceptNodesCentralOntologyName(){

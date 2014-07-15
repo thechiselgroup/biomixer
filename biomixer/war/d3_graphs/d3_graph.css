@@ -128,9 +128,6 @@ polyline.mappingLink{
 	opacity: 0.25; /* Keep text readable */
 }
 
-
-
-
 .line{
 display: block;
 width: 45px;
@@ -190,7 +187,7 @@ div#hoveringGraphMenu {
   position: absolute;
   right:0;
   width: 350px;
-  padding: 30px;
+  padding: 10px;
   background: rgb(218,229,243);
   opacity:0.90 !important;
   filter:alpha(opacity=90); */ /* For IE8 and earlier */
@@ -206,6 +203,10 @@ div#hoveringGraphMenu {
 .scroll-div {
 	overflow-y: scroll;
 	background-color: white;
+}
+
+.nodeCommandButton {
+	margin-right: 15px !important;
 }
 
 .filterCheckbox {

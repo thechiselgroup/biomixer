@@ -17,7 +17,7 @@
 
 import GraphView = require("../GraphView");
 import Menu = require("../Menu");
-import ConceptGraphView = require("./ConceptPathsToRoot");
+import PathToRootView = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
@@ -26,32 +26,43 @@ import DeletionSet = require("../DeletionSet");
 import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
 
 
-export class NodeDeleter {
+export class NodeDeleterWidgets {
 
     constructor(
         public graph: ConceptGraph.ConceptGraph,
+        public graphView: PathToRootView.ConceptPathsToRoot,
         private undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager
     ){
         
     }
 
     addMenuComponents(menuSelector: string){
-            // Add the butttons to the pop-out panel
-            var deleterContainer = $("<div>").attr("id", "nodeDeletionMenuContainer");
-            $(menuSelector).append(deleterContainer);
-                    
-            deleterContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Node Deletion"));
-            deleterContainer.append($("<br>"));
-            
+        // Add the butttons to the pop-out panel
+        var deleterContainer = $("<div>").attr("id", "nodeDeletionMenuContainer");
+        $(menuSelector).append(deleterContainer);
+        deleterContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Node Management"));
+        deleterContainer.append($("<br>"));
+        {
             deleterContainer.append($("<input>")
-                    .attr("class", "nodeDeleterButton")
+                    .attr("class", "nodeDeleterButton nodeCommandButton")
                     .attr("id", "nodeDeleterButton")
                     .attr("type", "button")
-                    .attr("value", "Delete All Hidden Nodes"));
-            deleterContainer.append($("<br>"));
+                    .attr("value", "Remove Hidden Nodes"));
         
             d3.selectAll("#nodeDeleterButton").on("click", this.deleteSelectedCheckboxesLambda());
+        }
+        
+        {
+            deleterContainer.append($("<input>")
+                    .attr("class", "nodeUnhiderButton nodeCommandButton")
+                    .attr("id", "nodeUnhiderButton")
+                    .attr("type", "button")
+                    .attr("value", "Reveal Hidden Nodes"));
+        
+            d3.selectAll("#nodeUnhiderButton").on("click", this.revealUnselectedCheckboxesLambda());
+        }
 
+        deleterContainer.append($("<br>"));
     }
     
     /**
@@ -108,6 +119,14 @@ export class NodeDeleter {
             deletionSet.getGraphModifier().executeRedo();
            
             this.undoRedoBoss.addCommand(deletionSet.getGraphModifier());
+        }
+    }
+    
+    revealUnselectedCheckboxesLambda(){
+        var outerThis = this;
+        return ()=>{
+            // Refresh all the checkboxes.
+            this.graphView.revealAllNodesAndRefreshFilterCheckboxes();
         }
     }
 

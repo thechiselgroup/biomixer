@@ -16,7 +16,7 @@ import ConceptGraph = require("./ConceptGraph");
     
 export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
     
-    static SUB_MENU_TITLE = "Concepts Rendered";
+    static SUB_MENU_TITLE = "Concepts Displayed";
     
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
