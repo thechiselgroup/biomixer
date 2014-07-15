@@ -181,7 +181,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         this.nodeDeleter = new NodeDeleter.NodeDeleterWidgets(this.conceptGraph, this, this.undoRedoBoss);
         
-        this.runCurrentLayout = this.layouts.runForceLayoutLambda();
+        this.setCurrentLayout(this.layouts.runForceLayoutLambda());
         
         // TODO Trying to get layout to begin anew when we swap visualization subtypes.
         // Why do none of these achieve that?
@@ -203,7 +203,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
             this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
-            this.runCurrentLayout = this.layouts.runCenterLayoutLambda();
+            this.setCurrentLayout(this.layouts.runCenterLayoutLambda());
             this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
             this.runCurrentLayout();
         }

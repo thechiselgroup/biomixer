@@ -76,13 +76,21 @@ export class ConceptLayouts {
             .attr("value", "Radial Layout"));
     
         
-        d3.selectAll("#circleLayoutButton").on("click", this.runCircleLayoutLambda());
-        d3.selectAll("#forceLayoutButton").on("click", this.runForceLayoutLambda());
-        d3.selectAll("#centerLayoutButton").on("click", this.runCenterLayoutLambda());
-        d3.selectAll("#horizontalTreeLayoutButton").on("click", this.runHorizontalTreeLayoutLambda());
-        d3.selectAll("#verticalTreeLayoutButton").on("click", this.runVerticalTreeLayoutLambda());
-        d3.selectAll("#radialLayoutButton").on("click", this.runRadialLayoutLambda());
+        d3.selectAll("#circleLayoutButton").on("click", this.applyNewLayout(this.runCircleLayoutLambda()));
+        d3.selectAll("#forceLayoutButton").on("click", this.applyNewLayout(this.runForceLayoutLambda()));
+        d3.selectAll("#centerLayoutButton").on("click", this.applyNewLayout(this.runCenterLayoutLambda()));
+        d3.selectAll("#horizontalTreeLayoutButton").on("click", this.applyNewLayout(this.runHorizontalTreeLayoutLambda()));
+        d3.selectAll("#verticalTreeLayoutButton").on("click", this.applyNewLayout(this.runVerticalTreeLayoutLambda()));
+        d3.selectAll("#radialLayoutButton").on("click", this.applyNewLayout(this.runRadialLayoutLambda()));
+        
+    }
     
+    applyNewLayout(layoutLambda){
+        var outerThis = this;
+        return ()=>{
+            outerThis.graphView.setCurrentLayout(layoutLambda);
+            outerThis.graphView.runCurrentLayout();
+        }
     }
     
     rootIndex(){
@@ -303,7 +311,7 @@ export class ConceptLayouts {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-    		
+                        
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -349,7 +357,7 @@ export class ConceptLayouts {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-    		
+            
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;

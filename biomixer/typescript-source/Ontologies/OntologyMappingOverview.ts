@@ -57,7 +57,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         this.menu = new Menu.Menu();
         
-        this.runCurrentLayout = this.executeCenterLayout;
+        this.setCurrentLayout(this.executeCenterLayout);
         
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
