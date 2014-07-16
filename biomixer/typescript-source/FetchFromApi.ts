@@ -143,6 +143,10 @@ import Utils = require('./Utils');
             return CacheRegistry.restAndCallbackRegistry[restUrl];
         }
         
+        static isNotRegisteredInCache(restUrl: string): boolean {
+            return undefined === CacheRegistry.restAndCallbackRegistry[restUrl];
+        }
+        
         /**
          * Track overall size of cached data. If it gets too big, remove some elements.
          * Browsers *tend* to store object properties in the order created, so we will

@@ -159,8 +159,13 @@ export class MappingRangeSliders {
         
     filterGraphOnMappingCounts(){
         // Grabbing min from 1 and max from 0 looks funny, but it does the trick. Pinky swear.
-        var minNodeAbsolute = this.sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )].value; // starts at big number
-        var maxNodeAbsolute = this.sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )].value; // starts at 0
+        var minNode = this.sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 1 )];
+        var maxNode = this.sortedLinksByMapping[$( "#top-mappings-slider-range" ).slider( "values", 0 )];
+        if(undefined === minNode || undefined === maxNode){
+            return;
+        }
+        var minNodeAbsolute = minNode.value; // starts at big number
+        var maxNodeAbsolute = maxNode.value; // starts at 0
         var minArcAbsolute = minNodeAbsolute;
         var maxArcAbsolute = maxNodeAbsolute;
         
@@ -195,7 +200,7 @@ export class MappingRangeSliders {
                     }
                     
                     if(!hideArc){
-                        console.log("Not hide arc: "+d.source.acronymForIds+"-to-"+d.target.acronymForIds);
+                        // console.log("Not hide arc: "+d.source.acronymForIds+"-to-"+d.target.acronymForIds);
                     }
                     
                     // $(this).css("display", (hideArc) ? "none" : "");

@@ -173,38 +173,50 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     	fetcher.fetch(ontologyMappingCallback);
     }
    
-    /**
-     * The functions attached to the nodes in here allow us to call per-node APIs as needed, rather than
-     * all at once.
-     * 
-     * When these functions are called, all dispatching and processing should happen without further consideration
-     * from the caller. The function should return true if the call has been dispatched.
-     * 
-     * Returns true if the dispatch was made...and if there was an error or other issue, it will not return true.
-     * 
-     * Once called, the functions in here should replace themselves on the owning node with a function that returns true.
-     * 
-     * @param node
-     */
-     fetchNodeRestData(node: Node){
-        // Check registry for node status
-        var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
-        // Combined dispatch for the separate calls for metrics and descriptions.
-        // The metric call has much of the info we need
-        var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
-        var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsUrl);
-        fetcher.fetch(ontologyMetricsCallback);
-    
-        var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
-        // If we want Description, I think we need to grab the most recent submission
-        // and take it fromt here. This is another API call per ontology.
-        // /ontologies/:acronym:/lastest_submission
-        // Descriptions are in the submissions, so we need an additional call.
-        var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
-        var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionUrl);
-        fetcher.fetch(ontologyDescriptionCallback);
-        
+   /**
+    * The functions attached to the nodes in here allow us to call per-node APIs as needed, rather than
+    * all at once.
+    * 
+    * When these functions are called, all dispatching and processing should happen without further consideration
+    * from the caller. The function should return true if the call has been dispatched.
+    * 
+    * Returns true if the dispatch was made...and if there was an error or other issue, it will not return true.
+    * 
+    * Once called, the functions in here should replace themselves on the owning node with a function that returns true.
+    * 
+    * @param node
+    */
+    fetchNodeRestData(node: Node){
+        this.fetchNodeMetricsData(node);
+        this.fetchNodeDescriptionData(node);
+                
         return true;
+    }
+        
+    fetchNodeMetricsData(node: Node){
+        var ontologyMetricsUrl = buildOntologyMetricsUrlNewApi(node.rawAcronym);
+         // Explicitly testing the cache for this to overcome existing speed problems.
+        if(Fetcher.CacheRegistry.isNotRegisteredInCache(ontologyMetricsUrl)){
+            // Combined dispatch for the separate calls for metrics and descriptions.
+            // The metric call has much of the info we need
+            var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
+            var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsUrl);
+            fetcher.fetch(ontologyMetricsCallback);
+        }
+    }
+        
+    fetchNodeDescriptionData(node: Node){
+        var ontologyDescriptionUrl = buildOntologyLatestSubmissionUrlNewApi(node.rawAcronym);
+        // Explicitly testing the cache for this to overcome existing speed problems.
+        if(Fetcher.CacheRegistry.isNotRegisteredInCache(ontologyDescriptionUrl)){
+            // If we want Description, I think we need to grab the most recent submission
+            // and take it fromt here. This is another API call per ontology.
+            // /ontologies/:acronym:/lastest_submission
+            // Descriptions are in the submissions, so we need an additional call.
+            var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
+            var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionUrl);
+            fetcher.fetch(ontologyDescriptionCallback);
+        }
     }
     
     /**

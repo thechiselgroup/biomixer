@@ -317,11 +317,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     /**
     * This function should be used when adding brand new nodes and links to the
     * graph. Do not call it to update properties of graph elements.
-    * TODO Make this function cleaner and fully compliant with the above description!
     */
     populateNewGraphElements(graphD3Format: OntologyGraph.OntologyD3Data){
-        console.log("Fix this up with the newElements arg, and refactor into node and edge populate methods");
-        
         this.populateNewGraphEdges(graphD3Format.links);
         this.populateNewGraphNodes(graphD3Format.nodes);
     }
