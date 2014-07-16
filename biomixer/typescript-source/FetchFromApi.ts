@@ -268,7 +268,7 @@ import Utils = require('./Utils');
          */
         public static updateStatusForUrlInRestCallRegistry(restCallURL: string, status: RestCallStatus, responseDataToCache?: ResultData){
             var currentCache = CacheRegistry.getCachedItem(restCallURL);
-            var currentStatus = undefined;
+            var currentStatus = currentCache.status;
              if(currentStatus !== undefined){
                 if(!CacheRegistry.validRestCallStateTransition(currentStatus, status, restCallURL)){
                     return;
