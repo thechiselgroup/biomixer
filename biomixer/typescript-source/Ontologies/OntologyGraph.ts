@@ -118,7 +118,7 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     
     addNodes(newNodes: Array<Node>, expansionSet: ExpansionSets.ExpansionSet<Node>){
         expansionSet.addAll(newNodes);
-        for(var i = 0; i++; i < newNodes.length){
+        for(var i = 0; i < newNodes.length; i++){
             // Only implementing here rather than in graphView because of this container...
             this.graphD3Format.nodes.push(newNodes[i]);
         }
@@ -130,11 +130,12 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     }
     
     addEdges(newEdges: Array<Link>){
-         for(var i = 0; i++; i < newEdges.length){
+         for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
             this.graphD3Format.links.push(newEdges[i]);
         }
-        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+        // this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+        this.graphView.populateNewGraphElements(this.graphD3Format);
     }
     
     removeEdge(){

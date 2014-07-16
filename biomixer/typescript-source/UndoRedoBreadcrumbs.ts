@@ -13,9 +13,18 @@ export class UndoRedoManager {
     private currentTrailIndex: number = -1;
     
     constructor(
+        initGui: boolean
         ){
+        
+        if(initGui){
+            this.initGui();
+        }
+    }
+    
+    initGui(){
         this.crumblez = new BreadcrumbTrail();
         this.crumblez.undoRedoModel = this;
+        this.crumblez.initGui();
     }
     
     /**
@@ -36,7 +45,9 @@ export class UndoRedoManager {
         this.currentTrailIndex = this.trail.length - 1;
         // TODO Should we bother deleting the removed commands?
         // That is with the delete keyword?
-        this.crumblez.updateView(this.trail, newCommand);
+        if(undefined !== this.crumblez){
+            this.crumblez.updateView(this.trail, newCommand);
+        }
     }
     
     /**
@@ -70,7 +81,9 @@ export class UndoRedoManager {
         
         // No need to call the full refresh method, we haven't
         // changed the undo stack, just the active position.
-        this.crumblez.updateActiveCommand(command);
+        if(undefined !== this.crumblez){
+            this.crumblez.updateActiveCommand(command);
+        }
         
         var increment;
         var undo;
@@ -138,7 +151,6 @@ export class BreadcrumbTrail {
     trailMap: { [key: string]: Breadcrumb }= {};
     
     constructor(){
-        this.initGui();
     }
     
     initGui(){

@@ -85,6 +85,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     ){
         super();
         // Minimal constructor, most work done in initAndPopulateGraph().
+        this.undoRedoBoss.initGui();
                
         this.menu = new Menu.Menu();
         

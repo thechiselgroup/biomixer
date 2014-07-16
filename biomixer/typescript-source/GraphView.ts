@@ -99,7 +99,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     constructor(
         ){
-        this.undoRedoBoss = new UndoRedoBreadcrumbs.UndoRedoManager();
+        this.undoRedoBoss = new UndoRedoBreadcrumbs.UndoRedoManager(false);
         this.expSetReg = new ExpansionSets.ExpansionSetRegistry<N>(this.undoRedoBoss);
     }
     

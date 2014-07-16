@@ -9,6 +9,7 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="TipsyToolTips" />
+///<amd-dependency path="UndoRedoBreadcrumbs" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
@@ -21,6 +22,7 @@ import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
+import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
 import OntologyFilterSliders = require("./OntologyFilterSliders");
@@ -78,7 +80,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             .attr("id", "graphRect")
             .style('fill', 'white');
         
-       
+        this.vis.append("svg:g").attr("id", "link_container");
+        this.vis.append("svg:g").attr("id", "node_container");
         
         $(window).resize(this.resizedWindowLambda);
         
@@ -319,27 +322,23 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     populateNewGraphElements(graphD3Format: OntologyGraph.OntologyD3Data){
         console.log("Fix this up with the newElements arg, and refactor into node and edge populate methods");
         
-    //  console.log("Populating with:");
-    //  console.log(json);
+        this.populateNewGraphEdges(graphD3Format.links);
+        this.populateNewGraphNodes(graphD3Format.nodes);
+    }
+    
+    populateNewGraphEdges(linksData: Array<OntologyGraph.Link>){
         
-        var outerThis = this;
-        var newElementsExpected: boolean;
-        // One small step towards removing this element of ontology graph logic...
-        if(typeof graphD3Format === "undefined" || graphD3Format.nodes.length == 0 && graphD3Format.links.length == 0){
-            // console.log("skip");
-            // return;
-            newElementsExpected = false;
-        } else {
-            newElementsExpected = true;
+        if(linksData.length === 0){
+            return [];
         }
         
         // Data constancy via key function() passed to data()
         // Link stuff first
-        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(graphD3Format.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var links = this.vis.select("#link_container")
+            .selectAll(GraphView.BaseGraphView.linkSvgClass).data(linksData, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
     
         // Add new stuff
-        if(newElementsExpected === true)
         var enteringLinks = links.enter().append("svg:line")
         .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyLinkSvgClassSansDot) // Make svg:g like nodes if we need labels
         .attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
@@ -349,33 +348,43 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
         
         // Update Basic properties
-    //  if(newElementsExpected === true)
-        links
-        .attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; })
-        .attr("data-thickness_basis", function(d) { return d.value;});
-        
-        this.renderScaler.updateLinkScalingFactor();
-        
-        var outerThis = this;
-        links.style("stroke-width", function(d) { return outerThis.renderScaler.ontologyLinkScalingFunc(d.value); })
-        ;
-    
-        // Update Tool tip
-        if(newElementsExpected === true)
-        links.append("title") // How would I *update* this if I needed to?
+        if(!enteringLinks.empty()){
+            enteringLinks
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; })
+            .attr("data-thickness_basis", function(d) { return d.value;});
+            
+            // Update Tool tip
+            enteringLinks.append("title") // How would I *update* this if I needed to?
             .text(function(d) { return "Number Of Mappings: "+d.numMappings; })
                 .attr("id", function(d){ return "link_title_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds});
+        
+            // Update *all* links scalings given new links are present
+            this.renderScaler.updateLinkScalingFactor();
+            links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+        }
+        
     
-        this.filterSliders.updateTopMappingsSliderRange();
+        if(!enteringLinks.empty()){
+        	this.filterSliders.updateTopMappingsSliderRange();
+            this.updateStartWithoutResume();
+        }
+    }
+        
+    populateNewGraphNodes(nodesData: Array<OntologyGraph.Node>){
+        
+        if(nodesData.length === 0){
+            return [];
+        }
         
         // Node stuff now
         
-        var nodes = this.vis.selectAll("g.node_g").data(graphD3Format.nodes, function(d){return d.rawAcronym});
+        var nodes = this.vis.select("#node_container")
+            .selectAll("g.node_g").data(nodesData, function(d){return d.rawAcronym});
+        
         // Add new stuff
-        if(newElementsExpected === true)
         var enteringNodes = nodes.enter().append("svg:g")
         .attr("class", GraphView.BaseGraphView.nodeGSvgClassSansDot)
         .attr("id", function(d){ return "node_g_"+d.acronymForIds})
@@ -391,8 +400,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Therefore I need to update using JQuery selections on unqiue element IDs
         
         // Basic properties
-        if(newElementsExpected === true) // How would I *update* this if I needed to?
-        nodes
+        enteringNodes
         .append("svg:circle") 
         .attr("id", function(d){ return "node_circle_"+d.acronymForIds})
         .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyNodeSvgClassSansDot)
@@ -401,13 +409,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .style("fill", this.defaultNodeColor)
         .style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor))
         .attr("data-radius_basis", function(d) { return d.number;})
-        .attr("r", function(d) { return outerThis.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym); })
+        .attr("r", (d)=>{ return this.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym); })
         .on("mouseover", this.highlightHoveredNodeLambda(this, true))
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
-        if(newElementsExpected === true) // How would I *update* this if I needed to?
         // Add a second circle that represents the mapped classes of the ontology.
-        nodes
+        enteringNodes
         .append("svg:circle") 
         .attr("id", function(d){ return "node_circle_inner_"+d.acronymForIds})
         .attr("class", GraphView.BaseGraphView.nodeInnerSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyNodeSvgClassSansDot)
@@ -418,7 +425,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor))
         .attr("data-inner_radius_basis", function(d) { return d.mapped_classes_to_central_node;})
         .attr("data-outer_radius_basis", function(d) { return d.number;})
-        .attr("r", function(d) { return outerThis.renderScaler.ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.rawAcronym); })
+        .attr("r", (d)=>{ return this.renderScaler.ontologyInnerNodeScalingFunc(d.mapped_classes_to_central_node, d.number, d.rawAcronym); })
         .on("mouseover", this.highlightHoveredNodeLambda(this, true))
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
@@ -427,8 +434,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipLambda(this));
         
         // Label
-        if(newElementsExpected === true) // How would I *update* this if I needed to?
-        nodes.append("svg:text")
+        enteringNodes.append("svg:text")
             .attr("id", function(d){ return "node_text_"+d.acronymForIds})
             .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
             .attr("dx", 12)
@@ -540,7 +546,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
 //        }
         
         
-        if(newElementsExpected === true){
+        if(!enteringNodes.empty()){
             this.forceLayout.on("tick", this.onLayoutTick());
         }
         
@@ -549,39 +555,13 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // It will (in the future) also trigger layout adaptation to added or removed nodes.
         this.filterSliders.changeTopMappingSliderValues(null, this.softNodeCap);
         
-        // We have a situation where only our third REST calls determine which nodes and links actually stay in the graph.
-        // We would like to filter early, based on the soft cap.
-    //   filterGraphOnMappingCounts();
-        
-        // Whenever I call populate, it adds more to this layout.
-        // I need to figure out how to get enter/update/exit sort of things
-        // to work for the layout.
-        if(newElementsExpected === true){
-            // forceLayout
-            // .nodes(nodes.enter())
-            // .links(links.enter());
-            this.forceLayout
-            .nodes(graphD3Format.nodes)
-            .links(graphD3Format.links);
-            
-            if(!enteringNodes.empty() || !enteringLinks.empty()){
-                this.updateStartWithoutResume();
-            }
+        if(!enteringNodes.empty()){
+            this.updateStartWithoutResume();
+            this.renderScaler.updateNodeScalingFactor();
+            // enteringNodes.attr("transform", function(d: OntologyGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         }
-        
-        // Don't have sizes here, but still...
-        this.renderScaler.updateNodeScalingFactor();
-        // Do have link sizes though? No, we called it earlier at a better time.
-        // updateLinkScalingFactor();
     }
     
-    populateNewGraphEdges(links: Array<OntologyGraph.Link>){
-    
-    }
-    
-    populateNewGraphNodes(nodes: Array<OntologyGraph.Node>){
-    
-    }
     
     removeMissingGraphElements(graphD3Format: OntologyGraph.OntologyD3Data){
         // Have problems if we don't pass the containers back in like this.
