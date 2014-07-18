@@ -11,6 +11,7 @@
 ///<amd-dependency path="Concepts/OntologyConceptFilter" />
 ///<amd-dependency path="Concepts/ExpansionSetFilter" />
 ///<amd-dependency path="DeletionSet" />
+///<amd-dependency path="CompositeExpansionDeletionSet" />
 ///<amd-dependency path="UndoRedoBreadcrumbs" />
 
 
@@ -23,6 +24,7 @@ import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
 import ExpansionSetFilter = require("./ExpansionSetFilter");
 import DeletionSet = require("../DeletionSet");
+import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
 
 
@@ -65,6 +67,29 @@ export class NodeDeleterWidgets {
         deleterContainer.append($("<br>"));
     }
     
+    deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>) {
+        var outerThis = this;
+        var allNodes = $("."+GraphView.BaseGraphView.nodeGSvgClassSansDot);
+        var nodesToDelete = [];
+        allNodes.each(function(i, element: Element){
+                var nodeId: string = element["id"];
+                // We construct node_g ids like this: "node_g_"+d.conceptUriForIds
+                // So simply remove that prefix from the id to get the node model's id.
+                nodeId = nodeId.replace(GraphView.BaseGraphView.nodeGSvgClassSansDot+"_", "");
+                var node = outerThis.graph.getNodeByIdUri(nodeId);
+                nodesToDelete.push(node);
+            }
+        );
+        
+        initSet.addAllDeleting(nodesToDelete);
+        
+        // Execute the deletion by "redoing" the deletion set.
+        // For other commands, this isn't necessarily possible, but when
+        // it is, it is preferable to having duplicate code in redo and where
+        // the command is created (and applied).
+        initSet.getGraphModifier().executeRedo();
+    }
+    
     /**
      * This will delete all nodes that correspond to the currently active or selected
      * filter checkboxes.
@@ -90,7 +115,7 @@ export class NodeDeleterWidgets {
             // re-appear.
             
             // Gather active checkbox
-            var deletionSet = new DeletionSet.DeletionSet<ConceptGraph.Node>(this.graph);
+            var deletionSet = new DeletionSet.DeletionSet<ConceptGraph.Node>(this.graph, this.undoRedoBoss);
             
             // Add expansion sets, ontologies, and individual nodes all on the basis
             // of their hidden status (as determined via CSS classes set by the filters).
@@ -102,23 +127,23 @@ export class NodeDeleterWidgets {
             // get the hiding class value, we will have an issue...but that change could be applying it to more
             // than one element corresponding to the same node...so I made it restrictive.
             var hiddenNodeElements = $("."+GraphView.BaseGraphView.hiddenNodeClass).filter("."+GraphView.BaseGraphView.nodeGSvgClassSansDot);
+            var nodesToAdd = [];
             hiddenNodeElements.each(function(i, element: Element){
                     var nodeId: string = element["id"];
                     // We construct node_g ids like this: "node_g_"+d.conceptUriForIds
                     // So simply remove that prefix from the id to get the node model's id.
                     nodeId = nodeId.replace(GraphView.BaseGraphView.nodeGSvgClassSansDot+"_", "");
                     var node = outerThis.graph.getNodeByIdUri(nodeId);
-                    deletionSet.addNode(node);
+                    nodesToAdd.push(node);
                 }
             );
+            deletionSet.addAll(nodesToAdd);
             
             // Execute the deletion by "redoing" the deletion set.
             // For other commands, this isn't necessarily possible, but when
             // it is, it is preferable to having duplicate code in redo and where
             // the command is created (and applied).
             deletionSet.getGraphModifier().executeRedo();
-           
-            this.undoRedoBoss.addCommand(deletionSet.getGraphModifier());
         }
     }
     

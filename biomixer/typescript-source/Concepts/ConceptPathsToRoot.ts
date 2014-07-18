@@ -12,6 +12,7 @@
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="TipsyToolTips" />
 ///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="CompositeExpansionDeletionSet" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/CherryPickConceptFilter" />
@@ -31,6 +32,7 @@ import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
 import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
@@ -95,7 +97,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 console.log("Changing visualization mode.");
                 if(this.visualization !== $("#visualization_selector option:selected").text()){
                     this.visualization = $("#visualization_selector option:selected").text();
-                    this.initAndPopulateGraph();
+                    this.fetchInitialExpansion();
                 }
             }
         );
@@ -108,7 +110,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(confirm(message)){
             this.centralConceptUri = nodeData.rawConceptUri;
             this.centralOntologyAcronym = nodeData.ontologyAcronym;
-            this.initAndPopulateGraph();
+            this.fetchInitialExpansion();
         }
     }
     
@@ -197,8 +199,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     }
     
     fetchInitialExpansion(){
-        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), "Initial Expansion");
-        var expansionSet = this.expSetReg.createExpansionSet(expId, null, this.conceptGraph);
+        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), this.visualization);
+        // We may have nodes that we are getting rid of in order to do the expansion, so we do it this way
+        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, this.visualization, expId, this.undoRedoBoss);
+        this.nodeDeleter.deleteNodesForGraphInitialization(initSet);
+        var expansionSet = initSet.expansionSet;
+        
         if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
@@ -322,12 +328,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     //          doLabelUpdateNextTime = true;
     //      } else {
     
-            boundNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
+            if(boundNodes.length > 0){
+                boundNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
+            }
                 
             if(boundLinks.length > 0){
-                boundLinks
-                .attr("points", this.computePolyLineLinkPointsFunc)
-                ;
+                boundLinks.attr("points", this.computePolyLineLinkPointsFunc);
             }
             
             // I want labels to aim out of middle of graph, to make more room
@@ -887,7 +893,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
-                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData, outerThis.conceptGraph);
+                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss);
                             outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
                         }
                     );
@@ -911,7 +917,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
-                            var expansionSet = outerThis.expSetReg.createExpansionSet(expId, nodeData, outerThis.conceptGraph);
+                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss);
                             outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
                         }
                 );

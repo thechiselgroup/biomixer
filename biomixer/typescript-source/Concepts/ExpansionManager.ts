@@ -9,8 +9,9 @@ export class ExpansionManager{
     // To track nodes for which we want their neighbours expanded (by id and expansion type):
     private conceptsToExpand = {};
     
-    // Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.:
-    // To track edges that we know about that haven't yet been added to the graph (by node not yet in graph and node in graph and type):
+    // Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
+    // To track edges that we know about that haven't yet been added to the graph (by node not yet in graph and node in graph and type).
+    // Edges must be tracked before they are valid, or else a superfluous amount of REST calls would be needed.
     private edgeRegistry: {[sourceNodeId: string]: {[targetNodeId: string]: {[relationType: string]: ConceptGraph.Link }} } = {};
 
     private twoWayTemporaryEdgeRegistry: {[sourceNodeId: string]: {[targetNodeId: string]: ConceptGraph.Link } } = {};

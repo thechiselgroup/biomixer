@@ -162,3 +162,68 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
     
     }
 }
+
+export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+    
+    static counter = 0;
+    
+    private id: string;
+    
+    redidLast: boolean = false; // start being able to redo it
+    
+    commands: UndoRedoBreadcrumbs.ICommand[] = [];
+    
+    constructor(
+        public graph: GraphView.Graph<N>,
+        public displayName: string
+    ){
+
+    }
+    
+    addCommand(newCommand: UndoRedoBreadcrumbs.ICommand){
+        this.commands.push(newCommand);
+    }
+    
+    getUniqueId(): string{
+        if(undefined === this.id){
+            this.id = "composite_command_"+(GraphCompositeNodeCommand.counter++);
+        }
+        return this.id;
+    }
+    
+    getDisplayName(): string{
+        return this.displayName;
+    }
+    
+    executeRedo(): void{
+        if(!this.redidLast){
+            this.redidLast = true;
+            for(var i = 0; i < this.commands.length; i++){
+                this.commands[i].executeRedo();
+            }
+            // Ha, we don't do and undo layouts, I just realized...
+            // We apply previous and next from the fenceposts!
+            // this.layoutSnapshot.executeRedo();
+        } else {
+            console.log("Trying to redo same command twice in a row");
+        }
+    }
+    
+    executeUndo(): void{
+        if(this.redidLast){
+            this.redidLast = false;
+            for(var i = this.commands.length - 1; i >= 0; i--){
+                this.commands[i].executeUndo();
+            }
+            // Ha, we don't do and undo layouts, I just realized...
+            // We apply previous and next from the fenceposts!
+            // this.layoutSnapshot.executeUndo();
+        } else {
+            console.log("Trying to undo same command twice in a row");
+        }
+    }
+    
+    preview(): void{
+    
+    }
+}

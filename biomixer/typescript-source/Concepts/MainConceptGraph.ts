@@ -19,9 +19,9 @@ var initialVis = purl().param("initial_vis");
 var softNodeCap = 20;
 
 $("#visualization_selector")
-.append('<option value="paths_to_root">path to root</option>')
-.append('<option value="term_neighborhood">term neighborhood</option>')
-.append('<option value="mappings_neighborhood">mappings neighborhood</option>')
+.append('<option value="paths_to_root">'+ConceptGraph.PathOptionConstants.pathsToRootConstant+'</option>') //Path to Root
+.append('<option value="term_neighborhood">'+ConceptGraph.PathOptionConstants.termNeighborhoodConstant+'</option>') //Term Neighborhood
+.append('<option value="mappings_neighborhood">'+ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant+'</option>') //Mappings Neighborhood
 ;
 
 $("#visualization_selector option").each(

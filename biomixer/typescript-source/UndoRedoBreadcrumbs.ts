@@ -51,6 +51,13 @@ export class UndoRedoManager {
     }
     
     /**
+     * Useful for when the text of a crumb is not fixed at creation time.
+     */
+    updateUI(existingCommand: ICommand){
+        this.crumblez.updateElementText(existingCommand);
+    }
+    
+    /**
      * Go back to another crumb. Really a convenience method, since
      * we will know whether it is a redo or undo internally.
      */
@@ -158,9 +165,15 @@ export class BreadcrumbTrail {
         .append(
             $("<div>").attr("id", BreadcrumbTrail.breadcrumbTrailLabelId)
                 .append(
-                    $("<p>").text(BreadcrumbTrail.undoMenuText)
+                    $("<p>").text(BreadcrumbTrail.undoMenuText).addClass("crumb_text")
                 )
         );
+    }
+    
+    updateElementText(existingCommand: ICommand){
+        $("div#"+this.generateCrumbElementId(existingCommand))
+            .children(".crumb_text")
+            .text(existingCommand.getDisplayName()+BreadcrumbTrail.undoButtonSuffix);
     }
     
     /**
@@ -216,7 +229,7 @@ export class BreadcrumbTrail {
             .click(newCrumb.breadcrumbClickedLambda(newCrumb))
             .hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb))
             ;
-        newCrumbElement.append($("<p>").text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix));
+        newCrumbElement.append($("<p>").text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix).addClass("crumb_text"));
         // Use it
         crumbElementPredecessor.after(newCrumbElement);
         // Sort it

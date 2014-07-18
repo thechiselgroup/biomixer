@@ -27,9 +27,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
     {
     
     static SUB_MENU_TITLE: string = "Node Expansion Sets Displayed";
-    
-    expRegistry: ExpansionSets.ExpansionSetRegistry<ConceptGraph.Node>;
-    
+        
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
     constructor(
@@ -39,15 +37,14 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         super(ExpansionSetFilter.SUB_MENU_TITLE, graphView, conceptGraph);
         this.implementation = this;
         this.pathToRootView = graphView;
-        this.expRegistry = this.graphView.expSetReg;
     }
 
     generateCheckboxLabel(node: ConceptGraph.Node): string {
-        var expSetLabel = node.getExpansionSetId();
-        if(expSetLabel == undefined){
+        var expSet = node.getExpansionSet();
+        if(expSet == undefined){
             return "undefined";
         }
-        return expSetLabel.displayId;
+        return expSet.id.displayId;
     }
     
     generateColoredSquareIndicator(node: ConceptGraph.Node): string {
@@ -57,24 +54,24 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
     }
     
     computeCheckId(node: ConceptGraph.Node): string {
-        if(node.getExpansionSetId() == undefined){
+        if(node.getExpansionSet() == undefined){
             return null;
         }
-        return this.getClassName()+"_for_"+node.getExpansionSetId().internalId;
+        return this.getClassName()+"_for_"+node.getExpansionSet().id.internalId;
     }
     
     computeParentingCheckId(node: ConceptGraph.Node): string {
         if(null == node){
             return null;
         }
-        if(node.expansionSetIdentifierAsMemberAsParent == undefined){
+        if(node.expansionSetAsParent === undefined){
             return null;
         }
-        return this.getClassName()+"_for_"+node.expansionSetIdentifierAsMemberAsParent.internalId;
+        return this.getClassName()+"_for_"+node.expansionSetAsParent.id.internalId;
     }
     
     computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{
-        var setNodes = this.expRegistry.findExpansionSet(node.getExpansionSetId()).nodes;
+        var setNodes = node.getExpansionSet().nodes;
         // We filter out any nodes that are (currently) deleted from the graph.
         // We always need to hold on to nodes that are deleted, since they could be re-added
         // via an undo.
@@ -102,7 +99,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         // want it to stay around when we show the expansion. It's trickier to keep the parent around
         // when other expansion sets hide it, so we can leave that be.
         
-        var expSet = this.expRegistry.findExpansionSet(checkboxContextData.getExpansionSetId());
+        var expSet = checkboxContextData.getExpansionSet();
         var parentNode = expSet.parentNode;
         
         checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
@@ -129,7 +126,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
                     // When hiding, we also need to check to see if the nodes we are hiding are parents
                     // of other visible expansion sets. If so, we don't hide them.
                     var safeToHide = true;
-                    if(node.expansionSetIdentifierAsMemberAsParent !== undefined){
+                    if(node.expansionSetAsParent !== undefined){
                         // Convoluted.
                         var anotherCheckbox = outerThis.computeParentingCheckId(node);
                         if($("#"+anotherCheckbox).is(":checked")){

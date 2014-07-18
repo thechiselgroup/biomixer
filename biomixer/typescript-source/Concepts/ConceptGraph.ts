@@ -22,9 +22,9 @@ export interface PathOption extends String {
 
 export class PathOptionConstants {
     // Tricky trick to allow casting of string up to PathOption. Fancy!
-    static termNeighborhoodConstant: PathOption = <PathOption><any>"term neighborhood";
-    static pathsToRootConstant: PathOption = <PathOption><any>"path to root";
-    static mappingsNeighborhoodConstant: PathOption = <PathOption><any>"mappings neighborhood";
+    static termNeighborhoodConstant: PathOption = <PathOption><any>"Term Neighborhood";
+    static pathsToRootConstant: PathOption = <PathOption><any>"Path to Root";
+    static mappingsNeighborhoodConstant: PathOption = <PathOption><any>"Mappings Neighborhood";
 }
 
 export interface ConceptURI extends String {
@@ -123,6 +123,18 @@ export class Link extends GraphView.BaseLink<Node> {
     static d3IdentityFunc(d: Link){
         return d.rawId;
     }
+}
+
+/**
+ * Data retrieved from REST calls. Interface allows stronger (duck) typing of the
+ * data. Adding because of a bug involving argument order.
+ */
+export interface NodeData {
+    "@context": any;
+    "@id": string; // eg. "http://purl.bioontology.org/ontology/SNOMEDCT/123037004"
+    "@type": string; // eg."http://www.w3.org/2002/07/owl#Class"
+    links: {mappings: string; children: string; parents: string; }; // URLs to the respective data
+    prefLabel: string; // eg. "Body structure"
 }
 
 export class ConceptD3Data extends GraphView.GraphDataForD3<Node, Link> {
@@ -559,9 +571,16 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             $.each(this.expMan.getRegisteredEdgeTargetsFor(conceptId), (index, conceptsEdges)=>{
                 $.each(conceptsEdges, (index, edge: Link)=>{
                     var otherId = (edge.sourceId == conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId ;
-
                     edge.source = this.conceptIdNodeMap[String(edge.sourceId)];
                     edge.target = this.conceptIdNodeMap[String(edge.targetId)];
+                    if(undefined === edge.source){
+                        console.log("Edge in registry skipped because source not available: "+edge.sourceId);
+                        return;
+                    }
+                    if(undefined === edge.target){
+                        console.log("Edge in registry skipped because target not available: "+edge.targetId);
+                        return;
+                    }
                     if(this.edgeNotInGraph(edge)){
                         this.addEdges([edge]);
                     }
@@ -724,7 +743,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         fetcher.fetch(centralCallback);
     }
     
-    public fetchConceptRelations(conceptNode: Node, conceptData, expansionSet: ExpansionSets.ExpansionSet<Node>, directCallForExpansionType?: PathOption){
+    public fetchConceptRelations(conceptNode: Node, conceptData: NodeData, expansionSet: ExpansionSets.ExpansionSet<Node>, directCallForExpansionType?: PathOption){
         // 2) Get relational data for all the concepts, create links from them
         // fetchBatchRelations(); // don't exist, because of COR issues on server, cross domain, and spec issues.
         
@@ -913,7 +932,7 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
             (index, nodeData) => {
                 var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
                 newNodesForExpansionGraph.push(conceptNode);
-                this.graph.fetchConceptRelations(conceptNode, this.expansionSet, nodeData);
+                this.graph.fetchConceptRelations(conceptNode, nodeData, this.expansionSet);
             }
         );
     }

@@ -33,14 +33,13 @@ export class DeletionSet<N extends GraphView.BaseNode>{
      * by a menu on an existing node.
      */
     constructor(
-        public graph: GraphView.Graph<N>
+        public graph: GraphView.Graph<N>,
+        private undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager
         ){
         this.graphModifier = new GraphModifierCommand.GraphRemoveNodesCommand<N>(graph, this);
-    }
-    
-    addNode(node: N): void{
-        if(this.nodes.indexOf(node) === -1){
-            this.nodes.push(node);
+        
+        if(null != undoRedoBoss){
+            undoRedoBoss.addCommand(this.graphModifier);
         }
     }
     
@@ -52,6 +51,10 @@ export class DeletionSet<N extends GraphView.BaseNode>{
                 }
             }
         );
+        if(null != this.undoRedoBoss){
+            console.log("redoing it");
+            this.undoRedoBoss.updateUI(this.graphModifier);
+        }
     }
     
     getGraphModifier(){
@@ -59,3 +62,4 @@ export class DeletionSet<N extends GraphView.BaseNode>{
     }
     
 }
+

@@ -13,6 +13,12 @@ export class GraphDataForD3<N extends BaseNode, L extends BaseLink<any>> {
     public links: Array<L> = [];
 }
 
+// The silly extends are to facilitate specialized typing to the inheriting classes.
+// In Java, it'd be more like ? extends in the things that need.
+// If we don't like it, we need to change the expansionSet references in nodes
+// to something like strings, which can be used in a registry. This was what I changed
+// from because it was an annoying pattern; annoying generics in class defs are better.
+//export class BaseNode<SubN extends BaseNode<any>> implements D3.Layout.GraphNode {
 export class BaseNode implements D3.Layout.GraphNode {
     id: number;
     index: number;
@@ -32,22 +38,23 @@ export class BaseNode implements D3.Layout.GraphNode {
     _children: D3.Layout.GraphNode[];
     parent: D3.Layout.GraphNode;
     depth: number;
-    
-    // facilitates ExpansionSets with far less code complexity
-    expansionSetIdentifierAsMember: ExpansionSets.ExpansionSetIdentifer;
-    expansionSetIdentifierAsMemberAsParent: ExpansionSets.ExpansionSetIdentifer;
-    
+        
     getEntityId(): string{
         return "Error, must override this method.";
     }
     
-    /**
-     * Enables us to very easily have mapping back from nodes to their owning ExpansionSet
-     * without having a more complicated registry.
-     */
-    getExpansionSetId(): ExpansionSets.ExpansionSetIdentifer{
-        return this.expansionSetIdentifierAsMember;
+    // Used to have these as string ids that went to a registry that the caller would have to use
+    // to get the axtual expansion set. This was forcing callers to use the type of an object
+    // they had to track...while usable, I prefer this directness plus casting when necessary.
+    //NB the <any> is actually the Typescript idiom for Java's '?' in generics.
+    expansionSetAsMember: ExpansionSets.ExpansionSet<any>;
+    expansionSetAsParent: ExpansionSets.ExpansionSet<any>;
+    
+    getExpansionSet(): ExpansionSets.ExpansionSet<any>{
+        return this.expansionSetAsMember;
     }
+    
+
     
 }
 
@@ -92,15 +99,12 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
 // TODO Review this interface. A lot of this should probably be made more
 // listener orietented rather than direct call. But the system is shallow now,
 // so maybe this is what we want.
-    
-    public expSetReg: ExpansionSets.ExpansionSetRegistry<N>;
-    
+        
     public undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager;
     
     constructor(
         ){
         this.undoRedoBoss = new UndoRedoBreadcrumbs.UndoRedoManager(false);
-        this.expSetReg = new ExpansionSets.ExpansionSetRegistry<N>(this.undoRedoBoss);
     }
     
     //var defaultNodeColor = "#496BB0";
