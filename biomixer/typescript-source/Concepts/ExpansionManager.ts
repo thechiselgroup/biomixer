@@ -9,32 +9,15 @@ export class ExpansionManager{
     // To track nodes for which we want their neighbours expanded (by id and expansion type):
     private conceptsToExpand = {};
     
-    // Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
-    // To track edges that we know about that haven't yet been added to the graph (by node not yet in graph and node in graph and type).
-    // Edges must be tracked before they are valid, or else a superfluous amount of REST calls would be needed.
-    private edgeRegistry: {[sourceNodeId: string]: {[targetNodeId: string]: {[relationType: string]: ConceptGraph.Link }} } = {};
+    public edgeRegistry: EdgeRegistry;
+    public temporaryRegistry: TemporaryEdgeRegistry;
 
-    private twoWayTemporaryEdgeRegistry: {[sourceNodeId: string]: {[targetNodeId: string]: ConceptGraph.Link } } = {};
     
     constructor(
         
     ){
-        
-    }
-    
-    /**
-     * Checks if the one or two node ids provided have corresponding (nested) entries in the registry.
-     */
-    hasEdgeRegistryEntry(firstNodeId: string, secondNodeId?: string): boolean{
-        // I'd use overloading, but it turns out the same anyway.
-        if(secondNodeId === undefined){
-            return firstNodeId in this.edgeRegistry;
-        }
-        return firstNodeId in this.edgeRegistry && secondNodeId in this.edgeRegistry[firstNodeId];
-    }
-    
-    getRegisteredEdgeTargetsFor(nodeId: string): {[targetNodeId: string]: {[relationType: string]: ConceptGraph.Link }}{
-        return this.edgeRegistry[nodeId];
+        this.edgeRegistry = new EdgeRegistry();
+        this.temporaryRegistry = new TemporaryEdgeRegistry();
     }
     
     /**
@@ -62,6 +45,16 @@ export class ExpansionManager{
         this.conceptsToExpand[conceptId] = {};
         this.conceptsToExpand[conceptId][expansionType] = true;
     }
+    
+}
+    
+/**
+ * For edges that should only be shown when hovering over nodes triggers it.
+ */
+export class TemporaryEdgeRegistry{
+    
+    // Presumably only mapping edges are temporary. It'll be obvious if that needs to change.
+    private twoWayTemporaryEdgeRegistry: {[sourceNodeId: string]: {[targetNodeId: string]: ConceptGraph.Link } } = {};
     
     addEdgeToTemporaryRenderRegistry(edge: ConceptGraph.Link){
         // Assumes only mapping edge types. Change that if things change, right? ;)
@@ -100,33 +93,55 @@ export class ExpansionManager{
             });
         return edges;
     }
+}
     
-    // Call context does not allow for ConceptURI typing...
-    addEdgeToRegistry(conceptUriNotInGraph: string, conceptUriInGraph: string, edge: ConceptGraph.Link){
-        // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
-        var conceptIdNotInGraph = String(conceptUriNotInGraph);
-        var conceptIdInGraph = String(conceptUriInGraph);
-        if(!(conceptIdNotInGraph in this.edgeRegistry)){
-            this.edgeRegistry[conceptIdNotInGraph] = {};
+export class EdgeRegistry {
+    
+    // Maps conceptIds not present in the graph to concept ids in the graph for which an edge exists.
+    // To track edges that we know about that haven't yet been added to the graph (by node not yet in graph and node in graph and type).
+    // Edges must be tracked before they are valid, or else a superfluous amount of REST calls would be needed.
+    // Need to always keep these edges, and to map by both source and target. We only get them when parsing, and we don't re-parse
+    // when we have stored objects encapsulating previous data.
+     private twoWayEdgeRegistry: {[oneNodeId: string]: {[anotherNodeId: string]: {[relationType: string]: ConceptGraph.Link }} } = {};
+    
+    addEdgeToRegistry(edge: ConceptGraph.Link){
+        // Assumes only mapping edge types. Change that if things change, right? ;)
+        var sourceStr = String(edge.sourceId);
+        var targetStr = String(edge.targetId);
+        
+        // Source oriented
+        if(!(sourceStr in this.twoWayEdgeRegistry)){
+            this.twoWayEdgeRegistry[sourceStr] = {};
         }
-        if(!(conceptIdInGraph in this.edgeRegistry[conceptIdNotInGraph])){
-            this.edgeRegistry[conceptIdNotInGraph][conceptIdInGraph] = {};
+        if(!(targetStr in this.twoWayEdgeRegistry[sourceStr])){
+            this.twoWayEdgeRegistry[sourceStr][targetStr] = {};
         }
         // Need type as an index as well because some ontologies could have multiple edge types between entities.
-        this.edgeRegistry[conceptIdNotInGraph][conceptIdInGraph][edge.relationType] = edge;
+        this.twoWayEdgeRegistry[sourceStr][targetStr][edge.relationType] = edge;
+        
+        // Target oriented
+        if(!(targetStr in this.twoWayEdgeRegistry)){
+            this.twoWayEdgeRegistry[targetStr] = {};
+        }
+        if(!(sourceStr in this.twoWayEdgeRegistry[targetStr])){
+            this.twoWayEdgeRegistry[targetStr][sourceStr] = {};
+        }
+        // Need type as an index as well because some ontologies could have multiple edge types between entities.
+        this.twoWayEdgeRegistry[targetStr][sourceStr][edge.relationType] = edge;
     }
     
-    clearEdgeFromRegistry(matchUriInRegistry: ConceptGraph.ConceptURI, otherUriInGraph: ConceptGraph.ConceptURI, edge: ConceptGraph.Link){
-        // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
-        var matchIdInRegistry = String(matchUriInRegistry);
-        var otherIdInGraph = String(otherUriInGraph);
-        delete this.edgeRegistry[matchIdInRegistry][otherIdInGraph][edge.relationType];
-        if(Object.keys(this.edgeRegistry[matchIdInRegistry][otherIdInGraph]).length === 0){
-            delete this.edgeRegistry[matchIdInRegistry][otherIdInGraph];
+    /**
+     * Checks if the one or two node ids provided have corresponding (nested) entries in the registry.
+     */
+    hasEdgeRegistryEntry(firstNodeId: string, secondNodeId?: string): boolean{
+        // I'd use overloading, but it turns out the same anyway.
+        if(secondNodeId === undefined){
+            return firstNodeId in this.twoWayEdgeRegistry;
         }
-        if(Object.keys(this.edgeRegistry[matchIdInRegistry]).length == 0){
-            delete this.edgeRegistry[matchIdInRegistry];
-        }
+        return firstNodeId in this.twoWayEdgeRegistry && secondNodeId in this.twoWayEdgeRegistry[firstNodeId];
     }
     
+    getRegisteredEdgeTargetsFor(nodeId: string): {[targetNodeId: string]: {[relationType: string]: ConceptGraph.Link }}{
+        return this.twoWayEdgeRegistry[nodeId];
+    }
 }

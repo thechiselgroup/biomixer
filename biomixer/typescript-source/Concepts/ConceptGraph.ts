@@ -297,7 +297,6 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 var edge = incidentEdges[l];
                 // edge.source = null;
                 // edge.target = null;
-                this.registerImplicitEdge((String)(edge.sourceId), (String)(edge.targetId), edge);
                 edgesToDelete.push(edge);
             }
         }
@@ -457,8 +456,6 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // We have no use for self relations in this domain.
             return;
         }
-        var parentId: string = String(parentIdUri);
-        var childId: string = String(childIdUri);
         
         // Either register it as an implicit relation, or manifest it if both nodes are in graph.
         var edge = new Link();
@@ -479,59 +476,42 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             return;
         }
         
-        
-        // We expect neither or just one of the ids will be in the registry, since we only register
-        // node ids that do not exist in our graph. This should be enforced by processing edges
-        // whenever we add a node to the graph.
-        
-        var matchIdInRegistry = undefined, otherIdInGraph = undefined;
-        var parentIdInRegistry = false, childIdInRegistry = false;
-        if(this.expMan.hasEdgeRegistryEntry(parentId, childId)){
-            matchIdInRegistry = parentId;
-            otherIdInGraph = childId;
-            parentIdInRegistry = true;
-        }
-        if(this.expMan.hasEdgeRegistryEntry(childId, parentId)){
-            if(matchIdInRegistry){
-                // This can happen due to race conditions among relation calls. There's four, and ndoes are instantiated first...
-                // The parent receive parents, then the child receives children, then the child receives parents and we are in this situation.
-                // So if both match, what do we do? Ah, narrowed logic above to check for the other node beneath in the registry.
-                console.log("Logical error; cannot have both edge ends in the graph already. The edge would have been added before if so.")
-            }
-            matchIdInRegistry = childId;
-            otherIdInGraph = parentId;
-            childIdInRegistry = true;
-        }
-        
-        
-        // Logic...begs for assertions.
-        var parentIdInGraph = parentId in this.conceptIdNodeMap;
-        var childIdInGraph = childId in this.conceptIdNodeMap;
-        if((parentIdInGraph && childIdInGraph) && (parentIdInRegistry && childIdInRegistry)){
-            console.log("Problem: Both ids are already in the graph, and both in the registry. Should we be here?");
-        }
-        if(matchIdInRegistry && !(parentIdInGraph || childIdInGraph)){
-            console.log("Problem: If matchId is true, there must be at least one of the concepts in the graph already.");
-        }
-        if(!parentIdInGraph && !childIdInGraph){
-            console.log("Problem: If neither node is in graph already.");
-        }
-        
-        // Register edges for which we have one in the graph, and none in the registry.
-        if(!matchIdInRegistry && (!parentIdInGraph != !childIdInGraph)){
-            // Register this implicit edge.
-            this.registerImplicitEdge(parentId, childId, edge);
-        } else if(parentIdInGraph && childIdInGraph) {
-            // If both are in the graph, we'll be manifesting it immediately.
-            // Manifest this edge. We have a matching id in the registry, and the other end of the edge.
-            this.manifestEdge(matchIdInRegistry, otherIdInGraph, edge);
-        }
+        // Changing the registry to be permanent, and to have no assumptions about gaph population.
+        // All edges we learn about from REST services are permanently registered, and available for manifestation.
+        // Do we need to check if it is already registered? Probably not!
+        // We always want to register, since the registry is the permanent store of known edges.
+        this.registerImplicitEdge(edge);
+
+        // Do we just call this, or what?
+        // It checks to make sure the endpoints are extant, so we can fire it off right away.
+        this.manifestEdge(edge);
     }
     
-    private manifestEdge(matchIdInRegistry: ConceptURI, otherIdInGraph: ConceptURI, edge: Link){
+    /**
+     * Can be used when the edge does not have both endpoints in the graph, or when removing
+     * edges that were added only temporarily.
+     */
+    private registerImplicitEdge(edge: Link){
+        if(this.isEdgeForTemporaryRenderOnly(edge)){
+            console.log("Attempting to register as implicit an edge that is meant for temporary rendering only:");
+            console.log(edge);
+            return;
+        }
+        
+        this.expMan.edgeRegistry.addEdgeToRegistry(edge);
+    }
+    
+    private manifestEdge(edge: Link){
         if(this.isEdgeForTemporaryRenderOnly(edge)){
             console.log("Attempting to manifest edge that is meant for temporary rendering only:");
             console.log(edge);
+            return;
+        }
+        
+        // Only ever manifest edges with endpoints in the graph
+        var source = this.conceptIdNodeMap[String(edge.sourceId)];
+        var target = this.conceptIdNodeMap[String(edge.targetId)];
+        if(undefined === source || undefined === target || !this.nodeInGraph(source) || !this.nodeInGraph(target)){
             return;
         }
         
@@ -540,26 +520,6 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         if(this.edgeNotInGraph(edge)){
             this.addEdges([edge]);
         }
-        
-        if(matchIdInRegistry){
-            this.expMan.clearEdgeFromRegistry(matchIdInRegistry, otherIdInGraph, edge);
-        }
-    }
-    
-    /**
-     * Can be used when the edge does not have both endpoints in the graph, or when removing
-     * edges that were added only temporarily.
-     */
-    private registerImplicitEdge(parentId: string, childId: string, edge: Link){
-        if(this.isEdgeForTemporaryRenderOnly(edge)){
-            console.log("Attempting to register as implicit an edge that is meant for temporary rendering only:");
-            console.log(edge);
-            return;
-        }
-        
-        var conceptIdNotInGraph = (parentId in this.conceptIdNodeMap) ?  childId : parentId;
-        var conceptInGraph = (parentId in this.conceptIdNodeMap) ?  parentId : childId;
-        this.expMan.addEdgeToRegistry(conceptIdNotInGraph, conceptInGraph, edge);
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){
@@ -567,27 +527,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // Because registry contains edges for which there *was* no node for the index,
         // and there *are* nodes for the other ends of the edge, we can manifest all of
         /// them when we are doing so due to a new node appearing.
-        if(this.expMan.hasEdgeRegistryEntry(conceptId, undefined)){
-            $.each(this.expMan.getRegisteredEdgeTargetsFor(conceptId), (index, conceptsEdges)=>{
+        if(this.expMan.edgeRegistry.hasEdgeRegistryEntry(conceptId, undefined)){
+            $.each(this.expMan.edgeRegistry.getRegisteredEdgeTargetsFor(conceptId), (index, conceptsEdges)=>{
                 $.each(conceptsEdges, (index, edge: Link)=>{
-                    var otherId = (edge.sourceId == conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId ;
-                    edge.source = this.conceptIdNodeMap[String(edge.sourceId)];
-                    edge.target = this.conceptIdNodeMap[String(edge.targetId)];
-                    if(undefined === edge.source){
-                        console.log("Edge in registry skipped because source not available: "+edge.sourceId);
-                        return;
-                    }
-                    if(undefined === edge.target){
-                        console.log("Edge in registry skipped because target not available: "+edge.targetId);
-                        return;
-                    }
-                    if(this.edgeNotInGraph(edge)){
-                        this.addEdges([edge]);
-                    }
-                    // Clear that one out...safe while in the loop?
-                    this.expMan.clearEdgeFromRegistry(conceptNode.rawConceptUri, otherId, edge);
-                    
-                    
+                     this.manifestEdge(edge);
                 })
             });
         }
@@ -612,17 +555,17 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
     registerTemporaryRenderEdge(edge: Link){
-        this.expMan.addEdgeToTemporaryRenderRegistry(edge);
+        this.expMan.temporaryRegistry.addEdgeToTemporaryRenderRegistry(edge);
     }
     
     manifestTemporaryHoverEdges(conceptNode: Node){
-        var edges: Link[] = this.expMan.getEdgesForTemporaryRendering(conceptNode.rawConceptUri, this.conceptIdNodeMap);
+        var edges: Link[] = this.expMan.temporaryRegistry.getEdgesForTemporaryRendering(conceptNode.rawConceptUri, this.conceptIdNodeMap);
         $.merge(this.graphD3Format.links, edges);
         this.graphView.populateNewGraphEdges(this.graphD3Format.links);
     }
     
     removeTemporaryHoverEdges(conceptNode: Node){
-        var edges: Link[] = this.expMan.getEdgesForTemporaryRendering(conceptNode.rawConceptUri, this.conceptIdNodeMap);
+        var edges: Link[] = this.expMan.temporaryRegistry.getEdgesForTemporaryRendering(conceptNode.rawConceptUri, this.conceptIdNodeMap);
         // So...the nicest way to do this would be to slice the edges out. They were
         // pushed all at once, and it is an array, so we can do this. So, let's find
         // the start and end index. This feels a bit hairy to me, but let's go for it.
