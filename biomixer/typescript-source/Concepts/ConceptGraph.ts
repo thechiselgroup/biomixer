@@ -248,6 +248,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // Only implementing here rather than in graphView because of this container...
             // Also, we like looking them up by id
             this.removeNodeFromIdMap(nodesToRemove[i]);
+            // Only remove whitelist here if we are also making undo/reod re-add whitelisting.
+//            this.expMan.removeConceptIdFromExpansionWhitelist(nodesToRemove[i].rawConceptUri);
         }
         // Edges depend on nodes when rendering, but not vice versa, so let's
         // remove them first
@@ -258,7 +260,11 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     private addEdges(newEdges: Array<Link>){
          for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
-            this.graphD3Format.links.push(newEdges[i]);
+            if(this.edgeNotInGraph(newEdges[i])){
+                newEdges[i].source = this.conceptIdNodeMap[String(newEdges[i].sourceId)];
+                newEdges[i].target = this.conceptIdNodeMap[String(newEdges[i].targetId)];
+                this.graphD3Format.links.push(newEdges[i]);
+            }
         }
         this.graphView.populateNewGraphEdges(this.graphD3Format.links);
     }
@@ -295,8 +301,6 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             var incidentEdges = this.getAdjacentLinks(node);
             for(var l = 0; l < incidentEdges.length; l++){
                 var edge = incidentEdges[l];
-                // edge.source = null;
-                // edge.target = null;
                 edgesToDelete.push(edge);
             }
         }
@@ -471,20 +475,18 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationType;
         edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
         
-        if(this.isEdgeForTemporaryRenderOnly(edge)){
-            this.registerTemporaryRenderEdge(edge);
-            return;
-        }
-        
         // Changing the registry to be permanent, and to have no assumptions about gaph population.
         // All edges we learn about from REST services are permanently registered, and available for manifestation.
         // Do we need to check if it is already registered? Probably not!
         // We always want to register, since the registry is the permanent store of known edges.
         this.registerImplicitEdge(edge);
 
-        // Do we just call this, or what?
         // It checks to make sure the endpoints are extant, so we can fire it off right away.
-        this.manifestEdge(edge);
+         if(this.isEdgeForTemporaryRenderOnly(edge)){
+            // Prefer check here than in caller
+            return;
+        }
+        this.manifestEdge([edge], false);
     }
     
     /**
@@ -492,34 +494,32 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * edges that were added only temporarily.
      */
     private registerImplicitEdge(edge: Link){
-        if(this.isEdgeForTemporaryRenderOnly(edge)){
-            console.log("Attempting to register as implicit an edge that is meant for temporary rendering only:");
-            console.log(edge);
-            return;
-        }
-        
         this.expMan.edgeRegistry.addEdgeToRegistry(edge);
     }
     
-    private manifestEdge(edge: Link){
-        if(this.isEdgeForTemporaryRenderOnly(edge)){
-            console.log("Attempting to manifest edge that is meant for temporary rendering only:");
-            console.log(edge);
-            return;
-        }
+    /**
+     * Manifests any provided edges, but possibly not temporary edges, depending on arguments.
+     */
+    private manifestEdge(edges: Link[], allowTemporary: boolean){
+         var edgesToRender: Link[] = [];
+         $.each(edges,
+            (index: number, edge: Link)=>{
+                // Only ever manifest edges with endpoints in the graph
+                var source = this.conceptIdNodeMap[String(edge.sourceId)];
+                var target = this.conceptIdNodeMap[String(edge.targetId)];
+                if(undefined === source || undefined === target || !this.nodeInGraph(source) || !this.nodeInGraph(target)){
+                    return;
+                }
+                
+                if(!allowTemporary && this.isEdgeForTemporaryRenderOnly(edge)){
+                    return;
+                }
+                     
+                 edgesToRender.push(edge);
+             }
+         );
         
-        // Only ever manifest edges with endpoints in the graph
-        var source = this.conceptIdNodeMap[String(edge.sourceId)];
-        var target = this.conceptIdNodeMap[String(edge.targetId)];
-        if(undefined === source || undefined === target || !this.nodeInGraph(source) || !this.nodeInGraph(target)){
-            return;
-        }
-        
-        edge.source = this.conceptIdNodeMap[String(edge.sourceId)];
-        edge.target = this.conceptIdNodeMap[String(edge.targetId)];
-        if(this.edgeNotInGraph(edge)){
-            this.addEdges([edge]);
-        }
+        this.addEdges(edgesToRender);
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){
@@ -527,13 +527,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // Because registry contains edges for which there *was* no node for the index,
         // and there *are* nodes for the other ends of the edge, we can manifest all of
         /// them when we are doing so due to a new node appearing.
-        if(this.expMan.edgeRegistry.hasEdgeRegistryEntry(conceptId, undefined)){
-            $.each(this.expMan.edgeRegistry.getRegisteredEdgeTargetsFor(conceptId), (index, conceptsEdges)=>{
-                $.each(conceptsEdges, (index, edge: Link)=>{
-                     this.manifestEdge(edge);
-                })
-            });
-        }
+        var allEdges = this.expMan.edgeRegistry.getEdgesFor(conceptId);
+        this.manifestEdge(allEdges, false);
     }
     
     isEdgeForTemporaryRenderOnly(edge: Link) : boolean{
@@ -554,26 +549,35 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return false;
     }
     
-    registerTemporaryRenderEdge(edge: Link){
-        this.expMan.temporaryRegistry.addEdgeToTemporaryRenderRegistry(edge);
-    }
-    
+    private temporaryEdges: Link[] = [];
     manifestTemporaryHoverEdges(conceptNode: Node){
-        var edges: Link[] = this.expMan.temporaryRegistry.getEdgesForTemporaryRendering(conceptNode.rawConceptUri, this.conceptIdNodeMap);
-        $.merge(this.graphD3Format.links, edges);
-        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+        var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(String(conceptNode.rawConceptUri));
+        // If clearedForMap, then technically all the mapping edges should be visible, so there's no reason to
+        // look over the edges.
+        var clearedForMap = this.expMan.isConceptWhitelistedForExpansion(conceptNode.rawConceptUri, PathOptionConstants.mappingsNeighborhoodConstant);
+        if(clearedForMap){
+            return;
+        }
+        
+        $.each(nodeEdges,
+            (index: number, edge: Link )=>{
+                if(edge.relationType === this.relationLabelConstants.mapping){
+                    var otherNodeId = (edge.sourceId === conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId;
+                    var otherNodeClearedMap = this.expMan.isConceptWhitelistedForExpansion(otherNodeId, PathOptionConstants.mappingsNeighborhoodConstant);
+                    if(!otherNodeClearedMap){
+                        // If the other node is cleared, the edge should be already rendered.
+                        this.temporaryEdges.push(edge);
+                    }
+                }
+            }
+        );
+        
+        this.manifestEdge(this.temporaryEdges, true);
     }
     
     removeTemporaryHoverEdges(conceptNode: Node){
-        var edges: Link[] = this.expMan.temporaryRegistry.getEdgesForTemporaryRendering(conceptNode.rawConceptUri, this.conceptIdNodeMap);
-        // So...the nicest way to do this would be to slice the edges out. They were
-        // pushed all at once, and it is an array, so we can do this. So, let's find
-        // the start and end index. This feels a bit hairy to me, but let's go for it.
-        var startIndex = this.graphD3Format.links.indexOf(edges[0]);
-        var endIndex = this.graphD3Format.links.indexOf(edges[edges.length-1]);
-        // this.graphD3Format.links = this.graphD3Format.links.slice(startIndex, endIndex+1);
-        this.graphD3Format.links = $(this.graphD3Format.links).not(edges).toArray();
-        this.graphView.removeMissingGraphElements(this.graphD3Format);
+        this.removeEdges(this.temporaryEdges);
+        this.temporaryEdges = [];
     }
     
     /**
