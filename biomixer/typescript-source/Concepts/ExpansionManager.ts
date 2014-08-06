@@ -24,36 +24,24 @@ export class ExpansionManager{
      * we got the term to begin with. That context is available in the undo stack of expansions,
      * which works well when we have undone or redone them, and works better than a previous
      * system of explicit whitelisting for expansions.
+     *
+     * If this returns true, the node in question is allowed to fetch and add related nodes within the expansion
+     * type specified. Those nodes do not (normally) inherit this property.
+     * 
+     * If the paths to root functionality were not fulfilled via a special REST call, that system would allow
+     * expanded parent nodes to inherit this privelege and pass it on to their parents.
      */
-     private getMostRecentNodeInteraction(conceptUri: ConceptGraph.ConceptURI){
+     isConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
         var crumbTrail = this.undoBoss.getCrumbHistory();
         var conceptUriForIds: string = String(conceptUri);
         for(var i = crumbTrail.length - 1; i >= 0; i--){
             var nodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = crumbTrail[i].nodeInteraction(conceptUriForIds);
-            if(null !== nodeInteraction){
-                return nodeInteraction;
+            if(nodeInteraction === expansionType){
+                return true;
+            } else if(nodeInteraction === GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction){
+                return false;
             }
         }
-        return null;
-     }
-    
-     /**
-      * If this returns true, the node in question is allowed to fetch and add related nodes within the expansion
-      * type specified. Those nodes do not (normally) inherit this property.
-      * 
-      * If the paths to root functionality were not fulfilled via a special REST call, that system would allow
-      * expanded parent nodes to inherit this privelege and pass it on to their parents.
-      */
-     isConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
-        var nodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = this.getMostRecentNodeInteraction(conceptUri);
-        if(nodeInteraction === expansionType){
-            return true;
-        }
-        if(nodeInteraction === GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction){
-            return false;
-        }
-         
-        // Includes if null === nodeInteraction
         return false;
     }
     
