@@ -129,6 +129,15 @@ export class UndoRedoManager {
         return this.trail.indexOf(command);
     }
     
+    /**
+     * Although it trades modularity for encapsulation, I need to allow another class to access breadcrumb history to
+     * inspect for whether a given node was expanded in our current state. Deletions and expansions
+     * both weigh in on the decision.
+     */
+    getCrumbHistory(){
+        return this.trail.slice(0, this.currentTrailIndex+1);
+    }
+    
 }
 
 // Unused for now.
@@ -399,5 +408,16 @@ export interface ICommand {
      *  Very advanced functionality. Might not be implemented.
      */
     preview(): void;
+    
+    /**
+     * This tells the caller what happens to the provided node id, when
+     * mvoing in the forward (redo) direction. If the ICommand does not
+     * interact with the node, it will return null.
+     */
+    nodeInteraction(nodeId: string): NodeInteraction;
+}
+
+export interface NodeInteraction extends String {
+    gorgonzola; // strengthen duck typing
 }
 

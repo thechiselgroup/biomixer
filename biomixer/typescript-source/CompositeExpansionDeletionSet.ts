@@ -34,14 +34,14 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
      */
     constructor(
         public graph: GraphView.Graph<N>,
-        displayName: string,
         id: ExpansionSet.ExpansionSetIdentifer,
-        undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager
+        undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager,
+        expansionType: UndoRedoBreadcrumbs.NodeInteraction
         ){
-        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, displayName);
+        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, String(expansionType));
         // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
         // with null parent node and it worked.
-        this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, null, this.graph, null)
+        this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, null, this.graph, null, expansionType)
         this.deletionSet = new DeletionSet.DeletionSet<N>(this.graph, null);
         
         this.graphModifier.addCommand(this.deletionSet.getGraphModifier());

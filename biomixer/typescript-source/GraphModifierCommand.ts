@@ -23,6 +23,8 @@ import LayoutModifierCommand = require("./LayoutModifierCommand");
  */
 export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
     
+    static addedNodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = <UndoRedoBreadcrumbs.NodeInteraction><any>"added node";
+    
     static counter = 0;
     
     private id: string;
@@ -102,9 +104,25 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     preview(): void{
     
     }
+    
+    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction{
+        if(this.expansionSet.parentNode.getEntityId() === nodeId){
+            return this.expansionSet.expansionType;
+        }
+        for(var i = 0; i < this.expansionSet.nodes.length; i++){
+            var node = this.expansionSet.nodes[i];
+            if(node.getEntityId() === nodeId){
+                return GraphAddNodesCommand.addedNodeInteraction;
+            }
+        }
+        return null;
+    }
+    
 }
 
 export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+    
+    static deletionNodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = <UndoRedoBreadcrumbs.NodeInteraction><any>"deleted node";
     
     static counter = 0;
     
@@ -161,6 +179,17 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
     preview(): void{
     
     }
+    
+    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction{
+        for(var i = 0; i < this.nodesToRemove.nodes.length; i++){
+            var node = this.nodesToRemove.nodes[i];
+            if(node.getEntityId() === nodeId){
+                return GraphRemoveNodesCommand.deletionNodeInteraction;
+            }
+        }
+        return null;
+    }
+    
 }
 
 export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
@@ -225,5 +254,16 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
     
     preview(): void{
     
+    }
+    
+    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction {
+        // We look in reverse at all the composite commands
+        for(var i = this.commands.length - 1; i >= 0; i--){
+            var interaction = this.commands[i].nodeInteraction(nodeId);
+            if(null !== interaction){
+                return interaction;
+            }
+        }
+        return null;
     }
 }

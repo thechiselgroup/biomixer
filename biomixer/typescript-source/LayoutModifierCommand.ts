@@ -40,4 +40,8 @@ export class LayoutModificationCommand<N extends GraphView.BaseNode> implements 
     preview(): void{
     
     }
+    
+    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction{
+        return null;
+    }
 }

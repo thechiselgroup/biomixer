@@ -1,56 +1,60 @@
 ///<reference path="headers/require.d.ts" />
 
 ///<amd-dependency path="Concepts/ConceptGraph" />
+///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="GraphModifierCommand" />
 
 import ConceptGraph = require("./ConceptGraph");
+import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import GraphModifierCommand = require("../GraphModifierCommand");
 
 export class ExpansionManager{
-    
-    // To track nodes for which we want their neighbours expanded (by id and expansion type):
-    private conceptsToExpand = {};
     
     public edgeRegistry: EdgeRegistry;
     
     constructor(
-        
+        private undoBoss: UndoRedoBreadcrumbs.UndoRedoManager
     ){
         this.edgeRegistry = new EdgeRegistry();
     }
     
     /**
-     * If this returns true, the node in question is allowed to fetch and add related nodes within the expansion
-     * type specified. Those nodes do not (normally) inherit this property.
-     * 
-     * If the paths to root functionality were not fulfilled via a special REST call, that system would allow
-     * expanded parent nodes to inherit this privelege and pass it on to their parents.
+     * This is used to determine things like if a given mapping arc is to be fully rendered,
+     * or if the neighbors of a term we are processing should be fetched. That depends on hwo
+     * we got the term to begin with. That context is available in the undo stack of expansions,
+     * which works well when we have undone or redone them, and works better than a previous
+     * system of explicit whitelisting for expansions.
      */
-    isConceptWhitelistedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
-        var conceptIdStr = String(conceptUri);
-        return conceptIdStr in this.conceptsToExpand && String(expansionType) in this.conceptsToExpand[conceptIdStr];
-    }
+     private getMostRecentNodeInteraction(conceptUri: ConceptGraph.ConceptURI){
+        var crumbTrail = this.undoBoss.getCrumbHistory();
+        var conceptUriForIds: string = String(conceptUri);
+        for(var i = crumbTrail.length - 1; i >= 0; i--){
+            var nodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = crumbTrail[i].nodeInteraction(conceptUriForIds);
+            if(null !== nodeInteraction){
+                return nodeInteraction;
+            }
+        }
+        return null;
+     }
     
-    /**
-     * Nodes that should be expanded (that is expanded from, their related nodes of some type fetched and
-     * added to the graph) need to be whitelisted. We have to track them some how, and this is a generic approach.
-     * 
-     * This is normally only called for the central node on the first load of a visualization, and for nodes that
-     * have had their expansion widgets widged.
-     */
-    addConceptIdToExpansionWhitelist(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
-        // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
-        var conceptId = String(conceptUri);
-        this.conceptsToExpand[conceptId] = {};
-        this.conceptsToExpand[conceptId][expansionType] = true;
-    }
-    
-    /**
-     * When nodes are deleted, we want to remove them from the whitelist, to allow us to use this for other purposes,
-     * and to prevent occassional re-expansions from misbehaving after a subsequent expansion. 
-     */
-    removeConceptIdFromExpansionWhitelist(conceptUri: ConceptGraph.ConceptURI){
-        // Weakly typed maps are much more pleasant than string and number indexed maps when using objects
-        var conceptId = String(conceptUri);
-        delete this.conceptsToExpand[conceptId];
+     /**
+      * If this returns true, the node in question is allowed to fetch and add related nodes within the expansion
+      * type specified. Those nodes do not (normally) inherit this property.
+      * 
+      * If the paths to root functionality were not fulfilled via a special REST call, that system would allow
+      * expanded parent nodes to inherit this privelege and pass it on to their parents.
+      */
+     isConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
+        var nodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = this.getMostRecentNodeInteraction(conceptUri);
+        if(nodeInteraction === expansionType){
+            return true;
+        }
+        if(nodeInteraction === GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction){
+            return false;
+        }
+         
+        // Includes if null === nodeInteraction
+        return false;
     }
     
 }

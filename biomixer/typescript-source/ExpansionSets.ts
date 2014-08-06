@@ -36,7 +36,8 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         public id: ExpansionSetIdentifer,
         public parentNode: N,
         public graph: GraphView.Graph<N>,
-        undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager
+        undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager,
+        public expansionType: UndoRedoBreadcrumbs.NodeInteraction
         ){
         if(null != parentNode){
             parentNode.expansionSetAsParent = this;
@@ -47,7 +48,7 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
             undoRedoBoss.addCommand(this.graphModifier);
         }
     }
-    
+        
     addAll(nodes: Array<N>): void{
         nodes.forEach(
             (node: N, i: number, arr: Array<N>)=>{

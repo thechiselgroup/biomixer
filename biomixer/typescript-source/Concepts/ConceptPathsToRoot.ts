@@ -78,7 +78,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 //        this.filterSliders.filterGraphOnOntologyAndLinkSelections();
     }
     
-    visualization: string;
+    visualization: ConceptGraph.PathOption;
     
     constructor(
         public centralOntologyAcronym: ConceptGraph.RawAcronym,
@@ -91,12 +91,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                
         this.menu = new Menu.Menu();
         
-        this.visualization = $("#visualization_selector option:selected").text();
+        // This cast is ok since we assign values for the selector from the ConceptGraph.PathOptionConstants
+        this.visualization = <ConceptGraph.PathOption><any>$("#visualization_selector option:selected").text();
         $("#visualization_selector").change(
             () => {
                 console.log("Changing visualization mode.");
-                if(this.visualization !== $("#visualization_selector option:selected").text()){
-                    this.visualization = $("#visualization_selector option:selected").text();
+                var selected  = <ConceptGraph.PathOption><any>$("#visualization_selector option:selected").text();
+                if(this.visualization !== selected){
+                    this.visualization = selected;
                     this.fetchInitialExpansion();
                 }
             }
@@ -168,7 +170,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.cleanSlate();
         
         // These here or elsewhere like in runGraph??
-        this.conceptGraph = new ConceptGraph.ConceptGraph(this, this.centralConceptUri, this.softNodeCap);
+        this.conceptGraph = new ConceptGraph.ConceptGraph(this, this.centralConceptUri, this.softNodeCap, this.undoRedoBoss);
         
         this.initGraph();
         
@@ -199,17 +201,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     }
     
     fetchInitialExpansion(){
-        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), this.visualization);
+        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), String(this.visualization));
         // We may have nodes that we are getting rid of in order to do the expansion, so we do it this way
-        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, this.visualization, expId, this.undoRedoBoss);
+        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, this.visualization);
         this.nodeDeleter.deleteNodesForGraphInitialization(initSet);
         var expansionSet = initSet.expansionSet;
         
-        if(this.visualization === String(ConceptGraph.PathOptionConstants.pathsToRootConstant)){
+		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
+		// to see where this occurs.
+        if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
-        } else if(this.visualization === String(ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
+        } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
             this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
-        } else if(this.visualization === String(ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
+        } else if(this.visualization === ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant){
             this.setCurrentLayout(this.layouts.runCenterLayoutLambda());
             this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
             this.runCurrentLayout();
@@ -893,7 +897,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
-                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss);
+                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss,
+                                ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
                             outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
                         }
                     );
@@ -917,7 +922,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
-                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss);
+                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss,
+                                ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
                             outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
                         }
                 );
@@ -962,7 +968,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     prepGraphMenu(){
         // Layout selector for concept graphs.
-        this.menu.initializeMenu("Layouts");
+        this.menu.initializeMenu("Layouts & Filters");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
