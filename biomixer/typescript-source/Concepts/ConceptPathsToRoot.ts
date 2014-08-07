@@ -872,8 +872,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         return function(nodeData: ConceptGraph.Node){
             var rectWidth = 110;
             var rectHeight = 35;
-            var fontXOffset = 7;
-            var fontYOffset = 23;
+            var fontXSvgPadding = 7;
+            var fontYSvgPadding = 23;
             
             // JQuery does not allow the specification of a namespace when creating elements.
             // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
@@ -886,25 +886,49 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .attr("width", rectWidth).attr("height", rectHeight * 2)
                     .style("z-index", 100)
                     .on("mouseleave", function(){ $("#expanderMenu").first().remove(); })
+                    // The mouseup one is required due to a silly graphical bug I could not fix.
+                    // If a greyed-out menu item was clicked, it also triggered a re-dispatch of the menu creating function,
+                    // and produced a broken container relative to the text elements within.
+                    // I tried many things which didn't work. Eventually I decided to get rid of the box altogether
+                    // whenever a greyed-out menu item is clicked; that is, if the item doesn't have a body to its handler,
+                    // it allows this one to close the menu.
+                    .on("mouseup", function(){ $("#expanderMenu").first().remove(); })
             ;
             
+            // Create concept expander button
+            {
             var conceptExpandSvg = innerSvg.append("svg:svg")
                     .attr("overflow", "visible").attr("y", 0)
             ;
-            conceptExpandSvg.append("svg:rect")
-                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup",
-                        function(){
+            
+            // If this node is currently cleared for expansion within the undo/stack current context,
+            // then it means we already did this expansion (possibly via another means).
+            // Let's alter the menu to reflect this.
+            var conceptExpandTextValue;
+            var conceptExpandFontFillColor;
+            var conceptExpandMouseUpFunc;
+            if(!outerThis.conceptGraph.expMan.isConceptClearedForExpansion(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
+                conceptExpandTextValue = "Expand Concepts";
+                conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
+                conceptExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
                             var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss,
                                 ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
                             outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
-                        }
-                    );
+                        };
+            } else {
+                conceptExpandTextValue = "Concepts Already Expanded";
+                conceptExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
+                conceptExpandMouseUpFunc = function(){return false;};
+            }
+            
+            conceptExpandSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("mouseup", conceptExpandMouseUpFunc);
             conceptExpandSvg.append("svg:text")
-                .text("Expand Concepts")
-                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("dx", fontXOffset).attr("dy", fontYOffset)
+                .text(conceptExpandTextValue)
+                .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",conceptExpandFontFillColor).attr("dx", fontXSvgPadding).attr("dy", fontYSvgPadding)
                 .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
                 .style("pointer-events", "none")
                 // Why cannot we stop selection in IE? They are rude.
@@ -912,24 +936,43 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .attr("onmousedown", "noselect") // IE ?
                 .attr("onselectstart", "function(){ return false;}") // IE 8?
             ;
-                
+            }
+            
+            // Create mapping expander button
+            {
             var mappingExpandSvg = innerSvg.append("svg:svg")
                     .attr("overflow", "visible").attr("y", rectHeight)
             ;
-            mappingExpandSvg.append("svg:rect")
-                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup",
-                        function(){
+            
+            // If this node is currently cleared for expansion within the undo/stack current context,
+            // then it means we already did this expansion (possibly via another means).
+            // Let's alter the menu to reflect this.
+            var mappingExpandTextValue;
+            var mappingExpandFontFillColor;
+            var mappingExpandMouseUpFunc;
+            if(!outerThis.conceptGraph.expMan.isConceptClearedForExpansion(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
+                mappingExpandTextValue = "Expand Mappings";
+                mappingExpandFontFillColor = ""; // empty works to *not* add a value at all
+                mappingExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
                             var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss,
                                 ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
                             outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
-                        }
-                );
+                        };
+            } else {
+                mappingExpandTextValue = "Mappings Already Expanded";
+                mappingExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
+                mappingExpandMouseUpFunc = function(){return false;};
+            }
+            
+            mappingExpandSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("mouseup", mappingExpandMouseUpFunc);
+            
             mappingExpandSvg.append("svg:text")
-                .text("Expand Mappings")
-                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
+                .text(mappingExpandTextValue)
+                .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",mappingExpandFontFillColor).attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
                 .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
                 .style("pointer-events", "none")
                 // Why cannot we stop selection in IE? They are rude.
@@ -937,7 +980,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .attr("onmousedown", "noselect") // IE ?
                 .attr("onselectstart", "function(){ return false;}") // IE 8?
             ;
+            }
             
+            // Create menu item for refocussing on node
+            {
             var centralizeNodeSvg = innerSvg.append("svg:svg")
                     .attr("overflow", "visible").attr("y", 2*rectHeight)
             ;
@@ -947,7 +993,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ;
             centralizeNodeSvg.append("svg:text")
                 .text("Refocus Node")
-                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXOffset).attr("y", fontYOffset)
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
                 .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
                 .style("pointer-events", "none")
                 // Why cannot we stop selection in IE? They are rude.
@@ -955,6 +1001,26 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .attr("onmousedown", "noselect") // IE ?
                 .attr("onselectstart", "function(){ return false;}") // IE 8?
             ;
+            }
+            
+            // Resize the parent rectangles as necessary based on all of the children text elements
+            // It does things fairly automatically and agnostic of the number of menu item text elements.
+            // Obviously if we change the overall design of the menu this won't work as is.
+            {
+            // Size the parent rect according to the longest text child
+            var maxWidth = 0;
+            $("#"+innerSvg.attr("id")).find("text").each(
+                function(index, element){
+                    maxWidth = Math.max(maxWidth, <any>$(element).css("width").replace("px", ""));
+                }
+            );
+            // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
+            // The right side will need the same effective padding as well.
+            maxWidth += 2*fontXSvgPadding; 
+            $("#"+innerSvg.attr("id")).attr("width", maxWidth);
+            $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
+            console.log("Resized things, maxWidth: "+maxWidth);
+            }
         }
     }
     
