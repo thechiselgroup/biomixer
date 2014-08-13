@@ -22,8 +22,8 @@ import ExpansionSets = require("../ExpansionSets");
  * Vaguely resembles the sibling node filtering classes, with similarly named method names, but the
  * requirements are different enough that it doesn't share specialized behaviors with them.
  */
-export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget
-    implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link>
+export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget<ExpansionSets.ExpansionSet<ConceptGraph.Node>>
+    implements FilterWidget.INodeFilterWidget<ExpansionSets.ExpansionSet<ConceptGraph.Node>, ConceptGraph.Node>
     {
     
     static SUB_MENU_TITLE: string = "Node Expansion Sets Displayed";
@@ -39,39 +39,35 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         this.pathToRootView = graphView;
     }
 
-    generateCheckboxLabel(node: ConceptGraph.Node): string {
-        var expSet = node.getExpansionSet();
+    generateCheckboxLabel(expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>): string {
         if(expSet == undefined){
             return "undefined";
         }
         return expSet.id.displayId;
     }
     
-    generateColoredSquareIndicator(node: ConceptGraph.Node): string {
+    generateColoredSquareIndicator(node: ExpansionSets.ExpansionSet<ConceptGraph.Node>): string {
         // Node need be nothing.
         // Constant. No color to associate with a set, right?
         return "<span style='font-size: large; color: #223344'>\u25A0</span>";
     }
     
-    computeCheckId(node: ConceptGraph.Node): string {
-        if(node.getExpansionSet() == undefined){
-            return null;
-        }
-        return this.getClassName()+"_for_"+node.getExpansionSet().id.internalId;
+    computeCheckId(expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>): string {
+        return this.getClassName()+"_for_"+expSet.id.internalId;
+
     }
     
-    computeParentingCheckId(node: ConceptGraph.Node): string {
-        if(null == node){
-            return null;
-        }
-        if(node.expansionSetAsParent === undefined){
-            return null;
-        }
-        return this.getClassName()+"_for_"+node.expansionSetAsParent.id.internalId;
+    computeParentingCheckId(expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>): string {
+        return this.getClassName()+"_for_"+expSet.id.internalId;
     }
     
-    computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{
-        var setNodes = node.getExpansionSet().nodes;
+    /**
+     * So except for parents, nodes will always be hidden in the deletion-ignoring way described above.
+     * If a node comes back in via a different expansion, the original expansion will co-own the node, and
+     * they get to fight about whether it is visible or not.
+     */
+    computeCheckboxElementDomain(expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>): Array<ConceptGraph.Node>{
+        var setNodes = expSet.nodes;
         // We filter out any nodes that are (currently) deleted from the graph.
         // We always need to hold on to nodes that are deleted, since they could be re-added
         // via an undo.
@@ -86,20 +82,27 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         );
         return setNodesInGraph;
     }
+    
+    getFilterTargets(): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{
+        // We have multiple command types in the undo stack, but we are picking out the expansion sets only.
+        // If all of the elements have been *deleted* (not undone), then we may want to test for any rendered
+        // members prior to instantiating the filter checkbox.
+        return this.conceptGraph.expMan.getActiveExpansionSets();
+    }
 
     /**
      * The expansion set implementation of this is particularly convoluted since we want parent nodes
      * to stay visible when their own expansion sets are hidden, and we want to hide them if both their
      * parent and child sets are hidden.
      */
-    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkboxIsChecked: JQuery): void {
+    checkboxChanged(checkboxContextData: ExpansionSets.ExpansionSet<ConceptGraph.Node>, setOfHideCandidates: Array<ConceptGraph.Node>, checkboxIsChecked: JQuery): void {
         var outerThis = this;
         var affectedNodes: ConceptGraph.Node[] = [];
         // For this one, we pull a trick: we don't want to hide the parent node when we hide the expansion, but we sure
         // want it to stay around when we show the expansion. It's trickier to keep the parent around
         // when other expansion sets hide it, so we can leave that be.
         
-        var expSet = checkboxContextData.getExpansionSet();
+        var expSet = checkboxContextData;
         var parentNode = expSet.parentNode;
         
         checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
@@ -128,12 +131,13 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
                     var safeToHide = true;
                     if(node.expansionSetAsParent !== undefined){
                         // Convoluted.
-                        var anotherCheckbox = outerThis.computeParentingCheckId(node);
-                        if($("#"+anotherCheckbox).is(":checked")){
-                            // If the node is a parent of a *visible* set, do not hide it with the rest of
-                            // its expansion set.
-                            safeToHide = false;
-                        }
+                        // TODO Re-implement this logic, now invalid. See lower down as well.
+//                        var anotherCheckbox = outerThis.computeParentingCheckId(node);
+//                        if($("#"+anotherCheckbox).is(":checked")){
+//                            // If the node is a parent of a *visible* set, do not hide it with the rest of
+//                            // its expansion set.
+//                            safeToHide = false;
+//                        }
                     }
                     
                     if(safeToHide){
@@ -147,12 +151,13 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
             // expansion set).
             // Convoluted.
             if(null !== parentNode){
-                var anotherCheckbox = outerThis.computeCheckId(parentNode); // Yes, the normal checkbox id of the parent node
-                if(!$("#"+anotherCheckbox).is(":checked")){
-                    // If the parent node is a member of a *hidden* set, we will hide it along with its child set.
-                    outerThis.graphView.hideNodeLambda(outerThis.graphView)(parentNode, 0);
-                    affectedNodes.push(parentNode);
-                }
+                // TODO Re-implement this logic, now invalid. See higher up as well.
+//                var anotherCheckbox = outerThis.computeCheckId(parentNode); // Yes, the normal checkbox id of the parent node
+//                if(!$("#"+anotherCheckbox).is(":checked")){
+//                    // If the parent node is a member of a *hidden* set, we will hide it along with its child set.
+//                    outerThis.graphView.hideNodeLambda(outerThis.graphView)(parentNode, 0);
+//                    affectedNodes.push(parentNode);
+//                }
             }
         }
         outerThis.pathToRootView.refreshOtherFilterCheckboxStates(affectedNodes, this);
@@ -168,16 +173,21 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
      */
     updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
         var outerThis = this;
-        $.each(affectedNodes, function(i, node: ConceptGraph.Node){
-                var checkId = outerThis.implementation.computeCheckId(node);
-                if(null == checkId){
-                    return;
+        $.each(this.getFilterTargets(), function(i, expSet){
+            $.each(affectedNodes,
+                function(i, node: ConceptGraph.Node){
+                    if(expSet.nodes.indexOf(node) !== -1){
+                        var checkId = outerThis.implementation.computeCheckId(expSet);
+                        if(null == checkId){
+                            return;
+                        }
+                        // Won't uncheck in this case, but instead gets transparent to indicate
+                        // mixed state
+                        $("#"+checkId).addClass(ExpansionSetFilter.SOME_SELECTED_CSS);
+                    }
                 }
-                // Won't uncheck in this case, but instead gets transparent to indicate
-                // mixed state
-                $("#"+checkId).addClass(ExpansionSetFilter.SOME_SELECTED_CSS);
-            }
-        );
+            );
+        });
     }
             
     getHoverNeedsAdjacentHighlighting(): boolean{

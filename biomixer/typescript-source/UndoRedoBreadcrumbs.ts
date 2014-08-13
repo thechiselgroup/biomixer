@@ -401,7 +401,7 @@ export interface ICommand {
      * TODO Perhaps we should indeed cache the state somehow...is there a swift way of
      * capturing a scaled or full scale image of an SVG rendering? How do we avoid the
      * various highlighting and whatnot that might be occurring due to mouse interactions?
-     * Perhaps that's ok. We cna close menus as necessary too. Automating this and
+     * Perhaps that's ok. We can close menus as necessary too. Automating this and
      * not *actually* using the ICommand data would be the best way, since the preview
      * cannot be interacted with anyway; an image would completely suffice. 
      * 
@@ -411,7 +411,7 @@ export interface ICommand {
     
     /**
      * This tells the caller what happens to the provided node id, when
-     * mvoing in the forward (redo) direction. If the ICommand does not
+     * moving in the forward (redo) direction. If the ICommand does not
      * interact with the node, it will return null.
      */
     nodeInteraction(nodeId: string): NodeInteraction;

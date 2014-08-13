@@ -12,11 +12,11 @@ import Menu = require("./Menu");
 import GraphView = require("./GraphView");
 import ConceptGraph = require("./Concepts/ConceptGraph");
 
-export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends FilterWidget.AbstractFilterWidget implements FilterWidget.IFilterWidget {
+export class AbstractNodeFilterWidget<FilterTarget, N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends FilterWidget.AbstractFilterWidget implements FilterWidget.IFilterWidget {
     
     static SOME_SELECTED_CSS = "filterCheckboxSomeSelected";
     
-    public implementation: INodeFilterWidget<N, L>
+    public implementation: INodeFilterWidget<FilterTarget, N>
     
     constructor(
         subMenuTitle: string,
@@ -33,42 +33,41 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
         var outerThis = this;
         
         // Can I generalize this sorting and node group for when we will have expansion sets? Maybe...
-        var sortedNodes = this.graphView.sortConceptNodesCentralOntologyName();
-
+        var filterTargets = this.implementation.getFilterTargets();
         // Add new ones
-        $.each(sortedNodes, (i, node: N) =>
+        $.each(filterTargets, (i, target: FilterTarget) =>
             {
-                var checkId = this.implementation.computeCheckId(node);
+                var checkId = this.implementation.computeCheckId(target);
                 var spanId = "span_"+checkId;
                 if(0 === $("#"+spanId).length){
                     // We store some arbitrary containers of nodes to hide for each checkbox. Seems data consumptive.
                     
-                    var checkboxLabel = this.implementation.generateCheckboxLabel(node);
-                    var checkboxColoredSquare = this.implementation.generateColoredSquareIndicator(node);
+                    var checkboxLabel = this.implementation.generateCheckboxLabel(target);
+                    var checkboxColoredSquare = this.implementation.generateColoredSquareIndicator(target);
                     
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
                         .mouseenter(
-                                outerThis.implementation.checkboxHoveredLambda(node)
+                                outerThis.implementation.checkboxHoveredLambda(target)
                             )
                         .mouseleave(
-                                outerThis.implementation.checkboxUnhoveredLambda(node)
+                                outerThis.implementation.checkboxUnhoveredLambda(target)
                             )
                         .append(
                             $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
                             .addClass(this.getCheckboxClass())
                             .change(
                                 function(){
-                                    var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(node);
-                                    outerThis.implementation.checkboxChanged(node, nodeHideCandidates, $(this));
+                                    var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(target);
+                                    outerThis.implementation.checkboxChanged(target, nodeHideCandidates, $(this));
                                 }
                             )
                         )
                         .append(
                             $("<label>").attr("for",checkId)
                             .append(checkboxColoredSquare+"&nbsp;"+checkboxLabel)
-                            // The ontology checkbox corresponding to the central concept's ontology will be styled.
-                            .toggleClass("centralNode", this.implementation.styleAsCentralNode(node))
+//                            // The ontology checkbox corresponding to the central concept's ontology will be styled.
+//                            .toggleClass("centralNode", this.implementation.styleAsCentralNode(node))
                         )
                     );
                 }
@@ -90,25 +89,30 @@ export class AbstractNodeFilterWidget<N extends GraphView.BaseNode, L extends Gr
     
 }
 
-export interface INodeFilterWidget<N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends AbstractNodeFilterWidget<N, L> {
+export interface INodeFilterWidget<FilterTarget, N extends GraphView.BaseNode> extends AbstractNodeFilterWidget<FilterTarget, N, any> {
+
+    generateCheckboxLabel(filterTarget: FilterTarget): string;
     
-    generateCheckboxLabel(node: N): string;
+    generateColoredSquareIndicator(filterTarget: FilterTarget): string;
     
-    generateColoredSquareIndicator(node: N): string;
+    //styleAsCentralNode(node: FilterTarget): boolean;
     
-    styleAsCentralNode(node: N): boolean;
+    computeCheckId(filterTarget: FilterTarget): string;
     
-    computeCheckId(node: N): string;
+    computeCheckboxElementDomain(filterTarget: FilterTarget): Array<N>;
     
-    computeCheckboxElementDomain(node: N): Array<N>;
+    /**
+     * Gets the objects that the filter is interested in (e.g. nodes, ontologies, expansion sets...)
+     */
+    getFilterTargets(): Array<FilterTarget>;
     
-    checkboxChanged(checkboxContextData: N, setOfHideCandidates: Array<N>, checkboxIsChecked: JQuery): void;
+    checkboxChanged(checkboxContextData: FilterTarget, setOfHideCandidates: Array<N>, checkboxIsChecked: JQuery): void;
     
-    checkboxHoveredLambda(nodeRelatedToCheckbox: N): (event: JQueryMouseEventObject)=>void;
+    checkboxHoveredLambda(filterTargetRelatedToCheckbox: FilterTarget): (event: JQueryMouseEventObject)=>void;
     
-    checkboxUnhoveredLambda(nodeRelatedToCheckbox: N): (event: JQueryMouseEventObject)=>void;
+    checkboxUnhoveredLambda(filterTargetRelatedToCheckbox: FilterTarget): (event: JQueryMouseEventObject)=>void;
     
     getHoverNeedsAdjacentHighlighting(): boolean;
 
-    updateCheckboxStateFromView(affectedNodes: N[]): void;
+    updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]): void;
 }

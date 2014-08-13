@@ -4,9 +4,12 @@
 
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="Utils" />
 
 import ExpansionSets = require("./ExpansionSets");
 import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import Utils = require("./Utils");
+
 
 export class GraphDataForD3<N extends BaseNode, L extends BaseLink<any>> {
     public nodes: Array<N> = [];
@@ -197,7 +200,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     isNodeHidden(node: N): boolean {
         // TODO Refactor these #node_g_ constants! There's an issue for this.
-        return d3.select("#node_g_"+node.getEntityId()).classed(BaseGraphView.hiddenNodeClass);
+        return d3.select("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId())).classed(BaseGraphView.hiddenNodeClass);
     }
     
     highlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){

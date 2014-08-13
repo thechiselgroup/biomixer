@@ -154,12 +154,15 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     conceptIdNodeMap: ConceptIdMap = {};
     elementIdNodeMap: ConceptIdMap = {};
     
+    private nodeMapChanged = false;
     addNodeToIdMap(conceptNode: Node){
+        this.nodeMapChanged = true;
 		this.conceptIdNodeMap[String(conceptNode.rawConceptUri)] = conceptNode;
         this.elementIdNodeMap[String(conceptNode.conceptUriForIds)] = conceptNode;
     }
     
     removeNodeFromIdMap(conceptNode: Node){
+        this.nodeMapChanged = true;
         delete this.conceptIdNodeMap[String(conceptNode.rawConceptUri)];
         delete this.elementIdNodeMap[String(conceptNode.conceptUriForIds)];
     }
@@ -182,6 +185,24 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      */
     getNodeByIdUri(idSafeUri: String): Node{
         return this.elementIdNodeMap[String(idSafeUri)];
+    }
+    
+    private ontologiesInGraph = new Array<RawAcronym>();
+    getOntologiesInGraph(): Array<RawAcronym>{
+        if(!this.nodeMapChanged){
+            return this.ontologiesInGraph;
+        }
+        this.nodeMapChanged = false;
+        var ontologies: {[acronym: string]: RawAcronym} = {};
+        this.ontologiesInGraph = new Array<RawAcronym>();
+        for(var i = 0; i < this.graphD3Format.nodes.length; i++){
+            var nodeData = this.graphD3Format.nodes[i];
+            if(ontologies[String(nodeData.ontologyAcronym)] === undefined){
+                this.ontologiesInGraph.push(nodeData.ontologyAcronym);
+            }
+            ontologies[String(nodeData.ontologyAcronym)] = nodeData.ontologyAcronym;
+        }
+        return this.ontologiesInGraph;
     }
     
     convertEdgeTypeLabelToEdgeClass(){

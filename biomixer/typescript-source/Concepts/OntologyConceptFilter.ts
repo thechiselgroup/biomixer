@@ -14,7 +14,7 @@ import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
 
-export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget<ConceptGraph.RawAcronym> implements FilterWidget.INodeFilterWidget<ConceptGraph.RawAcronym, ConceptGraph.Node> {
     
     static SUB_MENU_TITLE = "Ontologies Displayed";
     
@@ -30,29 +30,34 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
         this.pathToRootView = graphView;
     }
     
-    generateCheckboxLabel(node: ConceptGraph.Node): string {
-        return String(node.ontologyAcronym);
+    generateCheckboxLabel(acronym: ConceptGraph.RawAcronym): string {
+        return String(acronym);
     }
     
-    generateColoredSquareIndicator(node: ConceptGraph.Node): string {
-        return "<span style='font-size: large; color: "+node.nodeColor+";'>\u25A0</span>";
+    generateColoredSquareIndicator(acronym: ConceptGraph.RawAcronym): string {
+        return "<span style='font-size: large; color: "+this.conceptGraph.nextNodeColor(acronym)+";'>\u25A0</span>";
     }
     
-    computeCheckId(node: ConceptGraph.Node): string {
-        return this.getClassName()+"_for_"+String(node.ontologyAcronym);
+    computeCheckId(acronym: ConceptGraph.RawAcronym): string {
+        return this.getClassName()+"_for_"+acronym;
     }
     
-    computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node> {
+    computeCheckboxElementDomain(acronym: ConceptGraph.RawAcronym): Array<ConceptGraph.Node> {
         return this.graphView.sortConceptNodesCentralOntologyName()
             .filter(
                 function(d: ConceptGraph.Node, i: number){
-                    return d.ontologyAcronym === node.ontologyAcronym;
+                    return d.ontologyAcronym === acronym;
                 }
             );
     }
     
-    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
+    getFilterTargets(): Array<ConceptGraph.RawAcronym>{
+        return this.conceptGraph.getOntologiesInGraph();
+    }
+    
+    checkboxChanged(checkboxContextData: ConceptGraph.RawAcronym, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
         var outerThis = this;
+        var acronym = checkboxContextData;
         var affectedNodes: ConceptGraph.Node[] = [];
         checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
         if (checkbox.is(':checked')) {
@@ -60,7 +65,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
             // Also, we will re-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
-                    if(node.ontologyAcronym !== checkboxContextData.ontologyAcronym){
+                    if(node.ontologyAcronym !== acronym){
                         return;
                     }
                     outerThis.graphView.unhideNodeLambda(outerThis.graphView)(node, 0);
@@ -72,7 +77,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
             // Also, we will un-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
                 function(i, node: ConceptGraph.Node){
-                    if(node.ontologyAcronym !== checkboxContextData.ontologyAcronym){
+                    if(node.ontologyAcronym !== acronym){
                         return;
                     }
                     outerThis.graphView.hideNodeLambda(outerThis.graphView)(node, 0);
@@ -93,8 +98,12 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
      */
     updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
         var outerThis = this;
-        $.each(affectedNodes, function(i, node: ConceptGraph.Node){
-                var checkId = outerThis.implementation.computeCheckId(node);
+        $.each(affectedNodes,
+            function(i, node: ConceptGraph.Node){
+                var checkId = outerThis.implementation.computeCheckId(node.ontologyAcronym);
+                if(null == checkId){
+                    return;
+                }
                 // Won't uncheck in this case, but instead gets transparent to indicate
                 // mixed state
                 $("#"+checkId).addClass(OntologyConceptFilter.SOME_SELECTED_CSS);
@@ -102,7 +111,6 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
         );
     }
     
-        
     getHoverNeedsAdjacentHighlighting(): boolean{
         return false;
     }

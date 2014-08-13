@@ -3,10 +3,12 @@
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="UndoRedoBreadcrumbs" />
 ///<amd-dependency path="GraphModifierCommand" />
+///<amd-dependency path="ExpansionSets" />
 
 import ConceptGraph = require("./ConceptGraph");
 import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
 import GraphModifierCommand = require("../GraphModifierCommand");
+import ExpansionSets = require("../ExpansionSets");
 
 export class ExpansionManager{
     
@@ -43,6 +45,32 @@ export class ExpansionManager{
             }
         }
         return false;
+    }
+        
+    /**
+     * Collect all expansion sets that are from the current undo level backwards.
+     * Do not return ones that are empty (expansions that resulted in no nodes being added);
+     */
+    getActiveExpansionSets(): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{
+        var expansionSets = new Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>();
+        var history = this.undoBoss.getCrumbHistory();
+        this.recursiveExpansionSets(history, expansionSets);
+        return expansionSets;
+    }
+    
+    private recursiveExpansionSets(commands: Array<UndoRedoBreadcrumbs.ICommand>, expansionSets: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>){
+        for(var i = commands.length -1; i >= 0; i--){
+            var command = commands[i];
+            if(command instanceof GraphModifierCommand.GraphAddNodesCommand){
+                var expansionSet = (<GraphModifierCommand.GraphAddNodesCommand<any>>command).expansionSet
+                if(expansionSet.nodes.length > 0){
+                    expansionSets.push(expansionSet);
+                }
+            } else if(command instanceof GraphModifierCommand.GraphCompositeNodeCommand){
+                var moreCommands = (<GraphModifierCommand.GraphCompositeNodeCommand<any>>command).commands;
+                this.recursiveExpansionSets(moreCommands, expansionSets);
+            }
+        }
     }
     
 }

@@ -14,7 +14,8 @@ import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
     
-export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+// The generics look odd, but the node is both the FilterTarget for the filter widget, as well as the node class.
+export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget<ConceptGraph.Node> implements FilterWidget.INodeFilterWidget<ConceptGraph.Node, ConceptGraph.Node> {
     
     static SUB_MENU_TITLE = "Concepts Displayed";
     
@@ -44,6 +45,10 @@ export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConcept
     
     computeCheckboxElementDomain(node: ConceptGraph.Node): Array<ConceptGraph.Node>{
         return [node];
+    }
+    
+    getFilterTargets(): Array<ConceptGraph.Node>{
+        return this.graphView.sortConceptNodesCentralOntologyName();
     }
     
     checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){

@@ -17,7 +17,7 @@ import ConceptGraph = require("./ConceptGraph");
  * node type, but decided that a simple abstraact extension and wrapping would serve us better in
  * case we have different node types later.
  */
-export class AbstractConceptNodeFilterWidget extends FilterWidget.AbstractNodeFilterWidget<ConceptGraph.Node, ConceptGraph.Link> {
+export class AbstractConceptNodeFilterWidget<FilterTarget> extends FilterWidget.AbstractNodeFilterWidget<FilterTarget, ConceptGraph.Node, ConceptGraph.Link> {
     
     constructor(
         subMenuTitle: string,
@@ -27,15 +27,15 @@ export class AbstractConceptNodeFilterWidget extends FilterWidget.AbstractNodeFi
         super(subMenuTitle, graphView);
     }
     
-     styleAsCentralNode(node: ConceptGraph.Node): boolean {
-        return node.rawConceptUri === this.conceptGraph.centralConceptUri;
-    }
+//     styleAsCentralNode(node: ConceptGraph.Node): boolean {
+//        return node.rawConceptUri === this.conceptGraph.centralConceptUri;
+//    }
     
-    checkboxHoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
+    checkboxHoveredLambda(filterTargetRelatedToCheckbox: FilterTarget): (event: JQueryMouseEventObject)=>void{
         var graphView = this.graphView;
         var outerThis = this;
         return function(eventObject: JQueryMouseEventObject){
-            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
+            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(filterTargetRelatedToCheckbox);
             // Technically, the span over the checkbox is the element
             // Find the graph node that corresponds, and fire its mouse enter behavior.
             $.each(nodeHideCandidates,
@@ -46,12 +46,12 @@ export class AbstractConceptNodeFilterWidget extends FilterWidget.AbstractNodeFi
         }
     }
     
-    checkboxUnhoveredLambda(nodeRelatedToCheckbox: ConceptGraph.Node): (event: JQueryMouseEventObject)=>void{
+    checkboxUnhoveredLambda(filterTargetRelatedToCheckbox: FilterTarget): (event: JQueryMouseEventObject)=>void{
         // TODO Do we want multi-node hover for ontology checkboxes? Maybe?
         var graphView = this.graphView;
         var outerThis = this;
         return function(eventObject: JQueryMouseEventObject){
-            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(nodeRelatedToCheckbox);
+            var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(filterTargetRelatedToCheckbox);
             // Technically, the span over the checkbox is the element
             // Find the graph node that corresponds, and fire its mouse leave behavior.
             $.each(nodeHideCandidates,

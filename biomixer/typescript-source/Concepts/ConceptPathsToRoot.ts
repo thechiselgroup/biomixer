@@ -795,12 +795,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(!enteringNodes.empty()){
             this.updateStartWithoutResume();
             enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
+        
+            this.edgeTypeFilter.updateFilterUI();
+            this.individualConceptFilter.updateFilterUI();
+            this.ontologyFilter.updateFilterUI();
+            this.expansionSetFilter.updateFilterUI();
+        
         }
         
-        this.edgeTypeFilter.updateFilterUI();
-        this.individualConceptFilter.updateFilterUI();
-        this.ontologyFilter.updateFilterUI();
-        this.expansionSetFilter.updateFilterUI();
     }
 
     removeMissingGraphElements(){
@@ -1047,7 +1049,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     /**
      * Synchronize checkboxes with changes made via other checkboxes.
      */
-    refreshOtherFilterCheckboxStates(affectedNodes: ConceptGraph.Node[], triggeringFilter: ConceptFilterWidget.AbstractConceptNodeFilterWidget){
+    refreshOtherFilterCheckboxStates(affectedNodes: ConceptGraph.Node[], triggeringFilter: ConceptFilterWidget.AbstractConceptNodeFilterWidget<any>){
         if(triggeringFilter !== this.individualConceptFilter){
             this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
         }
