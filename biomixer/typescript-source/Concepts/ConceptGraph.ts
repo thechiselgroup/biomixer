@@ -230,7 +230,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // so the graph can own the expansion manager and merely use the undo system.
         this.expMan = new ExpansionManager.ExpansionManager(undoBoss);
     }
-
+    
     /**
      * Used with expansion sets. Note that the node is already created here.
      */
@@ -279,6 +279,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // remove them first
         this.removeManifestEdges(nodesToRemove);
         this.graphView.removeMissingGraphElements(this.graphD3Format);
+    }
+    
+    containsNode(node: Node): boolean{
+        return this.conceptIdNodeMap[String(node.rawConceptUri)] !== undefined;
     }
     
     private addEdges(newEdges: Array<Link>){

@@ -49,7 +49,8 @@ export class ExpansionManager{
         
     /**
      * Collect all expansion sets that are from the current undo level backwards.
-     * Do not return ones that are empty (expansions that resulted in no nodes being added);
+     * Do not return ones that are empty (expansions that resulted in no nodes being added),
+     * and do not return expansion sets for which no node is rendered currently.
      */
     getActiveExpansionSets(): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{
         var expansionSets = new Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>();
@@ -63,7 +64,7 @@ export class ExpansionManager{
             var command = commands[i];
             if(command instanceof GraphModifierCommand.GraphAddNodesCommand){
                 var expansionSet = (<GraphModifierCommand.GraphAddNodesCommand<any>>command).expansionSet
-                if(expansionSet.nodes.length > 0){
+                if(expansionSet.nodes.length > 0 && expansionSet.numberOfNodesCurrentlyInGraph() > 0){
                     expansionSets.push(expansionSet);
                 }
             } else if(command instanceof GraphModifierCommand.GraphCompositeNodeCommand){

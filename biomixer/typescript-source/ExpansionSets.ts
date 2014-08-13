@@ -75,6 +75,16 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         return this.graphModifier;
     }
     
+    numberOfNodesCurrentlyInGraph(){
+        var numInGraph = 0;
+        for(var i = 0; i < this.nodes.length; i++){
+            if(this.graph.containsNode(this.nodes[i])){
+                numInGraph++;
+            }
+        }
+        return numInGraph;
+    }
+    
 }
 
 export class ExpansionSetIdentifer {

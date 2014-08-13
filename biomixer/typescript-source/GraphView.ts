@@ -69,6 +69,7 @@ export class BaseLink<N extends BaseNode> {
 export interface Graph<N extends BaseNode>  {
    addNodes(newNodes: Array<N>, expansionSet: ExpansionSets.ExpansionSet<N>);
    removeNodes(nodesToRemove: Array<N>);
+   containsNode(node: N): boolean;
 }
 
 

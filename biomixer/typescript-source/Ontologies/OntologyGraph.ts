@@ -129,6 +129,10 @@ export class OntologyGraph implements GraphView.Graph<Node> {
         console.log("Unimplemented. Get on it!");
     }
     
+    containsNode(node: Node): boolean{
+        return this.graphD3Format.nodes.indexOf(node) !== -1;
+    }
+    
     addEdges(newEdges: Array<Link>){
          for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
