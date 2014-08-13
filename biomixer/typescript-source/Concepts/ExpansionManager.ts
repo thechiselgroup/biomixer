@@ -74,6 +74,30 @@ export class ExpansionManager{
         }
     }
     
+    getExpansionSetsThatNodeIsParentOf(node: ConceptGraph.Node): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{
+        var parentageSets = new Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>();
+        var allSets = this.getActiveExpansionSets();
+        for(var i = 0; i < allSets.length; i++){
+            var parentSet = allSets[i];
+            if(parentSet.parentNode === node){
+               parentageSets.push(parentSet);
+            }
+        }
+        return parentageSets;
+    }
+    
+    getExpansionSetsThatNodeIsChildOf(node: ConceptGraph.Node){
+        var childSets = new Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>();
+        var allSets = this.getActiveExpansionSets();
+        for(var i = 0; i < allSets.length; i++){
+            var childSet = allSets[i];
+            if(childSet.nodes.indexOf(node) != -1){
+               childSets.push(childSet);
+            }
+        }
+        return childSets;
+    }
+    
 }
 
 export class EdgeRegistry {
