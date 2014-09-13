@@ -74,6 +74,7 @@ export class Node extends GraphView.BaseNode {
 //    y: number; // = visHeight()/2;      
     weight: number; // = numberOfMappedOntologies; // will increment as we loop
     depth: number;
+    tempDepth: number;
     ontologyAcronym: RawAcronym; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
