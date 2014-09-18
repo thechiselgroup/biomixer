@@ -13,10 +13,12 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
         meData = d,
         leaveDelayTimer = null,
         visible = false,
+        waitingToShowForData = undefined,
         tipsyId = undefined;
         
         // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
         var leaveMissedTimer = undefined;
+        var showDelayTimer = undefined;
         function missedEventTimer() {
             leaveMissedTimer = setTimeout(missedEventTimer, 1000);
             // The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
@@ -33,6 +35,8 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
             leaveDelayTimer = setTimeout(function () {
                 $(me).tipsy('hide');
                 visible = false;
+                waitingToShowForData = undefined;
+                clearTimeout(showDelayTimer);
             }, 100);
         }
     
@@ -74,6 +78,13 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
             if (visible) {
                 clearTimeout(leaveDelayTimer);
             } else {
+                if(waitingToShowForData !== meData){
+                    clearTimeout(showDelayTimer);
+                }
+                waitingToShowForData = meData;
+                
+                showDelayTimer = setTimeout(function () {
+                
                 $(me).tipsy('show');
                 // The .tipsy object is destroyed every time it is hidden,
                 // so we need to add our listener every time its shown
@@ -92,6 +103,9 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
                     clearTimeout(leaveMissedTimer);
                 });
                 visible = true;
+                waitingToShowForData = undefined;
+                    
+                }, 600);
             }
         }
         
