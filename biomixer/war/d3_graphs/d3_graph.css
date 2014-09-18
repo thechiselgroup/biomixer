@@ -121,11 +121,11 @@ polyline.mappingLink{
 	stroke-opacity: 0.25; /* see above, but default is 0.6 */
 }
 .dimmedNode {
-	fill-opacity: 0.1;
-	stroke-opacity: 0.1;
+	fill-opacity: 0.4;
+	stroke-opacity: 0.4;
 }
 .dimmedNodeLabel{
-	opacity: 0.25; /* Keep text readable */
+	opacity: 0.4; /* Keep text readable */
 }
 
 .line{

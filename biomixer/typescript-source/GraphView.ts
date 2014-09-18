@@ -209,7 +209,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             if(outerThis.dragging){
                 return;
             }
-            
+                      
             d3.selectAll(BaseGraphView.nodeLabelSvgClass)
                 .classed("highlightedNodeLabel", true)
                 .filter(function(aText: N, i){return aText.getEntityId() ===linkLine.source.getEntityId() || aText.getEntityId() ===linkLine.target.getEntityId();})
@@ -233,8 +233,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             // attached the method to.
             // d3.select(this)
             // Defensively, I changed it to grab the correct link via d3.select().filter() instead.
-            d3.select(BaseGraphView.linkSvgClass)
-                .filter(function(d: L, i){return d === linkLine; })
+            d3.selectAll(BaseGraphView.linkSvgClass)
+                .filter(function(d: L, i){ return d === linkLine; })
                 .classed("dimmedLink", false)
                 .classed("highlightedLink", true)
                 ;
