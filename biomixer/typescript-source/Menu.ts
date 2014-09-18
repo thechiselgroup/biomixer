@@ -10,7 +10,8 @@ export class Menu {
     initializeMenu(menuName: string = Menu.defaultMenuName){
         // Append the pop-out panel. It will stay hidden except when moused over.
         var trigger = $("<div>").attr("id", "trigger");
-        $("#chart").append(trigger);
+//        $("#chart").append(trigger);
+         $("#top_menu_bar").append(trigger);
         trigger.append($("<p>").text(Menu.menuArrowPrefix+menuName)); // "<< Menu" by default
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
         
