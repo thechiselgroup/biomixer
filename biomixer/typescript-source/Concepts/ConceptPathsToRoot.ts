@@ -210,6 +210,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
 		// to see where this occurs.
         if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
+            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
             this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
@@ -594,6 +595,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .append("title") // How would I *update* this if I needed to?
             .text(this.conceptLinkSimplePopupFunction)
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
+        
+        this.runCurrentLayout(true);
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
