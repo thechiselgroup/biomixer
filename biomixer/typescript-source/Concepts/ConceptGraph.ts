@@ -246,6 +246,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // Also, we like looking them up by id
             this.addNodeToIdMap(newNodes[i]);
         }
+        
+        this.graphView.stampTimeGraphModified();
+        
         this.graphView.populateNewGraphElements(this.graphD3Format)
         for(var i = 0; i < newNodes.length; i++){
             // If there are implicit edges from before that link from an existing node to this new one,
@@ -275,6 +278,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // Also, we like looking them up by id
             this.removeNodeFromIdMap(nodesToRemove[i]);
         }
+        
+        this.graphView.stampTimeGraphModified();
+        
         // Edges depend on nodes when rendering, but not vice versa, so let's
         // remove them first
         this.removeManifestEdges(nodesToRemove);
@@ -308,6 +314,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 return edgesToRemove.indexOf(link) === -1;
             }
         );
+        
+        this.graphView.stampTimeGraphModified();
+        
         this.graphView.removeMissingGraphElements(this.graphD3Format);
         
         for(var l = 0; l < edgesToRemove.length; l++){
@@ -332,6 +341,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 edgesToDelete.push(edge);
             }
         }
+        
+        this.graphView.stampTimeGraphModified();
+                
         this.removeEdges(edgesToDelete);
     }
     
@@ -546,6 +558,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                  edgesToRender.push(edge);
              }
          );
+        
+        if(!allowTemporary){
+            this.graphView.stampTimeGraphModified();
+        }
         
         this.addEdges(edgesToRender);
     }

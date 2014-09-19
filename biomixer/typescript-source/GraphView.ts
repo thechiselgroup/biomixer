@@ -166,7 +166,17 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         }  
     }
     
-    updateStartWithoutResume(){
+    lastTimeChange = new Date().getTime();
+    stampTimeGraphModified(){
+        // Things like temporary edges, etc, indicate that the caller must control this.
+        this.lastTimeChange = new Date().getTime();
+    }
+    
+    getTimeStampLastGraphModification(): number {
+        return this.lastTimeChange;
+    }
+    
+    updateStartWithoutResume(): void{
         // When start(0 is called, the last thing it does is to call resume(),
         // which calls alpha(.1). I need this to not occur...
         var resume = this.forceLayout.resume;
@@ -186,8 +196,33 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
      */
     runCurrentLayout: (refreshLayout?: boolean) => void;
     
+    layoutTimer = null;
     setCurrentLayout(layoutLambda: {(refreshLayout?: boolean):void}) {
-        this.runCurrentLayout = layoutLambda;
+        // This timer delay plus time stamp system cut from 56 calls down to 6 calls in a 5 node 6 arc graph load.
+        var outerLayoutTimer = this.layoutTimer;
+        var outerThis = this;
+        var layoutLastCalled = new Date().getTime();
+        this.runCurrentLayout =
+            function(refreshLayoutInner?: boolean){
+                // We only allow one layout request to run at a time, and with
+                // a short delay between requests. Ok, it's always single threaded,
+                // but the point is to avoid hitting a layout because we added one
+                // node or edge, only to hit it again milliseconds later. Using the
+                // timer lets the next few edges or nodes to come in before making
+                // the call, thus thinning out layour refreshes.
+                if(outerLayoutTimer == null && outerThis.getTimeStampLastGraphModification() > layoutLastCalled){
+                    outerLayoutTimer = setTimeout(
+                        function() {
+                            console.log("calling");
+//                            leftoff is this quite right? Maybe?
+                            layoutLastCalled = new Date().getTime();
+                            layoutLambda(refreshLayoutInner);
+                            clearTimeout(outerLayoutTimer);
+                            outerLayoutTimer = null;
+                        }
+                    , 100);
+                }
+            };
     }
     
     getAdjacentLinks(node: N){
