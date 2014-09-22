@@ -920,8 +920,18 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
         var newNodesForExpansionGraph: Array<Node> = [];
         // Go backwards through results to get the target node first, so we can have it immediately for
         // the expansion set parent.
-        for(var i = pathsToRootData[0].length - 1; i >= 0; i--){
-            var nodeData = pathsToRootData[0][i];
+        var collapsedPathsToRootData: {[key: string]: any} = {};
+        for(var pathIndex = 0; pathIndex < pathsToRootData.length; pathIndex++){
+            for(var conceptIndex = pathsToRootData[pathIndex].length - 1; conceptIndex >= 0; conceptIndex--){
+                var pathNodeData = pathsToRootData[pathIndex][conceptIndex];
+                if(collapsedPathsToRootData[pathNodeData["@id"]] === undefined){
+                    collapsedPathsToRootData[pathNodeData["@id"]] = pathNodeData;
+                }
+            }
+        }
+
+        for(var id in collapsedPathsToRootData){
+            var nodeData = collapsedPathsToRootData[id];
             var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
             if(conceptNode.rawConceptUri === this.centralConceptUri){
                 this.expansionSet.parentNode = conceptNode;

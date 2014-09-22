@@ -210,7 +210,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
 		// to see where this occurs.
         if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
-            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
+//            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
             this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
