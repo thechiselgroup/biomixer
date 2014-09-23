@@ -9,12 +9,12 @@ import GraphView = require('./GraphView');
 
 export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
     return function(d){
-        var me = this,
-        meData = d,
-        leaveDelayTimer = null,
-        visible = false,
-        waitingToShowForData = undefined,
-        tipsyId = undefined;
+        var me = this;
+        var meData = d;
+        var leaveDelayTimer = null;
+        var visible = false;
+        var waitingToShowForData = undefined;
+        var tipsyId = $(me).attr("id")+"_tipsy";
         
         // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
         var leaveMissedTimer = undefined;
@@ -27,7 +27,6 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
                 leave();
             }
         }
-        missedEventTimer();
         
         function leave() {
             // We add a 100 ms timeout to give the user a little time
@@ -37,13 +36,15 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
                 visible = false;
                 waitingToShowForData = undefined;
                 clearTimeout(showDelayTimer);
+                clearTimeout(leaveMissedTimer);
             }, 100);
         }
     
-        function enter() {
-            if(outerThis.dragging){
+        function attachTipsy(){
+            if(visible){
                 return;
             }
+            
             $(me).tipsy({
                 html: true,
                 fade: true,
@@ -74,27 +75,32 @@ export function nodeTooltipLambda(outerThis: GraphView.GraphView<any, any>){
                     return location;
                 },
             });
-            
+        }
+        
+        function enter() {
+            if(outerThis.dragging){
+                return;
+            }
             if (visible) {
                 clearTimeout(leaveDelayTimer);
             } else {
+                attachTipsy();
                 if(waitingToShowForData !== meData){
                     clearTimeout(showDelayTimer);
                 }
                 waitingToShowForData = meData;
                 
                 showDelayTimer = setTimeout(function () {
-                
+                missedEventTimer();
+
                 $(me).tipsy('show');
                 // The .tipsy object is destroyed every time it is hidden,
                 // so we need to add our listener every time its shown
                 var tipsy = $(me).tipsy("tip");
+                tipsy.attr("id", tipsyId);
                 outerThis.lastDisplayedTipsy = tipsy;
-                tipsy.nodeIdentifier;
                 outerThis.lastDisplayedTipsyData = meData;
                 outerThis.lastDisplayedTipsySvg = me;
-                tipsyId = $(me).attr("id"+"_tipsy");
-                tipsy.attr("id", tipsyId);
                 
                 // For the tipsy specific listeners, change opacity.
                 tipsy.mouseenter(function(){tipsy.css("opacity",1.0); enter(); }).mouseleave(function(){tipsy.css("opacity",0.8); leave();});
