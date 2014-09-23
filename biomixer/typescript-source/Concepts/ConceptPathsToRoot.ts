@@ -562,7 +562,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.forceLayout.start();
     }
     
-    populateNewGraphEdges(linksData: ConceptGraph.Link[]){
+    populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges?: boolean){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
             return [];
@@ -596,7 +596,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .text(this.conceptLinkSimplePopupFunction)
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
         
-        this.runCurrentLayout(true);
+        if(!temporaryEdges){
+            this.runCurrentLayout(true);
+        }
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();

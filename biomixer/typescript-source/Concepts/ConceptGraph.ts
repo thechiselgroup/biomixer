@@ -291,7 +291,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return this.conceptIdNodeMap[String(node.rawConceptUri)] !== undefined;
     }
     
-    private addEdges(newEdges: Array<Link>){
+    private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
          for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
             if(this.edgeNotInGraph(newEdges[i])){
@@ -300,7 +300,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 this.graphD3Format.links.push(newEdges[i]);
             }
         }
-        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+        this.graphView.populateNewGraphEdges(this.graphD3Format.links, temporaryEdges);
     }
     
     /**
@@ -563,7 +563,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             this.graphView.stampTimeGraphModified();
         }
         
-        this.addEdges(edgesToRender);
+        this.addEdges(edgesToRender, allowTemporary);
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){

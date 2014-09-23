@@ -90,7 +90,7 @@ export interface GraphView<N extends BaseNode, L extends BaseLink<BaseNode>> ext
     onLayoutTick(): {()} ;
     
     populateNewGraphElements(data: GraphDataForD3<N, L>);
-    populateNewGraphEdges(links: Array<L>);
+    populateNewGraphEdges(links: Array<L>, temporaryEdges?: boolean);
     populateNewGraphNodes(nodes: Array<N>);
     removeMissingGraphElements(data: GraphDataForD3<N, L>);
     filterGraphOnMappingCounts();
@@ -201,7 +201,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         // This timer delay plus time stamp system cut from 56 calls down to 6 calls in a 5 node 6 arc graph load.
         var outerLayoutTimer = this.layoutTimer;
         var outerThis = this;
-        var layoutLastCalled = new Date().getTime();
+        var layoutLastCalled = null;
+        var timerWait = 100;
         this.runCurrentLayout =
             function(refreshLayoutInner?: boolean){
                 // We only allow one layout request to run at a time, and with
@@ -210,17 +211,16 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 // node or edge, only to hit it again milliseconds later. Using the
                 // timer lets the next few edges or nodes to come in before making
                 // the call, thus thinning out layour refreshes.
-                if(outerLayoutTimer == null && outerThis.getTimeStampLastGraphModification() > layoutLastCalled){
+                if(outerLayoutTimer == null && (layoutLastCalled == null || outerThis.getTimeStampLastGraphModification() > layoutLastCalled)){
                     outerLayoutTimer = setTimeout(
                         function() {
-                            console.log("calling");
-//                            leftoff is this quite right? Maybe?
-                            layoutLastCalled = new Date().getTime();
-                            layoutLambda(refreshLayoutInner);
+                            // console.log("calling");
                             clearTimeout(outerLayoutTimer);
                             outerLayoutTimer = null;
+                            layoutLastCalled = new Date().getTime();
+                            layoutLambda(refreshLayoutInner);
                         }
-                    , 100);
+                    , timerWait);
                 }
             };
     }
