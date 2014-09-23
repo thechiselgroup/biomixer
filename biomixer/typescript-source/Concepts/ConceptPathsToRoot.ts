@@ -747,10 +747,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
         
-        // TODO Don't I want to do this *only* on new nodes?
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipLambda(this));
+        enteringNodes.each(TipsyToolTips.nodeTooltipLambda(this));
             
         // Dumb Tool tip...not needed with tipsy popups.
         // nodesEnter.append("title")
