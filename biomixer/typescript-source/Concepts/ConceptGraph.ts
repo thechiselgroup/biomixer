@@ -79,6 +79,8 @@ export class Node extends GraphView.BaseNode {
 //    x: number; // = visWidth()/2;
 //    y: number; // = visHeight()/2;      
     weight: number; // = numberOfMappedOntologies; // will increment as we loop
+    depth: number;
+    tempDepth: number;
     ontologyAcronym: RawAcronym; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
@@ -291,7 +293,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return this.conceptIdNodeMap[String(node.rawConceptUri)] !== undefined;
     }
     
-    private addEdges(newEdges: Array<Link>){
+    private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
          for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
             if(this.edgeNotInGraph(newEdges[i])){
@@ -300,7 +302,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 this.graphD3Format.links.push(newEdges[i]);
             }
         }
-        this.graphView.populateNewGraphEdges(this.graphD3Format.links);
+        this.graphView.populateNewGraphEdges(this.graphD3Format.links, temporaryEdges);
     }
     
     /**
@@ -371,6 +373,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.type = conceptData["@type"];
             conceptNode.description = "fetching description";
             conceptNode.weight = 1;
+            conceptNode.depth = 0;
             conceptNode.fixed = false;
             // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
             // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward
@@ -563,7 +566,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             this.graphView.stampTimeGraphModified();
         }
         
-        this.addEdges(edgesToRender);
+        this.addEdges(edgesToRender, allowTemporary);
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){
@@ -920,8 +923,18 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
         var newNodesForExpansionGraph: Array<Node> = [];
         // Go backwards through results to get the target node first, so we can have it immediately for
         // the expansion set parent.
-        for(var i = pathsToRootData[0].length - 1; i >= 0; i--){
-            var nodeData = pathsToRootData[0][i];
+        var collapsedPathsToRootData: {[key: string]: any} = {};
+        for(var pathIndex = 0; pathIndex < pathsToRootData.length; pathIndex++){
+            for(var conceptIndex = pathsToRootData[pathIndex].length - 1; conceptIndex >= 0; conceptIndex--){
+                var pathNodeData = pathsToRootData[pathIndex][conceptIndex];
+                if(collapsedPathsToRootData[pathNodeData["@id"]] === undefined){
+                    collapsedPathsToRootData[pathNodeData["@id"]] = pathNodeData;
+                }
+            }
+        }
+
+        for(var id in collapsedPathsToRootData){
+            var nodeData = collapsedPathsToRootData[id];
             var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
             if(conceptNode.rawConceptUri === this.centralConceptUri){
                 this.expansionSet.parentNode = conceptNode;

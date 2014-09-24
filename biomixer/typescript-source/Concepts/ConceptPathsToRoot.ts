@@ -210,7 +210,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
 		// to see where this occurs.
         if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
-            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
+              // See issue 423...we want vertical here, but the layout currently misbehaves when the graph is still being populated.
+//            console.log("vertical"); this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
             this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
@@ -562,7 +563,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.forceLayout.start();
     }
     
-    populateNewGraphEdges(linksData: ConceptGraph.Link[]){
+    populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges?: boolean){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
             return [];
@@ -596,12 +597,28 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .text(this.conceptLinkSimplePopupFunction)
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
         
-        this.runCurrentLayout(true);
+        if(!temporaryEdges){
+            this.runCurrentLayout(true);
+        }
         
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
             enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
         }
+        
+        this.triggerVerticalTree();
+    }
+    
+    triggerVerticalTree(){
+    	// See issue 423...we want vertical tree to be paths to root default layout,
+    	// but the layout currently misbehaves when the graph is still being populated.
+    	// Use this method to automate triggering of layout when fixing this.
+        // Feel free to compare with retriggers of the force layout (runCurrent() probably).
+//        console.log("Have nodes and links of "+this.conceptGraph.graphD3Format.nodes.length+" and "+this.conceptGraph.graphD3Format.links.length);
+//        if(this.conceptGraph.graphD3Format.nodes.length >= 17 && this.conceptGraph.graphD3Format.links.length >= 20){
+//            console.log("Triggering tree layout with nodes and links of "+this.conceptGraph.graphD3Format.nodes.length+" and "+this.conceptGraph.graphD3Format.links.length);
+//            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
+//        }
     }
     
     private giveIEMarkerWarning = true;
@@ -804,6 +821,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.expansionSetFilter.updateFilterUI();
         
         }
+        
+        this.triggerVerticalTree();
         
     }
 
