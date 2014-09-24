@@ -90,22 +90,48 @@ export class ConceptLayouts {
         return ()=>{
             outerThis.graphView.setCurrentLayout(layoutLambda);
             outerThis.graphView.runCurrentLayout();
-        }
+        };
     }
     
-     transitionNodes(){
+    private lastTransition = null;
+    private staleTimerThreshold = 4000;
+    private desiredDuration = 500;
+    private transitionNodes(refresh?: boolean){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
+        
+        var now = new Date().getTime();
+
+        // When the graph is still growing, calls to the layout occur. This causes
+        // a stuttering of movement if we do transitions, and without, the node
+        // teleportation is confusing.
+        // So, when we are refreshing a layout (node/edge addition), we need the
+        // layout duration to continue along the path it was on. This *might* backfire
+        // when we have an extremely long set of node or edge additions though.
+        // If so, try having a minimum transition duration.
+        var reduceDurationBy = 0;
+        if(null !== this.lastTransition && refresh && (now - this.lastTransition) <= this.staleTimerThreshold){
+            reduceDurationBy = now - this.lastTransition;
+            // console.log("SHORTEN! By: "+reduceDurationBy);
+        }
+        var duration = this.desiredDuration - reduceDurationBy;
+        
         d3.selectAll("g.node_g")
             .transition()
-            .duration(2500)
+            .duration(duration)
+            .ease("linear")
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-           
+
         d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
             .transition()
-            .duration(2500)
+            .duration(duration)
+            .ease("linear")
             .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
+    
+       if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
+            this.lastTransition = new Date().getTime();
+       }
     }
     
     getAllOntologyAcronyms(){
@@ -258,7 +284,7 @@ export class ConceptLayouts {
                 );
             }
             
-            outerThis.transitionNodes();
+            outerThis.transitionNodes(refreshLayout);
         };
     }
 
@@ -288,7 +314,7 @@ export class ConceptLayouts {
                     }
                 );
             }         
-            outerThis.transitionNodes();
+            outerThis.transitionNodes(refreshLayout);
         };
     }
     
@@ -319,7 +345,7 @@ export class ConceptLayouts {
                       ontologyNodes[index].y = xValue+increment; 
                 });
             }     
-            outerThis.transitionNodes();
+            outerThis.transitionNodes(refreshLayout);
         };
     }
     
@@ -355,7 +381,7 @@ export class ConceptLayouts {
                 }
             );
             
-            outerThis.transitionNodes();
+            outerThis.transitionNodes(refreshLayout);
     
         };
     }
@@ -396,7 +422,7 @@ export class ConceptLayouts {
                     }
                 }
             );
-            outerThis.transitionNodes();
+            outerThis.transitionNodes(refreshLayout);
         };
     }
     
