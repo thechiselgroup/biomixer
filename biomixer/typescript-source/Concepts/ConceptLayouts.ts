@@ -207,6 +207,7 @@ export class ConceptLayouts {
         var allChildren: ConceptGraph.Node[] = [];
         
         //calculate tree height and adjust for phantom nodes
+        var oldHeight = height;
         height = height*(fullTreeDepth+3)/(fullTreeDepth+1)
         
         var mainTree = d3.layout.tree()
@@ -250,7 +251,7 @@ export class ConceptLayouts {
         
            // shift the tree by 2 node distances
            graphNodes.forEach(function(node){
-               node.y = node.y-2*(height)/(fullTreeDepth+3);
+               node.y = node.y-2*(oldHeight)/(fullTreeDepth+1);
            });
     }
     
