@@ -126,20 +126,24 @@ export class ConceptLayouts {
         return children;
     }
     
-    calculateDepth(parentNode: ConceptGraph.Node){
+    calculateDepth(parentNode: ConceptGraph.Node, depth){
         var outerThis = this;
 
         var children = outerThis.getChildren(parentNode);
         //console.log(children);
         if(children.length<=0){
-            return;
+            return depth;
         }else{
             children.forEach(function(child){
                 if(child.tempDepth <= parentNode.tempDepth){
                     child.tempDepth = parentNode.tempDepth+1;
+                    
                 }
-                outerThis.calculateDepth(child);
+                if(child.tempDepth>depth) {depth++;}
+                depth = outerThis.calculateDepth(child, depth);
+                
             });
+            return depth;
         }
     }
     
@@ -177,19 +181,33 @@ export class ConceptLayouts {
             node.parent = null;
         });
         
+        var fullTreeDepth = 0;
         
         var primaryRoot = new ConceptGraph.Node();
         primaryRoot.name = "main_phantom_root"; //temporary identifier for the root
         
         var ontologyRoots: ConceptGraph.Node[] = [];
+        
         //create ontology roots
         ontologies.forEach(function(ontologyName){
             var ontologyRoot = new ConceptGraph.Node();
             ontologyRoot.name = ontologyName;
             ontologyRoots.push(ontologyRoot);
+            var roots: ConceptGraph.Node[];
+            
+            roots = outerThis.getRoots(ontologyName);   
+                    
+            roots.forEach(function(root){
+                var ontologyDepth = outerThis.calculateDepth(root, 0);
+                if (ontologyDepth > fullTreeDepth) { fullTreeDepth = ontologyDepth; }
+            });
+            
         });
-        
+                
         var allChildren: ConceptGraph.Node[] = [];
+        
+        //calculate tree height and adjust for phantom nodes
+        height = height*(fullTreeDepth+3)/(fullTreeDepth+1)
         
         var mainTree = d3.layout.tree()
             .size([width, height])
@@ -201,7 +219,6 @@ export class ConceptLayouts {
                     roots = outerThis.getRoots(parent.name);   
                     
                     roots.forEach(function(root){
-                        outerThis.calculateDepth(root);
                         if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
                     });
 
@@ -228,7 +245,13 @@ export class ConceptLayouts {
                     return treeChildren;
                 }
            });
-           mainTree.nodes(primaryRoot);         
+           
+           mainTree.nodes(primaryRoot);    
+        
+           // shift the tree by 2 node distances
+           graphNodes.forEach(function(node){
+               node.y = node.y-2*(height)/(fullTreeDepth+3);
+           });
     }
     
     runRadialLayoutLambda(){
@@ -265,7 +288,7 @@ export class ConceptLayouts {
             
             $.each(graphNodes, function(index, element){
                     graphNodes[index].x = element.x; 
-                    graphNodes[index].y = element.y+150; 
+                    graphNodes[index].y = element.y + 100; 
                 }
             );
                      
@@ -286,7 +309,7 @@ export class ConceptLayouts {
 
             $.each(graphNodes, function(index, element){
                  var xValue = element.x;
-                 graphNodes[index].x = element.y + 150; 
+                 graphNodes[index].x = element.y + 100; 
                  graphNodes[index].y = xValue; 
             });
             
