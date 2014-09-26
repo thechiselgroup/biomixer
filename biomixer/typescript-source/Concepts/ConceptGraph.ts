@@ -73,7 +73,6 @@ export class Node extends GraphView.BaseNode {
 //    x: number; // = visWidth()/2;
 //    y: number; // = visHeight()/2;      
     weight: number; // = numberOfMappedOntologies; // will increment as we loop
-    depth: number;
     tempDepth: number;
     ontologyAcronym: RawAcronym; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
@@ -170,7 +169,8 @@ export class ConceptGraph implements GraphView.Graph {
             conceptNode.type = conceptData["@type"];
             conceptNode.description = "fetching description";
             conceptNode.weight = 1;
-            conceptNode.depth = 0;
+//            conceptNode.depth = 0;
+            conceptNode.tempDepth = 0;
             conceptNode.fixed = false;
             // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
             // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward

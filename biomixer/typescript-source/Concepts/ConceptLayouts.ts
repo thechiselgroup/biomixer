@@ -80,6 +80,7 @@ export class ConceptLayouts {
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
+        
         d3.selectAll("g.node_g")
             .transition()
             .duration(2500)
@@ -89,15 +90,14 @@ export class ConceptLayouts {
             .transition()
             .duration(2500)
             .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
+            
     }
     
     getAllOntologyAcronyms(){
-       // console.log("returning ontologies");
         var ontologies = [];
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         graphNodes.forEach(function(node){
-            //console.log(node.ontologyAcronym);
             if($.inArray(node.ontologyAcronym, ontologies) === -1){
                 ontologies.push(node.ontologyAcronym);
             }
@@ -113,7 +113,6 @@ export class ConceptLayouts {
         var graphLinks = outerThis.graph.graphD3Format.links;
         var children: ConceptGraph.Node[] = [];
 
-        //can be pushing multiple children..
         graphLinks.forEach(function(link){
             if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps to"){
                 graphNodes.forEach(function(node){
@@ -169,12 +168,19 @@ export class ConceptLayouts {
 
         width = width/ontologies.length;
  
-        //reset depth for next layout
-        graphNodes.forEach(function (node){ node.tempDepth = 0; });
+        //reset values for next layout
+        graphNodes.forEach(function (node){ 
+            node.tempDepth = 0; 
+            node.depth = 0;
+            node.x = 0;
+            node.y = 0;
+            node.children = null;
+            node.parent = null;
+        });
         
         for (var i=0; i< ontologies.length; i++){
-           var primary_root = new ConceptGraph.Node();
-           primary_root.name = "ontology_phantom_root"; //temporary identifier for the root
+           var primaryRoot = new ConceptGraph.Node();
+           primaryRoot.name = "ontology_phantom_root"; //temporary identifier for the root
            
            //find how many roots here and store them into roots
            var roots: ConceptGraph.Node[];
@@ -188,28 +194,38 @@ export class ConceptLayouts {
                 if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
            });
         
-           var tree = d3.layout.tree()
-                .size([width, height])
+        
+           var tree = d3.layout.tree();
+           
+           
+           tree.size([width, height])
                 .children(function(parent: ConceptGraph.Node){ 
                     if(parent.name == "ontology_phantom_root"){  
                         return roots;
                     }else{
-                        var actualChildren = outerThis.getChildren(parent); 
+                        var graphChildren = outerThis.getChildren(parent); 
                         var treeChildren: ConceptGraph.Node[] = [];
  
-                        actualChildren.forEach(function(child){
+                        graphChildren = graphChildren.sort(function(a, b){
+                            if(a.rawConceptUri>b.rawConceptUri){
+                                return -1;    
+                            }else if(a.rawConceptUri<b.rawConceptUri){
+                                return 1;
+                            }else{
+                                return 0;    
+                            }});
+                        
+                        graphChildren.forEach(function(child){
                             if(child.tempDepth === parent.tempDepth+1 && $.inArray(child, allChildren) === -1){
                                 treeChildren.push(child);
                                 allChildren.push(child);
                             }
                         });
-              
                         return treeChildren;
                     }
                 });
             
-            tree.nodes(primary_root);  
-           
+            tree.nodes(primaryRoot);         
         }                 
     }
     
@@ -290,6 +306,7 @@ export class ConceptLayouts {
                       ontologyNodes[index].y = xValue+increment; 
                 });
             }     
+            
             outerThis.transitionNodes();
         };
     }
