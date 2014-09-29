@@ -236,6 +236,8 @@ export class MappingRangeSliders {
         // but x works for both Chrome and Firefox.
         $(GraphView.BaseGraphView.nodeLabelSvgClass).attr("x", function(){ return - this.getComputedTextLength()/2; });
         
+        this.graphView.stampTimeGraphModified();
+        
         this.graphView.runCurrentLayout();
     }
     

@@ -59,8 +59,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         this.menu = new Menu.Menu();
         
-        this.setCurrentLayout(this.executeCenterLayout);
-        
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
         this.vis = d3.select("#chart").append("svg:svg")
@@ -106,8 +104,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
         this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
         this.filterSliders = new OntologyFilterSliders.MappingRangeSliders(this.ontologyGraph, this, this.centralOntologyAcronym);
-        
         this.initGraph();
+        
+        this.setCurrentLayout(this.executeCenterLayoutLambda(this));
         
         this.prepGraphMenu();
         
@@ -542,6 +541,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
 //        
 //        }
         
+        if(!enteringNodes.empty()){
+            this.stampTimeGraphModified();
+        }
         
         if(!enteringNodes.empty()){
             this.forceLayout.on("tick", this.onLayoutTick());
@@ -788,12 +790,15 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         return this.gravityAdjust(numb, this.visHeight());
     }
     
-    executeCenterLayout(refreshLayout?: boolean){
+    executeCenterLayoutLambda(ontologyView: OntologyMappingOverview){
+        var outerThis = ontologyView; 
+        return (refreshLayout?: boolean)=>{
     		if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-            var graphNodes = this.ontologyGraph.graphD3Format.nodes;
-            var graphLinks = this.ontologyGraph.graphD3Format.links;
+            
+            var graphNodes = outerThis.ontologyGraph.graphD3Format.nodes;
+            var graphLinks = outerThis.ontologyGraph.graphD3Format.links;
             
             // This is the most up to date way to know how many nodes we are laying out, assuming we don't care to position
             // undisplayed nodes
@@ -805,7 +810,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             var anglePerNode =2*Math.PI / (numberOfNodes - 1); // 360/nodesToPlace;
             var arcLength = this.linkMaxDesiredLength();
             var i = 0;
-            var outerThis = this;
             // TODO get sortedAcronyms from the OntologiesGraph model
             $.each(this.ontologyGraph.sortedAcronymsByMappingCount,
                     function(index, sortedAcronym){
@@ -846,7 +850,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
               .attr("y1", function(d) { return d.source.y; })
               .attr("x2", function(d) { return d.target.x; })
               .attr("y2", function(d) { return d.target.y; });
-              
+        };         
     }
     
     prepGraphMenu(){
