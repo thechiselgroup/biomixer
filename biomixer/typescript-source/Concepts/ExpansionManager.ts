@@ -113,7 +113,11 @@ export class EdgeRegistry {
     // Made registry flat; used to be more structured, but it complicated without fulfilled requirements for said structure.
     private twoWayEdgeRegistry: {[oneNodeId: string]: ConceptGraph.Link[] } = {};
     
-    addEdgeToRegistry(edge: ConceptGraph.Link){
+    /**
+     * If the edge is already represented in the registry, it is returned, and the instance passed in will
+     * not be added to the registry.
+     */
+    addEdgeToRegistry(edge: ConceptGraph.Link): ConceptGraph.Link{
         // Assumes only mapping edge types. Change that if things change, right? ;)
         var sourceStr = String(edge.sourceId);
         var targetStr = String(edge.targetId);
@@ -122,15 +126,28 @@ export class EdgeRegistry {
         if(!(sourceStr in this.twoWayEdgeRegistry)){
             this.twoWayEdgeRegistry[sourceStr] = [];
         }
-        // Need type as an index as well because some ontologies could have multiple edge types between entities.
-        this.twoWayEdgeRegistry[sourceStr].push(edge);
         
         // Target oriented
         if(!(targetStr in this.twoWayEdgeRegistry)){
             this.twoWayEdgeRegistry[targetStr] = [];
         }
+        
         // Need type as an index as well because some ontologies could have multiple edge types between entities.
-        this.twoWayEdgeRegistry[targetStr].push(edge);
+        var existingEdges = $.grep(this.twoWayEdgeRegistry[sourceStr],
+            function(e: ConceptGraph.Link, i: number): boolean{
+                return e.targetId === edge.targetId && e.sourceId === edge.sourceId && e.relationType === edge.relationType;
+            }
+        );
+        
+        if(existingEdges.length > 0){
+            return existingEdges[0];
+        } else {
+            this.twoWayEdgeRegistry[sourceStr].push(edge);
+            this.twoWayEdgeRegistry[targetStr].push(edge);
+            return null;
+        }
+        
+        
     }
     
     getEdgesFor(nodeId: string):  ConceptGraph.Link[] {

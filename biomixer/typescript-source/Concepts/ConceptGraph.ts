@@ -522,7 +522,13 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // All edges we learn about from REST services are permanently registered, and available for manifestation.
         // Do we need to check if it is already registered? Probably not!
         // We always want to register, since the registry is the permanent store of known edges.
-        this.registerImplicitEdge(edge);
+        var preExistingEdge = this.registerImplicitEdge(edge);
+        
+        if(null !== preExistingEdge){
+            // We found a matching edge in the registry, so we'll ditch this instance.
+            // This happens in paths to root when we generate arcs from a different set of calls.
+            return;
+        }
 
         // It checks to make sure the endpoints are extant, so we can fire it off right away.
          if(this.isEdgeForTemporaryRenderOnly(edge)){
@@ -536,8 +542,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * Can be used when the edge does not have both endpoints in the graph, or when removing
      * edges that were added only temporarily.
      */
-    private registerImplicitEdge(edge: Link){
-        this.expMan.edgeRegistry.addEdgeToRegistry(edge);
+    private registerImplicitEdge(edge: Link): Link{
+        return this.expMan.edgeRegistry.addEdgeToRegistry(edge);
     }
     
     /**
@@ -920,29 +926,51 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
         var numberOfConcepts = Object.keys(pathsToRootData).length;
-        var newNodesForExpansionGraph: Array<Node> = [];
+        var newNodesForExpansionGraph: {[id: string]: Node} = {};
         // Go backwards through results to get the target node first, so we can have it immediately for
         // the expansion set parent.
         var collapsedPathsToRootData: {[key: string]: any} = {};
         for(var pathIndex = 0; pathIndex < pathsToRootData.length; pathIndex++){
             for(var conceptIndex = pathsToRootData[pathIndex].length - 1; conceptIndex >= 0; conceptIndex--){
-                var pathNodeData = pathsToRootData[pathIndex][conceptIndex];
-                if(collapsedPathsToRootData[pathNodeData["@id"]] === undefined){
-                    collapsedPathsToRootData[pathNodeData["@id"]] = pathNodeData;
+                var nodeData = pathsToRootData[pathIndex][conceptIndex];
+                if(newNodesForExpansionGraph[nodeData["@id"]] === undefined){
+                    var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
+                    if(conceptNode.rawConceptUri === this.centralConceptUri){
+                        this.expansionSet.parentNode = conceptNode;
+                    }
+                    newNodesForExpansionGraph[conceptNode.getEntityId()] = conceptNode;
+                    collapsedPathsToRootData[conceptNode.getEntityId()] = nodeData;
+                }
+                // Regardless of whether we had to parse this node in the current loop or not, 
+                // we need to identify it and get path arcs prepared. We may have parsed it in a previous
+                // iteration.
+                var currentNode = newNodesForExpansionGraph[nodeData["@id"]];
+                // Create link between this node and its predecessor within the current path
+                // Note that the multiple paths are single-inheritance, that is, within each pathsToRootData
+                // index, we have a single lineage. Thus, any predecessor in the array is a child of the node
+                // we are currently working with.
+                var parentIndex = conceptIndex + 1; // we are in a decrementing loop. Parent is larger index.
+                if(parentIndex < pathsToRootData[pathIndex].length){
+                    var parentData = pathsToRootData[pathIndex][parentIndex];
+                    var parentNode = newNodesForExpansionGraph[parentData["@id"]];
+                    // Note also that normally when we parse for arcs, we will parse for the node if possible. Since
+                    // we go in reverse order, the parent has already been parsed and is known to us.
+                    var conceptRelationsCallback = new ConceptParentsRelationsCallback(this.graph, "", parentNode, this.graph.conceptIdNodeMap, PathOptionConstants.pathsToRootConstant, this.expansionSet);
+                    conceptRelationsCallback.callback([nodeData], textStatus, jqXHR);
+                    
                 }
             }
         }
 
-        for(var id in collapsedPathsToRootData){
-            var nodeData = collapsedPathsToRootData[id];
-            var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
-            if(conceptNode.rawConceptUri === this.centralConceptUri){
-                this.expansionSet.parentNode = conceptNode;
-            }
-            newNodesForExpansionGraph.push(conceptNode);
-            this.graph.fetchConceptRelations(conceptNode, nodeData, this.expansionSet);
+        // Normally, dispatching relations would be a priority, but we have child-parent relations
+        // implicit in the paths to root data, and we want that parsed ASAP. Then we can ask for the
+        // remaining relations.
+        for(var nodeId in newNodesForExpansionGraph){
+            var node = newNodesForExpansionGraph[nodeId];
+            var data = collapsedPathsToRootData[node.getEntityId()];
+            this.graph.fetchConceptRelations(node, data, this.expansionSet);
         }
-    }
+    };
 }
 
 class FetchTargetConceptCallback extends Fetcher.CallbackObject {
@@ -1090,7 +1118,6 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-        
         // Example: http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F91837002/children
         $.each(relationsDataRaw.collection,
                 (index, child) => {
@@ -1099,7 +1126,7 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
                 // That alone is reason to fire these events separately anyway, but we can keep all the parsing stuck in this same
                 // place and fire off an additional REST call.
                 var childId = child["@id"];
-                
+
                 this.graph.expandAndParseNodeIfNeeded(childId, this.conceptNode.rawConceptUri, child, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
                 this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, childId, this.graph.relationLabelConstants.inheritance);
             }
@@ -1134,7 +1161,6 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
         $.each(relationsDataRaw,
                 (index, parent) => {
                     var parentId = parent["@id"];
-                    
                     // Save the data in case we expand to include this node
                     this.graph.expandAndParseNodeIfNeeded(parentId, this.conceptNode.rawConceptUri, parent, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
                     this.graph.manifestOrRegisterImplicitRelation(parentId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.inheritance);
