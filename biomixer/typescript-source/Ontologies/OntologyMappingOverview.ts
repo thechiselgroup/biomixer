@@ -226,6 +226,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     }
     
     createNodePopupTable(ontologyCircle, ontologyData){
+        var isRootNode = (<OntologyGraph.Node> ontologyData).rawAcronym === this.centralOntologyAcronym;
         var outerDiv = $("<div></div>");
         outerDiv.addClass("popups-Popup");
         
@@ -266,6 +267,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     //           )
     //     );
          
+         // Root node doesn't need these, and it's confusing with them included.
+         var jsonLeaveOutOfRoot = ["Num Mappings: ", "Mapped: "];
+         
          var jsonArgs = {
                  "Ontology Name: ": "name",
                  "Ontology Acronym: ": "rawAcronym",
@@ -275,36 +279,31 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
                  "Num Individuals: ": "numberOfIndividuals",
                  "Num Properties: ": "numberOfProperties",
                  "Num Mappings: ": "mapped_classes_to_central_node",
+                 "Mapped: ": "mapped_classes_to_central_node", // will not use directly though...
          };
-         
+         var outerThis = this;
          $.each(jsonArgs,function(label, propertyKey){
+             if(isRootNode && -1 !== $.inArray(label, jsonLeaveOutOfRoot)){
+                 return;
+             }
              var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
+             var value = ontologyData[propertyKey];
+             if(label === "Mapped: "){
+                 value = outerThis.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
+                 value += "%";
+             }
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
                                      $("<div></div>").addClass("gwt-HTML").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
-                                             $("<span></span>").text(ontologyData[propertyKey])
+                                             $("<span></span>").text(value)
                                      )
                              )
                      )
              );
          });
-         
-         // Can't do math in that little loop I made
-         var roundedPercent = this.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
-         tBody.append(
-             $("<tr></tr>").append(
-                 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                     $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                         $("<b></b>").text("Mapped: ")
-                     ).append(
-                         $("<span></span>").text(roundedPercent+"%")
-                     )
-                 )
-             )
-         );
     
          return outerDiv.prop("outerHTML");
     }
