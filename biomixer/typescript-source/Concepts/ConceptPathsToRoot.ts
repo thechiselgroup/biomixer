@@ -1058,12 +1058,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layouts & Filters");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
-        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
-        this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
-        console.log("hi");
-        this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
-        this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), false);
+        this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector(), true);
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     

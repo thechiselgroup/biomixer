@@ -238,6 +238,13 @@ div#hoveringGraphMenu {
 	display: block;
 }
 
+.menuLabelExpander {
+	text-align: left;
+	font-weight: bold;
+	float: left;
+	width: 2em;
+}
+
 .view_selection_box {
 	float: left;
 }

@@ -5,6 +5,8 @@ export class Menu {
     
     static menuLabelClass = "menuLabel";
     
+    static menuItemExpanderLabelClass = "menuLabelExpander";
+    
     private menuSelector: string = 'div#hoveringGraphMenu';
     
     private menuBarSelector: string = "#top_menu_bar";
