@@ -219,6 +219,13 @@ div#hoveringGraphMenu {
     filter: alpha(opacity=50);
 }
 
+.legend {
+	background-color: rgb(193, 217, 241);
+	color: rgb(0, 0, 0);
+	border-bottom: 1px solid rgb(159, 188, 215);
+	width: 390px;
+}
+
 .menuLabel {
 	background-color: rgb(193, 217, 241);
 	padding: 2px;

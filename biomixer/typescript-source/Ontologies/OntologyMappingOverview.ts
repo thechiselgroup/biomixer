@@ -13,6 +13,7 @@
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
+///<amd-dependency path="Ontologies/OntologyLegend" />
 
 ///<amd-dependency path="JQueryExtension" />
 
@@ -26,6 +27,7 @@ import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
 import OntologyFilterSliders = require("./OntologyFilterSliders");
+import OntologyLegend = require("./OntologyLegend");
 
 // If I don't extend and implement both, I have to define things I want implemented in the base class,
 // and I won't be forced to define things declared in the interface. Using the interface as the
@@ -40,6 +42,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     filterSliders: OntologyFilterSliders.MappingRangeSliders;
     
     menu: Menu.Menu;
+    
+    legend: OntologyLegend.OntologyLegend;
     
     vis: D3.Selection;
     
@@ -58,6 +62,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         super();
         
         this.menu = new Menu.Menu();
+        this.legend = new OntologyLegend.OntologyLegend(this.menu);
         
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
@@ -856,6 +861,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
         this.menu.initializeMenu();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.legend.initialize();
     }
     
     sortConceptNodesCentralOntologyName(){
