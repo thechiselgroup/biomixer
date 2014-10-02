@@ -448,10 +448,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var outerDiv = $("<div></div>");
         outerDiv.addClass("popups-Popup");
         
+        var noWrapStyle = {"white-space":"nowrap"};
+        var wrapStyle = {};
+
         var table = $("<table></table>");
         var tBody = $("<tbody></tbody>");
          outerDiv.append(table);
          table.append(tBody);
+
          
          tBody.append(
                  $("<tr></tr>").append(
@@ -466,20 +470,34 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text(urlText)
+                                 $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open concept homepage in tab")
                                  )
                          )
                  )
          );
          
+         var ontologyUrlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"];
+         tBody.append(
+                     $("<tr></tr>").append(
+                             $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+                                     $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                             $("<b></b>").text("Ontology: ")
+                                     ).append(
+                                             $("<a></a>").attr("target", "_blank").attr("href", ontologyUrlText).text(conceptData["ontologyAcronym"])
+                                     )
+                             )
+                     )
+             );
+         
          var jsonArgs = {
-                 "Concept ID: ": "rawConceptUri",
-                 "Ontology Acronym: ": "ontologyAcronym",
-                 "Ontology Homepage: ": "ontologyUri",
+                "Concept ID: ": {"key": "rawConceptUri", "style": noWrapStyle},
+                "Synonyms: ": {"key": "synonym", "style": wrapStyle},
+                "Definition: ": {"key": "definition", "style": wrapStyle}
          };
-         $.each(jsonArgs,function(label, propertyKey){
-             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
+         $.each(jsonArgs,function(label, properties){
+             var style: {} = properties["style"]
+             var propertyKey: string = properties["key"];
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(

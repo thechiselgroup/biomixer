@@ -234,6 +234,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         var isRootNode = (<OntologyGraph.Node> ontologyData).rawAcronym === this.centralOntologyAcronym;
         var outerDiv = $("<div></div>");
         outerDiv.addClass("popups-Popup");
+
+        var noWrapStyle = {"white-space":"nowrap"};
+        var wrapStyle = {};
         
         var table = $("<table></table>");
         var tBody = $("<tbody></tbody>");
@@ -253,45 +256,36 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text(urlText)
+                                 $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open ontology homepage in tab")
                                  )
                          )
                  )
          );
          
-    //     tBody.append(
-    //           $("<tr></tr>").append(
-    //                   $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-    //                           $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-    //                                   $("<b></b>").text("Ontology Name: ")
-    //                           ).append(
-    //                                   $("<span></span>").text(ontologyData["name"])
-    //                           )
-    //                   )
-    //           )
-    //     );
          
          // Root node doesn't need these, and it's confusing with them included.
          var jsonLeaveOutOfRoot = ["Num Mappings: ", "Mapped: "];
          
          var jsonArgs = {
-                 "Ontology Name: ": "name",
-                 "Ontology Acronym: ": "rawAcronym",
-                 "Ontology URI: ": "uriId",
-                 "Description: ": "description",
-                 "Num Classes: ": "numberOfClasses",
-                 "Num Individuals: ": "numberOfIndividuals",
-                 "Num Properties: ": "numberOfProperties",
-                 "Num Mappings: ": "mapped_classes_to_central_node",
-                 "Mapped: ": "mapped_classes_to_central_node", // will not use directly though...
+                 "Ontology Name: ": {"key": "name",  "style": noWrapStyle},
+                 "Ontology Acronym: ": {"key": "rawAcronym",  "style": noWrapStyle},
+                 "Ontology URI: ": {"key": "uriId",  "style": noWrapStyle},
+                 "Description: ": {"key": "description", "style": wrapStyle},
+                 "Num Classes: ": {"key": "numberOfClasses",  "style": noWrapStyle},
+                 "Num Individuals: ": {"key": "numberOfIndividuals",  "style": noWrapStyle},
+                 "Num Properties: ": {"key": "numberOfProperties",  "style": noWrapStyle},
+                 "Num Mappings: ": {"key": "mapped_classes_to_central_node",  "style": noWrapStyle},
+                 "Mapped: ": {"key": "mapped_classes_to_central_node",  "style": noWrapStyle}, // will not use directly though...
+ 
          };
          var outerThis = this;
-         $.each(jsonArgs,function(label, propertyKey){
+         $.each(jsonArgs,function(label, properties){
              if(isRootNode && -1 !== $.inArray(label, jsonLeaveOutOfRoot)){
                  return;
              }
-             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
+             var style: {} = properties["style"]
+             var propertyKey: string = properties["key"];
              var value = ontologyData[propertyKey];
              if(label === "Mapped: "){
                  value = outerThis.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);

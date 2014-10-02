@@ -75,6 +75,8 @@ export class Node extends GraphView.BaseNode {
     name: string; // conceptData.prefLabel
     type: string; // conceptData.type
     description: string; // Comes from description RETS call // = "fetching description";
+    definition: Array<string>;
+    synonym: Array<string>;
     fixed: boolean; // = true; // lock central node
 //    x: number; // = visWidth()/2;
 //    y: number; // = visHeight()/2;      
@@ -371,6 +373,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.name = conceptData.prefLabel;
             conceptNode.type = conceptData["@type"];
             conceptNode.description = "fetching description";
+            conceptNode.definition = conceptData["definition"];
+            conceptNode.synonym = conceptData["synonym"];
             conceptNode.weight = 1;
 //            conceptNode.depth = 0;
             conceptNode.tempDepth = 0;
