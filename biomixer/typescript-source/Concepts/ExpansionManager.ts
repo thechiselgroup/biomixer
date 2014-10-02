@@ -1,12 +1,12 @@
 ///<reference path="headers/require.d.ts" />
 
 ///<amd-dependency path="Concepts/ConceptGraph" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphModifierCommand" />
 ///<amd-dependency path="ExpansionSets" />
 
 import ConceptGraph = require("./ConceptGraph");
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import GraphModifierCommand = require("../GraphModifierCommand");
 import ExpansionSets = require("../ExpansionSets");
 
@@ -15,7 +15,7 @@ export class ExpansionManager{
     public edgeRegistry: EdgeRegistry;
     
     constructor(
-        private undoBoss: UndoRedoBreadcrumbs.UndoRedoManager
+        private undoBoss: UndoRedoManager.UndoRedoManager
     ){
         this.edgeRegistry = new EdgeRegistry();
     }
@@ -37,7 +37,7 @@ export class ExpansionManager{
         var crumbTrail = this.undoBoss.getCrumbHistory();
         var conceptUriForIds: string = String(conceptUri);
         for(var i = crumbTrail.length - 1; i >= 0; i--){
-            var nodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = crumbTrail[i].nodeInteraction(conceptUriForIds);
+            var nodeInteraction: UndoRedoManager.NodeInteraction = crumbTrail[i].nodeInteraction(conceptUriForIds);
             if(nodeInteraction === expansionType){
                 return true;
             } else if(nodeInteraction === GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction){
@@ -59,7 +59,7 @@ export class ExpansionManager{
         return expansionSets;
     }
     
-    private recursiveExpansionSets(commands: Array<UndoRedoBreadcrumbs.ICommand>, expansionSets: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>){
+    private recursiveExpansionSets(commands: Array<UndoRedoManager.ICommand>, expansionSets: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>){
         for(var i = commands.length -1; i >= 0; i--){
             var command = commands[i];
             if(command instanceof GraphModifierCommand.GraphAddNodesCommand){

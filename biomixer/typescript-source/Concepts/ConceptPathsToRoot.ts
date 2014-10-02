@@ -11,7 +11,7 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="TipsyToolTips" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="CompositeExpansionDeletionSet" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
@@ -31,7 +31,7 @@ import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");

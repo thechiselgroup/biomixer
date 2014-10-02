@@ -5,18 +5,18 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="Concepts/ExpansionManager" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 
-import Utils = require('../Utils');
-import Fetcher = require('../FetchFromApi');
-import GraphView = require('../GraphView');
-import ExpansionSets = require('../ExpansionSets');
-import ExpansionManager = require('./ExpansionManager');
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import Utils = require("../Utils");
+import Fetcher = require("../FetchFromApi");
+import GraphView = require("../GraphView");
+import ExpansionSets = require("../ExpansionSets");
+import ExpansionManager = require("./ExpansionManager");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 
 declare var purl;
 
-export interface PathOption extends UndoRedoBreadcrumbs.NodeInteraction {
+export interface PathOption extends UndoRedoManager.NodeInteraction {
     // Only assign raw concept URI to this string
     pathological; // strengthen duck typing
 }
@@ -227,7 +227,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         public graphView: GraphView.GraphView<Node, Link>,
         public centralConceptUri: ConceptURI,
         public softNodeCap: number,
-        undoBoss: UndoRedoBreadcrumbs.UndoRedoManager
+        undoBoss: UndoRedoManager.UndoRedoManager
         ){
         // Passing undo boss makes the msot sense, since expansions are very graphy,
         // so the graph can own the expansion manager and merely use the undo system.

@@ -9,7 +9,7 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="TipsyToolTips" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
@@ -23,7 +23,7 @@ import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
 import OntologyFilterSliders = require("./OntologyFilterSliders");
