@@ -2,11 +2,11 @@
 
 ///<reference path="headers/d3.d.ts" />
 
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="GraphModifierCommand" />
 
-import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import GraphView = require("./GraphView");
 import GraphModifierCommand = require("./GraphModifierCommand");
 
@@ -36,8 +36,8 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         public id: ExpansionSetIdentifer,
         public parentNode: N,
         public graph: GraphView.Graph<N>,
-        undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager,
-        public expansionType: UndoRedoBreadcrumbs.NodeInteraction
+        undoRedoBoss: UndoRedoManager.UndoRedoManager,
+        public expansionType: UndoRedoManager.NodeInteraction
         ){
         if(null != parentNode){
             parentNode.expansionSetAsParent = this;

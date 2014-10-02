@@ -130,12 +130,11 @@ export class ConceptLayouts {
             .duration(duration)
             .ease("linear")
             .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
-
     
        if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
             this.lastTransition = new Date().getTime();
        }
-           
+
     }
     
     getAllOntologyAcronyms(){
@@ -323,7 +322,7 @@ export class ConceptLayouts {
             var treeHeight = (outerThis.graphView.visHeight()-yShift-100)/2; 
  
             outerThis.buildTree(treeWidth, treeHeight);
-                        
+
             $.each(graphNodes, function(index, element){
                  var radius = element.y+yShift/2; 
                  var angle = (element.x)/180 * Math.PI;

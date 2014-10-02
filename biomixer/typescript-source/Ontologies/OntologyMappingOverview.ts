@@ -9,10 +9,11 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="TipsyToolTips" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
+///<amd-dependency path="Ontologies/OntologyLegend" />
 
 ///<amd-dependency path="JQueryExtension" />
 
@@ -22,10 +23,11 @@ import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
 import OntologyFilterSliders = require("./OntologyFilterSliders");
+import OntologyLegend = require("./OntologyLegend");
 
 // If I don't extend and implement both, I have to define things I want implemented in the base class,
 // and I won't be forced to define things declared in the interface. Using the interface as the
@@ -40,6 +42,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     filterSliders: OntologyFilterSliders.MappingRangeSliders;
     
     menu: Menu.Menu;
+    
+    legend: OntologyLegend.OntologyLegend;
     
     vis: D3.Selection;
     
@@ -58,8 +62,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         super();
         
         this.menu = new Menu.Menu();
-        
-        this.setCurrentLayout(this.executeCenterLayout);
+        this.legend = new OntologyLegend.OntologyLegend(this.menu);
         
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
@@ -106,8 +109,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
         this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
         this.filterSliders = new OntologyFilterSliders.MappingRangeSliders(this.ontologyGraph, this, this.centralOntologyAcronym);
-        
         this.initGraph();
+        
+        this.setCurrentLayout(this.executeCenterLayoutLambda(this));
         
         this.prepGraphMenu();
         
@@ -227,8 +231,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     }
     
     createNodePopupTable(ontologyCircle, ontologyData){
+        var isRootNode = (<OntologyGraph.Node> ontologyData).rawAcronym === this.centralOntologyAcronym;
         var outerDiv = $("<div></div>");
         outerDiv.addClass("popups-Popup");
+
+        var noWrapStyle = {"white-space":"nowrap"};
+        var wrapStyle = {};
         
         var table = $("<table></table>");
         var tBody = $("<tbody></tbody>");
@@ -248,64 +256,53 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                                         $("<a></a>").attr("href", urlText).text(urlText)
+                                 $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open ontology homepage in tab")
                                  )
                          )
                  )
          );
          
-    //     tBody.append(
-    //           $("<tr></tr>").append(
-    //                   $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-    //                           $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-    //                                   $("<b></b>").text("Ontology Name: ")
-    //                           ).append(
-    //                                   $("<span></span>").text(ontologyData["name"])
-    //                           )
-    //                   )
-    //           )
-    //     );
+         
+         // Root node doesn't need these, and it's confusing with them included.
+         var jsonLeaveOutOfRoot = ["Num Mappings: ", "Mapped: "];
          
          var jsonArgs = {
-                 "Ontology Name: ": "name",
-                 "Ontology Acronym: ": "rawAcronym",
-                 "Ontology URI: ": "uriId",
-                 "Description: ": "description",
-                 "Num Classes: ": "numberOfClasses",
-                 "Num Individuals: ": "numberOfIndividuals",
-                 "Num Properties: ": "numberOfProperties",
-                 "Num Mappings: ": "mapped_classes_to_central_node",
+                 "Ontology Name: ": {"key": "name",  "style": noWrapStyle},
+                 "Ontology Acronym: ": {"key": "rawAcronym",  "style": noWrapStyle},
+                 "Ontology URI: ": {"key": "uriId",  "style": noWrapStyle},
+                 "Description: ": {"key": "description", "style": wrapStyle},
+                 "Num Classes: ": {"key": "numberOfClasses",  "style": noWrapStyle},
+                 "Num Individuals: ": {"key": "numberOfIndividuals",  "style": noWrapStyle},
+                 "Num Properties: ": {"key": "numberOfProperties",  "style": noWrapStyle},
+                 "Num Mappings: ": {"key": "mapped_classes_to_central_node",  "style": noWrapStyle},
+                 "Mapped: ": {"key": "mapped_classes_to_central_node",  "style": noWrapStyle}, // will not use directly though...
+ 
          };
-         
-         $.each(jsonArgs,function(label, propertyKey){
-             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
+         var outerThis = this;
+         $.each(jsonArgs,function(label, properties){
+             if(isRootNode && -1 !== $.inArray(label, jsonLeaveOutOfRoot)){
+                 return;
+             }
+             var style: {} = properties["style"]
+             var propertyKey: string = properties["key"];
+             var value = ontologyData[propertyKey];
+             if(label === "Mapped: "){
+                 value = outerThis.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
+                 value += "%";
+             }
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
                                      $("<div></div>").addClass("gwt-HTML").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
-                                             $("<span></span>").text(ontologyData[propertyKey])
+                                             $("<span></span>").text(value)
                                      )
                              )
                      )
              );
          });
-         
-         // Can't do math in that little loop I made
-         var roundedPercent = this.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
-         tBody.append(
-             $("<tr></tr>").append(
-                 $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                     $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                         $("<b></b>").text("Mapped: ")
-                     ).append(
-                         $("<span></span>").text(roundedPercent+"%")
-                     )
-                 )
-             )
-         );
     
          return outerDiv.prop("outerHTML");
     }
@@ -542,6 +539,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
 //        
 //        }
         
+        if(!enteringNodes.empty()){
+            this.stampTimeGraphModified();
+        }
         
         if(!enteringNodes.empty()){
             this.forceLayout.on("tick", this.onLayoutTick());
@@ -788,12 +788,15 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         return this.gravityAdjust(numb, this.visHeight());
     }
     
-    executeCenterLayout(refreshLayout?: boolean){
+    executeCenterLayoutLambda(ontologyView: OntologyMappingOverview){
+        var outerThis = ontologyView; 
+        return (refreshLayout?: boolean)=>{
     		if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-            var graphNodes = this.ontologyGraph.graphD3Format.nodes;
-            var graphLinks = this.ontologyGraph.graphD3Format.links;
+            
+            var graphNodes = outerThis.ontologyGraph.graphD3Format.nodes;
+            var graphLinks = outerThis.ontologyGraph.graphD3Format.links;
             
             // This is the most up to date way to know how many nodes we are laying out, assuming we don't care to position
             // undisplayed nodes
@@ -805,7 +808,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             var anglePerNode =2*Math.PI / (numberOfNodes - 1); // 360/nodesToPlace;
             var arcLength = this.linkMaxDesiredLength();
             var i = 0;
-            var outerThis = this;
             // TODO get sortedAcronyms from the OntologiesGraph model
             $.each(this.ontologyGraph.sortedAcronymsByMappingCount,
                     function(index, sortedAcronym){
@@ -846,13 +848,14 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
               .attr("y1", function(d) { return d.source.y; })
               .attr("x2", function(d) { return d.target.x; })
               .attr("y2", function(d) { return d.target.y; });
-              
+        };         
     }
     
     prepGraphMenu(){
         // Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
         this.menu.initializeMenu();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.legend.initialize();
     }
     
     sortConceptNodesCentralOntologyName(){

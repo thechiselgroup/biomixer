@@ -12,7 +12,7 @@
 ///<amd-dependency path="Concepts/ExpansionSetFilter" />
 ///<amd-dependency path="DeletionSet" />
 ///<amd-dependency path="CompositeExpansionDeletionSet" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 
 
 
@@ -25,7 +25,7 @@ import OntologyConceptFilter = require("./OntologyConceptFilter");
 import ExpansionSetFilter = require("./ExpansionSetFilter");
 import DeletionSet = require("../DeletionSet");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 
 
 export class NodeDeleterWidgets {
@@ -33,7 +33,7 @@ export class NodeDeleterWidgets {
     constructor(
         public graph: ConceptGraph.ConceptGraph,
         public graphView: PathToRootView.ConceptPathsToRoot,
-        private undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager
+        private undoRedoBoss: UndoRedoManager.UndoRedoManager
     ){
         
     }
@@ -49,7 +49,7 @@ export class NodeDeleterWidgets {
                     .attr("class", "nodeDeleterButton nodeCommandButton")
                     .attr("id", "nodeDeleterButton")
                     .attr("type", "button")
-                    .attr("value", "Remove Hidden Nodes"));
+                    .attr("value", "Remove All Unchecked Nodes"));
         
             d3.selectAll("#nodeDeleterButton").on("click", this.deleteSelectedCheckboxesLambda());
         }
@@ -59,7 +59,7 @@ export class NodeDeleterWidgets {
                     .attr("class", "nodeUnhiderButton nodeCommandButton")
                     .attr("id", "nodeUnhiderButton")
                     .attr("type", "button")
-                    .attr("value", "Reveal Hidden Nodes"));
+                    .attr("value", "Reset All Node Checkboxes"));
         
             d3.selectAll("#nodeUnhiderButton").on("click", this.revealUnselectedCheckboxesLambda());
         }

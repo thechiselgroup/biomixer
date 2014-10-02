@@ -2,17 +2,17 @@
 
 ///<reference path="headers/d3.d.ts" />
 
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphView" />
 
-import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import GraphView = require("./GraphView");
 
 
  
 // TODO Will likely use one for layout triggers (to allow naming) and another for
 // arbitrary layout change snapshots.
-export class LayoutModificationCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+export class LayoutModificationCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
     constructor(
     ){
         // LEFTOFF
@@ -41,7 +41,7 @@ export class LayoutModificationCommand<N extends GraphView.BaseNode> implements 
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction{
+    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
         return null;
     }
 }

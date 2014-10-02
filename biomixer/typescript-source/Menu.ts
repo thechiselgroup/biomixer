@@ -5,13 +5,17 @@ export class Menu {
     
     static menuLabelClass = "menuLabel";
     
+    static menuItemExpanderLabelClass = "menuLabelExpander";
+    
     private menuSelector: string = 'div#hoveringGraphMenu';
+    
+    private menuBarSelector: string = "#top_menu_bar";
     
     initializeMenu(menuName: string = Menu.defaultMenuName){
         // Append the pop-out panel. It will stay hidden except when moused over.
         var trigger = $("<div>").attr("id", "trigger");
 //        $("#chart").append(trigger);
-         $("#top_menu_bar").append(trigger);
+         $(this.menuBarSelector).append(trigger);
         trigger.append($("<p>").text(Menu.menuArrowPrefix+menuName)); // "<< Menu" by default
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
         
@@ -36,6 +40,10 @@ export class Menu {
     
     getMenuSelector(){
         return this.menuSelector;
+    }
+    
+    getMenuBarSelector(){
+        return this.menuBarSelector;   
     }
     
 }

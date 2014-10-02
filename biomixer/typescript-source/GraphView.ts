@@ -3,11 +3,11 @@
 ///<reference path="headers/d3.d.ts" />
 
 ///<amd-dependency path="ExpansionSets" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Utils" />
 
 import ExpansionSets = require("./ExpansionSets");
-import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import Utils = require("./Utils");
 
 
@@ -104,11 +104,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
 // listener orietented rather than direct call. But the system is shallow now,
 // so maybe this is what we want.
         
-    public undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager;
+    public undoRedoBoss: UndoRedoManager.UndoRedoManager;
     
     constructor(
         ){
-        this.undoRedoBoss = new UndoRedoBreadcrumbs.UndoRedoManager(false);
+        this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false);
     }
     
     //var defaultNodeColor = "#496BB0";

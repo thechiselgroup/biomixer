@@ -159,7 +159,7 @@ body{
 * Vital to set the div#chart.gallery height to 100% in CSS, rather than in code, for Firefox.
 */
 div.gallery{
-	height: 100%;
+	height: 96%;
 	/*
 	border-style:solid;
 	*/
@@ -219,6 +219,13 @@ div#hoveringGraphMenu {
     filter: alpha(opacity=50);
 }
 
+.legend {
+	background-color: rgb(193, 217, 241);
+	color: rgb(0, 0, 0);
+	border-bottom: 1px solid rgb(159, 188, 215);
+	width: 390px;
+}
+
 .menuLabel {
 	background-color: rgb(193, 217, 241);
 	padding: 2px;
@@ -229,6 +236,13 @@ div#hoveringGraphMenu {
 	border-bottom: 1px solid rgb(159, 188, 215);
 	width: auto;
 	display: block;
+}
+
+.menuLabelExpander {
+	text-align: left;
+	font-weight: bold;
+	float: left;
+	width: 2em;
 }
 
 .view_selection_box {

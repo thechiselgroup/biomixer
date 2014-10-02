@@ -11,7 +11,7 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="TipsyToolTips" />
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="CompositeExpansionDeletionSet" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
@@ -31,7 +31,7 @@ import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
-import UndoRedoBreadcrumbs = require("../UndoRedoBreadcrumbs");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
@@ -180,8 +180,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
          
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
-        this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
+        this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
         
         this.nodeDeleter = new NodeDeleter.NodeDeleterWidgets(this.conceptGraph, this, this.undoRedoBoss);
@@ -210,8 +210,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
 		// to see where this occurs.
         if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
-              // See issue 423...we want vertical here, but the layout currently misbehaves when the graph is still being populated.
-//            console.log("vertical"); this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
+            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
             this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
             this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
@@ -449,10 +448,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var outerDiv = $("<div></div>");
         outerDiv.addClass("popups-Popup");
         
+        var noWrapStyle = {"white-space":"nowrap"};
+        var wrapStyle = {};
+
         var table = $("<table></table>");
         var tBody = $("<tbody></tbody>");
          outerDiv.append(table);
          table.append(tBody);
+
          
          tBody.append(
                  $("<tr></tr>").append(
@@ -467,20 +470,34 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                 $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                                         $("<a></a>").attr("href", urlText).text(urlText)
+                                 $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open concept homepage in tab")
                                  )
                          )
                  )
          );
          
+         var ontologyUrlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"];
+         tBody.append(
+                     $("<tr></tr>").append(
+                             $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
+                                     $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                             $("<b></b>").text("Ontology: ")
+                                     ).append(
+                                             $("<a></a>").attr("target", "_blank").attr("href", ontologyUrlText).text(conceptData["ontologyAcronym"])
+                                     )
+                             )
+                     )
+             );
+         
          var jsonArgs = {
-                 "Concept ID: ": "rawConceptUri",
-                 "Ontology Acronym: ": "ontologyAcronym",
-                 "Ontology Homepage: ": "ontologyUri",
+                "Concept ID: ": {"key": "rawConceptUri", "style": noWrapStyle},
+                "Synonyms: ": {"key": "synonym", "style": wrapStyle},
+                "Definition: ": {"key": "definition", "style": wrapStyle}
          };
-         $.each(jsonArgs,function(label, propertyKey){
-             var style = (propertyKey === "description" ? {} : {"white-space":"nowrap"});
+         $.each(jsonArgs,function(label, properties){
+             var style: {} = properties["style"]
+             var propertyKey: string = properties["key"];
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -1059,11 +1076,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layouts & Filters");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
-        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
-        this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector());
-        this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector());
-        this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector());
+        this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), false);
+        this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector(), true);
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     

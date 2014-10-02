@@ -39,16 +39,38 @@ export class AbstractFilterWidget {
         return this.getClassName()+"_filterCheckbox";
     }
     
-   addMenuComponents(menuSelector: string): void {
+   addMenuComponents(menuSelector: string, defaultHideContainer: boolean): void {
+        // This container is the encapsulating one for this entire widget item.
         var outerContainer = $("<div>").attr("id", this.getClassName()+"OuterContainer");
         $(menuSelector).append(outerContainer);
         
-        outerContainer.append(
-            $("<label>")
-                .addClass(Menu.Menu.menuLabelClass).text(this.subMenuTitle));
-        
+        // This container holds the checkbox widgets 
         this.filterContainer = $("<div>").attr("id", this.className+"ScrollContainer")
                 .addClass("scroll-div").css("height", 100);
+       
+        if(defaultHideContainer){
+            this.filterContainer.css("display", "none");
+        }
+        
+        // This only indicates collapsability and status
+        var labelExpanderIcon = $("<label>").addClass(Menu.Menu.menuItemExpanderLabelClass).text("+");
+        
+        // The label labels the section,a dn acts as a huge collapse button
+        var label = $("<label>").addClass(Menu.Menu.menuLabelClass).text(this.subMenuTitle);
+        label.click(
+            ()=>{
+                $(this.filterContainer).slideToggle('slow',
+                    ()=>{labelExpanderIcon.text( $(this.filterContainer).css("display") === "none" ? "+" : "-"); }
+                );
+                
+            }
+        );
+        
+        outerContainer.append(labelExpanderIcon);
+        outerContainer.append(label);
+        
+        // We don't know the default necessarily, so set the text here.
+        labelExpanderIcon.text( $(this.filterContainer).css("display") === "none" ? "+" : "-"); 
         
         outerContainer.append(this.filterContainer);
     }

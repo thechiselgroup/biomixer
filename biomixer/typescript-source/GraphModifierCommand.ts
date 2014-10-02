@@ -2,13 +2,13 @@
 
 ///<reference path="headers/d3.d.ts" />
 
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="DeletionSet" />
 ///<amd-dependency path="LayoutModifierCommand" />
 
-import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import GraphView = require("./GraphView");
 import ExpansionSets = require("./ExpansionSets");
 import DeletionSet = require("./DeletionSet");
@@ -21,9 +21,9 @@ import LayoutModifierCommand = require("./LayoutModifierCommand");
  * If they were, we'd would bundle edges to be added or removed with the nodes they were
  * added or removed with.
  */
-export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
     
-    static addedNodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = <UndoRedoBreadcrumbs.NodeInteraction><any>"added node";
+    static addedNodeInteraction: UndoRedoManager.NodeInteraction = <UndoRedoManager.NodeInteraction><any>"added node";
     
     static counter = 0;
     
@@ -105,7 +105,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction{
+    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
         if(this.expansionSet.parentNode.getEntityId() === nodeId){
             return this.expansionSet.expansionType;
         }
@@ -120,9 +120,9 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     
 }
 
-export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
     
-    static deletionNodeInteraction: UndoRedoBreadcrumbs.NodeInteraction = <UndoRedoBreadcrumbs.NodeInteraction><any>"deleted node";
+    static deletionNodeInteraction: UndoRedoManager.NodeInteraction = <UndoRedoManager.NodeInteraction><any>"deleted node";
     
     static counter = 0;
     
@@ -180,7 +180,7 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction{
+    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
         for(var i = 0; i < this.nodesToRemove.nodes.length; i++){
             var node = this.nodesToRemove.nodes[i];
             if(node.getEntityId() === nodeId){
@@ -192,7 +192,7 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
     
 }
 
-export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements UndoRedoBreadcrumbs.ICommand{
+export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
     
     static counter = 0;
     
@@ -200,7 +200,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
     
     redidLast: boolean = false; // start being able to redo it
     
-    commands: UndoRedoBreadcrumbs.ICommand[] = [];
+    commands: UndoRedoManager.ICommand[] = [];
     
     constructor(
         public graph: GraphView.Graph<N>,
@@ -209,7 +209,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
 
     }
     
-    addCommand(newCommand: UndoRedoBreadcrumbs.ICommand){
+    addCommand(newCommand: UndoRedoManager.ICommand){
         this.commands.push(newCommand);
     }
     
@@ -256,7 +256,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoBreadcrumbs.NodeInteraction {
+    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction {
         // We look in reverse at all the composite commands
         for(var i = this.commands.length - 1; i >= 0; i--){
             var interaction = this.commands[i].nodeInteraction(nodeId);

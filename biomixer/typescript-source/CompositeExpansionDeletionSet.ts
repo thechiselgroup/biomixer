@@ -2,13 +2,13 @@
 
 ///<reference path="headers/d3.d.ts" />
 
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="GraphModifierCommand" />
 ///<amd-dependency path="DeletionSet" />
 ///<amd-dependency path="ExpansionSets" />
 
-import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import GraphView = require("./GraphView");
 import GraphModifierCommand = require("./GraphModifierCommand");
 import DeletionSet = require("./DeletionSet");
@@ -35,8 +35,8 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
     constructor(
         public graph: GraphView.Graph<N>,
         id: ExpansionSet.ExpansionSetIdentifer,
-        undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager,
-        expansionType: UndoRedoBreadcrumbs.NodeInteraction
+        undoRedoBoss: UndoRedoManager.UndoRedoManager,
+        expansionType: UndoRedoManager.NodeInteraction
         ){
         this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, String(expansionType));
         // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet

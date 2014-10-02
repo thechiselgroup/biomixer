@@ -2,11 +2,11 @@
 
 ///<reference path="headers/d3.d.ts" />
 
-///<amd-dependency path="UndoRedoBreadcrumbs" />
+///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="GraphModifierCommand" />
 
-import UndoRedoBreadcrumbs = require("./UndoRedoBreadcrumbs");
+import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import GraphView = require("./GraphView");
 import GraphModifierCommand = require("./GraphModifierCommand");
 
@@ -34,7 +34,7 @@ export class DeletionSet<N extends GraphView.BaseNode>{
      */
     constructor(
         public graph: GraphView.Graph<N>,
-        private undoRedoBoss: UndoRedoBreadcrumbs.UndoRedoManager
+        private undoRedoBoss: UndoRedoManager.UndoRedoManager
         ){
         this.graphModifier = new GraphModifierCommand.GraphRemoveNodesCommand<N>(graph, this);
         
