@@ -355,7 +355,10 @@ export class ConceptLayouts {
                     graphNodes[index].y = element.y+yShift/2; 
                 }
             );
-                     
+              
+            
+            
+            
             outerThis.transitionNodes(refreshLayout);
         };
     }
