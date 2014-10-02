@@ -49,7 +49,7 @@ export class NodeDeleterWidgets {
                     .attr("class", "nodeDeleterButton nodeCommandButton")
                     .attr("id", "nodeDeleterButton")
                     .attr("type", "button")
-                    .attr("value", "Remove Hidden Nodes"));
+                    .attr("value", "Remove All Unchecked Nodes"));
         
             d3.selectAll("#nodeDeleterButton").on("click", this.deleteSelectedCheckboxesLambda());
         }
@@ -59,7 +59,7 @@ export class NodeDeleterWidgets {
                     .attr("class", "nodeUnhiderButton nodeCommandButton")
                     .attr("id", "nodeUnhiderButton")
                     .attr("type", "button")
-                    .attr("value", "Reveal Hidden Nodes"));
+                    .attr("value", "Reset All Node Checkboxes"));
         
             d3.selectAll("#nodeUnhiderButton").on("click", this.revealUnselectedCheckboxesLambda());
         }
