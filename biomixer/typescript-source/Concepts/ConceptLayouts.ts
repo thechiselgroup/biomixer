@@ -208,7 +208,7 @@ export class ConceptLayouts {
         
         //calculate tree height and adjust for phantom nodes
         var oldHeight = height;
-        height = height*(fullTreeDepth+3)/(fullTreeDepth+1)
+        height = height*(fullTreeDepth+2)/(fullTreeDepth)
         
         var mainTree = d3.layout.tree()
             .size([width, height])
@@ -251,7 +251,7 @@ export class ConceptLayouts {
         
            // shift the tree by 2 node distances
            graphNodes.forEach(function(node){
-               node.y = node.y-2*(oldHeight)/(fullTreeDepth+1);
+               node.y = node.y-2/(fullTreeDepth+2)*height;
            });
     }
     
@@ -261,13 +261,21 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
+            var ontologies = outerThis.getAllOntologyAcronyms();
+            var numOfRoots = 0;
+            ontologies.forEach(function(o){
+                var roots = outerThis.getRoots(o);
+                numOfRoots+=roots.length;   
+            });
+            console.log(numOfRoots);
+            var yShift = numOfRoots*20;
             var treeWidth = 360;
-            var treeHeight = outerThis.graphView.visHeight()/2-100; 
-
+            var treeHeight = (outerThis.graphView.visHeight()-yShift-100)/2; 
+ 
             outerThis.buildTree(treeWidth, treeHeight);
-            
+                        
             $.each(graphNodes, function(index, element){
-                 var radius = element.y; 
+                 var radius = element.y+yShift/2; 
                  var angle = (element.x)/180 * Math.PI;
                  graphNodes[index].x = outerThis.graphView.visWidth()/2 + radius*Math.cos(angle); 
                  graphNodes[index].y = outerThis.graphView.visHeight()/2 + radius*Math.sin(angle); 
@@ -282,14 +290,16 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
-            var treeWidth = outerThis.graphView.visWidth();
-            var treeHeight = outerThis.graphView.visHeight()-300; 
+            var xShift = 100;
+            var yShift = 200;
+            var treeWidth = outerThis.graphView.visWidth()-xShift;
+            var treeHeight = outerThis.graphView.visHeight()-yShift; 
             
             outerThis.buildTree(treeWidth, treeHeight);
             
             $.each(graphNodes, function(index, element){
-                    graphNodes[index].x = element.x; 
-                    graphNodes[index].y = element.y + 100; 
+                    graphNodes[index].x = element.x+xShift/2; 
+                    graphNodes[index].y = element.y+yShift/2; 
                 }
             );
                      
@@ -303,15 +313,17 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
-            var treeWidth = outerThis.graphView.visHeight()-100;
-            var treeHeight = outerThis.graphView.visWidth()-300;   
+            var xShift = 300;
+            var yShift = 100;
+            var treeWidth = outerThis.graphView.visHeight()-yShift;
+            var treeHeight = outerThis.graphView.visWidth()-xShift;   
                    
             outerThis.buildTree(treeWidth, treeHeight);  
 
             $.each(graphNodes, function(index, element){
                  var xValue = element.x;
-                 graphNodes[index].x = element.y + 100; 
-                 graphNodes[index].y = xValue; 
+                 graphNodes[index].x = element.y+xShift/2; 
+                 graphNodes[index].y = xValue+yShift/2; 
             });
             
             outerThis.transitionNodes();
