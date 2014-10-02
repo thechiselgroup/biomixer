@@ -467,7 +467,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
                                  $("<div></div>").addClass("gwt-HTML").css({"white-space":"nowrap"}).append(
-                                         $("<a></a>").attr("href", urlText).text(urlText)
+                                         $("<a></a>").attr("target", "_blank").attr("href", urlText).text(urlText)
                                  )
                          )
                  )
