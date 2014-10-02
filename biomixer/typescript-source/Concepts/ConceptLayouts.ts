@@ -101,6 +101,7 @@ export class ConceptLayouts {
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
         
+
         var now = new Date().getTime();
 
         // When the graph is still growing, calls to the layout occur. This causes
@@ -117,6 +118,7 @@ export class ConceptLayouts {
         }
         var duration = this.desiredDuration - reduceDurationBy;
         
+
         d3.selectAll("g.node_g")
             .transition()
             .duration(duration)
@@ -128,19 +130,19 @@ export class ConceptLayouts {
             .duration(duration)
             .ease("linear")
             .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
+
     
        if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
             this.lastTransition = new Date().getTime();
        }
+           
     }
     
     getAllOntologyAcronyms(){
-       // console.log("returning ontologies");
         var ontologies = [];
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         graphNodes.forEach(function(node){
-            //console.log(node.ontologyAcronym);
             if($.inArray(node.ontologyAcronym, ontologies) === -1){
                 ontologies.push(node.ontologyAcronym);
             }
@@ -156,7 +158,6 @@ export class ConceptLayouts {
         var graphLinks = outerThis.graph.graphD3Format.links;
         var children: ConceptGraph.Node[] = [];
 
-        //can be pushing multiple children..
         graphLinks.forEach(function(link){
             if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps to"){
                 graphNodes.forEach(function(node){
@@ -170,20 +171,24 @@ export class ConceptLayouts {
         return children;
     }
     
-    calculateDepth(parentNode: ConceptGraph.Node){
+    calculateDepth(parentNode: ConceptGraph.Node, depth){
         var outerThis = this;
 
         var children = outerThis.getChildren(parentNode);
         //console.log(children);
         if(children.length<=0){
-            return;
+            return depth;
         }else{
             children.forEach(function(child){
                 if(child.tempDepth <= parentNode.tempDepth){
                     child.tempDepth = parentNode.tempDepth+1;
+                    
                 }
-                outerThis.calculateDepth(child);
+                if(child.tempDepth>depth) {depth++;}
+                depth = outerThis.calculateDepth(child, depth);
+                
             });
+            return depth;
         }
     }
     
@@ -206,54 +211,93 @@ export class ConceptLayouts {
         return roots;
     }
     
-    buildTree(width, height, ontologies){
+    buildTree(width, height){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var ontologies = outerThis.getAllOntologyAcronyms();
 
-        width = width/ontologies.length;
- 
-        //reset depth for next layout
-        graphNodes.forEach(function (node){ node.tempDepth = 0; });
+        //reset values for next layout
+        graphNodes.forEach(function (node){ 
+            node.tempDepth = 0; 
+            node.depth = 0;
+            node.x = 0;
+            node.y = 0;
+            node.children = null;
+            node.parent = null;
+        });
         
-        for (var i=0; i< ontologies.length; i++){
-           var primary_root = new ConceptGraph.Node();
-           primary_root.name = "ontology_phantom_root"; //temporary identifier for the root
-           
-           //find how many roots here and store them into roots
-           var roots: ConceptGraph.Node[];
-           roots = outerThis.getRoots(ontologies[i]);   
-         
-           var allChildren: ConceptGraph.Node[] = [];
-           
-           //calculate depth for all roots here 
-           roots.forEach(function(root){
-                outerThis.calculateDepth(root);
-                if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
-           });
+        var fullTreeDepth = 0;
         
-           var tree = d3.layout.tree()
-                .size([width, height])
-                .children(function(parent: ConceptGraph.Node){ 
-                    if(parent.name == "ontology_phantom_root"){  
-                        return roots;
-                    }else{
-                        var actualChildren = outerThis.getChildren(parent); 
-                        var treeChildren: ConceptGraph.Node[] = [];
- 
-                        actualChildren.forEach(function(child){
-                            if(child.tempDepth === parent.tempDepth+1 && $.inArray(child, allChildren) === -1){
-                                treeChildren.push(child);
-                                allChildren.push(child);
-                            }
-                        });
-              
-                        return treeChildren;
-                    }
-                });
+        var primaryRoot = new ConceptGraph.Node();
+        primaryRoot.name = "main_phantom_root"; //temporary identifier for the root
+        
+        var ontologyRoots: ConceptGraph.Node[] = [];
+        
+        //create ontology roots
+        ontologies.forEach(function(ontologyName){
+            var ontologyRoot = new ConceptGraph.Node();
+            ontologyRoot.name = ontologyName;
+            ontologyRoots.push(ontologyRoot);
+            var roots: ConceptGraph.Node[];
             
-            tree.nodes(primary_root);  
+            roots = outerThis.getRoots(ontologyName);   
+                    
+            roots.forEach(function(root){
+                var ontologyDepth = outerThis.calculateDepth(root, 0);
+                if (ontologyDepth > fullTreeDepth) { fullTreeDepth = ontologyDepth; }
+            });
+            
+        });
+                
+        var allChildren: ConceptGraph.Node[] = [];
+        
+        //calculate tree height and adjust for phantom nodes
+        var oldHeight = height;
+        height = height*(fullTreeDepth+2)/(fullTreeDepth)
+        
+        var mainTree = d3.layout.tree()
+            .size([width, height])
+            .children(function(parent: ConceptGraph.Node){
+                if(parent.name == "main_phantom_root"){  
+                    return ontologyRoots;
+                }else if($.inArray(parent.name, ontologies) != -1){  
+                    var roots: ConceptGraph.Node[];
+                    roots = outerThis.getRoots(parent.name);   
+                    
+                    roots.forEach(function(root){
+                        if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
+                    });
+
+                    return roots;
+                }else{
+                    var graphChildren = outerThis.getChildren(parent); 
+                    var treeChildren: ConceptGraph.Node[] = [];
+ 
+                    graphChildren = graphChildren.sort(function(a, b){
+                        if(a.rawConceptUri>b.rawConceptUri){
+                            return -1;    
+                        }else if(a.rawConceptUri<b.rawConceptUri){
+                            return 1;
+                        }else{
+                            return 0;    
+                        }});
+                        
+                    graphChildren.forEach(function(child){
+                        if(child.tempDepth === parent.tempDepth+1 && $.inArray(child, allChildren) === -1){
+                            treeChildren.push(child);
+                            allChildren.push(child);
+                        }
+                    });
+                    return treeChildren;
+                }
+           });
            
-        }                 
+           mainTree.nodes(primaryRoot);    
+        
+           // shift the tree by 2 node distances
+           graphNodes.forEach(function(node){
+               node.y = node.y-2/(fullTreeDepth+2)*height;
+           });
     }
     
     runRadialLayoutLambda(){
@@ -266,24 +310,26 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
-            var treeWidth = 360;
-            var treeHeight = outerThis.graphView.visHeight()/2-100; 
             var ontologies = outerThis.getAllOntologyAcronyms();
 
-            outerThis.buildTree(treeWidth, treeHeight, ontologies);
-            for (var j=0; j<ontologies.length; j++){
-                var increment= treeWidth/ontologies.length*j;
-                var ontologyNodes = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
-            
-                $.each(ontologyNodes, function(index, element){
-                        var radius = element.y+20*(ontologies.length-1);//make an offset if more than one ontology
-                        var angle = (element.x+increment)/180 * Math.PI;
-                        ontologyNodes[index].x = outerThis.graphView.visWidth()/2 + radius*Math.cos(angle); 
-                        ontologyNodes[index].y = outerThis.graphView.visHeight()/2 + radius*Math.sin(angle); 
-                    }
-                );
-            }
-            
+            var numOfRoots = 0;
+            ontologies.forEach(function(o){
+                var roots = outerThis.getRoots(o);
+                numOfRoots+=roots.length;   
+            });
+            console.log(numOfRoots);
+            var yShift = numOfRoots*20;
+            var treeWidth = 360;
+            var treeHeight = (outerThis.graphView.visHeight()-yShift-100)/2; 
+ 
+            outerThis.buildTree(treeWidth, treeHeight);
+                        
+            $.each(graphNodes, function(index, element){
+                 var radius = element.y+yShift/2; 
+                 var angle = (element.x)/180 * Math.PI;
+                 graphNodes[index].x = outerThis.graphView.visWidth()/2 + radius*Math.cos(angle); 
+                 graphNodes[index].y = outerThis.graphView.visHeight()/2 + radius*Math.sin(angle); 
+            }); 
             outerThis.transitionNodes(refreshLayout);
         };
     }
@@ -298,22 +344,19 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
-            var treeWidth = outerThis.graphView.visWidth();
-            var treeHeight = outerThis.graphView.visHeight()-300; 
+            var xShift = 100;
+            var yShift = 200;
+            var treeWidth = outerThis.graphView.visWidth()-xShift;
+            var treeHeight = outerThis.graphView.visHeight()-yShift; 
             
-            var ontologies = outerThis.getAllOntologyAcronyms();
-            outerThis.buildTree(treeWidth, treeHeight, ontologies);
+            outerThis.buildTree(treeWidth, treeHeight);
             
-            for (var j=0; j<ontologies.length; j++){
-                var increment= treeWidth/ontologies.length*j;
-                var ontologyNodes = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
-                $.each(ontologyNodes, function(index, element){
-                      ontologyNodes[index].x = element.x+increment; 
-                      ontologyNodes[index].y = element.y+150; 
-
-                    }
-                );
-            }         
+            $.each(graphNodes, function(index, element){
+                    graphNodes[index].x = element.x+xShift/2; 
+                    graphNodes[index].y = element.y+yShift/2; 
+                }
+            );
+                     
             outerThis.transitionNodes(refreshLayout);
         };
     }
@@ -328,23 +371,19 @@ export class ConceptLayouts {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
-            var treeWidth = outerThis.graphView.visHeight()-100;
-            var treeHeight = outerThis.graphView.visWidth()-300;   
+            var xShift = 300;
+            var yShift = 100;
+            var treeWidth = outerThis.graphView.visHeight()-yShift;
+            var treeHeight = outerThis.graphView.visWidth()-xShift;   
                    
-            var ontologies = outerThis.getAllOntologyAcronyms();
+            outerThis.buildTree(treeWidth, treeHeight);  
 
-            outerThis.buildTree(treeWidth, treeHeight, ontologies);  
-
-            for (var j=0; j<ontologies.length; j++){
-                var increment= treeWidth/ontologies.length*j;
-
-                var ontologyNodes = graphNodes.filter(function (d, i){return d.ontologyAcronym==ontologies[j]});
-                $.each(ontologyNodes, function(index, element){
-                      var xValue = element.x;
-                      ontologyNodes[index].x = element.y + 150; 
-                      ontologyNodes[index].y = xValue+increment; 
-                });
-            }     
+            $.each(graphNodes, function(index, element){
+                 var xValue = element.x;
+                 graphNodes[index].x = element.y+xShift/2; 
+                 graphNodes[index].y = xValue+yShift/2; 
+            });
+            
             outerThis.transitionNodes(refreshLayout);
         };
     }

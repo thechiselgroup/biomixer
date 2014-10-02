@@ -14,7 +14,7 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="com.google.gdt.eclipse.suite.appengineClasspathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.google.gwt.dev.DevMode"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-remoteUI &quot;${gwt_remote_ui_server_port}:${unique_id}&quot; -startupUrl index.html -logLevel INFO -war C:\Users\everbeek\workspace_biomixer\biomixer\biomixer\war -server com.google.appengine.tools.development.gwt.AppEngineLauncher -codeServerPort 9997 -port 8888 org.thechiselgroup.biomixer.BioMixerWorkbench"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-remoteUI &quot;${gwt_remote_ui_server_port}:${unique_id}&quot; -startupUrl index.html -logLevel INFO -war C:\Users\elenavoyl\git\biomixer\biomixer\war -server com.google.appengine.tools.development.gwt.AppEngineLauncher -codeServerPort 9997 -port 8888 org.thechiselgroup.biomixer.BioMixerWorkbench"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="biomixer"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m -ea"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-javaagent:C:\Users\elenavoyl\eclipse\plugins\com.google.appengine.eclipse.sdkbundle_1.8.8\appengine-java-sdk-1.8.8\lib\agent\appengine-agent.jar -Xmx512m -ea"/>
 </launchConfiguration>
