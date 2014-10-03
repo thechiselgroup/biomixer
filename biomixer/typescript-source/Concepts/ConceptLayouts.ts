@@ -317,7 +317,14 @@ export class ConceptLayouts {
                 numOfRoots+=roots.length;   
             });
             console.log(numOfRoots);
+            
+            var minShift = 100;
+            var maxShift = outerThis.graphView.visHeight()/2-100;  
             var yShift = numOfRoots*20;
+            
+            if( yShift < minShift ){ yShift = minShift; }
+            if( yShift > maxShift ){ yShift = maxShift; }
+
             var treeWidth = 360;
             var treeHeight = (outerThis.graphView.visHeight()-yShift-100)/2; 
  
