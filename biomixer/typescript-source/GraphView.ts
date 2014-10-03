@@ -108,7 +108,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     constructor(
         ){
-        this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false);
+        this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false, true);
     }
     
     //var defaultNodeColor = "#496BB0";

@@ -4,8 +4,12 @@
 ///<reference path="headers/jquery.d.ts" />
 
 ///<amd-dependency path="UndoRedo/BreadcrumbTrail" />
+///<amd-dependency path="UndoRedo/BackForwardBreadcrumbButtons" />
+
 
 import BreadcrumbTrail = require("./BreadcrumbTrail");
+import BackForwardBreadcrumbButtons = require("./BackForwardBreadcrumbButtons");
+
 
 /**
  * An undo model with a breadcrumb view composited into it.
@@ -17,8 +21,15 @@ export class UndoRedoManager {
     private currentTrailIndex: number = -1;
     
     constructor(
-        initGui: boolean
+        initGui: boolean,
+        useBackForwardButtons: boolean
         ){
+        if(useBackForwardButtons){
+            this.crumblez = new BackForwardBreadcrumbButtons.BackForwardBreadcrumbButtons();
+        } else {
+            this.crumblez = new BreadcrumbTrail.BreadcrumbTrail();
+        }
+        this.crumblez.undoRedoModel = this;
         
         if(initGui){
             this.initGui();
@@ -26,8 +37,6 @@ export class UndoRedoManager {
     }
     
     initGui(){
-        this.crumblez = new BreadcrumbTrail.BreadcrumbTrail();
-        this.crumblez.undoRedoModel = this;
         this.crumblez.initGui();
     }
     

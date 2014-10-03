@@ -253,6 +253,21 @@ div#undo_redo_breadcrumb_label {
 	
 }
 
+.undo_redo_button {
+	float: left;
+	padding: 2px;
+}
+
+.und_redo_spacer {
+	float: left;
+	pad-right: 5em;
+}
+
+.undo_redo_list_button {
+	float: left;
+	padding: 2px;
+}
+
 .crumb_for_, div#undo_redo_breadcrumb_label {
 	float: left;
 	margin-right: 1em;
@@ -286,6 +301,30 @@ div#undo_redo_breadcrumb_label {
 	border-color: rgb(0,20,55);
 	border-style: solid;
 	border-width: 1px;
+}
+
+.vertical_stack_bread_crumb_div {
+	margin: left;
+	display: block;
+	position: relative;
+	float: left;
+	clear: left;
+	width: auto;
+	border-style: none;
+}
+
+.vertical_stack_bread_crumb_container {
+	display: none;
+	position: absolute;
+	border-color: rgb(180,180,180);
+	border-style: solid;
+	border-width: 1px;
+	background-color: rgb(200,220,255);
+}
+
+.undo_redo_button_disabled {
+	color: rgb(180,180,180);
+	border-color: rgb(180,180,180);
 }
 
 
