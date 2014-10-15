@@ -328,6 +328,25 @@ div#undo_redo_breadcrumb_label {
 }
 
 
+.action-undo-icon{
+	background:url(..//icons/open-iconic/svg/action-undo.svg); 
+	background-size: 14px; background-repeat:no-repeat; width: 14px; 
+	height: 14px; margin: 0px 1px 0px 0px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+.action-redo-icon{
+	background:url(..//icons/open-iconic/svg/action-redo.svg); 
+	background-size: 14px; background-repeat:no-repeat; width: 14px; 
+	height: 14px; margin: 0px 0px 0px 1px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+.caret-bottom-icon{
+	background:url(..//icons/open-iconic/svg/caret-bottom.svg); 
+	background-size: 8px; background-repeat:no-repeat; width: 8px; 
+	height: 8px; margin: 4px 0px 0px 0px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+
 
 
 

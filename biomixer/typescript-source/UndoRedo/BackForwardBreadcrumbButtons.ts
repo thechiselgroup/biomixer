@@ -13,10 +13,14 @@ import UndoRedoManager = require("./UndoRedoManager");
  * This class wraps the spatially wide breadcrumb trail into a forward and back button pair, with drop down menus.
  */
 export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrail {
-    static undoButtonText = "Undo";
-    static redoButtonText = "Redo";
-    static undoListButtonText = "vvv";
-    static redoListButtonText = "vvv";
+    static undoButtonText = "Undo Node Expansion";
+    static redoButtonText = "Redo Node Expansion";
+    static undoListButtonText = "Click to see list of undo options";
+    static redoListButtonText = "Click to see list of redo options";
+    
+    static undoButtonIconClass = "action-undo-icon";
+    static redoButtonIconClass = "action-redo-icon";
+    static undoListButtonIconClass = "caret-bottom-icon";
     
     static undoRedoButtonClass = "undo_redo_button";
     static undoRedoListButtonClass = "undo_redo_list_button";
@@ -43,21 +47,25 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
         // undo or redo the command.
         
         var undoButton = $("<div>").attr("id", BackForwardBreadcrumbButtons.undoButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoButtonClass)
-            .append(
-                $("<p>").text(BackForwardBreadcrumbButtons.undoButtonText).addClass("crumb_text")
-            );
+                .addClass(BackForwardBreadcrumbButtons.undoButtonIconClass)
+                .attr("title", BackForwardBreadcrumbButtons.undoButtonText)
+            ;
         var redoButton = $("<div>").attr("id", BackForwardBreadcrumbButtons.redoButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoButtonClass)
-            .append(
-                $("<p>").text(BackForwardBreadcrumbButtons.redoButtonText).addClass("crumb_text")
-            );
+                .addClass(BackForwardBreadcrumbButtons.redoButtonIconClass)
+                .attr("title", BackForwardBreadcrumbButtons.redoButtonText)
+            ;
         
-        var undoDropDownButton = $("<p>").text(BackForwardBreadcrumbButtons.undoListButtonText).addClass("crumb_text");
+        var undoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass)
+            .attr("title", BackForwardBreadcrumbButtons.undoListButtonText)
+            .addClass("crumb_text");
         var undoList = $("<div>").attr("id", BackForwardBreadcrumbButtons.undoListButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoListButtonClass)
             .append(undoDropDownButton)
             .append(
                 $("<div>").attr("id", BackForwardBreadcrumbButtons.undoListCrumbContainerId).addClass(BackForwardBreadcrumbButtons.undoredoVerticalListContainer)
             );
-        var redoDropDownButton = $("<p>").text(BackForwardBreadcrumbButtons.redoListButtonText).addClass("crumb_text");
+        var redoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass)
+            .attr("title", BackForwardBreadcrumbButtons.redoListButtonText)
+            .addClass("crumb_text");
         var redoList = $("<div>").attr("id", BackForwardBreadcrumbButtons.redoListButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoListButtonClass)
             .append(redoDropDownButton)
             .append(
