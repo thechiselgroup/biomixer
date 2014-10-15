@@ -286,7 +286,7 @@ div#undo_redo_breadcrumb_label {
 	font-weight: bold;
 	border-width: 2px;
 }
-.undone_crumb{
+.faded_crumb{
 	color: rgb(180,180,180);
 	border-color: rgb(180,180,180);
 }
@@ -320,11 +320,17 @@ div#undo_redo_breadcrumb_label {
 	border-style: solid;
 	border-width: 1px;
 	background-color: rgb(200,220,255);
+	overflow-y: scroll;
+	background-color: white;
+	max-height: 120px;
 }
 
 .undo_redo_button_disabled {
 	color: rgb(180,180,180);
 	border-color: rgb(180,180,180);
+	/* SVG icon requires fill arg */
+	fill: rgb(180,180,180); 
+	fill-opacity : 0.5;
 }
 
 

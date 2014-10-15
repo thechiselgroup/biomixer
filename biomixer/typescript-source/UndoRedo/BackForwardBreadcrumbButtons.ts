@@ -70,7 +70,7 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
             .append(redoDropDownButton)
             .append(
                 $("<div>").attr("id", BackForwardBreadcrumbButtons.redoListCrumbContainerId).addClass(BackForwardBreadcrumbButtons.undoredoVerticalListContainer)
-            );;
+            );
         
         undoButton.click(()=>{this.undoRedoModel.undoOneStep();});
         redoButton.click(()=>{this.undoRedoModel.redoOneStep();});
@@ -179,6 +179,7 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
             } else {
                 crumb.detach();
                 redoContainer.prepend(crumb);
+                crumb.removeClass(BreadcrumbTrail.BreadcrumbTrail.fadedCrumbClassName);
                 redoEmpty = false;
             }
         }

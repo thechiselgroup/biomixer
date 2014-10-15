@@ -17,7 +17,7 @@ export class BreadcrumbTrail {
     
     static activeCrumbClassName = "active_crumb";
     
-    static undoneCrumbClassName = "undone_crumb";
+    static fadedCrumbClassName = "faded_crumb";
     
     static undoMenuText = "Undo/Redo >> ";
     static undoButtonSuffix = " >";
@@ -153,9 +153,9 @@ export class BreadcrumbTrail {
         for(var i = this.trailOfCrumbs.length - 1; i >= 0; i--){
             var crumb = this.selectCrumbElement(this.trailMap[this.trailOfCrumbs[i]].command);
             if(i <= activeCommandIndex){
-                crumb.removeClass(BreadcrumbTrail.undoneCrumbClassName);
+                crumb.removeClass(BreadcrumbTrail.fadedCrumbClassName);
             } else {
-                crumb.addClass(BreadcrumbTrail.undoneCrumbClassName);
+                crumb.addClass(BreadcrumbTrail.fadedCrumbClassName);
             }
         }
     }
