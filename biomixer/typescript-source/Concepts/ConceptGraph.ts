@@ -6,6 +6,7 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="Concepts/ExpansionManager" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
+///<amd-dependency path="TipsyToolTipsOnClick" />
 ///<amd-dependency path="CompositeExpansionDeletionSet" />
 
 import Utils = require("../Utils");
@@ -14,6 +15,7 @@ import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import ExpansionManager = require("./ExpansionManager");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
+import TipsyToolTipsOnClick = require("../TipsyToolTipsOnClick");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 
 declare var purl;
@@ -272,6 +274,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
     removeNodes(nodesToRemove: Array<Node>){
+        TipsyToolTipsOnClick.closeOtherTipsyTooltips();
+        
         this.graphD3Format.nodes = this.graphD3Format.nodes.filter(
             function(node: Node, index: number, nodes: Node[]): boolean {
                 // Keep only those that do not appear in the removal array
@@ -311,6 +315,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     /**
      * See removeManifestEdges for model book keeping that must be done
      * prior to removing edges from the view.
+     * Gets called when removing temporary mapping edges (those edges that only render on node hover).
      */
     private removeEdges(edgesToRemove: Array<Link>){
         this.graphD3Format.links = this.graphD3Format.links.filter(
