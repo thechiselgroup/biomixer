@@ -223,6 +223,12 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
     getDisplayName(): string{
         return this.displayName;
     }
+            
+    setDisplayName(newName: string): void{
+        // Danger! Caller is wholly responsible for content of this display name.
+        // It shouldn't change twice, and the caller shouldn't be trying to change it twice.
+        this.displayName = newName;
+    }
     
     executeRedo(): void{
         if(!this.redidLast){

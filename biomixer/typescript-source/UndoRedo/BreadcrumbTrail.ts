@@ -43,7 +43,7 @@ export class BreadcrumbTrail {
     updateElementText(existingCommand: UndoRedoManager.ICommand){
         $("div#"+this.generateCrumbElementId(existingCommand))
             .children(".crumb_text")
-            .text(existingCommand.getDisplayName()+BreadcrumbTrail.undoButtonSuffix);
+            .text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
     }
     
     /**

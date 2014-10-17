@@ -109,13 +109,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     public recomputeVisualizationOntoNode(nodeData: ConceptGraph.Node){
 
-        var message = "Are you sure you want to recreate the graph focussed on '"+nodeData.name+"' ("+nodeData.ontologyAcronym+")?";
+        // var message = "Are you sure you want to recreate the graph focussed on '"+nodeData.name+"' ("+nodeData.ontologyAcronym+")?";
         
-        if(confirm(message)){
-            this.centralConceptUri = nodeData.rawConceptUri;
-            this.centralOntologyAcronym = nodeData.ontologyAcronym;
-            this.fetchInitialExpansion();
-        }
+        // if(confirm(message)){
+        this.centralConceptUri = nodeData.rawConceptUri;
+        this.centralOntologyAcronym = nodeData.ontologyAcronym;
+        this.fetchInitialExpansion();
+        // }
     }
     
     cleanSlate(){
@@ -220,12 +220,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 		// to see where this occurs.
         if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
             this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
-            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
+            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet, initSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
-            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
+            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet, initSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant){
             this.setCurrentLayout(this.layouts.runCenterLayoutLambda());
-            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet);
+            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet, initSet);
             this.runCurrentLayout();
         }
     }

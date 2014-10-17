@@ -6,6 +6,7 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="Concepts/ExpansionManager" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
+///<amd-dependency path="CompositeExpansionDeletionSet" />
 
 import Utils = require("../Utils");
 import Fetcher = require("../FetchFromApi");
@@ -13,6 +14,7 @@ import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import ExpansionManager = require("./ExpansionManager");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
+import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 
 declare var purl;
 
@@ -672,7 +674,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return adjacentEdges;
     }
 
-    public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){
+    public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>,
+        initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>){
         // I have confirmed that this is faster than BioMixer. Without removing
         // network latency in REST calls, it is approximately half as long from page load to
         // graph completion (on the order of 11 sec vs 22 sec)
@@ -700,7 +703,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // so we can associate the root node object with the expansion set as soon as possible.
         // Currently, it relies on the order of the results from the call, in order to get the
         // target node first.
-        var pathsToRootCallback = new PathsToRootCallback(this, pathsToRootUrl, centralOntologyAcronym, centralConceptUri, expansionSet);
+        var pathsToRootCallback = new PathsToRootCallback(this, pathsToRootUrl, centralOntologyAcronym, centralConceptUri, expansionSet, initSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(pathsToRootUrl);
         fetcher.fetch(pathsToRootCallback);
     }
@@ -720,16 +723,18 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         fetcher.fetch(centralCallback);
     }
     
-    public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){
+    public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>,
+        initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>){
         // 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion
         // Parsers that follow will expand neighbourhing concepts.
         var centralConceptUrl = this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
-        var centralCallback = new FetchTargetConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptionConstants.termNeighborhoodConstant, expansionSet);
+        var centralCallback = new FetchTargetConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptionConstants.termNeighborhoodConstant, expansionSet, initSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
         fetcher.fetch(centralCallback);
     }
     
-    public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>){
+    public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>,
+        initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>){
         // Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
         // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F410607006/mappings/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P109.onSuccess
         
@@ -741,7 +746,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // here, but then we have duplicate code. If we decide it reads poorly to have it so detached
         // in the process, we can copy it here.
         var centralConceptUrl = this.buildConceptUrlNewApi(centralOntologyAcronym, centralConceptUri);
-        var centralCallback = new FetchTargetConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptionConstants.mappingsNeighborhoodConstant, expansionSet);
+        var centralCallback = new FetchTargetConceptCallback(this, centralConceptUrl, centralConceptUri, PathOptionConstants.mappingsNeighborhoodConstant, expansionSet, initSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
         fetcher.fetch(centralCallback);
     }
@@ -921,7 +926,8 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
         url: string,
         public centralOntologyAcronym: RawAcronym,
         public centralConceptUri: ConceptURI,
-        public expansionSet: ExpansionSets.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>,
+        public initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>
         ){
             super(url, String(centralOntologyAcronym)+":"+String(centralConceptUri));
         }
@@ -941,6 +947,9 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
                     var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
                     if(conceptNode.rawConceptUri === this.centralConceptUri){
                         this.expansionSet.parentNode = conceptNode;
+                        if(this.initSet !== null){
+                            this.initSet.updateExpansionNodeDisplayName(conceptNode.name+" ("+conceptNode.ontologyAcronym+")");
+                        }
                     }
                     newNodesForExpansionGraph[conceptNode.getEntityId()] = conceptNode;
                     collapsedPathsToRootData[conceptNode.getEntityId()] = nodeData;
@@ -984,7 +993,8 @@ class FetchTargetConceptCallback extends Fetcher.CallbackObject {
         url: string,
         public conceptUri: ConceptURI,
         public directCallForExpansionType: PathOption,
-        public expansionSet: ExpansionSets.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>,
+        public initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>
         ){
             super(url, String(conceptUri)); //+":"+directCallForExpansionType);
         }
@@ -996,6 +1006,10 @@ class FetchTargetConceptCallback extends Fetcher.CallbackObject {
         
         // This is the vital difference from the FetchOneConceptCallback
         this.expansionSet.parentNode = conceptNode;
+        
+        if(this.initSet !== null){
+            this.initSet.updateExpansionNodeDisplayName(conceptNode.name+" ("+conceptNode.ontologyAcronym+")");
+        }
 
         // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
         this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, this.expansionSet, this.directCallForExpansionType);
