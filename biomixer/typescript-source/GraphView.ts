@@ -131,6 +131,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     static hiddenNodeClass: string = "hiddenNode";
     static hiddenNodeLabelClass: string = "hiddenNodeLabel";
+    static hiddenLinkBecauseOfHiddenNodeLabelClass = "hiddenBecauseOfNodeLink"
     
     static nodeSvgClass = "."+BaseGraphView.nodeSvgClassSansDot;
     static nodeInnerSvgClass = "."+BaseGraphView.nodeInnerSvgClassSansDot;
@@ -451,7 +452,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         // Hide edges too
         var adjacentLinks = this.getAdjacentLinks(nodeData);
         adjacentLinks
-            .classed("hiddenBecauseOfNodeLink",
+            .classed(BaseGraphView.hiddenLinkBecauseOfHiddenNodeLabelClass,
                 function(linkData: L, i){
                     // Look at both endpoints of link, see if both are hidden
                     var source: D3.Selection = d3.selectAll(BaseGraphView.nodeGSvgClass)
