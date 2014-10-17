@@ -13,28 +13,38 @@ export class Menu {
     
     initializeMenu(menuName: string = Menu.defaultMenuName){
         // Append the pop-out panel. It will stay hidden except when moused over.
-        var trigger = $("<div>").attr("id", "trigger");
+        var trigger = $("<div>").attr("id", "menuTriggerContainer");
 //        $("#chart").append(trigger);
          $(this.menuBarSelector).append(trigger);
-        trigger.append($("<p>").text(Menu.menuArrowPrefix+menuName)); // "<< Menu" by default
+        trigger.append($("<p>").attr("id", "trigger")
+        .addClass("unselectable")
+            .text(Menu.menuArrowPrefix+menuName)); // "<< Menu" by default
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
         
-        $('#trigger').hover(
-                (e) => {
-                    $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
-                     // Looks bad when it's not fully visible, due to children inheriting transparency
-                    $(this.menuSelector).fadeTo(0, 1.0);
-                },
-                function() {
-                //  $(menuSelector).hide();
-                }
+        // Opted for click control only
+        //$('#trigger').hover(
+        //        (e) => {
+        //            $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
+        //             // Looks bad when it's not fully visible, due to children inheriting transparency
+        //            $(this.menuSelector).fadeTo(0, 1.0);
+        //        },
+        //        function() {
+        //        //  $(menuSelector).hide();
+        //        }
+        //);
+        
+        $('#trigger').click(
+            (event)=>{
+            	event.stopPropagation();
+                $(this.menuSelector).slideToggle();
+            }
         );
         
     }
     
     closeMenuLambda(){
         return ()=>{
-            $(this.menuSelector).hide()
+            $(this.menuSelector).slideUp();
         };
     }
     
