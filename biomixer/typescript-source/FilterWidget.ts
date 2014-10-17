@@ -53,18 +53,24 @@ export class AbstractFilterWidget {
         }
         
         // This only indicates collapsability and status
-        var labelExpanderIcon = $("<label>").addClass(Menu.Menu.menuItemExpanderLabelClass).text("+");
+        var labelExpanderIcon = $("<label>").addClass(Menu.Menu.menuItemExpanderLabelClass)
+            .addClass("unselectable").attr("unselectable", "on") // IE8
+            .text("+");
         
-        // The label labels the section,a dn acts as a huge collapse button
-        var label = $("<label>").addClass(Menu.Menu.menuLabelClass).text(this.subMenuTitle);
-        label.click(
-            ()=>{
-                $(this.filterContainer).slideToggle('slow',
-                    ()=>{labelExpanderIcon.text( $(this.filterContainer).css("display") === "none" ? "+" : "-"); }
-                );
-                
-            }
-        );
+        // The label labels the section, and acts as a huge collapse button
+        var label = $("<label>").addClass(Menu.Menu.menuLabelClass)
+            .addClass("unselectable").attr("unselectable", "on") // IE8
+            .text(this.subMenuTitle);
+        
+        var expanderClickFunction = ()=>{
+            $(this.filterContainer).slideToggle('slow',
+                ()=>{labelExpanderIcon.text( $(this.filterContainer).css("display") === "none" ? "+" : "-"); }
+            );
+            
+        }; 
+        
+        labelExpanderIcon.click(expanderClickFunction);
+        label.click(expanderClickFunction);
         
         outerContainer.append(labelExpanderIcon);
         outerContainer.append(label);
