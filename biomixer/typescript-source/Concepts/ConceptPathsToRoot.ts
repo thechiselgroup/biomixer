@@ -11,6 +11,7 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="TipsyToolTips" />
+///<amd-dependency path="TipsyToolTipsOnClick" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="CompositeExpansionDeletionSet" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
@@ -31,6 +32,7 @@ import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import TipsyToolTips = require("../TipsyToolTips");
+import TipsyToolTipsOnClick = require("../TipsyToolTipsOnClick");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 import ConceptGraph = require("./ConceptGraph");
@@ -129,12 +131,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         $("#chart").empty();
         d3.select("#chart").remove;
         
+        var outerThis = this;
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
             .attr("width", this.visWidth())
             .attr("height", this.visHeight())
             .attr("pointer-events", "all")
-            .on("click", this.menu.closeMenuLambda());
+            .on("click",
+             function(){
+                            outerThis.menu.closeMenuLambda()()
+                            TipsyToolTipsOnClick.closeOtherTipsyTooltips();
+                        }
+                )
+            ;
         //  .call(d3.behavior.zoom().on("zoom", redraw))
           
         this.defineCustomSVG();
@@ -362,11 +371,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             
     }
     
+    
+    alreadyHidTipsy = false;
     dragstartLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
             outerThis.dragging = true;
-            // $(this).tipsy('hide');
-            $(".tipsy").hide();
+            outerThis.alreadyHidTipsy = false;
+
             // stops the force auto positioning before you start dragging
             // This will halt the layout entirely, so if it tends to be unfinished for
             // long enough for a user to want to drag a node, we need to make this more complicated...
@@ -376,6 +387,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     dragmoveLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
+            if(!outerThis.alreadyHidTipsy && (d3.event.dx != 0 || d3.event.dy != 0)){
+                TipsyToolTipsOnClick.closeOtherTipsyTooltips();
+                outerThis.alreadyHidTipsy = true;
+            }
             // http://bl.ocks.org/norrs/2883411
             // https://github.com/mbostock/d3/blob/master/src/layout/force.js
             // Original dragmove() had call to force.resume(), which I needed to remove when the graph was stable.
@@ -435,9 +450,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
+            console.log("enddrag");
             outerThis.dragging = false;
             // $(this).tipsy('show');
-            $(".tipsy").show();
+            // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
+            // $(".tipsy").show();
             // no need to make the node fixed because we stop the layout when drag event begins
             // if it is set to fixed, the node interferes with other layouts
             //d.fixed = true;
@@ -783,7 +800,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        enteringNodes.each(TipsyToolTips.nodeTooltipLambda(this));
+        enteringNodes.each(TipsyToolTipsOnClick.nodeTooltipOnClickLambda(this));
             
         // Dumb Tool tip...not needed with tipsy popups.
         // nodesEnter.append("title")
