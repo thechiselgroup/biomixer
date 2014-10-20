@@ -139,7 +139,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .attr("pointer-events", "all")
             .on("click",
              function(){
-                            outerThis.menu.closeMenuLambda()()
+                            // outerThis.menu.closeMenuLambda()()
                             TipsyToolTipsOnClick.closeOtherTipsyTooltips();
                         }
                 )
@@ -1091,7 +1091,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     prepGraphMenu(){
         // Layout selector for concept graphs.
-        this.menu.initializeMenu("Layouts & Filters");
+        this.menu.initializeMenu("Layout & Filter Menu");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
