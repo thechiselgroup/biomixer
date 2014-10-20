@@ -123,6 +123,6 @@ export function nodeTooltipOnClickLambda(outerThis: GraphView.GraphView<any, any
         
         // Finally, bind the mouse handlers defined above.
         $(this).mousedown(mouseDownRecPosition);
-        $(this).click(clickedNode);
+        $(this).children("."+GraphView.BaseGraphView.nodeSvgClassSansDot).first().click(clickedNode);
     }
 }
