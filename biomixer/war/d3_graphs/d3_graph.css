@@ -82,6 +82,15 @@ polyline.compositionLink{
 	stroke-dasharray: 4,4;
 }
 
+.propertyRelationLink {
+	stroke: #AF2200;
+	fill: #AF2200;
+	color: #AF2200;
+}
+polyline.propertyRelationLink{
+	stroke-dasharray: 1,1;
+}
+
 .mappingLink {
 	stroke: #D4D4D4;
 	fill: #D4D4D4;

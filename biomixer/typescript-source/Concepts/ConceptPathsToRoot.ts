@@ -231,8 +231,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     }
     
     // TODO I don't believe this is rendering...
-    conceptLinkSimplePopupFunction(d){
-        return "From: "+d.source.name+" ("+d.source.ontologyAcronym+")"+" To: "+d.target.name+" ("+d.target.ontologyAcronym+")";
+    conceptLinkSimplePopupFunction(d: ConceptGraph.Link){
+        return "From: "+d.source.name+" ("+d.source.ontologyAcronym+")"+" To: "+d.target.name+" ("+d.target.ontologyAcronym+")"+" ["+d.relationType+"]";
     }
     
     // TODO Fix...but also it doesn't render...
@@ -450,7 +450,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
-            console.log("enddrag");
             outerThis.dragging = false;
             // $(this).tipsy('show');
             // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
@@ -677,12 +676,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(-1 !== relationType.indexOf("is_a")){
             return "inheritanceLink"
         } else if(-1 !== relationType.indexOf("part_of") || -1 !== relationType.indexOf("has_part")){
+        	// This is a special case hard coding. These relations have some special status, but hardly
+        	// show up in all ontologies. They made their way here because they were present in the earliest
+        	// versions of Biomixer.
             return "compositionLink";
         } else if(-1 !== $.inArray(relationType, ["ncbo-mapping", "maps to"])){
             return "mappingLink";
         } else {
-            console.log("Unidentified arc type: "+relationType);
-            return "";
+			// Relation type as defined by the ontology, and showing up in the concept properties.
+			// See the PropertyRelationsExpander for more details.
+            return "propertyRelationLink";
         }
     }
     

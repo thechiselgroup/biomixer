@@ -8,6 +8,7 @@
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="TipsyToolTipsOnClick" />
 ///<amd-dependency path="CompositeExpansionDeletionSet" />
+///<amd-dependency path="Concepts/PropertyRelationsExpander" />
 
 import Utils = require("../Utils");
 import Fetcher = require("../FetchFromApi");
@@ -17,6 +18,7 @@ import ExpansionManager = require("./ExpansionManager");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import TipsyToolTipsOnClick = require("../TipsyToolTipsOnClick");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
+import PropertyRelationsExpander = require("./PropertyRelationsExpander");
 
 declare var purl;
 
@@ -790,10 +792,14 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
      fetchCompositionRelations(conceptNode: Node, directCallForExpansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
+        // NB Within the parsing call, we will get the ontology's property based relations (composition plus others) if it isn't fetched.
+        // That's only a single call per ontology, but it does delay the properties call until that other call is made first.
+        // Since all we use the properties for at the moment is composite and these other relations, that's an ok delay.
         var relationsUrl = this.buildConceptCompositionsRelationUrl(conceptNode);
         var conceptRelationsCallback = new ConceptCompositionRelationsCallback(this, relationsUrl, conceptNode, this.conceptIdNodeMap, directCallForExpansionType, expansionSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(relationsUrl);
         fetcher.fetch(conceptRelationsCallback);
+        
     }
     
     // http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F82968002/paths_to_root/?format=jsonp&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1&callback=__gwt_jsonp__.P0.onSuccess
@@ -1085,6 +1091,32 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
+        // Before we parse this data, we have to make sure we have fetched the correpsonding
+        // ontology's property relations data. This tells us what properties exist that 
+        // represent relations that we can add as arcs.
+        // If we don't have that data yet, tell the registry, and provide a callback to come right back
+        // here. The registry will get the required info, then call back to here.
+        if(!PropertyRelationsExpander.OntologyPropertyRelationsRegistry.contains(this.conceptNode.ontologyAcronym)){
+            PropertyRelationsExpander.OntologyPropertyRelationsRegistry.fetchOntologyPropertyRelations(
+                this.conceptNode,
+                ()=>{
+                    // We wrap the callbkac we are currently in, so that we can re-enter it later
+                    // when we have the necessary ontology data.
+                    this.callback(relationsDataRaw, textStatus, jqXHR);
+                }
+            );
+            return;
+        }
+        
+        // NB The part_of and has_part relations below are based on SNOMEDCT (and possibly other)
+        // property relations that were in the very oldest versions of Biomixer. With the API call
+        // for relational properties now available, these non-inheritance relations will become
+        // more common and diverse, in ontologies that publish the properties.
+        // Note that at the time of writing, SNOMEDCT does not provide any relation properties,
+        // but when we get the properties for concepts, we find has_part and part_of (as well as
+        // other apparent relations, such as has_laterality). I am keeping the two hard coded ones here,
+        // and using published property relations for additional arc types.
+        
         // Loop over results, properties, then mappings, parents, children.
         $.each(relationsDataRaw.properties,
             (index, propertyObject)=>{
@@ -1114,10 +1146,19 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                     });
                 }
                 
-                if(Utils.endsWith(index, "is_part")){
+                if(Utils.endsWith(index, "part_of")){
                     $.each(propertyObject, (index, parentPartId: ConceptURI)=>{
                         this.graph.manifestOrRegisterImplicitRelation(parentPartId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.composition);
                         this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym,parentPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
+                    });
+                }
+                
+                // Check for ontology declared property relations.
+                var matchedRelationProp = PropertyRelationsExpander.OntologyPropertyRelationsRegistry.matchesAvailableRelations(this.conceptNode.ontologyAcronym, index);
+                if(matchedRelationProp !== undefined){
+                    $.each(propertyObject, (index, relatedPartId: ConceptURI)=>{
+                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, relatedPartId, matchedRelationProp.label);
+                        this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, relatedPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
                     });
                 }
                 
