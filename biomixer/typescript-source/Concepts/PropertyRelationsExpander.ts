@@ -11,6 +11,8 @@ import ConceptGraph = require("./ConceptGraph");
 // Responsible for storing and fetching relational properties of each ontology,
 // for production of non-inheritance arcs. Each ontology can have its own defined
 // relations, which show up on concept properties.
+// Access must be unified, and due to asynchronous calls, access must queue up callers
+// for when the data is available.
 export class OntologyPropertyRelationsRegistry {
     
     // With the asynchronous callbacks, there is opportunity for multiple attempts to fetch
@@ -33,7 +35,8 @@ export class OntologyPropertyRelationsRegistry {
     
     public static matchesAvailableRelations(ontologyAcronym: ConceptGraph.RawAcronym, propertyId: string): OntologyRelation {
         var relationSet = OntologyPropertyRelationsRegistry.ontologyQueries[String(ontologyAcronym)];
-        return relationSet.relations[propertyId];
+        var escapedPropertyId =  Utils.escapeIdentifierForId(propertyId);
+        return relationSet.relations[escapedPropertyId];
     }
 
             
@@ -82,21 +85,23 @@ export class OntologyPropertyRelationsRegistry {
 
 export class OntologyRelation {
     public id: string;
+    public idEscaped: string;
     public label: string;
     public definition: string[];
-    public parents: string[]; 
+    public parents: string[];
+    public ontologyAcronym: ConceptGraph.RawAcronym;
 }
 
 export class OntologyRelationSet {
     public ontologyAcronym: ConceptGraph.RawAcronym;
-    public relations: { [relationId: string]: OntologyRelation } = {};
+    public relations: { [relationIdEscaped: string]: OntologyRelation } = {};
     
     constructor(ontologyAcronym: ConceptGraph.RawAcronym){
         this.ontologyAcronym = ontologyAcronym;
     }
     
     addRelation(relation: OntologyRelation){
-        this.relations[relation.id] = relation;
+        this.relations[relation.idEscaped] = relation;
     }
 }
 
@@ -121,12 +126,16 @@ class OntologyPropertyRelationsCallback extends Fetcher.CallbackObject {
             var relationsEntry = relationsDataRaw[i];
             var relation = new OntologyRelation();
             if(relationsEntry.label.length > 1){
-                console.log("Found multiple labels:");
-                console.log(relationsEntry);
+                // Multiple labels have a tendency to be nearly identical to each other,
+                // based on my investigations.  
+                //console.log("Found multiple labels:");
+                //console.log(relationsEntry);
             }
             relation.id = relationsEntry.id;
+            relation.idEscaped = Utils.escapeIdentifierForId(relation.id);
             relation.label = relationsEntry.label[0];
             relation.definition = relationsEntry.definition;
+            relation.ontologyAcronym = this.ontologyAcronym;
             // relation.parents = relationsEntry["parents"];
             relationSet.addRelation(relation);
         }

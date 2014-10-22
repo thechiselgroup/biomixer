@@ -232,7 +232,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     // TODO I don't believe this is rendering...
     conceptLinkSimplePopupFunction(d: ConceptGraph.Link){
-        return "From: "+d.source.name+" ("+d.source.ontologyAcronym+")"+" To: "+d.target.name+" ("+d.target.ontologyAcronym+")"+" ["+d.relationType+"]";
+        return "From: "+d.source.name+" ("+d.source.ontologyAcronym+")"+" To: "+d.target.name+" ("+d.target.ontologyAcronym+")"+" ["+d.relationLabel+"]";
     }
     
     // TODO Fix...but also it doesn't render...
@@ -637,6 +637,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(!enteringLinks.empty()){
             this.updateStartWithoutResume();
             enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
+            this.edgeTypeFilter.updateFilterUI();
         }
         
         this.triggerVerticalTree();
@@ -680,7 +681,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         	// show up in all ontologies. They made their way here because they were present in the earliest
         	// versions of Biomixer.
             return "compositionLink";
-        } else if(-1 !== $.inArray(relationType, ["ncbo-mapping", "maps to"])){
+        } else if(-1 !== $.inArray(relationType, ["ncbo-mapping", "maps_to"])){
             return "mappingLink";
         } else {
 			// Relation type as defined by the ontology, and showing up in the concept properties.

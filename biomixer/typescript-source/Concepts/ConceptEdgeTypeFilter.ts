@@ -5,12 +5,16 @@
 
 ///<amd-dependency path="../Utils" />
 ///<amd-dependency path="../FilterWidget" />
+///<amd-dependency path="../GraphView" />
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
+///<amd-dependency path="Concepts/PropertyRelationsExpander" />
 
 import FilterWidget = require("../FilterWidget");
+import GraphView = require("../GraphView");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
+import PropRel = require("./PropertyRelationsExpander");
 
 /**
  * Vaguely resembles the sibling node filtering classes, with similarly named method names, but the
@@ -35,8 +39,18 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         var checkboxesPopulatedOrReUsed = $("");
         var outerThis = this;
         
-        var linkTypes = this.conceptGraph.relationLabelConstants;
+        // We can grab all the arcs, then check them for the relation id, and populate that way rather than using the explicit hard coded
+        // types. This is the way it works for ontologies.
+        var linkTypes: {[type: string]: string} = {};
+        var linkTypeToOntology: {[type: string]: ConceptGraph.RawAcronym} = {};
+        d3.selectAll("."+GraphView.BaseGraphView.linkSvgClassSansDot).each(
+            (d: ConceptGraph.Link)=>{
+                linkTypes[d.relationType] = d.relationLabel;
+                linkTypeToOntology[d.relationType] = d.relationSpecificToOntologyAcronym;
+            }
+        );
 
+        
         // Add new ones
         $.each(linkTypes, (linkTypeName: string, linkTypeLabel: string) =>
             {
@@ -47,7 +61,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
                     
                     var checkboxLabel = this.generateCheckboxLabel(linkTypeLabel);
                     // TODO Use existing CSS to assign same color to this square
-                    var checkboxColoredSquare = this.generateColoredSquareIndicator(linkTypeLabel);
+                    var checkboxColoredSquare = this.generateColoredSquareIndicator(linkTypeLabel, linkTypeToOntology[linkTypeName]);
                     
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
@@ -70,6 +84,11 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
             }
         );
         
+        // Put our favorite relations in order at top. We do this in reverse order of preference though.
+        $("#"+"span_"+this.computeCheckId(this.conceptGraph.relationLabelConstants.mapping)).prependTo(this.filterContainer);
+        $("#"+"span_"+this.computeCheckId(this.conceptGraph.relationLabelConstants.composition)).prependTo(this.filterContainer);
+        $("#"+"span_"+this.computeCheckId(this.conceptGraph.relationLabelConstants.inheritance)).prependTo(this.filterContainer);
+        
         // Keep only those checkboxes for which we looped over a node
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
     }
@@ -78,8 +97,13 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         return "\""+linkTypeLabel+"\"";
     }
     
-    generateColoredSquareIndicator(linkTypeLabel: string): string {
-        return "<span style='font-size: large;' class='"+this.conceptGraph.relationTypeCssClasses[linkTypeLabel]+"'>\u25A0</span>";
+    generateColoredSquareIndicator(linkTypeLabel: string, ontologyAcronym: ConceptGraph.RawAcronym): string {
+        if(undefined !== this.conceptGraph.relationTypeCssClasses[linkTypeLabel]){
+            return "<span style='font-size: large;' class='"+this.conceptGraph.relationTypeCssClasses[linkTypeLabel]+"'>\u25A0</span>";
+        } else {
+            // If it isn't a predefined arc type, it is an ontology dependent relation property. Give it the ontology color.
+           return "<span style='font-size: large; color: "+this.conceptGraph.nextNodeColor(ontologyAcronym)+";'>\u25A0</span>";
+        }
     }
     
     computeCheckId(linkName: string): string {

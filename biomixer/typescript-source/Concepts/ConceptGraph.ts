@@ -18,7 +18,7 @@ import ExpansionManager = require("./ExpansionManager");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import TipsyToolTipsOnClick = require("../TipsyToolTipsOnClick");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
-import PropertyRelationsExpander = require("./PropertyRelationsExpander");
+import PropRel = require("./PropertyRelationsExpander");
 
 declare var purl;
 
@@ -123,6 +123,8 @@ export class Link extends GraphView.BaseLink<Node> {
     id: string; // Escaped node ids, otherwise like rawId above. = edge.sourceId+"-to-"+edge.targetId;
     value: number = 1; // This gets used for link stroke thickness later...not needed for concepts?
     relationType: string; // = relationType;
+    relationLabel: string;
+    relationSpecificToOntologyAcronym: RawAcronym;
     
     constructor(){
         super();
@@ -221,12 +223,12 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     relationTypeCssClasses = {
             "is_a": "inheritanceLink",
             "part_of": "compositionLink",
-            "maps to": "mappingLink",
+            "maps_to": "mappingLink",
     };
     relationLabelConstants = {
             "inheritance": "is_a",
             "composition": "part_of",
-            "mapping": "maps to",
+            "mapping": "maps_to",
     };
     
     constructor(
@@ -510,7 +512,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * find the relation when manifesting nodes in one order, unless we always look for
      * edges when manifesting nodes).
      */
-    public manifestOrRegisterImplicitRelation(parentIdUri: ConceptURI, childIdUri: ConceptURI, relationType: string){
+    public manifestOrRegisterImplicitRelation(parentIdUri: ConceptURI, childIdUri: ConceptURI, relationId: string, relationProperty?: PropRel.OntologyRelation){
         if(parentIdUri === childIdUri){
             // Some mappings data is based off of having the same URI, which is mind boggling to me.
             // We have no use for self relations in this domain.
@@ -526,9 +528,15 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // using source and target.
         edge.sourceId = parentIdUri;
         edge.targetId = childIdUri;
-        edge.rawId = edge.sourceId+"-to-"+edge.targetId+"-of-"+relationType;
-        edge.relationType = relationType;
-        edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationType;
+        edge.rawId = edge.sourceId+"-to-"+edge.targetId+"-of-"+relationId;
+        edge.relationType = relationId;
+        if(relationProperty === undefined){
+            edge.relationLabel = relationId;
+        } else {
+            edge.relationLabel = relationProperty.label;
+            edge.relationSpecificToOntologyAcronym = relationProperty.ontologyAcronym;
+        }
+        edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationId;
         edge.value = 1; // This gets used for link stroke thickness later...not needed for concepts?
         
         // Changing the registry to be permanent, and to have no assumptions about gaph population.
@@ -1096,8 +1104,8 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
         // represent relations that we can add as arcs.
         // If we don't have that data yet, tell the registry, and provide a callback to come right back
         // here. The registry will get the required info, then call back to here.
-        if(!PropertyRelationsExpander.OntologyPropertyRelationsRegistry.contains(this.conceptNode.ontologyAcronym)){
-            PropertyRelationsExpander.OntologyPropertyRelationsRegistry.fetchOntologyPropertyRelations(
+        if(!PropRel.OntologyPropertyRelationsRegistry.contains(this.conceptNode.ontologyAcronym)){
+            PropRel.OntologyPropertyRelationsRegistry.fetchOntologyPropertyRelations(
                 this.conceptNode,
                 ()=>{
                     // We wrap the callbkac we are currently in, so that we can re-enter it later
@@ -1154,10 +1162,10 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                 }
                 
                 // Check for ontology declared property relations.
-                var matchedRelationProp = PropertyRelationsExpander.OntologyPropertyRelationsRegistry.matchesAvailableRelations(this.conceptNode.ontologyAcronym, index);
+                var matchedRelationProp = PropRel.OntologyPropertyRelationsRegistry.matchesAvailableRelations(this.conceptNode.ontologyAcronym, index);
                 if(matchedRelationProp !== undefined){
-                    $.each(propertyObject, (index, relatedPartId: ConceptURI)=>{
-                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, relatedPartId, matchedRelationProp.label);
+                    $.each(propertyObject, (i, relatedPartId: ConceptURI)=>{
+                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, relatedPartId, matchedRelationProp.idEscaped, matchedRelationProp);
                         this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, relatedPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
                     });
                 }

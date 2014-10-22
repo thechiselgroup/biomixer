@@ -158,7 +158,7 @@ export class ConceptLayouts {
         var children: ConceptGraph.Node[] = [];
 
         graphLinks.forEach(function(link){
-            if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps to"){
+            if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps_to"){
                 graphNodes.forEach(function(node){
                     if(node.rawConceptUri == link.targetId && $.inArray(node, children) === -1){
                         children.push(node);
@@ -197,7 +197,7 @@ export class ConceptLayouts {
         var graphLinks = outerThis.graph.graphD3Format.links;
         var roots: ConceptGraph.Node[] = [];       
         var isRoot = true;    
-        var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps to"});
+        var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps_to"});
         graphNodes = graphNodes.filter(function(n){return n.ontologyAcronym==ontologyAcronym});
         graphNodes.forEach(function(node){
             graphLinks.forEach(function(link){
