@@ -83,9 +83,7 @@ polyline.compositionLink{
 }
 
 .propertyRelationLink {
-	stroke: #AF2200;
-	fill: #AF2200;
-	color: #AF2200;
+	/* will be based on ontology color */
 }
 polyline.propertyRelationLink{
 	stroke-dasharray: 1,1;

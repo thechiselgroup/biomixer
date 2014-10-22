@@ -613,6 +613,18 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Make svg:g like nodes if we need labels
         // Would skip the g element here for links, but it cleans up the document and bundles text with line.
         var enteringLinks = links.enter().append("svg:g")
+        .attr("style", (e: ConceptGraph.Link)=>{
+                if(this.getLinkCssClass(e.relationType) !== "propertyRelationLink"){
+                    return "";
+                } else {
+                    // Wanted to do this in the getLinkCssClass, by adding a dynamic CSS rule, but
+                    // there were a lot of browser issues, and I trusted none of the libraries for it.
+                    // So...use a style per edge instead. Too bad.
+                    var ontColor = this.conceptGraph.nextNodeColor(e.relationSpecificToOntologyAcronym);
+                    return " stroke: "+ontColor+"; fill: "+ontColor+"; color: "+ontColor+"; ";
+                }
+            }
+        )
         .attr("class", (e: ConceptGraph.Link)=>{ return this.getLinkCssClass(e.relationType); }) //GraphView.BaseGraphView.linkSvgClassSansDot+" "+
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
@@ -672,7 +684,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             }
         }
     }
-    
+
     private getLinkCssClass(relationType: string): string{
         if(-1 !== relationType.indexOf("is_a")){
             return "inheritanceLink"
