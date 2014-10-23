@@ -146,7 +146,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ;
         //  .call(d3.behavior.zoom().on("zoom", redraw))
           
-        this.defineCustomSVG();
+        // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
+        // this.defineCustomSVG();
         
         this.vis.append("svg:rect")
             .attr("width", this.visWidth())
@@ -410,6 +411,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    // For drawing the triangular marker on the arcs
+    triSegLen = 10;
+    triangleMarkerPointAngle = (25/360) * (2 * Math.PI);
     public computePolyLineLinkPointsFunc = (linkData: ConceptGraph.Link) => {
         var offset = 10;
         
@@ -440,10 +444,42 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             targetY += yDist;
         }
         
+        // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
+        // a bit gives better marker positioning.
         var midPointX = sourceX + (targetX - sourceX)/2;
         var midPointY = sourceY + (targetY - sourceY)/2;
-        var midPointString = midPointX+","+midPointY;
-        var points = sourceX+","+sourceY+"  "+midPointString+"  "+targetX+","+targetY;
+        
+        // But...I need to make a triangular convolution, to replace the markers.
+        // Marker path was: path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+        // Rotate a triangleSide line in both directions, and add the midpoint to each.
+        // From the endpoint of the first and startpoint of the second, draw an additional segment.
+        // 0.5 * PI because I need to rotate the whole thing by 90 degrees
+        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+        var triAngle1 = atanSourceTarget + this.triangleMarkerPointAngle;
+        var triAngle2 = atanSourceTarget - this.triangleMarkerPointAngle;
+        var x = this.triSegLen;
+        // Since y = 0 always, let's save some CPU cycles
+        // var y = 0;
+        var triPointX1 = (x * Math.cos(triAngle1) ); //+ y * Math.sin(triAngle1)); // x*cos(theta) + y*sin(theta)
+        var triPointY1 = (x * Math.sin(triAngle1) ); // + y * Math.cos(triAngle1)); // x*sin(theta) + y*cos(theta)
+        var triPointX2 = (x * Math.cos(triAngle2) ); // + y * Math.sin(triAngle2));
+        var triPointY2 = (x * Math.sin(triAngle2) ); // + y * Math.cos(triAngle2));
+        // Make relative to the midPoint
+        // I would move the marker half of its length back towards the source, but I want to save
+        // CPU cycles...this method is called a lot.
+        triPointX1 += midPointX;
+        triPointY1 += midPointY;
+        triPointX2 += midPointX;
+        triPointY2 += midPointY;
+        
+        var points =
+           sourceX+","+sourceY+" "
+         + midPointX+","+midPointY+" "
+         + triPointX1+","+triPointY1+" "
+         + triPointX2+","+triPointY2+" "
+         + midPointX+","+midPointY+" "
+         + targetX+","+targetY+" "
+        ;
         return points;
     }
     
@@ -633,7 +669,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
-        .attr("marker-mid", this.markerAdderLambda() )
+        // Old, faster but not-so-cross-browser way of adding triangular markers
+        // .attr("marker-mid", this.markerAdderLambda() )
         .attr("data-thickness_basis", function(d) { return d.value;})
                     
         // Update Tool tip
