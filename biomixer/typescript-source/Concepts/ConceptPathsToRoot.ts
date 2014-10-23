@@ -679,29 +679,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .text(this.conceptLinkSimplePopupFunction)
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
         
-        if(!temporaryEdges){
-            this.runCurrentLayout(true);
-        }
         
         if(!enteringLinks.empty()){
+            if(!temporaryEdges){
+                this.runCurrentLayout(true);
+            }
             this.updateStartWithoutResume();
             enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
             this.edgeTypeFilter.updateFilterUI();
         }
-        
-        this.triggerVerticalTree();
-    }
-    
-    triggerVerticalTree(){
-    	// See issue 423...we want vertical tree to be paths to root default layout,
-    	// but the layout currently misbehaves when the graph is still being populated.
-    	// Use this method to automate triggering of layout when fixing this.
-        // Feel free to compare with retriggers of the force layout (runCurrent() probably).
-//        console.log("Have nodes and links of "+this.conceptGraph.graphD3Format.nodes.length+" and "+this.conceptGraph.graphD3Format.links.length);
-//        if(this.conceptGraph.graphD3Format.nodes.length >= 17 && this.conceptGraph.graphD3Format.links.length >= 20){
-//            console.log("Triggering tree layout with nodes and links of "+this.conceptGraph.graphD3Format.nodes.length+" and "+this.conceptGraph.graphD3Format.links.length);
-//            this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
-//        }
     }
     
     private giveIEMarkerWarning = true;
@@ -896,9 +882,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
         // nodes.exit().remove();
         
-        this.runCurrentLayout(true);
         
         if(!enteringNodes.empty()){
+            this.runCurrentLayout(true);
             this.updateStartWithoutResume();
             enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         
@@ -908,9 +894,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.expansionSetFilter.updateFilterUI();
         
         }
-        
-        this.triggerVerticalTree();
-        
     }
 
     removeMissingGraphElements(){

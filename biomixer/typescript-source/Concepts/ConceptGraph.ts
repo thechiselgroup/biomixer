@@ -305,7 +305,11 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
     private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
-         for(var i = 0; i < newEdges.length; i++){
+        if(newEdges.length == 0){
+            // Saves a lot of work deeper down.
+            return;
+        }
+        for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...
             if(this.edgeNotInGraph(newEdges[i])){
                 newEdges[i].source = this.conceptIdNodeMap[String(newEdges[i].sourceId)];
