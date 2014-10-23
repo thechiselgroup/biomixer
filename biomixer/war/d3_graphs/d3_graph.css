@@ -46,6 +46,12 @@
 
 .link {
   stroke-linecap: round;
+  /* Dark colored arcs look better at 2px due to antialiasing :( 
+   * The antialiasing causes barber pole effects when the lines are
+   * almost parallel to screen axes, and this hurts my eyes.
+   * But, at 2px, the lines look too chunky...I am torn.
+   */
+  stroke-width: 1;
 }
 
 .conceptLink
@@ -65,18 +71,20 @@
 }
 
 .inheritanceLink {
-	stroke: #AFC6E5;
-	fill: #AFC6E5;
-	color: #AFC6E5;
+	/* Dark color that doesn't stomp on ontology colors, original was #AFC6E5 */
+	stroke: #002266;
+	fill: #002266;
+	color: #002266;
 }
 polyLine.inheritanceLink {
 	stroke-dasharray: none;
 }
 
 .compositionLink {
-	stroke: #AFC600;
-	fill: #AFC600;
-	color: #AFC600;
+	/* Dark color that doesn't stomp on ontology colors, original was #AFC600 */
+	stroke: #003311;
+	fill: #003311;
+	color: #003311;
 }
 polyline.compositionLink{
 	stroke-dasharray: 4,4;
