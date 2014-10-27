@@ -613,7 +613,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // For mapping edges, if neither endpoint has triggered a mapping expansion, we won't
         // want to render the edge all the time.
         
-        if(edge.relationType === this.relationLabelConstants["mapping"]){
+        if(edge.relationType === this.relationLabelConstants.mapping){
             if(this.expMan.isConceptClearedForExpansion(edge.sourceId, PathOptionConstants.mappingsNeighborhoodConstant)
                 || this.expMan.isConceptClearedForExpansion(edge.targetId, PathOptionConstants.mappingsNeighborhoodConstant)
             ){

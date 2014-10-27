@@ -121,6 +121,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeGSvgClassSansDot = "node_g";
     static nodeLabelSvgClassSansDot = "nodetext";
     static linkSvgClassSansDot = "link";
+    static linkMarkerSvgClassSansDot = "linkmarker";
     static linkLabelSvgClassSansDot = "linktext";
     
     static ontologyNodeSvgClassSansDot = "ontologyNode";
@@ -138,6 +139,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeGSvgClass = "."+BaseGraphView.nodeGSvgClassSansDot;
     static nodeLabelSvgClass = "."+BaseGraphView.nodeLabelSvgClassSansDot;
     static linkSvgClass = "."+BaseGraphView.linkSvgClassSansDot;
+    static linkMarkerSvgClass = "."+BaseGraphView.linkMarkerSvgClassSansDot;
     static linkLabelSvgClass = "."+BaseGraphView.linkLabelSvgClassSansDot;
 
     

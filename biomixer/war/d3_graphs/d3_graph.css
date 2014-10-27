@@ -60,7 +60,7 @@
   stroke-width: 2;
 }
 
-.linkMarker {
+polyLine.linkMarker {
 	stroke-dasharray: none;
 }
 
@@ -76,7 +76,7 @@
 	fill: #002266;
 	color: #002266;
 }
-polyLine.inheritanceLink {
+polyLine.inheritanceLink.link {
 	stroke-dasharray: none;
 }
 
@@ -86,14 +86,14 @@ polyLine.inheritanceLink {
 	fill: #003311;
 	color: #003311;
 }
-polyline.compositionLink{
+polyline.compositionLink.link {
 	stroke-dasharray: 4,4;
 }
 
 .propertyRelationLink {
 	/* will be based on ontology color */
 }
-polyline.propertyRelationLink{
+polyline.propertyRelationLink.link {
 	stroke-dasharray: 1,1;
 }
 

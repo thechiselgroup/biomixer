@@ -129,7 +129,13 @@ export class ConceptLayouts {
             .transition()
             .duration(duration)
             .ease("linear")
-            .attr("points", outerThis.graphView.computePolyLineLinkPointsFunc);
+            .attr("points", outerThis.graphView.updateArcLineFunc);
+        
+        d3.selectAll(GraphView.BaseGraphView.linkMarkerSvgClass)
+            .transition()
+            .duration(duration)
+            .ease("linear")
+            .attr("points", outerThis.graphView.updateArcMarkerFunc);
     
        if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
             this.lastTransition = new Date().getTime();

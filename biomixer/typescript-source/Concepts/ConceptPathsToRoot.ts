@@ -292,6 +292,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var boundNodes = this.vis.selectAll("g.node_g");
             // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
             var boundLinks = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass);
+            var boundLinkMarkers = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkMarkerSvgClass);
             // Stop the layout early. The circular initialization makes it ok.
             if (this.forceLayout.alpha() < this.alphaCutoff || jQuery.now() - firstTickTime > maxLayoutRunDuration) {
                 this.forceLayout.stop();
@@ -348,7 +349,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             }
                 
             if(boundLinks.length > 0){
-                boundLinks.attr("points", this.computePolyLineLinkPointsFunc);
+                boundLinks.attr("points", this.updateArcLineFunc);
+                boundLinkMarkers.attr("points", this.updateArcMarkerFunc);
             }
             
             // I want labels to aim out of middle of graph, to make more room
@@ -405,17 +407,130 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             
             outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
-                .attr("points", outerThis.computePolyLineLinkPointsFunc)
-                ;
+                .attr("points", outerThis.updateArcLineFunc);
+            outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkMarkerSvgClass)
+                .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
+                .attr("points", outerThis.updateArcMarkerFunc);
            
         }
     }
     
+    public updateArcLineFunc = (linkData: ConceptGraph.Link): string => {
+        // This is a lot easier than markers, except that we also have to offset
+        // the line if there are two arc types.
+        
+        var offset;
+        if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
+            offset = 10;
+        } else if (linkData.relationType === this.conceptGraph.relationLabelConstants.inheritance
+                || linkData.relationType === this.conceptGraph.relationLabelConstants.mapping){
+            offset = 0;
+        } else {
+            // the sundry property relation arcs will be offset differently from composite ones
+            offset = -10;
+        }
+        
+        var sourceX = linkData.source.x;
+        var sourceY = linkData.source.y;
+        var targetX = linkData.target.x;
+        var targetY = linkData.target.y;
+    
+        if(offset != 0){
+            // Make is_a and has_a arcs move away from each other by enough that we can see them both
+            // for when both relations exist in a pair of nodes
+            
+            // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
+            // We'll want the vector relative to source, then the same repeated for target...but since
+            // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
+            // infer it.
+            var targetVectorX = targetX - sourceX;
+            var targetVectorY = targetY - sourceY;
+            var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
+            var targetOrthVectorX = -1 * targetVectorY / norm;
+            var targetOrthVectorY = targetVectorX / norm;
+            var xDist = offset * targetOrthVectorX;
+            var yDist = offset * targetOrthVectorY;
+            
+            
+            // Kick the composition arcs a coupel pixels away
+            sourceX += xDist;
+            sourceY += yDist;
+            targetX += xDist;
+            targetY += yDist;
+        }
+        
+         var points =
+           sourceX+","+sourceY+" "
+         + targetX+","+targetY+" "
+        ;
+        
+        return points;
+    }
+    
+    public updateArcMarkerFunc = (linkData: ConceptGraph.Link): string => {
+        if(linkData.relationType === this.conceptGraph.relationLabelConstants.inheritance){
+            return this.computeArcMarkerForInheritance(linkData);
+        } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition) {
+            return this.computeArcMarkerForComposition(linkData);
+        } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.mapping) {
+            return this.computeArcMarkerForMapping(linkData);
+        } else {
+            // No edge for relation property arcs, as defined per ontology
+            return this.computeArcMarkerPropertyRelations(linkData);
+        }
+    }
+    
     // For drawing the triangular marker on the arcs
-    triSegLen = 10;
+    triSegLen = 14;
     triangleMarkerPointAngle = (25/360) * (2 * Math.PI);
-    public computePolyLineLinkPointsFunc = (linkData: ConceptGraph.Link) => {
+    private computeArcMarkerForInheritance(linkData: ConceptGraph.Link): string{
         var offset = 10;
+        
+        var sourceX = linkData.source.x;
+        var sourceY = linkData.source.y;
+        var targetX = linkData.target.x;
+        var targetY = linkData.target.y;
+
+        // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
+        // a bit gives better marker positioning.
+        var midPointX = sourceX + (targetX - sourceX)/2;
+        var midPointY = sourceY + (targetY - sourceY)/2;
+        
+        // But...I need to make a triangular convolution, to replace the markers.
+        // Marker path was: path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
+        // Rotate a triangleSide line in both directions, and add the midpoint to each.
+        // From the endpoint of the first and startpoint of the second, draw an additional segment.
+        // 0.5 * PI because I need to rotate the whole thing by 90 degrees
+        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+        var triAngle1 = atanSourceTarget + this.triangleMarkerPointAngle;
+        var triAngle2 = atanSourceTarget - this.triangleMarkerPointAngle;
+        // Since y = 0 always, let's save some CPU cycles
+        // var y = 0;
+        var triPointX1 = (this.triSegLen * Math.cos(triAngle1) ); //+ y * Math.sin(triAngle1)); // x*cos(theta) + y*sin(theta)
+        var triPointY1 = (this.triSegLen * Math.sin(triAngle1) ); // + y * Math.cos(triAngle1)); // x*sin(theta) + y*cos(theta)
+        var triPointX2 = (this.triSegLen * Math.cos(triAngle2) ); // + y * Math.sin(triAngle2));
+        var triPointY2 = (this.triSegLen * Math.sin(triAngle2) ); // + y * Math.cos(triAngle2));
+        // Make relative to the midPoint
+        // I would move the marker half of its length back towards the source, but I want to save
+        // CPU cycles...this method is called a lot.
+        triPointX1 += midPointX;
+        triPointY1 += midPointY;
+        triPointX2 += midPointX;
+        triPointY2 += midPointY;
+        
+        var points =
+         + midPointX+","+midPointY+" "
+         + triPointX1+","+triPointY1+" "
+         + triPointX2+","+triPointY2+" "
+         + midPointX+","+midPointY+" "
+        ;
+        return points;
+    }
+    
+    diamondLength = 14.0; // And height, if we use 45 degrees
+    diamondAngle = (45/360) * (2 * Math.PI);
+    private computeArcMarkerForComposition(linkData: ConceptGraph.Link): string{
+         var offset = 10;
         
         var sourceX = linkData.source.x;
         var sourceY = linkData.source.y;
@@ -436,7 +551,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // Make is_a and has_a arcs move away from eachother by enough that we can see them both
         // for when both relations exist in a pair of nodes
-        if(linkData.relationType === this.conceptGraph.relationLabelConstants["composition"]){
+        if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
             // Kick the composition arcs a coupel pixels away
             sourceX += xDist;
             sourceY += yDist;
@@ -444,39 +559,87 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             targetY += yDist;
         }
         
+        // the path will go from the tip of a diamond shape, around the perimeter, then cut again through
+        // the middle to recommence the line.
+        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+        
+        var diamondAngle1 = atanSourceTarget + (this.diamondAngle); // sign controls above/below line
+        var diamondAngle2 = atanSourceTarget - (this.diamondAngle);
+        // Since y = 0 always, let's save some CPU cycles
+        // var y = 0;
+        var asq = (this.diamondLength/2) * (this.diamondLength/2);
+        var diamondSideLength =  Math.sqrt(asq + asq);
+        var triPointX1 = (diamondSideLength * Math.cos(diamondAngle1) ); //+ y * Math.sin(triAngle1)); // x*cos(theta) + y*sin(theta)
+        var triPointY1 = (diamondSideLength * Math.sin(diamondAngle1) ); // + y * Math.cos(triAngle1)); // x*sin(theta) + y*cos(theta)
+        var triPointX2 = -1*(diamondSideLength * Math.cos(diamondAngle1) ); // + y * Math.sin(triAngle2));
+        var triPointY2 = -1*(diamondSideLength * Math.sin(diamondAngle1) ); // + y * Math.cos(triAngle2));
+        
+        // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
+        // a bit gives better marker positioning.
+        var diamondXDelta = (this.diamondLength/2 * Math.cos(atanSourceTarget) );
+        var diamondYDelta = (this.diamondLength/2 * Math.sin(atanSourceTarget) );
+        var midPointX1 = sourceX + (targetX - sourceX)/2 - diamondXDelta;
+        var midPointY1 = sourceY + (targetY - sourceY)/2 - diamondYDelta;
+        var midPointX2 = sourceX + (targetX - sourceX)/2 + diamondXDelta;
+        var midPointY2 = sourceY + (targetY - sourceY)/2 + diamondYDelta;
+        
+        // Make relative to the midPoint
+        // I would move the marker half of its length back towards the source, but I want to save
+        // CPU cycles...this method is called a lot.
+        triPointX1 += midPointX1;
+        triPointY1 += midPointY1;
+        triPointX2 += midPointX2;
+        triPointY2 += midPointY2;
+        
+        var points =
+         + midPointX1+","+midPointY1+" "
+         + triPointX1+","+triPointY1+" "
+         + midPointX2+","+midPointY2+" "
+         + triPointX2+","+triPointY2+" "
+         + midPointX1+","+midPointY1+" "
+        ;
+        return points;
+    }
+    
+    private computeArcMarkerForMapping(linkData: ConceptGraph.Link): string{
+        return "";
+    }
+     
+    private computeArcMarkerPropertyRelations(linkData: ConceptGraph.Link): string{
+        var offset = -10;
+        
+        var sourceX = linkData.source.x;
+        var sourceY = linkData.source.y;
+        var targetX = linkData.target.x;
+        var targetY = linkData.target.y;
+    
+        // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
+        // We'll want the vector relative to source, then the same repeated for target...but since
+        // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
+        // infer it.
+        var targetVectorX = targetX - sourceX;
+        var targetVectorY = targetY - sourceY;
+        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
+        var targetOrthVectorX = -1 * targetVectorY / norm;
+        var targetOrthVectorY = targetVectorX / norm;
+        var xDist = offset * targetOrthVectorX;
+        var yDist = offset * targetOrthVectorY;
+        
+        // Make is_a and has_a arcs move away from eachother by enough that we can see them both
+        // for when both relations exist in a pair of nodes
+        // Kick the composition arcs a coupel pixels away
+        sourceX += xDist;
+        sourceY += yDist;
+        targetX += xDist;
+        targetY += yDist;
+        
         // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
         // a bit gives better marker positioning.
         var midPointX = sourceX + (targetX - sourceX)/2;
         var midPointY = sourceY + (targetY - sourceY)/2;
         
-        // But...I need to make a triangular convolution, to replace the markers.
-        // Marker path was: path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
-        // Rotate a triangleSide line in both directions, and add the midpoint to each.
-        // From the endpoint of the first and startpoint of the second, draw an additional segment.
-        // 0.5 * PI because I need to rotate the whole thing by 90 degrees
-        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
-        var triAngle1 = atanSourceTarget + this.triangleMarkerPointAngle;
-        var triAngle2 = atanSourceTarget - this.triangleMarkerPointAngle;
-        var x = this.triSegLen;
-        // Since y = 0 always, let's save some CPU cycles
-        // var y = 0;
-        var triPointX1 = (x * Math.cos(triAngle1) ); //+ y * Math.sin(triAngle1)); // x*cos(theta) + y*sin(theta)
-        var triPointY1 = (x * Math.sin(triAngle1) ); // + y * Math.cos(triAngle1)); // x*sin(theta) + y*cos(theta)
-        var triPointX2 = (x * Math.cos(triAngle2) ); // + y * Math.sin(triAngle2));
-        var triPointY2 = (x * Math.sin(triAngle2) ); // + y * Math.cos(triAngle2));
-        // Make relative to the midPoint
-        // I would move the marker half of its length back towards the source, but I want to save
-        // CPU cycles...this method is called a lot.
-        triPointX1 += midPointX;
-        triPointY1 += midPointY;
-        triPointX2 += midPointX;
-        triPointY2 += midPointY;
-        
         var points =
            sourceX+","+sourceY+" "
-         + midPointX+","+midPointY+" "
-         + triPointX1+","+triPointY1+" "
-         + triPointX2+","+triPointY2+" "
          + midPointX+","+midPointY+" "
          + targetX+","+targetY+" "
         ;
@@ -671,7 +834,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
         // Old, faster but not-so-cross-browser way of adding triangular markers
         // .attr("marker-mid", this.markerAdderLambda() )
-        .attr("data-thickness_basis", function(d) { return d.value;})
+        .attr("data-thickness_basis", function(d) { return d.value;});
+        
+        var enteringArcMarkers = enteringLinks.append("svg:polyline")
+        .attr("class", function(d: ConceptGraph.Link){ return GraphView.BaseGraphView.linkMarkerSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
+        .attr("id", function(d: ConceptGraph.Link){ return "link_marker_"+d.id})
+        .on("mouseover", this.highlightHoveredLinkLambda(this))
+        .on("mouseout", this.unhighlightHoveredLinkLambda(this));
                     
         // Update Tool tip
         enteringLinks // this is new...used to do to all linked data...
@@ -685,7 +854,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 this.runCurrentLayout(true);
             }
             this.updateStartWithoutResume();
-            enteringPolylines.attr("points", this.computePolyLineLinkPointsFunc);
+            enteringPolylines.attr("points", this.updateArcLineFunc);
+            enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
             this.edgeTypeFilter.updateFilterUI();
         }
     }
