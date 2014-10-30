@@ -16,6 +16,12 @@ import ConceptGraph = require("./ConceptGraph");
 
 export class ConceptLayouts {
 
+    /**
+     * The fixed layout currently allows for storing of only a single layout, but we can easily adjust it.
+     * TODO This will probably be how we handle undo/redo layout applications.
+     */
+    private fixedLayoutData: {[nodeUri: string]: {x: number; y: number}} = {};
+    
     constructor(
         public forceLayout: D3.Layout.ForceLayout,
         public graph: ConceptGraph.ConceptGraph,
@@ -34,47 +40,70 @@ export class ConceptLayouts {
         layoutsContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Layouts"));
         layoutsContainer.append($("<br>"));
         
-        layoutsContainer.append($("<input>")
+        var forceButton = $("<input>")
                 .attr("class", "layoutButton")
                 .attr("id", "forceLayoutButton")
                 .attr("type", "button")
-                .attr("value", "Force-Directed Layout"));
-        layoutsContainer.append($("<br>"));
+                .attr("value", "Force-Directed Layout");
         
-        layoutsContainer.append($("<input>")
+        var circleButton = $("<input>")
                 .attr("class", "layoutButton")
                 .attr("id", "circleLayoutButton")
                 .attr("type", "button")
-                .attr("value", "Circle Layout"));
-        layoutsContainer.append($("<br>"));
+                .attr("value", "Circle Layout");
         
-        layoutsContainer.append($("<input>")
+        var centerButton = $("<input>")
                 .attr("class", "layoutButton")
                 .attr("id", "centerLayoutButton")
                 .attr("type", "button")
-                .attr("value", "Center Layout"));
-        layoutsContainer.append($("<br>"));
+                .attr("value", "Center Layout");
         
-        layoutsContainer.append($("<input>")
+        var horizTreeButton = $("<input>")
             .attr("class", "layoutButton")
             .attr("id", "horizontalTreeLayoutButton")
             .attr("type", "button")
-            .attr("value", "Horizontal Tree Layout"));
-        layoutsContainer.append($("<br>"));
+            .attr("value", "Horizontal Tree Layout");
     
-        layoutsContainer.append($("<input>")
+        var vertTreeButton = $("<input>")
             .attr("class", "layoutButton")
             .attr("id", "verticalTreeLayoutButton")
             .attr("type", "button")
-            .attr("value", "Vertical Tree Layout"));
-        layoutsContainer.append($("<br>"));
+            .attr("value", "Vertical Tree Layout");
     
-       layoutsContainer.append($("<input>")
+        var radialButton = $("<input>")
             .attr("class", "layoutButton")
             .attr("id", "radialLayoutButton")
             .attr("type", "button")
-            .attr("value", "Radial Layout"));
-    
+            .attr("value", "Radial Layout");
+
+        var importButton = $("<input>")
+            .attr("class", "layoutButton")
+            .attr("id", "importedLayoutButton")
+            .attr("type", "button")
+            .attr("value", "Imported Layout");
+        
+        
+        var firstCol = $("<div>").css("float", "left");
+        var secondCol = $("<div>").css("float", "left");
+        var footer = $("<div>").css("clear", "both");
+        layoutsContainer.append(firstCol);
+        layoutsContainer.append(secondCol);
+        layoutsContainer.append(footer);
+        
+        firstCol.append(centerButton);
+        firstCol.append($("<br>"));
+        firstCol.append(circleButton);
+        firstCol.append($("<br>"));
+        firstCol.append(forceButton);
+        firstCol.append($("<br>"));
+        firstCol.append(importButton);
+        
+        secondCol.append(vertTreeButton);
+        secondCol.append($("<br>"));
+        secondCol.append(horizTreeButton);
+        secondCol.append($("<br>"));
+        secondCol.append(radialButton);
+        secondCol.append($("<br>"));
         
         d3.selectAll("#circleLayoutButton").on("click", this.applyNewLayout(this.runCircleLayoutLambda()));
         d3.selectAll("#forceLayoutButton").on("click", this.applyNewLayout(this.runForceLayoutLambda()));
@@ -82,6 +111,8 @@ export class ConceptLayouts {
         d3.selectAll("#horizontalTreeLayoutButton").on("click", this.applyNewLayout(this.runHorizontalTreeLayoutLambda()));
         d3.selectAll("#verticalTreeLayoutButton").on("click", this.applyNewLayout(this.runVerticalTreeLayoutLambda()));
         d3.selectAll("#radialLayoutButton").on("click", this.applyNewLayout(this.runRadialLayoutLambda()));
+        d3.selectAll("#importedLayoutButton").on("click", this.applyNewLayout(this.runFixedPositionLayoutLambda()));
+        $("#importedLayoutButton").slideUp();
         
     }
     
@@ -412,12 +443,6 @@ export class ConceptLayouts {
             
             $.each(graphNodes,
                 function(index, element){
-                    var acronym = index;
-    
-                    if(typeof acronym === "undefined"){
-                        console.log("Undefined concept entry");
-                    }
-                    
                     var angleForNode = i * anglePerNode; 
                     i++;
                     graphNodes[index].x = outerThis.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
@@ -448,11 +473,7 @@ export class ConceptLayouts {
             var i = 0;
             
             $.each(graphNodes,
-                function(acronym, node){
-                    if(typeof acronym === "undefined"){
-                        console.log("Undefined concept entry");
-                    }
-                    
+                function(index, node){
                     if(node.rawConceptUri!=outerThis.centralConceptUri){
                         var angleForNode = i * anglePerNode; 
                         i++;
@@ -488,6 +509,50 @@ export class ConceptLayouts {
             outerThis.forceLayout.start();
     
         };
+    }
+    
+    runFixedPositionLayoutLambda(){
+        var outerThis = this;
+        return function(refreshLayout?: boolean): void{
+            if(refreshLayout){
+                // Act normal, redo the whole layout
+            }
+            
+            outerThis.forceLayout.stop();
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
+            
+            $.each(graphNodes,
+                function(index, node){
+                    if(undefined !== outerThis.fixedLayoutData[String(node.rawConceptUri)]){
+                        node.x = outerThis.fixedLayoutData[String(node.rawConceptUri)].x;
+                        node.y = outerThis.fixedLayoutData[String(node.rawConceptUri)].y;
+                    } else {
+                        // Use whatever position is on the node already? Assign a random position??
+                        // If using previous position, then shall we use a circle layout to do so (quite quick)?
+                    }
+                }
+            );
+            
+            outerThis.transitionNodes(refreshLayout);
+        }
+    }
+    
+    public updateFixedLayoutDatum(nodeId: ConceptGraph.ConceptURI, coordinates: {x: number; y: number}){
+        this.fixedLayoutData[String(nodeId)] = coordinates;
+        
+        $("#importedLayoutButton").slideDown();
+    }
+    
+    public updateFixedLayoutData(newPositions: {[nodeId: string]: {x: number; y: number}}){
+        for(var nodeId in newPositions){
+            this.fixedLayoutData[nodeId] = newPositions[nodeId];
+        }
+        
+        if(this.fixedLayoutData !== undefined){
+            $("#importedLayoutButton").slideDown();
+        } else {
+            $("#importedLayoutButton").slideUp();
+        }
     }
     
 }

@@ -203,6 +203,9 @@ div#hoveringGraphMenu {
   right:0;
   width: 350px;
   padding: 10px;
+}
+
+.opaqueMenu, div#hoveringGraphMenu {
   background: rgb(218,229,243);
   opacity:0.90 !important;
   filter:alpha(opacity=90); */ /* For IE8 and earlier */
@@ -218,6 +221,36 @@ div#hoveringGraphMenu {
 .scroll-div {
 	overflow-y: scroll;
 	background-color: white;
+}
+
+.messageBoxWithField{
+	position: relative;
+	right:0;
+}
+
+.messageBoxTextArea {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+	width: 98%;
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+.messageBoxMessage {
+	margin: 6px;
+	font-size: 14px;
+}
+
+.importExportButton {
+	margin: 7px !important;
+	font-size: 100%;
+}
+
+.layoutButton {
+	margin-right: 15px !important;
+	margin-bottom: 6px !important;
 }
 
 .nodeCommandButton {

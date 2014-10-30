@@ -693,6 +693,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return adjacentEdges;
     }
 
+    /**
+     * initSet is only passed so we can rename it when we have the core node's name
+     */
     public fetchPathToRoot(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>,
         initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>){
         // I have confirmed that this is faster than BioMixer. Without removing
@@ -742,6 +745,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         fetcher.fetch(centralCallback);
     }
     
+    /**
+     * initSet is only passed so we can rename it when we have the core node's name
+     */
     public fetchTermNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>,
         initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>){
         // 1) Get term neighbourhood for the central concept by fetching term and marking it for expansion
@@ -752,6 +758,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         fetcher.fetch(centralCallback);
     }
     
+    /**
+     * initSet is only passed so we can rename it when we have the core node's name
+     */
     public fetchMappingsNeighborhood(centralOntologyAcronym: RawAcronym, centralConceptUri: ConceptURI, expansionSet: ExpansionSets.ExpansionSet<Node>,
         initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<Node>){
         // Should I call the mapping, inferring the URL, or should I call for the central node, add it, and use conditional expansion in the relation parser?
@@ -1039,7 +1048,7 @@ class FetchTargetConceptCallback extends Fetcher.CallbackObject {
     }
 }
 
-class FetchOneConceptCallback extends Fetcher.CallbackObject {
+export class FetchOneConceptCallback extends Fetcher.CallbackObject {
     
     constructor(
         public graph: ConceptGraph,
@@ -1055,7 +1064,6 @@ class FetchOneConceptCallback extends Fetcher.CallbackObject {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
         var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
-
         // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
         this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, this.expansionSet, this.directCallForExpansionType);
     }

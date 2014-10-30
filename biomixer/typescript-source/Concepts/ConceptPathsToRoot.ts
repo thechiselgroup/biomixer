@@ -23,6 +23,7 @@
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
+///<amd-dependency path="Concepts/GraphImporterExporter" />
 ///<amd-dependency path="Concepts/NodeDeleterWidgets" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
@@ -44,15 +45,17 @@ import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
+import ImporterExporter = require("./GraphImporterExporter");
 import NodeDeleter = require("./NodeDeleterWidgets");
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     
-    // Core objects (used to float around prior to TypeScript)
+    // Core objects
     conceptGraph: ConceptGraph.ConceptGraph;
     renderScaler: ConceptRenderScaler.ConceptRendererScaler;
     filterSliders: ConceptFilterSliders.ConceptRangeSliders;
     layouts: ConceptLayouts.ConceptLayouts;
+    importerExporterWidget: ImporterExporter.Widget;
     edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
     nodeDeleter: NodeDeleter.NodeDeleterWidgets;
     individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
@@ -188,6 +191,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.filterSliders = new ConceptFilterSliders.ConceptRangeSliders(this.conceptGraph, this, this.centralConceptUri);
         
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
+        
+        this.importerExporterWidget = new ImporterExporter.Widget(this);
          
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
@@ -210,11 +215,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.fetchInitialExpansion();
     }
     
-    fetchInitialExpansion(){
-        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), String(this.visualization));
+    /**
+     * This is used for both initial expansions and refocus expansions.
+     * It is also used for importing graphs.
+     */
+    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
         // We may have nodes that we are getting rid of in order to do the expansion, so we do it this way
         var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, this.visualization);
         this.nodeDeleter.deleteNodesForGraphInitialization(initSet);
+        return initSet;
+    }
+    
+    fetchInitialExpansion(){
+        var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), String(this.visualization));
+        var initSet = this.prepareForExpansionFromScratch(expId);
         var expansionSet = initSet.expansionSet;
         
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
@@ -1299,6 +1313,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layout & Filter Menu");
         this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), false);

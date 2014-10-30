@@ -106,7 +106,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     }
     
     nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
-        if(this.expansionSet.parentNode.getEntityId() === nodeId){
+        if(null === this.expansionSet.parentNode || this.expansionSet.parentNode.getEntityId() === nodeId){
             return this.expansionSet.expansionType;
         }
         for(var i = 0; i < this.expansionSet.nodes.length; i++){

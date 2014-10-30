@@ -40,7 +40,7 @@ export class Menu {
         $('#trigger').click(
             (event)=>{
             	event.stopPropagation();
-                $(this.menuSelector).slideToggle({ complete: ()=>{outerThis.updateMenuText();} });
+                $(this.menuSelector).slideToggle({ duration: "fast", complete: ()=>{outerThis.updateMenuText();} });
             }
         );
         
@@ -66,6 +66,53 @@ export class Menu {
     
     getMenuBarSelector(){
         return this.menuBarSelector;   
+    }
+    
+    /**
+     * Creates a menu panel that has an outer visible div with a header, that when clicked, shows or hides an inner div.
+     * To use, call with appropriate arguments, then use the returned object as follows:
+     * 1) attach the outer element to the menu or other html container of your choice. This outer element is always visible.
+     * 2) attach your menu's elements to the inner element. They will be shown or hidden.
+     */
+     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery} {
+        var outerContainer = $("<div>").attr("id", outerContainerId);
+        var innerHidingContainer = $("<div>").attr("id", innerContainerId);
+        
+        if(defaultHideContainer){
+            innerHidingContainer.css("display", "none");
+        }
+        
+        // This only indicates collapsability and status
+        var labelExpanderIcon = $("<label>").addClass(Menu.menuItemExpanderLabelClass)
+            .addClass("unselectable").attr("unselectable", "on") // IE8
+            .text("+");
+    
+    
+        // The label labels the section, and acts as a huge collapse button
+        var label = $("<label>").addClass(Menu.menuLabelClass)
+            .addClass("unselectable").attr("unselectable", "on") // IE8
+            .text(labelText);
+    
+        var expanderClickFunction = ()=>{
+            $(innerHidingContainer).slideToggle('fast',
+                ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); }
+            );
+            
+        }; 
+        
+        labelExpanderIcon.click(expanderClickFunction);
+        label.click(expanderClickFunction);
+    
+        outerContainer.append(labelExpanderIcon);
+        outerContainer.append(label);
+        
+        // innerHidingContainer.css("display", "none");
+        // We don't know the default necessarily, so set the text here.
+        labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); 
+
+        outerContainer.append(innerHidingContainer);
+         
+        return {outer: outerContainer, inner: innerHidingContainer };
     }
     
 }

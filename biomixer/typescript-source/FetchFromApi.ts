@@ -534,7 +534,9 @@ import Utils = require('./Utils');
     public fetch(callbackObject: CallbackObject) : number {
         var cacheItem = CacheRegistry.getCachedItem(this.restUrl);
         if(cacheItem.alreadyServed(callbackObject)){
-            console.log("Attempted redundant call: "+callbackObject.getCallbackName()+" for ulr "+this.restUrl);
+            // Used to print this when these were uncommon, to see what was going on, but with import functionality,
+            // this clobbers the console contents.
+            // console.log("Attempted redundant call: "+callbackObject.getCallbackName()+" for ulr "+this.restUrl);
             // Need to allow it to fall past and serve cached data unless we redesign redundant callback prevention.
             // return 0;
         }

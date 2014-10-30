@@ -40,45 +40,14 @@ export class AbstractFilterWidget {
     }
     
    addMenuComponents(menuSelector: string, defaultHideContainer: boolean): void {
+        // This container holds the checkbox widgets
+        var containers = Menu.Menu.slideToggleHeaderContainer(this.getClassName()+"OuterContainer", this.className+"ScrollContainer", this.subMenuTitle, defaultHideContainer);
+        var outerContainer = containers.outer;
+        this.filterContainer = containers.inner;
+        this.filterContainer.addClass("scroll-div").css("height", 100);
+        
         // This container is the encapsulating one for this entire widget item.
-        var outerContainer = $("<div>").attr("id", this.getClassName()+"OuterContainer");
         $(menuSelector).append(outerContainer);
-        
-        // This container holds the checkbox widgets 
-        this.filterContainer = $("<div>").attr("id", this.className+"ScrollContainer")
-                .addClass("scroll-div").css("height", 100);
-       
-        if(defaultHideContainer){
-            this.filterContainer.css("display", "none");
-        }
-        
-        // This only indicates collapsability and status
-        var labelExpanderIcon = $("<label>").addClass(Menu.Menu.menuItemExpanderLabelClass)
-            .addClass("unselectable").attr("unselectable", "on") // IE8
-            .text("+");
-        
-        // The label labels the section, and acts as a huge collapse button
-        var label = $("<label>").addClass(Menu.Menu.menuLabelClass)
-            .addClass("unselectable").attr("unselectable", "on") // IE8
-            .text(this.subMenuTitle);
-        
-        var expanderClickFunction = ()=>{
-            $(this.filterContainer).slideToggle('slow',
-                ()=>{labelExpanderIcon.text( $(this.filterContainer).css("display") === "none" ? "+" : "-"); }
-            );
-            
-        }; 
-        
-        labelExpanderIcon.click(expanderClickFunction);
-        label.click(expanderClickFunction);
-        
-        outerContainer.append(labelExpanderIcon);
-        outerContainer.append(label);
-        
-        // We don't know the default necessarily, so set the text here.
-        labelExpanderIcon.text( $(this.filterContainer).css("display") === "none" ? "+" : "-"); 
-        
-        outerContainer.append(this.filterContainer);
     }
     
 }

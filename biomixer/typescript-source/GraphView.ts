@@ -242,6 +242,10 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         return d3.select("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId())).classed(BaseGraphView.hiddenNodeClass);
     }
     
+    getUnhiddenNodes(): JQuery{
+        return $(".node_g:not(.hiddenNode)");
+    }
+    
     highlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){
         return function(linkLine: L, i){
             if(outerThis.dragging){
