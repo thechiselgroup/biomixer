@@ -838,7 +838,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 }
             }
         )
-        .attr("class", (e: ConceptGraph.Link)=>{ return this.getLinkCssClass(e.relationType); }) //GraphView.BaseGraphView.linkSvgClassSansDot+" "+
+        .attr("class", (d: ConceptGraph.Link)=>{ return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType); })
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
         var enteringPolylines = enteringLinks.append("svg:polyline")
@@ -1093,7 +1093,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // but we don't kow if the caller has other plans for deleted edges .
         
         var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, ConceptGraph.Node.d3IdentityFunc);
-        var links = this.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass).data(this.conceptGraph.graphD3Format.links, ConceptGraph.Link.d3IdentityFunc);
+        var links = this.vis.selectAll("g."+ GraphView.BaseGraphView.linkSvgClassSansDot).data(this.conceptGraph.graphD3Format.links, ConceptGraph.Link.d3IdentityFunc);
         
         var nodesRemoved = nodes.exit().remove();
         var linksRemoved = links.exit().remove();

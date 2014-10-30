@@ -52,7 +52,6 @@ export class DeletionSet<N extends GraphView.BaseNode>{
             }
         );
         if(null != this.undoRedoBoss){
-            console.log("redoing it");
             this.undoRedoBoss.updateUI(this.graphModifier);
         }
     }
