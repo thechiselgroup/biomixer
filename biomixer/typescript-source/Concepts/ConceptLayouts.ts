@@ -552,7 +552,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
             // The nodes may have been fixed in the fixed layout, or when dragging them.
             // If we are not merely refreshing, let them all be free to move.
-            $.each(graphNodes, (index, node)=>{ node.fixed = true; } );
+            $.each(graphNodes, (index, node)=>{ node.fixed = false; } );
             
             outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
             .gravity(0.05) // 0.5
@@ -560,7 +560,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             
             outerThis.forceLayout.on("tick", outerThis.graphView.onLayoutTick());
             outerThis.forceLayout.start();
-    
         };
     }
     
