@@ -151,7 +151,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .linkDistance(this.linkMaxDesiredLength())
         .size([this.visWidth(), this.visHeight()])
         .start();
-        console.log("Is it force distance or link distance above?");
+        // console.log("Is it force distance or link distance above?");
     }
     
     //    dragstart: {(): {(d: any, i: number): void}} =

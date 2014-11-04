@@ -27,6 +27,8 @@ export class BreadcrumbTrail {
     trailOfCrumbs = new Array<string>();
     trailMap: { [key: string]: Breadcrumb }= {};
     
+    activeCommandIndex: number;
+    
     constructor(){
     }
     
@@ -127,6 +129,10 @@ export class BreadcrumbTrail {
         }
     }
     
+    getActiveCrumb(): Breadcrumb{
+        return this.getNthCrumb(this.activeCommandIndex);
+    }
+    
     getNthCrumb(n: number): Breadcrumb{
         if(n > this.trailOfCrumbs.length || n < 0){
             return null;
@@ -143,7 +149,7 @@ export class BreadcrumbTrail {
             .removeClass(BreadcrumbTrail.activeCrumbClassName);
         
         var activeCrumb = this.selectCrumbElement(activeCommand);
-        var activeCommandIndex = this.undoRedoModel.getCommandIndex(activeCommand);
+        this.activeCommandIndex = this.undoRedoModel.getCommandIndex(activeCommand);
         
         if(activeCommand != null){
             this.selectCrumbElement(activeCommand)
@@ -152,7 +158,7 @@ export class BreadcrumbTrail {
         
         for(var i = this.trailOfCrumbs.length - 1; i >= 0; i--){
             var crumb = this.selectCrumbElement(this.trailMap[this.trailOfCrumbs[i]].command);
-            if(i <= activeCommandIndex){
+            if(i <= this.activeCommandIndex){
                 crumb.removeClass(BreadcrumbTrail.fadedCrumbClassName);
             } else {
                 crumb.addClass(BreadcrumbTrail.fadedCrumbClassName);

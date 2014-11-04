@@ -5,10 +5,12 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="LayoutProvider" />
 
 import ExpansionSets = require("./ExpansionSets");
 import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import Utils = require("./Utils");
+import LayoutProvider = require("./LayoutProvider");
 
 
 export class GraphDataForD3<N extends BaseNode, L extends BaseLink<any>> {
@@ -70,6 +72,9 @@ export interface Graph<N extends BaseNode>  {
    addNodes(newNodes: Array<N>, expansionSet: ExpansionSets.ExpansionSet<N>);
    removeNodes(nodesToRemove: Array<N>);
    containsNode(node: N): boolean;
+    
+   getLayoutProvider(): LayoutProvider.ILayoutProvider;
+   setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider);
 }
 
 
@@ -151,7 +156,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     visHeight(){ return $("#chart").height(); }
     linkMaxDesiredLength(){ return Math.min(this.visWidth(), this.visHeight())/2 - 50; }
     
-     resizedWindowLambda  = () => {
+    resizedWindowLambda  = () => {
         d3.select("#graphRect")
         .attr("width", this.visWidth())
         .attr("height", this.visHeight());
@@ -197,7 +202,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
      * Set this function to whichever function has most recently been
      * used or is about to be used. Allows refreshing or resetting of layouts.
      */
-    runCurrentLayout: (refreshLayout?: boolean) => void;
+    runCurrentLayout: LayoutProvider.LayoutRunner;
+    currentLambda: LayoutProvider.LayoutRunner;
     
     layoutTimer = null;
     setCurrentLayout(layoutLambda: {(refreshLayout?: boolean):void}) {
@@ -206,6 +212,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         var outerThis = this;
         var layoutLastCalled = null;
         var timerWait = 100;
+        this.currentLambda = layoutLambda;
         this.runCurrentLayout =
             function(refreshLayoutInner?: boolean){
                 // We only allow one layout request to run at a time, and with
@@ -221,12 +228,16 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                             clearTimeout(outerLayoutTimer);
                             outerLayoutTimer = null;
                             layoutLastCalled = new Date().getTime();
-                            layoutLambda(refreshLayoutInner);
+                            outerThis.currentLambda(refreshLayoutInner);
                         }
                     , timerWait);
                 }
             };
     }
+//    
+//    immediateLayoutRun(layoutLambda: {(refreshLayout?: boolean):void}){
+//        layoutLambda();
+//    }
     
     getAdjacentLinks(node: N){
         return d3.selectAll(BaseGraphView.linkSvgClass)

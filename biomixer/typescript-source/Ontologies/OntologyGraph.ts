@@ -4,11 +4,13 @@
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
+///<amd-dependency path="LayoutProvider" />
 
-import Utils = require('../Utils');
-import Fetcher = require('../FetchFromApi');
-import GraphView = require('../GraphView');
-import ExpansionSets = require('../ExpansionSets');
+import Utils = require("../Utils");
+import Fetcher = require("../FetchFromApi");
+import GraphView = require("../GraphView");
+import ExpansionSets = require("../ExpansionSets");
+import LayoutProvider = require("../LayoutProvider");
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!
@@ -144,6 +146,15 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     
     removeEdge(){
         console.log("Unimplemented. Get it done!");
+    }
+    
+    getLayoutProvider(): LayoutProvider.ILayoutProvider{
+        // stub, don't need it yet
+        return null;
+    }
+    
+    setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider){
+        // stub, don't need it yet
     }
     
     fetchOntologyNeighbourhood(centralOntologyAcronym: RawAcronym, expansionSet: ExpansionSets.ExpansionSet<Node>){

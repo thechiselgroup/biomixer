@@ -54,7 +54,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     conceptGraph: ConceptGraph.ConceptGraph;
     renderScaler: ConceptRenderScaler.ConceptRendererScaler;
     filterSliders: ConceptFilterSliders.ConceptRangeSliders;
+    
+    /**
+     * Specialized or casted version of parent classes' layoutProvider, for convenience.
+     */
     layouts: ConceptLayouts.ConceptLayouts;
+    
     importerExporterWidget: ImporterExporter.Widget;
     edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
     nodeDeleter: NodeDeleter.NodeDeleterWidgets;
@@ -191,6 +196,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.filterSliders = new ConceptFilterSliders.ConceptRangeSliders(this.conceptGraph, this, this.centralConceptUri);
         
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
+        this.conceptGraph.setLayoutProvider(this.layouts);
         
         this.importerExporterWidget = new ImporterExporter.Widget(this);
          
@@ -289,7 +295,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // .linkDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .forceDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         ;
-        console.log("Is it force distance or link distance above?");
+        // console.log("Is it force distance or link distance above?");
         
     }
     
@@ -1104,6 +1110,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // Note that the length of the Selection is not the definition of empty().
         if(!nodesRemoved.empty() || !linksRemoved.empty()){
+            // This is somewhat correct, but if we do this, then when people delete nodes
+            // the view they are working with will be shifting around...
+            //if(!nodesRemoved.empty()){
+                // this.runCurrentLayout(true);
+            //}
             this.updateStartWithoutResume();
             this.individualConceptFilter.updateFilterUI();
             this.ontologyFilter.updateFilterUI();

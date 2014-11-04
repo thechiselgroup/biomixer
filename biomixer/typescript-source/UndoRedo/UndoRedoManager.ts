@@ -53,12 +53,17 @@ export class UndoRedoManager {
         // If we have 10 items, and the current item is 7 (index 0, so 8th item), then when we splice, we want to
         // insert at 8 (after 7, so at 7+1), and we want to remove from the array 2 items (index 8 and 9), which is
         // 10 - 1 - 7
-         var removed = this.trail.splice(this.currentTrailIndex + 1, (this.trail.length-1 - this.currentTrailIndex), newCommand);
+        var removed = this.trail.splice(this.currentTrailIndex + 1, (this.trail.length-1 - this.currentTrailIndex), newCommand);
         // console.log(this.trail[this.trail.length-1].getDisplayName());
         this.currentTrailIndex = this.trail.length - 1;
         // TODO Should we bother deleting the removed commands?
         // That is with the delete keyword?
         if(undefined !== this.crumblez){
+            // Get that command to store the current layout, before changing things.
+            var active = this.crumblez.getActiveCrumb();
+            if( undefined !== active){
+                active.getCommand().snapshotLayout(true);
+            }
             this.crumblez.updateView(this.trail, newCommand);
         }
     }
@@ -105,6 +110,7 @@ export class UndoRedoManager {
             this.crumblez.updateActiveCommand(command);
         }
         
+        
         var increment;
         var undo;
         var stopAtIndex;
@@ -123,11 +129,17 @@ export class UndoRedoManager {
         for(var i = startAtIndex; i !== stopAtIndex; i += increment){
             var anotherCommand = this.trail[i];
             if(undo){
-                  anotherCommand.executeUndo();
+                // In case the snapshot is at the head of the undo stack,
+                // temporarily save its layout in case we come back to it.
+                anotherCommand.snapshotLayout(false);
+                anotherCommand.executeUndo();
             } else {
-                  anotherCommand.executeRedo();
+                anotherCommand.executeRedo();
             }
         }
+        
+        // Apply the layout we got a snapshot for in addCommand(), when the command was created.
+        this.crumblez.getActiveCrumb().getCommand().applyLayout();
         
         // TODO Filters may need some refreshing, but the design separates the undo/redo in model from filters in view.
         // Fix if the inconsistency is a problem. Filters could be moved to be model oriented, but I have
@@ -181,11 +193,13 @@ export interface ICommand {
     
     /**
      * Add or remove elements as appropriate. Must be reversable.
+     * Must also take care of applying layout snapshot.
      */
     executeRedo(): void;
     
     /**
      * Add or remove elements as appropriate. Must be reversable.
+     * Must also take care of applying layout snapshot.
      */
     executeUndo(): void;
    
@@ -212,5 +226,13 @@ export interface ICommand {
      * interact with the node, it will return null.
      */
     nodeInteraction(nodeId: string): NodeInteraction;
+    
+    // How do I actually want to do this? This seems incorrect...
+    // Maybe takeLayoutSnapshot(layouProvider: LayoutProvider.LayoutProvider) ???
+//    getLayoutProvider(): LayoutProvider.LayoutProvider;
+    
+    snapshotLayout(finalSnapshot: boolean);
+    
+    applyLayout();
 }
 

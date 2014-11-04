@@ -3,6 +3,7 @@
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
+///<amd-dependency path="LayoutProvider" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="Concepts/ExpansionManager" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
@@ -13,6 +14,7 @@
 import Utils = require("../Utils");
 import Fetcher = require("../FetchFromApi");
 import GraphView = require("../GraphView");
+import LayoutProvider = require("../LayoutProvider");
 import ExpansionSets = require("../ExpansionSets");
 import ExpansionManager = require("./ExpansionManager");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
@@ -230,6 +232,16 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             "composition": "part_of",
             "mapping": "maps_to",
     };
+    
+    layoutProvider: LayoutProvider.ILayoutProvider;
+    
+    public getLayoutProvider(): LayoutProvider.ILayoutProvider{
+        return this.layoutProvider;   
+    }
+    
+    public setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider){
+        this.layoutProvider = layoutProvider;
+    }
     
     constructor(
         public graphView: GraphView.GraphView<Node, Link>,

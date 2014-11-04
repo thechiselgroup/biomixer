@@ -3,25 +3,20 @@
 
 ///<amd-dependency path="../JQueryExtension" />
 
+///<amd-dependency path="LayoutProvider" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="Menu" />
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 
-
+import LayoutProvider = require("../LayoutProvider");
 import GraphView = require("../GraphView");
 import Menu = require("../Menu");
 import ConceptGraphView = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
 
-export class ConceptLayouts {
+export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
-    /**
-     * The fixed layout currently allows for storing of only a single layout, but we can easily adjust it.
-     * TODO This will probably be how we handle undo/redo layout applications.
-     */
-    private fixedLayoutData: {[nodeUri: string]: {x: number; y: number}} = {};
-    
     constructor(
         public forceLayout: D3.Layout.ForceLayout,
         public graph: ConceptGraph.ConceptGraph,
@@ -105,18 +100,38 @@ export class ConceptLayouts {
         secondCol.append(radialButton);
         secondCol.append($("<br>"));
         
-        d3.selectAll("#circleLayoutButton").on("click", this.applyNewLayout(this.runCircleLayoutLambda()));
-        d3.selectAll("#forceLayoutButton").on("click", this.applyNewLayout(this.runForceLayoutLambda()));
-        d3.selectAll("#centerLayoutButton").on("click", this.applyNewLayout(this.runCenterLayoutLambda()));
-        d3.selectAll("#horizontalTreeLayoutButton").on("click", this.applyNewLayout(this.runHorizontalTreeLayoutLambda()));
-        d3.selectAll("#verticalTreeLayoutButton").on("click", this.applyNewLayout(this.runVerticalTreeLayoutLambda()));
-        d3.selectAll("#radialLayoutButton").on("click", this.applyNewLayout(this.runRadialLayoutLambda()));
-        d3.selectAll("#importedLayoutButton").on("click", this.applyNewLayout(this.runFixedPositionLayoutLambda()));
+        d3.selectAll("#circleLayoutButton").on("click", this.applyNewLayoutLambda(this.runCircleLayoutLambda()));
+        d3.selectAll("#forceLayoutButton").on("click", this.applyNewLayoutLambda(this.runForceLayoutLambda()));
+        d3.selectAll("#centerLayoutButton").on("click", this.applyNewLayoutLambda(this.runCenterLayoutLambda()));
+        d3.selectAll("#horizontalTreeLayoutButton").on("click", this.applyNewLayoutLambda(this.runHorizontalTreeLayoutLambda()));
+        d3.selectAll("#verticalTreeLayoutButton").on("click", this.applyNewLayoutLambda(this.runVerticalTreeLayoutLambda()));
+        d3.selectAll("#radialLayoutButton").on("click", this.applyNewLayoutLambda(this.runRadialLayoutLambda()));
+        d3.selectAll("#importedLayoutButton").on("click", this.applyNewLayoutLambda(this.runFixedPositionLayoutLambda()));
         $("#importedLayoutButton").slideUp();
         
     }
     
-    applyNewLayout(layoutLambda){
+    /**
+     * The fixed layout currently allows for storing of only a single layout, but interacts with undo/redo.
+     */
+    private currentFixedLayoutData: {[nodeUri: string]: {x: number; y: number}} = {};
+    
+    getLayoutPositionSnapshot(): {[nodeUri: string]: {x: number; y: number}} {
+        var positions: {[nodeUri: string]: {x: number; y: number}} = {};
+        var graphNodes = this.graph.graphD3Format.nodes;
+        $.each(graphNodes, (index, node)=>{ positions[String(node.rawConceptUri)] = {x: node.x, y: node.y}; } );
+        return positions;
+    }
+    
+    setLayoutFixedCoordinates(layout: {[nodeUri: string]: {x: number; y: number}}){
+        this.currentFixedLayoutData = layout;
+    }
+    
+    applyFixedLayout(){
+        this.runFixedPositionLayoutLambda()(false);
+    }
+    
+    applyNewLayoutLambda(layoutLambda: LayoutProvider.LayoutRunner){
         var outerThis = this;
         return ()=>{
             outerThis.graphView.setCurrentLayout(layoutLambda);
@@ -124,14 +139,45 @@ export class ConceptLayouts {
         };
     }
     
+    setNewLayoutWithoutRunning(layoutLambda: LayoutProvider.LayoutRunner){
+        this.graphView.setCurrentLayout(layoutLambda);
+    }
+    
+    getLayoutRunner(): LayoutProvider.LayoutRunner{
+        return this.graphView.currentLambda; // Not runCurrentLayout, because that's a wrapped version
+    }
+    
     private lastTransition = null;
     private staleTimerThreshold = 4000;
     private desiredDuration = 500;
-    private transitionNodes(refresh?: boolean){
+    private lastRefreshArg = false;
+    /**
+     * If refresh, we use a timer to prevent stuttering.
+     * If translateOnlyFixedNodes is true, then we have other nodes that will be unaffected
+     * during the transition, probably because they are being animated in another way (such
+     * as running a force layout concurrently that is meant to only apply to non-fixed nodes,
+     * while we animate all of the fixed position nodes into their fixed positions).
+     */
+    private transitionNodes(refresh?: boolean, transitionOnlyFixedNodes: boolean = false){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
         
+        // This part is involved. To know if we have to smooth the time for the transition
+        // as seen further down, we need to account for autoamtic layout refreshes and manual
+        // triggers separately. In particular, we have to treat the first refresh in a series
+        // of automatic refreshes as special and essentially equivalent to a manual non-refreshing
+        // layout triggered by the user. Like I said, involved.
+        var allowForDurationAdjustment = false;
+        if(refresh === false){
+            // For non-refreshign manual layout triggers, do not allow time adjustment,
+            // always use the maximal transition animation duration.
+            this.lastRefreshArg = false;
+        } else if(refresh === true){
+            // First refresh in series does not allow for time adjustment, subsequent do. 
+            allowForDurationAdjustment = this.lastRefreshArg;
+            this.lastRefreshArg = true;
+        }
 
         var now = new Date().getTime();
 
@@ -143,19 +189,20 @@ export class ConceptLayouts {
         // when we have an extremely long set of node or edge additions though.
         // If so, try having a minimum transition duration.
         var reduceDurationBy = 0;
-        if(null !== this.lastTransition && refresh && (now - this.lastTransition) <= this.staleTimerThreshold){
+        if(null !== this.lastTransition && allowForDurationAdjustment && (now - this.lastTransition) <= this.staleTimerThreshold){
             reduceDurationBy = now - this.lastTransition;
             // console.log("SHORTEN! By: "+reduceDurationBy);
         }
         var duration = this.desiredDuration - reduceDurationBy;
-        
 
         d3.selectAll("g.node_g")
+            .filter((node: ConceptGraph.Node, i: number)=>{ return transitionOnlyFixedNodes ? node.fixed : true; })
             .transition()
             .duration(duration)
             .ease("linear")
             .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
+        // NB If we are doing translateOnlyFixedNodes, will transitioning unfixed arcs break things?
         d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
             .transition()
             .duration(duration)
@@ -336,7 +383,7 @@ export class ConceptLayouts {
            });
     }
     
-    runRadialLayoutLambda(){
+    runRadialLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean){
         	if(refreshLayout){
@@ -370,7 +417,7 @@ export class ConceptLayouts {
         };
     }
 
-    runVerticalTreeLayoutLambda(){
+    runVerticalTreeLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean){
         	if(refreshLayout){
@@ -397,7 +444,7 @@ export class ConceptLayouts {
         };
     }
     
-    runHorizontalTreeLayoutLambda(){
+    runHorizontalTreeLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean){
         	if(refreshLayout){
@@ -424,7 +471,7 @@ export class ConceptLayouts {
         };
     }
     
-    runCircleLayoutLambda(){
+    runCircleLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean){
         	if(refreshLayout){
@@ -455,7 +502,7 @@ export class ConceptLayouts {
         };
     }
     
-    runCenterLayoutLambda(){
+    runCenterLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean){
         	if(refreshLayout){
@@ -492,7 +539,7 @@ export class ConceptLayouts {
     }
     
     
-    runForceLayoutLambda(){
+    runForceLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean): void{
             if(refreshLayout){
@@ -500,6 +547,12 @@ export class ConceptLayouts {
                 outerThis.forceLayout.resume();
                 return;
             }
+            
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
+
+            // The nodes may have been fixed in the fixed layout, or when dragging them.
+            // If we are not merely refreshing, let them all be free to move.
+            $.each(graphNodes, (index, node)=>{ node.fixed = true; } );
             
             outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
             .gravity(0.05) // 0.5
@@ -511,7 +564,7 @@ export class ConceptLayouts {
         };
     }
     
-    runFixedPositionLayoutLambda(){
+    runFixedPositionLayoutLambda(): LayoutProvider.LayoutRunner{
         var outerThis = this;
         return function(refreshLayout?: boolean): void{
             if(refreshLayout){
@@ -523,32 +576,35 @@ export class ConceptLayouts {
             
             $.each(graphNodes,
                 function(index, node){
-                    if(undefined !== outerThis.fixedLayoutData[String(node.rawConceptUri)]){
-                        node.x = outerThis.fixedLayoutData[String(node.rawConceptUri)].x;
-                        node.y = outerThis.fixedLayoutData[String(node.rawConceptUri)].y;
+                    if(undefined !== outerThis.currentFixedLayoutData[String(node.rawConceptUri)]){
+                        node.x = outerThis.currentFixedLayoutData[String(node.rawConceptUri)].x;
+                        node.y = outerThis.currentFixedLayoutData[String(node.rawConceptUri)].y;
+                        node.fixed = true;
                     } else {
                         // Use whatever position is on the node already? Assign a random position??
                         // If using previous position, then shall we use a circle layout to do so (quite quick)?
+                        // No, we will run the force layout while keeping all the nodes herein fixed!
                     }
                 }
             );
             
-            outerThis.transitionNodes(refreshLayout);
+            // The transition is needed for the fixed positions, but not the force layout ones...
+            outerThis.transitionNodes(refreshLayout, true);
         }
     }
     
     public updateFixedLayoutDatum(nodeId: ConceptGraph.ConceptURI, coordinates: {x: number; y: number}){
-        this.fixedLayoutData[String(nodeId)] = coordinates;
+        this.currentFixedLayoutData[String(nodeId)] = coordinates;
         
         $("#importedLayoutButton").slideDown();
     }
     
     public updateFixedLayoutData(newPositions: {[nodeId: string]: {x: number; y: number}}){
         for(var nodeId in newPositions){
-            this.fixedLayoutData[nodeId] = newPositions[nodeId];
+            this.currentFixedLayoutData[nodeId] = newPositions[nodeId];
         }
         
-        if(this.fixedLayoutData !== undefined){
+        if(this.currentFixedLayoutData !== undefined){
             $("#importedLayoutButton").slideDown();
         } else {
             $("#importedLayoutButton").slideUp();
