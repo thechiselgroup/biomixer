@@ -293,6 +293,10 @@ div#hoveringGraphMenu {
 	width: 2em;
 }
 
+.boldText{
+	font-weight: bold;
+}
+
 .view_selection_box {
 	float: left;
 }
