@@ -225,16 +225,24 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      * This is used for both initial expansions and refocus expansions.
      * It is also used for importing graphs.
      */
-    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
+    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer, expansionType: ConceptGraph.PathOption): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
         // We may have nodes that we are getting rid of in order to do the expansion, so we do it this way
-        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, this.visualization);
+        // expansionType is typically this.visualization (the PathOption gotten from the drop down), but in the case of importing data
+        // it could be null.
+        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType);
         this.nodeDeleter.deleteNodesForGraphInitialization(initSet);
         return initSet;
     }
     
     fetchInitialExpansion(){
+        if(this.centralOntologyAcronym === undefined || this.centralConceptUri === undefined){
+            console.log("No ontology acoronym or no central concept id, empty graph left unfilled.");
+            this.importerExporterWidget.openShareAndImportMenu();
+            return;
+        }
+
         var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), String(this.visualization));
-        var initSet = this.prepareForExpansionFromScratch(expId);
+        var initSet = this.prepareForExpansionFromScratch(expId, this.visualization);
         var expansionSet = initSet.expansionSet;
         
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback

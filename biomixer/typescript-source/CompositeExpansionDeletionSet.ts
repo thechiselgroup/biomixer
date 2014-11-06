@@ -38,7 +38,7 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
         private undoRedoBoss: UndoRedoManager.UndoRedoManager,
         expansionType: UndoRedoManager.NodeInteraction
         ){
-        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, String(expansionType));
+        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.displayId);
         // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
         // with null parent node and it worked.
         this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, null, this.graph, null, expansionType)

@@ -34,18 +34,30 @@ export class SavedGraphSeed {
     y: number;
 }
 
+
+
 export class SavedGraph {
-    NB: string = "BioMixer portable graph. Paste this entire data structure into the Import dialog box, accessible via the menu.";
+    NB: string = "Greetings! This is a BioMixer portable graph."
+    +" Paste this entire data structure into the Import dialog box, accessible via the menu."
+    +" Use the url: "+ SavedGraph.getUrlIFrameOrNot()+" ."
+    ;
+    
     n: { [conceptUri: string]: SavedGraphSeed } = {};
     
     addNode(nodeData){
         this.n[String(nodeData.rawConceptUri)] = <SavedGraphSeed><any>{ o: nodeData.ontologyAcronym, x: nodeData.x, y: nodeData.y };
+    }
+    
+    static getUrlIFrameOrNot(): string{
+        return document.location.protocol + '//' +document.location.host +document.location.pathname;
     }
 }
 
 export class Widget {
 
     public menuSelector: string = "";
+    
+    private containers: {outer: JQuery; inner: JQuery; expanderCallback: {(open?: boolean): void} };
     
     constructor(
         private pathsToRoot: PathsToRoot.ConceptPathsToRoot
@@ -55,9 +67,9 @@ export class Widget {
     static exportImportFooterDiv = "exportImportFooterDiv";
     
     addMenuComponents(menuSelector: string, softNodeCap: number){
-        var containers = Menu.Menu.slideToggleHeaderContainer("importerExporterMenuContainer", "importerExporterInnerContainer", "Sharing", true);
-        var outerContainer = containers.outer;
-        var innerContainer = containers.inner;
+        this.containers = Menu.Menu.slideToggleHeaderContainer("importerExporterMenuContainer", "importerExporterInnerContainer", "Sharing", true);
+        var outerContainer = this.containers.outer;
+        var innerContainer = this.containers.inner;
         this.menuSelector = menuSelector; // store for later
         $(menuSelector).append(outerContainer);
         
@@ -89,6 +101,16 @@ export class Widget {
         d3.selectAll("#exportButton").on("click", this.showExportDialogLambda());
         d3.selectAll("#importButton").on("click", this.showImportDialogLambda());
 
+    }
+    
+    /**
+     * When we are opening an empty page, we like to assume the user will be importing, so we can open all the required elements
+     * for them.
+     */
+    openShareAndImportMenu(){
+        $('#trigger').trigger("click");
+        this.containers.expanderCallback();
+        this.showImportDialogLambda()();
     }
 
     private showExportDialogLambda(){
@@ -234,14 +256,14 @@ export class GraphImporter {
 
         // Set the graph's layout to be agnostic. We are presumably getting all of the layout data from the imported
         // data, and we don't want any other layout algorithm overriding that when calls to refresh the layout occurs.
-        
-        this.conceptGraph.graphView.setCurrentLayout(this.pathsToRoot.layouts.runFixedPositionLayoutLambda());
+        // I expected to need to set the layout here, but it didn't work. Had to do it after adding all the data.
+        // this.conceptGraph.graphView.setCurrentLayout(this.pathsToRoot.layouts.runFixedPositionLayoutLambda());
        
         // It's ok if the id for this expansion set is simplistic. We do want to allow for multiple imports within a page though...
         // Maybe...
         
-        var expId = new ExpansionSets.ExpansionSetIdentifer("importedGraphInitialExpansion_"+GraphImporter.importNumber, "Imported Graph");
-        var initSet = this.pathsToRoot.prepareForExpansionFromScratch(expId);
+        var expId = new ExpansionSets.ExpansionSetIdentifer("importedGraphInitialExpansion_"+GraphImporter.importNumber, "Imported Graph "+GraphImporter.importNumber);
+        var initSet = this.pathsToRoot.prepareForExpansionFromScratch(expId, null);
         var expansionSet = initSet.expansionSet;
 
         // The init set has the expansion set I would otherwise have made, but is the right way to delete and add at the same time.
@@ -256,6 +278,8 @@ export class GraphImporter {
             this.pathsToRoot.layouts.updateFixedLayoutDatum(conceptUri, <{x: number; y: number}>nodeData);
             this.loadNode(conceptUri, nodeData, expansionSet);
         }
+        
+        this.conceptGraph.graphView.setCurrentLayout(this.pathsToRoot.layouts.runFixedPositionLayoutLambda());
     }
     
     loadNode(conceptUri: string, nodeData: SavedGraphSeed, expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>){

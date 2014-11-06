@@ -124,6 +124,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     }
     
     setLayoutFixedCoordinates(layout: {[nodeUri: string]: {x: number; y: number}}){
+        if(undefined == layout){
+            return;
+        }
         this.currentFixedLayoutData = layout;
     }
     
@@ -594,7 +597,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     
     public updateFixedLayoutDatum(nodeId: ConceptGraph.ConceptURI, coordinates: {x: number; y: number}){
         this.currentFixedLayoutData[String(nodeId)] = coordinates;
-        
         $("#importedLayoutButton").slideDown();
     }
     

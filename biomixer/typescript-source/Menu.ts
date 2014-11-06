@@ -74,7 +74,7 @@ export class Menu {
      * 1) attach the outer element to the menu or other html container of your choice. This outer element is always visible.
      * 2) attach your menu's elements to the inner element. They will be shown or hidden.
      */
-     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery} {
+     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery; expanderCallback: {(open?: boolean): void} } {
         var outerContainer = $("<div>").attr("id", outerContainerId);
         var innerHidingContainer = $("<div>").attr("id", innerContainerId);
         
@@ -92,12 +92,21 @@ export class Menu {
         var label = $("<label>").addClass(Menu.menuLabelClass)
             .addClass("unselectable").attr("unselectable", "on") // IE8
             .text(labelText);
-    
-        var expanderClickFunction = ()=>{
-            $(innerHidingContainer).slideToggle('fast',
-                ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); }
-            );
-            
+     
+        var expanderClickFunction = (open?: boolean)=>{
+            // Used for the button, as well as for a programmatic callback for when we want to display the submenu
+            // for special purposes.
+            var expanderIndicatorUpdate = ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); }
+            if(undefined !== open){
+                if(open){
+                    $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdate);
+                } else {
+                    $(innerHidingContainer).slideUp('fast', expanderIndicatorUpdate);
+                }
+            } else {
+                // Don't have a preference of what to do? Toggle it.
+                $(innerHidingContainer).slideToggle('fast', expanderIndicatorUpdate);
+            }
         }; 
         
         labelExpanderIcon.click(expanderClickFunction);
@@ -111,8 +120,8 @@ export class Menu {
         labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); 
 
         outerContainer.append(innerHidingContainer);
-         
-        return {outer: outerContainer, inner: innerHidingContainer };
+        
+        return {outer: outerContainer, inner: innerHidingContainer, expanderCallback: expanderClickFunction };
     }
     
 }

@@ -21,7 +21,7 @@ import LayoutProvider = require("./LayoutProvider");
  */
 export class CommonImplementor<N extends GraphView.BaseNode> {
        
-    fixedLayout: { [nodeId: string]: {x: number; y: number} };
+    fixedLayout: { [nodeId: string]: {x: number; y: number} } = {};
     storedLayoutRunner: LayoutProvider.LayoutRunner;
     
     // This *should* be set as a constructor arg, but my current compiler does not support super(this)
