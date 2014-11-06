@@ -844,11 +844,23 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 }
             }
         )
-        .attr("class", (d: ConceptGraph.Link)=>{ return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType); })
+        .attr("class",
+            (d: ConceptGraph.Link)=>{
+                return GraphView.BaseGraphView.linkSvgClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
+                +" "+outerThis.getLinkCssClass(d.relationType);
+            }
+        )
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
         var enteringPolylines = enteringLinks.append("svg:polyline")
-        .attr("class", function(d: ConceptGraph.Link){ return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
+        .attr("class",
+            function(d: ConceptGraph.Link){
+                return GraphView.BaseGraphView.linkSvgClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
+                +" "+outerThis.getLinkCssClass(d.relationType);
+            }
+        )
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
@@ -857,7 +869,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("data-thickness_basis", function(d) { return d.value;});
         
         var enteringArcMarkers = enteringLinks.append("svg:polyline")
-        .attr("class", function(d: ConceptGraph.Link){ return GraphView.BaseGraphView.linkMarkerSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
+        .attr("class",
+            function(d: ConceptGraph.Link){
+                return GraphView.BaseGraphView.linkMarkerSvgClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
+                +" "+outerThis.getLinkCssClass(d.relationType);
+            }
+        )
         .attr("id", function(d: ConceptGraph.Link){ return "link_marker_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this));
