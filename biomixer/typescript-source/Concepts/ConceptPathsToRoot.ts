@@ -852,11 +852,23 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 }
             }
         )
-        .attr("class", (d: ConceptGraph.Link)=>{ return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType); })
+        .attr("class",
+            (d: ConceptGraph.Link)=>{
+                return GraphView.BaseGraphView.linkSvgClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
+                +" "+outerThis.getLinkCssClass(d.relationType);
+            }
+        )
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
         
         var enteringPolylines = enteringLinks.append("svg:polyline")
-        .attr("class", function(d: ConceptGraph.Link){ return GraphView.BaseGraphView.linkSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
+        .attr("class",
+            function(d: ConceptGraph.Link){
+                return GraphView.BaseGraphView.linkSvgClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
+                +" "+outerThis.getLinkCssClass(d.relationType);
+            }
+        )
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this))
@@ -865,7 +877,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("data-thickness_basis", function(d) { return d.value;});
         
         var enteringArcMarkers = enteringLinks.append("svg:polyline")
-        .attr("class", function(d: ConceptGraph.Link){ return GraphView.BaseGraphView.linkMarkerSvgClassSansDot+" link_"+d.relationType+" "+outerThis.getLinkCssClass(d.relationType);})
+        .attr("class",
+            function(d: ConceptGraph.Link){
+                return GraphView.BaseGraphView.linkMarkerSvgClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
+                +" "+outerThis.getLinkCssClass(d.relationType);
+            }
+        )
         .attr("id", function(d: ConceptGraph.Link){ return "link_marker_"+d.id})
         .on("mouseover", this.highlightHoveredLinkLambda(this))
         .on("mouseout", this.unhighlightHoveredLinkLambda(this));
@@ -1014,7 +1032,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .append("svg:g")
         .attr("class", GraphView.BaseGraphView.nodeGSvgClassSansDot)
         .attr("id", function(d: ConceptGraph.Node){ return "node_g_"+d.conceptUriForIds})
-        .call(this.nodeDragBehavior);
+        .call(this.nodeDragBehavior)
+        .on("mouseover", this.highlightHoveredNodeLambda(this, true))
+        .on("mouseout", this.unhighlightHoveredNodeLambda(this, true))
+        ;
         
         // Basic properties
         enteringNodes
@@ -1031,8 +1052,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .style("fill", function(d: ConceptGraph.Node) { return d.nodeColor; })
         .attr("height", this.nodeHeight)
         .attr("width", this.nodeHeight)
-        .on("mouseover", this.highlightHoveredNodeLambda(this, true))
-        .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
+        ;
         
         
         // tipsy stickiness from:
@@ -1138,8 +1158,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("x", function(d: ConceptGraph.Node){ return -1 * parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; } )
         .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
         .on("click", this.showNodeExpanderPopupMenuLambda(this))
-        // .on("mouseover", this.highlightHoveredNodeLambda(this))
-        // .on("mouseout", this.unhighlightHoveredNodeLambda(this))
         ;
         
         expanderSvgs
@@ -1151,7 +1169,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("height", this.expansionBoxHeight)
         .attr("width", this.expansionBoxWidth)
         .attr("overflow", "visible")
-
         ;
         
         expanderSvgs
@@ -1190,11 +1207,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     // it allows this one to close the menu.
                     .on("mouseup", function(){ $("#expanderMenu").first().remove(); })
             ;
+            // We also add hover effects to text children lower down
             
             // Create concept expander button
             {
             var conceptExpandSvg = innerSvg.append("svg:svg")
                     .attr("overflow", "visible").attr("y", 0)
+                    .classed("expanderMenuItem", true)
             ;
             
             // If this node is currently cleared for expansion within the undo/stack current context,
@@ -1225,7 +1244,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             conceptExpandSvg.append("svg:text")
                 .text(conceptExpandTextValue)
                 .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",conceptExpandFontFillColor).attr("dx", fontXSvgPadding).attr("dy", fontYSvgPadding)
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("font-weight", "inherit")
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
                 .style("pointer-events", "none")
                 // Why cannot we stop selection in IE? They are rude.
                 .attr("unselectable", "on") // IE 8
@@ -1238,6 +1258,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             {
             var mappingExpandSvg = innerSvg.append("svg:svg")
                     .attr("overflow", "visible").attr("y", rectHeight)
+                    .classed("expanderMenuItem", true)
             ;
             
             // If this node is currently cleared for expansion within the undo/stack current context,
@@ -1269,7 +1290,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             mappingExpandSvg.append("svg:text")
                 .text(mappingExpandTextValue)
                 .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",mappingExpandFontFillColor).attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("font-weight", "inherit")
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
                 .style("pointer-events", "none")
                 // Why cannot we stop selection in IE? They are rude.
                 .attr("unselectable", "on") // IE 8
@@ -1282,6 +1304,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             {
             var centralizeNodeSvg = innerSvg.append("svg:svg")
                     .attr("overflow", "visible").attr("y", 2*rectHeight)
+                    .classed("expanderMenuItem", true)
             ;
             centralizeNodeSvg.append("svg:rect")
                     .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
@@ -1290,7 +1313,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             centralizeNodeSvg.append("svg:text")
                 .text("Refocus Node")
                 .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
+                .style("font-weight", "inherit")
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
                 .style("pointer-events", "none")
                 // Why cannot we stop selection in IE? They are rude.
                 .attr("unselectable", "on") // IE 8
@@ -1317,7 +1341,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
             console.log("Resized things, maxWidth: "+maxWidth);
             }
+            
+            
+            // Make the menu labels bold when hovered over
+            d3.selectAll(".expanderMenuItem")
+                .on("mouseover", function(node: Node){ d3.select(this).classed("boldText", true); })
+                .on("mouseout", function(node: Node){ d3.select(this).classed("boldText", false); })
+            ;
         }
+        
     }
     
     beforeNodeHighlight(targetNodeData){

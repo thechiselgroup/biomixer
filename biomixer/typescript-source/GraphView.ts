@@ -128,6 +128,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static linkSvgClassSansDot = "link";
     static linkMarkerSvgClassSansDot = "linkmarker";
     static linkLabelSvgClassSansDot = "linktext";
+    static linkClassSelectorPrefix = "link_";
     
     static ontologyNodeSvgClassSansDot = "ontologyNode";
     static ontologyLinkSvgClassSansDot = "ontologyMappingLink"

@@ -69,7 +69,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
                             $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
                             .change(
                                 function(){
-                                    var linkHideCandidates = outerThis.computeCheckboxElementDomain(linkTypeLabel);
+                                    var linkHideCandidates = outerThis.computeCheckboxElementDomain(linkTypeName);
                                     outerThis.checkboxChanged(linkHideCandidates, $(this));
                                 }
                             )
@@ -110,8 +110,9 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         return this.getClassName()+"_for_"+linkName;
     }
     
-    computeCheckboxElementDomain(linkTypeLabel: string): D3.Selection {
-        return d3.selectAll("."+this.conceptGraph.relationTypeCssClasses[linkTypeLabel]);
+    computeCheckboxElementDomain(linkTypeName: string): D3.Selection {
+        // Special class for this sort of selection is constructed this way, with link_ prefix
+        return d3.selectAll("."+GraphView.BaseGraphView.linkClassSelectorPrefix+linkTypeName);
     }
     
     checkboxChanged(setOfHideCandidates: D3.Selection, checkbox: JQuery){
