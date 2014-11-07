@@ -222,6 +222,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         
     }
     
+    /**
+     * Used for stylings, not selections
+     */
     relationTypeCssClasses = {
             "is_a": "inheritanceLink",
             "part_of": "compositionLink",

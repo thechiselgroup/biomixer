@@ -44,7 +44,7 @@
 	pointer-events: none;
 }
 
-.link {
+.link, .filter_link_sample {
   stroke-linecap: round;
   /* Dark colored arcs look better at 2px due to antialiasing :( 
    * The antialiasing causes barber pole effects when the lines are
@@ -60,10 +60,6 @@
   stroke-width: 2;
 }
 
-polyLine.linkMarker {
-	stroke-dasharray: none;
-}
-
 .ontologyMappingLink {
 	stroke-opacity: .75;
 	stroke: #999;
@@ -76,7 +72,7 @@ polyLine.linkMarker {
 	fill: #002266;
 	color: #002266;
 }
-polyLine.inheritanceLink.link {
+polyline.inheritanceLink {
 	stroke-dasharray: none;
 }
 
@@ -86,15 +82,15 @@ polyLine.inheritanceLink.link {
 	fill: #003311;
 	color: #003311;
 }
-polyline.compositionLink.link {
+polyline.compositionLink {
 	stroke-dasharray: 4,4;
 }
 
 .propertyRelationLink {
 	/* will be based on ontology color */
 }
-polyline.propertyRelationLink.link {
-	stroke-dasharray: 1,1;
+polyline.propertyRelationLink {
+	stroke-dasharray: 1,2;
 }
 
 .mappingLink {
@@ -104,6 +100,10 @@ polyline.propertyRelationLink.link {
 }
 polyline.mappingLink{
 	stroke-dasharray: 10,5;
+}
+
+polyline.linkmarker, polyline.filter_link_sample_marker {
+	stroke-dasharray: none;
 }
 
 /* Highlighting takes priority over hiding */

@@ -24,6 +24,9 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
     
     static SUB_MENU_TITLE: string = "Edge Types Displayed";
     
+    static sampleEdgeClassSansDot: string = "filter_link_sample";
+    static sampleMarkerClassSansDot: string = "filter_link_sample_marker";
+    
     constructor(
         public conceptGraph: ConceptGraph.ConceptGraph,
         public graphView: PathToRoot.ConceptPathsToRoot,
@@ -44,7 +47,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         var linkTypes: {[type: string]: string} = {};
         var linkTypeToOntology: {[type: string]: ConceptGraph.RawAcronym} = {};
         d3.selectAll("."+GraphView.BaseGraphView.linkSvgClassSansDot).each(
-            (d: ConceptGraph.Link)=>{
+            function(d: ConceptGraph.Link){
                 linkTypes[d.relationType] = d.relationLabel;
                 linkTypeToOntology[d.relationType] = d.relationSpecificToOntologyAcronym;
             }
@@ -62,6 +65,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
                     var checkboxLabel = this.generateCheckboxLabel(linkTypeLabel);
                     // TODO Use existing CSS to assign same color to this square
                     var checkboxColoredSquare = this.generateColoredSquareIndicator(linkTypeLabel, linkTypeToOntology[linkTypeName]);
+                    var checkboxSampleArc = this.generateSampleArcIndicator(linkTypeName, linkTypeToOntology[linkTypeName]);
                     
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
@@ -74,9 +78,12 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
                                 }
                             )
                         )
+                    .append(checkboxSampleArc)
                         .append(
                             $("<label>").attr("for",checkId)
-                            .append(checkboxColoredSquare+"&nbsp;"+checkboxLabel)
+                            .append(
+                                // checkboxColoredSquare+
+                                "&nbsp;"+checkboxLabel)
                         )
                     );
                 }
@@ -97,6 +104,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         return "\""+linkTypeLabel+"\"";
     }
     
+    // Mostly deprecated, now that we have sample arcs for the legend.
     generateColoredSquareIndicator(linkTypeLabel: string, ontologyAcronym: ConceptGraph.RawAcronym): string {
         if(undefined !== this.conceptGraph.relationTypeCssClasses[linkTypeLabel]){
             return "<span style='font-size: large;' class='"+this.conceptGraph.relationTypeCssClasses[linkTypeLabel]+"'>\u25A0</span>";
@@ -106,13 +114,95 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         }
     }
     
+    generateSampleArcIndicator(relationType: string, relationSpecificToOntologyAcronym: ConceptGraph.RawAcronym): Element {
+        // This is largely code copied from ConceptPathsToRoot...
+        // This duplication is fragile, but there's no easy way to convert D3 idioms for
+        // bound data to one-off element creation like this.
+        var linkContainer = document.createElementNS(d3.ns.prefix.svg, 'svg');
+
+        // Make fake link data to drive the arc positioning functions from the ConceptGraph.
+        // We don't need actual nodes as source and target, just coordinates.
+        var markerCompensation = relationType === this.conceptGraph.relationLabelConstants.inheritance ? 15 : 0 ;
+        var finalTargetXCoordinate = 50; 
+        var initialTargetXCoordinate = finalTargetXCoordinate + markerCompensation; // See uses later...
+        var arcHeight = 7;
+        var linkData = new ConceptGraph.Link();
+        linkData.relationType = relationType;
+        linkData.source = <ConceptGraph.Node>{x: 0, y: arcHeight};
+        linkData.target = <ConceptGraph.Node>{x: initialTargetXCoordinate, y: arcHeight};
+        linkData.relationSpecificToOntologyAcronym = relationSpecificToOntologyAcronym;
+        
+        // Make sample edge container
+        d3.select(linkContainer)
+        .attr("style", ()=>{
+                if(this.graphView.getLinkCssClass(relationType) !== "propertyRelationLink"){
+                    return "";
+                } else {
+                    // Wanted to do this in the getLinkCssClass, by adding a dynamic CSS rule, but
+                    // there were a lot of browser issues, and I trusted none of the libraries for it.
+                    // So...use a style per edge instead. Too bad.
+                    var ontColor = this.conceptGraph.nextNodeColor(relationSpecificToOntologyAcronym);
+                    return " stroke: "+ontColor+"; fill: "+ontColor+"; color: "+ontColor+"; ";
+                }
+            }
+        )
+        .attr("width", finalTargetXCoordinate).attr("height", 2 * arcHeight)
+        .attr("class",
+            ()=>{
+                return ConceptEdgeTypeFilter.sampleEdgeClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+relationType
+                +" "+this.graphView.getLinkCssClass(relationType)
+                ;
+            }
+        )
+        .attr("id", function(){ return "filter_link_g_"+relationType});
+        
+        // Make sample marker
+        // Make it first because we're going to adjust the line length after,
+        // to get the marker centered better.
+        d3.select(linkContainer).append("svg:polyline")
+        .attr("class",
+            ()=>{
+                return ConceptEdgeTypeFilter.sampleMarkerClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+relationType
+                +" "+this.graphView.getLinkCssClass(relationType);
+            }
+        )
+        .attr("id", function(d: ConceptGraph.Link){ return "filter_link_marker_"+relationType})
+        .attr("points", this.graphView.updateArcMarkerFunc(linkData, true))
+        ;
+        
+        // Adjust target endpoint to be desired line length; we had it further out
+        // to compensate for marker size.
+        linkData.target.x = finalTargetXCoordinate;
+        
+        // Make sample edge line
+        d3.select(linkContainer).append("svg:polyline")
+        .attr("class",
+            ()=>{
+                return ConceptEdgeTypeFilter.sampleEdgeClassSansDot
+                +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+relationType
+                +" "+this.graphView.getLinkCssClass(relationType);
+            }
+        )
+        .attr("id", function(){ return "filter_link_line_"+relationType})
+        .attr("points", this.graphView.updateArcLineFunc(linkData, true))
+        ;
+        
+        return linkContainer;
+    }
+    
     computeCheckId(linkName: string): string {
         return this.getClassName()+"_for_"+linkName;
     }
     
     computeCheckboxElementDomain(linkTypeName: string): D3.Selection {
         // Special class for this sort of selection is constructed this way, with link_ prefix
-        return d3.selectAll("."+GraphView.BaseGraphView.linkClassSelectorPrefix+linkTypeName);
+        return d3.selectAll(
+            "."+GraphView.BaseGraphView.linkClassSelectorPrefix+linkTypeName
+            +":not(."+ConceptEdgeTypeFilter.sampleEdgeClassSansDot+")"
+            +":not(."+ConceptEdgeTypeFilter.sampleMarkerClassSansDot+")"
+        );
     }
     
     checkboxChanged(setOfHideCandidates: D3.Selection, checkbox: JQuery){

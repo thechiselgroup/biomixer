@@ -39,7 +39,10 @@ export class CommonImplementor<N extends GraphView.BaseNode> {
         // Trigger the fixed layout algorithm immediately
         this.graph.getLayoutProvider().applyFixedLayout();
         // Set up the original algorithm to be used
-        this.graph.getLayoutProvider().setNewLayoutWithoutRunning(this.storedLayoutRunner);
+        if(undefined !== this.storedLayoutRunner){
+            // Can be undefined in the case of composite commands that do not defer snapshotting to composed commands.
+            this.graph.getLayoutProvider().setNewLayoutWithoutRunning(this.storedLayoutRunner);
+        }
     }
     
     finalSnapshotTaken = false;

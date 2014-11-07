@@ -443,12 +443,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
-    public updateArcLineFunc = (linkData: ConceptGraph.Link): string => {
+    public updateArcLineFunc = (linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string => {
         // This is a lot easier than markers, except that we also have to offset
         // the line if there are two arc types.
         
         var offset;
-        if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
+        if(ignoreOffset){
+            offset = 0;
+        } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
             offset = 10;
         } else if (linkData.relationType === this.conceptGraph.relationLabelConstants.inheritance
                 || linkData.relationType === this.conceptGraph.relationLabelConstants.mapping){
@@ -495,25 +497,23 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         return points;
     }
     
-    public updateArcMarkerFunc = (linkData: ConceptGraph.Link): string => {
+    public updateArcMarkerFunc = (linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string => {
         if(linkData.relationType === this.conceptGraph.relationLabelConstants.inheritance){
-            return this.computeArcMarkerForInheritance(linkData);
+            return this.computeArcMarkerForInheritance(linkData, ignoreOffset);
         } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition) {
-            return this.computeArcMarkerForComposition(linkData);
+            return this.computeArcMarkerForComposition(linkData, ignoreOffset);
         } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.mapping) {
-            return this.computeArcMarkerForMapping(linkData);
+            return this.computeArcMarkerForMapping(linkData, ignoreOffset);
         } else {
             // No edge for relation property arcs, as defined per ontology
-            return this.computeArcMarkerPropertyRelations(linkData);
+            return this.computeArcMarkerPropertyRelations(linkData, ignoreOffset);
         }
     }
     
     // For drawing the triangular marker on the arcs
     triSegLen = 14;
     triangleMarkerPointAngle = (25/360) * (2 * Math.PI);
-    private computeArcMarkerForInheritance(linkData: ConceptGraph.Link): string{
-        var offset = 10;
-        
+    private computeArcMarkerForInheritance(linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string{
         var sourceX = linkData.source.x;
         var sourceY = linkData.source.y;
         var targetX = linkData.target.x;
@@ -557,8 +557,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     diamondLength = 14.0; // And height, if we use 45 degrees
     diamondAngle = (45/360) * (2 * Math.PI);
-    private computeArcMarkerForComposition(linkData: ConceptGraph.Link): string{
-         var offset = 10;
+    private computeArcMarkerForComposition(linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string{
+         var offset = ignoreOffset ? 0 : 10;
         
         var sourceX = linkData.source.x;
         var sourceY = linkData.source.y;
@@ -629,49 +629,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         return points;
     }
     
-    private computeArcMarkerForMapping(linkData: ConceptGraph.Link): string{
+    private computeArcMarkerForMapping(linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string{
         return "";
     }
      
-    private computeArcMarkerPropertyRelations(linkData: ConceptGraph.Link): string{
-        var offset = -10;
-        
-        var sourceX = linkData.source.x;
-        var sourceY = linkData.source.y;
-        var targetX = linkData.target.x;
-        var targetY = linkData.target.y;
-    
-        // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-        // We'll want the vector relative to source, then the same repeated for target...but since
-        // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-        // infer it.
-        var targetVectorX = targetX - sourceX;
-        var targetVectorY = targetY - sourceY;
-        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
-        var targetOrthVectorX = -1 * targetVectorY / norm;
-        var targetOrthVectorY = targetVectorX / norm;
-        var xDist = offset * targetOrthVectorX;
-        var yDist = offset * targetOrthVectorY;
-        
-        // Make is_a and has_a arcs move away from eachother by enough that we can see them both
-        // for when both relations exist in a pair of nodes
-        // Kick the composition arcs a coupel pixels away
-        sourceX += xDist;
-        sourceY += yDist;
-        targetX += xDist;
-        targetY += yDist;
-        
-        // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
-        // a bit gives better marker positioning.
-        var midPointX = sourceX + (targetX - sourceX)/2;
-        var midPointY = sourceY + (targetY - sourceY)/2;
-        
-        var points =
-           sourceX+","+sourceY+" "
-         + midPointX+","+midPointY+" "
-         + targetX+","+targetY+" "
-        ;
-        return points;
+    private computeArcMarkerPropertyRelations(linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string{
+        return "";
     }
     
     
@@ -924,16 +887,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
 
-    private getLinkCssClass(relationType: string): string{
+    /** Retrieve classes for styling control only...either direct style, or
+     *  for logic controls in the case of property relation links.
+     */
+    public getLinkCssClass(relationType: string): string{
         if(-1 !== relationType.indexOf("is_a")){
-            return "inheritanceLink"
+            return this.conceptGraph.relationTypeCssClasses["is_a"];
         } else if(-1 !== relationType.indexOf("part_of") || -1 !== relationType.indexOf("has_part")){
         	// This is a special case hard coding. These relations have some special status, but hardly
         	// show up in all ontologies. They made their way here because they were present in the earliest
         	// versions of Biomixer.
-            return "compositionLink";
+            return this.conceptGraph.relationTypeCssClasses["part_of"];
         } else if(-1 !== $.inArray(relationType, ["ncbo-mapping", "maps_to"])){
-            return "mappingLink";
+            return this.conceptGraph.relationTypeCssClasses["maps_to"];
         } else {
 			// Relation type as defined by the ontology, and showing up in the concept properties.
 			// See the PropertyRelationsExpander for more details.
