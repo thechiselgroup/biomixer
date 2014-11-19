@@ -302,7 +302,11 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
         public centralOntologyAcronym: RawAcronym,
         public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(url, centralOntologyAcronym);
+            super(url, centralOntologyAcronym, Fetcher.CallbackVarieties.fullOntologyMapping);
+    }
+    
+    public checkAgainstNodeCap = () => {
+        return true;
     }
 
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
@@ -477,7 +481,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
         url: string,
         public ontologyAcronymNodeMap: OntologyAcronymMap
         ){
-            super(url, ""); // only gets called once normally
+            super(url, "", Fetcher.CallbackVarieties.metaData); // only gets called once normally
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -546,7 +550,7 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
         url: string,
         public node: Node 
         ){
-            super(url, String(node.rawAcronym));
+            super(url, String(node.rawAcronym), Fetcher.CallbackVarieties.metaData);
     }
 
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -590,7 +594,7 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
         url: string,
         public node: Node
         ){
-            super(url, String(node.rawAcronym));
+            super(url, String(node.rawAcronym), Fetcher.CallbackVarieties.metaData);
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works

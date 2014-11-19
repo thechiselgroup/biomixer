@@ -26,6 +26,15 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
     
     nodes: Array<N> = new Array<N>();
     
+    /**
+     * As we discover nodes that *could* be loaded, this accrues them.
+     * For many expansions, we do not know what the ultimate size of the
+     * set will be.
+     * 
+     * The boolean value is currently unused. I'd use an array but I wanted a set.
+     */
+    allNodeIds: string[] = [];
+    
     graphModifier: GraphModifierCommand.GraphAddNodesCommand<N>;
     
     /**
@@ -71,11 +80,23 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         );
     }
     
+    addIncludedNodeUri(incomingNodeId: string){
+        if(this.allNodeIds.indexOf(incomingNodeId) === -1){
+            this.allNodeIds.push(incomingNodeId);
+        } else {
+            console.log("Duplicate entry attempt in expansion set '"+this.id.internalId+"', for node: "+incomingNodeId);
+        }
+    }
+    
+    getNumberOfNodesAssociatedWithExpansion(){
+        return this.allNodeIds.length;
+    }
+    
     getGraphModifier(){
         return this.graphModifier;
     }
     
-    numberOfNodesCurrentlyInGraph(){
+    getNumberOfNodesCurrentlyInGraph(){
         var numInGraph = 0;
         for(var i = 0; i < this.nodes.length; i++){
             if(this.graph.containsNode(this.nodes[i])){
@@ -83,6 +104,27 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
             }
         }
         return numInGraph;
+    }
+    
+    /**
+     * Gives number of nodes from the expansion set that it
+     * is aware of that haven't been added to the graph yet.
+     */
+    getNumberOfNodesMissing(){
+        return this.getNumberOfNodesAssociatedWithExpansion() - this.getNumberOfNodesCurrentlyInGraph();
+    }
+    
+    /**
+     * Convenience method dispatching into publically accessible GraphModifer.
+     * If the expansion is aborted due to problems with having too many nodes
+     * in the graph, we need to know it for later expansion attempts, and to
+     * ensure that the remaining nodes coming to this expansion are rejected too.
+     */
+    expansionCutShort(setToTrue: boolean = false): boolean {
+        if(setToTrue){
+            this.graphModifier.commandCutShort(true);
+        }
+        return this.graphModifier.commandCutShort();
     }
     
 }

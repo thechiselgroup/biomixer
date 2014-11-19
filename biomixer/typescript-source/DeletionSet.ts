@@ -60,5 +60,18 @@ export class DeletionSet<N extends GraphView.BaseNode>{
         return this.graphModifier;
     }
     
+    /**
+     * Sort of odd, but useful for testing things in a way consistent with ExpansionSets
+     */
+    numberOfNodesCurrentlyInGraph(){
+        var numInGraph = 0;
+        for(var i = 0; i < this.nodes.length; i++){
+            if(this.graph.containsNode(this.nodes[i])){
+                numInGraph++;
+            }
+        }
+        return numInGraph;
+    }
+    
 }
 

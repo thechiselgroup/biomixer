@@ -234,5 +234,23 @@ export interface ICommand {
     snapshotLayout(finalSnapshot: boolean);
     
     applyLayout();
+    
+    /**
+     * Used to determine if the command's execution was interrupted.
+     * This is the case if expansions are stopped because there are too many
+     * nodes in the graph, likely determined by prompting the user.
+     */
+    commandCutShort(setToTrue?: boolean): boolean;
+    
+    
+    areCommandNodesCurrentlyLoaded(): boolean;
+    
+    numberOfCommandNodesCurrentlyLoaded(): number;
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number;
 }
 

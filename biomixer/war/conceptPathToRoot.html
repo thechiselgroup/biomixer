@@ -22,12 +22,16 @@
     -->
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" />
+    
+    <script type="text/javascript" src="d3_graphs/jquery.simplemodal.1.4.4.min.js"></script>
      
     <script type="text/javascript" src="d3_graphs/biomixer.jquery.tipsy.js"></script>
     <link href="d3_graphs/biomixer.tipsy.css" rel="stylesheet" type="text/css" />
     
     <link href="d3_graphs/d3_graph.css" rel="stylesheet" type="text/css">
     
+    <link href="d3_graphs/simplemodal_confirm.css" rel="stylesheet" type="text/css">
+
     <!--
     <script type="text/javascript" src="d3_graphs/jquery.jsonp.amdmod.js"></script>
     -->
@@ -46,6 +50,35 @@
 </div>
 	
 <div class="gallery" id="chart"></div>
+
+<div id='container'>
+	<div id='logo'>
+		<h1>Simple<span>Modal</span></h1>
+		<span class='title'>A Modal Dialog Framework Plugin for jQuery</span>
+	</div>
+	<div id='content'>
+		<div id='confirm-dialog'>
+			<h3>Confirm Override</h3>
+			<p>A modal dialog override of the JavaScript confirm function. Demonstrates the use of the <code>onShow</code> callback as well as how to display a modal dialog confirmation instead of the default JavaScript confirm dialog.</p>
+			<input type='button' name='confirm' class='confirm' value='Demo'/> or <a href='#' class='confirm'>Demo</a>
+		</div>
+		
+		<!-- modal content -->
+		<div id='confirm'>
+			<div class='header'><span>Confirm</span></div>
+			<div class='message'></div>
+			<div class='buttons'>
+				<div class='no simplemodal-close'>No</div><div class='yes'>Yes</div>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		<!-- preload the images -->
+		<div style='display:none'>
+			<img src='img/confirm/header.gif' alt='' />
+			<img src='img/confirm/button.gif' alt='' />
+		</div>
+	</div>
+</div>
 
 <script src="require_config.js"></script>
 <script data-main="Concepts/MainConceptGraph" src="scripts/require.js"></script>

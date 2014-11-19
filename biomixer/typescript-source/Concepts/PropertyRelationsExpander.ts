@@ -33,7 +33,11 @@ export class OntologyPropertyRelationsRegistry {
         return entry !== null && entry !== undefined;
     }
     
-    public static matchesAvailableRelations(ontologyAcronym: ConceptGraph.RawAcronym, propertyId: string): OntologyRelation {
+    /**
+     * Is there a relation id registered for the ontology that corresponds with the provided property id
+     * (and thus the provided id represents a property relation)?
+     */
+    public static matchedAvailableRelations(ontologyAcronym: ConceptGraph.RawAcronym, propertyId: string): OntologyRelation {
         var relationSet = OntologyPropertyRelationsRegistry.ontologyQueries[String(ontologyAcronym)];
         var escapedPropertyId =  Utils.escapeIdentifierForId(propertyId);
         return relationSet.relations[escapedPropertyId];
@@ -113,9 +117,13 @@ class OntologyPropertyRelationsCallback extends Fetcher.CallbackObject {
         public url: string,
         conceptNode: ConceptGraph.Node
         ){
-            super(url, String(conceptNode.rawConceptUri));
+            super(url, String(conceptNode.rawConceptUri), Fetcher.CallbackVarieties.metaData);
             this.ontologyAcronym = conceptNode.ontologyAcronym;
         }
+    
+    public checkAgainstNodeCap = () => {
+        return true;
+    }
 
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.

@@ -27,7 +27,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     }
     
     
-    addMenuComponents(menuSelector: string, softNodeCap: number){
+    addMenuComponents(menuSelector: string){
         // Add the butttons to the pop-out panel
         var layoutsContainer = $("<div>").attr("id", "layoutMenuContainer");
         $(menuSelector).append(layoutsContainer);

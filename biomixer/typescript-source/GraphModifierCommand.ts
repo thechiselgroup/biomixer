@@ -66,6 +66,23 @@ export class CommonImplementor<N extends GraphView.BaseNode> {
     }
     
     
+    cutShort = false;
+    /**
+     * If the expansion is aborted due to problems with having too many nodes
+     * in the graph, we need to know it for later expansion attempts, and to
+     * ensure that the remaining nodes coming to this expansion are rejected too.
+     */
+    commandCutShort(setToTrue: boolean = false): boolean{
+        if(setToTrue){
+            this.cutShort = true;
+        }
+        return this.cutShort;
+    }
+    
+    areCommandNodesCurrentlyLoaded(): boolean{
+        return this.childImpl.numberOfNodesInCommand() === this.childImpl.numberOfCommandNodesCurrentlyLoaded();
+    }
+    
 }
 
 /**
@@ -159,6 +176,18 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
         return null;
     }
     
+    numberOfCommandNodesCurrentlyLoaded(): number{
+        return this.expansionSet.getNumberOfNodesCurrentlyInGraph();
+    }
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number{
+        return this.expansionSet.getNumberOfNodesAssociatedWithExpansion();
+    }
+    
 }
 
 export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends CommonImplementor<N> implements UndoRedoManager.ICommand{
@@ -236,6 +265,17 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends Commo
         return null;
     }
     
+    numberOfCommandNodesCurrentlyLoaded(): number{
+        return this.nodesToRemove.numberOfNodesCurrentlyInGraph();
+    }
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number{
+        return this.nodesToRemove.nodes.length;
+    }
 }
 
 export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends CommonImplementor<N> implements UndoRedoManager.ICommand{
@@ -323,5 +363,25 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
             }
         }
         return null;
+    }
+    
+     numberOfCommandNodesCurrentlyLoaded(): number{
+        var nodeCount = 0;
+        for(var i = 0; i < this.commands.length; i++){
+            nodeCount += this.commands[i].numberOfCommandNodesCurrentlyLoaded();
+        }
+        return nodeCount;
+    }
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number{
+        var nodeCount = 0;
+        for(var i = 0; i < this.commands.length; i++){
+            nodeCount += this.commands[i].numberOfNodesInCommand();
+        }
+        return nodeCount;
     }
 }

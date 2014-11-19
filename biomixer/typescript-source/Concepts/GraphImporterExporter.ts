@@ -66,7 +66,7 @@ export class Widget {
     
     static exportImportFooterDiv = "exportImportFooterDiv";
     
-    addMenuComponents(menuSelector: string, softNodeCap: number){
+    addMenuComponents(menuSelector: string){
         this.containers = Menu.Menu.slideToggleHeaderContainer("importerExporterMenuContainer", "importerExporterInnerContainer", "Sharing", true);
         var outerContainer = this.containers.outer;
         var innerContainer = this.containers.inner;
@@ -315,10 +315,14 @@ class FetchAndApplyLayoutCallback extends Fetcher.CallbackObject {
         public conceptUri: ConceptGraph.ConceptURI,
         public expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>
         ){
-            super(url, String(conceptUri)); //+":"+directCallForExpansionType);
+            super(url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
             this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, null, expansionSet);
         }
-        
+    
+    public checkAgainstNodeCap = () => {
+        return true; // Used with export and import, so should let all nodes through.
+    }
+    
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 

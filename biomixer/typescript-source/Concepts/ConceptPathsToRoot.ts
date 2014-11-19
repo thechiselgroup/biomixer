@@ -1188,8 +1188,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var conceptExpandTextValue;
             var conceptExpandFontFillColor;
             var conceptExpandMouseUpFunc;
-            if(!outerThis.conceptGraph.expMan.isConceptClearedForExpansion(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.termNeighborhoodConstant)){
+            var conceptExpState = outerThis.conceptGraph.expMan.isConceptExpansionSetFullyManifested(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+            if(!conceptExpState.fullyManifested){
                 conceptExpandTextValue = "Expand Concepts";
+                if(-1 !== conceptExpState.numMissing){
+                    conceptExpandTextValue +=" ("+conceptExpState.numMissing+")";
+                }
+                
                 conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
                 conceptExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();
@@ -1233,8 +1238,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var mappingExpandTextValue;
             var mappingExpandFontFillColor;
             var mappingExpandMouseUpFunc;
-            if(!outerThis.conceptGraph.expMan.isConceptClearedForExpansion(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
+            var mappingExpState = outerThis.conceptGraph.expMan.isConceptExpansionSetFullyManifested(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+            if(!mappingExpState.fullyManifested){
                 mappingExpandTextValue = "Expand Mappings";
+                if(-1 !== mappingExpandTextValue.numMissing){
+                    conceptExpandTextValue +=" ("+mappingExpState.numMissing+")";
+                }
                 mappingExpandFontFillColor = ""; // empty works to *not* add a value at all
                 mappingExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();
@@ -1329,8 +1338,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     prepGraphMenu(){
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layout & Filter Menu");
-        this.layouts.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
-        this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.layouts.addMenuComponents(this.menu.getMenuSelector());
+        this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), false);
