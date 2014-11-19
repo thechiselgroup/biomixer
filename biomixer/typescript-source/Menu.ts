@@ -19,8 +19,8 @@ export class Menu {
         // Append the pop-out panel. It will stay hidden except when moused over.
         var trigger = $("<div>").attr("id", "menuTriggerContainer");
 //        $("#chart").append(trigger);
-         $(this.menuBarSelector).append(trigger);
-        trigger.append($("<p>").attr("id", "trigger")
+        $(this.menuBarSelector).append(trigger);
+        trigger.append($("<input>").attr("type", "button").attr("id", "trigger")
         .addClass("unselectable")
             .text(Menu.menuClosedPrefix+menuName)); // "<< Menu" by default
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
@@ -109,8 +109,8 @@ export class Menu {
             }
         }; 
         
-        labelExpanderIcon.click(expanderClickFunction);
-        label.click(expanderClickFunction);
+        labelExpanderIcon.click(()=>{expanderClickFunction();});
+        label.click(()=>{expanderClickFunction();});
     
         outerContainer.append(labelExpanderIcon);
         outerContainer.append(label);
