@@ -486,7 +486,7 @@ export class ConceptLayouts {
             
             outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
             .gravity(0.05) // 0.5
-            .charge(-30); // -100
+            .charge(-100); // -100
             
             outerThis.forceLayout.on("tick", outerThis.graphView.onLayoutTick());
             outerThis.forceLayout.start();
