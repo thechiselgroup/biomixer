@@ -121,10 +121,6 @@ class OntologyPropertyRelationsCallback extends Fetcher.CallbackObject {
             this.ontologyAcronym = conceptNode.ontologyAcronym;
         }
     
-    public checkAgainstNodeCap = () => {
-        return true;
-    }
-
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
         

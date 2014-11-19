@@ -316,12 +316,8 @@ class FetchAndApplyLayoutCallback extends Fetcher.CallbackObject {
         public expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>
         ){
             super(url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
-            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, null, expansionSet);
+            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, null, expansionSet, true);
         }
-    
-    public checkAgainstNodeCap = () => {
-        return true; // Used with export and import, so should let all nodes through.
-    }
     
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.

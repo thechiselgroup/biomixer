@@ -305,10 +305,6 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
             super(url, centralOntologyAcronym, Fetcher.CallbackVarieties.fullOntologyMapping);
     }
     
-    public checkAgainstNodeCap = () => {
-        return true;
-    }
-
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
     // "this" to refer to the class instance (a lamda by use of closure, I think) rather than whatever Javascript binds "this" to
     // when the callback is executed.

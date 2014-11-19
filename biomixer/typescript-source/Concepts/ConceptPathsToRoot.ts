@@ -1241,8 +1241,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var mappingExpState = outerThis.conceptGraph.expMan.isConceptExpansionSetFullyManifested(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
             if(!mappingExpState.fullyManifested){
                 mappingExpandTextValue = "Expand Mappings";
-                if(-1 !== mappingExpandTextValue.numMissing){
-                    conceptExpandTextValue +=" ("+mappingExpState.numMissing+")";
+                if(-1 !== mappingExpState.numMissing){
+                    mappingExpandTextValue +=" ("+mappingExpState.numMissing+")";
                 }
                 mappingExpandFontFillColor = ""; // empty works to *not* add a value at all
                 mappingExpandMouseUpFunc = function(){

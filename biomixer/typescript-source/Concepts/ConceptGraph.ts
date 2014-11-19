@@ -208,7 +208,7 @@ class DeferredCallbacks{
         }
         // Cut out whatever we processed. Leave any we didn't (due to max nodes argument).
         this.wrappedParseNodeCallbacks = this.wrappedParseNodeCallbacks.slice(i);
-        this.graph.refreshNodeCapDialogNodeCount(this.wrappedParseNodeCallbacks.length);
+        this.wrappedParseNodeCallbacks = [];
     }
 }
     
@@ -488,6 +488,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 ((this.graphD3Format.nodes.length + 1) > this.nextNodeWarningCount
                 && expansionSet.expansionCutShort() === false)
             ){
+            // So, this logic lets all possible mappings through, because mappings calls are registered in a quick loop
+            // and the fetches get called before any node is processed from any of those fetches.
             if(undefined === this.deferredParseNodeCallBack){
                 this.deferredParseNodeCallBack = new DeferredCallbacks(this);
             }
@@ -659,12 +661,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             var url = newConceptMappingData.links.self;
             var callback = new FetchOneConceptCallback(this, url, newConceptId, null, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
-            
-            var fetchCall = ()=>{
-                fetcher.fetch(callback);
-            }
-            
-            this.checkForNodeCap(fetchCall, expansionSet, String(newConceptId));
+            fetcher.fetch(callback);
         }
     }
 
@@ -679,12 +676,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             var url = this.buildConceptUrlNewApi(conceptsOntology, newConceptId);
             var callback = new FetchOneConceptCallback(this, url, newConceptId, null, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
-            
-            var fetchCall = ()=>{
-                fetcher.fetch(callback);
-            }
-            
-            this.checkForNodeCap(fetchCall, expansionSet, String(newConceptId));
+            fetcher.fetch(callback);
         }
     }
     
@@ -859,6 +851,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     
     private temporaryEdges: Link[] = [];
     manifestTemporaryHoverEdges(conceptNode: Node){
+        this.temporaryEdges = [];
         var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(String(conceptNode.rawConceptUri));
         // If clearedForMap, then technically all the mapping edges should be visible, so there's no reason to
         // look over the edges.
@@ -1285,7 +1278,8 @@ export class FetchOneConceptCallback extends Fetcher.CallbackObject {
         url: string,
         public conceptUri: ConceptURI,
         public directCallForExpansionType: PathOption,
-        public expansionSet: ExpansionSets.ExpansionSet<Node>
+        public expansionSet: ExpansionSets.ExpansionSet<Node>,
+        public priorityLoadNoCapCheck: boolean = false
         ){
             super(url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
         }
@@ -1293,9 +1287,18 @@ export class FetchOneConceptCallback extends Fetcher.CallbackObject {
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
 
-        var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
-        // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
-        this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, this.expansionSet, this.directCallForExpansionType);
+        var fetchCall = ()=>{
+            var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
+            // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
+            this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, this.expansionSet, this.directCallForExpansionType);
+        }
+        
+        if(this.priorityLoadNoCapCheck){
+            // When loading for import, we will ignore cap checking.
+            fetchCall();
+        } else {
+            this.graph.checkForNodeCap(fetchCall, this.expansionSet, String(this.conceptUri));
+        }
     }
 }
 
@@ -1530,10 +1533,6 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
             super(url, String(conceptNode.rawConceptUri), Fetcher.CallbackVarieties.links); //+":"+directCallForExpansionType);
         }
     
-    public checkAgainstNodeCap = () => {
-        return true;
-    }
-        
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
         // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
