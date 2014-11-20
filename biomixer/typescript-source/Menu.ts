@@ -20,7 +20,7 @@ export class Menu {
         var trigger = $("<div>").attr("id", "menuTriggerContainer");
 //        $("#chart").append(trigger);
         $(this.menuBarSelector).append(trigger);
-        trigger.append($("<input>").attr("type", "button").attr("id", "trigger")
+        trigger.append($("<div>").attr("id", "trigger")
         .addClass("unselectable")
             .text(Menu.menuClosedPrefix+menuName)); // "<< Menu" by default
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
