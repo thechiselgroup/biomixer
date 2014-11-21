@@ -132,30 +132,53 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         linkData.target = <ConceptGraph.Node>{x: initialTargetXCoordinate, y: arcHeight};
         linkData.relationSpecificToOntologyAcronym = relationSpecificToOntologyAcronym;
         
+        var outerThis = this;
+        
         // Make sample edge container
         d3.select(linkContainer)
-        .attr("style", ()=>{
-                if(this.graphView.getLinkCssClass(relationType) !== "propertyRelationLink"){
-                    return "";
-                } else {
-                    // Wanted to do this in the getLinkCssClass, by adding a dynamic CSS rule, but
-                    // there were a lot of browser issues, and I trusted none of the libraries for it.
-                    // So...use a style per edge instead. Too bad.
-                    var ontColor = this.conceptGraph.nextNodeColor(relationSpecificToOntologyAcronym);
-                    return " stroke: "+ontColor+"; fill: "+ontColor+"; color: "+ontColor+"; ";
-                }
-            }
-        )
         .attr("width", finalTargetXCoordinate).attr("height", 2 * arcHeight)
         .attr("class",
             ()=>{
                 return ConceptEdgeTypeFilter.sampleEdgeClassSansDot
                 +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+relationType
-                +" "+this.graphView.getLinkCssClass(relationType)
+                +" "+this.graphView.getLinkCssClass(relationType, relationSpecificToOntologyAcronym)
                 ;
             }
         )
-        .attr("id", function(){ return "filter_link_g_"+relationType});
+        .attr("id", function(){ return "filter_link_g_"+relationType})
+        .each(function(d: any, i: number){
+                // Get the actual polyline that will go in here
+                var sampleArc = $("#filter_link_marker_"+relationType);
+                // Even though the spectrum color picker will be attached to the svg:g, it works with the line.
+                $(this).spectrum(
+                    {
+                        color: $.stylesheet("."+outerThis.graphView.getLinkCssClass(relationType, relationSpecificToOntologyAcronym)).css("fill"),
+                        change: ()=>{outerThis.updateArcColor($(this), sampleArc, relationType, relationSpecificToOntologyAcronym)},
+                        beforeShow: ()=>{
+                                // var arcColor = $.stylesheet("."+outerThis.graphView.getLinkCssClass(relationType, relationSpecificToOntologyAcronym)).css("fill");
+                                // console.log(arcColor);
+                                // $(this).spectrum("option", "color",arcColor);
+                            },
+                        show: ()=>{ },
+                        hide: ()=>{outerThis.updateArcColor($(this), sampleArc, relationType, relationSpecificToOntologyAcronym)},
+                        showInitial: true,
+                        showPalette: true,
+                        palette: [
+                            ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
+                            ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
+                            // ["#f4cccc","#fce5cd","#fff2cc","#d9ead3","#d0e0e3","#cfe2f3","#d9d2e9","#ead1dc"], // To pale
+                            ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
+                            ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
+                            ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
+                            ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
+                            ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
+                        ]
+                    }
+                );
+                return;
+            }
+        )    
+        ;
         
         // Make sample marker
         // Make it first because we're going to adjust the line length after,
@@ -165,7 +188,7 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
             ()=>{
                 return ConceptEdgeTypeFilter.sampleMarkerClassSansDot
                 +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+relationType
-                +" "+this.graphView.getLinkCssClass(relationType);
+                +" "+this.graphView.getLinkCssClass(relationType, relationSpecificToOntologyAcronym);
             }
         )
         .attr("id", function(d: ConceptGraph.Link){ return "filter_link_marker_"+relationType})
@@ -176,20 +199,32 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
         // to compensate for marker size.
         linkData.target.x = finalTargetXCoordinate;
         
+
+
         // Make sample edge line
         d3.select(linkContainer).append("svg:polyline")
         .attr("class",
             ()=>{
                 return ConceptEdgeTypeFilter.sampleEdgeClassSansDot
                 +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+relationType
-                +" "+this.graphView.getLinkCssClass(relationType);
+                +" "+this.graphView.getLinkCssClass(relationType, relationSpecificToOntologyAcronym);
             }
         )
         .attr("id", function(){ return "filter_link_line_"+relationType})
         .attr("points", this.graphView.updateArcLineFunc(linkData, true))
+        .append("title").text("Click to select color")
         ;
         
         return linkContainer;
+    }
+
+    updateArcColor(spectrumHolder: JQuery, elemForColor: JQuery, relationType: string, relationSpecificToOntologyAcronym: ConceptGraph.RawAcronym){
+        var newColor = spectrumHolder.spectrum("get").toHexString();
+        
+        var sheet = $.stylesheet("."+this.graphView.getLinkCssClass(relationType, relationSpecificToOntologyAcronym));
+        sheet.css("stroke", newColor);
+        sheet.css("fill", newColor);
+        sheet.css("color ", newColor);
     }
     
     computeCheckId(linkName: string): string {

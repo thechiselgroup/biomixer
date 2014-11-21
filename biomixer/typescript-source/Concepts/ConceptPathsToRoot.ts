@@ -803,23 +803,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Make svg:g like nodes if we need labels
         // Would skip the g element here for links, but it cleans up the document and bundles text with line.
         var enteringLinks = links.enter().append("svg:g")
-        .attr("style", (e: ConceptGraph.Link)=>{
-                if(this.getLinkCssClass(e.relationType) !== "propertyRelationLink"){
-                    return "";
-                } else {
-                    // Wanted to do this in the getLinkCssClass, by adding a dynamic CSS rule, but
-                    // there were a lot of browser issues, and I trusted none of the libraries for it.
-                    // So...use a style per edge instead. Too bad.
-                    var ontColor = this.conceptGraph.nextNodeColor(e.relationSpecificToOntologyAcronym);
-                    return " stroke: "+ontColor+"; fill: "+ontColor+"; color: "+ontColor+"; ";
-                }
-            }
-        )
         .attr("class",
             (d: ConceptGraph.Link)=>{
                 return GraphView.BaseGraphView.linkSvgClassSansDot
                 +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
-                +" "+outerThis.getLinkCssClass(d.relationType);
+                +" "+outerThis.getLinkCssClass(d.relationType, d.relationSpecificToOntologyAcronym);
             }
         )
         .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
@@ -829,7 +817,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             function(d: ConceptGraph.Link){
                 return GraphView.BaseGraphView.linkSvgClassSansDot
                 +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
-                +" "+outerThis.getLinkCssClass(d.relationType);
+                +" "+outerThis.getLinkCssClass(d.relationType, d.relationSpecificToOntologyAcronym);
             }
         )
         .attr("id", function(d: ConceptGraph.Link){ return "link_line_"+d.id})
@@ -844,7 +832,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             function(d: ConceptGraph.Link){
                 return GraphView.BaseGraphView.linkMarkerSvgClassSansDot
                 +" "+GraphView.BaseGraphView.linkClassSelectorPrefix+d.relationType
-                +" "+outerThis.getLinkCssClass(d.relationType);
+                +" "+outerThis.getLinkCssClass(d.relationType, d.relationSpecificToOntologyAcronym);
             }
         )
         .attr("id", function(d: ConceptGraph.Link){ return "link_marker_"+d.id})
@@ -882,7 +870,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 }
                 return "";
             } else {
-                return "url(#"+"LinkHeadMarker_"+outerThis.getLinkCssClass(e.relationType)+")";
+                return "url(#"+"LinkHeadMarker_"+outerThis.getLinkCssClass(e.relationType, e.relationSpecificToOntologyAcronym)+")";
             }
         }
     }
@@ -890,8 +878,24 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     /** Retrieve classes for styling control only...either direct style, or
      *  for logic controls in the case of property relation links.
      */
-    public getLinkCssClass(relationType: string): string{
-        if(-1 !== relationType.indexOf("is_a")){
+    public getLinkCssClass(relationType: string, relationSpecificToOntologyAcronym: ConceptGraph.RawAcronym): string{
+        if(undefined !== relationSpecificToOntologyAcronym) {
+			// Relation type as defined by the ontology, and showing up in the concept properties.
+            // Used to be given the class "propertyRelationLink", then each individual link given
+            // style directly, according to its ontology.
+			// See the PropertyRelationsExpander for more details.
+            var cssClassName = relationSpecificToOntologyAcronym+"__"+relationType+"Link";
+            if($.stylesheet("."+cssClassName).rules().length === 0){
+                // Define this new class, give it default properties.
+                var ontColor = this.conceptGraph.nextNodeColor(relationSpecificToOntologyAcronym);
+                // JQuery-Stylesheet plugin: https://github.com/f0r4y312/jquery-stylesheet
+                var sheet = $.stylesheet("."+cssClassName);
+                sheet.css("stroke", ontColor);
+                sheet.css("fill", ontColor);
+                sheet.css("color ", ontColor);
+            }
+            return cssClassName; // used to be "propertyRelationLink";
+        } else if(-1 !== relationType.indexOf("is_a")){
             return this.conceptGraph.relationTypeCssClasses["is_a"];
         } else if(-1 !== relationType.indexOf("part_of") || -1 !== relationType.indexOf("has_part")){
         	// This is a special case hard coding. These relations have some special status, but hardly
@@ -901,9 +905,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         } else if(-1 !== $.inArray(relationType, ["ncbo-mapping", "maps_to"])){
             return this.conceptGraph.relationTypeCssClasses["maps_to"];
         } else {
-			// Relation type as defined by the ontology, and showing up in the concept properties.
-			// See the PropertyRelationsExpander for more details.
-            return "propertyRelationLink";
+            // I never want this. Nothing should get here, really, since things are either
+            // created as one of the predefined arc types, or came from an ontology, whose
+            // acronym is passed in.
+            console.log("Generated invalid link CSS class for type and acronym: "+relationType+" and "+relationSpecificToOntologyAcronym);
+            return "undefined_link_css_class";
         }
     }
     
