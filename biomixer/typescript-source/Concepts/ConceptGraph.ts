@@ -759,7 +759,12 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         if(relationProperty === undefined){
             edge.relationLabel = relationId;
         } else {
-            edge.relationLabel = relationProperty.label;
+            if(undefined === relationProperty.label){
+                var idSections = relationId.split("__");
+                edge.relationLabel = idSections[idSections.length-1];
+            } else {
+                edge.relationLabel = relationProperty.label;
+            }
             edge.relationSpecificToOntologyAcronym = relationProperty.ontologyAcronym;
         }
         edge.id = Utils.escapeIdentifierForId(edge.sourceId)+"-to-"+Utils.escapeIdentifierForId(edge.targetId)+"-of-"+relationId;
