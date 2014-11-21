@@ -878,13 +878,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     /** Retrieve classes for styling control only...either direct style, or
      *  for logic controls in the case of property relation links.
      */
+    public propertyRelationClassNames: Array<String> = ["inheritanceStyleLink", "compositionStyleLink", "mappingStyleLink"];
     public getLinkCssClass(relationType: string, relationSpecificToOntologyAcronym: ConceptGraph.RawAcronym): string{
         if(undefined !== relationSpecificToOntologyAcronym) {
 			// Relation type as defined by the ontology, and showing up in the concept properties.
-            // Used to be given the class "propertyRelationLink", then each individual link given
-            // style directly, according to its ontology.
 			// See the PropertyRelationsExpander for more details.
-            var cssClassName = relationSpecificToOntologyAcronym+"__"+relationType+"Link";
+            var cssClassName = relationSpecificToOntologyAcronym+"__"+relationType+"LinkStyle";
             if($.stylesheet("."+cssClassName).rules().length === 0){
                 // Define this new class, give it default properties.
                 var ontColor = this.conceptGraph.nextNodeColor(relationSpecificToOntologyAcronym);
@@ -892,9 +891,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 var sheet = $.stylesheet("."+cssClassName);
                 sheet.css("stroke", ontColor);
                 sheet.css("fill", ontColor);
-                sheet.css("color ", ontColor);
+                this.propertyRelationClassNames.push(cssClassName);
             }
-            return cssClassName; // used to be "propertyRelationLink";
+            return cssClassName;
         } else if(-1 !== relationType.indexOf("is_a")){
             return this.conceptGraph.relationTypeCssClasses["is_a"];
         } else if(-1 !== relationType.indexOf("part_of") || -1 !== relationType.indexOf("has_part")){
@@ -945,7 +944,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // http://www.alt-soft.com/tutorial/svg_tutorial/marker.html
         // http://stackoverflow.com/questions/3290392/creating-svg-markers-programatically-with-javascript        
-        var arcCssClassArray = ["inheritanceLink", "compositionLink", "mappingLink"];
+        var arcCssClassArray = ["inheritanceStyleLink", "compositionStyleLink", "mappingStyleLink"];
         var arcCssLabelArray = ["is a", "has a", "maps to"];
         for(var i = 0; i < arcCssClassArray.length; i++){
             // Do the arrow markers first

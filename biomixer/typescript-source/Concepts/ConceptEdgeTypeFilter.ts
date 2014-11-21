@@ -217,7 +217,6 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
                     if(exists){
                         return;
                     }
-                    console.log("creating");
                     exists = true;
                     // Even though the spectrum color picker will be attached to the svg:g, it works with the line.
                     spectrumOwner.spectrum(
@@ -227,7 +226,6 @@ export class ConceptEdgeTypeFilter extends FilterWidget.AbstractFilterWidget imp
                             beforeShow: ()=>{ },
                             show: ()=>{ },
                             hide: ()=>{
-                                    console.log("hiding");
                                     outerThis.updateArcColor(spectrumOwner, sampleArc, relationType, relationSpecificToOntologyAcronym);
                                     spectrumOwner.spectrum("destroy");
                                     exists = false;

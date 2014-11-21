@@ -66,39 +66,29 @@
 	fill: #999;
 }
 
-.inheritanceLink {
+.inheritanceStyleLink {
 	/* Dark color that doesn't stomp on ontology colors, original was #AFC6E5 */
 	stroke: #002266;
 	fill: #002266;
-	color: #002266;
 }
-polyline.inheritanceLink {
+polyline.inheritanceStyleLink {
 	stroke-dasharray: none;
 }
 
-.compositionLink {
+.compositionStyleLink {
 	/* Dark color that doesn't stomp on ontology colors, original was #AFC600 */
 	stroke: #003311;
 	fill: #003311;
-	color: #003311;
 }
-polyline.compositionLink {
+polyline.compositionStyleLink {
 	stroke-dasharray: 4,4;
 }
 
-.propertyRelationLink {
-	/* will be based on ontology color */
-}
-polyline.propertyRelationLink {
-	stroke-dasharray: 1,2;
-}
-
-.mappingLink {
+.mappingStyleLink {
 	stroke: #D4D4D4;
 	fill: #D4D4D4;
-	color: #D4D4D4;
 }
-polyline.mappingLink{
+polyline.mappingStyleLink{
 	stroke-dasharray: 10,5;
 }
 

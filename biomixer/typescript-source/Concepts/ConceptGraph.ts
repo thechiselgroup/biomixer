@@ -282,9 +282,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * Used for stylings, not selections
      */
     relationTypeCssClasses = {
-            "is_a": "inheritanceLink",
-            "part_of": "compositionLink",
-            "maps_to": "mappingLink",
+            "is_a": "inheritanceStyleLink",
+            "part_of": "compositionStyleLink",
+            "maps_to": "mappingStyleLink",
     };
     relationLabelConstants = {
             "inheritance": "is_a",

@@ -44,8 +44,14 @@ export class SavedGraph {
     
     n: { [conceptUri: string]: SavedGraphSeed } = {};
     
+    s: { [linkCssClass: string]: string } = {}; // Store styles here, just colors for now. Not much format.
+    
     addNode(nodeData){
         this.n[String(nodeData.rawConceptUri)] = <SavedGraphSeed><any>{ o: nodeData.ontologyAcronym, x: nodeData.x, y: nodeData.y };
+    }
+    
+    addLinkStyle(cssName, color){
+        this.s[cssName] = color;
     }
     
     static getUrlIFrameOrNot(): string{
@@ -118,7 +124,7 @@ export class Widget {
             var message = "To share this graph view, copy the text below, and share it via email."
                 +"\nThe receiver can then click the import button, paste the text there, and see this current view."
                 ;
-            var exporter = new GraphExporter(this.pathsToRoot.conceptGraph);
+            var exporter = new GraphExporter(this.pathsToRoot.conceptGraph, this.pathsToRoot);
             var exportJson = exporter.getExportData();
             this.messagePrompt(message, JSON.stringify(exportJson), null);
         };
@@ -212,7 +218,8 @@ export class Widget {
 export class GraphExporter {
     
     constructor(
-        public graph: ConceptGraph.ConceptGraph
+        public graph: ConceptGraph.ConceptGraph,
+        public pathsToRoot: PathsToRoot.ConceptPathsToRoot
     ){
         
     }
@@ -228,6 +235,16 @@ export class GraphExporter {
                 savedGraph.addNode(nodeData);
             }
         );
+        
+        // Also store colors from arcs, in case the user changed them
+        // Make a selector for the stylesheet that will work as a partial match, save their
+        // colors and CSS rule names.
+        for(var i = 0; i < this.pathsToRoot.propertyRelationClassNames.length; i++){
+            var className = this.pathsToRoot.propertyRelationClassNames[i];
+            var sheet = $.stylesheet("."+className);
+            var color = sheet.css("fill");
+            savedGraph.addLinkStyle(className, color);
+        }
         
         return savedGraph;
     }
@@ -270,6 +287,13 @@ export class GraphImporter {
         // var expansionSet = new ExpansionSets.ExpansionSet<ConceptGraph.Node>(expId, null, this.conceptGraph, this.pathsToRoot.undoRedoBoss, null);
         GraphImporter.importNumber++;
         
+        // Import edge styles before the edges get here, then the nodes.
+        for(var className in this.importData.s){
+            var color = this.importData.s[className];
+            var sheet = $.stylesheet("."+className);
+            sheet.css("fill", color);
+            sheet.css("stroke", color);
+        }
         
         for(var conceptUri in this.importData.n){
             // Verify the structure's contents. It was imported via casting, not parsing.
