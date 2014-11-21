@@ -23,7 +23,7 @@ import ExpansionSet = require("./ExpansionSets");
  */
 export class InitializationDeletionSet<N extends GraphView.BaseNode>{
 
-    private graphModifier: GraphModifierCommand.GraphCompositeNodeCommand<N>;
+    public graphModifier: GraphModifierCommand.GraphCompositeNodeCommand<N>;
 
     public expansionSet: ExpansionSet.ExpansionSet<N>;
     public deletionSet: DeletionSet.DeletionSet<N>;
@@ -35,10 +35,10 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
     constructor(
         public graph: GraphView.Graph<N>,
         id: ExpansionSet.ExpansionSetIdentifer,
-        undoRedoBoss: UndoRedoManager.UndoRedoManager,
+        private undoRedoBoss: UndoRedoManager.UndoRedoManager,
         expansionType: UndoRedoManager.NodeInteraction
         ){
-        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, String(expansionType));
+        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.displayId);
         // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
         // with null parent node and it worked.
         this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, null, this.graph, null, expansionType)
@@ -48,6 +48,11 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
         this.graphModifier.addCommand(this.expansionSet.getGraphModifier());
         
         undoRedoBoss.addCommand(this.graphModifier);
+    }
+    
+    updateExpansionNodeDisplayName(nodeDisplayName:string){
+        this.graphModifier.setDisplayName(this.graphModifier.getDisplayName()+": "+nodeDisplayName);
+        this.undoRedoBoss.updateUI(this.graphModifier);
     }
     
     addAllExpanding(nodes: Array<N>): void{

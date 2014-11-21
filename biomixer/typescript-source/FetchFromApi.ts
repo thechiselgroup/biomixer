@@ -305,6 +305,17 @@ import Utils = require('./Utils');
         }
     }
 
+    
+    export enum CallbackVarieties {
+        // Originally added for dealing with aborted expansions. Not used for that.
+        // Decided to keep around in case it was useful later.
+        nodeSingle,
+        nodesMultiple,
+        links,
+        metaData,
+        fullOntologyMapping
+    }
+
     // Good example here for when we need additional args as we extend a class:
     // http://blog.pluralsight.com/extending-classes-and-interfaces-using-typescript
     export class CallbackObject {
@@ -312,14 +323,17 @@ import Utils = require('./Utils');
         url: string;
         uniqueContextId: String;
         callbackName: string;
+        callbackVariety: CallbackVarieties;
         
         constructor(
             url: string,
-            uniqueContextId: String
+            uniqueContextId: String,
+            callbackVariety: CallbackVarieties
         ){
             this.url = url;
             this.uniqueContextId = uniqueContextId;
             this.callbackName = this.computeCallbackName();
+            this.callbackVariety = callbackVariety;
         }
         
         getCallbackName(): string{
@@ -401,6 +415,7 @@ import Utils = require('./Utils');
                         }
                     },
                 error: function (jqXHR, textStatus, errorThrown ){
+                        console.log("Error: "+errorThrown);
                         var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
                         var queue = cacheItem.getUnservedCallbacks();
                         for(var i in  queue){
@@ -534,7 +549,9 @@ import Utils = require('./Utils');
     public fetch(callbackObject: CallbackObject) : number {
         var cacheItem = CacheRegistry.getCachedItem(this.restUrl);
         if(cacheItem.alreadyServed(callbackObject)){
-            console.log("Attempted redundant call: "+callbackObject.getCallbackName()+" for ulr "+this.restUrl);
+            // Used to print this when these were uncommon, to see what was going on, but with import functionality,
+            // this clobbers the console contents.
+            // console.log("Attempted redundant call: "+callbackObject.getCallbackName()+" for ulr "+this.restUrl);
             // Need to allow it to fall past and serve cached data unless we redesign redundant callback prevention.
             // return 0;
         }

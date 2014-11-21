@@ -32,19 +32,48 @@ export class ExpansionManager{
      * 
      * If the paths to root functionality were not fulfilled via a special REST call, that system would allow
      * expanded parent nodes to inherit this privelege and pass it on to their parents.
+     * 
+     * The optional flag should really only be used internally by the class, but change the method semantics to
+     * determine if the expansion set associated with the node is currently fully loaded into the graph.
      */
-     isConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
+     isConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption): boolean{
+        return this.findConceptExpansionSetInHistory(conceptUri, expansionType).cleared;
+    }
+    
+    private findConceptExpansionSetInHistory(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption)
+        : {cleared: boolean; fullyManifested: boolean; numTotal: number; numMissing: number} {
+        var returnVal = {cleared: false, fullyManifested: false, numTotal: -1, numMissing: -1};
         var crumbTrail = this.undoBoss.getCrumbHistory();
         var conceptUriForIds: string = String(conceptUri);
         for(var i = crumbTrail.length - 1; i >= 0; i--){
-            var nodeInteraction: UndoRedoManager.NodeInteraction = crumbTrail[i].nodeInteraction(conceptUriForIds);
+            var command = crumbTrail[i];
+            // Get the interaction that the crumb command had with the node in question.
+            // Could match the expansion type provided, be an addition, or be a deletion.
+            var nodeInteraction: UndoRedoManager.NodeInteraction = command.nodeInteraction(conceptUriForIds);
             if(nodeInteraction === expansionType){
-                return true;
+                // This is done for a different use case, which requires all of the same code except this.
+                returnVal.fullyManifested = command.areCommandNodesCurrentlyLoaded();
+                returnVal.cleared = true;
+                returnVal.numTotal = command.numberOfNodesInCommand();
+                returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
+                return returnVal;
             } else if(nodeInteraction === GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction){
-                return false;
+                // For deleted, labelling it as not cleared is the important part
+                // but we'll fill in all the things.
+                returnVal.fullyManifested = false;
+                returnVal.cleared = false;
+                returnVal.numTotal = command.numberOfNodesInCommand();
+                returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
+                return returnVal;
             }
         }
-        return false;
+        return returnVal;
+    }
+    
+    public isConceptExpansionSetFullyManifested(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption)
+        : {cleared: boolean; fullyManifested: boolean; numTotal: number; numMissing: number} {
+		
+        return this.findConceptExpansionSetInHistory(conceptUri, expansionType);
     }
         
     /**
@@ -64,7 +93,7 @@ export class ExpansionManager{
             var command = commands[i];
             if(command instanceof GraphModifierCommand.GraphAddNodesCommand){
                 var expansionSet = (<GraphModifierCommand.GraphAddNodesCommand<any>>command).expansionSet
-                if(expansionSet.nodes.length > 0 && expansionSet.numberOfNodesCurrentlyInGraph() > 0){
+                if(expansionSet.nodes.length > 0 && expansionSet.getNumberOfNodesCurrentlyInGraph() > 0){
                     expansionSets.push(expansionSet);
                 }
             } else if(command instanceof GraphModifierCommand.GraphCompositeNodeCommand){

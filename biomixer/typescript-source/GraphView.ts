@@ -5,10 +5,12 @@
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="LayoutProvider" />
 
 import ExpansionSets = require("./ExpansionSets");
 import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import Utils = require("./Utils");
+import LayoutProvider = require("./LayoutProvider");
 
 
 export class GraphDataForD3<N extends BaseNode, L extends BaseLink<any>> {
@@ -70,6 +72,9 @@ export interface Graph<N extends BaseNode>  {
    addNodes(newNodes: Array<N>, expansionSet: ExpansionSets.ExpansionSet<N>);
    removeNodes(nodesToRemove: Array<N>);
    containsNode(node: N): boolean;
+    
+   getLayoutProvider(): LayoutProvider.ILayoutProvider;
+   setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider);
 }
 
 
@@ -108,7 +113,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     constructor(
         ){
-        this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false);
+        this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false, true);
     }
     
     //var defaultNodeColor = "#496BB0";
@@ -121,7 +126,9 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeGSvgClassSansDot = "node_g";
     static nodeLabelSvgClassSansDot = "nodetext";
     static linkSvgClassSansDot = "link";
+    static linkMarkerSvgClassSansDot = "linkmarker";
     static linkLabelSvgClassSansDot = "linktext";
+    static linkClassSelectorPrefix = "link_";
     
     static ontologyNodeSvgClassSansDot = "ontologyNode";
     static ontologyLinkSvgClassSansDot = "ontologyMappingLink"
@@ -131,12 +138,14 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     static hiddenNodeClass: string = "hiddenNode";
     static hiddenNodeLabelClass: string = "hiddenNodeLabel";
+    static hiddenLinkBecauseOfHiddenNodeLabelClass = "hiddenBecauseOfNodeLink"
     
     static nodeSvgClass = "."+BaseGraphView.nodeSvgClassSansDot;
     static nodeInnerSvgClass = "."+BaseGraphView.nodeInnerSvgClassSansDot;
     static nodeGSvgClass = "."+BaseGraphView.nodeGSvgClassSansDot;
     static nodeLabelSvgClass = "."+BaseGraphView.nodeLabelSvgClassSansDot;
     static linkSvgClass = "."+BaseGraphView.linkSvgClassSansDot;
+    static linkMarkerSvgClass = "."+BaseGraphView.linkMarkerSvgClassSansDot;
     static linkLabelSvgClass = "."+BaseGraphView.linkLabelSvgClassSansDot;
 
     
@@ -148,7 +157,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     visHeight(){ return $("#chart").height(); }
     linkMaxDesiredLength(){ return Math.min(this.visWidth(), this.visHeight())/2 - 50; }
     
-     resizedWindowLambda  = () => {
+    resizedWindowLambda  = () => {
         d3.select("#graphRect")
         .attr("width", this.visWidth())
         .attr("height", this.visHeight());
@@ -194,7 +203,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
      * Set this function to whichever function has most recently been
      * used or is about to be used. Allows refreshing or resetting of layouts.
      */
-    runCurrentLayout: (refreshLayout?: boolean) => void;
+    runCurrentLayout: LayoutProvider.LayoutRunner;
+    currentLambda: LayoutProvider.LayoutRunner;
     
     layoutTimer = null;
     setCurrentLayout(layoutLambda: {(refreshLayout?: boolean):void}) {
@@ -203,6 +213,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         var outerThis = this;
         var layoutLastCalled = null;
         var timerWait = 100;
+        this.currentLambda = layoutLambda;
         this.runCurrentLayout =
             function(refreshLayoutInner?: boolean){
                 // We only allow one layout request to run at a time, and with
@@ -218,12 +229,16 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                             clearTimeout(outerLayoutTimer);
                             outerLayoutTimer = null;
                             layoutLastCalled = new Date().getTime();
-                            layoutLambda(refreshLayoutInner);
+                            outerThis.currentLambda(refreshLayoutInner);
                         }
                     , timerWait);
                 }
             };
     }
+//    
+//    immediateLayoutRun(layoutLambda: {(refreshLayout?: boolean):void}){
+//        layoutLambda();
+//    }
     
     getAdjacentLinks(node: N){
         return d3.selectAll(BaseGraphView.linkSvgClass)
@@ -237,6 +252,10 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     isNodeHidden(node: N): boolean {
         // TODO Refactor these #node_g_ constants! There's an issue for this.
         return d3.select("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId())).classed(BaseGraphView.hiddenNodeClass);
+    }
+    
+    getUnhiddenNodes(): JQuery{
+        return $(".node_g:not(.hiddenNode)");
     }
     
     highlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){
@@ -451,7 +470,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         // Hide edges too
         var adjacentLinks = this.getAdjacentLinks(nodeData);
         adjacentLinks
-            .classed("hiddenBecauseOfNodeLink",
+            .classed(BaseGraphView.hiddenLinkBecauseOfHiddenNodeLabelClass,
                 function(linkData: L, i){
                     // Look at both endpoints of link, see if both are hidden
                     var source: D3.Selection = d3.selectAll(BaseGraphView.nodeGSvgClass)

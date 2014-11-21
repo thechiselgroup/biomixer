@@ -6,14 +6,84 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="DeletionSet" />
-///<amd-dependency path="LayoutModifierCommand" />
+///<amd-dependency path="LayoutProvider" />
 
 import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import GraphView = require("./GraphView");
 import ExpansionSets = require("./ExpansionSets");
 import DeletionSet = require("./DeletionSet");
-import LayoutModifierCommand = require("./LayoutModifierCommand");
+import LayoutProvider = require("./LayoutProvider");
 
+/**
+ * I really want an abstract class for this, but Typescript doesn't allow for that.
+ * My method of a combination of an interface and a stubbed class isn't feeling right here,
+ * so I will use this as a static implementor for the classes in this module.
+ */
+export class CommonImplementor<N extends GraphView.BaseNode> {
+       
+    fixedLayout: { [nodeId: string]: {x: number; y: number} } = {};
+    storedLayoutRunner: LayoutProvider.LayoutRunner;
+    
+    // This *should* be set as a constructor arg, but my current compiler does not support super(this)
+    // in the child constructor calls.
+    childImpl: UndoRedoManager.ICommand;
+    
+    constructor(
+        public graph: GraphView.Graph<N>
+    ){
+        
+    }
+    
+    applyLayoutImpl(){
+        this.graph.getLayoutProvider().setLayoutFixedCoordinates(this.fixedLayout);
+        // Trigger the fixed layout algorithm immediately
+        this.graph.getLayoutProvider().applyFixedLayout();
+        // Set up the original algorithm to be used
+        if(undefined !== this.storedLayoutRunner){
+            // Can be undefined in the case of composite commands that do not defer snapshotting to composed commands.
+            this.graph.getLayoutProvider().setNewLayoutWithoutRunning(this.storedLayoutRunner);
+        }
+    }
+    
+    finalSnapshotTaken = false;
+    /**
+     * If the snapshot is the final one, it cannot be updated or overwritten again. Only do this when
+     * a new expansion has occurred, and it is acceptable to freeze the undo step's node positions.
+     */
+    snapshotLayoutImpl(finalSnapshot: boolean){
+        // Record position of all nodes, for undo/redo. Also keep track of the layout algorithm
+        // in force, so that if the user expands from that step in the undo/redo stack, it will
+        // retrigger the appropriate algorithm.
+        // But...once we have made this step "undoable", we freeze the fixed layout and applied algorithm
+        if(!this.finalSnapshotTaken){
+            // Using a simple method of snapshotting layouts.
+            this.fixedLayout = this.graph.getLayoutProvider().getLayoutPositionSnapshot();
+            this.storedLayoutRunner = this.graph.getLayoutProvider().getLayoutRunner();
+        }
+        if(finalSnapshot){
+            this.finalSnapshotTaken = true;
+        }
+    }
+    
+    
+    cutShort = false;
+    /**
+     * If the expansion is aborted due to problems with having too many nodes
+     * in the graph, we need to know it for later expansion attempts, and to
+     * ensure that the remaining nodes coming to this expansion are rejected too.
+     */
+    commandCutShort(setToTrue: boolean = false): boolean{
+        if(setToTrue){
+            this.cutShort = true;
+        }
+        return this.cutShort;
+    }
+    
+    areCommandNodesCurrentlyLoaded(): boolean{
+        return this.childImpl.numberOfNodesInCommand() === this.childImpl.numberOfCommandNodesCurrentlyLoaded();
+    }
+    
+}
 
 /**
  * This command allows for the addition of nodes (and undo and redo). Edges are not really
@@ -21,7 +91,7 @@ import LayoutModifierCommand = require("./LayoutModifierCommand");
  * If they were, we'd would bundle edges to be added or removed with the nodes they were
  * added or removed with.
  */
-export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
+export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonImplementor<N> implements UndoRedoManager.ICommand {
     
     static addedNodeInteraction: UndoRedoManager.NodeInteraction = <UndoRedoManager.NodeInteraction><any>"added node";
     
@@ -31,36 +101,24 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     
     private redidLast = true;
     
-    private layoutSnapshot: LayoutModifierCommand.LayoutModificationCommand<N>;
     
     constructor(
         public graph: GraphView.Graph<N>,
         public expansionSet: ExpansionSets.ExpansionSet<N>
         
     ){
-        // This is the layout that applies when the nodes have been successfully added,
-        // then when any active layout is done positioning them.
-        // This is tricky because the node additions can be asynchronous when first
-        // adding them, so we need last-second saving of the layout, triggered
-        // either by the layout finishing, or the user modifying the layout (via triggering
-        // a new one or manually dragging nodes).
-        // So...we need a method to re-set the layout should these actions occur, and
-        // that needs to be called on the most recent GraphAddNodesCommand by code that knows
-        // that such events have occurred.
-        // this.layoutSnapshot = new LayoutModifierCommand.LayoutModificationCommand();
+        super(graph);
+        this.childImpl = this;
+    }
+
+    
+    snapshotLayout(finalSnapshot: boolean){
+        this.snapshotLayoutImpl(finalSnapshot);
     }
     
-    snapshotLayout(){
-//        if(null === this.layoutSnapshot){
-            // TODO Should we allow users to go back in time, and modify existing snapshots?
-            // The user may want to adjust layouts within an undo...this is a tricky
-            // concept. I do not want manual layout changes (drags) triggering an undo stack
-            // operation at all. Clicking a new layout...maybe that shouldn't either!
-            // I will allow it for now, and see how it feels.
-            this.layoutSnapshot = new LayoutModifierCommand.LayoutModificationCommand();
-//        } else {
-//            console.log("Attempting to snapshot positions for a graph node add command, beyond the first attempt");   
-//        }
+    
+    applyLayout(){
+        this.applyLayoutImpl();
     }
     
     getUniqueId(): string{
@@ -84,6 +142,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
             // Ha, we don't do and undo layouts, I just realized...
             // We apply previous and next from the fenceposts!
             // this.layoutSnapshot.executeRedo();
+            this.applyLayout();
         } else {
             console.log("Trying to redo same command twice in a row");
         }
@@ -93,9 +152,8 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
         if(this.redidLast){
             this.redidLast = false;
             this.graph.removeNodes(this.expansionSet.nodes);
-            // Ha, we don't do and undo layouts, I just realized...
-            // We apply previous and next from the fenceposts!
-            // this.layoutSnapshot.executeUndo();
+            // NB We don't undo layouts, we only do them.
+            // The incoming command will apply its layout.
         } else {
             console.log("Trying to undo same command twice in a row");
         }
@@ -106,7 +164,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
     }
     
     nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
-        if(this.expansionSet.parentNode.getEntityId() === nodeId){
+        if(null === this.expansionSet.parentNode || this.expansionSet.parentNode.getEntityId() === nodeId){
             return this.expansionSet.expansionType;
         }
         for(var i = 0; i < this.expansionSet.nodes.length; i++){
@@ -118,9 +176,21 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> implements UndoR
         return null;
     }
     
+    numberOfCommandNodesCurrentlyLoaded(): number{
+        return this.expansionSet.getNumberOfNodesCurrentlyInGraph();
+    }
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number{
+        return this.expansionSet.getNumberOfNodesAssociatedWithExpansion();
+    }
+    
 }
 
-export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
+export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends CommonImplementor<N> implements UndoRedoManager.ICommand{
     
     static deletionNodeInteraction: UndoRedoManager.NodeInteraction = <UndoRedoManager.NodeInteraction><any>"deleted node";
     
@@ -129,14 +199,23 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
     private id: string;
     
     redidLast: boolean = false; // start being able to redo it
-    
+       
     // For node removal, we will want to generalize expansion sets, and collect adjacent node removals
     // into one set of removed nodes.
     constructor(
         public graph: GraphView.Graph<N>,
         public nodesToRemove: DeletionSet.DeletionSet<N>
     ){
-
+        super(graph);
+        this.childImpl = this;
+    }
+    
+    snapshotLayout(finalSnapshot: boolean){
+        this.snapshotLayoutImpl(finalSnapshot);
+    }
+    
+    applyLayout(){
+        this.applyLayoutImpl();
     }
     
     getUniqueId(): string{
@@ -156,9 +235,8 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
         if(!this.redidLast){
             this.redidLast = true;
             this.graph.removeNodes(this.nodesToRemove.nodes);
-            // Ha, we don't do and undo layouts, I just realized...
-            // We apply previous and next from the fenceposts!
-            // this.layoutSnapshot.executeRedo();
+            // Don't undo layouts, onyl redo, so that incoming step will apply its layout.
+            this.applyLayout();
         } else {
             console.log("Trying to redo same command twice in a row");
         }
@@ -168,9 +246,6 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
         if(this.redidLast){
             this.redidLast = false;
             this.graph.addNodes(this.nodesToRemove.nodes, null);
-            // Ha, we don't do and undo layouts, I just realized...
-            // We apply previous and next from the fenceposts!
-            // this.layoutSnapshot.executeUndo();
         } else {
             console.log("Trying to undo same command twice in a row");
         }
@@ -190,9 +265,20 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> implements Un
         return null;
     }
     
+    numberOfCommandNodesCurrentlyLoaded(): number{
+        return this.nodesToRemove.numberOfNodesCurrentlyInGraph();
+    }
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number{
+        return this.nodesToRemove.nodes.length;
+    }
 }
 
-export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements UndoRedoManager.ICommand{
+export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends CommonImplementor<N> implements UndoRedoManager.ICommand{
     
     static counter = 0;
     
@@ -202,15 +288,25 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
     
     commands: UndoRedoManager.ICommand[] = [];
     
+
     constructor(
         public graph: GraphView.Graph<N>,
         public displayName: string
     ){
-
+        super(graph);
+        this.childImpl = this;
     }
     
     addCommand(newCommand: UndoRedoManager.ICommand){
         this.commands.push(newCommand);
+    }
+
+    snapshotLayout(finalSnapshot: boolean){
+        this.snapshotLayoutImpl(finalSnapshot);
+    }
+    
+    applyLayout(){
+        this.applyLayoutImpl();
     }
     
     getUniqueId(): string{
@@ -223,6 +319,12 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
     getDisplayName(): string{
         return this.displayName;
     }
+            
+    setDisplayName(newName: string): void{
+        // Danger! Caller is wholly responsible for content of this display name.
+        // It shouldn't change twice, and the caller shouldn't be trying to change it twice.
+        this.displayName = newName;
+    }
     
     executeRedo(): void{
         if(!this.redidLast){
@@ -230,9 +332,8 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
             for(var i = 0; i < this.commands.length; i++){
                 this.commands[i].executeRedo();
             }
-            // Ha, we don't do and undo layouts, I just realized...
-            // We apply previous and next from the fenceposts!
-            // this.layoutSnapshot.executeRedo();
+            // Only apply layouts on redo, so that incoming steps get their layout.
+            this.applyLayout();
         } else {
             console.log("Trying to redo same command twice in a row");
         }
@@ -244,9 +345,6 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
             for(var i = this.commands.length - 1; i >= 0; i--){
                 this.commands[i].executeUndo();
             }
-            // Ha, we don't do and undo layouts, I just realized...
-            // We apply previous and next from the fenceposts!
-            // this.layoutSnapshot.executeUndo();
         } else {
             console.log("Trying to undo same command twice in a row");
         }
@@ -265,5 +363,25 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> implements 
             }
         }
         return null;
+    }
+    
+     numberOfCommandNodesCurrentlyLoaded(): number{
+        var nodeCount = 0;
+        for(var i = 0; i < this.commands.length; i++){
+            nodeCount += this.commands[i].numberOfCommandNodesCurrentlyLoaded();
+        }
+        return nodeCount;
+    }
+    
+    /**
+     * Gives the number of nodes there would be if all were loaded,
+     * excluding any permanently failed callbacks.
+     */
+    numberOfNodesInCommand(): number{
+        var nodeCount = 0;
+        for(var i = 0; i < this.commands.length; i++){
+            nodeCount += this.commands[i].numberOfNodesInCommand();
+        }
+        return nodeCount;
     }
 }

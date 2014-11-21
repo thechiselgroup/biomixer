@@ -17,7 +17,7 @@ export class BreadcrumbTrail {
     
     static activeCrumbClassName = "active_crumb";
     
-    static undoneCrumbClassName = "undone_crumb";
+    static fadedCrumbClassName = "faded_crumb";
     
     static undoMenuText = "Undo/Redo >> ";
     static undoButtonSuffix = " >";
@@ -26,6 +26,8 @@ export class BreadcrumbTrail {
     
     trailOfCrumbs = new Array<string>();
     trailMap: { [key: string]: Breadcrumb }= {};
+    
+    activeCommandIndex: number;
     
     constructor(){
     }
@@ -43,7 +45,7 @@ export class BreadcrumbTrail {
     updateElementText(existingCommand: UndoRedoManager.ICommand){
         $("div#"+this.generateCrumbElementId(existingCommand))
             .children(".crumb_text")
-            .text(existingCommand.getDisplayName()+BreadcrumbTrail.undoButtonSuffix);
+            .text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
     }
     
     /**
@@ -127,6 +129,10 @@ export class BreadcrumbTrail {
         }
     }
     
+    getActiveCrumb(): Breadcrumb{
+        return this.getNthCrumb(this.activeCommandIndex);
+    }
+    
     getNthCrumb(n: number): Breadcrumb{
         if(n > this.trailOfCrumbs.length || n < 0){
             return null;
@@ -143,7 +149,7 @@ export class BreadcrumbTrail {
             .removeClass(BreadcrumbTrail.activeCrumbClassName);
         
         var activeCrumb = this.selectCrumbElement(activeCommand);
-        var activeCommandIndex = this.undoRedoModel.getCommandIndex(activeCommand);
+        this.activeCommandIndex = this.undoRedoModel.getCommandIndex(activeCommand);
         
         if(activeCommand != null){
             this.selectCrumbElement(activeCommand)
@@ -152,10 +158,10 @@ export class BreadcrumbTrail {
         
         for(var i = this.trailOfCrumbs.length - 1; i >= 0; i--){
             var crumb = this.selectCrumbElement(this.trailMap[this.trailOfCrumbs[i]].command);
-            if(i <= activeCommandIndex){
-                crumb.removeClass(BreadcrumbTrail.undoneCrumbClassName);
+            if(i <= this.activeCommandIndex){
+                crumb.removeClass(BreadcrumbTrail.fadedCrumbClassName);
             } else {
-                crumb.addClass(BreadcrumbTrail.undoneCrumbClassName);
+                crumb.addClass(BreadcrumbTrail.fadedCrumbClassName);
             }
         }
     }

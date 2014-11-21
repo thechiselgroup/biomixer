@@ -44,8 +44,14 @@
 	pointer-events: none;
 }
 
-.link {
+.link, .filter_link_sample {
   stroke-linecap: round;
+  /* Dark colored arcs look better at 2px due to antialiasing :( 
+   * The antialiasing causes barber pole effects when the lines are
+   * almost parallel to screen axes, and this hurts my eyes.
+   * But, at 2px, the lines look too chunky...I am torn.
+   */
+  stroke-width: 1;
 }
 
 .conceptLink
@@ -54,41 +60,40 @@
   stroke-width: 2;
 }
 
-.linkMarker {
-	stroke-dasharray: none;
-}
-
 .ontologyMappingLink {
 	stroke-opacity: .75;
 	stroke: #999;
 	fill: #999;
 }
 
-.inheritanceLink {
-	stroke: #AFC6E5;
-	fill: #AFC6E5;
-	color: #AFC6E5;
+.inheritanceStyleLink {
+	/* Dark color that doesn't stomp on ontology colors, original was #AFC6E5 */
+	stroke: #002266;
+	fill: #002266;
 }
-polyLine.inheritanceLink {
+polyline.inheritanceStyleLink {
 	stroke-dasharray: none;
 }
 
-.compositionLink {
-	stroke: #AFC600;
-	fill: #AFC600;
-	color: #AFC600;
+.compositionStyleLink {
+	/* Dark color that doesn't stomp on ontology colors, original was #AFC600 */
+	stroke: #003311;
+	fill: #003311;
 }
-polyline.compositionLink{
+polyline.compositionStyleLink {
 	stroke-dasharray: 4,4;
 }
 
-.mappingLink {
+.mappingStyleLink {
 	stroke: #D4D4D4;
 	fill: #D4D4D4;
-	color: #D4D4D4;
 }
-polyline.mappingLink{
+polyline.mappingStyleLink{
 	stroke-dasharray: 10,5;
+}
+
+polyline.linkmarker, polyline.filter_link_sample_marker {
+	stroke-dasharray: none;
 }
 
 /* Highlighting takes priority over hiding */
@@ -171,11 +176,15 @@ td.vis{
 	*/
 }
 
-div#trigger {
+div#menuTriggerContainer {
    position:absolute;
    top:0;
    right:0;
-   background-color: rgb(255,255,255);
+   background-color: rgb(220,220,220);
+background:#ccc;
+border-style:solid;
+	border-color:#bbb #888 #666 #aaa;
+	border-width:1px 2px 2px 1px;
 }
 
 div#slider-gap {
@@ -188,6 +197,10 @@ div#hoveringGraphMenu {
   right:0;
   width: 350px;
   padding: 10px;
+  margin: 2px -2px 0 0 ;
+}
+
+.opaqueMenu, div#hoveringGraphMenu {
   background: rgb(218,229,243);
   opacity:0.90 !important;
   filter:alpha(opacity=90); */ /* For IE8 and earlier */
@@ -203,6 +216,36 @@ div#hoveringGraphMenu {
 .scroll-div {
 	overflow-y: scroll;
 	background-color: white;
+}
+
+.messageBoxWithField{
+	position: relative;
+	right:0;
+}
+
+.messageBoxTextArea {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+	width: 98%;
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+.messageBoxMessage {
+	margin: 6px;
+	font-size: 14px;
+}
+
+.importExportButton {
+	margin: 7px !important;
+	font-size: 100%;
+}
+
+.layoutButton {
+	margin-right: 15px !important;
+	margin-bottom: 6px !important;
 }
 
 .nodeCommandButton {
@@ -245,12 +288,31 @@ div#hoveringGraphMenu {
 	width: 2em;
 }
 
+.boldText{
+	font-weight: bold;
+}
+
 .view_selection_box {
 	float: left;
 }
 
 div#undo_redo_breadcrumb_label {
 	
+}
+
+.undo_redo_button {
+	float: left;
+	padding: 2px;
+}
+
+.und_redo_spacer {
+	float: left;
+	pad-right: 5em;
+}
+
+.undo_redo_list_button {
+	float: left;
+	padding: 2px;
 }
 
 .crumb_for_, div#undo_redo_breadcrumb_label {
@@ -271,7 +333,7 @@ div#undo_redo_breadcrumb_label {
 	font-weight: bold;
 	border-width: 2px;
 }
-.undone_crumb{
+.faded_crumb{
 	color: rgb(180,180,180);
 	border-color: rgb(180,180,180);
 }
@@ -288,8 +350,55 @@ div#undo_redo_breadcrumb_label {
 	border-width: 1px;
 }
 
+.vertical_stack_bread_crumb_div {
+	margin: left;
+	display: block;
+	position: relative;
+	float: left;
+	clear: left;
+	width: auto;
+	border-style: none;
+}
+
+.vertical_stack_bread_crumb_container {
+	display: none;
+	position: absolute;
+	border-color: rgb(180,180,180);
+	border-style: solid;
+	border-width: 1px;
+	background-color: rgb(200,220,255);
+	overflow-y: scroll;
+	background-color: white;
+	max-height: 120px;
+}
+
+.undo_redo_button_disabled {
+	color: rgb(180,180,180);
+	border-color: rgb(180,180,180);
+	/* SVG icon requires fill arg */
+	fill: rgb(180,180,180); 
+	fill-opacity : 0.5;
+}
 
 
+.action-undo-icon{
+	background:url(..//icons/open-iconic/svg/action-undo.svg); 
+	background-size: 14px; background-repeat:no-repeat; width: 14px; 
+	height: 14px; margin: 0px 1px 0px 0px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+.action-redo-icon{
+	background:url(..//icons/open-iconic/svg/action-redo.svg); 
+	background-size: 14px; background-repeat:no-repeat; width: 14px; 
+	height: 14px; margin: 0px 0px 0px 1px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+.caret-bottom-icon{
+	background:url(..//icons/open-iconic/svg/caret-bottom.svg); 
+	background-size: 8px; background-repeat:no-repeat; width: 8px; 
+	height: 8px; margin: 4px 0px 0px 0px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
 
 
 

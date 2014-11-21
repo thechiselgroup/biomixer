@@ -151,7 +151,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .linkDistance(this.linkMaxDesiredLength())
         .size([this.visWidth(), this.visHeight()])
         .start();
-        console.log("Is it force distance or link distance above?");
+        // console.log("Is it force distance or link distance above?");
     }
     
     //    dragstart: {(): {(d: any, i: number): void}} =
@@ -425,7 +425,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipLambda(this));
+        d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipOnHoverLambda(this));
         
         // Label
         enteringNodes.append("svg:text")

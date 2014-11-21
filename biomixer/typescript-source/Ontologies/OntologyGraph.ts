@@ -4,11 +4,13 @@
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
+///<amd-dependency path="LayoutProvider" />
 
-import Utils = require('../Utils');
-import Fetcher = require('../FetchFromApi');
-import GraphView = require('../GraphView');
-import ExpansionSets = require('../ExpansionSets');
+import Utils = require("../Utils");
+import Fetcher = require("../FetchFromApi");
+import GraphView = require("../GraphView");
+import ExpansionSets = require("../ExpansionSets");
+import LayoutProvider = require("../LayoutProvider");
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!
@@ -144,6 +146,15 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     
     removeEdge(){
         console.log("Unimplemented. Get it done!");
+    }
+    
+    getLayoutProvider(): LayoutProvider.ILayoutProvider{
+        // stub, don't need it yet
+        return null;
+    }
+    
+    setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider){
+        // stub, don't need it yet
     }
     
     fetchOntologyNeighbourhood(centralOntologyAcronym: RawAcronym, expansionSet: ExpansionSets.ExpansionSet<Node>){
@@ -291,9 +302,9 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
         public centralOntologyAcronym: RawAcronym,
         public expansionSet: ExpansionSets.ExpansionSet<Node>
         ){
-            super(url, centralOntologyAcronym);
+            super(url, centralOntologyAcronym, Fetcher.CallbackVarieties.fullOntologyMapping);
     }
-
+    
     // Need fat arrow definition rather than regular type, so that we can get lexical scoping of
     // "this" to refer to the class instance (a lamda by use of closure, I think) rather than whatever Javascript binds "this" to
     // when the callback is executed.
@@ -466,7 +477,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
         url: string,
         public ontologyAcronymNodeMap: OntologyAcronymMap
         ){
-            super(url, ""); // only gets called once normally
+            super(url, "", Fetcher.CallbackVarieties.metaData); // only gets called once normally
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -535,7 +546,7 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
         url: string,
         public node: Node 
         ){
-            super(url, String(node.rawAcronym));
+            super(url, String(node.rawAcronym), Fetcher.CallbackVarieties.metaData);
     }
 
     // Caller of callback has no "this" of interest, so fat arrow works
@@ -579,7 +590,7 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
         url: string,
         public node: Node
         ){
-            super(url, String(node.rawAcronym));
+            super(url, String(node.rawAcronym), Fetcher.CallbackVarieties.metaData);
     }
     
     // Caller of callback has no "this" of interest, so fat arrow works

@@ -6,43 +6,35 @@
 
 import GraphView = require('./GraphView');
 
-export function nodeTooltipOnHoverLambda(outerThis: GraphView.GraphView<any, any>){
+ // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
+export function closeOtherTipsyTooltips(event?: JQueryMouseEventObject) {
+    $(".tipsy").each(
+        function(index: number, tipsyItem){
+            var tipsyOwner = $("#"+$(tipsyItem).attr("id").replace("_tipsy", ""));
+            // Only undefined when coming from canvas
+            if(event === undefined){
+                tipsyOwner.tipsy("hide");
+            }  else if(
+                    $(event.target).attr("id") !== tipsyOwner.attr("id")
+                    && $(event.target).parent().attr("id") !== tipsyOwner.attr("id")
+                    && event.target !== tipsyItem
+                ){
+                tipsyOwner.tipsy("hide"); // $(me) down below
+            }
+        }
+    );
+}
+
+export function nodeTooltipOnClickLambda(outerThis: GraphView.GraphView<any, any>){
     return function(d){
         var me = this;
         var meData = d;
-        var leaveDelayTimer = null;
-        var visible = false;
         var waitingToShowForData = undefined;
         var tipsyId = $(me).attr("id")+"_tipsy";
-        
-        // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
-        var leaveMissedTimer = undefined;
         var showDelayTimer = undefined;
-        function missedEventTimer() {
-            leaveMissedTimer = setTimeout(missedEventTimer, 1000);
-            // This timer doesn't really work...replacing with click rather than hover popups, so
-            // it's not important to fix unless we come back to hovering.
-            // The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
-            if($("#"+me.id+":hover").length !== 0 && $(tipsyId+":hover").length !== 0){
-                console.log("Not in thing "+me.id+" and tipsyId "+tipsyId);
-                leave();
-            }
-        }
-        
-        function leave() {
-            // We add a 100 ms timeout to give the user a little time
-            // moving the cursor to/from the tipsy object
-            leaveDelayTimer = setTimeout(function () {
-                $(me).tipsy('hide');
-                visible = false;
-                waitingToShowForData = undefined;
-                clearTimeout(showDelayTimer);
-                clearTimeout(leaveMissedTimer);
-            }, 100);
-        }
     
         function attachTipsy(){
-            if(visible){
+            if($("#"+tipsyId).length !== 0){
                 return;
             }
             
@@ -77,13 +69,31 @@ export function nodeTooltipOnHoverLambda(outerThis: GraphView.GraphView<any, any
                 },
             });
         }
+
+        var mostRecentNodePosition;
+        function mouseDownRecPosition(event: JQueryMouseEventObject) {
+            // There's a known bug in JQuery where click events are fired on mouse up events after dragging
+            //This click handler will let us inspect to see if the node has moved, and if so, not trigger
+            // the popup.
+            mostRecentNodePosition = event.pageX+" "+event.pageY;
+        }
         
-        function enter() {
+        function clickedNode(event: JQueryMouseEventObject) {
+            event.stopPropagation();
+            closeOtherTipsyTooltips(event);
+
             if(outerThis.dragging){
                 return;
             }
-            if (visible) {
-                clearTimeout(leaveDelayTimer);
+
+            var currentPosition = event.pageX+" "+event.pageY;
+            if(currentPosition != mostRecentNodePosition){
+                // don't trigger popup if we dragged
+                return;
+            }
+
+            if($("#"+tipsyId).length !== 0){
+                return;
             } else {
                 attachTipsy();
                 if(waitingToShowForData !== meData){
@@ -91,9 +101,7 @@ export function nodeTooltipOnHoverLambda(outerThis: GraphView.GraphView<any, any
                 }
                 waitingToShowForData = meData;
                 
-                showDelayTimer = setTimeout(function () {
-                missedEventTimer();
-
+                // this whole whack is in a delaying timer for hover version
                 $(me).tipsy('show');
                 // The .tipsy object is destroyed every time it is hidden,
                 // so we need to add our listener every time its shown
@@ -104,26 +112,17 @@ export function nodeTooltipOnHoverLambda(outerThis: GraphView.GraphView<any, any
                 outerThis.lastDisplayedTipsySvg = me;
                 
                 // For the tipsy specific listeners, change opacity.
-                tipsy.mouseenter(function(){tipsy.css("opacity",1.0); enter(); }).mouseleave(function(){tipsy.css("opacity",0.8); leave();});
+                // enter and leave functions used to be triggered, but with clicking it is different.
+                tipsy.mouseenter(function(){tipsy.css("opacity",1.0);  }).mouseleave(function(){tipsy.css("opacity",0.8); });
                 tipsy.mouseover(function(){
                     tipsy.css("opacity",1.0);
-                    clearTimeout(leaveMissedTimer);
                 });
-                visible = true;
                 waitingToShowForData = undefined;
-                    
-                }, 600);
             }
         }
         
-        $(this).hover(enter, leave);
-//        $(this).mouseover(function(){
-//            console.log("clearing time out in mouse over");
-//            clearTimeout(leaveMissedTimer);
-//        });
-        
-        // TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
-        // That happens commonly. We'll want to hide stale open tipsy panels when this happens.
-        // d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
+        // Finally, bind the mouse handlers defined above.
+        $(this).mousedown(mouseDownRecPosition);
+        $(this).children("."+GraphView.BaseGraphView.nodeSvgClassSansDot).first().click(clickedNode);
     }
 }
