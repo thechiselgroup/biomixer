@@ -1311,12 +1311,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var maxWidth = 0;
             $("#"+innerSvg.attr("id")).find("text").each(
                 function(index, element){
-                    maxWidth = Math.max(maxWidth, <any>$(element).css("width").replace("px", ""));
+                    // Works for Chrome
+                    // Only one to work for Firefox
+                    // Only one to work for IE
+                    var box = element.getBoundingClientRect();
+                    var elemWidth = box.right-box.left;
+                    
+                    maxWidth = Math.max(maxWidth, elemWidth);
                 }
             );
+            
             // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
             // The right side will need the same effective padding as well.
-            maxWidth += 2*fontXSvgPadding; 
+            maxWidth += 2*fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
             $("#"+innerSvg.attr("id")).attr("width", maxWidth);
             $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
             console.log("Resized things, maxWidth: "+maxWidth);
