@@ -516,6 +516,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         this.deferredParseNodeCallBack.complete(haltExpansion, nodesToAdd);
     }
     
+    /**
+     * Used in the refresh and modal trigger methods, to determine if the expansion has been allowed to fully expand.
+     */
+    currentModalDialogIncomingNodeCount: number = 0;
     refreshNodeCapDialogNodeCount(numberNewNodesComing?: number) {
         $("p#nodeCapDialogMessage")
         .text("There are "+this.graphD3Format.nodes.length+" nodes in the graph, and more incoming."+"\n"+
@@ -531,11 +535,13 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         } else {
             $("label#capDialogLabel").text("Of "+numberNewNodesComing+" Nodes, Load: ");
             $("input#capDialogInput").attr("max", numberNewNodesComing+"");
+            this.currentModalDialogIncomingNodeCount = numberNewNodesComing;
         }
     }
     
+    
     private showNodeCapDialog(numberNewNodesComing?: number){
-        
+        this.currentModalDialogIncomingNodeCount = 0;
         var outerThis = this;
         $('#confirm').modal({
             closeHTML: "<a href='#' title='Close' class='modal-close'>x</a>",
@@ -567,7 +573,12 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                     // close the dialog
                     modal.close(); // or $.modal.close();
                     // call the callback
-                    outerThis.nodeCapResponseCallback(false, parseInt(nodesToLoadInput.val()));
+                    // If we allow anything less than all of the nodes in, the expansion has to be treated as halted.
+                    var nodesToAdd = parseInt(nodesToLoadInput.val());
+                    var haltExpansion: boolean = nodesToAdd === outerThis.currentModalDialogIncomingNodeCount;
+                    // TODO What about the fact that there are still incoming counts arriving when the user
+                    // has the opportunity to select how many to add?
+                    outerThis.nodeCapResponseCallback(haltExpansion, nodesToAdd);
                 });
                 
                 $('.no', dialog.data[0]).click(function () {

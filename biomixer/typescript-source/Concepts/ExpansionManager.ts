@@ -53,7 +53,10 @@ export class ExpansionManager{
             if(nodeInteraction === expansionType){
                 // This is done for a different use case, which requires all of the same code except this.
                 returnVal.fullyManifested = command.areCommandNodesCurrentlyLoaded();
-                returnVal.cleared = true;
+                // The way that the command is set as cut short really matters a lot to this functionality.
+                // At this time, it occurs when the number of nodes allowed in the expansion cap dialog is
+                // less than the total available to expand.
+                returnVal.cleared = !command.commandCutShort();
                 returnVal.numTotal = command.numberOfNodesInCommand();
                 returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
                 return returnVal;
