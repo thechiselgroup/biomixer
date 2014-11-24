@@ -173,6 +173,8 @@ class DeferredCallbacks{
                 if(haltExpansions || expansionSet.expansionCutShort()){
                     // Why do we check if the expansion set is already cut short??? That seems silly.
                     // We check if the expansion set is cut short in case we want other effects that setting it as halted.
+                    // Setting expansionCutShort() prevents nodes later in the associated expansion set
+                    // from being loaded when they are past the cutoff.
                     expansionSet.expansionCutShort(haltExpansions);
                     return;
                 } else {
@@ -196,7 +198,6 @@ class DeferredCallbacks{
     }
     
     complete(haltExpansions: boolean, maxNodesToGet: number): void{
-        // TODO Can I get rid of this haltExpansion boolean and the cutShort stuff for expansions?
         var i = 0;
         for(i = 0; i < this.wrappedParseNodeCallbacks.length; i++){
             if(i === maxNodesToGet && !haltExpansions){
@@ -205,6 +206,9 @@ class DeferredCallbacks{
                 // marking it as cut short.
                 break;
             }
+            // This is vital to communicate to the expansion set for some
+            // later nodes coming in, to prevent duplicate dialogs and accidental
+            // node loading.
             this.wrappedParseNodeCallbacks[i](haltExpansions);
         }
         // Cut out whatever we processed. Leave any we didn't (due to max nodes argument).
