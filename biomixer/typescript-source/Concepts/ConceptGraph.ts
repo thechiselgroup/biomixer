@@ -196,6 +196,7 @@ class DeferredCallbacks{
     }
     
     complete(haltExpansions: boolean, maxNodesToGet: number): void{
+        // TODO Can I get rid of this haltExpansion boolean and the cutShort stuff for expansions?
         var i = 0;
         for(i = 0; i < this.wrappedParseNodeCallbacks.length; i++){
             if(i === maxNodesToGet && !haltExpansions){
@@ -667,8 +668,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      */
     public expandMappedConcept(newConceptId: ConceptURI, newConceptMappingData, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
         if(expansionType === PathOptionConstants.mappingsNeighborhoodConstant
-            && this.expMan.isConceptClearedForExpansion(relatedConceptId, PathOptionConstants.mappingsNeighborhoodConstant)
-            && !(String(newConceptId) in this.conceptIdNodeMap)){
+            && this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)){
             var url = newConceptMappingData.links.self;
             var callback = new FetchOneConceptCallback(this, url, newConceptId, null, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
@@ -682,8 +682,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * and when we know the ontology of that node (such as when doing concept expansions).
      */
     public expandRelatedConcept(conceptsOntology: RawAcronym, newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
-        if(this.expMan.isConceptClearedForExpansion(relatedConceptId, expansionType)
-            && !(String(newConceptId) in this.conceptIdNodeMap)){
+        if(this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)){
             var url = this.buildConceptUrlNewApi(conceptsOntology, newConceptId);
             var callback = new FetchOneConceptCallback(this, url, newConceptId, null, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
@@ -691,8 +690,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         }
     }
     
-    public nodeMayBeExpanded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption): boolean{
-		return this.expMan.isConceptClearedForExpansion(relatedConceptId, expansionType)
+    public nodeMayBeExpanded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>): boolean{
+        return relatedConceptId === expansionSet.parentNode.rawConceptUri
+            && expansionType === expansionSet.expansionType
         	&& !(String(newConceptId) in this.conceptIdNodeMap);   
     }
     
@@ -716,8 +716,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // Because we expand for term neighbourhood relation calls, and those come in two flavors
         // (node with properties for children and parents, and just node IDs for compositions)
         // we want to support parsing the data directly as well as fetching additional data.
-        if(this.expMan.isConceptClearedForExpansion(relatedConceptId, expansionType)
-        	&& !(String(newConceptId) in this.conceptIdNodeMap)){
+        if(this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)){
             // Manifest the node; parse the properties if available.
             // We know that we will get the composition relations via a properties call,
             // and that has all the data we need from a separate call for properties...
@@ -852,8 +851,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // want to render the edge all the time.
         
         if(edge.relationType === this.relationLabelConstants.mapping){
-            if(this.expMan.isConceptClearedForExpansion(edge.sourceId, PathOptionConstants.mappingsNeighborhoodConstant)
-                || this.expMan.isConceptClearedForExpansion(edge.targetId, PathOptionConstants.mappingsNeighborhoodConstant)
+            if(this.expMan.wasConceptClearedForExpansion(edge.sourceId, PathOptionConstants.mappingsNeighborhoodConstant)
+                || this.expMan.wasConceptClearedForExpansion(edge.targetId, PathOptionConstants.mappingsNeighborhoodConstant)
             ){
                 // If one of the endpoints was expanded along mapping neighbourhood space, we will render the edge.
                 return false;
@@ -871,7 +870,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(String(conceptNode.rawConceptUri));
         // If clearedForMap, then technically all the mapping edges should be visible, so there's no reason to
         // look over the edges.
-        var clearedForMap = this.expMan.isConceptClearedForExpansion(conceptNode.rawConceptUri, PathOptionConstants.mappingsNeighborhoodConstant);
+        var clearedForMap = this.expMan.wasConceptClearedForExpansion(conceptNode.rawConceptUri, PathOptionConstants.mappingsNeighborhoodConstant);
         if(clearedForMap){
             return;
         }
@@ -880,7 +879,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             (index: number, edge: Link )=>{
                 if(edge.relationType === this.relationLabelConstants.mapping){
                     var otherNodeId = (edge.sourceId === conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId;
-                    var otherNodeClearedMap = this.expMan.isConceptClearedForExpansion(otherNodeId, PathOptionConstants.mappingsNeighborhoodConstant);
+                    var otherNodeClearedMap = this.expMan.wasConceptClearedForExpansion(otherNodeId, PathOptionConstants.mappingsNeighborhoodConstant);
                     if(!otherNodeClearedMap){
                         // If the other node is cleared, the edge should be already rendered.
                         this.temporaryEdges.push(edge);
@@ -1466,7 +1465,7 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
                 (index, child) => {
                 
                 var childId = child["@id"];
-                if(!this.graph.nodeMayBeExpanded(childId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant)){
+                if(!this.graph.nodeMayBeExpanded(childId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet)){
                     this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, childId, this.graph.relationLabelConstants.inheritance);
                     return;
                 }
@@ -1516,7 +1515,7 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
                 (index, parent) => {
                     
                 var parentId = parent["@id"];
-                if(!this.graph.nodeMayBeExpanded(parentId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant)){
+                if(!this.graph.nodeMayBeExpanded(parentId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet)){
                     this.graph.manifestOrRegisterImplicitRelation(parentId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.inheritance);
                     return;
                 }

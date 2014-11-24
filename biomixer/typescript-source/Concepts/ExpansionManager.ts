@@ -36,7 +36,7 @@ export class ExpansionManager{
      * The optional flag should really only be used internally by the class, but change the method semantics to
      * determine if the expansion set associated with the node is currently fully loaded into the graph.
      */
-     isConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption): boolean{
+     wasConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption): boolean{
         return this.findConceptExpansionSetInHistory(conceptUri, expansionType).cleared;
     }
     
@@ -56,7 +56,7 @@ export class ExpansionManager{
                 // The way that the command is set as cut short really matters a lot to this functionality.
                 // At this time, it occurs when the number of nodes allowed in the expansion cap dialog is
                 // less than the total available to expand.
-                returnVal.cleared = !command.commandCutShort();
+                returnVal.cleared = true; //!command.commandCutShort();
                 returnVal.numTotal = command.numberOfNodesInCommand();
                 returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
                 return returnVal;
