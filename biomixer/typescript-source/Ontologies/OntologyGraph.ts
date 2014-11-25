@@ -124,7 +124,7 @@ export class OntologyGraph implements GraphView.Graph<Node> {
             // Only implementing here rather than in graphView because of this container...
             this.graphD3Format.nodes.push(newNodes[i]);
         }
-        this.graphView.populateNewGraphElements(this.graphD3Format)
+        this.graphView.populateNewGraphElements(this.graphD3Format);
     }
     
     removeNodes(nodesToRemove: Array<Node>){
@@ -470,6 +470,11 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 
    
 //Doesn't need REST call registry, so if I refactor, keep that in mind.
+/**
+ * The primary, possibly sole purpose, of this call is to remove all the
+ * ontology nodes that do not have data available, and would receive 403 errors
+ * if we tried to retieve it. Those without mappings should already not be added to the graph.
+ */
 class OntologyDetailsCallback extends Fetcher.CallbackObject {
 
     constructor(
@@ -489,6 +494,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 		// Loop over ontologies and add their additional properties to the nodes
 		// Recall that getting *all* ontology details is the easiest (only) way,
 		// so we have to skip anything that is not defined.
+        // We can get name and URI from the individual calls, as seen in OntologyDescriptionCallback
 		var ontologiesSkipped = 0;
 		var acronymsNotSkipped = [];
 		$.each(detailsDataRaw,
@@ -499,27 +505,30 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 					// exists in the graph a corresponding ontology.
 					// Make use of details to add info to ontologies
 					var ontologyAcronym = ontologyDetails.acronym;
-					// var node = ontologyNeighbourhoodJsonForGraph.;
-//					var node = $(self.ontologyAcronymNodeMap).attr("vid:"+ontologyAcronym);
                     var node = this.ontologyAcronymNodeMap["vid:"+ontologyAcronym];
 					
 					if(typeof node === "undefined"){
 						// Skip node details that aren't in our graph
-						ontologiesSkipped += 1;
-						return;
-					}
-					
-					acronymsNotSkipped.push(ontologyAcronym);
-					
-					node.name = ontologyDetails.name;
-//					node.ONTOLOGY_VERSION_ID = ontologyDetails.id;
-					node.uriId = ontologyDetails["@id"]; // Use the URI instead of virtual id
-					node.LABEL = ontologyDetails.name;
-					// node.description = ontologyDetails.description; // Unavailable in details call
-//					node.VIEWING_RESTRICTIONS = ontologyDetails.viewingRestrictions; // might be missing
-					
-					// I'm moving this all to on-demand (probably via the filter).
-					// node.fetchNodeRestData();
+                        // or those that will give 403 errors if we
+                        // try to fetch their details.
+						ontologiesSkipped += 1; 
+					} else {
+    					acronymsNotSkipped.push(ontologyAcronym);
+                        
+                        // We used to grab ontology names and URIs here, but it isn't required, and doesn't
+                        // help to have those prior to having the ontology sizes anyway.
+                        // I removed it, but it was veyr simply grabbing the name and @id from the ontologyDetails.
+                    
+                        //if(node.name !== undefined && (-1 === node.name.indexOf("fetching")) && node.name !== ontologyDetails.name){
+                        //    console.log("No name match: "+node.name+" vs "+ontologyDetails.name);
+                        //    node.name = ontologyDetails.name;
+                        //    node.LABEL = ontologyDetails.name;
+                        //}
+                        //if(node.uriId !== undefined && node.uriId !== ontologyDetails["@id"]){
+                        //    console.log("No uri match: "+node.uriId+" vs "+ontologyDetails["@id"]);
+                        //    node.uriId = ontologyDetails["@id"]; // Use the URI instead of virtual id
+                        //}
+                    }
 				}
 		);
 		
@@ -532,7 +541,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 
 		// We usually use very many of the ontologies, so it is likely cheaper to make the one
 		// big call with no ontology acronym arguments than to cherry pick the ones we want details for.
-		console.log("ontologyDetailsCallback, skipped "+ontologiesSkipped+" of total "+detailsDataRaw.length+" "+Utils.getTime());
+		console.log("ontologyDetailsCallback, removed "+ontologiesSkipped+" '403 error' ontologies of total "+detailsDataRaw.length+" "+Utils.getTime());
 		this.graph.graphView.updateDataForNodesAndLinks({nodes:this.graph.graphD3Format.nodes, links:[]});
 	}
 }
@@ -607,6 +616,12 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
 	    }
 	    
 		this.node.description = description;
+        if(null != latestSubmissionData.ontology && null != latestSubmissionData.ontology.name){
+            this.node.name = latestSubmissionData.ontology.name;
+            this.node.LABEL = latestSubmissionData.ontology.name;
+            // This one is for the submission, don't use it: latestSubmissionData["@id"]
+            this.node.uriId = latestSubmissionData.links.ontology;
+        }
 		
 		// console.log("ontologyDescriptionCallback");
 		this.graph.graphView.updateDataForNodesAndLinks({nodes:[this.node], links:[]});
