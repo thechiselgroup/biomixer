@@ -69,19 +69,8 @@ export class NodeDeleterWidgets {
     
     deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>) {
         var outerThis = this;
-        var allNodes = $("."+GraphView.BaseGraphView.nodeGSvgClassSansDot);
-        var nodesToDelete = [];
-        allNodes.each(function(i, element: Element){
-                var nodeId: string = element["id"];
-                // We construct node_g ids like this: "node_g_"+d.conceptUriForIds
-                // So simply remove that prefix from the id to get the node model's id.
-                nodeId = nodeId.replace(GraphView.BaseGraphView.nodeGSvgClassSansDot+"_", "");
-                var node = outerThis.graph.getNodeByIdUri(nodeId);
-                nodesToDelete.push(node);
-            }
-        );
         
-        initSet.addAllDeleting(nodesToDelete);
+        initSet.addAllDeleting(this.graph.graphD3Format.nodes);
         
         // Execute the deletion by "redoing" the deletion set.
         // For other commands, this isn't necessarily possible, but when

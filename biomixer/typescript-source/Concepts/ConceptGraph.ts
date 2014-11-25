@@ -695,6 +695,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
     public nodeMayBeExpanded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>): boolean{
+        if(null === expansionSet.parentNode || null === expansionType){
+            return false;
+        }
         return relatedConceptId === expansionSet.parentNode.rawConceptUri
             && expansionType === expansionSet.expansionType
         	&& !(String(newConceptId) in this.conceptIdNodeMap);   
