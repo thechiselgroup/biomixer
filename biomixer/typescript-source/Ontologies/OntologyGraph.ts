@@ -43,8 +43,8 @@ export class Node extends GraphView.BaseNode {
     y: number; // = visHeight()/2;      
     weight: number; // D3 // = numberOfMappedOntologies; // will increment as we loop
     number: number; // = defaultNumOfTermsForSize; // number of terms
-    acronymForIds; AcronymForIds; // = escapeAcronym(centralOntologyAcronym);
-    rawAcronym; RawAcronym; // = centralOntologyAcronym;
+    acronymForIds: AcronymForIds; // = escapeAcronym(centralOntologyAcronym);
+    rawAcronym: RawAcronym; // = centralOntologyAcronym;
     nodeColor: string; // = nextNodeColor();
     innerNodeColor: string; // = brightenColor(centralOntologyNode.nodeColor);
     nodeStrokeColor: string; // = darkenColor(centralOntologyNode.nodeColor);
@@ -79,7 +79,7 @@ export class Link extends GraphView.BaseLink<Node> {
 }
     
 export interface AcronymNodePair {
-    acronym: string;
+    acronym: RawAcronym;
     node: Node;
 }
     
@@ -403,7 +403,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyNode.y = this.graph.graphView.visHeight()/2 + arcLength*Math.sin(angleForNode); // start in middle and let them fly outward
 				ontologyNode.number = defaultNumOfTermsForSize; // number of terms
 				ontologyNode.acronymForIds = Utils.escapeIdentifierForId(acronym);
-				ontologyNode.rawAcronym = acronym;
+				ontologyNode.rawAcronym = <RawAcronym>(<any>acronym);
 				ontologyNode.nodeColor = this.graph.nextNodeColor();
 				ontologyNode.innerNodeColor = this.graph.brightenColor(ontologyNode.nodeColor);
 				ontologyNode.nodeStrokeColor = this.graph.darkenColor(ontologyNode.nodeColor);
@@ -617,7 +617,7 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
 	    
 		this.node.description = description;
         if(null != latestSubmissionData.ontology && null != latestSubmissionData.ontology.name){
-            this.node.name = latestSubmissionData.ontology.name;
+            this.node.name = latestSubmissionData.ontology.name+"("+this.node.rawAcronym+")";
             this.node.LABEL = latestSubmissionData.ontology.name;
             // This one is for the submission, don't use it: latestSubmissionData["@id"]
             this.node.uriId = latestSubmissionData.links.ontology;

@@ -9,6 +9,7 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="TipsyToolTips" />
+///<amd-dependency path="TipsyToolTipsOnClick" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
@@ -22,7 +23,7 @@ import Fetch = require("../FetchFromApi");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
-import TipsyToolTips = require("../TipsyToolTips");
+import TipsyToolTips = require("../TipsyToolTipsOnClick");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
@@ -75,6 +76,11 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         //  .append('svg:g')
             .call(d3.behavior.zoom().on("zoom", this.redraw))
         //  .append('svg:g')
+            .on("click",
+             function(){
+                            TipsyToolTips.closeOtherTipsyTooltips();
+                        }
+                )
           ;
         
         this.vis.append('svg:rect')
@@ -174,10 +180,11 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     // I could get rid of this function's typing...D3 doesn't check on the way in.
     // Also, it's naming...I believe it is a lambda and a closure (closes over context,
     // and returns an anonymous function (returns a lambda).
+    alreadyHidTipsy = false;
     dragstartLambda(outerThis: OntologyMappingOverview): {(d: any, i: number): void} {
         return function(d, i) {
+            outerThis.alreadyHidTipsy = false;
             outerThis.dragging = true;
-            // $(this).tipsy('hide');
             $(".tipsy").hide();
             // stops the force auto positioning before you start dragging
             // This will halt the layout entirely, so if it tends to be unfinished for
@@ -192,6 +199,11 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     // create a lambda closure, not just a regular one.
     dragmoveLambda(outerThis: OntologyMappingOverview): {(d: any, i: number): void} {
         return function(d, i){
+            if(!outerThis.alreadyHidTipsy && (d3.event.dx != 0 || d3.event.dy != 0)){
+                TipsyToolTips.closeOtherTipsyTooltips();
+                outerThis.alreadyHidTipsy = true;
+            }
+            
             // http://bl.ocks.org/norrs/2883411
             // https://github.com/mbostock/d3/blob/master/src/layout/force.js
             // Original dragmove() had call to force.resume(), which I needed to remove when the graph was stable.
@@ -219,7 +231,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     dragendLambda(outerThis: OntologyMappingOverview): {(d: any, i: number): void}  {
         return function(d, i) {
             outerThis.dragging = false;
-            // $(this).tipsy('show');
             $(".tipsy").show();
             // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
             d.fixed = true;
@@ -423,10 +434,6 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .on("mouseover", this.highlightHoveredNodeLambda(this, true))
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
-        // tipsy stickiness from:
-        // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        d3.selectAll(GraphView.BaseGraphView.nodeSvgClass).each(TipsyToolTips.nodeTooltipOnHoverLambda(this));
-        
         // Label
         enteringNodes.append("svg:text")
             .attr("id", function(d){ return "node_text_"+d.acronymForIds})
@@ -444,6 +451,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             // .on("mouseout", this.unhighlightHoveredNodeLambda(this))
             ;
             
+        enteringNodes.each(TipsyToolTips.nodeTooltipOnClickLambda(this));
+        
         // Would do exit().remove() here if it weren't re-entrant, so to speak.
         
         
