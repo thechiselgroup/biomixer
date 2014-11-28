@@ -10,6 +10,8 @@
 ///<amd-dependency path="Utils" />
 "use strict";
 
+declare var purl;
+
 import GraphView = require('./GraphView');
 import Utils = require('./Utils');
     
@@ -376,7 +378,74 @@ import Utils = require('./Utils');
         ) {
         }
         
+//        private callAgainCORSPost(){
         private callAgain(){
+            // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
+            // var browserSupportsCors = typeof XDomainRequest != "undefined";
+//          var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();
+//    
+//          if(!browserSupportsCors){
+              // if CORS isn't available, we cannot receive server status codes off an XHR object,
+              // because JSONP requests don't get that back from the browser. So sad.
+            
+            // Decompose GET URL and recompose into POST URL and data.
+            var url = purl(Utils.prepUrlKey(this.restUrl, false));
+            var getParameters = url.attr("query");
+            var urlString = this.restUrl.replace("?"+getParameters, "");
+            // urlString = "http://stagedata.bioontology.org/ontologies";
+            
+            var outerThis = this;
+//          $.getJSON(this.callbackObject.url, null, this.callbackObject.callback);
+            $.ajax({
+                url: urlString, // Utils.prepUrlKey(outerThis.restUrl),
+                data: getParameters, // JSON.stringify(getParameters), will need this for more complicated requests
+                dataType: 'json',
+                type: "POST",
+                crossDomain: true,
+                success: function (data, textStatus, jqXHR){
+                        console.log(data);
+                        return;
+                        var errorOrRetry = outerThis.processResponse(data);
+                        // These error handlers are from the older API w2ith the embedded error codes.
+                        if(0 == errorOrRetry){
+                            return;
+                        } else if(-1 == errorOrRetry){
+                            // have an error. Done?
+                            return;
+                        }
+                        
+                        // We need the ability to fulfill multiple requests. Any callbacks registered with this
+                        // URL will be fulfilled when we have a success.
+                        var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
+                        var queue = cacheItem.getUnservedCallbacks();
+                        for(var i in  queue){
+                            var callbackObj = queue[i];
+                            // Callback trigger doesn't ever receive or handle errors...after all, how could it?
+                            // We can therefore safely run through them all, dispatch them, and remove them.
+                            cacheItem.markAsServed(callbackObj);
+                            callbackObj.callback(data, textStatus, jqXHR);
+                        }
+                    },
+                error: function (jqXHR, textStatus, errorThrown ){
+                        console.log("Error: "+errorThrown);
+                        console.log(textStatus);
+                        return;
+                        var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
+                        var queue = cacheItem.getUnservedCallbacks();
+                        for(var i in  queue){
+                            var callbackObj = queue[i];
+                            // Callback trigger doesn't ever receive or handle errors...after all, how could it?
+                            // We can therefore safely run through them all, dispatch them, and remove them.
+                            cacheItem.markAsServed(callbackObj);
+                            callbackObj.callback({errors: true, status:errorThrown}, textStatus, jqXHR);
+                        }
+                    },
+                }
+            );
+        }
+        
+        private callAgainJSONP(){
+//          private callAgain(){
             // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
             // var browserSupportsCors = typeof XDomainRequest != "undefined";
 //          var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();

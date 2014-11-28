@@ -26,7 +26,7 @@ export function endsWith(string, suffix) {
 
 
 declare var purl;
-export function prepUrlKey(url: string){
+export function prepUrlKey(url: string, includeJsonp: boolean = true){
     var ampersand = "&";
     if(url.indexOf("?") == -1){
         url = url+"?";
@@ -35,7 +35,11 @@ export function prepUrlKey(url: string){
     // Forced '&' is safe as far as I can tell
     // OLD API KEY starts 6700... keep if we like 429 errors. Good for testing.
     //  return url += ampersand+"format=jsonp"+"&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"; // OLD API KEY
-    return url += ampersand+"format=jsonp"+"&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
+    if(includeJsonp){
+        return url += ampersand+"format=jsonp"+"&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
+    } else {
+        return url += ampersand+"apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
+    }
 }
 
 export function addOrUpdateUrlParameter(url: string, paramName: string, value: string): string{
