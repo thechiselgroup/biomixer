@@ -94,7 +94,7 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
                 $(dropdownSelector).slideUp();
             }
         );
-        return function(){
+        return function(event: JQueryEventObject){
             event.stopPropagation();
             $(dropdownSelector).slideToggle();
         }
