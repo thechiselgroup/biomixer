@@ -328,6 +328,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             }
             
             
+            
             // Do I want nodes to avoid one another?
             // http://bl.ocks.org/mbostock/3231298
     //      var q = d3.geom.quadtree(nodes),
@@ -371,9 +372,21 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     //          lastGravityAdjustmentTime = jQuery.now();
     //          doLabelUpdateNextTime = true;
     //      } else {
+            
+            
+            //box bounding
+            var width = this.visWidth();
+            var height = this.visHeight();
+            var nodeHeight = this.nodeHeight+this.nodeLabelPaddingHeight/2;
     
             if(boundNodes.length > 0){
-                boundNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
+                boundNodes.attr("transform", function(d: ConceptGraph.Node) { 
+                    
+                    var nodeWidth = parseInt(d3.select("#node_rect_"+d.conceptUriForIds).attr("width"))/2;
+                    d.x = Math.max(nodeWidth, Math.min(width - nodeWidth, d.x));
+                   
+                    d.y = Math.max(nodeHeight, Math.min(height - nodeHeight, d.y));
+                    return "translate(" + d.x + "," + d.y + ")"; });
             }
                 
             if(boundLinks.length > 0){
@@ -397,6 +410,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     //          })
     //          lastLabelShiftTime = jQuery.now();
     //      }
+            
+            
+         
             
         }
             
@@ -430,15 +446,28 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             d.x += d3.event.dx;
             d.y += d3.event.dy; 
             
-            d3.select(this).attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            
+            var width = outerThis.visWidth();
+            var height =  outerThis.visHeight();            
+            var nodeHeight = outerThis.nodeHeight+outerThis.nodeLabelPaddingHeight/2;
+            
+            
+            d3.select(this).attr("transform", function(d: ConceptGraph.Node) { 
+                var nodeWidth = parseInt(d3.select("#node_rect_"+d.conceptUriForIds).attr("width"))/2;
+                d.x = Math.max(nodeWidth, Math.min(width - nodeWidth, d.x));
+                    
+                d.y = Math.max(nodeHeight, Math.min(height - nodeHeight, d.y));
+                return "translate(" + d.x + "," + d.y + ")"; });
         
             
             outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
+
                 .attr("points", outerThis.updateArcLineFunc);
             outerThis.vis.selectAll("polyline"+GraphView.BaseGraphView.linkMarkerSvgClass)
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
                 .attr("points", outerThis.updateArcMarkerFunc);
+
            
         }
     }

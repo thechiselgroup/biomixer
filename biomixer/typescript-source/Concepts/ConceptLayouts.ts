@@ -404,7 +404,14 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 numOfRoots+=roots.length;   
             });
             console.log(numOfRoots);
+            
+            var minShift = 100;
+            var maxShift = outerThis.graphView.visHeight()/2-100;  
             var yShift = numOfRoots*20;
+            
+            if( yShift < minShift ){ yShift = minShift; }
+            if( yShift > maxShift ){ yShift = maxShift; }
+
             var treeWidth = 360;
             var treeHeight = (outerThis.graphView.visHeight()-yShift-100)/2; 
  
@@ -442,7 +449,10 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                     graphNodes[index].y = element.y+yShift/2; 
                 }
             );
-                     
+              
+            
+            
+            
             outerThis.transitionNodes(refreshLayout);
         };
     }
@@ -559,7 +569,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             
             outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
             .gravity(0.05) // 0.5
-            .charge(-30); // -100
+            .charge(-100); // -100
             
             outerThis.forceLayout.on("tick", outerThis.graphView.onLayoutTick());
             outerThis.forceLayout.start();
