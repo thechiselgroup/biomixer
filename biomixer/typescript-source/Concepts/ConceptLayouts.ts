@@ -307,7 +307,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
-        console.log(graphLinks);
         var ontologies = outerThis.getAllOntologyAcronyms();
 
         //reset values for next layout
