@@ -237,13 +237,15 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return ontologies;
     }
     
-     
-    getChildren(parentNode: ConceptGraph.Node){
+    
+    
+    getChildren(parentNode: ConceptGraph.Node, graphLinks){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-        var graphLinks = outerThis.graph.graphD3Format.links;
+//        var graphLinks = outerThis.graph.graphD3Format.links;
         var children: ConceptGraph.Node[] = [];
-
+        
+        
         graphLinks.forEach(function(link){
             if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps_to"){
                 graphNodes.forEach(function(node){
@@ -257,10 +259,14 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return children;
     }
     
-    calculateDepth(parentNode: ConceptGraph.Node, depth){
+    calculateDepth(parentNode: ConceptGraph.Node, depth, graphLinks){
         var outerThis = this;
 
-        var children = outerThis.getChildren(parentNode);
+        var children = outerThis.getChildren(parentNode, graphLinks);
+            
+//            .filter(function(c){
+//            return !($.inArray(parentNode, outerThis.getChildren(c)) != -1);
+//        });
         //console.log(children);
         if(children.length<=0){
             return depth;
@@ -271,17 +277,17 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                     
                 }
                 if(child.tempDepth>depth) {depth++;}
-                depth = outerThis.calculateDepth(child, depth);
+                depth = outerThis.calculateDepth(child, depth, graphLinks);
                 
             });
             return depth;
         }
     }
     
-    getRoots(ontologyAcronym){
+    getRoots(ontologyAcronym, graphLinks){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-        var graphLinks = outerThis.graph.graphD3Format.links;
+//        var graphLinks = outerThis.graph.graphD3Format.links;
         var roots: ConceptGraph.Node[] = [];       
         var isRoot = true;    
         var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps_to"});
@@ -300,6 +306,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     buildTree(width, height){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.graph.graphD3Format.links;
         var ontologies = outerThis.getAllOntologyAcronyms();
 
         //reset values for next layout
@@ -310,6 +317,20 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             node.y = 0;
             node.children = null;
             node.parent = null;
+        });
+        
+        var tempGraphLinks: ConceptGraph.Link[] = [];
+        
+        graphLinks.forEach(function(link){
+            var cycleLink = false;
+            tempGraphLinks.forEach(function(tempLink){
+                if((link.sourceId==tempLink.targetId&&link.targetId==tempLink.sourceId)){
+                    cycleLink = true;
+                }
+                
+            });
+            
+            if(!cycleLink)tempGraphLinks.push(link);
         });
         
         var fullTreeDepth = 0;
@@ -326,10 +347,10 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             ontologyRoots.push(ontologyRoot);
             var roots: ConceptGraph.Node[];
             
-            roots = outerThis.getRoots(ontologyName);   
+            roots = outerThis.getRoots(ontologyName, tempGraphLinks);   
                     
             roots.forEach(function(root){
-                var ontologyDepth = outerThis.calculateDepth(root, 0);
+                var ontologyDepth = outerThis.calculateDepth(root, 0, tempGraphLinks);
                 if (ontologyDepth > fullTreeDepth) { fullTreeDepth = ontologyDepth; }
             });
             
@@ -348,7 +369,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                     return ontologyRoots;
                 }else if($.inArray(parent.name, ontologies) != -1){  
                     var roots: ConceptGraph.Node[];
-                    roots = outerThis.getRoots(parent.name);   
+                    roots = outerThis.getRoots(parent.name, tempGraphLinks);   
                     
                     roots.forEach(function(root){
                         if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
@@ -356,7 +377,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
                     return roots;
                 }else{
-                    var graphChildren = outerThis.getChildren(parent); 
+                    var graphChildren = outerThis.getChildren(parent, tempGraphLinks); 
                     var treeChildren: ConceptGraph.Node[] = [];
  
                     graphChildren = graphChildren.sort(function(a, b){
@@ -398,9 +419,24 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
             var ontologies = outerThis.getAllOntologyAcronyms();
 
+            var tempGraphLinks: ConceptGraph.Link[] = [];
+            var graphLinks = outerThis.graph.graphD3Format.links;
+
+            graphLinks.forEach(function(link){
+                var cycleLink = false;
+                tempGraphLinks.forEach(function(tempLink){
+                    if((link.sourceId==tempLink.targetId&&link.targetId==tempLink.sourceId)){
+                        cycleLink = true;
+                    }
+                    
+                });
+                
+                if(!cycleLink)tempGraphLinks.push(link);
+            });
+            
             var numOfRoots = 0;
             ontologies.forEach(function(o){
-                var roots = outerThis.getRoots(o);
+                var roots = outerThis.getRoots(o, tempGraphLinks);
                 numOfRoots+=roots.length;   
             });
             console.log(numOfRoots);
