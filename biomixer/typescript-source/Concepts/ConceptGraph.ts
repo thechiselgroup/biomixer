@@ -871,9 +871,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return false;
     }
     
-    private temporaryEdges: Link[] = [];
     manifestTemporaryHoverEdges(conceptNode: Node){
-        this.temporaryEdges = [];
+        var temporaryEdges = [];
         var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(String(conceptNode.rawConceptUri));
         // If clearedForMap, then technically all the mapping edges should be visible, so there's no reason to
         // look over the edges.
@@ -887,20 +886,26 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 if(edge.relationType === this.relationLabelConstants.mapping){
                     var otherNodeId = (edge.sourceId === conceptNode.rawConceptUri) ? edge.targetId : edge.sourceId;
                     var otherNodeClearedMap = this.expMan.wasConceptClearedForExpansion(otherNodeId, PathOptionConstants.mappingsNeighborhoodConstant);
-                    if(!otherNodeClearedMap){
+                    var otherNodeInGraph = this.conceptIdNodeMap[String(otherNodeId)] != null;
+                    if(!otherNodeClearedMap && temporaryEdges.indexOf(edge) === -1
+                        && otherNodeInGraph){
                         // If the other node is cleared, the edge should be already rendered.
-                        this.temporaryEdges.push(edge);
+                        temporaryEdges.push(edge);
                     }
                 }
             }
         );
         
-        this.manifestEdge(this.temporaryEdges, true);
+        this.manifestEdge(temporaryEdges, true);
     }
     
     removeTemporaryHoverEdges(conceptNode: Node){
-        this.removeEdges(this.temporaryEdges);
-        this.temporaryEdges = [];
+        var temporaryEdgesSelected = d3.selectAll("."+GraphView.BaseGraphView.temporaryEdgeClass);
+        var temporaryEdgeData: Array<Link> = [];
+        temporaryEdgesSelected.each(function(d: Link, i: number){
+            temporaryEdgeData.push(d);
+        });
+        this.removeEdges(temporaryEdgeData);
     }
     
     /**

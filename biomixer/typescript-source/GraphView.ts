@@ -140,6 +140,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static hiddenNodeLabelClass: string = "hiddenNodeLabel";
     static hiddenLinkBecauseOfHiddenNodeLabelClass = "hiddenBecauseOfNodeLink"
     
+    static temporaryEdgeClass: string = "temporaryLink";
+    
     static nodeSvgClass = "."+BaseGraphView.nodeSvgClassSansDot;
     static nodeInnerSvgClass = "."+BaseGraphView.nodeInnerSvgClassSansDot;
     static nodeGSvgClass = "."+BaseGraphView.nodeGSvgClassSansDot;

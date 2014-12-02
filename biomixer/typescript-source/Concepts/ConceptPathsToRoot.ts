@@ -878,6 +878,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(!enteringLinks.empty()){
             if(!temporaryEdges){
                 this.runCurrentLayout(true);
+            } else {
+                enteringPolylines.classed(GraphView.BaseGraphView.temporaryEdgeClass, true);
+                // Using CSS class so we can later pin down temporary edge data,
+                // so we don't actually need the markers tagged this way.
+                // enteringArcMarkers.classed(GraphView.BaseGraphView.temporaryEdgeClass);
             }
             this.updateStartWithoutResume();
             enteringPolylines.attr("points", this.updateArcLineFunc);
