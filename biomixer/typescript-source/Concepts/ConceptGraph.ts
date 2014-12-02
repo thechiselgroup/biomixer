@@ -1407,32 +1407,9 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                 // But...children property sets do have all the other things we need to get the seed of data for a node
                 // (being the @id and the ontology link from which we need to extract the true-and-valid ontology acronym)
             
-                // See line 71 TermWithoutRelationsJsonParser for how it was dealt with in Java.
-                // We already parsed for other (automatic) properties when we first got this node's
-                // data, so here we only do composite relations and maybe additional properties if needed.
-                // This is properties such as: "http://purl.bioontology.org/ontology/SNOMEDCT/has_part"
-                // I know, not the most general property name...
-                if(Utils.endsWith(propertyId, "has_part")){
-                    $.each(propertyValue, (index, childPartId: ConceptURI)=>{
-                        // TODO Need to register all node ids we get, so that for the different visualizations, we can expand differently.
-                        // For path to root, we only expand those path to root nodes (determined at beginning)
-                        // For term neighbourhood, we only expand the direct neighbours of the central node (determined during fetches).
-                        // For mappings, we only expand based on the first mapping call (determined during fetches).
-                        // Ergo, we need to expand composition mappings if we are in the term neighbourhood vis.
-                        
-                        // PROBLEM Seems like I want to manifest nodes before doing arcs, but in this case, I want to know
-                        // if the relation exists so I can fetch the node data...
-                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, childPartId, this.graph.relationLabelConstants.composition);
-                        this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, childPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
-                    });
-                }
-                
-                if(Utils.endsWith(propertyId, "part_of")){
-                    $.each(propertyValue, (index, parentPartId: ConceptURI)=>{
-                        this.graph.manifestOrRegisterImplicitRelation(parentPartId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.composition);
-                        this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, parentPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
-                    });
-                }
+                // We also have some grandfathered special cases. Has_part and part_of show up at least in SNOMDED, but without
+                // a corresponding relation property definition on the ontology itself. We can keep that,. but we can't double parse
+                // said relation on other ontologies that do have a relation property definition.
                 
                 // Check for ontology declared property relations.
                 var matchedRelationProp = PropRel.OntologyPropertyRelationsRegistry.matchedAvailableRelations(this.conceptNode.ontologyAcronym, propertyId); // used to be the entry or index..."medial ligament", etc
@@ -1451,7 +1428,38 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                         this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, relatedPartId, matchedRelationProp.idEscaped, matchedRelationProp);
                         this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, relatedPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
                     });
+                    return;
                 }
+                
+                // See line 71 TermWithoutRelationsJsonParser for how it was dealt with in Java.
+                // We already parsed for other (automatic) properties when we first got this node's
+                // data, so here we only do composite relations and maybe additional properties if needed.
+                // This is properties such as: "http://purl.bioontology.org/ontology/SNOMEDCT/has_part"
+                // I know, not the most general property name...
+                if(Utils.endsWith(propertyId, "has_part")){
+                    $.each(propertyValue, (index, childPartId: ConceptURI)=>{
+                        // TODO Need to register all node ids we get, so that for the different visualizations, we can expand differently.
+                        // For path to root, we only expand those path to root nodes (determined at beginning)
+                        // For term neighbourhood, we only expand the direct neighbours of the central node (determined during fetches).
+                        // For mappings, we only expand based on the first mapping call (determined during fetches).
+                        // Ergo, we need to expand composition mappings if we are in the term neighbourhood vis.
+                        
+                        // PROBLEM Seems like I want to manifest nodes before doing arcs, but in this case, I want to know
+                        // if the relation exists so I can fetch the node data...
+                        this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, childPartId, this.graph.relationLabelConstants.composition);
+                        this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, childPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
+                    });
+                    return;
+                }
+                
+                if(Utils.endsWith(propertyId, "part_of")){
+                    $.each(propertyValue, (index, parentPartId: ConceptURI)=>{
+                        this.graph.manifestOrRegisterImplicitRelation(parentPartId, this.conceptNode.rawConceptUri, this.graph.relationLabelConstants.composition);
+                        this.graph.expandRelatedConcept(this.conceptNode.ontologyAcronym, parentPartId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet);
+                    });
+                    return;
+                }
+                
             }
         );
     }
