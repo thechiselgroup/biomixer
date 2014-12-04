@@ -20,6 +20,10 @@ export class ExpansionManager{
         this.edgeRegistry = new EdgeRegistry();
     }
     
+    importedNodeClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
+        
+    }
+    
     /**
      * This is used to determine things like if a given mapping arc is to be fully rendered,
      * or if the neighbors of a term we are processing should be fetched. That depends on hwo
@@ -49,8 +53,10 @@ export class ExpansionManager{
             var command = crumbTrail[i];
             // Get the interaction that the crumb command had with the node in question.
             // Could match the expansion type provided, be an addition, or be a deletion.
-            var nodeInteraction: UndoRedoManager.NodeInteraction = command.nodeInteraction(conceptUriForIds);
-            if(nodeInteraction === expansionType){
+            var nodeInteractions = command.nodeInteraction(conceptUriForIds);
+            if(null == nodeInteractions){
+                return returnVal;
+            } else if(nodeInteractions.indexOf(expansionType) !== -1){
                 // This is done for a different use case, which requires all of the same code except this.
                 returnVal.fullyManifested = command.areCommandNodesCurrentlyLoaded();
                 // The way that the command is set as cut short really matters a lot to this functionality.
@@ -60,7 +66,7 @@ export class ExpansionManager{
                 returnVal.numTotal = command.numberOfNodesInCommand();
                 returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
                 return returnVal;
-            } else if(nodeInteraction === GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction){
+            } else if(nodeInteractions.indexOf(GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction) !== -1){
                 // For deleted, labelling it as not cleared is the important part
                 // but we'll fill in all the things.
                 returnVal.fullyManifested = false;

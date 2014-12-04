@@ -101,6 +101,12 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
     
     private redidLast = true;
     
+    /**
+     * This was added to support temporary mapping arcs in situations where the data is imported.
+     * It might serve another purpose later, but is not intended for anything else right now.
+     * It is a somewhat horrible hack :(
+     */
+    extraInteractions: { [conceptId: string]: UndoRedoManager.NodeInteraction } = {};
     
     constructor(
         public graph: GraphView.Graph<N>,
@@ -163,17 +169,31 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
+    addExtraInteraction(nodeId: string, interactionType: UndoRedoManager.NodeInteraction){
+        this.extraInteractions[nodeId] = interactionType;
+    }
+    
+    // TODO Do I want to collect the interactions from all composed sets???
+    // If not, I am assuming that no node will appear both in the addition and deletion set,
+    // or that if it does, we only really care about the *interaction* of the node being added.
+    // That situation occurs when we import data that happens to include a node that was just in the graph.
+    nodeInteraction(nodeId: string): Array<UndoRedoManager.NodeInteraction>{
+        var interactions:  Array<UndoRedoManager.NodeInteraction> = [];
         if(null === this.expansionSet.parentNode || this.expansionSet.parentNode.getEntityId() === nodeId){
-            return this.expansionSet.expansionType;
+            interactions.push(this.expansionSet.expansionType);
         }
         for(var i = 0; i < this.expansionSet.nodes.length; i++){
             var node = this.expansionSet.nodes[i];
             if(node.getEntityId() === nodeId){
-                return GraphAddNodesCommand.addedNodeInteraction;
+                interactions.push(GraphAddNodesCommand.addedNodeInteraction);
+                var extraInteraction = this.extraInteractions[nodeId];
+                if(null != extraInteraction){
+                    interactions.push(extraInteraction);
+                }
+                break;
             }
         }
-        return null;
+        return interactions;
     }
     
     numberOfCommandNodesCurrentlyLoaded(): number{
@@ -255,11 +275,11 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends Commo
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction{
+    nodeInteraction(nodeId: string): Array<UndoRedoManager.NodeInteraction>{
         for(var i = 0; i < this.nodesToRemove.nodes.length; i++){
             var node = this.nodesToRemove.nodes[i];
             if(node.getEntityId() === nodeId){
-                return GraphRemoveNodesCommand.deletionNodeInteraction;
+                return [GraphRemoveNodesCommand.deletionNodeInteraction];
             }
         }
         return null;
@@ -291,13 +311,18 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
 
     constructor(
         public graph: GraphView.Graph<N>,
-        public displayName: string
+        public displayName: string,
+        private deletionSet: DeletionSet.DeletionSet<N>,
+        private additionSet: ExpansionSets.ExpansionSet<N>
     ){
         super(graph);
         this.childImpl = this;
+        this.addCommand(deletionSet.getGraphModifier());
+        this.addCommand(additionSet.getGraphModifier());
+
     }
     
-    addCommand(newCommand: UndoRedoManager.ICommand){
+    private addCommand(newCommand: UndoRedoManager.ICommand){
         this.commands.push(newCommand);
     }
 
@@ -354,12 +379,16 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
     
     }
     
-    nodeInteraction(nodeId: string): UndoRedoManager.NodeInteraction {
+    addExtraInteraction(nodeId: string, interactionType: UndoRedoManager.NodeInteraction){
+        this.additionSet.getGraphModifier().addExtraInteraction(nodeId, interactionType);
+    }
+    
+    nodeInteraction(nodeId: string): Array<UndoRedoManager.NodeInteraction> {
         // We look in reverse at all the composite commands
         for(var i = this.commands.length - 1; i >= 0; i--){
-            var interaction = this.commands[i].nodeInteraction(nodeId);
-            if(null !== interaction){
-                return interaction;
+            var interactions = this.commands[i].nodeInteraction(nodeId);
+            if(null !== interactions){
+                return interactions;
             }
         }
         return null;

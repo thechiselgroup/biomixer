@@ -32,6 +32,7 @@ export class SavedGraphSeed {
     o: string;
     x: number;
     y: number;
+    m: boolean; //cleared for mapping expansion...try to use in a way that prevents re-adding of deleted nodes
 }
 
 
@@ -46,8 +47,19 @@ export class SavedGraph {
     
     s: { [linkCssClass: string]: string } = {}; // Store styles here, just colors for now. Not much format.
     
-    addNode(nodeData){
-        this.n[String(nodeData.rawConceptUri)] = <SavedGraphSeed><any>{ o: nodeData.ontologyAcronym, x: nodeData.x, y: nodeData.y };
+    constructor(
+        ){
+    }
+    
+    addNode(nodeData, graph: ConceptGraph.ConceptGraph){
+        // Would make the graph an instance variable, but then it would get serialized later.
+        this.n[String(nodeData.rawConceptUri)] = <SavedGraphSeed><any>{
+            o: nodeData.ontologyAcronym, x: nodeData.x, y: nodeData.y
+        };
+        if(graph.expMan.wasConceptClearedForExpansion(nodeData.rawConceptUri,
+                ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
+            this.n[String(nodeData.rawConceptUri)].m = true;
+        }
     }
     
     addLinkStyle(cssName, color){
@@ -232,7 +244,7 @@ export class GraphExporter {
             (index: number, node: Element)=>{
                 var nodeId = node.getAttribute("id").replace(GraphView.BaseGraphView.nodeGSvgClassSansDot+"_", "");
                 var nodeData = this.graph.getNodeByIdUri(nodeId);
-                savedGraph.addNode(nodeData);
+                savedGraph.addNode(nodeData, this.graph);
             }
         );
         
@@ -298,6 +310,9 @@ export class GraphImporter {
         for(var conceptUri in this.importData.n){
             // Verify the structure's contents. It was imported via casting, not parsing.
             var nodeData: SavedGraphSeed = this.importData.n[conceptUri];
+            if(nodeData.m){
+                expansionSet.graphModifier.addExtraInteraction(conceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+            }
             // Casting to prevent need for re-boxing data. Would need to remove elements and leave just x and y.
             this.pathsToRoot.layouts.updateFixedLayoutDatum(conceptUri, <{x: number; y: number}>nodeData);
             this.loadNode(conceptUri, nodeData, expansionSet);

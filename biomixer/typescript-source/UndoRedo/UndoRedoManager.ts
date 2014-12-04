@@ -225,7 +225,7 @@ export interface ICommand {
      * moving in the forward (redo) direction. If the ICommand does not
      * interact with the node, it will return null.
      */
-    nodeInteraction(nodeId: string): NodeInteraction;
+    nodeInteraction(nodeId: string): Array<NodeInteraction>;
     
     // How do I actually want to do this? This seems incorrect...
     // Maybe takeLayoutSnapshot(layouProvider: LayoutProvider.LayoutProvider) ???
