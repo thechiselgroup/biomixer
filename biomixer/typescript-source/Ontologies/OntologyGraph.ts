@@ -65,6 +65,10 @@ export class Node extends GraphView.BaseNode {
     constructor(){
         super();
     }
+    
+    static D3IdentityFunction(d: Node){
+        return String(d.rawAcronym);
+    }
 }
 
 export class Link extends GraphView.BaseLink<Node> {
@@ -75,6 +79,10 @@ export class Link extends GraphView.BaseLink<Node> {
         
     constructor(){
         super();
+    }
+    
+    static D3IdentityFunction(d: Link){
+        return d.source.rawAcronym+"-to-"+d.target.rawAcronym;
     }
 }
     
@@ -108,6 +116,8 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     // Slice it with softNodeCap during init.
     public sortedAcronymsByMappingCount: Array<AcronymNodePair> = [];
 
+    public centralOntologyNode: Node = null;
+    
     // This softNodeCap only affects API dispatch and rendering for nodes past the cap. It is used during
     // initialization only. Set to 0 means all nodes will be used.
     constructor(
@@ -264,6 +274,15 @@ export class OntologyGraph implements GraphView.Graph<Node> {
                 }
         );
         
+        this.sortedAcronymsByMappingCount
+        = $.grep(
+                this.sortedAcronymsByMappingCount,
+                function(entry) {
+                  return acronymsToKeep.indexOf(entry.acronym) != -1;
+                }
+        );
+                
+        
         // $.each(ontologyNeighbourhoodJsonForGraph.nodes, function(index, node){console.log("After removal: "+node.rawAcronym)});
         // $.each(ontologyNeighbourhoodJsonForGraph.links, function(index, link){console.log("After removal: "+link.source.rawAcronym+" and "+link.target.rawAcronym)});
         
@@ -343,7 +362,8 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		// New API example: http://data.bioontology.org/mappings/statistics/ontologies/SNOMEDCT/?apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1
         
 		// Create the central node
-		var centralOntologyNode: Node = new Node();
+        var centralOntologyNode = new Node();
+		this.graph.centralOntologyNode = centralOntologyNode;
 		centralOntologyNode.name = "fetching"+" ("+this.centralOntologyAcronym+")";
 		centralOntologyNode.description = "fetching description";
 		centralOntologyNode.fixed = true; // lock central node
@@ -506,7 +526,7 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
 					// Make use of details to add info to ontologies
 					var ontologyAcronym = ontologyDetails.acronym;
                     var node = this.ontologyAcronymNodeMap["vid:"+ontologyAcronym];
-					
+
 					if(typeof node === "undefined"){
 						// Skip node details that aren't in our graph
                         // or those that will give 403 errors if we

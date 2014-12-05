@@ -340,7 +340,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Data constancy via key function() passed to data()
         // Link stuff first
         var links = this.vis.select("#link_container")
-            .selectAll(GraphView.BaseGraphView.linkSvgClass).data(linksData, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+            .selectAll(GraphView.BaseGraphView.linkSvgClass).data(linksData, OntologyGraph.Link.D3IdentityFunction);
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
     
         // Add new stuff
@@ -387,7 +387,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Node stuff now
         
         var nodes = this.vis.select("#node_container")
-            .selectAll("g.node_g").data(nodesData, function(d){return d.rawAcronym});
+            .selectAll("g.node_g").data(nodesData, OntologyGraph.Node.D3IdentityFunction);
         
         // Add new stuff
         var enteringNodes = nodes.enter().append("svg:g")
@@ -554,7 +554,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         if(!enteringNodes.empty()){
             this.forceLayout.on("tick", this.onLayoutTick());
+//            this.attachNodeMenu(enteringNodes);
         }
+        
         
         // Make sure we have initialized the filter slider to be at the softNodeCap.
         // The filter function will lead to individual API calls being dispatched on nodes.
@@ -575,6 +577,22 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // be thrown.
         this.forceLayout.nodes(graphD3Format.nodes);
         this.forceLayout.links(graphD3Format.links);
+
+        var nodes = this.vis.selectAll("g.node_g").data(graphD3Format.nodes, OntologyGraph.Node.D3IdentityFunction);
+        var links = this.vis.selectAll("."+ GraphView.BaseGraphView.linkSvgClassSansDot).data(graphD3Format.links, OntologyGraph.Link.D3IdentityFunction);
+        
+        var nodesRemoved = nodes.exit().remove();
+        var linksRemoved = links.exit().remove();
+        
+        // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
+        this.filterSliders.updateTopMappingsSliderRange();
+        this.filterSliders.rangeSliderSlideEvent(null, null); // Bad to pass nulls when I know it will work, or ok?
+        
+
+        this.stampTimeGraphModified();        
+        this.forceLayout.on("tick", this.onLayoutTick());
+        // this.runCurrentLayout();
+        this.currentLambda();
     }
     
     
@@ -754,8 +772,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     removeGraphPopulation(data: GraphView.GraphDataForD3<OntologyGraph.Node, OntologyGraph.Link>){
         console.log("Removing some graph elements "+Utils.getTime());
     
-        var nodes = this.vis.selectAll("g.node_g").data(this.ontologyGraph.graphD3Format.nodes, function(d){return d.rawAcronym});
-        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(this.ontologyGraph.graphD3Format.links, function(d){return d.source.rawAcronym+"-to-"+d.target.rawAcronym});
+        var nodes = this.vis.selectAll("g.node_g").data(this.ontologyGraph.graphD3Format.nodes, OntologyGraph.Node.D3IdentityFunction);
+        var links = this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).data(this.ontologyGraph.graphD3Format.links, OntologyGraph.Link.D3IdentityFunction);
         
         
         
@@ -831,7 +849,11 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
 //              if(typeof visibleNodes[node.acronymForIds] === "undefined")
 //              $("#node_g_"+d.source.acronymForIds).find("*").css("display", (hideSourceNodeBecauseOfHiddenArc || hideSourceNode) ? "none" : "");
                     var display = $("#node_circle_"+node.acronymForIds).css("display");
-                    if((node.rawAcronym != outerThis.centralOntologyAcronym) && (typeof display !== "undefined" && display !== "none")){
+                    if((display == null || display === "none")){
+                        // For lack of a better thing to do, set off screen invisible nodes to center.
+                        node.x = outerThis.visWidth()/2; 
+                        node.y = outerThis.visHeight()/2;
+                    } else if(node.rawAcronym !== outerThis.centralOntologyAcronym){
                         var angleForNode = i * anglePerNode; 
                         i++;
                         node.x = outerThis.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
@@ -843,6 +865,10 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
                     }
                 }
             );
+            
+            // Actually the central node isn't in the set, so grab it directly and position it
+            this.ontologyGraph.centralOntologyNode.x = outerThis.visWidth()/2; 
+            this.ontologyGraph.centralOntologyNode.y = outerThis.visHeight()/2;
             
             var animationDuration = 400;
             d3.selectAll("g.node_g")

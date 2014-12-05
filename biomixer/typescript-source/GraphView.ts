@@ -173,7 +173,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         if(this.forceLayout){
             this.forceLayout.size([this.visWidth(), this.visHeight()]).linkDistance(this.linkMaxDesiredLength());
             // If needed, move all the nodes towards the new middle here.
-            this.forceLayout.resume();
+            // this.forceLayout.resume(); // wasn't doing the trick
+            this.currentLambda(true); // direct retrigger the current layout.
         }  
     }
     
