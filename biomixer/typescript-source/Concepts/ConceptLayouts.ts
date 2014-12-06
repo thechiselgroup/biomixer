@@ -224,7 +224,30 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
     }
     
-    getAllOntologyAcronyms(){
+//    private decycledLinks: ConceptGraph.Link[] = [];
+    
+    
+    private decycle(graphLinks: ConceptGraph.Link[]){
+        var newDecycledLinks: ConceptGraph.Link[] = [];
+        
+        graphLinks.filter(function(link){return link.relationType!="maps_to"}).forEach(function(link){
+            var parentIsChild = false;
+            var childIsParent = false;
+            
+            newDecycledLinks.forEach(function(dLink){
+                if(link.sourceId==dLink.targetId){parentIsChild = true;}
+                if(link.targetId==dLink.sourceId){childIsParent = true;}
+            });
+            
+            if(parentIsChild==false||childIsParent==false){newDecycledLinks.push(link);}
+        
+        });
+        return newDecycledLinks;
+//        console.log(graphLinks);
+//        console.log(newDecycledLinks);
+    }
+    
+    private getAllOntologyAcronyms(){
         var ontologies = [];
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
@@ -239,10 +262,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     
     
     
-    getChildren(parentNode: ConceptGraph.Node, graphLinks){
+    private getChildren(parentNode: ConceptGraph.Node, graphLinks: ConceptGraph.Link[]){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-//        var graphLinks = outerThis.graph.graphD3Format.links;
         var children: ConceptGraph.Node[] = [];
         
         
@@ -259,15 +281,11 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return children;
     }
     
-    calculateDepth(parentNode: ConceptGraph.Node, depth, graphLinks){
+    private calculateDepth(parentNode: ConceptGraph.Node, depth, graphLinks:ConceptGraph.Link[]){
         var outerThis = this;
 
         var children = outerThis.getChildren(parentNode, graphLinks);
-            
-//            .filter(function(c){
-//            return !($.inArray(parentNode, outerThis.getChildren(c)) != -1);
-//        });
-        //console.log(children);
+
         if(children.length<=0){
             return depth;
         }else{
@@ -284,10 +302,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         }
     }
     
-    getRoots(ontologyAcronym, graphLinks){
+    private getRoots(ontologyAcronym, graphLinks:ConceptGraph.Link[]){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-//        var graphLinks = outerThis.graph.graphD3Format.links;
         var roots: ConceptGraph.Node[] = [];       
         var isRoot = true;    
         var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps_to"});
@@ -303,13 +320,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return roots;
     }
     
-    buildTree(width, height){
-        var outerThis = this;
-        var graphNodes = outerThis.graph.graphD3Format.nodes;
-        var graphLinks = outerThis.graph.graphD3Format.links;
-        console.log(graphLinks);
-        var ontologies = outerThis.getAllOntologyAcronyms();
-
+    private resetGraphValues(){
+        var graphNodes = this.graph.graphD3Format.nodes;
+        
         //reset values for next layout
         graphNodes.forEach(function (node){ 
             node.tempDepth = 0; 
@@ -320,25 +333,20 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             node.parent = null;
         });
         
-        var tempGraphLinks: ConceptGraph.Link[] = [];
+    }
+    
+    
+    private buildTree(width, height){
+        var outerThis = this;
         
-        graphLinks.forEach(function(link){
-            var cycleLink = false;
-            tempGraphLinks.forEach(function(tempLink){
-                if((link.sourceId==tempLink.targetId&&link.targetId==tempLink.sourceId)){
-                    cycleLink = true;
-                }
-                
-            });
-            
-            if(!cycleLink)tempGraphLinks.push(link);
-        });
+        outerThis.resetGraphValues();
+        
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.decycle(outerThis.graph.graphD3Format.links);
+        var ontologies = outerThis.getAllOntologyAcronyms();
         
         var fullTreeDepth = 0;
-        
-        var primaryRoot = new ConceptGraph.Node();
-        primaryRoot.name = "main_phantom_root"; //temporary identifier for the root
-        
+             
         var ontologyRoots: ConceptGraph.Node[] = [];
         
         //create ontology roots
@@ -348,10 +356,10 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             ontologyRoots.push(ontologyRoot);
             var roots: ConceptGraph.Node[];
             
-            roots = outerThis.getRoots(ontologyName, tempGraphLinks);   
+            roots = outerThis.getRoots(ontologyName, graphLinks);   
                     
             roots.forEach(function(root){
-                var ontologyDepth = outerThis.calculateDepth(root, 0, tempGraphLinks);
+                var ontologyDepth = outerThis.calculateDepth(root, 0, graphLinks);
                 if (ontologyDepth > fullTreeDepth) { fullTreeDepth = ontologyDepth; }
             });
             
@@ -370,7 +378,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                     return ontologyRoots;
                 }else if($.inArray(parent.name, ontologies) != -1){  
                     var roots: ConceptGraph.Node[];
-                    roots = outerThis.getRoots(parent.name, tempGraphLinks);   
+                    roots = outerThis.getRoots(parent.name, graphLinks);   
                     
                     roots.forEach(function(root){
                         if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
@@ -378,7 +386,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
                     return roots;
                 }else{
-                    var graphChildren = outerThis.getChildren(parent, tempGraphLinks); 
+                    var graphChildren = outerThis.getChildren(parent, graphLinks); 
                     var treeChildren: ConceptGraph.Node[] = [];
  
                     graphChildren = graphChildren.sort(function(a, b){
@@ -400,12 +408,14 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 }
            });
            
-           mainTree.nodes(primaryRoot);    
+        var primaryRoot = new ConceptGraph.Node();
+        primaryRoot.name = "main_phantom_root"; //temporary identifier for the primary root
+        mainTree.nodes(primaryRoot);  // build tree based on primary phantom root  
         
-           // shift the tree by 2 node distances
-           graphNodes.forEach(function(node){
-               node.y = node.y-2/(fullTreeDepth+2)*height;
-           });
+        // shift the tree by 2 node distances
+        graphNodes.forEach(function(node){
+            node.y = node.y-2/(fullTreeDepth+2)*height;
+        });
     }
     
     runRadialLayoutLambda(): LayoutProvider.LayoutRunner{
@@ -417,30 +427,14 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
-
+            var graphLinks = outerThis.decycle(outerThis.graph.graphD3Format.links);
             var ontologies = outerThis.getAllOntologyAcronyms();
-
-            var tempGraphLinks: ConceptGraph.Link[] = [];
-            var graphLinks = outerThis.graph.graphD3Format.links;
-
-            graphLinks.forEach(function(link){
-                var cycleLink = false;
-                tempGraphLinks.forEach(function(tempLink){
-                    if((link.sourceId==tempLink.targetId&&link.targetId==tempLink.sourceId)){
-                        cycleLink = true;
-                    }
-                    
-                });
-                
-                if(!cycleLink)tempGraphLinks.push(link);
-            });
             
             var numOfRoots = 0;
             ontologies.forEach(function(o){
-                var roots = outerThis.getRoots(o, tempGraphLinks);
+                var roots = outerThis.getRoots(o, graphLinks);
                 numOfRoots+=roots.length;   
             });
-            console.log(numOfRoots);
             
             var minShift = 100;
             var maxShift = outerThis.graphView.visHeight()/2-100;  
@@ -470,9 +464,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-    		
             outerThis.forceLayout.stop();
-            var graphNodes = outerThis.graph.graphD3Format.nodes;
 
             var xShift = 100;
             var yShift = 200;
@@ -481,15 +473,13 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             
             outerThis.buildTree(treeWidth, treeHeight);
             
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
             $.each(graphNodes, function(index, element){
                     graphNodes[index].x = element.x+xShift/2; 
                     graphNodes[index].y = element.y+yShift/2; 
                 }
             );
               
-            
-            
-            
             outerThis.transitionNodes(refreshLayout);
         };
     }
@@ -500,7 +490,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-    		
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
