@@ -320,9 +320,11 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return roots;
     }
     
+
     private resetGraphValues(){
         var graphNodes = this.graph.graphD3Format.nodes;
         
+
         //reset values for next layout
         graphNodes.forEach(function (node){ 
             node.tempDepth = 0; 
