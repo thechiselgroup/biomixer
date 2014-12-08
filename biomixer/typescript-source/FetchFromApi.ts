@@ -365,240 +365,99 @@ import Utils = require('./Utils');
 //        assignFetcher: { (fetcher: RetryingJsonFetcher); };
     }
 
-    /*
-     * This fetcher system allows the success receiver to call it to see if there has been an error that
-     * allows for a retry. It is fairly clean on the user side, though it does require checking of
-     * return values.
-     */
-    export class RetryingJsonFetcher {
-        previousTriesRemade: number = 0;
-        
-        constructor(
-            public restUrl: string
-        ) {
-        }
-        
-//        private callAgainCORSPost(){
-        private callAgain(){
-            // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
-            // var browserSupportsCors = typeof XDomainRequest != "undefined";
-//          var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();
-//    
-//          if(!browserSupportsCors){
-              // if CORS isn't available, we cannot receive server status codes off an XHR object,
-              // because JSONP requests don't get that back from the browser. So sad.
-            
-            // Decompose GET URL and recompose into POST URL and data.
-            var url = purl(Utils.prepUrlKey(this.restUrl, false));
-            var getParameters = url.attr("query");
-            var urlString = this.restUrl.replace("?"+getParameters, "");
-            // urlString = "http://stagedata.bioontology.org/ontologies";
-            
-            var outerThis = this;
-//          $.getJSON(this.callbackObject.url, null, this.callbackObject.callback);
-            $.ajax({
-                url: urlString, // Utils.prepUrlKey(outerThis.restUrl),
-                data: getParameters, // JSON.stringify(getParameters), will need this for more complicated requests
-                dataType: 'json',
-                type: "POST",
-                crossDomain: true,
-                success: function (data, textStatus, jqXHR){
-                        console.log(data);
-                        return;
-                        var errorOrRetry = outerThis.processResponse(data);
-                        // These error handlers are from the older API w2ith the embedded error codes.
-                        if(0 == errorOrRetry){
-                            return;
-                        } else if(-1 == errorOrRetry){
-                            // have an error. Done?
-                            return;
-                        }
-                        
-                        // We need the ability to fulfill multiple requests. Any callbacks registered with this
-                        // URL will be fulfilled when we have a success.
-                        var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
-                        var queue = cacheItem.getUnservedCallbacks();
-                        for(var i in  queue){
-                            var callbackObj = queue[i];
-                            // Callback trigger doesn't ever receive or handle errors...after all, how could it?
-                            // We can therefore safely run through them all, dispatch them, and remove them.
-                            cacheItem.markAsServed(callbackObj);
-                            callbackObj.callback(data, textStatus, jqXHR);
-                        }
-                    },
-                error: function (jqXHR, textStatus, errorThrown ){
-                        console.log("Error: "+errorThrown);
-                        console.log(textStatus);
-                        return;
-                        var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
-                        var queue = cacheItem.getUnservedCallbacks();
-                        for(var i in  queue){
-                            var callbackObj = queue[i];
-                            // Callback trigger doesn't ever receive or handle errors...after all, how could it?
-                            // We can therefore safely run through them all, dispatch them, and remove them.
-                            cacheItem.markAsServed(callbackObj);
-                            callbackObj.callback({errors: true, status:errorThrown}, textStatus, jqXHR);
-                        }
-                    },
-                }
-            );
-        }
-        
-        private callAgainJSONP(){
-//          private callAgain(){
-            // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
-            // var browserSupportsCors = typeof XDomainRequest != "undefined";
-//          var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();
-//    
-//          if(!browserSupportsCors){
-              // if CORS isn't available, we cannot receive server status codes off an XHR object,
-              // because JSONP requests don't get that back from the browser. So sad.
-            
-            var outerThis = this;
-//          $.getJSON(this.callbackObject.url, null, this.callbackObject.callback);
-            $.ajax({
-                url: Utils.prepUrlKey(outerThis.restUrl),
-                data: null,
-                dataType: 'jsonp',
-                type: "GET",
-                success: function (data, textStatus, jqXHR){
-                        var errorOrRetry = outerThis.processResponse(data);
-                        // These error handlers are from the older API w2ith the embedded error codes.
-                        if(0 == errorOrRetry){
-                            return;
-                        } else if(-1 == errorOrRetry){
-                            // have an error. Done?
-                            return;
-                        }
-                        
-                        // We need the ability to fulfill multiple requests. Any callbacks registered with this
-                        // URL will be fulfilled when we have a success.
-                        var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
-                        var queue = cacheItem.getUnservedCallbacks();
-                        for(var i in  queue){
-                            var callbackObj = queue[i];
-                            // Callback trigger doesn't ever receive or handle errors...after all, how could it?
-                            // We can therefore safely run through them all, dispatch them, and remove them.
-                            cacheItem.markAsServed(callbackObj);
-                            callbackObj.callback(data, textStatus, jqXHR);
-                        }
-                    },
-                error: function (jqXHR, textStatus, errorThrown ){
-                        console.log("Error: "+errorThrown);
-                        var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
-                        var queue = cacheItem.getUnservedCallbacks();
-                        for(var i in  queue){
-                            var callbackObj = queue[i];
-                            // Callback trigger doesn't ever receive or handle errors...after all, how could it?
-                            // We can therefore safely run through them all, dispatch them, and remove them.
-                            cacheItem.markAsServed(callbackObj);
-                            callbackObj.callback({errors: true, status:errorThrown}, textStatus, jqXHR);
-                        }
-                    },
-                }
-            );
+/*
+ * This fetcher system allows the success receiver to call it to see if there has been an error that
+ * allows for a retry. It is fairly clean on the user side, though it does require checking of
+ * return values.
+ */
+export class RetryingJsonFetcher {
+    previousTriesRemade: number = 0;
     
-//            // from the jquery.jsonp library, in case we want more options.
-//            // Would this offer additional responses with cross domain at all?
-//            $.jsonp(
-//            <JQueryJsonp.XOptions>{
-//                url: this.callbackObject.url,
-//                callbackParameter: "callback",
-//                data: null,
-//                success: function (data, textStatus, xOptions){
-//                    //console.log("jsonp success");
-//                    //console.log(arguments);
-//                    //console.log(jqXHR.status+" and text status "+textStatus);
-//                    outerThis.callbackObject.callback(data, textStatus, xOptions);
-//                },
-//                error: function(xOptions, textStatus){
-//                    // Unless using CORS, there is no way to receive the status code form the browser.
-//                    //console.log(textStatus); // either 'error' or 'timeout'
-//                    //console.log(xOptions);
-//                    var subData = {error: textStatus, status: xOptions};
-//                    // Still pass back for processing
-//                    outerThis.callbackObject.callback(subData, textStatus, xOptions);
-//                },
-//            });
-//            } else {
-//                var postObject = null;
-//                $.ajax({
-//                    // Make sure we don't ask for JSONP for this; normal JSON instead.
-//                    url: this.callbackObject.url.replace("format=jsonp", ""),
-//                    type: "GET", // POST necessary??
-//                    crossDomain: true,
-//                    data: postObject,
-//                    dataType: "json", // not jsonp, note
-//                    success: function (response){ //(data, textStatus, xOptions){
-//                         var resp = JSON.parse(response)
-//                        alert(resp.status);
-//                        outerThis.callbackObject.callback(response, null, null);
-//                    },
-//                    error: function (xhr, textStatus) {
-//                         alert("CORS error: "+xhr);
-//                         outerThis.callbackObject.callback({errors: true, status: xhr.status}, textStatus, xhr); 
-//                    },
-//                    statusCode :{
-//                        0: function(){
-//                            console.log("Code 0");
-//                            },
-//                        200: function(){
-//                            console.log("Code 200");
-//                            },
-//                        404: function(){
-//                            console.log("Code 200");
-//                            },
-//                        429: function(xhr){
-//                            // Looking to use setTimer in this case, call again after a pause.
-//                            console.log("Code 429");
-//                            }    
-//                    }
-//                });
-//            }
-
-        	// Tried the ajax styler instead, but I still could not catch
-        	// errors...poissibly due to making cross site requests.
-//        $.ajax({
-//            url: this.callbackObject.url.replace("mappings","broke"),
-//            data: null,
-//            dataType: 'jsonp',
-//            timeout: 3000,
-//            complete: function(xhr, textStatus) {
-//                console.log("jsonp complete");
-//                console.log(xhr.status+" and text status "+textStatus);
-//            },
-//            error: function(xhr, textStatus, errorThrown) {
-//                console.log('jsonp error');
-//                console.log(arguments);
-//                console.log(xhr.status+" and text status "+textStatus);
-//            },
-//            success: (data, textStatus, jqXHR) => {
-//                console.log("jsonp success");
-//                console.log(arguments);
-//                console.log(jqXHR.status+" and text status "+textStatus);
-//                this.callbackObject.callback(data, textStatus, jqXHR);
-//            },
-//        //    error: (jqXHR, textStatus, errorThrown ) => {
-//        //        this.callbackObject.callback({errors: true, status:errorThrown}, textStatus, jqXHR); 
-//        //    },
-//        //    fail: (jqXHR, textStatus, errorThrown ) => {
-//        //        this.callbackObject.callback({errors: true, status:errorThrown}, textStatus, jqXHR); 
-//        //    },
-//        //    statusCode :{
-//        //        0: function(){
-//        //            },
-//        //        200: function(){
-//        //            },
-//        //    	  429: function(xhr){
-//        //      		// Looking to use setTimer in this case, call again after a pause.
-//        //            }    
-//        //    },
-//            complete: function(xhr, textStatus){
-//                    alert("complete: "+textStatus);
-//                }
-//          });
-            
-			
+    constructor(
+        public restUrl: string
+    ) {
+    }
+    
+    private callAgain(){
+        // http://stackoverflow.com/questions/1641507/detect-browser-support-for-cross-domain-xmlhttprequests
+        // var browserSupportsCors = typeof XDomainRequest != "undefined";
+        var browserSupportsCors = 'withCredentials' in new XMLHttpRequest();
+        
+        var dataType = "json";
+        var type = "GET"; // Later with batch calls, might use POST sometimes
+        var data = null;
+        var urlString = Utils.prepUrlKey(this.restUrl, false);
+        if(!browserSupportsCors){
+            // if CORS isn't available, we cannot receive server status codes off an XHR object,
+            // because JSONP requests don't get that back from the browser. So sad.
+            // Cannot use POST or CORS here, must use GET and jsonp
+            console.log("Browser not CORS compatible");
+            // TODO be sure to check this beforehand if we attempt to do batch CORS requests
+            dataType = "jsonp";
+            type = "GET";
+        }
+          
+        if(type === "POST"){
+            // TODO Can refactor. I think that if the data is provided as POST needs it for a GET call instead
+            // that th eajax call will encode it into the GET url properly.
+            var url = purl(urlString);
+            data = url.attr("query");
+            // Decompose GET URL and recompose into POST URL and data.
+            var urlString = this.restUrl.replace("?"+data, "");
+        }
+        
+        var outerThis = this;
+        $.ajax({
+            url: urlString,
+            data: data, // JSON.stringify(getParameters), will need this for more complicated requests??
+            dataType: dataType,
+            type: type,
+            crossDomain: true,
+            success: function (data, textStatus, jqXHR){
+                    var errorOrRetry = outerThis.processResponse(data);
+                    // These error handlers are from the older API w2ith the embedded error codes.
+                    if(0 == errorOrRetry){
+                        return;
+                    } else if(-1 == errorOrRetry){
+                        // have an error. Done?
+                        return;
+                    }
+                    
+                    // We need the ability to fulfill multiple requests. Any callbacks registered with this
+                    // URL will be fulfilled when we have a success.
+                    var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
+                    var queue = cacheItem.getUnservedCallbacks();
+                    for(var i in  queue){
+                        var callbackObj = queue[i];
+                        // Callback trigger doesn't ever receive or handle errors...after all, how could it?
+                        // We can therefore safely run through them all, dispatch them, and remove them.
+                        cacheItem.markAsServed(callbackObj);
+                        callbackObj.callback(data, textStatus, jqXHR);
+                    }
+                },
+            error: function (jqXHR, textStatus, errorThrown ){
+                    console.log("Error: "+errorThrown);
+                    console.log(textStatus);
+                    return;
+                    var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
+                    var queue = cacheItem.getUnservedCallbacks();
+                    for(var i in  queue){
+                        var callbackObj = queue[i];
+                        // Callback trigger doesn't ever receive or handle errors...after all, how could it?
+                        // We can therefore safely run through them all, dispatch them, and remove them.
+                        cacheItem.markAsServed(callbackObj);
+                        callbackObj.callback({errors: true, status:errorThrown}, textStatus, jqXHR);
+                    }
+                },
+            complete: function(jqXHR, textStatus){
+                        if(jqXHR.status === 200){
+                            // nothing
+                        } else {
+                            console.log("Code "+jqXHR.status);
+                        }
+                },
+            }
+        );
     }
         
     // TODO Using default value of undefined, but we may want the "resultData?: any" optional param syntax instead, or
