@@ -72,6 +72,7 @@ export interface Graph<N extends BaseNode>  {
    addNodes(newNodes: Array<N>, expansionSet: ExpansionSets.ExpansionSet<N>);
    removeNodes(nodesToRemove: Array<N>);
    containsNode(node: N): boolean;
+   getNumberOfPotentialNodesToExpand(incomingNodeId: string, nodeInteraction: UndoRedoManager.NodeInteraction): number;
     
    getLayoutProvider(): LayoutProvider.ILayoutProvider;
    setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider);
@@ -274,6 +275,10 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 .classed("highlightedNodeLabel", true)
                 ;
             
+            // TODO change the getEntityId to accessing the source and target uri,
+            // because sometimes links have null on either point due to race conditions,
+            // when the user moves off of a node onto a temporary arc, just as it is to
+            // be removed.
             d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
                 .classed("highlightedNode", true)
                 .filter(function(aNode: N, i){return aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId();})

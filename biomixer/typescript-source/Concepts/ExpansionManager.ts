@@ -20,8 +20,16 @@ export class ExpansionManager{
         this.edgeRegistry = new EdgeRegistry();
     }
     
-    importedNodeClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption){
-        
+    public purgeInaccessibleNode(conceptUri: ConceptGraph.ConceptURI){
+        this.edgeRegistry.purgeInaccessibleNode(conceptUri);
+    }
+    
+     /**
+     * Some nodes result in 403, 404 or other errors when REST calls re amde, and they will not be available.
+     * We have to account for this nodes to offer the user accurate (and non-confusing) expansion estimates.
+     */
+    public nodeIsInaccessible(conceptUri: ConceptGraph.ConceptURI){
+        return this.edgeRegistry.nodeIsInaccessible(conceptUri);
     }
     
     /**
@@ -41,48 +49,26 @@ export class ExpansionManager{
      * determine if the expansion set associated with the node is currently fully loaded into the graph.
      */
      wasConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption): boolean{
-        return this.findConceptExpansionSetInHistory(conceptUri, expansionType).cleared;
-    }
-    
-    private findConceptExpansionSetInHistory(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption)
-        : {cleared: boolean; fullyManifested: boolean; numTotal: number; numMissing: number} {
-        var returnVal = {cleared: false, fullyManifested: false, numTotal: -1, numMissing: -1};
+        // Not willing to remove the more elaborate command status approach yet.
+        // It might become relevant again. Otherwise...I prefer this simple obolean version of the method.
+        // return this.findConceptExpansionSetInHistory(conceptUri, expansionType).cleared;
+        var returnVal = false;
         var crumbTrail = this.undoBoss.getCrumbHistory();
         var conceptUriForIds: string = String(conceptUri);
         for(var i = crumbTrail.length - 1; i >= 0; i--){
             var command = crumbTrail[i];
-            // Get the interaction that the crumb command had with the node in question.
-            // Could match the expansion type provided, be an addition, or be a deletion.
             var nodeInteractions = command.nodeInteraction(conceptUriForIds);
             if(null == nodeInteractions){
                 return returnVal;
             } else if(nodeInteractions.indexOf(expansionType) !== -1){
-                // This is done for a different use case, which requires all of the same code except this.
-                returnVal.fullyManifested = command.areCommandNodesCurrentlyLoaded();
-                // The way that the command is set as cut short really matters a lot to this functionality.
-                // At this time, it occurs when the number of nodes allowed in the expansion cap dialog is
-                // less than the total available to expand.
-                returnVal.cleared = true; //!command.commandCutShort();
-                returnVal.numTotal = command.numberOfNodesInCommand();
-                returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
+                returnVal = true;
                 return returnVal;
             } else if(nodeInteractions.indexOf(GraphModifierCommand.GraphRemoveNodesCommand.deletionNodeInteraction) !== -1){
-                // For deleted, labelling it as not cleared is the important part
-                // but we'll fill in all the things.
-                returnVal.fullyManifested = false;
-                returnVal.cleared = false;
-                returnVal.numTotal = command.numberOfNodesInCommand();
-                returnVal.numMissing = returnVal.numTotal - command.numberOfCommandNodesCurrentlyLoaded();
+                returnVal = false;
                 return returnVal;
             }
         }
         return returnVal;
-    }
-    
-    public isConceptExpansionSetFullyManifested(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption)
-        : {cleared: boolean; fullyManifested: boolean; numTotal: number; numMissing: number} {
-		
-        return this.findConceptExpansionSetInHistory(conceptUri, expansionType);
     }
         
     /**
@@ -150,15 +136,21 @@ export class EdgeRegistry {
     
     // Made registry flat; used to be more structured, but it complicated without fulfilled requirements for said structure.
     private twoWayEdgeRegistry: {[oneNodeId: string]: ConceptGraph.Link[] } = {};
+    private inaccessibleNodes: Array<ConceptGraph.ConceptURI> = [];
     
     /**
      * If the edge is already represented in the registry, it is returned, and the instance passed in will
      * not be added to the registry.
      */
-    addEdgeToRegistry(edge: ConceptGraph.Link): ConceptGraph.Link{
+    addEdgeToRegistry(edge: ConceptGraph.Link, graph: ConceptGraph.ConceptGraph): ConceptGraph.Link{
         // Assumes only mapping edge types. Change that if things change, right? ;)
         var sourceStr = String(edge.sourceId);
         var targetStr = String(edge.targetId);
+        
+        // Should have guarded before, but I'll guard here too
+        if(!graph.nodeIsAccessible(edge.sourceId) || !graph.nodeIsAccessible(edge.targetId)){
+            return null; // same as if the edge provided was newly registered??? Hmm...
+        }
         
         // Source oriented
         if(!(sourceStr in this.twoWayEdgeRegistry)){
@@ -193,6 +185,36 @@ export class EdgeRegistry {
             return [];
         }
         return this.twoWayEdgeRegistry[nodeId];
+    }
+    
+    public purgeInaccessibleNode(conceptUri: ConceptGraph.ConceptURI){
+        // Although I wanted to purge these invalid edges, they will be created
+        // again due to re-parsing of data as necessary, so really I need to tag
+        // them and not use them.
+        // Wait...the caller is creating an edge and registering it, not just getting the edge from here...
+        // when the edge is registered, it means we use the one passed in...
+        var sourceIdStr = String(conceptUri);
+                
+        for(var oneIdStr in this.twoWayEdgeRegistry){
+            var edges: Array<ConceptGraph.Link> = this.twoWayEdgeRegistry[oneIdStr];
+
+            this.twoWayEdgeRegistry[oneIdStr] = $.grep(edges,
+                (edge)=>{
+                    return !(edge.sourceId === conceptUri || edge.targetId === conceptUri);
+                }
+            );
+            
+            // Clean out map entries that have no array within them
+            if(this.twoWayEdgeRegistry[oneIdStr].length === 0){
+                delete this.twoWayEdgeRegistry[oneIdStr];
+            }
+        }
+        
+        this.inaccessibleNodes.push(conceptUri);
+    }
+    
+    public nodeIsInaccessible(conceptUri: ConceptGraph.ConceptURI){
+        return this.inaccessibleNodes.indexOf(conceptUri) !== -1;
     }
 
 }

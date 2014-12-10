@@ -11,6 +11,8 @@ import Fetcher = require("../FetchFromApi");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import LayoutProvider = require("../LayoutProvider");
+import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
+
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!
@@ -244,6 +246,13 @@ export class OntologyGraph implements GraphView.Graph<Node> {
         }
     }
     
+    // 2nd arg is actually UndoRedoManager.NodeInteraction, but we don't sue undo here yet
+    // and I didn't want to increase dependencies until we need to.
+    getNumberOfPotentialNodesToExpand(incomingNodeId: string, nodeInteraction: UndoRedoManager.NodeInteraction): number{
+        // Unimplemented.
+        return -1;
+    }
+    
     /**
      * Provide ontology acronyms that should be kept in the graph whiel the rest are removed.
      * Removes both nodes and links.
@@ -335,6 +344,15 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
     // For this case, the caller has no "this" of interest to us, so fat arrow works.
 	public callback = (mappingData: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(mappingData.errors != null){
+                // We had an error. Handle it.
+                console.log("Failed to load mappings for: "+this.centralOntologyAcronym);
+                return;
+            }
+        }
+        
 		
 		// Sort the arcs and nodes so that we make calls on the ones with highest mappings first
 		$.each(mappingData, (index, element)=>{
@@ -508,6 +526,15 @@ class OntologyDetailsCallback extends Fetcher.CallbackObject {
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (detailsDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(detailsDataRaw.errors != null){
+                // We had an error. Handle it.
+//                remove this from the dataset. It's no good!
+                return;
+            }
+        }
+        
 
 		console.log("Processing details "+Utils.getTime());
 		
@@ -581,6 +608,15 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (metricDataRaw: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(metricDataRaw.errors != null){
+                // We had an error. Handle it.
+//                remove this from the dataset, it's no good!
+                return;
+            }
+        }
+        
 		
 		var metricData = metricDataRaw;
 		
@@ -625,6 +661,15 @@ class OntologyDescriptionCallback extends Fetcher.CallbackObject {
     // Caller of callback has no "this" of interest, so fat arrow works
     callback = (latestSubmissionData: any, textStatus: string, jqXHR: any) => {
 		// textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(latestSubmissionData.errors != null){
+                // We had an error. Handle it.
+//                remove this from the dataset, it's no good!
+                return;
+            }
+        }
+        
 		
 		var description="";
 	    if (typeof latestSubmissionData !== "undefined") {

@@ -34,7 +34,7 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
      * The boolean value is currently unused. I'd use an array but I wanted a set.
      */
     allNodeIds: string[] = [];
-    
+        
     graphModifier: GraphModifierCommand.GraphAddNodesCommand<N>;
     
     /**
@@ -57,7 +57,7 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
             undoRedoBoss.addCommand(this.graphModifier);
         }
     }
-        
+            
     addAll(nodes: Array<N>): void{
         nodes.forEach(
             (node: N, i: number, arr: Array<N>)=>{
@@ -88,8 +88,12 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         }
     }
     
+    /**
+     * Deprecated
+     */
     getNumberOfNodesAssociatedWithExpansion(){
-        return this.allNodeIds.length;
+        // I don't think we actually want to know about the parent node for this.
+        return this.allNodeIds.length; // + (this.parentNode === null ? 0 : 1);
     }
     
     getGraphModifier(){
@@ -106,12 +110,8 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         return numInGraph;
     }
     
-    /**
-     * Gives number of nodes from the expansion set that it
-     * is aware of that haven't been added to the graph yet.
-     */
-    getNumberOfNodesMissing(){
-        return this.getNumberOfNodesAssociatedWithExpansion() - this.getNumberOfNodesCurrentlyInGraph();
+    getNumberOfNodesMissing(): number{
+        return this.graph.getNumberOfPotentialNodesToExpand(String(this.parentNode.getEntityId()), this.expansionType);
     }
     
     /**

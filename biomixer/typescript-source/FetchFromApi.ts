@@ -360,7 +360,7 @@ import Utils = require('./Utils');
         // Steven Ickman, where callbacks must always be prefixed by "cb_" and his code does magic.
         // see: http://stackoverflow.com/questions/12756423/is-there-an-alias-for-this-in-typescript
         // I added his code in case we want to use it later...but for now fat arrow is the way to go.
-        callback: { (dataReceived: any, textStatus: string, jqXHR: any); } // I think this is right...
+        callback: { (dataReceived: any, textStatus: string, jqXHR: any): void }; // I think this is right...
 //        callback: { (dataReceived: any, textStatus: string, xOptions: JQueryJsonp.XOptions); } // Modified for jquery.jsonp lib usage.
 //        assignFetcher: { (fetcher: RetryingJsonFetcher); };
     }
@@ -415,7 +415,7 @@ export class RetryingJsonFetcher {
             crossDomain: true,
             success: function (data, textStatus, jqXHR){
                     var errorOrRetry = outerThis.processResponse(data);
-                    // These error handlers are from the older API w2ith the embedded error codes.
+                    // These error handlers are from the older API with the embedded error codes.
                     if(0 == errorOrRetry){
                         return;
                     } else if(-1 == errorOrRetry){
@@ -436,9 +436,7 @@ export class RetryingJsonFetcher {
                     }
                 },
             error: function (jqXHR, textStatus, errorThrown ){
-                    console.log("Error: "+errorThrown);
-                    console.log(textStatus);
-                    return;
+                    console.log("Error Code: "+jqXHR.status+" ("+errorThrown+"; "+textStatus+")");
                     var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
                     var queue = cacheItem.getUnservedCallbacks();
                     for(var i in  queue){
@@ -446,7 +444,7 @@ export class RetryingJsonFetcher {
                         // Callback trigger doesn't ever receive or handle errors...after all, how could it?
                         // We can therefore safely run through them all, dispatch them, and remove them.
                         cacheItem.markAsServed(callbackObj);
-                        callbackObj.callback({errors: true, status:errorThrown}, textStatus, jqXHR);
+                        callbackObj.callback({errors: true, status: errorThrown}, textStatus, jqXHR);
                     }
                 },
             complete: function(jqXHR, textStatus){
@@ -525,6 +523,8 @@ export class RetryingJsonFetcher {
      * The errors dealt with here are from days of yore when Bioportal embedded errors in JSON,
      * and therefore Javascript could receive and process such errors.
      * This needs revision, though we will likely use CORS, so do that at the same time.
+     * 
+     * 0 fail due to error, 1 success, -1 retrying.
      */
     private processResponse(resultData: ResultData): number{
         // TODO If JqueryJsonp is working out, get this all working off the raw XOptions object.
@@ -533,14 +533,14 @@ export class RetryingJsonFetcher {
                 // 404 Error should fill in some popup data points, so let through...
                 console.log("Error: "+this.restUrl+" --> Data: "+resultData.error);
                 CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.ERROR);
-                return -1;
+                return 0;
             } else if(resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0){
                 console.log("Forbidden Error, no retry: "
                         +"\nURL: "+this.restUrl
                         +"\nReply: "+resultData.error);
                 CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.FORBIDDEN);
                 return 0;
-            } else if(resultData.status == "500" || resultData.status == "403"){
+            } else if(resultData.status == "500"){
                 if(this.previousTriesRemade < 4){
                     this.previousTriesRemade++;
                     console.log("Retrying: "+this.restUrl);

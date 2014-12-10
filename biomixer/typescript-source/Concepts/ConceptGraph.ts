@@ -120,8 +120,8 @@ export class Link extends GraphView.BaseLink<Node> {
     // We get the ids before we can construct the nodes...
     sourceId: ConceptURI; // = parentId;
     targetId: ConceptURI; // = childId;
-    source: Node; // = centralOntologyNode;
-    target: Node; // = ontologyNode;
+    source: Node = null; // = centralOntologyNode;
+    target: Node = null; // = ontologyNode;
     rawId: string; //  = edge.sourceId+"-to-"+edge.targetId;
     id: string; // Escaped node ids, otherwise like rawId above. = edge.sourceId+"-to-"+edge.targetId;
     value: number = 1; // This gets used for link stroke thickness later...not needed for concepts?
@@ -209,6 +209,9 @@ class DeferredCallbacks{
             // This is vital to communicate to the expansion set for some
             // later nodes coming in, to prevent duplicate dialogs and accidental
             // node loading.
+            // We also tell each expansion how many nodes it was allowed to load
+            // via this process, although it will need to account for any nodes loaded
+            // prior to the node cap dialog being presented.
             this.wrappedParseNodeCallbacks[i](haltExpansions);
         }
         // Cut out whatever we processed. Leave any we didn't (due to max nodes argument).
@@ -380,6 +383,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return this.conceptIdNodeMap[String(node.rawConceptUri)] !== undefined;
     }
     
+    containsNodeById(nodeId: ConceptURI): boolean{
+        return this.conceptIdNodeMap[String(nodeId)] !== undefined;
+    }
+    
     private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
         if(newEdges.length == 0){
             // Saves a lot of work deeper down.
@@ -448,6 +455,31 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
     /**
+     * Counts the number of unadded nodes for a given expansion type (currently mapping or term neighbourhood expansions,
+     * not any others). This allows us ot estimate the number of nodes that would be added if the expansion were performed.
+     * Gives the current outstanding number, not the total.
+     */
+    getNumberOfPotentialNodesToExpand(incomingNodeId: string, nodeInteraction: UndoRedoManager.NodeInteraction){
+        var numNewNodesIncoming = 0;
+        var edges = this.expMan.edgeRegistry.getEdgesFor(incomingNodeId);
+        var nodesSeen = [];
+        edges.forEach((edge: Link)=>{
+            // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
+            var edgeTypeCorrect =
+                (edge.relationType === "maps_to" && nodeInteraction === PathOptionConstants.mappingsNeighborhoodConstant)
+                || (!(edge.relationType === "maps_to") && nodeInteraction === PathOptionConstants.termNeighborhoodConstant);
+            var otherConceptId = (String(edge.sourceId) === incomingNodeId) ? edge.targetId : edge.sourceId;
+            if(edgeTypeCorrect && !this.containsNodeById(otherConceptId) && nodesSeen.indexOf(otherConceptId) === -1){
+                numNewNodesIncoming++;
+                nodesSeen.push(otherConceptId);
+            }
+        });
+        
+        return numNewNodesIncoming;
+    }
+    
+    
+    /**
      * When we have too many nodes in the graph, we warn the user about it every time we have added an
      * additional nodeCapInterval nodes.
      */
@@ -463,10 +495,12 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     // NB We could have this inside the fetching utility or inside the node related callbacks, except
     // that the former would complicate non-node fetches, and the latter would necessitate doing the
     // fetch and calling the callback, costing us the fetch but still saving on node load.
-    checkForNodeCap(fetchCallback: {(): void}, expansionSet: ExpansionSets.ExpansionSet<Node>, incomingNodeId: string, numberNewNodesComing?: number){
+    checkForNodeCap(fetchCallback: {(): void}, expansionSet: ExpansionSets.ExpansionSet<Node>, incomingNodeId: string){
         // Assuming we reliably check for capping prior to dispatching node fetches, we can
         // know how many nodes are incoming for a given expansion set by incrementing it here.
         expansionSet.addIncludedNodeUri(incomingNodeId);
+        
+        var numberNewNodesComing = this.getNumberOfPotentialNodesToExpand(expansionSet.parentNode.getEntityId(), expansionSet.expansionType);
         
         if(undefined === this.nextNodeWarningCount){
             this.nextNodeWarningCount = this.softNodeCap;
@@ -686,7 +720,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * and when we know the ontology of that node (such as when doing concept expansions).
      */
     public expandRelatedConcept(conceptsOntology: RawAcronym, newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>){
-        if(this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)){
+        if(this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)
+            && this.nodeIsAccessible(newConceptId)){
+            
             var url = this.buildConceptUrlNewApi(conceptsOntology, newConceptId);
             var callback = new FetchOneConceptCallback(this, url, newConceptId, null, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
@@ -701,6 +737,14 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return relatedConceptId === expansionSet.parentNode.rawConceptUri
             && expansionType === expansionSet.expansionType
         	&& !(String(newConceptId) in this.conceptIdNodeMap);   
+    }
+    
+    /**
+     * Some nodes result in 403, 404 or other errors when REST calls re amde, and they will not be available.
+     * We have to account for this nodes to offer the user accurate (and non-confusing) expansion estimates.
+     */
+    public nodeIsAccessible(newConceptId: ConceptURI): boolean {
+        return !this.expMan.nodeIsInaccessible(newConceptId);
     }
     
     public expandAndParseNodeIfNeeded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, conceptPropertiesData, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>, parentName: string){
@@ -723,7 +767,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         // Because we expand for term neighbourhood relation calls, and those come in two flavors
         // (node with properties for children and parents, and just node IDs for compositions)
         // we want to support parsing the data directly as well as fetching additional data.
-        if(this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)){
+        if(this.nodeMayBeExpanded(newConceptId, relatedConceptId, expansionType, expansionSet)
+            && this.nodeIsAccessible(newConceptId)){
+
             // Manifest the node; parse the properties if available.
             // We know that we will get the composition relations via a properties call,
             // and that has all the data we need from a separate call for properties...
@@ -759,6 +805,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         if(parentIdUri === childIdUri){
             // Some mappings data is based off of having the same URI, which is mind boggling to me.
             // We have no use for self relations in this domain.
+            return;
+        }
+        
+        if(!this.nodeIsAccessible(childIdUri) || !this.nodeIsAccessible(parentIdUri)){
             return;
         }
         
@@ -812,7 +862,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * edges that were added only temporarily.
      */
     private registerImplicitEdge(edge: Link): Link{
-        return this.expMan.edgeRegistry.addEdgeToRegistry(edge);
+        return this.expMan.edgeRegistry.addEdgeToRegistry(edge, this);
     }
     
     /**
@@ -1216,7 +1266,17 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
         
     public callback = (pathsToRootData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(pathsToRootData.errors != null){
+                // We had an error. Handle it.
+                // Well...in this case, if there's an error, there's not much to do.
+                // TODO Give user a message sayign the operation failed
+                console.log("Failed to load paths to root: "+this.centralConceptUri);
+                return;
+            }
+        }
+        
         var numberOfConcepts = Object.keys(pathsToRootData).length;
         var newNodesForExpansionGraph: {[id: string]: Node} = {};
         // Go backwards through results to get the target node first, so we can have it immediately for
@@ -1283,6 +1343,17 @@ class FetchTargetConceptCallback extends Fetcher.CallbackObject {
     
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(conceptPropertiesData.errors != null){
+                // We had an error. Handle it.
+                // Well...in this case, if there's an error, there's not much to do.
+                // TODO Give user a message sayign the operation failed
+                console.log("Failed to load target node: "+this.conceptUri);
+                return;
+            }
+        }
+        
 
         var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
         
@@ -1313,6 +1384,15 @@ export class FetchOneConceptCallback extends Fetcher.CallbackObject {
         
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(conceptPropertiesData.errors != null){
+                // We had an error. Handle it.
+                this.graph.expMan.purgeInaccessibleNode(this.conceptUri);
+                return;
+            }
+        }
+        
 
         var fetchCall = ()=>{
             var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
@@ -1347,6 +1427,15 @@ class FetchConceptRelationsCallback extends Fetcher.CallbackObject {
         
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(conceptPropertiesData.errors != null){
+                // We had an error. Handle it.
+                // No relations available? Why not? I'm not sure how to recover.
+                return;
+            }
+        }
+        
         // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
         this.graph.fetchConceptRelations(this.node, conceptPropertiesData, this.expansionSet, this.directCallForExpansionType);
     }
@@ -1371,7 +1460,16 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
 
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
-    var outerThis = this;
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(relationsDataRaw.errors != null){
+                // We had an error. Handle it.
+                // No relations available? Why not? I'm not sure how to recover.
+                return;
+            }
+        }
+        
+        var outerThis = this;
         // Before we parse this data, we have to make sure we have fetched the correpsonding
         // ontology's property relations data. This tells us what properties exist that 
         // represent relations that we can add as arcs.
@@ -1480,12 +1578,22 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(relationsDataRaw.errors != null){
+                // We had an error. Handle it.
+                // No relations available? Why not? I'm not sure how to recover.
+                return;
+            }
+        }
+        
         // Example: http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F91837002/children
         $.each(relationsDataRaw.collection,
                 (index, child) => {
                 
                 var childId = child["@id"];
-                if(!this.graph.nodeMayBeExpanded(childId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet)){
+                if(!this.graph.nodeMayBeExpanded(childId, this.conceptNode.rawConceptUri, PathOptionConstants.termNeighborhoodConstant, this.expansionSet)
+                    && this.graph.nodeIsAccessible(childId)){
                     this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.rawConceptUri, childId, this.graph.relationLabelConstants.inheritance);
                     return;
                 }
@@ -1531,6 +1639,15 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
         
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(relationsDataRaw.errors != null){
+                // We had an error. Handle it.
+                // No relations available? Why not? I'm not sure how to recover.
+                return;
+            }
+        }
+        
         $.each(relationsDataRaw,
                 (index, parent) => {
                     
@@ -1570,6 +1687,15 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
     
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(relationsDataRaw.errors != null){
+                // We had an error. Handle it.
+                // No relations available? Why not? I'm not sure how to recover.
+                return;
+            }
+        }
+        
         // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
         var mappingTargets = {};
         $.each(relationsDataRaw,

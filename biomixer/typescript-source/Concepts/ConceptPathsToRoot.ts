@@ -1220,19 +1220,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .attr("overflow", "visible").attr("y", 0)
                     .classed("expanderMenuItem", true)
             ;
-            
+                        
             // If this node is currently cleared for expansion within the undo/stack current context,
             // then it means we already did this expansion (possibly via another means).
             // Let's alter the menu to reflect this.
             var conceptExpandTextValue;
             var conceptExpandFontFillColor;
             var conceptExpandMouseUpFunc;
-            var conceptExpState = outerThis.conceptGraph.expMan.isConceptExpansionSetFullyManifested(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
-            if(!conceptExpState.fullyManifested){
+
+            var hardTermExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.rawConceptUri), ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+
+            if(hardTermExpansionCount != 0){
                 conceptExpandTextValue = "Expand Concepts";
-                if(-1 !== conceptExpState.numMissing){
-                    conceptExpandTextValue +=" ("+conceptExpState.numMissing+")";
-                }
+                conceptExpandTextValue +=" ("+hardTermExpansionCount+")"; // +" ("+conceptExpState.numMissing+";
+
                 
                 conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
                 conceptExpandMouseUpFunc = function(){
@@ -1277,12 +1278,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var mappingExpandTextValue;
             var mappingExpandFontFillColor;
             var mappingExpandMouseUpFunc;
-            var mappingExpState = outerThis.conceptGraph.expMan.isConceptExpansionSetFullyManifested(nodeData.rawConceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
-            if(!mappingExpState.fullyManifested){
+
+            var hardMappingExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.rawConceptUri), ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+
+            if(hardMappingExpansionCount !== 0){
                 mappingExpandTextValue = "Expand Mappings";
-                if(-1 !== mappingExpState.numMissing){
-                    mappingExpandTextValue +=" ("+mappingExpState.numMissing+")";
-                }
+                mappingExpandTextValue +=" ("+hardMappingExpansionCount+")"; // +" ("+mappingExpState.numMissing+")";
                 mappingExpandFontFillColor = ""; // empty works to *not* add a value at all
                 mappingExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();

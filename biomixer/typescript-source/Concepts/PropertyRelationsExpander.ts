@@ -123,6 +123,15 @@ class OntologyPropertyRelationsCallback extends Fetcher.CallbackObject {
     
     public callback = (relationsDataRaw: any, textStatus: string, jqXHR: any) => {
         // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(relationsDataRaw.errors != null){
+                // We had an error. Handle it.
+                // Not much to do if this fails...
+                return;
+            }
+        }
+        
         
         var relationSet = new OntologyRelationSet(this.ontologyAcronym);
         

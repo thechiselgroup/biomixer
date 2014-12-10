@@ -243,14 +243,5 @@ export interface ICommand {
     commandCutShort(setToTrue?: boolean): boolean;
     
     
-    areCommandNodesCurrentlyLoaded(): boolean;
-    
-    numberOfCommandNodesCurrentlyLoaded(): number;
-    
-    /**
-     * Gives the number of nodes there would be if all were loaded,
-     * excluding any permanently failed callbacks.
-     */
-    numberOfNodesInCommand(): number;
 }
 
