@@ -477,7 +477,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // the line if there are two arc types.
         
         var offset;
-        if(ignoreOffset){
+        if(ignoreOffset === true){ // need === because it might get a numeric arg via D3 or JQuery!
             offset = 0;
         } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
             offset = 10;
