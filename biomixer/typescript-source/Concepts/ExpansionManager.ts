@@ -180,11 +180,23 @@ export class EdgeRegistry {
         
     }
     
-    getEdgesFor(nodeId: string):  ConceptGraph.Link[] {
-        if(undefined === this.twoWayEdgeRegistry[nodeId]){
+    getEdgesFor(firstNodeId: string, secondNodeId?: string):  ConceptGraph.Link[] {
+        if(undefined === this.twoWayEdgeRegistry[firstNodeId]){
             return [];
         }
-        return this.twoWayEdgeRegistry[nodeId];
+        
+        if(null == secondNodeId){
+            return this.twoWayEdgeRegistry[firstNodeId];
+        } else {
+            var edgesToTarget = [];
+            for(var i = 0; i < this.twoWayEdgeRegistry[firstNodeId].length; i++){
+                var edge = this.twoWayEdgeRegistry[firstNodeId][i];
+                if(String(edge.sourceId) === secondNodeId || String(edge.targetId) === secondNodeId){
+                    edgesToTarget.push(edge);
+                }   
+            }
+            return edgesToTarget;
+        }
     }
     
     public purgeInaccessibleNode(conceptUri: ConceptGraph.ConceptURI){

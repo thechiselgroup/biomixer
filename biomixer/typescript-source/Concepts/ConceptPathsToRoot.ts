@@ -472,21 +472,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    pixelMap = [0, 10, -10, -7, -4, 4, 7]; // currently only supports 5 extra edges, could cut to diffs of 2 pixels instead.
     public updateArcLineFunc = (linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string => {
         // This is a lot easier than markers, except that we also have to offset
         // the line if there are two arc types.
         
-        var offset;
+        // In order to prevent arcs from overlapping, we need to assign slots to them. These slots
+        // will be convertable to physical pixel offsets via an array.
+        var offset = this.pixelMap[linkData.edgePositionSlot];
         if(ignoreOffset === true){ // need === because it might get a numeric arg via D3 or JQuery!
             offset = 0;
-        } else if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
-            offset = 10;
-        } else if (linkData.relationType === this.conceptGraph.relationLabelConstants.inheritance
-                || linkData.relationType === this.conceptGraph.relationLabelConstants.mapping){
-            offset = 0;
-        } else {
-            // the sundry property relation arcs will be offset differently from composite ones
-            offset = -10;
         }
         
         var sourceX = linkData.source.x;

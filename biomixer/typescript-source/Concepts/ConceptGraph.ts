@@ -128,6 +128,7 @@ export class Link extends GraphView.BaseLink<Node> {
     relationType: string; // = relationType;
     relationLabel: string;
     relationSpecificToOntologyAcronym: RawAcronym;
+    edgePositionSlot: number; // Used to map edges to different lcoatiosn relative to node, based on relationType
     
     constructor(){
         super();
@@ -823,6 +824,18 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         edge.targetId = childIdUri;
         edge.rawId = edge.sourceId+"-to-"+edge.targetId+"-of-"+relationId;
         edge.relationType = relationId;
+        
+        if(relationId === this.relationLabelConstants.inheritance
+                || relationId === this.relationLabelConstants.mapping){
+            edge.edgePositionSlot = 0;
+        } else if(relationId === this.relationLabelConstants.composition) {
+            edge.edgePositionSlot = 1;
+        } else {
+            // Since this comes from actual edge objects, they will indeed be created serially and have different values here.
+            var numExistingEdgesBetweenPair = this.expMan.edgeRegistry.getEdgesFor(String(edge.sourceId), String(edge.targetId)).length;
+            edge.edgePositionSlot = numExistingEdgesBetweenPair + 2; // +2 for the inheritance and composition positions
+        }
+        
         if(relationProperty === undefined){
             edge.relationLabel = relationId;
         } else {
