@@ -1,0 +1,3 @@
+# For demo serving purposes, do not ignore js files in this directory
+# The typescript-output directory that this one gets files from will have
+# a .gitignore that does the inverse; do not copy it here.
