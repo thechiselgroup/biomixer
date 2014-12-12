@@ -299,6 +299,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.forceLayout
         .size([this.visWidth(), this.visHeight()])
         .linkDistance(this.linkMaxDesiredLength())
+        //.linkStrength(0.1)
+        //.charge(0) // to disable charge baed quadtree computation internal to D3. If we use collision, we may not want repulsion.
+        //.gravity(0.01)
         // .distance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .linkDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .forceDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
@@ -307,6 +310,32 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
     }
     
+    collide(node: ConceptGraph.Node){
+        // var r = node.radius + 16;
+        var nodeR = parseInt(d3.select("#node_rect_"+node.conceptUriForIds).attr("width"))/2;
+        var nx1 = node.x - nodeR,
+        nx2 = node.x + nodeR,
+        ny1 = node.y - nodeR,
+        ny2 = node.y + nodeR;
+        return function(quad, x1, y1, x2, y2) {
+            if (quad.point && (quad.point !== node)) {
+                var x = node.x - quad.point.x,
+                y = node.y - quad.point.y,
+                l = Math.sqrt(x * x + y * y);
+                // r = node.radius + quad.point.radius;
+                var qpnoder =  nodeR + parseInt(d3.select("#node_rect_"+quad.point.conceptUriForIds).attr("width"))/2;
+                if (l < qpnoder) {
+                    l = (l - qpnoder) / l * .5;
+                    node.x -= x *= l;
+                    node.y -= y *= l;
+                    quad.point.x += x;
+                    quad.point.y += y;
+                }
+            }
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+        };
+    }
+
     //TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
     onLayoutTick(){
         var lastLabelShiftTime = jQuery.now();
@@ -314,7 +343,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var firstTickTime = jQuery.now();
         var maxLayoutRunDuration = 10000;
         var maxGravityFrequency = 4000;
-    
+        
         return () => {
             // This improved layout behavior dramatically.
             var boundNodes = this.vis.selectAll("g.node_g");
@@ -328,91 +357,35 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             }
             
             
-            
-            // Do I want nodes to avoid one another?
-            // http://bl.ocks.org/mbostock/3231298
-    //      var q = d3.geom.quadtree(nodes),
-    //        i = 0,
-    //        n = nodes.length;
-    //      while (++i < n) q.visit(collide(nodes[i]));
-    //      function collide(node) {
-    //            var r = node.radius + 16,
-    //                nx1 = node.x - r,
-    //                nx2 = node.x + r,
-    //                ny1 = node.y - r,
-    //                ny2 = node.y + r;
-    //            return function(quad, x1, y1, x2, y2) {
-    //              if (quad.point && (quad.point !== node)) {
-    //                var x = node.x - quad.point.x,
-    //                    y = node.y - quad.point.y,
-    //                    l = Math.sqrt(x * x + y * y),
-    //                    r = node.radius + quad.point.radius;
-    //                if (l < r) {
-    //                  l = (l - r) / l * .5;
-    //                  node.x -= x *= l;
-    //                  node.y -= y *= l;
-    //                  quad.point.x += x;
-    //                  quad.point.y += y;
-    //                }
-    //              }
-    //              return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-    //            };
-    //       svg.selectAll("circle")
-    //        .attr("cx", function(d) { return d.x; })
-    //        .attr("cy", function(d) { return d.y; });
-            
-            // For every iteration of the layout (until it stabilizes)
-            // Using this bounding box on nodes and links works, but leads to way too much overlap for the
-            // labels...Bostock is correct in saying that gravity adjustments can get better results.
-            // gravityAdjust() functions are pass through; they want to inspect values,
-            // not modify them!
-    //      var doLabelUpdateNextTime = false;
-    //      if(jQuery.now() - lastGravityAdjustmentTime > maxGravityFrequency){
-    //          nodes.attr("transform", function(d) { return "translate(" + gravityAdjustX(d.x) + "," + gravityAdjustY(d.y) + ")"; });
-    //          lastGravityAdjustmentTime = jQuery.now();
-    //          doLabelUpdateNextTime = true;
-    //      } else {
-            
-            
-            //box bounding
-            var width = this.visWidth();
-            var height = this.visHeight();
-            var nodeHeight = this.nodeHeight+this.nodeLabelPaddingHeight/2;
-    
             if(boundNodes.length > 0){
+                //box bounding
+                var width = this.visWidth();
+                var height = this.visHeight();
+                var nodeHeight = this.nodeHeight+this.nodeLabelPaddingHeight/2;
                 boundNodes.attr("transform", function(d: ConceptGraph.Node) { 
-                    
                     var nodeWidth = parseInt(d3.select("#node_rect_"+d.conceptUriForIds).attr("width"))/2;
                     d.x = Math.max(nodeWidth, Math.min(width - nodeWidth, d.x));
                    
                     d.y = Math.max(nodeHeight, Math.min(height - nodeHeight, d.y));
-                    return "translate(" + d.x + "," + d.y + ")"; });
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
+                
+                
+                // Node collisions. Yes, we rebuild the quadtree a lot.
+                var quadtreeFactory = d3.geom.quadtree();
+                var q = d3.geom.quadtree(this.conceptGraph.graphD3Format.nodes, this.visWidth(), this.visHeight());
+                var i = 0;
+                var n = this.conceptGraph.graphD3Format.nodes.length;
+                while (++i < n){
+                    q.visit(this.collide(this.conceptGraph.graphD3Format.nodes[i]));
+                }
+                
             }
                 
             if(boundLinks.length > 0){
                 boundLinks.attr("points", this.updateArcLineFunc);
                 boundLinkMarkers.attr("points", this.updateArcMarkerFunc);
             }
-            
-            // I want labels to aim out of middle of graph, to make more room
-            // It slows rendering, so I will only do it sometimes
-            // Commented all this out because I liked centering them instead.
-    //      if((jQuery.now() - lastLabelShiftTime > 2000) && !doLabelUpdateNextTime){
-    //          $.each($(".nodetext"), function(i, text){
-    //              text = $(text);
-    //              if(text.position().left >= visWidth()/2){
-    //                  text.attr("dx", 12);
-    //                  text.attr("x", 12);
-    //              } else {
-    //                  text.attr("dx", - 12 - text.get(0).getComputedTextLength());
-    //                  text.attr("x", - 12 - text.get(0).getComputedTextLength());
-    //              }
-    //          })
-    //          lastLabelShiftTime = jQuery.now();
-    //      }
-            
-            
-         
             
         }
             
