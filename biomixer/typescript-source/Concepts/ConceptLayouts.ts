@@ -603,10 +603,13 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             // If we are not merely refreshing, let them all be free to move.
             $.each(graphNodes, (index, node)=>{ node.fixed = false; } );
             
-            outerThis.forceLayout.friction(0.3) // use 0.2 friction to get a very circular layout
+            outerThis.forceLayout
+            .friction(0.3) // use 0.2 friction to get a very circular layout
             .gravity(0.05) // 0.5
-            .charge(-100); // -100
-            
+            .linkStrength(0.1)
+        	.charge(-800) // If we use collision, we may not want repulsion, so set to 0 in that case.
+            ;
+
             outerThis.forceLayout.on("tick", outerThis.graphView.onLayoutTick());
             outerThis.forceLayout.start();
         };

@@ -299,9 +299,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.forceLayout
         .size([this.visWidth(), this.visHeight()])
         .linkDistance(this.linkMaxDesiredLength())
+        // Moved most settings into the ConceptLayouts force triggering method.
         //.linkStrength(0.1)
-        //.charge(0) // to disable charge baed quadtree computation internal to D3. If we use collision, we may not want repulsion.
+        //.charge(-800) // If we use collision, we may not want repulsion, so set to 0 in that case.
         //.gravity(0.01)
+        //.friction(0.3)
         // .distance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .linkDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
         // .forceDistance(Math.min(this.visWidth(), this.visHeight())/1.1) // 600
@@ -335,7 +337,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
         };
     }
-
+    
     //TODO I need to update this for the refactoring I made. When are we calling this? Ideally *only* at initialization, right?
     onLayoutTick(){
         var lastLabelShiftTime = jQuery.now();
@@ -372,13 +374,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 
                 
                 // Node collisions. Yes, we rebuild the quadtree a lot.
-                var quadtreeFactory = d3.geom.quadtree();
-                var q = d3.geom.quadtree(this.conceptGraph.graphD3Format.nodes, this.visWidth(), this.visHeight());
-                var i = 0;
-                var n = this.conceptGraph.graphD3Format.nodes.length;
-                while (++i < n){
-                    q.visit(this.collide(this.conceptGraph.graphD3Format.nodes[i]));
-                }
+                // We should only use this or larg-ish (neagative) graph charge() settings.
+                // The charge() approach does not have jitter, and uses a quadtree as this one
+                // does. I suspect it is more efficient ultimately.
+                // To re-enable collision, simpyl uncomment the chunk below, and set charge(0) further above.
+                //var quadtreeFactory = d3.geom.quadtree();
+                //var q = d3.geom.quadtree(this.conceptGraph.graphD3Format.nodes, this.visWidth(), this.visHeight());
+                //var i = 0;
+                //var n = this.conceptGraph.graphD3Format.nodes.length;
+                //while (++i < n){
+                //    q.visit(this.collide(this.conceptGraph.graphD3Format.nodes[i]));
+                //}
                 
             }
                 
