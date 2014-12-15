@@ -567,4 +567,70 @@ export class RetryingJsonFetcher {
     }
 
  
+    // Documenting how CORS POST batch works. I do not prefer the inconsistent *potential* speed increase
+    // of this over the ability to receive per-concept error codes when using CORS GET instead.
+    // Also, for parents and children it is not useful, and properties are not retrievable via batch.
+    //  var createCORSRequest = function(method, url) {
+    //  var xhr: any = new XMLHttpRequest();
+    //  if ("withCredentials" in xhr) {
+    //    // Most browsers.
+    //    xhr.open(method, url, true);
+    //  } else if (typeof XDomainRequest != "undefined") {
+    //    // IE8 & IE9
+    //    xhr = new XDomainRequest();
+    //    xhr.open(method, url);
+    //  } else {
+    //    // CORS not supported.
+    //    xhr = null;
+    //  }
+    //  return xhr;
+    //};
+    //
+    //var url = 'http://stagedata.bioontology.org/batch';
+    //var method = 'POST';
+    //var xhr = createCORSRequest(method, url);
+    //
+    //xhr.onload = function(d, e, f) {
+    //  console.log(d.currentTarget.response);
+    //};
+    //
+    //xhr.onerror = function(d) {
+    //  console.log(JSON.parse(d));
+    //};
+    //
+    //xhr.setRequestHeader('Content-Type', 'application/json');
+    //xhr.setRequestHeader('Accept', 'application/json');
+    //xhr.setRequestHeader('Authorization', 'apikey token=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1');
+    //var params = 
+    //{
+    //    "http://www.w3.org/2002/07/owl#Class": {
+    //        "collection": [
+    //            {
+    //                "class": "http://purl.obolibrary.org/obo/UBERON_0006591",
+    //                "ontology": "http://data.bioontology.org/ontologies/UBERON"
+    //            },
+    //            {
+    //                "class": "http://purl.obolibrary.org/obo/UBERON_0002407",
+    //                "ontology": "http://data.bioontology.org/ontologies/UBERON"
+    //            },
+    //            {
+    //                "class": "http://purl.obolibrary.org/obo/UBERON_0006914",
+    //                "ontology": "http://data.bioontology.org/ontologies/UBERON"
+    //            },
+    //            {
+    //                "class": "http://purl.obolibrary.org/obo/UBERON_0015410",
+    //                "ontology": "http://data.bioontology.org/ontologies/UBERON"
+    //            },
+    //            {
+    //                "class": "http%3A%2F%2Fncicb.nc…Fxml%2Fowl%2FEVS%2FPericardium",
+    //                "ontology": "http://data.bioontology.org/ontologies/UBERON"
+    //            },
+    //        ],
+    //        "display": "prefLabel,synonym,definition,properties"
+    //    }
+    //}
+    //;
+    //xhr.send(JSON.stringify(params));
+
+    
 }
