@@ -562,18 +562,16 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     currentModalDialogIncomingNodeCount: number = 0;
     refreshNodeCapDialogNodeCount(numberNewNodesComing?: number) {
         $("p#nodeCapDialogMessage")
-        .text("There are "+this.graphD3Format.nodes.length+" nodes in the graph, and more incoming."+"\n"+
-            (undefined === numberNewNodesComing ? "That's a lot!" : "There are "+numberNewNodesComing+" still incoming.")+
-            "\n"+
-            "You can retrigger this node expansion later change your mind."+"\n\n"+
-            "Would you like to stop adding nodes?"
+        .text("You are about to add multiple nodes to the visualization."+"\n"
+            +this.graphD3Format.nodes.length+" have been loaded so far, but "+numberNewNodesComing+" remain."+"\n\n"+
+            "Would you like to limit or stop adding nodes? If you change your mind, you can re-expand the concepts/mappings later."
         );
         
         if(undefined === numberNewNodesComing){
             $("label#capDialogLabel").text("Num. of Nodes to Load");
             $("input#capDialogInput").attr("max", 20+"");
         } else {
-            $("label#capDialogLabel").text("Of "+numberNewNodesComing+" Nodes, Load: ");
+            $("label#capDialogLabel").text("Of "+numberNewNodesComing+" nodes, load: ");
             $("input#capDialogInput").attr("max", numberNewNodesComing+"");
             this.currentModalDialogIncomingNodeCount = numberNewNodesComing;
         }
