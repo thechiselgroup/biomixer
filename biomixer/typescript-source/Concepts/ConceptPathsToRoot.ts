@@ -561,7 +561,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     diamondLength = 14.0; // And height, if we use 45 degrees
     diamondAngle = (45/360) * (2 * Math.PI);
     private computeArcMarkerForComposition(linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string{
-         var offset = ignoreOffset ? 0 : 10;
+        
+        // In order to prevent arcs from overlapping, we need to assign slots to them. These slots
+        // will be convertable to physical pixel offsets via an array.
+        var offset = this.pixelMap[linkData.edgePositionSlot];
+        if(ignoreOffset === true){ // need === because it might get a numeric arg via D3 or JQuery!
+            offset = 0;
+        }
         
         var sourceX = linkData.source.x;
         var sourceY = linkData.source.y;
