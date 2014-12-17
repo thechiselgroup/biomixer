@@ -44,8 +44,6 @@ export class UndoRedoManager {
      * When a new command is executed, add it here. This will truncate any undone command, and they
      * will no longer be available for redoing.
      * 
-     * NB There is no way to *only* remove commands without adding a new one. If there's a use case (limiting
-     * memory use for example), go ahead and add that functionality.
      */
     addCommand(newCommand: ICommand): void{
         // console.log("Adding to trail at: "+(this.currentTrailIndex + 1));
@@ -66,6 +64,29 @@ export class UndoRedoManager {
             }
             this.crumblez.updateView(this.trail, newCommand);
         }
+    }
+    
+    // TODO This should probably only be allowed when it is the topmost command...
+    // There's no guarantee that the graph makes sense after this. Was originally made
+    // to remove expansion sets that were added prior to data being verified.
+    removeCommand(commandToRemove: ICommand){
+        var index = this.trail.indexOf(commandToRemove);
+        if(-1 === index){
+            return;
+        }
+        
+        if(this.currentTrailIndex <= index){
+            commandToRemove.executeUndo();
+        }
+        console.log(this.currentTrailIndex);
+        var newTrailIndex = (index > this.currentTrailIndex) ? this.currentTrailIndex : this.trail.length - 2;
+        console.log(newTrailIndex);
+        this.changeCurrentTrailPosition(this.trail[newTrailIndex]);
+        this.trail.splice(index, 1); // Remove just the one command
+        
+        this.crumblez.updateView(this.trail, this.trail[newTrailIndex]);
+
+        
     }
     
     /**

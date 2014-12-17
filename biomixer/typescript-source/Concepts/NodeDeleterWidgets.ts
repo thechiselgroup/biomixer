@@ -44,6 +44,22 @@ export class NodeDeleterWidgets {
         $(menuSelector).append(deleterContainer);
         deleterContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Node Management"));
         deleterContainer.append($("<br>"));
+        
+        {
+            deleterContainer.append($("<input>")
+                    .attr("class", "addSingleConceptButton nodeCommandButton")
+                    .attr("id", "addSingleConceptButton")
+                    .attr("type", "button")
+                    .attr("value", "Add Concept Using URI"));
+            d3.selectAll("#addSingleConceptButton").on("click", this.showSingleNodeImportDialog());
+            var footer = $("<div>").attr("id", NodeDeleterWidgets.nodeImporterFooterDiv).css("clear", "both");
+            deleterContainer.append($("<br>"));
+            deleterContainer.append(footer);
+        }
+    
+        deleterContainer.append($("<br>"));
+        deleterContainer.append($("<br>"));
+    
         {
             deleterContainer.append($("<input>")
                     .attr("class", "nodeDeleterButton nodeCommandButton")
@@ -65,6 +81,95 @@ export class NodeDeleterWidgets {
         }
 
         deleterContainer.append($("<br>"));
+    }
+    
+    private showSingleNodeImportDialog(){
+        return ()=>{
+            var dialog = $("#"+NodeDeleterWidgets.messageDivId);
+            if(dialog.length != 0){
+                // If it's there already, hide it. This button can act as a toggle.
+                dialog.slideUp(200, ()=>{ dialog.detach() });
+            } else {
+                var message = "To import a single node, paste the URI id (found via BioPortal) into the field."
+                    ;
+                this.messagePrompt(message, "", this.importSingleNodeCallbackLambda());
+            }
+        };
+    }
+    
+    private importSingleNodeCallbackLambda(){
+        return (event: JQueryEventObject)=>{
+            event.stopPropagation();
+            var dialog = $("#"+NodeDeleterWidgets.messageDivId);
+            var messageField = $("#"+NodeDeleterWidgets.messageTextId);
+            var importData = messageField.first().val();
+            dialog.slideUp(200, ()=>{ dialog.detach() });
+            
+            if(importData.length === 0){
+                return;
+            }
+            this.graph.addConceptToGraph(importData);
+        }  
+    }
+    
+    static messageTextId = "singleNodeImportMessageBoxTextArea";
+    static messageParagraphId = "singleNodeImportMessageBoxMessage";
+    static messageDivId = "singleNodeImportMessageBox";
+    static messageDivClass  ="singleNodeImportMessageBoxWithField";
+    static messageBoxButtonClass = "singleNodeImportMessageBoxButton";
+    static nodeImporterFooterDiv = "singleNodeImportFooterDiv";
+    
+    private closeDialogLambda(){
+        return (event: JQueryEventObject)=>{
+            var dialog = $("#"+NodeDeleterWidgets.messageDivId);
+            dialog.slideUp(200, ()=>{ dialog.detach() });
+        }
+    }
+    
+    private messagePrompt(message: string, fieldContent: string, okCallback){
+        // Remove any existing version of this panel. It is an embedded modal singleton unique as a unicorn.
+        var dialog = $("#"+NodeDeleterWidgets.messageDivId);
+        if(undefined !== dialog){
+            dialog.detach();
+        }
+        
+        // Create the new one.
+        dialog = $("<div>").attr("id", NodeDeleterWidgets.messageDivId).addClass(NodeDeleterWidgets.messageDivClass).addClass("opaqueMenu");
+        var messageParagraph = $("<p>").addClass(NodeDeleterWidgets.messageParagraphId);
+        messageParagraph.text(message);
+        var messageField = $("<textarea>").attr("id", NodeDeleterWidgets.messageTextId).addClass(NodeDeleterWidgets.messageTextId);
+        messageField.text(fieldContent);
+        messageField.select();
+        
+        // Default the ok button to close the box. If it is to something more useful, then create a cancel button
+        // to allow the user to simply close the box.
+        var cancelButton = undefined;
+        var okButtonText;
+        if(null === okCallback){
+            okCallback = this.closeDialogLambda();
+            okButtonText = "Close";
+        } else {
+            cancelButton =  $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton")
+                .text("Cancel").click(this.closeDialogLambda());
+            okButtonText = "Apply";
+        }
+        var okButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton")
+            .text(okButtonText).click(okCallback);
+        dialog
+            .append(messageParagraph)
+            .append(messageField)
+            .append($("<br>"))
+            .append(okButton)
+        ;
+        if(undefined !== cancelButton){
+            dialog.append(cancelButton);
+        }
+        
+        
+        dialog.css("display", "none");
+        $("#"+NodeDeleterWidgets.nodeImporterFooterDiv).append(dialog);
+        dialog.slideDown("fast");
+        
     }
     
     deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>) {

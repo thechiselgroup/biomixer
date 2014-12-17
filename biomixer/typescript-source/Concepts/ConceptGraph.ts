@@ -36,6 +36,7 @@ export class PathOptionConstants {
     static termNeighborhoodConstant: PathOption = <PathOption><any>"Term Neighborhood";
     static pathsToRootConstant: PathOption = <PathOption><any>"Path to Root";
     static mappingsNeighborhoodConstant: PathOption = <PathOption><any>"Mappings Neighborhood";
+    static singleNodeConstant: PathOption = <PathOption><any>"Single Node";
 }
 
 export interface ConceptURI extends String {
@@ -315,7 +316,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         public graphView: GraphView.GraphView<Node, Link>,
         public centralConceptUri: ConceptURI,
         public softNodeCap: number,
-        undoBoss: UndoRedoManager.UndoRedoManager
+        public undoBoss: UndoRedoManager.UndoRedoManager
         ){
         // Passing undo boss makes the msot sense, since expansions are very graphy,
         // so the graph can own the expansion manager and merely use the undo system.
@@ -727,6 +728,18 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
             fetcher.fetch(callback);
         }
+    }
+    
+    /**
+     * Intended for adding arbitrary concepts, on the basis of their URI, to the graph.
+     */
+    public addConceptToGraph(newConceptId: ConceptURI){
+        // To get the ontology id...do a search for the concept id, then iterate through the results to find
+        // an entity with a perfectly matching concept id!!!
+        var url = this.buildConceptSearchUrlNewApi(newConceptId);
+        var callback = new SearchOneConceptCallback(this, url, newConceptId, PathOptionConstants.singleNodeConstant);
+        var fetcher = new Fetcher.RetryingJsonFetcher(url);
+        fetcher.fetch(callback);
     }
     
     public nodeMayBeExpanded(newConceptId: ConceptURI, relatedConceptId: ConceptURI, expansionType: PathOption, expansionSet: ExpansionSets.ExpansionSet<Node>): boolean{
@@ -1162,6 +1175,11 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return "http://"+Utils.getBioportalUrl()+"/ontologies/"+ontologyAcronym+"/classes/"+encodeURIComponent(String(conceptUri));
     }
     
+    buildConceptSearchUrlNewApi(conceptUri: ConceptURI){
+        // String() converts object String back to primitive string. Go figure.
+        return "http://"+Utils.getBioportalUrl()+"/search/?require_exact_match=true&also_search_properties=false&q="+encodeURIComponent(String(conceptUri));
+    }
+    
     buildConceptCompositionsRelationUrl(concept: Node){
         return "http://"+Utils.getBioportalUrl()+"/ontologies/"+concept.ontologyAcronym+"/classes/"+encodeURIComponent(String(concept.rawConceptUri))
         +"?include=properties";
@@ -1417,6 +1435,62 @@ export class FetchOneConceptCallback extends Fetcher.CallbackObject {
         } else {
             this.graph.checkForNodeCap(fetchCall, this.expansionSet, String(this.conceptUri));
         }
+    }
+}
+
+export class SearchOneConceptCallback extends Fetcher.CallbackObject {
+    
+    constructor(
+        public graph: ConceptGraph,
+        url: string,
+        public conceptUri: ConceptURI,
+        public directCallForExpansionType: PathOption,
+        public priorityLoadNoCapCheck: boolean = false
+        ){
+            super(url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
+        }
+        
+    public callback = (conceptMatchData: any, textStatus: string, jqXHR: any) => {
+        // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
+        // CORS enabled GET and POST do though!
+        if(jqXHR != null){
+            if(conceptMatchData.errors != null){
+                // We had an error. Handle it.
+                this.graph.expMan.purgeInaccessibleNode(this.conceptUri);
+                return;
+            }
+        }
+        
+        
+        // Not checking node cap. This is only ever used for single nodes.
+        var conceptPropertiesData = null;
+        for(var i in conceptMatchData.collection){
+            // This approach is optimistic; there are paged search results, but if I require
+            // an exact hit, we should get an exact hit, shouldn't we?
+            // http://data.bioontology.org/search?q=http://purl.obolibrary.org/obo/UBERON_0018255
+            var hit = conceptMatchData.collection[i];
+            if(hit.matchType === "id" && hit["@id"]===this.conceptUri){
+                conceptPropertiesData = hit;
+                break;
+            }
+        }
+        if(conceptPropertiesData == null){
+            alert("Failed to import node for provided id: '"+this.conceptUri+"'");
+            // this.graph.undoBoss.removeCommand(this.expansionSet.graphModifier);
+            return;
+        }
+        
+        var expId = new ExpansionSets.ExpansionSetIdentifer("arbitraryConceptAddition_"+Utils.escapeIdentifierForId(this.conceptUri), "Added Arbitrary Node");
+        var expansionSet = new ExpansionSets.ExpansionSet(expId, null, this.graph, this.graph.undoBoss, PathOptionConstants.singleNodeConstant);
+        
+        var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, expansionSet);
+        
+        // Update the display id.
+        expId.displayId = "Added: "+conceptNode.name+" ("+conceptNode.ontologyAcronym+")";
+        this.graph.undoBoss.updateUI(expansionSet.graphModifier);
+        
+        // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
+        this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, expansionSet, this.directCallForExpansionType);
     }
 }
 
