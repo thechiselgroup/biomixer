@@ -1,47 +1,80 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-
-
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>BioMixer</title>
+	<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Concept Visualizations</title>
+
+    <script type="text/javascript" src="./d3_graphs/d3.v3.min.js"></script>
+    <!--
+    <script type="text/javascript" src="./d3_graphs/d3.v3.js"></script>
+    -->
     
-    <meta http-equiv="X-UA-Compatible" content="IE=9">   
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="./d3_graphs/purl.js"></script>
     
-	<!-- These scripts used to be included in gwt.xml, but GWT 2.5 xsilinker prevents that now -->
-    <script type="text/javascript" language="javascript" src="org.thechiselgroup.biomixer.BioMixerWorkbench/js/lib/sarissa-0.9.9.4/sarissa-compressed.js"></script>
-    <script type="text/javascript" language="javascript" src="org.thechiselgroup.biomixer.BioMixerWorkbench/js/lib/sarissa-0.9.9.4/sarissa_ieemu_xpath-compressed.js"></script>
-    <script type="text/javascript" language="javascript" src="org.thechiselgroup.biomixer.BioMixerWorkbench/js/lib/simile-ajax-api-2.2.0/simile-ajax-api.js"></script>
-    <script type="text/javascript" language="javascript" src="org.thechiselgroup.biomixer.BioMixerWorkbench/js/lib/timeline-2.3.0/timeline-api.js"></script>  
-
-	<script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'></script>
-
-	<script type="text/javascript" src="scripts/d3.js"></script>
-	<script type="text/javascript" src="scripts/d3_002.js"></script>
-	<script type="text/javascript" src="scripts/d3_003.js"></script>
-	<script type="text/javascript" src="scripts/forceDirectedLayout.js"></script>
-	<script type="text/javascript" src="scripts/matrixLayout.js"></script>
-	<script type="text/javascript" src="scripts/test.js"></script>
-
-    <script type="text/javascript" language="javascript" src="org.thechiselgroup.biomixer.BioMixerWorkbench/org.thechiselgroup.biomixer.BioMixerWorkbench.nocache.js"></script>
+    <!-- jquery 2.x does not support IE 8,7, or 6, but 40% of visitors from IE8. -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!--
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    -->
     
-    <script type="text/javascript">
-
-  	var _gaq = _gaq || [];
-  	_gaq.push(['_setAccount', 'UA-36031841-1']);
-  	_gaq.push(['_setDomainName', 'bio-mixer.appspot.com']);
-  	_gaq.push(['_trackPageview']);
-
-  	(function() {
-  	  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-  	  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-  	  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  	})();
-
-	</script>
+    <!--
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    -->
+	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" />
+    
+    <script type="text/javascript" src="./d3_graphs/jquery.simplemodal.1.4.4.min.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="./d3_graphs/spectrum.css">
+    <script type="text/javascript" src="./d3_graphs/spectrum.js"></script>
+    
+    <script type="text/javascript" src="./d3_graphs/jquery.stylesheet.js"></script>
+     
+    <script type="text/javascript" src="./d3_graphs/biomixer.jquery.tipsy.js"></script>
+    <link href="./d3_graphs/biomixer.tipsy.css" rel="stylesheet" type="text/css" />
+    
+    <link href="./d3_graphs/d3_graph.css" rel="stylesheet" type="text/css">
+    
+    <link href="./d3_graphs/simplemodal_confirm.css" rel="stylesheet" type="text/css">
+    
+    <!--
+    <script type="text/javascript" src="./d3_graphs/jquery.jsonp.amdmod.js"></script>
+    -->
+    
+	<link href="./d3_graphs/reset.css" rel="stylesheet" type="text/css" />
+	<link href="./d3_graphs/reset-fonts.css" rel="stylesheet" type="text/css" />
 
   </head>
   <body>
-    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
-  </body>
+
+<div id="top_menu_bar">
+	<select id="visualization_selector" class="gwt-ListBox view_selection_box" size="1">
+	</select>
+	<div id="undo_redo_breadcrumb_trail" class="undo_redo_breadcrumb_trail">
+	</div>
+</div>
+	
+<div class="gallery" id="chart"></div>
+
+<div id='container'>
+		<!-- modal content -->
+		<div id='confirm'>
+			<div class='header'><span>Confirm</span></div>
+			<div class='message'></div>
+			<div class='buttons'>
+				<div class='no simplemodal-close'>No</div><div class='yes'>Yes</div>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		<!-- preload the images -->
+		<div style='display:none'>
+			<img src='./img/confirm/header.gif' alt='' />
+			<img src='./img/confirm/button.gif' alt='' />
+		</div>
+</div>
+
+<script src="./require_config.js"></script>
+<script data-main="Concepts/MainConceptGraph" src="./d3_graphs/require.js"></script>
+
+</body>
 </html>

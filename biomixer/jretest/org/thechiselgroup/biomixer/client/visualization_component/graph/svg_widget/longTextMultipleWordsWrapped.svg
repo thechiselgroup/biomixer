@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
-  <svg overflow="visible">
-    <rect fill="#FFFFFF" stroke="#000000" width="160.0" height="60.0" x="0.0" y="0.0"/>
-    <text y="30.0" font-family="Arial, sans-serif" font-size="12px">
-      <tspan x="10.0" dy="0.0">testing a very</tspan>
-      <tspan x="30.0" dy="20.0">long label</tspan>
-    </text>
-  </svg>
-</svg>

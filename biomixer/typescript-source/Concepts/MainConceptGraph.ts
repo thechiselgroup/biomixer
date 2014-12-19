@@ -26,6 +26,15 @@ $("#visualization_selector")
 
 $("#visualization_selector option").each(
         function(){
+            // Convert old version Choosel values to the ones we have above, in case old URL is
+            // used to access this visualization.
+            if(initialVis === "paths_to_root"){
+                initialVis = "paths_to_root";
+            } else if(initialVis === "mapping_neighbourhood"){
+                initialVis = "mappings_neighborhood";
+            } else if(initialVis === "concept_neighbourhood"){
+                initialVis = "term_neighbourhood";
+            }
             // Note we use the values not text, to facilitate URL parameters without having to encode spaces.
             if($(this).val() == initialVis){
                 $(this).attr("selected", "selected");

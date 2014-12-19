@@ -11,6 +11,7 @@
 
   <!-- CHOOSEL WORKBENCH SERVICES -->
   
+  <!--
   <servlet>
     <servlet-name>authentication</servlet-name>
     <servlet-class>org.thechiselgroup.biomixer.server.workbench.authentication.AuthenticationServiceServlet</servlet-class>
@@ -64,8 +65,11 @@
     <servlet-name>view</servlet-name>
     <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/view</url-pattern>
   </servlet-mapping>
+  
+  -->
 
   <!-- remote logging service -->  
+  <!--
   <servlet>
     <servlet-name>remoteLoggingServlet</servlet-name>
     <servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class>
@@ -75,5 +79,6 @@
     <servlet-name>remoteLoggingServlet</servlet-name>
     <url-pattern>/org.thechiselgroup.biomixer.BioMixerWorkbench/remote_logging</url-pattern>
   </servlet-mapping>
+  -->
  
 </web-app>
