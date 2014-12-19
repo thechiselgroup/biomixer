@@ -1183,7 +1183,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (rectWidth/2 + parseInt(d3.select(this).attr("x"), 0)))
                     .attr("width", rectWidth).attr("height", rectHeight * 2)
                     .style("z-index", 100)
-                    .on("mouseleave", function(){ $("#expanderMenu").first().remove(); })
+                    .on("mouseleave", function(){ outerThis.unhighlightHoveredNodeLambda(outerThis, false)(nodeData, 0); $("#expanderMenu").first().remove(); })
                     // The mouseup one is required due to a silly graphical bug I could not fix.
                     // If a greyed-out menu item was clicked, it also triggered a re-dispatch of the menu creating function,
                     // and produced a broken container relative to the text elements within.
