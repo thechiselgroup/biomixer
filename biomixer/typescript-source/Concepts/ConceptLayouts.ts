@@ -227,21 +227,21 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 //    private decycledLinks: ConceptGraph.Link[] = [];
     
     
+    private findCycleLinks(parentNode: ConceptGraph.Node){
+        var cycleLinks: ConceptGraph.Link[] = []; // links that create cycles
+        var stack = new Array();
+        
+        
+        return cycleLinks;
+    }
     private decycle(graphLinks: ConceptGraph.Link[]){
         var newDecycledLinks: ConceptGraph.Link[] = [];
         
         graphLinks.filter(function(link){return link.relationType!="maps_to"}).forEach(function(link){
-            var parentIsChild = false;
-            var childIsParent = false;
-            
-            newDecycledLinks.forEach(function(dLink){
-                if(link.sourceId==dLink.targetId){parentIsChild = true;}
-                if(link.targetId==dLink.sourceId){childIsParent = true;}
-            });
-            
-            if(parentIsChild==false||childIsParent==false){newDecycledLinks.push(link);}
-        
+
         });
+        
+        newDecycledLinks = graphLinks;
         return newDecycledLinks;
 //        console.log(graphLinks);
 //        console.log(newDecycledLinks);
@@ -305,10 +305,13 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     private getRoots(ontologyAcronym, graphLinks:ConceptGraph.Link[]){
         var outerThis = this;
         var graphNodes = outerThis.graph.graphD3Format.nodes;
-        var roots: ConceptGraph.Node[] = [];       
-        var isRoot = true;    
-        var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps_to"});
         graphNodes = graphNodes.filter(function(n){return n.ontologyAcronym==ontologyAcronym});
+        
+        var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps_to"});
+         
+        var roots: ConceptGraph.Node[] = [];       
+        var isRoot = true;   
+        
         graphNodes.forEach(function(node){
             graphLinks.forEach(function(link){
                if (link.targetId===node.rawConceptUri) { isRoot = false; }
@@ -323,8 +326,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
     private resetGraphValues(){
         var graphNodes = this.graph.graphD3Format.nodes;
-        
-
         //reset values for next layout
         graphNodes.forEach(function (node){ 
             node.tempDepth = 0; 
@@ -333,8 +334,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             node.y = 0;
             node.children = null;
             node.parent = null;
-        });
-        
+            node.visited = false;
+        });  
     }
     
     
@@ -346,7 +347,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.decycle(outerThis.graph.graphD3Format.links);
         var ontologies = outerThis.getAllOntologyAcronyms();
-        
+       
         var fullTreeDepth = 0;
              
         var ontologyRoots: ConceptGraph.Node[] = [];
@@ -365,13 +366,19 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 if (ontologyDepth > fullTreeDepth) { fullTreeDepth = ontologyDepth; }
             });
             
+            
         });
-                
+               
         var allChildren: ConceptGraph.Node[] = [];
         
         //calculate tree height and adjust for phantom nodes
         var oldHeight = height;
-        height = height*(fullTreeDepth+2)/(fullTreeDepth)
+
+        if(fullTreeDepth==0){
+            fullTreeDepth++;
+        }else{
+            height = height*(fullTreeDepth+2)/(fullTreeDepth);
+        }
         
         var mainTree = d3.layout.tree()
             .size([width, height])
@@ -379,13 +386,14 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 if(parent.name == "main_phantom_root"){  
                     return ontologyRoots;
                 }else if($.inArray(parent.name, ontologies) != -1){  
+                    
                     var roots: ConceptGraph.Node[];
                     roots = outerThis.getRoots(parent.name, graphLinks);   
-                    
+                 
                     roots.forEach(function(root){
                         if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
                     });
-
+                
                     return roots;
                 }else{
                     var graphChildren = outerThis.getChildren(parent, graphLinks); 
@@ -406,18 +414,20 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                             allChildren.push(child);
                         }
                     });
+                 
                     return treeChildren;
                 }
            });
            
         var primaryRoot = new ConceptGraph.Node();
         primaryRoot.name = "main_phantom_root"; //temporary identifier for the primary root
-        mainTree.nodes(primaryRoot);  // build tree based on primary phantom root  
-        
-        // shift the tree by 2 node distances
+        var treeNodes = mainTree.nodes(primaryRoot);  // build tree based on primary phantom root  
+       
+        // shift the tree by 2 node distances 
         graphNodes.forEach(function(node){
             node.y = node.y-2/(fullTreeDepth+2)*height;
         });
+
     }
     
     runRadialLayoutLambda(): LayoutProvider.LayoutRunner{
@@ -472,10 +482,10 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             var yShift = 200;
             var treeWidth = outerThis.graphView.visWidth()-xShift;
             var treeHeight = outerThis.graphView.visHeight()-yShift; 
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
             
             outerThis.buildTree(treeWidth, treeHeight);
-            
-            var graphNodes = outerThis.graph.graphD3Format.nodes;
+
             $.each(graphNodes, function(index, element){
                     graphNodes[index].x = element.x+xShift/2; 
                     graphNodes[index].y = element.y+yShift/2; 
