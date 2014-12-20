@@ -1317,6 +1317,29 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .attr("onselectstart", "function(){ return false;}") // IE 8?
             ;
             }
+        
+            // Create menu item for hiding or dimming the node (also marking it for deletion, in the current design)[[
+            {
+            var hideNodeSvg = innerSvg.append("svg:svg")
+                    .attr("overflow", "visible").attr("y", 3*rectHeight)
+                    .classed("expanderMenuItem", true)
+            ;
+            hideNodeSvg.append("svg:rect")
+                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
+                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.toggleHideNodeLambda(outerThis)(nodeData, 0); outerThis.refreshOtherFilterCheckboxStates([nodeData], null)})
+            ;
+            hideNodeSvg.append("svg:text")
+                .text(outerThis.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node")
+                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
+                .style("font-weight", "inherit")
+                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+                .style("pointer-events", "none")
+                // Why cannot we stop selection in IE? They are rude.
+                .attr("unselectable", "on") // IE 8
+                .attr("onmousedown", "noselect") // IE ?
+                .attr("onselectstart", "function(){ return false;}") // IE 8?
+            ;
+            }
             
             // Resize the parent rectangles as necessary based on all of the children text elements
             // It does things fairly automatically and agnostic of the number of menu item text elements.

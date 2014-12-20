@@ -448,11 +448,16 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         return function(nodeData: N, i){
             outerThis.nodeHider(nodeData, false);
         }
-    
     }
     
-    private nodeHider(nodeData: N, hiding: boolean){
-        // Hide the node and label away first
+    toggleHideNodeLambda(outerThis: BaseGraphView<N, L>){
+        return function(nodeData: N, i){
+            outerThis.nodeHider(nodeData, undefined);
+        }
+    }
+    
+    // Returns "Node" from JQuery/HTML, not a graph node model object
+    private findSubNode(nodeData: N): Node{
         var subnode = d3.selectAll(BaseGraphView.nodeSvgClass)
             .filter(function(d: N, i){ return d === nodeData; })
             .node()
@@ -463,10 +468,30 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             // might be other occassions where this happens, and I don't want expansion
             // sets, nor ontology filter systems, to be aware of deletion status, so
             // I will recover from the error here.
-            return;
+            return null;
         }
         
-        var sourceGNode = subnode.parentNode;
+        return subnode.parentNode;
+    }
+    
+    private nodeHider(nodeData: N, hiding: boolean){
+        
+        // Hide the node and label away first
+        var sourceGNode = this.findSubNode(nodeData);
+        
+        // When we have deleted nodes (which can be re-done), then hide an expansion
+        // set that included some deleted nodes, we need to fall out fo this. There
+        // might be other occassions where this happens, and I don't want expansion
+        // sets, nor ontology filter systems, to be aware of deletion status, so
+        // I will recover from the error here.
+        if(null == sourceGNode){
+            return;   
+        }
+        
+        if(hiding == null){
+            hiding = !(d3.select(sourceGNode).classed(BaseGraphView.hiddenNodeClass));
+        }
+        
         // In order to hide any baggage (like expander menu indicators), we need to grab the parent
         d3.select(sourceGNode)
             .classed(BaseGraphView.hiddenNodeClass, hiding);
