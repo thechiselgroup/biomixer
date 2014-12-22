@@ -257,7 +257,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
          tBody.append(
                  $("<tr></tr>").append(
                        $("<td></td>").append(
-                               $("<div></div>").text(ontologyData["rawAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+                               $("<div></div>").text(ontologyData["rawAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header")
                        )
                )
          );
@@ -267,7 +267,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                 $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                 $("<div></div>").css(noWrapStyle).append(
                                          $("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open ontology homepage in tab")
                                  )
                          )
@@ -305,7 +305,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                     $("<div></div>").addClass("gwt-HTML").css(style).append(
+                                     $("<div></div>").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
                                              $("<span></span>").text(value)

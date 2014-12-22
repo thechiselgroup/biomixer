@@ -675,17 +675,44 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          tBody.append(
                  $("<tr></tr>").append(
                        $("<td></td>").append(
-                               $("<div></div>").text(conceptData["name"]).attr("class","popups-Header gwt-Label avatar avatar-resourceSet GK40RFKDB dragdrop-handle")
+                               $("<div></div>").text(conceptData["name"]).attr("class","popups-Header")
                        )
                )
          );
-       
+         
+         {
+         var outerThis = this;
+         var checkboxInput = $("<input type='checkbox' "+(this.isNodeHidden(conceptData) ? "checked=checked" : "")+">")
+         .attr("id", "popupCheckId");
+         // Since this is turned into html, any JQuery event bindings will get lost. We have to do the binding later,
+         // and we need to prevent re-binding by calling off() first, as seen here.
+         $(document.body).off().on("change", "#popupCheckId", function(){
+                            console.log("hey");
+                            outerThis.toggleHideNodeLambda(outerThis)(conceptData, 0);
+                            outerThis.refreshOtherFilterCheckboxStates([conceptData], null);
+                        }
+                    );
+         
+         var checkboxUnit = $("<span>")
+             .addClass("popupNodeHideCheckbox")
+                .append(
+                   checkboxInput
+                )
+                .append(
+                    $("<label>").attr("for", "popupCheckId")
+                    .append("Hide Node")
+                )
+            ;
+
+         
+        tBody.append($("<tr></tr>").append($("<td></td>").append(checkboxUnit)));
+         }
          
          var urlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"]+"?p=classes&conceptid="+conceptData["rawConceptUri"];
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                 $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                 $("<div></div>").css(noWrapStyle).append(
                                          $("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open concept homepage in tab")
                                  )
                          )
@@ -696,7 +723,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                     $("<div></div>").addClass("gwt-HTML").css(noWrapStyle).append(
+                                     $("<div></div>").css(noWrapStyle).append(
                                              $("<b></b>").text("Ontology: ")
                                      ).append(
                                              $("<a></a>").attr("target", "_blank").attr("href", ontologyUrlText).text(conceptData["ontologyAcronym"])
@@ -716,7 +743,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
              tBody.append(
                      $("<tr></tr>").append(
                              $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
-                                     $("<div></div>").addClass("gwt-HTML").css(style).append(
+                                     $("<div></div>").css(style).append(
                                              $("<b></b>").text(label)
                                      ).append(
                                              $("<span></span>").text(conceptData[propertyKey])
@@ -774,7 +801,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     && outerThis.lastDisplayedTipsy.css("visibility") == "visible"
 //                    && outerThis.lastDisplayedTipsyData.nodeIdentifier == d.rawConceptUri
                     ){
-                $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsySvg, outerThis.lastDisplayedTipsyData));
+                console.log("This wont' work anymore");
+                // $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsySvg, outerThis.lastDisplayedTipsyData));
             }
         }
         
