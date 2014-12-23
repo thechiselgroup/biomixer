@@ -307,8 +307,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         return function(nodeData: N, i){
             if(outerThis.dragging){
                 return;
-            }
-            
+            }            
             outerThis.beforeNodeHighlight(nodeData);
             
             // In a previous pass, we may have highlighted a link. Don't clobber it!
@@ -339,7 +338,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 .filter(function(d: N, i){return d === nodeData; });
             
             sourceNode
-             .classed("highlightedNode", true);
+             .classed("highlightedNode", true)
+             .classed("dimmedNode", false);
             
             // Get the hovered node to the top of the SVG render stack.
             // This is important for node menu rendering, so that it will inherit
