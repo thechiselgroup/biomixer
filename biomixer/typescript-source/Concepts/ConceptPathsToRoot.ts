@@ -25,6 +25,7 @@
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/GraphImporterExporter" />
 ///<amd-dependency path="Concepts/NodeDeleterWidgets" />
+///<amd-dependency path="NodeFinderWidgets" />
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require("../Utils");
@@ -47,6 +48,8 @@ import ConceptFilterSliders = require("./ConceptFilterSliders");
 import ConceptLayouts = require("./ConceptLayouts");
 import ImporterExporter = require("./GraphImporterExporter");
 import NodeDeleter = require("./NodeDeleterWidgets");
+import NodeFinder = require("../NodeFinderWidgets");
+
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     
@@ -59,6 +62,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      * Specialized or casted version of parent classes' layoutProvider, for convenience.
      */
     layouts: ConceptLayouts.ConceptLayouts;
+    
+    nodeFinder: NodeFinder.NodeFinder<ConceptGraph.Node, ConceptGraph.Link>;
     
     importerExporterWidget: ImporterExporter.Widget;
     edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
@@ -197,6 +202,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         this.layouts = new ConceptLayouts.ConceptLayouts(this.forceLayout, this.conceptGraph, this, this.centralConceptUri);
         this.conceptGraph.setLayoutProvider(this.layouts);
+        
+        this.nodeFinder = new NodeFinder.NodeFinder(this, this.conceptGraph);
         
         this.importerExporterWidget = new ImporterExporter.Widget(this);
          
@@ -1416,6 +1423,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     prepGraphMenu(){
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layout & Filter Menu");
+        this.nodeFinder.addMenuComponents(this.menu.getMenuSelector());
         this.layouts.addMenuComponents(this.menu.getMenuSelector());
         this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);

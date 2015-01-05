@@ -248,6 +248,13 @@ div#hoveringGraphMenu {
 	margin-bottom: 6px !important;
 }
 
+.buttonWithMargins {
+	margin-right: 8px !important;
+	margin-left: 8px !important;
+	margin-bottom: 6px !important;
+	margin-top: 6px !important;
+}
+
 .nodeCommandButton {
 	margin-right: 15px !important;
 }

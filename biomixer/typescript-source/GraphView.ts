@@ -43,6 +43,7 @@ export class BaseNode implements D3.Layout.GraphNode {
     _children: D3.Layout.GraphNode[];
     parent: D3.Layout.GraphNode;
     depth: number;
+    nodeColor: string;
         
     getEntityId(): string{
         return "Error, must override this method.";
@@ -76,6 +77,7 @@ export interface Graph<N extends BaseNode>  {
     
    getLayoutProvider(): LayoutProvider.ILayoutProvider;
    setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider);
+   findNodesByName(substring: string): Array<N>;
 }
 
 
@@ -536,6 +538,86 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     afterNodeUnhighlight(targetNodeData){
         // Nothing by default
+    }
+    
+    animateHighlightNodesDeactivate(){
+        
+    }
+    
+    animateHighlightNodesActivate(matchingNodes: Array<N>){
+        var particle = (d: N) => {
+            console.log(d);
+            d3.select("#graphSvg").append("circle") //insert("circle", "rect")
+              .attr("cx", d.x)
+              .attr("cy", d.y)
+              .attr("r", 1e-6)
+              .style("stroke", d.nodeColor)
+              .style("stroke-width", 3)
+              .style("stroke-opacity", 1)
+              .style("fill-opacity", 0)
+            .transition()
+              .duration(2000)
+              .ease(Math.sqrt)
+              .attr("r", 100)
+              .style("stroke-opacity", 1e-6)
+              .remove()
+                ;
+        };
+        
+//        console.log(matchingNodes);
+//        
+//        console.log(d3.selectAll(".node_g")
+//        .filter((d)=>{return matchingNodes.indexOf(d) !== -1; }));
+        
+        d3.selectAll(".node_g")
+        .filter((d)=>{return matchingNodes.indexOf(d) !== -1; })
+//        .transition()
+//        .duration(2000)
+//        .ease(Math.sqrt)
+//        .each(pulse);
+        .each(particle)
+//        .tween("circle", function() {
+//            return function(t) {
+//              context.strokeStyle = c + (1 - t) + ")";
+//              context.beginPath();
+//              context.arc(x, y, r * t, 0, 2 * Math.PI);
+//              context.stroke();
+//            };
+//          })
+        ;
+        
+//        function pulse() {
+//          var rect = d3.select(this);
+//          (function loop() {
+//            rect = rect.transition()
+//                .duration(750)
+//                .style("fill", color(Math.random() * 5 | 0))
+//                .each("end", function() { if (this.__transition__.count < 2) loop(); });
+//          })();
+        
+        /////////
+        
+//        d3.timer(function() {
+//  context.clearRect(0, 0, width, height);
+//
+//  var z = d3.hsl(++i % 360, 1, .5).rgb(),
+//      c = "rgba(" + z.r + "," + z.g + "," + z.b + ",",
+//      x = x0 += (x1 - x0) * .1,
+//      y = y0 += (y1 - y0) * .1;
+//
+//  d3.select({}).transition()
+//      .duration(2000)
+//      .ease(Math.sqrt)
+//      .tween("circle", function() {
+//        return function(t) {
+//          context.strokeStyle = c + (1 - t) + ")";
+//          context.beginPath();
+//          context.arc(x, y, r * t, 0, pithing);
+//          context.stroke();
+//        };
+//      });
+//});
+        
     }
     
 }

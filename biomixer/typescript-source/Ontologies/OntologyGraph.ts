@@ -47,7 +47,7 @@ export class Node extends GraphView.BaseNode {
     number: number; // = defaultNumOfTermsForSize; // number of terms
     acronymForIds: AcronymForIds; // = escapeAcronym(centralOntologyAcronym);
     rawAcronym: RawAcronym; // = centralOntologyAcronym;
-    nodeColor: string; // = nextNodeColor();
+    // nodeColor: string; // = nextNodeColor();
     innerNodeColor: string; // = brightenColor(centralOntologyNode.nodeColor);
     nodeStrokeColor: string; // = darkenColor(centralOntologyNode.nodeColor);
     mapped_classes_to_central_node: number; // = 0;
@@ -145,6 +145,17 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     
     containsNode(node: Node): boolean{
         return this.graphD3Format.nodes.indexOf(node) !== -1;
+    }
+    
+    findNodesByName(substringRaw: string): Array<Node>{
+        var substringLower = substringRaw.toLowerCase();
+        var matchNodes = this.graphD3Format.nodes.filter(
+            function(node: Node, index: number, nodes: Node[]): boolean {
+                // Keep only those that do not appear in the removal array
+                return node.name.toLowerCase().search(substringLower) > -1 || node.rawAcronym.toLowerCase().search(substringLower) > -1;
+            }
+        );
+        return matchNodes;
     }
     
     addEdges(newEdges: Array<Link>){

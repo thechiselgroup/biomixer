@@ -95,7 +95,7 @@ export class Node extends GraphView.BaseNode {
     ontologyAcronym: RawAcronym; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
-    nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
+    // nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
     
 
 //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
@@ -387,6 +387,23 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     
     containsNodeById(nodeId: ConceptURI): boolean{
         return this.conceptIdNodeMap[String(nodeId)] !== undefined;
+    }
+    
+     
+    findNodesByName(substringRaw: string): Array<Node>{
+        var substringLower = substringRaw.toLowerCase();
+        var matchNodes = this.graphD3Format.nodes.filter(
+            function(node: Node, index: number, nodes: Node[]): boolean {
+                // Keep only those that do not appear in the removal array
+                var keep: boolean = node.name.toLowerCase().search(substringLower) > -1;
+                $.each(node.synonym, (i, entry)=>{
+                    keep = keep || entry.search(substringLower) > -1;
+                });
+                
+                return keep;
+            }
+        );
+        return matchNodes;
     }
     
     private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
