@@ -18,6 +18,7 @@
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
 ///<amd-dependency path="Concepts/CherryPickConceptFilter" />
 ///<amd-dependency path="Concepts/OntologyConceptFilter" />
+///<amd-dependency path="Concepts/NestedOntologyConceptFilter" />
 ///<amd-dependency path="Concepts/ExpansionSetFilter" />
 ///<amd-dependency path="Concepts/ConceptNodeFilterWidget" />
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
@@ -41,6 +42,7 @@ import ConceptGraph = require("./ConceptGraph");
 import ConceptRenderScaler = require("./ConceptRenderScaler");
 import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
+import NestedOntologyConceptFilter = require("./NestedOntologyConceptFilter");
 import ExpansionSetFilter = require("./ExpansionSetFilter");
 import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
@@ -70,6 +72,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     nodeDeleter: NodeDeleter.NodeDeleterWidgets;
     individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
     ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
+    nestedOntologyConceptFilter: NestedOntologyConceptFilter.NestedOntologyConceptFilter;
     expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     
     menu: Menu.Menu;
@@ -210,6 +213,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
+        this.nestedOntologyConceptFilter = new NestedOntologyConceptFilter.NestedOntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
         
         this.nodeDeleter = new NodeDeleter.NodeDeleterWidgets(this.conceptGraph, this, this.undoRedoBoss);
@@ -1129,6 +1133,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.edgeTypeFilter.updateFilterUI();
             this.individualConceptFilter.updateFilterUI();
             this.ontologyFilter.updateFilterUI();
+            this.nestedOntologyConceptFilter.updateFilterUI();
             this.expansionSetFilter.updateFilterUI();
         
         }
@@ -1166,6 +1171,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.updateStartWithoutResume();
             this.individualConceptFilter.updateFilterUI();
             this.ontologyFilter.updateFilterUI();
+            this.nestedOntologyConceptFilter.updateFilterUI();
             this.edgeTypeFilter.updateFilterUI();
             this.expansionSetFilter.updateFilterUI();
         }
@@ -1430,6 +1436,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
         this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), false);
         this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        this.nestedOntologyConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector(), true);
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
@@ -1446,6 +1453,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
         if(triggeringFilter !== this.expansionSetFilter){
             this.expansionSetFilter.updateCheckboxStateFromView(affectedNodes);
+        }
+        if(triggeringFilter !== this.nestedOntologyConceptFilter){
+            this.nestedOntologyConceptFilter.updateCheckboxStateFromView(affectedNodes);
         }
     }
     

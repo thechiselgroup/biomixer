@@ -21,13 +21,16 @@ export class AbstractFilterWidget {
         ){
     
     }
+    
+    modifyClassName(newClassName: string){
+        this.className = newClassName;
+    }
    
     getClassName(): String {
-        if(undefined !== this.className){
-            return this.className;
-        } else {
+        if(undefined == this.className){
             this.className = Utils.getClassName(this);
         }
+        return this.className;
         
     }
     

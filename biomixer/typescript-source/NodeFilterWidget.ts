@@ -106,7 +106,7 @@ export interface INodeFilterWidget<FilterTarget, N extends GraphView.BaseNode> e
      */
     getFilterTargets(): Array<FilterTarget>;
     
-    checkboxChanged(checkboxContextData: FilterTarget, setOfHideCandidates: Array<N>, checkboxIsChecked: JQuery): void;
+    checkboxChanged(checkboxContextData: FilterTarget, setOfHideCandidates: Array<N>, checkboxIsChecked: JQuery): Array<N>;
     
     checkboxHoveredLambda(filterTargetRelatedToCheckbox: FilterTarget): (event: JQueryMouseEventObject)=>void;
     

@@ -91,7 +91,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
      * to stay visible when their own expansion sets are hidden, and we want to hide them if both their
      * parent and child sets are hidden.
      */
-    checkboxChanged(checkboxContextData: ExpansionSets.ExpansionSet<ConceptGraph.Node>, setOfHideCandidates: Array<ConceptGraph.Node>, checkboxIsChecked: JQuery): void {
+    checkboxChanged(checkboxContextData: ExpansionSets.ExpansionSet<ConceptGraph.Node>, setOfHideCandidates: Array<ConceptGraph.Node>, checkboxIsChecked: JQuery): Array<ConceptGraph.Node> {
         var outerThis = this;
         var affectedNodes: ConceptGraph.Node[] = [];
         // For this one, we pull a trick: we don't want to hide the parent node when we hide the expansion, but we sure
@@ -176,6 +176,8 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
             }
         }
         outerThis.pathToRootView.refreshOtherFilterCheckboxStates(affectedNodes, this);
+        
+        return affectedNodes;
     }
     
     /**

@@ -55,7 +55,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
         return this.conceptGraph.getOntologiesInGraph();
     }
     
-    checkboxChanged(checkboxContextData: ConceptGraph.RawAcronym, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
+    checkboxChanged(checkboxContextData: ConceptGraph.RawAcronym, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery): Array<ConceptGraph.Node>{
         var outerThis = this;
         var acronym = checkboxContextData;
         var affectedNodes: ConceptGraph.Node[] = [];
@@ -86,6 +86,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
             );
         }
         outerThis.pathToRootView.refreshOtherFilterCheckboxStates(affectedNodes, this);
+        return affectedNodes;
     }
     
     /**
@@ -98,6 +99,12 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
      */
     updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
         var outerThis = this;
+        
+        // Let's make the greyed-out checkbox go back to normal if all nodes of an ontology are
+        // now visible. We need to track the ontologies affected by the affected nodes, then check
+        // this for each of them.
+        var ontologyCounts: {[ontologyAcronym: string]: number} = {};
+        
         $.each(affectedNodes,
             function(i, node: ConceptGraph.Node){
                 var checkId = outerThis.implementation.computeCheckId(node.ontologyAcronym);
@@ -107,8 +114,26 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
                 // Won't uncheck in this case, but instead gets transparent to indicate
                 // mixed state
                 $("#"+checkId).addClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+                ontologyCounts[String(node.ontologyAcronym)] += 1;
             }
         );
+        
+        for(var ontologyAcronym in ontologyCounts){
+            var conceptsOfOntology = this.computeCheckboxElementDomain(ontologyAcronym);
+            var currentTotal = 0;
+            var currentVisible = 0;
+            $.each(conceptsOfOntology, (i: number, node: ConceptGraph.Node)=>{
+                currentTotal++;
+                if(!outerThis.graphView.isNodeHidden(node)){
+                    currentVisible++;
+                }    
+            });
+            
+            if(currentTotal === currentVisible){
+                var checkId = outerThis.implementation.computeCheckId(ontologyAcronym);
+                $("#"+checkId).removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+            }
+        }
     }
     
     getHoverNeedsAdjacentHighlighting(): boolean{

@@ -51,7 +51,7 @@ export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConcept
         return this.graphView.sortConceptNodesCentralOntologyName();
     }
     
-    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
+    checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery): Array<ConceptGraph.Node>{
         // The checkbox domain here is known to be the single node associated with the checkbox.
         if (checkbox.is(':checked')) {
             // Unhide those that are checked, as well as edges with both endpoints visible
@@ -62,6 +62,8 @@ export class CherryPickConceptFilter extends ConceptFilterWidget.AbstractConcept
         }
         // The ontology checkboxes need to be updated based on changes in visibility 
         this.pathToRootView.refreshOtherFilterCheckboxStates([checkboxContextData], this);
+        
+        return [checkboxContextData];
     }
     
     /**

@@ -292,7 +292,9 @@ div#hoveringGraphMenu {
 	text-align: left;
 	font-weight: bold;
 	float: left;
-	width: 2em;
+	width: 1em;
+	padding-top: 4px;
+
 }
 
 .boldText{

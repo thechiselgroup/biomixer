@@ -96,7 +96,7 @@ export class Menu {
         var expanderClickFunction = (open?: boolean)=>{
             // Used for the button, as well as for a programmatic callback for when we want to display the submenu
             // for special purposes.
-            var expanderIndicatorUpdate = ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); }
+            var expanderIndicatorUpdate = ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); };
             if(undefined !== open){
                 if(open){
                     $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdate);
