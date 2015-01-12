@@ -111,9 +111,6 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
                 if(null == checkId){
                     return;
                 }
-                // Won't uncheck in this case, but instead gets transparent to indicate
-                // mixed state
-                $("#"+checkId).addClass(OntologyConceptFilter.SOME_SELECTED_CSS);
                 ontologyCounts[String(node.ontologyAcronym)] += 1;
             }
         );
@@ -129,9 +126,16 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
                 }    
             });
             
+            var checkId = outerThis.implementation.computeCheckId(ontologyAcronym);
             if(currentTotal === currentVisible){
-                var checkId = outerThis.implementation.computeCheckId(ontologyAcronym);
                 $("#"+checkId).removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+            } else if(currentVisible === 0){
+                $("#"+checkId).removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+                // Also, uncheck it; the entire ontology has been hidden.
+                $("#"+checkId).prop("checked", false);
+            } else {
+                $("#"+checkId).addClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+                $("#"+checkId).prop("checked", true);
             }
         }
     }
