@@ -70,8 +70,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     importerExporterWidget: ImporterExporter.Widget;
     edgeTypeFilter: ConceptEdgeTypeFilter.ConceptEdgeTypeFilter;
     nodeDeleter: NodeDeleter.NodeDeleterWidgets;
-    individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
-    ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
+    // individualConceptFilter: CherryPickConceptFilter.CherryPickConceptFilter;
+    // ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
     nestedOntologyConceptFilter: NestedOntologyConceptFilter.NestedOntologyConceptFilter;
     expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     
@@ -211,8 +211,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.importerExporterWidget = new ImporterExporter.Widget(this);
          
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
-        this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
-        this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
+        // this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
+        // this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.nestedOntologyConceptFilter = new NestedOntologyConceptFilter.NestedOntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
         
@@ -1131,8 +1131,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             enteringNodes.attr("transform", function(d: ConceptGraph.Node) { return "translate(" + d.x + "," + d.y + ")"; });
         
             this.edgeTypeFilter.updateFilterUI();
-            this.individualConceptFilter.updateFilterUI();
-            this.ontologyFilter.updateFilterUI();
+            // this.individualConceptFilter.updateFilterUI();
+            // this.ontologyFilter.updateFilterUI();
             this.nestedOntologyConceptFilter.updateFilterUI();
             this.expansionSetFilter.updateFilterUI();
         
@@ -1169,8 +1169,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 // this.runCurrentLayout(true);
             //}
             this.updateStartWithoutResume();
-            this.individualConceptFilter.updateFilterUI();
-            this.ontologyFilter.updateFilterUI();
+            // this.individualConceptFilter.updateFilterUI();
+            // this.ontologyFilter.updateFilterUI();
             this.nestedOntologyConceptFilter.updateFilterUI();
             this.edgeTypeFilter.updateFilterUI();
             this.expansionSetFilter.updateFilterUI();
@@ -1434,10 +1434,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
-        this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), false);
-        this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
-        this.nestedOntologyConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        this.nestedOntologyConceptFilter.addMenuComponents(this.menu.getMenuSelector(), false);
         this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        
+        // These two filters do not need to be included so long as I have the composite of them
+        // included, via the nested ontology concept filter.
+        // this.ontologyFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        // this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
     }
     
@@ -1445,12 +1449,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      * Synchronize checkboxes with changes made via other checkboxes.
      */
     refreshOtherFilterCheckboxStates(affectedNodes: ConceptGraph.Node[], triggeringFilter: ConceptFilterWidget.AbstractConceptNodeFilterWidget<any>){
-        if(triggeringFilter !== this.individualConceptFilter){
-            this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
-        }
-        if(triggeringFilter !== this.ontologyFilter){
-            this.ontologyFilter.updateCheckboxStateFromView(affectedNodes);
-        }
+        // if(triggeringFilter !== this.individualConceptFilter){
+        //     this.individualConceptFilter.updateCheckboxStateFromView(affectedNodes);
+        // }
+        // if(triggeringFilter !== this.ontologyFilter){
+        //     this.ontologyFilter.updateCheckboxStateFromView(affectedNodes);
+        // }
         if(triggeringFilter !== this.expansionSetFilter){
             this.expansionSetFilter.updateCheckboxStateFromView(affectedNodes);
         }
@@ -1471,13 +1475,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         d3.selectAll("."+GraphView.BaseGraphView.hiddenNodeLabelClass).classed(GraphView.BaseGraphView.hiddenNodeLabelClass, false);
         d3.selectAll("."+GraphView.BaseGraphView.hiddenLinkBecauseOfHiddenNodeLabelClass).classed(GraphView.BaseGraphView.hiddenLinkBecauseOfHiddenNodeLabelClass, false);
         
-        this.individualConceptFilter.updateFilterUI();
-        this.ontologyFilter.updateFilterUI();
+        // this.individualConceptFilter.updateFilterUI();
+        // this.ontologyFilter.updateFilterUI();
         this.expansionSetFilter.updateFilterUI();
+        this.nestedOntologyConceptFilter.updateFilterUI();
         
-        this.individualConceptFilter.checkmarkAllCheckboxes();
-        this.ontologyFilter.checkmarkAllCheckboxes();
+        // this.individualConceptFilter.checkmarkAllCheckboxes();
+        // this.ontologyFilter.checkmarkAllCheckboxes();
         this.expansionSetFilter.checkmarkAllCheckboxes();
+        this.nestedOntologyConceptFilter.checkmarkAllCheckboxes();
         
         this.runCurrentLayout(true);
     }

@@ -53,8 +53,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         this.ontologyFilter = new OntologyFilter.OntologyConceptFilter(conceptGraph, graphView, centralConceptUri);
         this.conceptFilter = new ConceptFilter.CherryPickConceptFilter(conceptGraph, graphView, centralConceptUri);
         
-        this.ontologyFilter.modifyClassName("NestedOntologyConceptFilter_"+this.ontologyFilter.getClassName());
-        this.conceptFilter.modifyClassName("NestedOntologyConceptFilter_"+this.conceptFilter.getClassName());
+        this.ontologyFilter.modifyClassName("NestedOntologyConceptFilter"); //_"+this.ontologyFilter.getClassName());
+        this.conceptFilter.modifyClassName("NestedOntologyConceptFilter"); //_"+this.conceptFilter.getClassName());
     }
     
     generateCheckboxLabel(arg: ConceptGraph.RawAcronym): string;
@@ -275,12 +275,14 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
     }
     
-//    /**
-//     * Sets all checkboxes to be checked. Does not (appear!) to *trigger* the checkboxes though; this affects
-//     * the view only.
-//     */
-//    checkmarkAllCheckboxes(){
-//        $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
-//    }
+    /**
+     * Sets all checkboxes to be checked. Does not (appear!) to *trigger* the checkboxes though; this affects
+     * the view only.
+     */
+    checkmarkAllCheckboxes(){
+        // $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
+        this.conceptFilter.checkmarkAllCheckboxes();
+        this.ontologyFilter.checkmarkAllCheckboxes();
+    }
     
 }
