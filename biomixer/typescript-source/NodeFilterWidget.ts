@@ -4,12 +4,14 @@
 ///<amd-dependency path="./FilterWidget" />
 ///<amd-dependency path="./Menu" />
 ///<amd-dependency path="./GraphView" />
+///<amd-dependency path="./Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="./Concepts/ConceptGraph" />
 
 import Utils = require("./Utils");
 import FilterWidget = require("./FilterWidget");
 import Menu = require("./Menu");
 import GraphView = require("./GraphView");
+import ConceptPathsToRoot = require("./Concepts/ConceptPathsToRoot");
 import ConceptGraph = require("./Concepts/ConceptGraph");
 
 export class AbstractNodeFilterWidget<FilterTarget, N extends GraphView.BaseNode, L extends GraphView.BaseLink<GraphView.BaseNode>> extends FilterWidget.AbstractFilterWidget implements FilterWidget.IFilterWidget {
@@ -23,6 +25,38 @@ export class AbstractNodeFilterWidget<FilterTarget, N extends GraphView.BaseNode
         public graphView: GraphView.GraphView<N, L>
         ){
         super(subMenuTitle);
+    }
+    
+    /*
+     * Override to add the checkbox reset and node delete buttons
+     */
+    addMenuComponents(menuSelector: string, defaultHideContainer: boolean): void {
+        super.addMenuComponents(menuSelector, defaultHideContainer);
+        // Important to use implementation, since it might override...
+        this.addResetAndDeleteButtonsToMenuComponents(
+            ()=>{this.implementation.checkmarkAllCheckboxes()},
+            this.implementation.deleteSelectedCheckboxesLambda(()=>{ return this.getHiddenAssociatedNodes(); })
+        );
+    }
+    
+    /**
+     * Get all the nodes associated with the filter, that are currently hidden.
+     */
+    getHiddenAssociatedNodes(): Array<N>{
+        var targets: Array<FilterTarget> = this.implementation.getFilterTargets();
+        var nodes: Array<N> = [];
+        for(var i in targets){
+            var targ = targets[i];
+            var node: Array<N> = this.implementation.computeCheckboxElementDomain(targ);
+            for(var j in node){
+                var n = node[j];
+                if(this.graphView.isNodeHidden(n)){
+                    nodes.push(n);
+                }
+            }
+        }
+
+        return nodes;
     }
     
     updateFilterUI(){
@@ -78,13 +112,15 @@ export class AbstractNodeFilterWidget<FilterTarget, N extends GraphView.BaseNode
         // Keep only those checkboxes for which we looped over a node
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
     }
-    
+
     /**
-     * Sets all checkboxes to be checked. Does not (appear!) to *trigger* the checkboxes though; this affects
-     * the view only.
+     * Intended to trigger each un-checked checkbox in order to undo its action and change its state to checked.
      */
     checkmarkAllCheckboxes(){
-        $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
+        $("."+this.getCheckboxClass())
+            .filter(function(i: number, element: JQuery){ return $(element).attr("checked") === "checked"; })
+            .trigger("click")
+        ;
     }
     
 }
@@ -114,5 +150,8 @@ export interface INodeFilterWidget<FilterTarget, N extends GraphView.BaseNode> e
     
     getHoverNeedsAdjacentHighlighting(): boolean;
 
-    updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]): void;
+    updateCheckboxStateFromView(affectedNodes: N[]): void;
+
+    deleteSelectedCheckboxesLambda(computeNodesToDeleteFunc?: ()=>Array<N>);
+
 }

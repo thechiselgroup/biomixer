@@ -4,12 +4,14 @@
 ///<amd-dependency path="../FilterWidget" />
 ///<amd-dependency path="../Menu" />
 ///<amd-dependency path="../GraphView" />
+///<amd-dependency path="./ConceptPathsToRoot" />
 ///<amd-dependency path="./ConceptGraph" />
 
 import Utils = require("../Utils");
 import FilterWidget = require("../NodeFilterWidget");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
+import PathsToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
 
 /**
@@ -21,7 +23,7 @@ export class AbstractConceptNodeFilterWidget<FilterTarget> extends FilterWidget.
     
     constructor(
         subMenuTitle: string,
-        public graphView: GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link>,
+        public graphView: PathsToRoot.ConceptPathsToRoot,
         public conceptGraph: ConceptGraph.ConceptGraph
         ){
         super(subMenuTitle, graphView);
@@ -60,5 +62,9 @@ export class AbstractConceptNodeFilterWidget<FilterTarget> extends FilterWidget.
                 }
             );
         };
+    }
+    
+    deleteSelectedCheckboxesLambda(computeNodesToDeleteFunc?: ()=>Array<ConceptGraph.Node>){
+        return this.graphView.deleteSelectedCheckboxesLambda(()=>{ return computeNodesToDeleteFunc(); })
     }
 }

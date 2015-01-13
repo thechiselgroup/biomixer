@@ -9,6 +9,7 @@
 ///<amd-dependency path="Menu" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
+///<amd-dependency path="DeletionSet" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="TipsyToolTips" />
 ///<amd-dependency path="TipsyToolTipsOnClick" />
@@ -34,6 +35,7 @@ import Fetch = require("../FetchFromApi");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
+import DeletionSet = require("../DeletionSet");
 import TipsyToolTips = require("../TipsyToolTips");
 import TipsyToolTipsOnClick = require("../TipsyToolTipsOnClick");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
@@ -1463,6 +1465,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
+    // Deprecated, we don't use a global re-check button anymore...
     revealAllNodesAndRefreshFilterCheckboxes(){
         // Add expansion sets, ontologies, and individual nodes all on the basis
         // of their hidden status (as determined via CSS classes set by the filters).
@@ -1486,6 +1489,55 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.nestedOntologyConceptFilter.checkmarkAllCheckboxes();
         
         this.runCurrentLayout(true);
+    }
+    
+    /**
+     * This will delete all nodes that correspond to the currently active or selected
+     * filter checkboxes.
+     * 
+     * The function required will specify which node entities in the DOM which should be deleted.
+     * This will typically be the nodes associated with some unchecked filter checkboxes.
+     * 
+     * If the node-to-delete argument is not provided, the function will delete *all* hidden nodes,
+     * rather than, say, those hidden nodes associated with a particular set of filter checkboxes.
+     */
+    deleteSelectedCheckboxesLambda(computeNodesToDeleteFunc?: ()=>Array<ConceptGraph.Node>){
+        // If we want to delete *all* hidden node elements,
+        // use a collection like so:
+        // var hiddenNodeElements = $("."+GraphView.BaseGraphView.hiddenNodeClass).filter("."+GraphView.BaseGraphView.nodeGSvgClassSansDot);
+        if(null == computeNodesToDeleteFunc){
+            computeNodesToDeleteFunc = ()=>{
+                var allNodeElements = $("."+GraphView.BaseGraphView.hiddenNodeClass).filter("."+GraphView.BaseGraphView.nodeGSvgClassSansDot);
+                var nodes: Array<ConceptGraph.Node> = [];
+                for(var elem in allNodeElements){
+                    var nodeId = nodeId.replace(GraphView.BaseGraphView.nodeGSvgClassSansDot+"_", "");
+                    nodes.push(this.conceptGraph.getNodeByIdUri(nodeId));
+                }
+                return nodes;
+            };
+        }
+        return ()=>{
+            // NB What do I do about expansion sets that have nodes deleted from them? Well, for undo/redo
+            // it doesn't matter at all, because you can't back up to the expansion without undoing the
+            // deletion. For filtering, it will have some dangling uselessness. Lastly, when we update
+            // the filter GUI, the expansion set checkboxes will naturally disappear do to the way
+            // I implemented the checkbox populating system; it goes from nodes up to expansion sets
+            // (and similarly, from nodes to ontologies). So if all the nodes of an expansion set
+            // are deleted, regardless of how or in what order that occurs, the checkbox will disappear.
+            // The same goes for ontologies.
+            // When we undo...the checkboxes aren't necessarily in the correct state, but they do
+            // re-appear.
+            
+            var deletionSet = new DeletionSet.DeletionSet<ConceptGraph.Node>(this.conceptGraph, this.undoRedoBoss);
+            var hiddenNodes = computeNodesToDeleteFunc();
+            deletionSet.addAll(hiddenNodes);
+            
+            // Execute the deletion by "redoing" the deletion set.
+            // For other commands, this isn't necessarily possible, but when
+            // it is, it is preferable to having duplicate code in redo and where
+            // the command is created (and applied).
+            deletionSet.getGraphModifier().executeRedo();
+        }
     }
     
     sortConceptNodesCentralOntologyName(){

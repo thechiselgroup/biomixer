@@ -255,6 +255,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         );
     }
     
+    getNodeElement(node: N): JQuery {
+        // TODO Refactor these #node_g_ constants! There's an issue for this.
+        return $("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId()));
+    }
+    
     isNodeHidden(node: N): boolean {
         // TODO Refactor these #node_g_ constants! There's an issue for this.
         return d3.select("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId())).classed(BaseGraphView.hiddenNodeClass);

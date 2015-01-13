@@ -85,8 +85,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         var concepts: Array<ConceptGraph.Node> = this.conceptFilter.getFilterTargets();
         var ontologies: Array<ConceptGraph.RawAcronym> = this.ontologyFilter.getFilterTargets();
         var both = new Array<any>();
-        both.push(ontologies);
-        both.push(concepts);
+        both = both.concat(ontologies);
+        both = both.concat(concepts);
         return both;
     }
 
