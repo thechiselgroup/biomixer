@@ -111,6 +111,9 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
                 if(null == checkId){
                     return;
                 }
+                if(undefined == ontologyCounts[String(node.ontologyAcronym)]){
+                    ontologyCounts[String(node.ontologyAcronym)] = 0;
+                }
                 ontologyCounts[String(node.ontologyAcronym)] += 1;
             }
         );
@@ -129,6 +132,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
             var checkId = outerThis.implementation.computeCheckId(ontologyAcronym);
             if(currentTotal === currentVisible){
                 $("#"+checkId).removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
+                $("#"+checkId).prop("checked", true);
             } else if(currentVisible === 0){
                 $("#"+checkId).removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
                 // Also, uncheck it; the entire ontology has been hidden.
