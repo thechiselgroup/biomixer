@@ -37,6 +37,9 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
     
     static NESTED_FILTER_CLASSNAME_PREFIX = "NestedOntologyConceptFilter";
     
+    static NESTED_FILTER_CLASSNAME_PARENT_SUFFIX = "Parent";
+    static NESTED_FILTER_CLASSNAME_CHILD_SUFFIX = "Child";
+    
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
     ontologyFilter: OntologyFilter.OntologyConceptFilter;
@@ -53,8 +56,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         this.ontologyFilter = new OntologyFilter.OntologyConceptFilter(conceptGraph, graphView, centralConceptUri);
         this.conceptFilter = new ConceptFilter.CherryPickConceptFilter(conceptGraph, graphView, centralConceptUri);
         
-        this.ontologyFilter.modifyClassName(NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.ontologyFilter.getClassName());
-        this.conceptFilter.modifyClassName(NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.conceptFilter.getClassName());
+        this.ontologyFilter.modifyClassName(NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX+NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PARENT_SUFFIX); //_"+this.ontologyFilter.getClassName());
+        this.conceptFilter.modifyClassName(NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX+NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_CHILD_SUFFIX); //_"+this.conceptFilter.getClassName());
     }
     
     generateCheckboxLabel(arg: ConceptGraph.RawAcronym): string;
@@ -183,7 +186,7 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                     }; 
                     
                     var checkbox = $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
-                            .addClass(this.getCheckboxClass())
+                            .addClass(this.ontologyFilter.getCheckboxClass())
                             .click(
                                 function(event){
                                     // I made the span control the +/- toggle, but clicks were going through the
@@ -253,7 +256,7 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                             )
                         .append(
                             $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
-                            .addClass(this.getCheckboxClass())
+                            .addClass(this.conceptFilter.getCheckboxClass())
                             .change(
                                 function(){
                                     var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(target);
@@ -282,7 +285,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
     checkmarkAllCheckboxes(){
         // $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
         this.conceptFilter.checkmarkAllCheckboxes();
-        this.ontologyFilter.checkmarkAllCheckboxes();
+        // Not needed?
+        // this.ontologyFilter.checkmarkAllCheckboxes();
     }
     
 }

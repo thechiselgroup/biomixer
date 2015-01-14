@@ -117,8 +117,7 @@ export class AbstractNodeFilterWidget<FilterTarget, N extends GraphView.BaseNode
      * Intended to trigger each un-checked checkbox in order to undo its action and change its state to checked.
      */
     checkmarkAllCheckboxes(){
-        $("."+this.getCheckboxClass())
-            .filter(function(i: number, element: JQuery){ return $(element).attr("checked") === "checked"; })
+        $("."+this.getCheckboxClass()+":not(:checked)")
             .trigger("click")
         ;
     }

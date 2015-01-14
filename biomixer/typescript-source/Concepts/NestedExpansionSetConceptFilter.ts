@@ -38,6 +38,9 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
     
     static NESTED_FILTER_CLASSNAME_PREFIX = "NestedExpansionSetConceptFilter";
     
+    static NESTED_FILTER_CLASSNAME_PARENT_SUFFIX = "Parent";
+    static NESTED_FILTER_CLASSNAME_CHILD_SUFFIX = "Child";
+    
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
     expansionsFilter: ExpansionSetFilter.ExpansionSetFilter;
@@ -54,8 +57,8 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
         this.expansionsFilter = new ExpansionSetFilter.ExpansionSetFilter(conceptGraph, graphView);
         this.conceptFilter = new ConceptFilter.CherryPickConceptFilter(conceptGraph, graphView, centralConceptUri);
         
-        this.expansionsFilter.modifyClassName(NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.expansionFilter.getClassName());
-        this.conceptFilter.modifyClassName(NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.conceptFilter.getClassName());
+        this.expansionsFilter.modifyClassName(NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX+NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PARENT_SUFFIX); //_"+this.expansionFilter.getClassName());
+        this.conceptFilter.modifyClassName(NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX+NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_CHILD_SUFFIX); //_"+this.conceptFilter.getClassName());
     }
     
     generateCheckboxLabel(arg: ConceptGraph.RawAcronym): string;
@@ -187,7 +190,7 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                     }; 
                     
                     var checkbox = $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
-                            .addClass(this.getCheckboxClass())
+                            .addClass(this.expansionsFilter.getCheckboxClass())
                             .click(
                                 function(event){
                                     // I made the span control the +/- toggle, but clicks were going through the
@@ -265,7 +268,7 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                             )
                         .append(
                             $("<input>").attr("id", checkId).attr("type", "checkbox").attr("value", "on").attr("tabindex", "0").attr("checked", "")
-                            .addClass(this.getCheckboxClass())
+                            .addClass(this.conceptFilter.getCheckboxClass())
                             .change(
                                 function(){
                                     var nodeHideCandidates = outerThis.implementation.computeCheckboxElementDomain(target);
@@ -296,7 +299,8 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
     checkmarkAllCheckboxes(){
         // $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
         this.conceptFilter.checkmarkAllCheckboxes();
-        this.expansionsFilter.checkmarkAllCheckboxes();
+        // Not needed?
+        // this.expansionsFilter.checkmarkAllCheckboxes();
     }
     
 }
