@@ -6,40 +6,41 @@
 ///<amd-dependency path="../Utils" />
 ///<amd-dependency path="../NodeFilterWidget" />
 ///<amd-dependency path="./ConceptNodeFilterWidget" />
-///<amd-dependency path="./OntologyConceptFilter" />
 ///<amd-dependency path="./CherryPickConceptFilter" />
 ///<amd-dependency path="./ConceptPathsToRoot" />
 ///<amd-dependency path="./ConceptGraph" />
+///<amd-dependency path="../ExpansionSets" />
 ///<amd-dependency path="../Menu" />
 
 import Utils = require("../Utils");
 import FilterWidget = require("../NodeFilterWidget");
 import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
-import OntologyFilter = require("./OntologyConceptFilter");
+import ExpansionSetFilter = require("./ExpansionSetFilter");
 import ConceptFilter = require("./CherryPickConceptFilter");
 import PathToRoot = require("./ConceptPathsToRoot");
 import ConceptGraph = require("./ConceptGraph");
+import ExpansionSets = require("../ExpansionSets");
 import Menu = require("../Menu");
 
 /**
- * This forms a widget that is equivalent to the concept filter and the ontology filter combined, with nested tree representation
- * of the filtering checkboxes. That is, under each ontology checkbox are the checkboxes for the concepts therein, which may be
+ * This forms a widget that is equivalent to the concept filter and the expansion set filter combined, with nested tree representation
+ * of the filtering checkboxes. That is, under each expansion checkbox are the checkboxes for the concepts therein, which may be
  * hidden and revealed with a +/- collapse button.
  * 
- * It is implemented as a composition, driving the different behavior for the two checkbox types (cocnept and ontology)
+ * It is implemented as a composition, driving the different behavior for the two checkbox types (concept and expansion set)
  * from classes that already implemented those as separate sets of widgets.
  */
-export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget<any> implements FilterWidget.INodeFilterWidget<ConceptGraph.RawAcronym, ConceptGraph.Node> {
+export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.AbstractConceptNodeFilterWidget<any> implements FilterWidget.INodeFilterWidget<ConceptGraph.RawAcronym, ConceptGraph.Node> {
     
-    static SUB_MENU_TITLE = "Ontologies and Concepts Displayed";
+    static SUB_MENU_TITLE = "Node Expansions Displayed";
     
-    static NESTED_CONTAINER_CLASS = "nestedContologyConceptContainer";
+    static NESTED_CONTAINER_CLASS = "nestedExpansionSetConceptContainer";
     
-    static NESTED_FILTER_CLASSNAME_PREFIX = "NestedOntologyConceptFilter";
+    static NESTED_FILTER_CLASSNAME_PREFIX = "NestedExpansionSetConceptFilter";
     
     pathToRootView: PathToRoot.ConceptPathsToRoot;
     
-    ontologyFilter: OntologyFilter.OntologyConceptFilter;
+    expansionsFilter: ExpansionSetFilter.ExpansionSetFilter;
     conceptFilter: ConceptFilter.CherryPickConceptFilter;
     
     constructor(
@@ -47,43 +48,43 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         graphView: PathToRoot.ConceptPathsToRoot,
         public centralConceptUri: ConceptGraph.ConceptURI
         ){
-        super(NestedOntologyConceptFilter.SUB_MENU_TITLE, graphView, conceptGraph);
+        super(NestedExpansionSetConceptFilter.SUB_MENU_TITLE, graphView, conceptGraph);
         this.implementation = this;
         this.pathToRootView = graphView;
-        this.ontologyFilter = new OntologyFilter.OntologyConceptFilter(conceptGraph, graphView, centralConceptUri);
+        this.expansionsFilter = new ExpansionSetFilter.ExpansionSetFilter(conceptGraph, graphView);
         this.conceptFilter = new ConceptFilter.CherryPickConceptFilter(conceptGraph, graphView, centralConceptUri);
         
-        this.ontologyFilter.modifyClassName(NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.ontologyFilter.getClassName());
-        this.conceptFilter.modifyClassName(NestedOntologyConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.conceptFilter.getClassName());
+        this.expansionsFilter.modifyClassName(NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.expansionFilter.getClassName());
+        this.conceptFilter.modifyClassName(NestedExpansionSetConceptFilter.NESTED_FILTER_CLASSNAME_PREFIX); //_"+this.conceptFilter.getClassName());
     }
     
     generateCheckboxLabel(arg: ConceptGraph.RawAcronym): string;
     generateCheckboxLabel(arg: ConceptGraph.Node): string;
     generateCheckboxLabel(arg: any): string {
-        return (Utils.getClassName(arg) === "String") ? this.ontologyFilter.generateCheckboxLabel(arg) : this.conceptFilter.generateCheckboxLabel(arg) ;
+        return (Utils.getClassName(arg) === "ExpansionSet") ? this.expansionsFilter.generateCheckboxLabel(arg) : this.conceptFilter.generateCheckboxLabel(arg) ;
     }
     
     generateColoredSquareIndicator(arg: ConceptGraph.RawAcronym): string;
     generateColoredSquareIndicator(arg: ConceptGraph.Node): string;
     generateColoredSquareIndicator(arg: any): string {
-        return (Utils.getClassName(arg) === "String") ? this.ontologyFilter.generateColoredSquareIndicator(arg) : this.conceptFilter.generateColoredSquareIndicator(arg) ;
+        return (Utils.getClassName(arg) === "ExpansionSet") ? this.expansionsFilter.generateColoredSquareIndicator(arg) : this.conceptFilter.generateColoredSquareIndicator(arg) ;
     }
     
     computeCheckId(arg: ConceptGraph.RawAcronym): string;
     computeCheckId(arg: ConceptGraph.Node): string;
     computeCheckId(arg: any): string {
-        return ( (Utils.getClassName(arg) === "String") ? this.ontologyFilter.computeCheckId(arg) : this.conceptFilter.computeCheckId(arg) );
+        return ( (Utils.getClassName(arg) === "ExpansionSet") ? this.expansionsFilter.computeCheckId(arg) : this.conceptFilter.computeCheckId(arg) );
     }
         
     computeCheckboxElementDomain(arg: ConceptGraph.RawAcronym): Array<ConceptGraph.Node>;
     computeCheckboxElementDomain(arg: ConceptGraph.Node): Array<ConceptGraph.Node>;
     computeCheckboxElementDomain(arg: any): Array<ConceptGraph.Node> {
-        return (Utils.getClassName(arg) === "String") ? this.ontologyFilter.computeCheckboxElementDomain(arg) : this.conceptFilter.computeCheckboxElementDomain(arg) ;
+        return (Utils.getClassName(arg) === "ExpansionSet") ? this.expansionsFilter.computeCheckboxElementDomain(arg) : this.conceptFilter.computeCheckboxElementDomain(arg) ;
     }
   
     getFilterTargets(): Array<any> {
         var concepts: Array<ConceptGraph.Node> = this.conceptFilter.getFilterTargets();
-        var ontologies: Array<ConceptGraph.RawAcronym> = this.ontologyFilter.getFilterTargets();
+        var ontologies: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>> = this.expansionsFilter.getFilterTargets();
         var both = new Array<any>();
         both = both.concat(ontologies);
         both = both.concat(concepts);
@@ -94,13 +95,13 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
     checkboxChanged(checkboxContextData: ConceptGraph.Node, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery);
     checkboxChanged(checkboxContextData: any, setOfHideCandidates: Array<ConceptGraph.Node>, checkbox: JQuery){
         var result;
-        // We need to update the ontology or concept composite checkbox widgets depending on which one was toggled.
-        if(Utils.getClassName(checkboxContextData) === "String"){
-            result = this.ontologyFilter.checkboxChanged(checkboxContextData, setOfHideCandidates, checkbox);
+        // We need to update the expansion or concept composite checkbox widgets depending on which one was toggled.
+        if(Utils.getClassName(checkboxContextData) === "ExpansionSet"){
+            result = this.expansionsFilter.checkboxChanged(checkboxContextData, setOfHideCandidates, checkbox);
             this.conceptFilter.updateCheckboxStateFromView(result);
         } else {
             result = this.conceptFilter.checkboxChanged(checkboxContextData, setOfHideCandidates, checkbox);
-            this.ontologyFilter.updateCheckboxStateFromView(result);
+            this.expansionsFilter.updateCheckboxStateFromView(result);
         }
         
         return result;
@@ -108,14 +109,14 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
     
     /**
      * Synchronize checkboxes with changes made via other checkboxes.
-     * Will make the ontology checkboxes less opaque if any of the individual
-     * nodes in the ontology differ in their state from the most recent toggled
+     * Will make the expansion set checkboxes less opaque if any of the individual
+     * nodes in the expansion set differ in their state from the most recent toggled
      * state of this checkbox. That is, if all were hidden or shown, then one
-     * was shown or hidden, the ontology checkbox will be changed visually
+     * was shown or hidden, the expansion set checkbox will be changed visually
      * to indicate inconsistent state. 
      */
     updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
-        this.ontologyFilter.updateCheckboxStateFromView(affectedNodes);
+        this.expansionsFilter.updateCheckboxStateFromView(affectedNodes);
         this.conceptFilter.updateCheckboxStateFromView(affectedNodes);
     }
     
@@ -123,8 +124,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         return false;
     }
     
-    computeOntologyConceptDivId(acronym: ConceptGraph.RawAcronym){
-        return "conceptDiv_"+this.ontologyFilter.computeCheckId(acronym);
+    computeExpansionConceptDivId(expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>){
+        return "conceptDiv_"+this.expansionsFilter.computeCheckId(expansionSet);
     }
     
     // Override for nesting
@@ -136,13 +137,16 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
         var outerThis = this;
         
         // Can I generalize this sorting and node group for when we will have expansion sets? Maybe...
-        var ontologyFilterTargets = this.ontologyFilter.getFilterTargets();
+        var expansionFilterTargets = this.expansionsFilter.getFilterTargets();
         var conceptFilterTargets = this.conceptFilter.getFilterTargets();
         
-        // Add new ontology checkboxes.
+        var expansionSets: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>= [];
+        
+        // Add new expansion set checkboxes.
         // Differs from parent class version at least because there is a +/- expander button preceding the checkbox
-        $.each(ontologyFilterTargets, (i, target: ConceptGraph.RawAcronym) =>
+        $.each(expansionFilterTargets, (i, target: ExpansionSets.ExpansionSet<ConceptGraph.Node>) =>
             {
+                expansionSets.push(target);
                 var checkId = this.implementation.computeCheckId(target);
                 var spanId = "span_"+checkId;
                 if(0 === $("#"+spanId).length){
@@ -160,8 +164,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                         ;
                     
                     var innerHidingContainer = $("<div>")
-                                                .addClass(NestedOntologyConceptFilter.NESTED_CONTAINER_CLASS)
-                                                .attr("id", this.computeOntologyConceptDivId(target))
+                                                .addClass(NestedExpansionSetConceptFilter.NESTED_CONTAINER_CLASS)
+                                                .attr("id", this.computeExpansionConceptDivId(target))
                                                 .css("display", "none")
                                                 ;
                     
@@ -227,8 +231,14 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
             }
         );
         
-        // Add new concept checkboxes, nested below corresponding ontology checkbox
-        $.each(conceptFilterTargets, (i, target: ConceptGraph.Node) =>
+        // Add new concept checkboxes, nested below corresponding expansion set checkbox
+        $.each(expansionSets, (i, expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>) =>{
+        
+        // Originally I iterated over the concept filter targets, but it was more sensible
+        // to collect the expansion sets and iterate over those, knowing that the concepts
+        // would reliably connect with the filter.
+        // $.each(conceptFilterTargets, (i, target: ConceptGraph.Node) =>
+        $.each(expSet.getNodes(), (i, target: ConceptGraph.Node) =>
             {
                 var checkId = this.implementation.computeCheckId(target);
                 var spanId = "span_"+checkId;
@@ -238,9 +248,11 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                     var checkboxLabel = this.implementation.generateCheckboxLabel(target);
                     var checkboxColoredSquare = this.implementation.generateColoredSquareIndicator(target);
                     
-                    var correspondingOntologyInnerHidingContainer = $("#"+this.computeOntologyConceptDivId(target.ontologyAcronym));
+                    // TODO Find expansion set on the basis of a single node.
+                    // Am I 100% sure that there is never overlap?
+                    var correspondingExpansionInnerHidingContainer = $("#"+this.computeExpansionConceptDivId(expSet));
                     
-                    correspondingOntologyInnerHidingContainer
+                    correspondingExpansionInnerHidingContainer
                     .append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
                         // To offset the nested element from the parent.
@@ -270,6 +282,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#"+spanId);
             }
         );
+        }
+        );
         
         // Keep only those checkboxes for which we looped over a node
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
@@ -282,7 +296,7 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
     checkmarkAllCheckboxes(){
         // $("."+this.getCheckboxClass()).prop("checked", "checked").removeClass(AbstractNodeFilterWidget.SOME_SELECTED_CSS);
         this.conceptFilter.checkmarkAllCheckboxes();
-        this.ontologyFilter.checkmarkAllCheckboxes();
+        this.expansionsFilter.checkmarkAllCheckboxes();
     }
     
 }

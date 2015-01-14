@@ -21,6 +21,7 @@
 ///<amd-dependency path="Concepts/OntologyConceptFilter" />
 ///<amd-dependency path="Concepts/NestedOntologyConceptFilter" />
 ///<amd-dependency path="Concepts/ExpansionSetFilter" />
+///<amd-dependency path="Concepts/NestedExpansionSetConceptFilter" />
 ///<amd-dependency path="Concepts/ConceptNodeFilterWidget" />
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
@@ -46,6 +47,7 @@ import CherryPickConceptFilter = require("./CherryPickConceptFilter");
 import OntologyConceptFilter = require("./OntologyConceptFilter");
 import NestedOntologyConceptFilter = require("./NestedOntologyConceptFilter");
 import ExpansionSetFilter = require("./ExpansionSetFilter");
+import NestedExpansionSetConceptFilter = require("./NestedExpansionSetConceptFilter");
 import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
@@ -76,6 +78,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     // ontologyFilter: OntologyConceptFilter.OntologyConceptFilter;
     nestedOntologyConceptFilter: NestedOntologyConceptFilter.NestedOntologyConceptFilter;
     expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
+    nestedExpansionConceptFilter: NestedExpansionSetConceptFilter.NestedExpansionSetConceptFilter;
     
     menu: Menu.Menu;
     
@@ -217,6 +220,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.nestedOntologyConceptFilter = new NestedOntologyConceptFilter.NestedOntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         this.expansionSetFilter = new ExpansionSetFilter.ExpansionSetFilter(this.conceptGraph, this);
+        this.nestedExpansionConceptFilter = new NestedExpansionSetConceptFilter.NestedExpansionSetConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         
         this.nodeDeleter = new NodeDeleter.NodeDeleterWidgets(this.conceptGraph, this, this.undoRedoBoss);
         
@@ -1137,6 +1141,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // this.ontologyFilter.updateFilterUI();
             this.nestedOntologyConceptFilter.updateFilterUI();
             this.expansionSetFilter.updateFilterUI();
+            this.nestedExpansionConceptFilter.updateFilterUI();
         
         }
     }
@@ -1176,6 +1181,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.nestedOntologyConceptFilter.updateFilterUI();
             this.edgeTypeFilter.updateFilterUI();
             this.expansionSetFilter.updateFilterUI();
+            this.nestedExpansionConceptFilter.updateFilterUI();
         }
     }
     
@@ -1438,6 +1444,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());
         this.nestedOntologyConceptFilter.addMenuComponents(this.menu.getMenuSelector(), false);
         this.expansionSetFilter.addMenuComponents(this.menu.getMenuSelector(), true);
+        this.nestedExpansionConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         
         // These two filters do not need to be included so long as I have the composite of them
         // included, via the nested ontology concept filter.
@@ -1460,6 +1467,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         if(triggeringFilter !== this.expansionSetFilter){
             this.expansionSetFilter.updateCheckboxStateFromView(affectedNodes);
         }
+        if(triggeringFilter !== this.nestedExpansionConceptFilter){
+            this.nestedExpansionConceptFilter.updateCheckboxStateFromView(affectedNodes);
+        }
         if(triggeringFilter !== this.nestedOntologyConceptFilter){
             this.nestedOntologyConceptFilter.updateCheckboxStateFromView(affectedNodes);
         }
@@ -1481,11 +1491,13 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.individualConceptFilter.updateFilterUI();
         // this.ontologyFilter.updateFilterUI();
         this.expansionSetFilter.updateFilterUI();
+        this.nestedExpansionConceptFilter.updateFilterUI();
         this.nestedOntologyConceptFilter.updateFilterUI();
         
         // this.individualConceptFilter.checkmarkAllCheckboxes();
         // this.ontologyFilter.checkmarkAllCheckboxes();
         this.expansionSetFilter.checkmarkAllCheckboxes();
+        this.nestedExpansionConceptFilter.checkmarkAllCheckboxes();
         this.nestedOntologyConceptFilter.checkmarkAllCheckboxes();
         
         this.runCurrentLayout(true);

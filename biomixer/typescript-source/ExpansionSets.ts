@@ -127,6 +127,10 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         return this.graphModifier.commandCutShort();
     }
     
+    getNodes(): Array<N>{
+        return this.nodes;
+    }
+    
 }
 
 export class ExpansionSetIdentifer {
