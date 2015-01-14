@@ -27,7 +27,7 @@ import DeletionSet = require("../DeletionSet");
 import CompositeExpansionDeletionSet = require("../CompositeExpansionDeletionSet");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 
-
+// Deprecated. This functionality has moved to other UI components.
 export class NodeDeleterWidgets {
 
     constructor(
@@ -108,7 +108,7 @@ export class NodeDeleterWidgets {
             if(importData.length === 0){
                 return;
             }
-            this.graph.addConceptToGraph(importData);
+            this.graph.addNodeToGraph(importData);
         }  
     }
     
@@ -170,18 +170,6 @@ export class NodeDeleterWidgets {
         $("#"+NodeDeleterWidgets.nodeImporterFooterDiv).append(dialog);
         dialog.slideDown("fast");
         
-    }
-    
-    deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>) {
-        var outerThis = this;
-        
-        initSet.addAllDeleting(this.graph.graphD3Format.nodes);
-        
-        // Execute the deletion by "redoing" the deletion set.
-        // For other commands, this isn't necessarily possible, but when
-        // it is, it is preferable to having duplicate code in redo and where
-        // the command is created (and applied).
-        initSet.getGraphModifier().executeRedo();
     }
     
     revealUnselectedCheckboxesLambda(){

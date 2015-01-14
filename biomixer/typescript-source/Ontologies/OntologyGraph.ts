@@ -158,6 +158,11 @@ export class OntologyGraph implements GraphView.Graph<Node> {
         return matchNodes;
     }
     
+    addNodeToGraph(newNodeId: RawAcronym){
+        console.log("Unimplemented. Allow for addition of ontology nodes by acronym or URI if desired.");
+    }
+
+    
     addEdges(newEdges: Array<Link>){
          for(var i = 0; i < newEdges.length; i++){
             // Only implementing here rather than in graphView because of this container...

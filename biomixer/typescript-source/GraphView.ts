@@ -78,6 +78,7 @@ export interface Graph<N extends BaseNode>  {
    getLayoutProvider(): LayoutProvider.ILayoutProvider;
    setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider);
    findNodesByName(substring: string): Array<N>;
+   addNodeToGraph(newNodeId: any); // could be string, really
 }
 
 
@@ -551,7 +552,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     animateHighlightNodesActivate(matchingNodes: Array<N>){
         var particle = (d: N) => {
-            console.log(d);
+            // console.log(d);
             d3.select("#graphSvg").append("circle") //insert("circle", "rect")
               .attr("cx", d.x)
               .attr("cy", d.y)

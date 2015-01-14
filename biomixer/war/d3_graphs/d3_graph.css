@@ -248,13 +248,6 @@ div#hoveringGraphMenu {
 	margin-bottom: 6px !important;
 }
 
-.buttonWithMargins {
-	margin-right: 8px !important;
-	margin-left: 8px !important;
-	margin-bottom: 6px !important;
-	margin-top: 6px !important;
-}
-
 .nodeCommandButton {
 	margin-right: 15px !important;
 }
@@ -295,6 +288,21 @@ div#hoveringGraphMenu {
 	width: 1em;
 	padding-top: 4px;
 
+}
+
+.locateNodeByNameInput{
+	float: left;	
+}
+
+.locateNodeByNameButtonIcon{
+	float: left;
+	background:url(..//icons/open-iconic/svg/target.svg);
+}
+
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 .deleteNodesButton {
@@ -430,6 +438,5 @@ div#undo_redo_breadcrumb_label {
 	height: 8px; margin: 4px 0px 0px 0px; padding: 0; 
 	border-style: solid; border-width: 1px;
 }
-
 
 

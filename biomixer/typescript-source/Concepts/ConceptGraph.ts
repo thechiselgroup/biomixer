@@ -673,7 +673,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.type = conceptData["@type"];
             conceptNode.description = "fetching description";
             conceptNode.definition = conceptData["definition"];
-            conceptNode.synonym = conceptData["synonym"];
+            conceptNode.synonym = (null == conceptData["synonym"]) ? [] : conceptData["synonym"];
             conceptNode.weight = 1;
 //            conceptNode.depth = 0;
             conceptNode.tempDepth = 0;
@@ -750,7 +750,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     /**
      * Intended for adding arbitrary concepts, on the basis of their URI, to the graph.
      */
-    public addConceptToGraph(newConceptId: ConceptURI){
+    public addNodeToGraph(newConceptId: ConceptURI){
         // To get the ontology id...do a search for the concept id, then iterate through the results to find
         // an entity with a perfectly matching concept id!!!
         var url = this.buildConceptSearchUrlNewApi(newConceptId);
