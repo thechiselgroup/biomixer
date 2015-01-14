@@ -103,6 +103,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
         // Let's make the greyed-out checkbox go back to normal if all nodes of an ontology are
         // now visible. We need to track the ontologies affected by the affected nodes, then check
         // this for each of them.
+        // I don't currently use the counter, but I need a map anyway, so that will be the value type.
         var ontologyCounts: {[ontologyAcronym: string]: number} = {};
         
         $.each(affectedNodes,

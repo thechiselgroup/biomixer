@@ -182,29 +182,56 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
     
     /**
      * Synchronize checkboxes with changes made via other checkboxes.
-     * Will make the expansion set checkboxes less opaque if any of the individual
-     * nodes in the differ in their state from the most recent toggled
+     * Will make the ontology checkboxes less opaque if any of the individual
+     * nodes in the ontology differ in their state from the most recent toggled
      * state of this checkbox. That is, if all were hidden or shown, then one
      * was shown or hidden, the ontology checkbox will be changed visually
      * to indicate inconsistent state. 
      */
     updateCheckboxStateFromView(affectedNodes: ConceptGraph.Node[]){
         var outerThis = this;
-        $.each(this.getFilterTargets(), function(i, expSet){
-            $.each(affectedNodes,
-                function(i, node: ConceptGraph.Node){
-                    if(expSet.nodes.indexOf(node) !== -1){
-                        var checkId = outerThis.implementation.computeCheckId(expSet);
-                        if(null == checkId){
-                            return;
-                        }
-                        // Won't uncheck in this case, but instead gets transparent to indicate
-                        // mixed state
-                        $("#"+checkId).addClass(ExpansionSetFilter.SOME_SELECTED_CSS);
-                    }
+        
+        // Let's make the greyed-out checkbox go back to normal if all nodes of an ontology are
+        // now visible. We need to track the ontologies affected by the affected nodes, then check
+        // this for each of them.
+        var touchedExpansionSets: { [ontologyAcronym: string]: ExpansionSets.ExpansionSet<ConceptGraph.Node> } = {};
+        
+        $.each(affectedNodes,
+            function(i, node: ConceptGraph.Node){
+                var nodeExpansionSet = node.getExpansionSet();
+                var checkId = outerThis.implementation.computeCheckId(nodeExpansionSet);
+                if(null == checkId){
+                    return;
                 }
-            );
-        });
+                touchedExpansionSets[String(nodeExpansionSet.id)] = nodeExpansionSet;
+            }
+        );
+        
+        for(var nodeExpansionSetId in touchedExpansionSets){
+            var nodeExpansionSet = touchedExpansionSets[nodeExpansionSetId];
+            var conceptsOfSet = this.computeCheckboxElementDomain(nodeExpansionSet);
+            var currentTotal = 0;
+            var currentVisible = 0;
+            $.each(conceptsOfSet, (i: number, node: ConceptGraph.Node)=>{
+                currentTotal++;
+                if(!outerThis.graphView.isNodeHidden(node)){
+                    currentVisible++;
+                }    
+            });
+            
+            var checkId = outerThis.implementation.computeCheckId(nodeExpansionSet);
+            if(currentTotal === currentVisible){
+                $("#"+checkId).removeClass(ExpansionSetFilter.SOME_SELECTED_CSS);
+                $("#"+checkId).prop("checked", true);
+            } else if(currentVisible === 0){
+                $("#"+checkId).removeClass(ExpansionSetFilter.SOME_SELECTED_CSS);
+                // Also, uncheck it; the entire ontology has been hidden.
+                $("#"+checkId).prop("checked", false);
+            } else {
+                $("#"+checkId).addClass(ExpansionSetFilter.SOME_SELECTED_CSS);
+                $("#"+checkId).prop("checked", true);
+            }
+        }
     }
             
     getHoverNeedsAdjacentHighlighting(): boolean{
