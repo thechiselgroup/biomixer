@@ -37,6 +37,8 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
     
     static NESTED_FILTER_CLASSNAME_PREFIX = "NestedOntologyConceptFilter";
     
+    static NESTED_EXPANDER_CLASS = "nestedTreeExpander";
+    
     static NESTED_FILTER_CLASSNAME_PARENT_SUFFIX = "Parent";
     static NESTED_FILTER_CLASSNAME_CHILD_SUFFIX = "Child";
     
@@ -157,7 +159,7 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                                         
                     var labelExpanderIcon = $("<label>").addClass(Menu.Menu.menuItemExpanderLabelClass)
                             .addClass("unselectable").attr("unselectable", "on") // IE8
-                            .text("+")
+                            .addClass(NestedOntologyConceptFilter.NESTED_EXPANDER_CLASS)
                             // Will double-trigger because of the span's click handler
                             // .click(()=>{ expanderClickFunction(); })
                         ;
@@ -168,11 +170,20 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                                                 .css("display", "none")
                                                 ;
                     
+                    var expanderIndicatorUpdate = ()=>{
+                        // labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-");
+                        if($(innerHidingContainer).css("display") === "none"){
+                            labelExpanderIcon.addClass("menuLabelIconOpenAction");
+                            labelExpanderIcon.removeClass("menuLabelIconCloseAction");
+                        } else {
+                            labelExpanderIcon.removeClass("menuLabelIconOpenAction");
+                            labelExpanderIcon.addClass("menuLabelIconCloseAction");
+                        }
+                    };
                     
                     var expanderClickFunction = (open?: boolean)=>{
                         // Used for the button, as well as for a programmatic callback for when we want to display the submenu
                         // for special purposes.
-                        var expanderIndicatorUpdate = ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); };
                         if(undefined !== open){
                             if(open){
                                 $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdate);
@@ -205,7 +216,7 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                         .click(()=>{ expanderClickFunction(); });    
                     ;
                     
-                    labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); 
+                    expanderIndicatorUpdate();
         
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")

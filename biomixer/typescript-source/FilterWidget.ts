@@ -16,7 +16,7 @@ export class AbstractFilterWidget {
     
     filterContainer: JQuery;
     
-    static menuExpanderButtonIconClass = "menuExpanderButton";
+    static menuExpanderButtonIconClass = "menuExpanderUtilityButton";
     static resetCheckboxesButtonIconClass = "resetCheckboxesButton";
     static deleteNodesButtonIconClass = "deleteNodesButton";
     static gapperButtonIconClass = "menuExpanderButtonGapper";

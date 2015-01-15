@@ -209,6 +209,55 @@ div#menuTriggerContainer {
 	opacity: 1.0;
 }
 
+.menuExpanderButton {
+	background-size: 8px; background-repeat:no-repeat;
+	width: 8px; height: 8px;
+	margin: 2px 2px 2px 2px; padding: 0; 
+	border-style: solid; border-width: 0px;
+}
+
+.menuLabelIconCloseAction {
+	background:url(..//icons/open-iconic/svg/minus.svg);
+	/*
+	background:url(..//icons/open-iconic/svg/collapse-up.svg);
+	*/
+}
+
+.menuLabelIconOpenAction {
+	background:url(..//icons/open-iconic/svg/plus.svg);
+	/*
+	background:url(..//icons/open-iconic/svg/expand-down.svg);
+	*/
+}
+
+.mainMenuLabelExpander, .nestedTreeExpander {
+	background-size: 8px; background-repeat:no-repeat;
+	width: 8px; height: 8px;
+	margin: 2px 2px 2px 2px; padding: 0; 
+	border-style: solid; border-width: 0px;
+}
+
+.mainMenuLabelExpander {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+.nestedTreeExpander {
+    margin-top: 8px;
+    margin-bottom: 0px;
+    margin-left: 5px;
+    margin-right: -2px;
+}
+
+.mainMenuLabelExpander, .nestedTreeExpander {
+	text-align: left;
+	font-weight: bold;
+	float: left;
+	width: 1em;
+	padding-top: 4px;
+
+}
+
 div#slider-gap {
 	margin: 15px;
 }
@@ -303,15 +352,6 @@ div#hoveringGraphMenu {
 	display: block;
 }
 
-.menuLabelExpander {
-	text-align: left;
-	font-weight: bold;
-	float: left;
-	width: 1em;
-	padding-top: 4px;
-
-}
-
 .locateNodeByNameInput{
 	float: left;	
 }
@@ -330,20 +370,24 @@ div#hoveringGraphMenu {
 .deleteNodesButton {
 	float: right;
 	background:url(..//icons/open-iconic/svg/x.svg);
-	/* background:url(..//icons/open-iconic/svg/delete.svg); */
+	/*
+	background:url(..//icons/open-iconic/svg/delete.svg);
+	*/
 }
 
 .resetCheckboxesButton {
 	float: right;
 	background:url(..//icons/open-iconic/svg/task.svg);
-	/* background:url(..//icons/open-iconic/svg/check.svg); */
+	/*
+	background:url(..//icons/open-iconic/svg/check.svg);
+	*/
 }
 
 .menuExpanderButtonGapper {
 	float: right;
 }
 
-.menuExpanderButton {
+.menuExpanderUtilityButton {
 	background-size: 14px; background-repeat:no-repeat;
 	width: 14px; height: 14px;
 	margin: 2px 2px 2px 2px; padding: 0; 

@@ -18,7 +18,7 @@ export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLi
     
     static locateNodesInputClass = "locateNodeByNameInput";
     static locateNodesButtonClass = "locateNodeByNameButtonIcon";
-    static menuExpanderButton = "menuExpanderButton";
+    static menuExpanderButton = "menuExpanderUtilityButton";
     static locateNodesButtonText = "Locate nodes in graph based on name";
     
     constructor(

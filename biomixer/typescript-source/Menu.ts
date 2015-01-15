@@ -6,13 +6,16 @@ export class Menu {
     
     static mainMenuButtonClass = "mainMenuButtonIcon";
     
+    static menuExpanderButtonClass = "menuExpanderButton";
+    
     static menuLabelClass = "menuLabel";
     
-    static menuItemExpanderLabelClass = "menuLabelExpander";
+    static menuItemExpanderLabelClass = "mainMenuLabelExpander";
     
     private menuSelector: string = 'div#hoveringGraphMenu';
     
     private menuBarSelector: string = "#top_menu_bar";
+    
     
     private menuName: string = "";
     
@@ -79,7 +82,7 @@ export class Menu {
     }
     
     getMenuBarSelector(){
-        return this.menuBarSelector;   
+        return this.menuBarSelector;
     }
     
     /**
@@ -96,12 +99,25 @@ export class Menu {
             innerHidingContainer.css("display", "none");
         }
         
+     
+        
         // This only indicates collapsability and status
-        var labelExpanderIcon = $("<label>").addClass(Menu.menuItemExpanderLabelClass)
+        var labelExpanderIcon = $("<label>")
+            .addClass(Menu.menuItemExpanderLabelClass)
+            .addClass(Menu.menuExpanderButtonClass)
             .addClass("unselectable").attr("unselectable", "on") // IE8
-            .text("+");
+            ;
     
-    
+        var expanderIndicatorUpdate = ()=>{
+            if($(innerHidingContainer).css("display") === "none"){
+                labelExpanderIcon.addClass("menuLabelIconOpenAction");
+                labelExpanderIcon.removeClass("menuLabelIconCloseAction");
+            } else {
+                labelExpanderIcon.removeClass("menuLabelIconOpenAction");
+                labelExpanderIcon.addClass("menuLabelIconCloseAction");
+            }
+        };
+        
         // The label labels the section, and acts as a huge collapse button
         var label = $("<label>").addClass(Menu.menuLabelClass)
             .addClass("unselectable").attr("unselectable", "on") // IE8
@@ -110,7 +126,6 @@ export class Menu {
         var expanderClickFunction = (open?: boolean)=>{
             // Used for the button, as well as for a programmatic callback for when we want to display the submenu
             // for special purposes.
-            var expanderIndicatorUpdate = ()=>{labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); };
             if(undefined !== open){
                 if(open){
                     $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdate);
@@ -129,9 +144,8 @@ export class Menu {
         outerContainer.append(labelExpanderIcon);
         outerContainer.append(label);
         
-        // innerHidingContainer.css("display", "none");
-        // We don't know the default necessarily, so set the text here.
-        labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); 
+        // We don't know the default necessarily, so set the icon here.
+        expanderIndicatorUpdate();
 
         outerContainer.append(innerHidingContainer);
         
