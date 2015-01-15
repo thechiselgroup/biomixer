@@ -4,6 +4,8 @@ export class Menu {
     static menuClosedPrefix = "Show ";
     static menuOpenPrefix = "Hide ";
     
+    static mainMenuButtonClass = "mainMenuButtonIcon";
+    
     static menuLabelClass = "menuLabel";
     
     static menuItemExpanderLabelClass = "menuLabelExpander";
@@ -18,11 +20,19 @@ export class Menu {
         this.menuName = menuName;
         // Append the pop-out panel. It will stay hidden except when moused over.
         var trigger = $("<div>").attr("id", "menuTriggerContainer");
-//        $("#chart").append(trigger);
         $(this.menuBarSelector).append(trigger);
-        trigger.append($("<div>").attr("id", "trigger")
-        .addClass("unselectable")
-            .text(Menu.menuClosedPrefix+menuName)); // "<< Menu" by default
+        trigger.append(
+            $("<div>").attr("id", "trigger")
+                .addClass("unselectable")
+                .text("Menu")
+                .append(
+                    $("<div>")
+                    .css("float", "right")
+                    .addClass("unselectable")
+                    .addClass(Menu.mainMenuButtonClass)
+                )
+            )
+            ;
         trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
         
         // Opted for click control only
@@ -44,13 +54,17 @@ export class Menu {
             }
         );
         
+        
+        this.updateMenuText();
     }
     
     updateMenuText(){
         if($(this.menuSelector).css("display") === "none"){
-            $('#trigger').text(Menu.menuClosedPrefix+this.menuName);
+            $('#trigger').attr("title", Menu.menuClosedPrefix+this.menuName);
+            $("#trigger").addClass("unpressedButton");
         } else {
-            $('#trigger').text(Menu.menuOpenPrefix+this.menuName);
+            $('#trigger').attr("title", Menu.menuOpenPrefix+this.menuName);
+            $("#trigger").removeClass("unpressedButton");
         }
     }
     

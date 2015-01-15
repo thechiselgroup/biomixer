@@ -177,14 +177,36 @@ td.vis{
 }
 
 div#menuTriggerContainer {
-   position:absolute;
-   top:0;
-   right:0;
-   background-color: rgb(220,220,220);
-background:#ccc;
-border-style:solid;
+	position:absolute;
+	top:0;
+	right:0;
+	margin-top: 1px;
+	border-width:1px 2px 2px 2px;
+	border-style: solid;
+   /*
+	color: rgb(230, 250, 240);
+	background-color: rgb(220,220,220);
+	background:#ccc;
 	border-color:#bbb #888 #666 #aaa;
-	border-width:1px 2px 2px 1px;
+	*/
+}
+
+.mainMenuButtonIcon {
+	background:url(..//icons/open-iconic/svg/menu.svg);
+	background-size: 16px; background-repeat:no-repeat;
+	width: 16px; height: 16px;
+	margin: 0px 0px 0px 0px; padding: 0px; 
+	border-style: solid; border-width: 0px;
+	stroke-width: 8;
+	margin-right: 2px;
+	margin-left: 2px;
+    margin-top: -1px;
+}
+
+.unpressedButton {
+	background: rgb(61, 149, 210);
+	/* rgb(31, 119, 180); */ /* rgb(183, 227, 241); */ /* rgb(193, 217, 241); */ /* rgb(159, 188, 215); */
+	opacity: 1.0;
 }
 
 div#slider-gap {
@@ -322,8 +344,9 @@ div#hoveringGraphMenu {
 }
 
 .menuExpanderButton {
-	background-size: 14px; background-repeat:no-repeat; width: 14px; 
-	height: 14px; margin: 2px 2px 2px 2px; padding: 0; 
+	background-size: 14px; background-repeat:no-repeat;
+	width: 14px; height: 14px;
+	margin: 2px 2px 2px 2px; padding: 0; 
 	border-style: solid; border-width: 0px;
 }
 
@@ -422,20 +445,23 @@ div#undo_redo_breadcrumb_label {
 
 .action-undo-icon{
 	background:url(..//icons/open-iconic/svg/action-undo.svg); 
-	background-size: 14px; background-repeat:no-repeat; width: 14px; 
-	height: 14px; margin: 0px 1px 0px 0px; padding: 0; 
+	background-size: 14px; background-repeat:no-repeat;
+	width: 14px; height: 14px;
+	margin: 0px 1px 0px 0px; padding: 0; 
 	border-style: solid; border-width: 1px;
 }
 .action-redo-icon{
 	background:url(..//icons/open-iconic/svg/action-redo.svg); 
-	background-size: 14px; background-repeat:no-repeat; width: 14px; 
-	height: 14px; margin: 0px 0px 0px 1px; padding: 0; 
+	background-size: 14px; background-repeat:no-repeat;
+	width: 14px; height: 14px;
+	margin: 0px 0px 0px 1px; padding: 0; 
 	border-style: solid; border-width: 1px;
 }
 .caret-bottom-icon{
 	background:url(..//icons/open-iconic/svg/caret-bottom.svg); 
-	background-size: 8px; background-repeat:no-repeat; width: 8px; 
-	height: 8px; margin: 4px 0px 0px 0px; padding: 0; 
+	background-size: 8px; background-repeat:no-repeat;
+	width: 8px; height: 8px;
+	margin: 4px 0px 0px 0px; padding: 0; 
 	border-style: solid; border-width: 1px;
 }
 
