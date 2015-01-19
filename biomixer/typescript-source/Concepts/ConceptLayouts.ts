@@ -35,45 +35,93 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         layoutsContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Layouts"));
         layoutsContainer.append($("<br>"));
         
-        var forceButton = $("<input>")
-                .attr("class", "layoutButton")
-                .attr("id", "forceLayoutButton")
-                .attr("type", "button")
-                .attr("value", "Force-Directed Layout");
+        var forceButton = $("<div>")
+            .attr("id", "forceLayoutButton")
+            .addClass("unselectable")
+            .text("Force")
+            .append(
+                $("<div>")
+                .attr("id", "forceLayoutButtonIcon")
+                .css("float", "left")
+                .addClass("unselectable")
+                .addClass("iconLayoutButton")
+                .attr("title", "Force-Directed Layout")
+            )
+            ;
         
-        var circleButton = $("<input>")
-                .attr("class", "layoutButton")
-                .attr("id", "circleLayoutButton")
-                .attr("type", "button")
-                .attr("value", "Circle Layout");
+        var circleButton = $("<div>")
+            .attr("id", "circleLayoutButton")
+            .addClass("unselectable")
+            .text("Circle")
+            .append(
+                $("<div>")
+                .attr("id", "circleLayoutButtonIcon")
+                .css("float", "left")
+                .addClass("unselectable")
+                .addClass("iconLayoutButton")
+                .attr("title", "Circle Layout")
+            )
+            ;
         
-        var centerButton = $("<input>")
-                .attr("class", "layoutButton")
-                .attr("id", "centerLayoutButton")
-                .attr("type", "button")
-                .attr("value", "Center Layout");
+        var centerButton = $("<div>")
+            .attr("id", "centerLayoutButton")
+            .addClass("unselectable")
+            .text("Center")
+            .append(
+                $("<div>")
+                .attr("id", "centerLayoutButtonIcon")
+                .css("float", "left")
+                .addClass("unselectable")
+                .addClass("iconLayoutButton")
+                .attr("title", "Center Layout")
+            )
+            ;
         
-        var horizTreeButton = $("<input>")
-            .attr("class", "layoutButton")
+        var horizTreeButton = $("<div>")
             .attr("id", "horizontalTreeLayoutButton")
-            .attr("type", "button")
-            .attr("value", "Horizontal Tree Layout");
+            .addClass("unselectable")
+            .text("Horizontal")
+            .append(
+                $("<div>")
+                .attr("id", "horizontalTreeLayoutButtonIcon")
+                .css("float", "left")
+                .addClass("unselectable")
+                .addClass("iconLayoutButton")
+                .attr("title", "Horizontal Tree Layout")
+            )
+            ;
     
-        var vertTreeButton = $("<input>")
-            .attr("class", "layoutButton")
+        var vertTreeButton = $("<div>")
             .attr("id", "verticalTreeLayoutButton")
-            .attr("type", "button")
-            .attr("value", "Vertical Tree Layout");
+            .addClass("unselectable")
+            .text("Vertical")
+            .append(
+                $("<div>")
+                .attr("id", "verticalTreeLayoutButtonIcon")
+                .css("float", "left")
+                .addClass("unselectable")
+                .addClass("iconLayoutButton")
+                .attr("title", "Vertical Tree Layout")
+            )
+            ;
     
-        var radialButton = $("<input>")
-            .attr("class", "layoutButton")
+        var radialButton = $("<div>")
             .attr("id", "radialLayoutButton")
-            .attr("type", "button")
-            .attr("value", "Radial Layout");
+            .addClass("unselectable")
+            .text("Radial")
+            .append(
+                $("<div>")
+                .attr("id", "radialLayoutButtonIcon")
+                .css("float", "left")
+                .addClass("unselectable")
+                .addClass("iconLayoutButton")
+                .attr("title", "Radial Layout")
+            )
+            ;
 
         var importButton = $("<input>")
-            .attr("class", "layoutButton")
             .attr("id", "importedLayoutButton")
+            .addClass("nonIconLayoutButton")
             .attr("type", "button")
             .attr("value", "Imported Layout");
         

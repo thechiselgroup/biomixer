@@ -314,9 +314,40 @@ div#hoveringGraphMenu {
 	font-size: 100%;
 }
 
-.layoutButton {
+.nonIconlayoutButton {
 	margin-right: 15px !important;
 	margin-bottom: 6px !important;
+}
+
+.iconLayoutButton {
+	background-size: 16px; background-repeat:no-repeat;
+	width: 16px; height: 16px;
+	margin: 0px 2px 0px 6px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+
+#verticalTreeLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/verticalTreeLayoutIcon.svg);
+}
+
+#horizontalTreeLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/horizontalTreeLayoutIcon.svg);
+}
+
+#radialLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/radialLayoutIcon.svg);
+}
+
+#circleLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/circleLayoutIcon.svg);
+}
+
+#centerLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/centerLayoutIcon.svg);
+}
+
+#forceLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/forceLayoutIcon.svg);
 }
 
 .nodeCommandButton {
