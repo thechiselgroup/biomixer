@@ -1445,8 +1445,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     prepGraphMenu(){
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layout & Filter Menu");
-        this.nodeFinder.addMenuComponents(this.menu.getMenuSelector());
         this.layouts.addMenuComponents(this.menu.getMenuSelector());
+        this.nodeFinder.addMenuComponents(this.menu.getMenuSelector(), true);
         this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector());
         this.edgeTypeFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         // this.nodeDeleter.addMenuComponents(this.menu.getMenuSelector());

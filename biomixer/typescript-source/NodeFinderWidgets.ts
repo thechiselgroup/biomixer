@@ -19,7 +19,7 @@ export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLi
     static locateNodesInputClass = "locateNodeByNameInput";
     static locateNodesButtonClass = "locateNodeByNameButtonIcon";
     static menuExpanderButton = "menuExpanderUtilityButton";
-    static locateNodesButtonText = "Locate nodes in graph based on name";
+    static locateNodesButtonText = "Locate nodes in graph based on Name/Synonyms";
     
     constructor(
         public graphView: GraphView.GraphView<N, L>,
@@ -28,25 +28,38 @@ export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLi
         
     }
     
-    addMenuComponents(menuSelector: string){
-        // Add the butttons to the pop-out panel
-        var layoutsContainer = $("<div>").attr("id", "nodeFinderMenuContainer");
-        $(menuSelector).append(layoutsContainer);
+    addMenuComponents(menuSelector: string, defaultHideContainer: boolean){
+
+        var containers = Menu.Menu.slideToggleHeaderContainer("nodeFinderMenuContainer"+"OuterContainer", "nodeFinderMenuContainer"+"ScrollContainer", "Node Utilities", defaultHideContainer);
+        var layoutsContainer = containers.inner;
+
+        $(menuSelector).append(containers.outer);
 
         var searchInput = $("<input>")
                 .addClass(NodeFinder.locateNodesInputClass)
+                .attr("title", NodeFinder.locateNodesButtonText)
                 .attr("id", "findNodeInputBox");
 
         var findFunc = this.highlightNodeNameMatches(this.graphModel, this.graphView, searchInput);
         
         var searchButton = $("<div>")
                 .attr("id", "nodeNameSearchButton")
-                .addClass(NodeFinder.locateNodesButtonClass)
-                .addClass(NodeFinder.menuExpanderButton)
+                .addClass("unselectable")
                 .attr("title", NodeFinder.locateNodesButtonText)
+                .append(
+                    $("<div>")
+                        .addClass("unselectable")
+                        .addClass(NodeFinder.locateNodesButtonClass)
+                        .addClass(NodeFinder.menuExpanderButton)
+                )
+                .append(
+                    $("<label>")
+                        .text("Locate Node")
+                        .css("padding-top", "2px")
+                        .css("display", "block")
+                )
             ;
-                
-        layoutsContainer.append($("<label for=findNodeInputBox>").addClass(Menu.Menu.menuLabelClass).text("Node Utilities"));
+        
         var searchDiv = $("<div>").addClass("clearfix");
         searchDiv.append(searchInput);
         searchDiv.append(searchButton);
