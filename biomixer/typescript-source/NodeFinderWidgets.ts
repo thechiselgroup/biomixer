@@ -9,12 +9,10 @@ import Menu = require("./Menu");
 
 export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLink<any>> {
 
-    static messageTextId = "singleNodeImportMessageBoxTextArea";
-    static messageParagraphId = "singleNodeImportMessageBoxMessage";
-    static messageDivId = "singleNodeImportMessageBox";
-    static messageDivClass  ="singleNodeImportMessageBoxWithField";
-    static messageBoxButtonClass = "singleNodeImportMessageBoxButton";
-    static nodeImporterFooterDiv = "singleNodeImportFooterDiv";
+    static singleNodeImportFieldId = "singleNodeImportMessageBoxTextArea";
+    static singleNodeImportButtonClass = "singleNodeImportMessageBoxButton";
+    static nodeAdditionText = "To import a single node, paste the URI id (found via BioPortal) into the field.";
+    
     
     static locateNodesInputClass = "locateNodeByNameInput";
     static locateNodesButtonClass = "locateNodeByNameButtonIcon";
@@ -66,18 +64,38 @@ export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLi
         layoutsContainer.append(searchDiv);
         layoutsContainer.append($("<br>"));
         
-        layoutsContainer.append($("<input>")
+        var addUriInput = $("<input>")
+                .addClass(NodeFinder.locateNodesInputClass)
+                .attr("id", NodeFinder.singleNodeImportFieldId).addClass(NodeFinder.singleNodeImportFieldId)
+                ;
+
+        var addUriButton =
+            $("<label>")
+                .addClass("unselectable")
                 .addClass("addSingleConceptButton")
-                .addClass("nodeCommandButton")
-                .attr("id", "addSingleConceptButton")
-                .attr("type", "button")
-                .attr("value", "Add Concept Using URI"));
-        d3.selectAll("#addSingleConceptButton").on("click", this.showSingleNodeImportDialog());
-        var footer = $("<div>").attr("id", NodeFinder.nodeImporterFooterDiv).css("clear", "both");
+                .addClass(NodeFinder.singleNodeImportButtonClass)
+                .css("padding-top", "1px")
+                .css("display", "block")
+                .text("Add Concept Using URI")
+                .css("margin-left", "2px")
+                .css("padding-left", "3px")
+                .css("padding-right", "3px")
+                .css("border-width", "1px")
+                .css("border-style", "solid")
+                .css("float", "left")
+            ;
+        
+        var addUriDiv = $("<div>").addClass("clearfix")
+            .attr("title", NodeFinder.nodeAdditionText)    
+        ;
+        addUriDiv.append(addUriInput);
+        addUriDiv.append(addUriButton);
+        layoutsContainer.append(addUriDiv);
         layoutsContainer.append($("<br>"));
-        layoutsContainer.append(footer);
-    
-        layoutsContainer.append($("<br>"));
+        
+        addUriButton
+            .click(this.importSingleNodeCallbackLambda())
+        ;
         
         searchInput
             .on("keydown", (event: JQueryKeyEventObject)=>{
@@ -116,86 +134,19 @@ export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLi
         }
     }
     
-    private showSingleNodeImportDialog(){
-        return ()=>{
-            var dialog = $("#"+NodeFinder.messageDivId);
-            if(dialog.length != 0){
-                // If it's there already, hide it. This button can act as a toggle.
-                dialog.slideUp(200, ()=>{ dialog.detach() });
-            } else {
-                var message = "To import a single node, paste the URI id (found via BioPortal) into the field."
-                    ;
-                this.messagePrompt(message, "", this.importSingleNodeCallbackLambda());
-            }
-        };
-    }
     
     private importSingleNodeCallbackLambda(){
         return (event: JQueryEventObject)=>{
             event.stopPropagation();
-            var dialog = $("#"+NodeFinder.messageDivId);
-            var messageField = $("#"+NodeFinder.messageTextId);
+            var messageField = $("#"+NodeFinder.singleNodeImportFieldId);
             var importData = messageField.first().val();
-            dialog.slideUp(200, ()=>{ dialog.detach() });
             
             if(importData.length === 0){
                 return;
             }
             this.graphModel.addNodeToGraph(importData);
+            messageField.first().val("");
         }  
-    }
-    
-    private closeDialogLambda(){
-        return (event: JQueryEventObject)=>{
-            var dialog = $("#"+NodeFinder.messageDivId);
-            dialog.slideUp(200, ()=>{ dialog.detach() });
-        }
-    }
-    
-    private messagePrompt(message: string, fieldContent: string, okCallback){
-        // Remove any existing version of this panel. It is an embedded modal singleton unique as a unicorn.
-        var dialog = $("#"+NodeFinder.messageDivId);
-        if(undefined !== dialog){
-            dialog.detach();
-        }
-        
-        // Create the new one.
-        dialog = $("<div>").attr("id", NodeFinder.messageDivId).addClass(NodeFinder.messageDivClass).addClass("opaqueMenu");
-        var messageParagraph = $("<p>").addClass(NodeFinder.messageParagraphId);
-        messageParagraph.text(message);
-        var messageField = $("<textarea>").attr("id", NodeFinder.messageTextId).addClass(NodeFinder.messageTextId);
-        messageField.text(fieldContent);
-        messageField.select();
-        
-        // Default the ok button to close the box. If it is to something more useful, then create a cancel button
-        // to allow the user to simply close the box.
-        var cancelButton = undefined;
-        var okButtonText;
-        if(null === okCallback){
-            okCallback = this.closeDialogLambda();
-            okButtonText = "Close";
-        } else {
-            cancelButton =  $("<button>").addClass(NodeFinder.messageBoxButtonClass).addClass("addSingleConceptButton")
-                .text("Cancel").click(this.closeDialogLambda());
-            okButtonText = "Apply";
-        }
-        var okButton = $("<button>").addClass(NodeFinder.messageBoxButtonClass).addClass("addSingleConceptButton")
-            .text(okButtonText).click(okCallback);
-        dialog
-            .append(messageParagraph)
-            .append(messageField)
-            .append($("<br>"))
-            .append(okButton)
-        ;
-        if(undefined !== cancelButton){
-            dialog.append(cancelButton);
-        }
-        
-        
-        dialog.css("display", "none");
-        $("#"+NodeFinder.nodeImporterFooterDiv).append(dialog);
-        dialog.slideDown("fast");
-        
     }
     
 }
