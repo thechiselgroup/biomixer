@@ -170,6 +170,10 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                                                 .css("display", "none")
                                                 ;
                     
+                    if(this.filterContainer.children().length === 0){
+                        innerHidingContainer.css("display", "block")
+                    }
+                    
                     var expanderIndicatorUpdate = ()=>{
                         // labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-");
                         if($(innerHidingContainer).css("display") === "none"){
