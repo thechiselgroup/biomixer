@@ -25,6 +25,7 @@
 ///<amd-dependency path="Concepts/ConceptNodeFilterWidget" />
 ///<amd-dependency path="Concepts/ConceptEdgeTypeFilter" />
 ///<amd-dependency path="Concepts/ConceptFilterSliders" />
+///<amd-dependency path="Concepts/ConceptTour" />
 ///<amd-dependency path="Concepts/ConceptLayouts" />
 ///<amd-dependency path="Concepts/GraphImporterExporter" />
 ///<amd-dependency path="NodeFinderWidgets" />
@@ -50,12 +51,19 @@ import NestedExpansionSetConceptFilter = require("./NestedExpansionSetConceptFil
 import ConceptFilterWidget = require("./ConceptNodeFilterWidget");
 import ConceptEdgeTypeFilter = require("./ConceptEdgeTypeFilter");
 import ConceptFilterSliders = require("./ConceptFilterSliders");
+import ConceptTour = require("./ConceptTour");
 import ConceptLayouts = require("./ConceptLayouts");
 import ImporterExporter = require("./GraphImporterExporter");
 import NodeFinder = require("../NodeFinderWidgets");
 
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
+    
+    static VIZ_SELECTOR_ID = "#visualization_selector";
+    
+    static REFOCUS_NODE_TEXT = "Refocus Node";
+    
+    static NODE_EXPANDER_INDICATOR_ID_PREFIX = "node_expander_indicator_";
     
     // Core objects
     conceptGraph: ConceptGraph.ConceptGraph;
@@ -77,6 +85,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     nestedOntologyConceptFilter: NestedOntologyConceptFilter.NestedOntologyConceptFilter;
     // expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     nestedExpansionConceptFilter: NestedExpansionSetConceptFilter.NestedExpansionSetConceptFilter;
+    
+    tour: ConceptTour.Tour;
     
     menu: Menu.Menu;
     
@@ -109,12 +119,14 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         super();
         // Minimal constructor, most work done in initAndPopulateGraph().
         this.undoRedoBoss.initGui();
-               
+        
         this.menu = new Menu.Menu();
+               
+        this.tour = new ConceptTour.Tour(this, this.menu);
         
         // This cast is ok since we assign values for the selector from the ConceptGraph.PathOptionConstants
-        this.visualization = <ConceptGraph.PathOption><any>$("#visualization_selector option:selected").text();
-        $("#visualization_selector").change(
+        this.visualization = <ConceptGraph.PathOption><any>$(ConceptPathsToRoot.VIZ_SELECTOR_ID+" option:selected").text();
+        $(ConceptPathsToRoot.VIZ_SELECTOR_ID).change(
             () => {
                 console.log("Changing visualization mode.");
                 var selected  = <ConceptGraph.PathOption><any>$("#visualization_selector option:selected").text();
@@ -1204,7 +1216,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         expanderSvgs
         .append("svg:rect")
-        .attr("id", function(d: ConceptGraph.Node){ return "node_expander_indicator_"+d.conceptUriForIds})
+        .attr("id", function(d: ConceptGraph.Node){ return ConceptPathsToRoot.NODE_EXPANDER_INDICATOR_ID_PREFIX+d.conceptUriForIds})
         // .attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot)
         .style("fill", "#c5effd")
         .style("stroke", "#afc6e5")
@@ -1363,7 +1375,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.recomputeVisualizationOntoNode(nodeData); })
             ;
             centralizeNodeSvg.append("svg:text")
-                .text("Refocus Node")
+                .text(ConceptPathsToRoot.REFOCUS_NODE_TEXT)
                 .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
                 .style("font-weight", "inherit")
                 .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
@@ -1445,6 +1457,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     prepGraphMenu(){
         // Layout selector for concept graphs.
         this.menu.initializeMenu("Layout & Filter Menu");
+        this.tour.initializeMenu();
         this.layouts.addMenuComponents(this.menu.getMenuSelector());
         this.nodeFinder.addMenuComponents(this.menu.getMenuSelector(), true);
         this.importerExporterWidget.addMenuComponents(this.menu.getMenuSelector());

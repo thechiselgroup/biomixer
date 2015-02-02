@@ -12,20 +12,29 @@ export class Menu {
     
     static menuItemExpanderLabelClass = "mainMenuLabelExpander";
     
-    private menuSelector: string = 'div#hoveringGraphMenu';
+    static menuId: string = 'hoveringGraphMenu';
     
-    private menuBarSelector: string = "#top_menu_bar";
+    static menuBarSelector: string = "#top_menu_bar";
     
+    static topBarButtonClass = "topBarButton";
+    
+    static menuTriggerContainerId = "menuTriggerContainer";
+    
+    static triggerId = "trigger";
+    
+    static hidingMenuContainerClass = "hidingMenu";
     
     private menuName: string = "";
     
     initializeMenu(menuName: string = Menu.defaultMenuName){
         this.menuName = menuName;
         // Append the pop-out panel. It will stay hidden except when moused over.
-        var trigger = $("<div>").attr("id", "menuTriggerContainer");
-        $(this.menuBarSelector).append(trigger);
+        var trigger = $("<div>").attr("id", Menu.menuTriggerContainerId)
+            .addClass(Menu.topBarButtonClass)    
+        ;
+        $(Menu.menuBarSelector).append(trigger);
         trigger.append(
-            $("<div>").attr("id", "trigger")
+            $("<div>").attr("id", Menu.triggerId)
                 .addClass("unselectable")
                 .text("Menu")
                 .append(
@@ -36,10 +45,10 @@ export class Menu {
                 )
             )
             ;
-        trigger.append($("<div>").attr("id", "hoveringGraphMenu"));
+        trigger.append($("<div>").attr("id", Menu.menuId));
         
         // Opted for click control only
-        //$('#trigger').hover(
+        //$(Menu.triggerId).hover(
         //        (e) => {
         //            $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
         //             // Looks bad when it's not fully visible, due to children inheriting transparency
@@ -50,10 +59,10 @@ export class Menu {
         //        }
         //);
         var outerThis = this;
-        $('#trigger').click(
+        $(Menu.triggerId).click(
             (event)=>{
             	event.stopPropagation();
-                $(this.menuSelector).slideToggle({ duration: "fast", complete: ()=>{outerThis.updateMenuText();} });
+                outerThis.toggleMenu();
             }
         );
         
@@ -62,27 +71,35 @@ export class Menu {
     }
     
     updateMenuText(){
-        if($(this.menuSelector).css("display") === "none"){
-            $('#trigger').attr("title", Menu.menuClosedPrefix+this.menuName);
-            $("#trigger").addClass("unpressedButton");
+        if($("#"+Menu.menuId).css("display") === "none"){
+            $(Menu.triggerId).removeClass("pressedMenuButton");
+            $(Menu.triggerId).attr("title", Menu.menuClosedPrefix+this.menuName);
         } else {
-            $('#trigger').attr("title", Menu.menuOpenPrefix+this.menuName);
-            $("#trigger").removeClass("unpressedButton");
+            $(Menu.triggerId).addClass("pressedMenuButton");
+            $(Menu.triggerId).attr("title", Menu.menuOpenPrefix+this.menuName);
         }
+    }
+    
+    toggleMenu(){
+        $("#"+Menu.menuId).slideToggle({ duration: "fast", complete: ()=>{this.updateMenuText();} });
+    }
+    
+    openMenu(){
+        $("#"+Menu.menuId).slideDown({ duration: 0, complete: ()=>{this.updateMenuText();} });
     }
     
     closeMenuLambda(){
         return ()=>{
-            $(this.menuSelector).slideUp();
+            $("#"+Menu.menuId).slideUp({ duration: 0, complete: ()=>{this.updateMenuText();} });
         };
     }
     
     getMenuSelector(){
-        return this.menuSelector;
+        return "#"+Menu.menuId;
     }
     
     getMenuBarSelector(){
-        return this.menuBarSelector;
+        return Menu.menuBarSelector;
     }
     
     /**
@@ -93,7 +110,7 @@ export class Menu {
      */
      static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery; expanderCallback: {(open?: boolean): void} } {
         var outerContainer = $("<div>").attr("id", outerContainerId);
-        var innerHidingContainer = $("<div>").attr("id", innerContainerId);
+        var innerHidingContainer = $("<div>").attr("id", innerContainerId).addClass(Menu.hidingMenuContainerClass);
         
         if(defaultHideContainer){
             innerHidingContainer.css("display", "none");

@@ -18,7 +18,7 @@ var centralConceptUri: ConceptGraph.ConceptURI = purl().param("full_concept_id")
 var initialVis = purl().param("initial_vis");
 var softNodeCap = 20;
 
-$("#visualization_selector")
+$(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)
 .append('<option value="paths_to_root">'+ConceptGraph.PathOptionConstants.pathsToRootConstant+'</option>') //Path to Root
 .append('<option value="term_neighborhood">'+ConceptGraph.PathOptionConstants.termNeighborhoodConstant+'</option>') //Term Neighborhood
 .append('<option value="mappings_neighborhood">'+ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant+'</option>') //Mappings Neighborhood

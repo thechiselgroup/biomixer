@@ -24,6 +24,19 @@
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" />
     
     <script type="text/javascript" src="./d3_graphs/jquery.simplemodal.1.4.4.min.js"></script>
+    <link href="./d3_graphs/simplemodal_confirm.css" rel="stylesheet" type="text/css">
+    
+    <script type="text/javascript" src="./d3_graphs/introjs/biomixer-custom-intro.js"></script>
+    <link href="./d3_graphs/introjs/introjs.css" rel="stylesheet" type="text/css">
+    <!-- IntroJs needs a bit of help to play nicely with SVG. Or vice versa...SVG needs classList prop added,
+         and IntroJs needs its className usage changed to be classList usage.  Tangled webs. -->
+    <script type="text/javascript" src="./d3_graphs/introjs/svgClassList.js"></script>
+    
+    <!--
+    Keeping references to hopscotch around until we are certain we do not need an alternative to IntroJs
+    <script src="./d3_graphs/hopscotch/js/hopscotch.js"></script>
+	<link rel=" stylesheet" type="text/css" href="./d3_graphs/hopscotch/css/hopscotch.css">
+	-->
     
     <link rel="stylesheet" type="text/css" href="./d3_graphs/spectrum.css">
     <script type="text/javascript" src="./d3_graphs/spectrum.js"></script>
@@ -35,7 +48,6 @@
     
     <link href="./d3_graphs/d3_graph.css" rel="stylesheet" type="text/css">
     
-    <link href="./d3_graphs/simplemodal_confirm.css" rel="stylesheet" type="text/css">
     
     <!--
     <script type="text/javascript" src="./d3_graphs/jquery.jsonp.amdmod.js"></script>
@@ -48,7 +60,7 @@
   <body>
 
 <div id="top_menu_bar">
-	<select id="visualization_selector" class="gwt-ListBox view_selection_box" size="1">
+	<select id="visualization_selector" class="view_selection_box" size="1">
 	</select>
 	<div id="undo_redo_breadcrumb_trail" class="undo_redo_breadcrumb_trail">
 	</div>

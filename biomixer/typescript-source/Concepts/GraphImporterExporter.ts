@@ -83,9 +83,13 @@ export class Widget {
     }
     
     static exportImportFooterDiv = "exportImportFooterDiv";
+            
+    static outerContainerId = "importerExporterMenuContainer";
+    
+    static innerContainerId = "importerExporterInnerContainer";
     
     addMenuComponents(menuSelector: string){
-        this.containers = Menu.Menu.slideToggleHeaderContainer("importerExporterMenuContainer", "importerExporterInnerContainer", "Sharing", true);
+        this.containers = Menu.Menu.slideToggleHeaderContainer(Widget.outerContainerId, Widget.innerContainerId, "Sharing", true);
         var outerContainer = this.containers.outer;
         var innerContainer = this.containers.inner;
         this.menuSelector = menuSelector; // store for later

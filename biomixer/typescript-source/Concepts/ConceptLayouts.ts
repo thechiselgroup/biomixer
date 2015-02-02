@@ -17,6 +17,8 @@ import ConceptGraph = require("./ConceptGraph");
 
 export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
+    static layoutMenuContainerId = "layoutMenuContainer";
+    
     constructor(
         public forceLayout: D3.Layout.ForceLayout,
         public graph: ConceptGraph.ConceptGraph,
@@ -29,7 +31,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     
     addMenuComponents(menuSelector: string){
         // Add the butttons to the pop-out panel
-        var layoutsContainer = $("<div>").attr("id", "layoutMenuContainer");
+        var layoutsContainer = $("<div>").attr("id", ConceptLayouts.layoutMenuContainerId);
         $(menuSelector).append(layoutsContainer);
                 
         layoutsContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Layouts"));
