@@ -59,7 +59,7 @@ export class Menu {
         //        }
         //);
         var outerThis = this;
-        $(Menu.triggerId).click(
+        $("#"+Menu.triggerId).click(
             (event)=>{
             	event.stopPropagation();
                 outerThis.toggleMenu();
@@ -72,11 +72,11 @@ export class Menu {
     
     updateMenuText(){
         if($("#"+Menu.menuId).css("display") === "none"){
-            $(Menu.triggerId).removeClass("pressedMenuButton");
-            $(Menu.triggerId).attr("title", Menu.menuClosedPrefix+this.menuName);
+            $("#"+Menu.triggerId).removeClass("pressedMenuButton");
+            $("#"+Menu.triggerId).attr("title", Menu.menuClosedPrefix+this.menuName);
         } else {
-            $(Menu.triggerId).addClass("pressedMenuButton");
-            $(Menu.triggerId).attr("title", Menu.menuOpenPrefix+this.menuName);
+            $("#"+Menu.triggerId).addClass("pressedMenuButton");
+            $("#"+Menu.triggerId).attr("title", Menu.menuOpenPrefix+this.menuName);
         }
     }
     
