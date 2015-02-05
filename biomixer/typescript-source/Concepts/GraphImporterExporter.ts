@@ -29,9 +29,10 @@ import ExpansionSets = require("../ExpansionSets");
  * 
  */
 export class SavedGraphSeed {
-    o: string;
-    x: number;
-    y: number;
+    c: string; // Concept id
+    o: string; // Ontology acronym
+    x: number; // Layout x-coord
+    y: number; // Layout y-coord
     m: boolean; //cleared for mapping expansion...try to use in a way that prevents re-adding of deleted nodes
 }
 
@@ -43,7 +44,7 @@ export class SavedGraph {
     +" Use the url: "+ SavedGraph.getUrlIFrameOrNot()+" ."
     ;
     
-    n: { [conceptUri: string]: SavedGraphSeed } = {};
+    n: Array<SavedGraphSeed> = [];
     
     s: { [linkCssClass: string]: string } = {}; // Store styles here, just colors for now. Not much format.
     
@@ -51,15 +52,16 @@ export class SavedGraph {
         ){
     }
     
-    addNode(nodeData, graph: ConceptGraph.ConceptGraph){
+    addNode(nodeData: ConceptGraph.Node, graph: ConceptGraph.ConceptGraph){
         // Would make the graph an instance variable, but then it would get serialized later.
-        this.n[String(nodeData.rawConceptUri)] = <SavedGraphSeed><any>{
-            o: nodeData.ontologyAcronym, x: nodeData.x, y: nodeData.y
+        var nodeSeed = <SavedGraphSeed><any>{
+            c: nodeData.simpleConceptUri, o: nodeData.ontologyAcronym, x: nodeData.x, y: nodeData.y
         };
-        if(graph.expMan.wasConceptClearedForExpansion(nodeData.rawConceptUri,
+        if(graph.expMan.wasConceptClearedForExpansion(nodeData.nodeId,
                 ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant)){
-            this.n[String(nodeData.rawConceptUri)].m = true;
+            nodeSeed.m = true;
         }
+        this.n.push(nodeSeed);
     }
     
     addLinkStyle(cssName, color){
@@ -311,11 +313,12 @@ export class GraphImporter {
             sheet.css("stroke", color);
         }
         
-        for(var conceptUri in this.importData.n){
+        for(var i = 0; i <this.importData.n.length; i++){
             // Verify the structure's contents. It was imported via casting, not parsing.
-            var nodeData: SavedGraphSeed = this.importData.n[conceptUri];
+            var nodeData: SavedGraphSeed = this.importData.n[i];
+            var conceptUri = ConceptGraph.ConceptGraph.computeNodeId(<ConceptGraph.SimpleConceptURI><any>nodeData.c, <ConceptGraph.RawAcronym><any>nodeData.o);
             if(nodeData.m){
-                expansionSet.graphModifier.addExtraInteraction(conceptUri, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+                expansionSet.graphModifier.addExtraInteraction(String(conceptUri), ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
             }
             // Casting to prevent need for re-boxing data. Would need to remove elements and leave just x and y.
             this.pathsToRoot.layouts.updateFixedLayoutDatum(conceptUri, <{x: number; y: number}>nodeData);
@@ -325,15 +328,13 @@ export class GraphImporter {
         this.conceptGraph.graphView.setCurrentLayout(this.pathsToRoot.layouts.runFixedPositionLayoutLambda());
     }
     
-    loadNode(conceptUri: string, nodeData: SavedGraphSeed, expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>){
-        if(!(conceptUri in this.conceptGraph.conceptIdNodeMap)){
-            
-            // Dumb trick. Only way to do it. Minimizes casting, while allowing typing.
-            var nodeUri = <ConceptGraph.ConceptURI><any>conceptUri;
-            var ontologyAcronym = <ConceptGraph.RawAcronym><any>nodeData.o;
-            
-            var url = this.conceptGraph.buildConceptUrlNewApi(ontologyAcronym, nodeUri);
-            var callback = new FetchAndApplyLayoutCallback(this.conceptGraph, this.pathsToRoot, nodeData, url, nodeUri, expansionSet);
+    loadNode(conceptUri: ConceptGraph.ConceptURI, nodeData: SavedGraphSeed, expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>){
+        // Dumb trick. Only way to do it. Minimizes casting, while allowing typing.
+        var ontologyAcronym = <ConceptGraph.RawAcronym><any>nodeData.o;
+        var simpleConceptUri = <ConceptGraph.SimpleConceptURI><any>nodeData.c;
+        if(!(String(conceptUri) in this.conceptGraph.conceptIdNodeMap)){
+            var url = this.conceptGraph.buildConceptUrlNewApi(ontologyAcronym, simpleConceptUri);
+            var callback = new FetchAndApplyLayoutCallback(this.conceptGraph, this.pathsToRoot, nodeData, url, conceptUri, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
             fetcher.fetch(callback);
         }

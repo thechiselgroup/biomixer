@@ -14,7 +14,7 @@ import ConceptGraph = require('./ConceptGraph');
 declare var purl;
 
 var centralOntologyAcronym: ConceptGraph.RawAcronym = purl().param("ontology_acronym");
-var centralConceptUri: ConceptGraph.ConceptURI = purl().param("full_concept_id");
+var centralConceptSimpleUri: ConceptGraph.SimpleConceptURI = purl().param("full_concept_id");
 var initialVis = purl().param("initial_vis");
 var softNodeCap = 20;
 
@@ -44,5 +44,5 @@ $("#visualization_selector option").each(
 
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);
-var graphView = new PathsToRoot.ConceptPathsToRoot(centralOntologyAcronym, centralConceptUri, softNodeCap);
+var graphView = new PathsToRoot.ConceptPathsToRoot(centralOntologyAcronym, centralConceptSimpleUri, softNodeCap);
 graphView.initAndPopulateGraph();

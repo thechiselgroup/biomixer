@@ -169,7 +169,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     getLayoutPositionSnapshot(): {[nodeUri: string]: {x: number; y: number}} {
         var positions: {[nodeUri: string]: {x: number; y: number}} = {};
         var graphNodes = this.graph.graphD3Format.nodes;
-        $.each(graphNodes, (index, node)=>{ positions[String(node.rawConceptUri)] = {x: node.x, y: node.y}; } );
+        $.each(graphNodes, (index, node)=>{ positions[String(node.nodeId)] = {x: node.x, y: node.y}; } );
         return positions;
     }
     
@@ -297,9 +297,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         
         
         graphLinks.forEach(function(link){
-            if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps_to"){
+            if(link.sourceId==parentNode.nodeId&&link.relationType!="maps_to"){
                 graphNodes.forEach(function(node){
-                    if(node.rawConceptUri == link.targetId && $.inArray(node, children) === -1){
+                    if(node.nodeId == link.targetId && $.inArray(node, children) === -1){
                         children.push(node);
                     }
                 });               
@@ -344,7 +344,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         graphNodes = graphNodes.filter(function(n){return n.ontologyAcronym==ontologyAcronym});
         graphNodes.forEach(function(node){
             graphLinks.forEach(function(link){
-               if (link.targetId===node.rawConceptUri) { isRoot = false; }
+               if (link.targetId===node.nodeId) { isRoot = false; }
             });
             if(isRoot) { roots.push(node); }       
             
@@ -431,9 +431,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                     var treeChildren: ConceptGraph.Node[] = [];
  
                     graphChildren = graphChildren.sort(function(a, b){
-                        if(a.rawConceptUri>b.rawConceptUri){
+                        if(a.nodeId>b.nodeId){
                             return -1;    
-                        }else if(a.rawConceptUri<b.rawConceptUri){
+                        }else if(a.nodeId<b.nodeId){
                             return 1;
                         }else{
                             return 0;    
@@ -620,7 +620,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             
             $.each(graphNodes,
                 function(index, node){
-                    if(node.rawConceptUri!=outerThis.centralConceptUri){
+                    if(node.nodeId!=outerThis.centralConceptUri){
                         var angleForNode = i * anglePerNode; 
                         i++;
                         node.x = outerThis.graphView.visWidth()/2 + arcLength*Math.cos(angleForNode); // start in middle and let them fly outward
@@ -677,9 +677,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             
             $.each(graphNodes,
                 function(index, node){
-                    if(undefined !== outerThis.currentFixedLayoutData[String(node.rawConceptUri)]){
-                        node.x = outerThis.currentFixedLayoutData[String(node.rawConceptUri)].x;
-                        node.y = outerThis.currentFixedLayoutData[String(node.rawConceptUri)].y;
+                    if(undefined !== outerThis.currentFixedLayoutData[String(node.nodeId)]){
+                        node.x = outerThis.currentFixedLayoutData[String(node.nodeId)].x;
+                        node.y = outerThis.currentFixedLayoutData[String(node.nodeId)].y;
                         node.fixed = true;
                     } else {
                         // Use whatever position is on the node already? Assign a random position??

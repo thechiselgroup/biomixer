@@ -29,10 +29,6 @@ export class AbstractConceptNodeFilterWidget<FilterTarget> extends FilterWidget.
         super(subMenuTitle, graphView);
     }
     
-//     styleAsCentralNode(node: ConceptGraph.Node): boolean {
-//        return node.rawConceptUri === this.conceptGraph.centralConceptUri;
-//    }
-    
     checkboxHoveredLambda(filterTargetRelatedToCheckbox: FilterTarget): (event: JQueryMouseEventObject)=>void{
         var graphView = this.graphView;
         var outerThis = this;

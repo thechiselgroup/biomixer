@@ -117,7 +117,7 @@ class OntologyPropertyRelationsCallback extends Fetcher.CallbackObject {
         public url: string,
         conceptNode: ConceptGraph.Node
         ){
-            super(url, String(conceptNode.rawConceptUri), Fetcher.CallbackVarieties.metaData);
+            super(url, String(conceptNode.nodeId), Fetcher.CallbackVarieties.metaData);
             this.ontologyAcronym = conceptNode.ontologyAcronym;
         }
     

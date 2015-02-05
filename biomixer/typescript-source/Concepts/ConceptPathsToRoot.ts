@@ -111,12 +111,19 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     visualization: ConceptGraph.PathOption;
     
+    centralConceptUri: ConceptGraph.ConceptURI;
+    
     constructor(
         public centralOntologyAcronym: ConceptGraph.RawAcronym,
-        public centralConceptUri: ConceptGraph.ConceptURI,
+        public centralConceptSimpleUri: ConceptGraph.SimpleConceptURI,
         public softNodeCap: number
     ){
         super();
+        // When opened without URL arguments, we have a blank graph.
+        if(null != this.centralConceptSimpleUri && null != this.centralOntologyAcronym){
+            this.centralConceptUri = ConceptGraph.ConceptGraph.computeNodeId(this.centralConceptSimpleUri, this.centralOntologyAcronym);
+        }
+
         // Minimal constructor, most work done in initAndPopulateGraph().
         this.undoRedoBoss.initGui();
         
@@ -143,8 +150,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // var message = "Are you sure you want to recreate the graph focussed on '"+nodeData.name+"' ("+nodeData.ontologyAcronym+")?";
         
         // if(confirm(message)){
-        this.centralConceptUri = nodeData.rawConceptUri;
+        this.centralConceptSimpleUri = nodeData.simpleConceptUri;
         this.centralOntologyAcronym = nodeData.ontologyAcronym;
+        this.centralConceptUri = ConceptGraph.ConceptGraph.computeNodeId(this.centralConceptSimpleUri, this.centralOntologyAcronym);
         this.fetchInitialExpansion();
         // }
     }
@@ -286,12 +294,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 		// to see where this occurs.
         if(this.visualization === ConceptGraph.PathOptionConstants.pathsToRootConstant){
             this.setCurrentLayout(this.layouts.runVerticalTreeLayoutLambda());
-            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptUri, expansionSet, initSet);
+            this.conceptGraph.fetchPathToRoot(this.centralOntologyAcronym, this.centralConceptSimpleUri, expansionSet, initSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.termNeighborhoodConstant){
-            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet, initSet);
+            this.conceptGraph.fetchTermNeighborhood(this.centralOntologyAcronym, this.centralConceptSimpleUri, expansionSet, initSet);
         } else if(this.visualization === ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant){
             this.setCurrentLayout(this.layouts.runCenterLayoutLambda());
-            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptUri, expansionSet, initSet);
+            this.conceptGraph.fetchMappingsNeighborhood(this.centralOntologyAcronym, this.centralConceptSimpleUri, expansionSet, initSet);
             this.runCurrentLayout();
         }
     }
@@ -745,7 +753,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         tBody.append($("<tr></tr>").append($("<td></td>").append(checkboxUnit)));
          }
          
-         var urlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"]+"?p=classes&conceptid="+conceptData["rawConceptUri"];
+         var urlText = "http://bioportal.bioontology.org/ontologies/"+conceptData["ontologyAcronym"]+"?p=classes&conceptid="+conceptData["simpleConceptUri"];
          tBody.append(
                  $("<tr></tr>").append(
                          $("<td></td>").attr("align","left").css({"vertical-align": "top"}).append(
@@ -770,7 +778,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
              );
          
          var jsonArgs = {
-                "Concept ID: ": {"key": "rawConceptUri", "style": noWrapStyle},
+                "Concept ID: ": {"key": "simpleConceptUri", "style": noWrapStyle},
                 "Synonyms: ": {"key": "synonym", "style": wrapStyle},
                 "Definition: ": {"key": "definition", "style": wrapStyle}
          };
@@ -836,7 +844,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // Refresh popup if currently open
             if(outerThis.lastDisplayedTipsy != null
                     && outerThis.lastDisplayedTipsy.css("visibility") == "visible"
-//                    && outerThis.lastDisplayedTipsyData.nodeIdentifier == d.rawConceptUri
                     ){
                 console.log("This wont' work anymore");
                 // $(outerThis.lastDisplayedTipsy).children(".tipsy-inner").html(outerThis.createNodePopupTable(outerThis.lastDisplayedTipsySvg, outerThis.lastDisplayedTipsyData));
@@ -1094,7 +1101,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .attr("class",
             function(d: ConceptGraph.Node){
                 var classes = GraphView.BaseGraphView.nodeSvgClassSansDot+" "+GraphView.BaseGraphView.conceptNodeSvgClassSansDot;
-                if(d.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
+                if(d.simpleConceptUri === outerThis.centralConceptSimpleUri){
                     classes += " centralNode";
                 }
                 return classes;
@@ -1277,7 +1284,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var conceptExpandFontFillColor;
             var conceptExpandMouseUpFunc;
 
-            var hardTermExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.rawConceptUri), ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+            var hardTermExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.nodeId), ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
 
             if(hardTermExpansionCount != 0){
                 conceptExpandTextValue = "Expand Concepts";
@@ -1328,7 +1335,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var mappingExpandFontFillColor;
             var mappingExpandMouseUpFunc;
 
-            var hardMappingExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.rawConceptUri), ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+            var hardMappingExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.nodeId), ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
 
             if(hardMappingExpansionCount !== 0){
                 mappingExpandTextValue = "Expand Mappings";
@@ -1577,15 +1584,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var outerThis = this;
         return this.conceptGraph.graphD3Format.nodes.sort(
             function(a: ConceptGraph.Node, b: ConceptGraph.Node) {
-                if(a.rawConceptUri === b.rawConceptUri){
+                if(a.nodeId === b.nodeId){
                     // Exact same unqiue identifiers?
                     return 0;
                 }
                 
                 // Is one of these the central node?
-                if(a.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
+                if(a.nodeId === outerThis.conceptGraph.centralConceptUri){
                     return -1;
-                } else if(b.rawConceptUri === outerThis.conceptGraph.centralConceptUri){
+                } else if(b.nodeId === outerThis.conceptGraph.centralConceptUri){
                     return 1;
                 }
                 
