@@ -1704,6 +1704,13 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
                 // a corresponding relation property definition on the ontology itself. We can keep that,. but we can't double parse
                 // said relation on other ontologies that do have a relation property definition.
                 
+
+                // This meta data (http://data.bioontology.org/metadata/treeView) is not useful for graphs.
+                // There could be other metadata like this though...
+                if(Utils.endsWith(propertyId, "treeView")){
+                    return;
+                }
+                
                 // Check for ontology declared property relations.
                 var matchedRelationProp = PropRel.OntologyPropertyRelationsRegistry.matchedAvailableRelations(this.conceptNode.ontologyAcronym, propertyId); // used to be the entry or index..."medial ligament", etc
                 // want label for the arc name, want idEscaped for the id...where am I getting the actual concept that is related?
