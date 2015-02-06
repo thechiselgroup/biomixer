@@ -489,7 +489,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      */
     getNumberOfPotentialNodesToExpand(incomingNodeId: string, nodeInteraction: UndoRedoManager.NodeInteraction){
         var numNewNodesIncoming = 0;
-        var edges = this.expMan.edgeRegistry.getEdgesFor(incomingNodeId);
+        var edges = this.expMan.edgeRegistry.getEdgesFor(<ConceptURI><any>incomingNodeId);
         var nodesSeen = [];
         edges.forEach((edge: Link)=>{
             // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
@@ -905,7 +905,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             edge.edgePositionSlot = 1;
         } else {
             // Since this comes from actual edge objects, they will indeed be created serially and have different values here.
-            var numExistingEdgesBetweenPair = this.expMan.edgeRegistry.getEdgesFor(String(edge.sourceId), String(edge.targetId)).length;
+            var numExistingEdgesBetweenPair = this.expMan.edgeRegistry.getEdgesFor(edge.sourceId, edge.targetId).length;
             edge.edgePositionSlot = numExistingEdgesBetweenPair + 2; // +2 for the inheritance and composition positions
         }
         
@@ -981,23 +981,43 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){
-        var conceptId = String(conceptNode.nodeId);
         // Because registry contains edges for which there *was* no node for the index,
         // and there *are* nodes for the other ends of the edge, we can manifest all of
         /// them when we are doing so due to a new node appearing.
-        var allEdges = this.expMan.edgeRegistry.getEdgesFor(conceptId);
+        var allEdges = this.expMan.edgeRegistry.getEdgesFor(conceptNode.nodeId);
         this.manifestEdge(allEdges, false);
+    }
+    
+    private hasNonMappingEdgeAdjacent(nodeId: ConceptURI){
+        return this.expMan.edgeRegistry.getEdgesFor(nodeId).some(
+            (link: Link)=>{
+                var source = this.conceptIdNodeMap[String(link.sourceId)];
+                var target = this.conceptIdNodeMap[String(link.targetId)];
+                if(undefined === source || undefined === target || !this.nodeInGraph(source) || !this.nodeInGraph(target)){
+                    return false;
+                } else {
+                    return link.relationType !== this.relationLabelConstants.mapping;
+                }
+            }
+        );
     }
     
     isEdgeForTemporaryRenderOnly(edge: Link) : boolean{
         // For mapping edges, if neither endpoint has triggered a mapping expansion, we won't
         // want to render the edge all the time.
+        // But, now I also want to render mapping arcs that connect two nodes that each have
+        // any non-mapping arc. Those nodes have higher relevance than a clustered cohort
+        // of mutually mapped nodes, which would produce a hairball.
         
         if(edge.relationType === this.relationLabelConstants.mapping){
             if(this.expMan.wasConceptClearedForExpansion(edge.sourceId, PathOptionConstants.mappingsNeighborhoodConstant)
                 || this.expMan.wasConceptClearedForExpansion(edge.targetId, PathOptionConstants.mappingsNeighborhoodConstant)
             ){
                 // If one of the endpoints was expanded along mapping neighbourhood space, we will render the edge.
+                return false;
+            } else if(this.hasNonMappingEdgeAdjacent(edge.sourceId) && this.expMan.edgeRegistry.getEdgesFor(edge.targetId)){
+                // If both endpoints are interesting (meaning, both have non-mapping edges attached),
+                // then we will also render it.
                 return false;
             } else {
                 return true;
@@ -1009,7 +1029,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     
     manifestTemporaryHoverEdges(conceptNode: Node){
         var temporaryEdges = [];
-        var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(String(conceptNode.nodeId));
+        var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(conceptNode.nodeId);
         // If clearedForMap, then technically all the mapping edges should be visible, so there's no reason to
         // look over the edges.
         var clearedForMap = this.expMan.wasConceptClearedForExpansion(conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant);

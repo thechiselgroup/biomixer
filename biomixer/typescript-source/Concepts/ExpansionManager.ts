@@ -180,12 +180,14 @@ export class EdgeRegistry {
         
     }
     
-    getEdgesFor(firstNodeId: string, secondNodeId?: string):  ConceptGraph.Link[] {
+    getEdgesFor(firstNodeIdRaw: ConceptGraph.ConceptURI, secondNodeIdRaw?: ConceptGraph.ConceptURI):  ConceptGraph.Link[] {
+        var firstNodeId = String(firstNodeIdRaw);
+        var secondNodeId = String(secondNodeIdRaw);
         if(undefined === this.twoWayEdgeRegistry[firstNodeId]){
             return [];
         }
         
-        if(null == secondNodeId){
+        if(null == secondNodeIdRaw){
             return this.twoWayEdgeRegistry[firstNodeId];
         } else {
             var edgesToTarget = [];
