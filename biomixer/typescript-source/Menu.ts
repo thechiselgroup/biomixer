@@ -7,6 +7,10 @@ export class Menu {
     static mainMenuButtonClass = "mainMenuButtonIcon";
     
     static menuExpanderButtonClass = "menuExpanderButton";
+        
+    static openActionClass = "menuLabelIconOpenAction";
+    
+    static closeActionClass = "menuLabelIconCloseAction";
     
     static menuLabelClass = "menuLabel";
     
@@ -25,6 +29,7 @@ export class Menu {
     static hidingMenuContainerClass = "hidingMenu";
     
     private menuName: string = "";
+
     
     initializeMenu(menuName: string = Menu.defaultMenuName){
         this.menuName = menuName;
@@ -127,11 +132,11 @@ export class Menu {
     
         var expanderIndicatorUpdate = ()=>{
             if($(innerHidingContainer).css("display") === "none"){
-                labelExpanderIcon.addClass("menuLabelIconOpenAction");
-                labelExpanderIcon.removeClass("menuLabelIconCloseAction");
+                labelExpanderIcon.addClass(Menu.openActionClass);
+                labelExpanderIcon.removeClass(Menu.closeActionClass);
             } else {
-                labelExpanderIcon.removeClass("menuLabelIconOpenAction");
-                labelExpanderIcon.addClass("menuLabelIconCloseAction");
+                labelExpanderIcon.removeClass(Menu.openActionClass);
+                labelExpanderIcon.addClass(Menu.closeActionClass);
             }
         };
         

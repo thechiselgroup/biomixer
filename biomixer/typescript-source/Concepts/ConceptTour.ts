@@ -137,7 +137,7 @@ export class Tour {
             .attr("class", "nodeCommandButton")
             .addClass("unselectable")
             .addClass(Menu.Menu.topBarButtonClass)  
-            .text("Take an Intro.js Tour!")
+            .text("Take a Tour!")
         ;
         
 //        $(Menu.Menu.menuBarSelector).append(hopscotchTourButton);
@@ -176,7 +176,7 @@ export class Tour {
                         return;
                     }
                     var label = $(menuItem).siblings("."+Menu.Menu.menuItemExpanderLabelClass);
-                    if(label.hasClass("menuLabelIconCloseAction")){
+                    if(label.hasClass(Menu.Menu.closeActionClass)){
                         label.click(); // label[class$='']
                     }            
                 }
@@ -185,7 +185,7 @@ export class Tour {
         // Find the parent menu collapsible section for the element,
         // and ensure it is expanded. Perhaps collapse the others?
         var label = childMenuItem.siblings("."+Menu.Menu.menuItemExpanderLabelClass);
-        if(!label.hasClass("menuLabelIconCloseAction")){
+        if(!label.hasClass(Menu.Menu.closeActionClass)){
             label.click(); // label[class$='']
         }
     }
@@ -293,7 +293,7 @@ export class Tour {
         return [
             {
                 
-            text: "Welcome to the visualization tour. We advise that you use the tour in a freshly loaded visualization.",
+            text: "<h1 class='introjs-header'>Welcome</h1> Welcome to the interactive visualization tour. We advise that you use the tour in a freshly loaded visualization. <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
             nextMethod: ()=>{ this.closeMenuIfVisible(); },
             position: "bottom"
             },
@@ -301,60 +301,20 @@ export class Tour {
 //- three base modes: Path to Root, Term Neighborhood, and Mapping Neighborhood
             {
             target: $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)[0],
-            text: "The visualization begins differently depending on which mode it starts in. Feel free to click and see what is available. Click Next when you are ready.",
+            text: "<h1 class='introjs-header'>Graph Modes</h1> The visualization begins differently depending on which mode it starts in. Feel free to click and see what is available. Click Next when you are ready.",
             position: "bottom"
             },
-//- node expansions to add related nodes. Each node has a drop down menu attached, allowing the user to add either related terms in the same ontology, or mapped terms in other ontologies. Node expansion is optionally capped when many nodes already exist in the graph. An estimate of the number of available related nodes is given.
-             {
-            target: $("rect[id^='node_expander_indicator']")[0],
-            text: "New concepts that are related to a concept in the graph can be added by clicking the menu on any node. Please click the highlighted menu to proceed.",
-            position: "top"
-            },
-//             {
-//            target: $($("#expanderMenuItemConceptExpander"),
-//            text: "",
-//            nextMethod: ()=>{}
-//            },
-                // TODO Make this a two step portion, getting user to expand menu, then we focus on it, and they click the expander
-                
 //- a menu button in the top right corner toggles the side bar menu visibility
              {
             target: $("#"+Menu.Menu.triggerId)[0],
-            text: "The menu allows access to most other functionality. Click it to see more.",
+            text: "<h1 class='introjs-header'>Main Menu</h1> The menu allows access to much of the visualization functionality. We will explore this later. Let's turn to node interactions first.",
             nextMethod: ()=>{ this.closeMenuIfVisible(); },
             position: "left",
             },
-//- individual nodes from any ontology may be added if their unique URI is provided to a field in the menu
-             {
-            target: $("#singleNodeImportMessageBoxTextArea")[0],
-            text: "You can add a specific node based on its ID, possibly unrelated to those already in the graph. These are easily found through the main Bioportal search interface. If it's not already in the graph, try adding http://purl.org/stemnet/MHC#Mouse",
-            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
-            position: "left"
-            },
-//           {
-//            target: haven't added thsi feature yet),
-//            text: "You can also try finding a distant node by searching by name, within a specific ontology.",
-//            position: "bottom"
-//            },
-//- six layout algorithms available in menu (Center, Circle, Force-Directed, Vertical Tree, Horizontal Tree, and Radial layouts)
-             {
-            target: $("#"+ConceptLayouts.ConceptLayouts.layoutMenuContainerId)[0],
-            text: "There are six layout algorithms that can help untangle relationships. Try them out.",
-            nextMethod: ()=>{ this.showMenuIfNotVisible(); },
-            position: "bottom"
-            },
-            
-//- undo and redo: both buttons and drop down lists. Can step between any set of changes to the graph's node population, but not things like layouts or display customization
-             {
-            target: $("#redo_list_button")[0],
-            text: "Changes to the graph's composition can be undone, and redone. You cannot undo node movements, though. Try going back and forth a bit.",
-            position: "bottom"
-            },
-            
 //- node details are accessible by clicking on the node. A single popup is displayed at a time, until the user clicks anywhere else in the graph.
              {
             target: $(".centralNode").parent()[0],
-            text: "Node details can be seen if you click on a node. The popup stays visible until you click somewhere else. Try it!",
+            text: "<h1 class='introjs-header'>Node Details</h1> Node details can be seen if you click on a node. The popup stays visible until you click somewhere else. Try it!",
             position: "bottom"
             },
              {
@@ -362,10 +322,17 @@ export class Tour {
             text: "Try clicking in some white space to make the info box disappear, if you have not already.",
 //            position: "bottom"
             },
+
+//- hovering over a node in the graph will highlight it and the nodes that are connected to it
+             {
+            
+            text: "<h1 class='introjs-header'>Hovering Nodes</h1> You may have noticed, but hovering over any node highlights the nodes related to it.",
+            position: "bottom"
+            },
 //- hovering over arcs triggers a popup indicating the endpoint node names and the relation type
              {
 //            target: $(".link_container")[0],
-            text: "Hovering the mouse carefully over the links between nodes will provide more details about their relationship. Try it out.",
+            text: "<h1 class='introjs-header'>Hovering Links</h1> Hovering the mouse carefully over the links between nodes will provide more details about their relationship. Try it out.",
 //            position: "bottom"
             },
 //- node dragging to reposition individual nodes
@@ -378,33 +345,60 @@ export class Tour {
 //- search for nodes in a dense graph, via field in menu. Will trigger radar blips around each matching node
              {
             target: $("#nodeNameSearchButton")[0],
-            text: "A node included in the graph can be visually located by searching for part of its name or synonym in this box. Try it out.",
-            nextMethod: ()=>{ console.log("here though"); this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
+            text: "<h1 class='introjs-header'>Node Radar</h1> A node included in the graph can be visually located by searching for part of its name or synonym in this box. Try it out.",
+            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
             position: "left"
             },
-//- sharing of graphs via export and import, via the menu. Export provides json code that another user may paste into the import field, and receive the nodes, their positions and any custom edge colors, that existed at the time of export. Undo/redo state is not transferred.
+//- node expansions to add related nodes. Each node has a drop down menu attached, allowing the user to add either related terms in the same ontology, or mapped terms in other ontologies. Node expansion is optionally capped when many nodes already exist in the graph. An estimate of the number of available related nodes is given.
              {
-            target: $("#"+GraphImporterExporter.Widget.outerContainerId)[0],
-            text: "You can share a graph and layout you have constructed. The export data provided to you can be emailed or otherwise sent to collaborators. Try Exporting the current graph, and Importing it into the new window that opens when you click <a href='"+GraphImporterExporter.SavedGraph.getUrlIFrameOrNot()+"'>here</a>",
-            nextMethod: ()=>{ console.log("before or after anchor one?"); this.showSubMenuIfNotVisible($("#"+GraphImporterExporter.Widget.innerContainerId), true); },
-            position: "left"
+            target: $("rect[id^='node_expander_indicator']")[0],
+            text: "<h1 class='introjs-header'>Node Expansion Menus</h1> New concepts that are related to a concept in the graph can be added by clicking the menu on any node. Please click the menu hanging below a node to see. Feel free to add some nodes this way.",
+            position: "top"
             },
-//- filter edge types. Concepts can have different types of relations between them, depending on the ontology, and these may be hidden or re-colored via the menu.
+//             {
+//            target: $($("#expanderMenuItemConceptExpander"),
+//            text: "",
+//            nextMethod: ()=>{}
+//            },
+                // TODO Make this a two step portion, getting user to expand menu, then we focus on it, and they click the expander
+                
+//- individual nodes from any ontology may be added if their unique URI is provided to a field in the menu
              {
-            target: $("#ConceptEdgeTypeFilterOuterContainer")[0],
-            text: "To focus on certain types of relationships or to visually simplify a graph, try filtering edges out.",
-            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#ConceptEdgeTypeFilterScrollContainer"), true); },
+            target: $("#singleNodeImportMessageBoxTextArea")[0],
+            text: "<h1 class='introjs-header'>Single Node Import</h1> You can add a specific node based on its ID, possibly unrelated to those already in the graph. These are easily found through the main Bioportal search interface. If it's not already in the graph, try adding http://purl.org/stemnet/MHC#Mouse",
+            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
             position: "left"
             },
-//- filter/di nodes by ontology; can dim out nodes based on their ontology
+//           {
+//            target: haven't added thsi feature yet),
+//            text: "You can also try finding a distant node by searching by name, within a specific ontology.",
+//            position: "bottom"
+//            },
+//- six layout algorithms available in menu (Center, Circle, Force-Directed, Vertical Tree, Horizontal Tree, and Radial layouts)
+             {
+            target: $("#"+ConceptLayouts.ConceptLayouts.layoutMenuContainerId)[0],
+            text: "<h1 class='introjs-header'>Layout Algorithms</h1> There are six layout algorithms that can help untangle relationships. Try them out.",
+            nextMethod: ()=>{ this.showMenuIfNotVisible(); },
+            position: "bottom"
+            },
+            
+//- undo and redo: both buttons and drop down lists. Can step between any set of changes to the graph's node population, but not things like layouts or display customization
+             {
+            target: $("#redo_list_button")[0],
+            text: "<h1 class='introjs-header'>Undo/Redo</h1> Changes to the graph's composition can be undone, and redone. You cannot undo node movements, though. Try going back and forth a bit.",
+            position: "bottom"
+            },
+            
+
+//- filter/dim nodes by ontology; can dim out nodes based on their ontology
              {
             
-            text: "For the next step, I need you to click some node's menu, and do a Mapping Expansion if there are about 5 available. It shows you the number to expand in parentheses. When you have done that, click next.",
+            text: "<h1 class='introjs-header'>Adding Nodes from other Ontologies</h1> For the next step, I need you to click some node's menu, and do a Mapping Expansion if there are about 5 available. It shows you the number to expand in parentheses. When you have done that, click next.",
             position: "bottom"
             },
             {
             target: $("#NestedOntologyConceptFilterOuterContainer")[0],
-            text: "When there are concepts from multiple ontologies present, you can hide them based on their ontology. Try hiding all the nodes in an ontology. Also try clicking the checkboxes with concept names to hide only a few concepts.",
+            text: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When there are concepts from multiple ontologies present, you can hide them based on their ontology. Try hiding all the nodes in an ontology. Also try clicking the checkboxes with concept names to hide only a few concepts.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "left"
             },
@@ -418,7 +412,7 @@ export class Tour {
 //- remove all node filters with button in menu
              {
             target: $("#NestedOntologyConceptFilterCheckboxDeleteButton")[0],
-            text: "And you can delete all the hidden nodes with this button. Try hiding one node, then pressing the button. This may be undone with the undo button visited at another step in this tour.",
+            text: "<h1 class='introjs-header'>Deleting Nodes</h1> And you can delete all the hidden nodes with this button. Try hiding one node, then pressing the button. This may be undone with the undo button visited at another step in this tour.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "top"
             },
@@ -430,27 +424,43 @@ export class Tour {
 //            },
              {
             
-            text: "Nodes can also be filtered from their node menus, or from their tool tips. Click a node to see the tool tip, and toggle the checkbox there. Thenm click the menu beneath a node to see a 'hide' option. ",
+            text: "<h1 class='introjs-header'>More Node Filtering Controls</h1> Nodes can also be filtered from their node menus, or from their tool tips. Click a node to see the tool tip, and toggle the checkbox there. Then, click the menu beneath a node to see a 'hide' option. ",
             position: "bottom"
             },
 //- filter/dim expansion sets, groups of nodes that were added to the graph together, usually via a node expansion
              {
             
-            text: "For the next step, I need you to click some node's menu, and do an expansion if there are about 5 available. It shows you the number to expand in parentheses. When you have done that, click next.",
+            text: "<h1 class='introjs-header'>Creating Expansion Sets</h1> For the next step, I need you to click some node's menu, and do a Concept expansion if there are about 5 available. It shows you the number to expand in parentheses. When you have done that, click next.",
             position: "bottom"
             },
              {
             target: $("#NestedExpansionSetConceptFilterOuterContainer")[0],
-            text: "You just expanded a node, and a bunch of related nodes were added to the graph. This is called an Expansion Set. You can see these groupings here in the menu. You can hide entire sets, or individual nodes, the same way you can work with ontology filters.",
-            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedExpansionSetConceptFilterScrollContainer", true)); },
+            text: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a node, and a bunch of related nodes were added to the graph. This is called an Expansion Set. You can see these groupings here in the menu. You can hide entire sets, or individual nodes, the same way you can work with ontology filters.",
+            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedExpansionSetConceptFilterScrollContainer"), true); },
             position: "left"
             },
 
-//- hovering over a node in the graph will highlight it and the nodes that are connected to it
-             {
             
-            text: "You may have noticed, but hovering over any node highlights the nodes related to it.",
-            position: "bottom"
+//- filter edge types. Concepts can have different types of relations between them, depending on the ontology, and these may be hidden or re-colored via the menu.
+             {
+            target: $("#ConceptEdgeTypeFilterOuterContainer")[0],
+            text: "<h1 class='introjs-header'>Edge Filters</h1> To focus on certain types of relationships or to visually simplify a graph, try filtering edges out.",
+            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#ConceptEdgeTypeFilterScrollContainer"), true); },
+            position: "left"
+            },
+            {
+            target: $("#ConceptEdgeTypeFilterOuterContainer")[0],
+            text: "Clicking on the sample arrow allows you to assign a new color to that arc type. Try it.",
+            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#ConceptEdgeTypeFilterScrollContainer"), true); },
+            position: "left"
+            },
+            
+//- sharing of graphs via export and import, via the menu. Export provides json code that another user may paste into the import field, and receive the nodes, their positions and any custom edge colors, that existed at the time of export. Undo/redo state is not transferred.
+             {
+            target: $("#"+GraphImporterExporter.Widget.outerContainerId)[0],
+            text: "<h1 class='introjs-header'>Sharing</h1> You can share a graph and layout you have constructed. The export data provided to you can be emailed or otherwise sent to collaborators. <br/<br/> Try Exporting the current graph, copying exported data, and Importing it into the new window that opens when you click <a target='_blank' href='"+GraphImporterExporter.SavedGraph.getUrlIFrameOrNot()+"'>here</a>",
+            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#"+GraphImporterExporter.Widget.innerContainerId), true); },
+            position: "left"
             },
 //            
 ////- hovering over any of the node filtering checkboxes will highlight the corresponding nodes in the graph
@@ -479,7 +489,7 @@ export class Tour {
 //            },
             {
             
-            text: "If you have suggestions or comments, contact us at biomixer.chisel@gmail.com",
+            text: "<h1 class='introjs-header'>All Done! Questions?</h1> If you have suggestions or comments, contact us at biomixer.chisel@gmail.com  <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
                 position: "bottom"
             },
             ]

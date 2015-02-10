@@ -177,11 +177,11 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                     var expanderIndicatorUpdate = ()=>{
                         // labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-");
                         if($(innerHidingContainer).css("display") === "none"){
-                            labelExpanderIcon.addClass("menuLabelIconOpenAction");
-                            labelExpanderIcon.removeClass("menuLabelIconCloseAction");
+                            labelExpanderIcon.addClass(Menu.Menu.openActionClass);
+                            labelExpanderIcon.removeClass(Menu.Menu.closeActionClass);
                         } else {
-                            labelExpanderIcon.removeClass("menuLabelIconOpenAction");
-                            labelExpanderIcon.addClass("menuLabelIconCloseAction");
+                            labelExpanderIcon.removeClass(Menu.Menu.openActionClass);
+                            labelExpanderIcon.addClass(Menu.Menu.closeActionClass);
                         }
                     };
                     
