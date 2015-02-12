@@ -484,12 +484,18 @@ div#undo_redo_breadcrumb_label {
 	
 }
 
+.undo_redo_breadcrumb_trail {
+	/* only needed this for tour, so that the border was positioned well */
+	float: left;
+	/* or 	display: block; */
+}
+
 .undo_redo_button {
 	float: left;
 	padding: 2px;
 }
 
-.und_redo_spacer {
+.undo_redo_spacer {
 	float: left;
 	pad-right: 5em;
 }

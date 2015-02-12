@@ -113,7 +113,7 @@ export class Menu {
      * 1) attach the outer element to the menu or other html container of your choice. This outer element is always visible.
      * 2) attach your menu's elements to the inner element. They will be shown or hidden.
      */
-     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery; expanderCallback: {(open?: boolean): void} } {
+     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery; expanderCallback: (open?: boolean, whenComplete?: () => void) => void; } {
         var outerContainer = $("<div>").attr("id", outerContainerId);
         var innerHidingContainer = $("<div>").attr("id", innerContainerId).addClass(Menu.hidingMenuContainerClass);
         
@@ -130,13 +130,18 @@ export class Menu {
             .addClass("unselectable").attr("unselectable", "on") // IE8
             ;
     
-        var expanderIndicatorUpdate = ()=>{
-            if($(innerHidingContainer).css("display") === "none"){
-                labelExpanderIcon.addClass(Menu.openActionClass);
-                labelExpanderIcon.removeClass(Menu.closeActionClass);
-            } else {
-                labelExpanderIcon.removeClass(Menu.openActionClass);
-                labelExpanderIcon.addClass(Menu.closeActionClass);
+        var expanderIndicatorUpdateLambda = (whenComplete?: ()=>void) => {
+            return ()=>{
+                if($(innerHidingContainer).css("display") === "none"){
+                    labelExpanderIcon.addClass(Menu.openActionClass);
+                    labelExpanderIcon.removeClass(Menu.closeActionClass);
+                } else {
+                    labelExpanderIcon.removeClass(Menu.openActionClass);
+                    labelExpanderIcon.addClass(Menu.closeActionClass);
+                }
+                if(null != whenComplete){
+                    whenComplete();
+                }
             }
         };
         
@@ -145,29 +150,37 @@ export class Menu {
             .addClass("unselectable").attr("unselectable", "on") // IE8
             .text(labelText);
      
-        var expanderClickFunction = (open?: boolean)=>{
+        var expanderClickFunction = (open?: boolean, whenComplete?: ()=>void)=>{
             // Used for the button, as well as for a programmatic callback for when we want to display the submenu
             // for special purposes.
-            if(undefined !== open){
+            if(null != open){
                 if(open){
-                    $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdate);
+                    $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdateLambda(whenComplete));
                 } else {
-                    $(innerHidingContainer).slideUp('fast', expanderIndicatorUpdate);
+                    $(innerHidingContainer).slideUp('fast', expanderIndicatorUpdateLambda(whenComplete));
                 }
             } else {
                 // Don't have a preference of what to do? Toggle it.
-                $(innerHidingContainer).slideToggle('fast', expanderIndicatorUpdate);
+                $(innerHidingContainer).slideToggle('fast', expanderIndicatorUpdateLambda(whenComplete));
             }
         }; 
         
-        labelExpanderIcon.click(()=>{expanderClickFunction();});
-        label.click(()=>{expanderClickFunction();});
+        labelExpanderIcon.click(
+            (event, whenComplete?: ()=>void)=>{
+                expanderClickFunction(undefined, whenComplete);
+            }
+        );
+        label.click(
+            (event, whenComplete?: ()=>void)=>{
+                expanderClickFunction(undefined, whenComplete);
+            }
+        );
     
         outerContainer.append(labelExpanderIcon);
         outerContainer.append(label);
         
         // We don't know the default necessarily, so set the icon here.
-        expanderIndicatorUpdate();
+        expanderIndicatorUpdateLambda()();
 
         outerContainer.append(innerHidingContainer);
         

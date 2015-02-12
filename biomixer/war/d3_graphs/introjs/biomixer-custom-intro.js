@@ -230,7 +230,12 @@
       };
 
       self._onResize = function(e) {
-        _setHelperLayerPosition.call(self, document.querySelector('.introjs-helperLayer'));
+    	var helper = document.querySelector('.introjs-helperLayer');
+    	var top = document.querySelector('.introjs-helperLayerTop');
+    	var right = document.querySelector('.introjs-helperLayerRight');
+    	var bottom = document.querySelector('.introjs-helperLayerBottom');
+    	var left = document.querySelector('.introjs-helperLayerLeft');
+        _setOutlineOnlyHelperLayerPosition.call(self, helper, top, right, bottom, left);
         _setHelperLayerPosition.call(self, document.querySelector('.introjs-tooltipReferenceLayer'));
       };
 
@@ -370,8 +375,16 @@
 
     //remove all helper layers
     var helperLayer = targetElement.querySelector('.introjs-helperLayer');
+    var top = document.querySelector('.introjs-helperLayerTop');
+	var right = document.querySelector('.introjs-helperLayerRight');
+	var bottom = document.querySelector('.introjs-helperLayerBottom');
+	var left = document.querySelector('.introjs-helperLayerLeft');
     if (helperLayer) {
       helperLayer.parentNode.removeChild(helperLayer);
+      top.parentNode.removeChild(top);
+      right.parentNode.removeChild(right);
+      bottom.parentNode.removeChild(bottom);
+      left.parentNode.removeChild(left);
     }
 
     var referenceLayer = targetElement.querySelector('.introjs-tooltipReferenceLayer');
@@ -395,6 +408,7 @@
     if (showElement) {
 //      showElement.className = showElement.className.replace(/introjs-[a-zA-Z]+/g, '').replace(/^\s+|\s+$/g, ''); // This is a manual trim.
 //        console.log(list);
+    	var list = showElement.classList;
         var j = 0;
     	while(j < list.length){
     		var item = list.item(j);
@@ -679,6 +693,53 @@
 
     }
   }
+  
+  function _setOutlineOnlyHelperLayerPosition(helperLayer, topLine, rightLine, bottomLine, leftLine) {
+	    if (helperLayer) {
+	      //prevent error when `this._currentStep` in undefined
+	      if (!this._introItems[this._currentStep]) return;
+
+	      var currentElement  = this._introItems[this._currentStep],
+	          elementPosition = _getOffset(currentElement.element),
+	          widthHeightPadding = 10;
+
+	      var rectLineThickness = 2;
+	      
+	      if (currentElement.position == 'floating') {
+	        widthHeightPadding = 0;
+	        rectLineThickness = 0;
+	      }
+
+		//  //set new position to helper layer
+		//	helperLayer.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding)  + 'px; ' +
+		//		'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
+		//		'top:'    + (elementPosition.top    - 5)   + 'px;' +
+		//		'left: '  + (elementPosition.left   - 5)   + 'px;');
+	      helperLayer.setAttribute('style', 'width: ' + (0)  + 'px; ' +
+	                                        'height:' + (0)  + 'px; ' +
+	                                        'top:'    + (elementPosition.top    - 5)   + 'px;' +
+	                                        'left: '  + (elementPosition.left   - 5)   + 'px;');
+	      topLine.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding - rectLineThickness)  + 'px; ' +
+	    		  							'height:' + (rectLineThickness)  + 'px; ' +
+	    		  							'top:'    + (elementPosition.top    - 5)   + 'px;' +
+	    		  							// Remove overlap that makes the lines uglier when opacity is used.
+	    		  							'left: '  + (elementPosition.left   - 5 + rectLineThickness)   + 'px;');
+	      // Bottom has rectLineThickness added on to cover a missed pixel. Simplest and looks best when using non-opaque lines.
+	      bottomLine.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding + rectLineThickness)  + 'px; ' +
+	    		  							'height:' + (rectLineThickness)  + 'px; ' +
+	    		  							'top:'    + (elementPosition.top    - 5 + elementPosition.height + widthHeightPadding)   + 'px;' +
+	    		  							'left: '  + (elementPosition.left   - 5)   + 'px;');
+	      leftLine.setAttribute('style', 'width: ' + (rectLineThickness)  + 'px; ' +
+	    		  							'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
+	    		  							'top:'    + (elementPosition.top    - 5)   + 'px;' +
+	    		  							'left: '  + (elementPosition.left   - 5)   + 'px;');
+	      rightLine.setAttribute('style', 'width: ' + (rectLineThickness)  + 'px; ' +
+	    		  							'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
+	    		  							'top:'    + (elementPosition.top    - 5)   + 'px;' +
+	    		  							'left: '  + (elementPosition.left   - 5 + elementPosition.width  + widthHeightPadding)   + 'px;');
+
+	    }
+	  }
 
   /**
    * Add disableinteraction layer and adjust the size and position of the layer
@@ -715,6 +776,10 @@
         oldReferenceLayer = document.querySelector('.introjs-tooltipReferenceLayer'),
         highlightClass = 'introjs-helperLayer',
         elementPosition = _getOffset(targetElement.element);
+    var oldtop = document.querySelector('.introjs-helperLayerTop');
+    var oldright = document.querySelector('.introjs-helperLayerRight');
+    var oldbottom = document.querySelector('.introjs-helperLayerBottom');
+    var oldleft = document.querySelector('.introjs-helperLayerLeft');
 
     //check for a current step highlight class
     if (typeof (targetElement.highlightClass) === 'string') {
@@ -749,7 +814,7 @@
       }
 
       //set new position to helper layer
-      _setHelperLayerPosition.call(self, oldHelperLayer);
+      _setOutlineOnlyHelperLayerPosition.call(self, oldHelperLayer, oldtop, oldright, oldbottom, oldleft);
       _setHelperLayerPosition.call(self, oldReferenceLayer);
 
       //remove `introjs-fixParent` class from the elements
@@ -828,24 +893,42 @@
       }, 350);
 
     } else {
-      var helperLayer       = document.createElement('div'),
-          referenceLayer    = document.createElement('div'),
+      var helperLayer       = document.createElement('div');
+      var top = document.createElement('div');
+      var right = document.createElement('div');
+      var bottom = document.createElement('div');
+      var left = document.createElement('div');
+      
+      var referenceLayer    = document.createElement('div'),
           arrowLayer        = document.createElement('div'),
           tooltipLayer      = document.createElement('div'),
           tooltipTextLayer  = document.createElement('div'),
           bulletsLayer      = document.createElement('div'),
           progressLayer     = document.createElement('div'),
           buttonsLayer      = document.createElement('div');
+      
+      // TODO Create a path or set of lines instead of a div for the
+      // helper layer, so that even though it is above and separate from
+      // the SVG layer, it will not occlude clicks.
+      // Alternately, try creating an SVG helperLayer to do the highlighting.
 
       helperLayer.className = highlightClass;
+      top.className = 'introjs-helperLayerTop';
+      right.className = 'introjs-helperLayerRight';
+      bottom.className = 'introjs-helperLayerBottom';
+      left.className = 'introjs-helperLayerLeft';
       referenceLayer.className = 'introjs-tooltipReferenceLayer';
 
       //set new position to helper layer
-      _setHelperLayerPosition.call(self, helperLayer);
+      _setOutlineOnlyHelperLayerPosition.call(self, helperLayer, top, right, bottom, left);
       _setHelperLayerPosition.call(self, referenceLayer);
 
       //add helper layer to target element
       this._targetElement.appendChild(helperLayer);
+      this._targetElement.appendChild(top);
+      this._targetElement.appendChild(right);
+      this._targetElement.appendChild(bottom);
+      this._targetElement.appendChild(left);
       this._targetElement.appendChild(referenceLayer);
 
       arrowLayer.className = 'introjs-arrow';
@@ -1301,7 +1384,12 @@
       return this;
     },
     refresh: function() {
-      _setHelperLayerPosition.call(this, document.querySelector('.introjs-helperLayer'));
+    	var helper = document.querySelector('.introjs-helperLayer');
+      	var top = document.querySelector('.introjs-helperLayerTop');
+      	var right = document.querySelector('.introjs-helperLayerRight');
+      	var bottom = document.querySelector('.introjs-helperLayerBottom');
+      	var left = document.querySelector('.introjs-helperLayerLeft');
+        _setOutlineOnlyHelperLayerPosition.call(this, helper, top, right, bottom, left);
       _setHelperLayerPosition.call(this, document.querySelector('.introjs-tooltipReferenceLayer'));
       return this;
     },

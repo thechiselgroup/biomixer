@@ -77,7 +77,7 @@ export class Widget {
 
     public menuSelector: string = "";
     
-    private containers: {outer: JQuery; inner: JQuery; expanderCallback: {(open?: boolean): void} };
+    private containers: {outer: JQuery; inner: JQuery; expanderCallback: (open?: boolean, whenComplete?: () => void) => void; };
     
     constructor(
         private pathsToRoot: PathsToRoot.ConceptPathsToRoot

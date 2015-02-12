@@ -438,6 +438,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 boundLinkMarkers.attr("points", this.updateArcMarkerFunc);
             }
             
+            if(null != this.tour){
+                this.tour.refreshIntro();
+            }
         }
             
     }

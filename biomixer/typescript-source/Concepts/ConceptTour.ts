@@ -186,8 +186,11 @@ export class Tour {
         // and ensure it is expanded. Perhaps collapse the others?
         var label = childMenuItem.siblings("."+Menu.Menu.menuItemExpanderLabelClass);
         if(!label.hasClass(Menu.Menu.closeActionClass)){
-            label.click(); // label[class$='']
+            // The animation for the menu takes a moment, so after a delay, refresh the tour toget the outline positioned
+            // more accurately.
+            label.trigger("click", ()=>{this.refreshIntro();});
         }
+        
     }
     
     private getLibrarySpecificSteps(elementKey: string, textKey: string, positionKey: string, nextMethodKey: string, optionalCustom?: Array<string>){
@@ -267,13 +270,14 @@ export class Tour {
 //        
 //    }
     
+    intro;
     startIntro(){
     	// I needed to modify introjs to allow per-event next step callbacks. I also needed to get rid of the 
     	// shading and spotlight layers to allow clicking on objects.
         var tourSteps = this.getLibrarySpecificSteps("element", "intro", "position", "onbeforechange", ["overlayOpacity"]);
         
-        var intro = introJs();
-        intro.setOptions(this.introJsSettings);
+        this.intro = introJs();
+        this.intro.setOptions(this.introJsSettings);
           
         // We can probably always use the presets for the main settings,
         // then provide the step settings afterwards. Makes it easier to
@@ -281,10 +285,16 @@ export class Tour {
         var tour = {
             steps: tourSteps
         };
-        intro.setOptions(tour);
+        this.intro.setOptions(tour);
         
-        intro.start();
+        this.intro.start();
         
+    }
+    
+    refreshIntro(){
+        if(null != this.intro){
+            this.intro.refresh();  
+        } 
     }
     
     private getSteps(): Array<GeneralTourStep>{
@@ -384,7 +394,7 @@ export class Tour {
             
 //- undo and redo: both buttons and drop down lists. Can step between any set of changes to the graph's node population, but not things like layouts or display customization
              {
-            target: $("#redo_list_button")[0],
+            target: $("#undo_redo_breadcrumb_trail")[0],
             text: "<h1 class='introjs-header'>Undo/Redo</h1> Changes to the graph's composition can be undone, and redone. You cannot undo node movements, though. Try going back and forth a bit.",
             position: "bottom"
             },

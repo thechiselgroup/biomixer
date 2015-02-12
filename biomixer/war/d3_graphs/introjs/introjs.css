@@ -63,6 +63,24 @@ tr.introjs-showElement > th {
           transition: all 0.3s ease-out;
 }
 
+.introjs-helperLayerTop, .introjs-helperLayerRight, .introjs-helperLayerBottom, .introjs-helperLayerLeft {
+  position: absolute;
+  z-index: 9999998;
+  background-color: #777;
+  background-color: rgba(255,70,70,.5);
+  /*
+  border: 1px solid #777;
+  border: 1px solid rgba(0,0,0,.5); 
+  border: 1px solid rgba(255,70,70,.5);
+  */
+  
+  -webkit-transition: all 0.3s ease-out;
+     -moz-transition: all 0.3s ease-out;
+      -ms-transition: all 0.3s ease-out;
+       -o-transition: all 0.3s ease-out;
+          transition: all 0.3s ease-out;
+}
+
 .introjs-tooltipReferenceLayer {
   position: absolute;
   z-index: 10000000;
