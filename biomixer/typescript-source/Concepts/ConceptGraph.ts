@@ -590,7 +590,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     refreshNodeCapDialogNodeCount(numberNewNodesComing?: number) {
         $("p#nodeCapDialogMessage")
         .text("You are about to add multiple nodes to the visualization."+"\n"
-            +this.graphD3Format.nodes.length+" have been loaded so far, but "+numberNewNodesComing+" remain."+"\n\n"+
+            +"In total, "+this.graphD3Format.nodes.length+" nodes are in the graph, but "+numberNewNodesComing+" more can be added."+"\n\n"+
             "Would you like to limit or stop adding nodes? If you change your mind, you can re-expand the concepts/mappings later."
         );
         
