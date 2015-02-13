@@ -147,6 +147,10 @@ export class UndoRedoManager {
             startAtIndex = oldIndex + 1; // From next after current, redo
             stopAtIndex = commandIndex + 1; // Redo the target one, not past
         }
+        
+        // Need to know the command that will be in state when we are done undoing/redoing,
+        // so we can make a special call on it.
+        var finalCommand = this.trail[startAtIndex];
         for(var i = startAtIndex; i !== stopAtIndex; i += increment){
             var anotherCommand = this.trail[i];
             if(undo){
@@ -154,10 +158,15 @@ export class UndoRedoManager {
                 // temporarily save its layout in case we come back to it.
                 anotherCommand.snapshotLayout(false);
                 anotherCommand.executeUndo();
+                finalCommand = this.trail[stopAtIndex];
             } else {
                 anotherCommand.executeRedo();
+                finalCommand = anotherCommand;
             }
         }
+        
+        // At the final command, we tell that command that it is active...
+        finalCommand.callActiveStepCallback();
         
         // Apply the layout we got a snapshot for in addCommand(), when the command was created.
         this.crumblez.getActiveCrumb().getCommand().applyLayout();
@@ -223,6 +232,12 @@ export interface ICommand {
      * Must also take care of applying layout snapshot.
      */
     executeUndo(): void;
+    
+    /**
+     * When undo or redo is finished, the final state may require some additional UI updates.
+     * Perform any registered callback that will be responsible for these. 
+     */
+    callActiveStepCallback(): void;
    
     /**
      * Render the state of this command so that the user can see what the results

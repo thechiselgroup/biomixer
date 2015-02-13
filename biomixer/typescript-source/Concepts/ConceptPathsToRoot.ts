@@ -135,8 +135,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.visualization = <ConceptGraph.PathOption><any>$(ConceptPathsToRoot.VIZ_SELECTOR_ID+" option:selected").text();
         $(ConceptPathsToRoot.VIZ_SELECTOR_ID).change(
             () => {
-                console.log("Changing visualization mode.");
-                var selected  = <ConceptGraph.PathOption><any>$("#visualization_selector option:selected").text();
+                var selected  = <ConceptGraph.PathOption><any>$(ConceptPathsToRoot.VIZ_SELECTOR_ID + " option:selected").text();
                 if(this.visualization !== selected){
                     this.visualization = selected;
                     this.fetchInitialExpansion();
@@ -145,6 +144,31 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         );
     }
     
+    private refreshVisualizationModeLambda(){
+        // When undoing changes to the graph mode, in order to have the combo box reflect the current
+        // mode, we need to look at some property of the command we are undoing, set our state variable,
+        // and update our UI. This is a hassle.
+        return (command: UndoRedoManager.ICommand)=>{
+            $(ConceptPathsToRoot.VIZ_SELECTOR_ID + " option").each(
+                (i, selectedElement)=>{
+                    if(command.getDisplayName().indexOf($(selectedElement).text()) != -1){
+                         this.visualization = <ConceptGraph.PathOption><any>$(selectedElement).text();
+            
+                         $(ConceptPathsToRoot.VIZ_SELECTOR_ID + " option").each(
+                            (i, deselectedElement)=>{
+                                // De-select the other options
+                                $(deselectedElement).attr("selected", null);
+                            }
+                         );
+        
+                        $(selectedElement).attr("selected", "selected");
+                        return;
+                    }
+                }
+            );
+        };
+    }
+
     public recomputeVisualizationOntoNode(nodeData: ConceptGraph.Node){
 
         // var message = "Are you sure you want to recreate the graph focussed on '"+nodeData.name+"' ("+nodeData.ontologyAcronym+")?";
@@ -265,6 +289,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // expansionType is typically this.visualization (the PathOption gotten from the drop down), but in the case of importing data
         // it could be null.
         var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType);
+        initSet.getGraphModifier().addActiveStepCallback(this.refreshVisualizationModeLambda());
         this.deleteNodesForGraphInitialization(initSet);
         return initSet;
     }

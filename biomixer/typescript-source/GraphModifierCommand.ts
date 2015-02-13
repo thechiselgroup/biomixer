@@ -28,6 +28,8 @@ export class CommonImplementor<N extends GraphView.BaseNode> {
     // in the child constructor calls.
     childImpl: UndoRedoManager.ICommand;
     
+    private activeStepCallback = (command: UndoRedoManager.ICommand)=>{};
+    
     constructor(
         public graph: GraphView.Graph<N>
     ){
@@ -79,6 +81,16 @@ export class CommonImplementor<N extends GraphView.BaseNode> {
         return this.cutShort;
     }
     
+        
+    public addActiveStepCallback(callback: (command: UndoRedoManager.ICommand)=>void){
+        this.activeStepCallback = callback;
+    }
+    
+    callActiveStepCallback(): void {
+    	if(null != this.activeStepCallback){
+        	this.activeStepCallback(this.childImpl);
+    	}
+    }
 }
 
 /**
@@ -280,6 +292,8 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
     redidLast: boolean = false; // start being able to redo it
     
     commands: UndoRedoManager.ICommand[] = [];
+    
+
     
 
     constructor(
