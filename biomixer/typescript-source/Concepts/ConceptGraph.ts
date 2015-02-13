@@ -523,10 +523,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     // NB We could have this inside the fetching utility or inside the node related callbacks, except
     // that the former would complicate non-node fetches, and the latter would necessitate doing the
     // fetch and calling the callback, costing us the fetch but still saving on node load.
-    checkForNodeCap(fetchCallback: {(): void}, expansionSet: ExpansionSets.ExpansionSet<Node>, incomingNodeId: ConceptURI, numberNewNodesComing: number = 0){
+    checkForNodeCap(fetchCallback: {(): void}, expansionSet: ExpansionSets.ExpansionSet<Node>, numberNewNodesComing: number = 0){
         // Assuming we reliably check for capping prior to dispatching node fetches, we can
         // know how many nodes are incoming for a given expansion set by incrementing it here.
-        expansionSet.addIncludedNodeUri(String(incomingNodeId));
         
         if(0 === numberNewNodesComing){
             numberNewNodesComing = this.getNumberOfPotentialNodesToExpand(expansionSet.parentNode.getEntityId(), expansionSet.expansionType);
@@ -709,6 +708,14 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 return this.conceptIdNodeMap[String(nodeId)];
             }
             
+            // Some node ids are not referenced within Bioportal. That is, if the "self" URL is followed,
+            // there will be a 404 error. I can detect this sooner than that by checking to see if they
+            // have no prefLabel supplied.  
+            if(conceptData.prefLabel == null){
+                console.log("Missing prefLabel for concept: id="+conceptData["@id"]+" (link = "+conceptData.links.self+")");
+                return null;
+            }
+            
             // Create the concept nodes that exist on the paths-to-root for the central concept,
             // including the central concept node.
             var conceptNode = new Node();
@@ -856,6 +863,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                 // The delay in rendering seems to be negligable in practice.
                 // Otherwise, we parse such as when it is a child or parent inheritance relation for term neighbourhood
                 var conceptNode = this.parseNode(undefined, conceptPropertiesData, expansionSet);
+                if(null == conceptNode){
+                    return;
+                }
                 this.fetchConceptRelations(conceptNode, conceptPropertiesData, expansionSet);
             } else {
                 console.log("Error: no data passed to expansion and parsing method");
@@ -1399,6 +1409,17 @@ class PathsToRootCallback extends Fetcher.CallbackObject {
                 var newNodeId = String(this.graph.computeNodeId(nodeData));
                 if(newNodesForExpansionGraph[newNodeId] === undefined){
                     var conceptNode = this.graph.parseNode(undefined, nodeData, this.expansionSet);
+                    
+                    if(null == conceptNode){
+                        // I feel like...if the ontology happens to have one of the deformed ids
+                        // as a parent, and has valid parents above it, that we need to keep the
+                        // deformed node (with just it's id) as a stand in, for structural purposes.
+                        // But, given these concepts don't have things like subClassOf properties (by
+                        // virtue of not existing in Bioportal), it might be that they will not have
+                        // accessible parents in the paths to root set anyway...
+                        continue;
+                    }
+                    
                     if(conceptNode.simpleConceptUri === this.centralConceptUri){
                         this.expansionSet.parentNode = conceptNode;
                         if(this.initSet !== null){
@@ -1469,6 +1490,9 @@ class FetchTargetConceptCallback extends Fetcher.CallbackObject {
         
 
         var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
+        if(null == conceptNode){
+            return;
+        }
         
         // This is the vital difference from the FetchOneConceptCallback
         this.expansionSet.parentNode = conceptNode;
@@ -1509,6 +1533,9 @@ export class FetchOneConceptCallback extends Fetcher.CallbackObject {
 
         var fetchCall = ()=>{
             var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, this.expansionSet);
+            if(null == conceptNode){
+                return;
+            }
             // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
             this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, this.expansionSet, this.directCallForExpansionType);
         }
@@ -1517,7 +1544,7 @@ export class FetchOneConceptCallback extends Fetcher.CallbackObject {
             // When loading for import, we will ignore cap checking.
             fetchCall();
         } else {
-            this.graph.checkForNodeCap(fetchCall, this.expansionSet, this.conceptUri);
+            this.graph.checkForNodeCap(fetchCall, this.expansionSet);
         }
     }
 }
@@ -1571,9 +1598,12 @@ export class SearchOneConceptCallback extends Fetcher.CallbackObject {
             var fetchCall = ()=>{
                 for(var j = 0; j < conceptPropertiesData.length; j++){
                     lastConceptNodeData = conceptPropertiesData[j];
-                    lastConceptNode = this.addNode(lastConceptNodeData, expansionSet);
+                    var node = this.addNode(lastConceptNodeData, expansionSet);
+                    if(null !== node){
+                        lastConceptNode = node;
+                    }
                 }
-                if(expansionSet.allNodeIds.length === 1){
+                if(expansionSet.nodes.length === 1){
                     expansionSet.id.displayId += " ("+lastConceptNode.ontologyAcronym+")";
                 } else {
                     expansionSet.id.displayId += " (multiple ontologies)";
@@ -1582,15 +1612,17 @@ export class SearchOneConceptCallback extends Fetcher.CallbackObject {
             // var ontologyUri = conceptData.links.ontology;
             // Check cap using the last node we found in the search results.
             var lastNodeId = this.graph.computeNodeId(conceptPropertiesData[0]);
-            console.log("Do I need to call check per node? Or can I do it here?");
-            this.graph.checkForNodeCap(fetchCall, expansionSet, lastNodeId, conceptPropertiesData.length - 1);
+            this.graph.checkForNodeCap(fetchCall, expansionSet, conceptPropertiesData.length - 1);
         }
     };
     
     private addNode(conceptPropertiesData, expansionSet: ExpansionSets.ExpansionSet<Node>){
         var conceptNode = this.graph.parseNode(undefined, conceptPropertiesData, expansionSet);
+        if(null == conceptNode){
+            return null;
+        }
         
-        if(expansionSet.allNodeIds.length === 0){
+        if(expansionSet.nodes.length === 0){
             expansionSet.id.displayId = "Added: "+conceptNode.name;
         }
         
@@ -1815,7 +1847,7 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
                     this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.nodeId, childId, this.graph.relationLabelConstants.inheritance);
                 };
             
-                this.graph.checkForNodeCap(fetchCall, this.expansionSet, childId);
+                this.graph.checkForNodeCap(fetchCall, this.expansionSet);
             }
         );
         
@@ -1871,7 +1903,7 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
                     this.graph.manifestOrRegisterImplicitRelation(parentId, this.conceptNode.nodeId, this.graph.relationLabelConstants.inheritance);
                 };
                     
-                this.graph.checkForNodeCap(fetchCall, this.expansionSet, parentId);
+                this.graph.checkForNodeCap(fetchCall, this.expansionSet);
 
         });
     }

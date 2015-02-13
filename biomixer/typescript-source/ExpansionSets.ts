@@ -26,15 +26,6 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
     
     nodes: Array<N> = new Array<N>();
     
-    /**
-     * As we discover nodes that *could* be loaded, this accrues them.
-     * For many expansions, we do not know what the ultimate size of the
-     * set will be.
-     * 
-     * The boolean value is currently unused. I'd use an array but I wanted a set.
-     */
-    allNodeIds: string[] = [];
-        
     graphModifier: GraphModifierCommand.GraphAddNodesCommand<N>;
     
     /**
@@ -78,22 +69,6 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
                 }
             }
         );
-    }
-    
-    addIncludedNodeUri(incomingNodeId: string){
-        if(this.allNodeIds.indexOf(incomingNodeId) === -1){
-            this.allNodeIds.push(incomingNodeId);
-        } else {
-            console.log("Duplicate entry attempt in expansion set '"+this.id.internalId+"', for node: "+incomingNodeId);
-        }
-    }
-    
-    /**
-     * Deprecated
-     */
-    getNumberOfNodesAssociatedWithExpansion(){
-        // I don't think we actually want to know about the parent node for this.
-        return this.allNodeIds.length; // + (this.parentNode === null ? 0 : 1);
     }
     
     getGraphModifier(){
