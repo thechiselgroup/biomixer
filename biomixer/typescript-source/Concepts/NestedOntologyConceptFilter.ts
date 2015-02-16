@@ -250,13 +250,15 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
             {
                 var checkId = this.implementation.computeCheckId(target);
                 var spanId = "span_"+checkId;
+                
+                var correspondingOntologyInnerHidingContainer = $("#"+this.computeOntologyConceptDivId(target.ontologyAcronym));
+            
                 if(0 === $("#"+spanId).length){
                     // We store some arbitrary containers of nodes to hide for each checkbox. Seems data consumptive.
                     
                     var checkboxLabel = this.implementation.generateCheckboxLabel(target);
                     var checkboxColoredSquare = this.implementation.generateColoredSquareIndicator(target);
                     
-                    var correspondingOntologyInnerHidingContainer = $("#"+this.computeOntologyConceptDivId(target.ontologyAcronym));
                     
                     correspondingOntologyInnerHidingContainer
                     .append(
@@ -284,6 +286,9 @@ export class NestedOntologyConceptFilter extends ConceptFilterWidget.AbstractCon
                             .append(checkboxColoredSquare+"&nbsp;"+checkboxLabel)
                         )
                     );
+                } else {
+                    // Puts them into the order that the data structure uses
+                    correspondingOntologyInnerHidingContainer.append($("#"+spanId));
                 }
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#"+spanId);
             }

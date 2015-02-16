@@ -213,7 +213,9 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
             var currentTotal = 0;
             var currentVisible = 0;
             $.each(conceptsOfSet, (i: number, node: ConceptGraph.Node)=>{
-                currentTotal++;
+                if(outerThis.graphView.conceptGraph.containsNode(node)){
+                    currentTotal++;
+                }
                 if(!outerThis.graphView.isNodeHidden(node)){
                     currentVisible++;
                 }    

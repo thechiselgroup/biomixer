@@ -104,6 +104,9 @@ export class AbstractNodeFilterWidget<FilterTarget, N extends GraphView.BaseNode
 //                            .toggleClass("centralNode", this.implementation.styleAsCentralNode(node))
                         )
                     );
+                } else {
+                    // Puts them into the order that the data structure uses
+                    this.filterContainer.append($("#"+spanId));
                 }
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#"+spanId);
             }

@@ -1605,40 +1605,46 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // it is, it is preferable to having duplicate code in redo and where
             // the command is created (and applied).
             deletionSet.getGraphModifier().executeRedo();
+            this.refreshOtherFilterCheckboxStates(hiddenNodes, null);
         }
     }
     
-    sortConceptNodesCentralOntologyName(){
+    sortConceptNodesCentralOntologyName(nodesToSort?: Array<ConceptGraph.Node>){
+        if(null == nodesToSort){
+            nodesToSort = this.conceptGraph.graphD3Format.nodes;
+        }
+        return nodesToSort.sort(this.sortConceptNodesCentralOntologyNameLambda());
+    }
+    
+    private sortConceptNodesCentralOntologyNameLambda(){
         var outerThis = this;
-        return this.conceptGraph.graphD3Format.nodes.sort(
-            function(a: ConceptGraph.Node, b: ConceptGraph.Node) {
-                if(a.nodeId === b.nodeId){
-                    // Exact same unqiue identifiers?
-                    return 0;
-                }
-                
-                // Is one of these the central node?
-                if(a.nodeId === outerThis.conceptGraph.centralConceptUri){
-                    return -1;
-                } else if(b.nodeId === outerThis.conceptGraph.centralConceptUri){
-                    return 1;
-                }
-                
-                // Put central node ontologies above non-central ontologies, rest ontologies alphabetical
-                if(a.ontologyAcronym !== b.ontologyAcronym){
-                    if(a.ontologyAcronym === outerThis.centralOntologyAcronym){
-                        return -1;
-                    } else if(b.ontologyAcronym === outerThis.centralOntologyAcronym){
-                        return 1;
-                    } else {
-                        return (a.ontologyAcronym < b.ontologyAcronym) ? -1 : 1;
-                    }
-                }
-                
-                // Alphabetical on concept names within ontologies
-                return (a.name < b.name) ? -1 : 1;
+        return function(a: ConceptGraph.Node, b: ConceptGraph.Node) {
+            if(a.nodeId === b.nodeId){
+                // Exact same unqiue identifiers?
+                return 0;
             }
-        );
+            
+            // Is one of these the central node?
+            if(a.nodeId === outerThis.conceptGraph.centralConceptUri){
+                return -1;
+            } else if(b.nodeId === outerThis.conceptGraph.centralConceptUri){
+                return 1;
+            }
+            
+            // Put central node ontologies above non-central ontologies, rest ontologies alphabetical
+            if(a.ontologyAcronym !== b.ontologyAcronym){
+                if(a.ontologyAcronym === outerThis.centralOntologyAcronym){
+                    return -1;
+                } else if(b.ontologyAcronym === outerThis.centralOntologyAcronym){
+                    return 1;
+                } else {
+                    return (a.ontologyAcronym < b.ontologyAcronym) ? -1 : 1;
+                }
+            }
+            
+            // Alphabetical on concept names within ontologies
+            return (a.name < b.name) ? -1 : 1;
+        };
     }
     
 }

@@ -263,7 +263,17 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     isNodeHidden(node: N): boolean {
         // TODO Refactor these #node_g_ constants! There's an issue for this.
-        return d3.select("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId())).classed(BaseGraphView.hiddenNodeClass);
+        var element = d3.select("#node_g_"+Utils.escapeIdentifierForId(node.getEntityId()));
+        if(null == element[0][0]){
+            // Already deleted
+            return true;
+        } else if (element.classed(BaseGraphView.hiddenNodeClass)){
+            // hidden...but...is this the old way of deleting, before I changed it to remove
+            // nodes entirely from the graph?
+            return true;
+        } else {
+            return false;
+        }
     }
     
     getUnhiddenNodes(): JQuery{

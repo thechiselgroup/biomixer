@@ -241,19 +241,27 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
         // to collect the expansion sets and iterate over those, knowing that the concepts
         // would reliably connect with the filter.
         // $.each(conceptFilterTargets, (i, target: ConceptGraph.Node) =>
-        $.each(expSet.getNodes(), (i, target: ConceptGraph.Node) =>
+        var sortedExpSetNodes = this.graphView.sortConceptNodesCentralOntologyName(expSet.getNodes());
+        $.each(sortedExpSetNodes, (i, target: ConceptGraph.Node) =>
             {
+                // Do not make checkboxes for nodes that have been deleted. 
+                if(!this.graphView.conceptGraph.containsNode(target)){
+                    return;
+                }
+                
                 var checkId = this.implementation.computeCheckId(target);
                 var spanId = "span_"+checkId;
+                
+                // TODO Find expansion set on the basis of a single node.
+                // Am I 100% sure that there is never overlap?
+                var correspondingExpansionInnerHidingContainer = $("#"+this.computeExpansionConceptDivId(expSet));
+            
                 if(0 === $("#"+spanId).length){
                     // We store some arbitrary containers of nodes to hide for each checkbox. Seems data consumptive.
                     
                     var checkboxLabel = this.implementation.generateCheckboxLabel(target);
                     var checkboxColoredSquare = this.implementation.generateColoredSquareIndicator(target);
                     
-                    // TODO Find expansion set on the basis of a single node.
-                    // Am I 100% sure that there is never overlap?
-                    var correspondingExpansionInnerHidingContainer = $("#"+this.computeExpansionConceptDivId(expSet));
                     
                     correspondingExpansionInnerHidingContainer
                     .append(
@@ -281,6 +289,9 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                             .append(checkboxColoredSquare+"&nbsp;"+checkboxLabel)
                         )
                     );
+                } else {
+                    // Puts them into the order that the data structure uses
+                    correspondingExpansionInnerHidingContainer.append($("#"+spanId));
                 }
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#"+spanId);
             }
