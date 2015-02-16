@@ -710,10 +710,16 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             
             // Some node ids are not referenced within Bioportal. That is, if the "self" URL is followed,
             // there will be a 404 error. I can detect this sooner than that by checking to see if they
-            // have no prefLabel supplied.  
-            if(conceptData.prefLabel == null){
+            // have no prefLabel supplied.
+            // I know understand these ids to be (possibly) blank nodes. Read about blank nodes and Skolemization.
+            // It's dirty business, but I think we should render these nodes, since they provide structural information.
+            // I am not sure about the best way to label them, but I feel that "<no prefLabel>" is accurate enough and could
+            // elicit users to click the node to see if it has any description, etc.
+            var prefLabel = conceptData.prefLabel;
+            if(prefLabel == null){
                 console.log("Missing prefLabel for concept: id="+conceptData["@id"]+" (link = "+conceptData.links.self+")");
-                return null;
+                // return null;
+                prefLabel = "<no prefLabel>";
             }
             
             // Create the concept nodes that exist on the paths-to-root for the central concept,
@@ -722,7 +728,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.nodeId = nodeId;
             conceptNode.conceptUriForIds = Utils.escapeIdentifierForId(String(nodeId));
             conceptNode.simpleConceptUri = <SimpleConceptURI>conceptData["@id"];
-            conceptNode.name = conceptData.prefLabel;
+            conceptNode.name = prefLabel;
             conceptNode.type = conceptData["@type"];
             conceptNode.description = "fetching description";
             conceptNode.definition = conceptData["definition"];
