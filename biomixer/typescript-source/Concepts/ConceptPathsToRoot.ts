@@ -169,16 +169,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         };
     }
 
-    public recomputeVisualizationOntoNode(nodeData: ConceptGraph.Node){
-
-        // var message = "Are you sure you want to recreate the graph focussed on '"+nodeData.name+"' ("+nodeData.ontologyAcronym+")?";
+    public recomputeVisualizationOntoNode(node: ConceptGraph.Node){
         
-        // if(confirm(message)){
-        this.centralConceptSimpleUri = nodeData.simpleConceptUri;
-        this.centralOntologyAcronym = nodeData.ontologyAcronym;
+        this.centralConceptSimpleUri = node.simpleConceptUri;
+        this.centralOntologyAcronym = node.ontologyAcronym;
         this.centralConceptUri = ConceptGraph.ConceptGraph.computeNodeId(this.centralConceptSimpleUri, this.centralOntologyAcronym);
-        this.fetchInitialExpansion();
-        // }
+        this.fetchInitialExpansion(node);
     }
     
     cleanSlate(){
@@ -284,18 +280,20 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      * This is used for both initial expansions and refocus expansions.
      * It is also used for importing graphs.
      */
-    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer, expansionType: ConceptGraph.PathOption): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
+    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer, expansionType: ConceptGraph.PathOption, exceptionsFromDeletion: Array<ConceptGraph.Node>): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
         // We may have nodes that we are getting rid of in order to do the expansion, so we do it this way
         // expansionType is typically this.visualization (the PathOption gotten from the drop down), but in the case of importing data
         // it could be null.
+        
         var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType);
         initSet.getGraphModifier().addActiveStepCallback(this.refreshVisualizationModeLambda());
-        this.deleteNodesForGraphInitialization(initSet);
+        this.deleteNodesForGraphInitialization(initSet, exceptionsFromDeletion);
         return initSet;
     }
     
-    deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>) {
-        initSet.addAllDeleting(this.conceptGraph.graphD3Format.nodes);
+    deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>, exceptionsFromDeletion: Array<ConceptGraph.Node>) {
+        var toDelete = this.conceptGraph.graphD3Format.nodes.filter((node: ConceptGraph.Node, i: number)=>{ return -1 === exceptionsFromDeletion.indexOf(node); });
+        initSet.addAllDeleting(toDelete);
         
         // Execute the deletion by "redoing" the deletion set.
         // For other commands, this isn't necessarily possible, but when
@@ -304,7 +302,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         initSet.getGraphModifier().executeRedo();
     }
     
-    fetchInitialExpansion(){
+    fetchInitialExpansion(incomingRoot?: ConceptGraph.Node){
         if(this.centralOntologyAcronym === undefined || this.centralConceptUri === undefined){
             console.log("No ontology acoronym or no central concept id, empty graph left unfilled.");
             this.importerExporterWidget.openShareAndImportMenu();
@@ -312,7 +310,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
 
         var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), String(this.visualization));
-        var initSet = this.prepareForExpansionFromScratch(expId, this.visualization);
+        var initSet = this.prepareForExpansionFromScratch(expId, this.visualization, [incomingRoot]);
         var expansionSet = initSet.expansionSet;
         
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
