@@ -248,8 +248,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         }
         var duration = this.desiredDuration - reduceDurationBy;
 
+        // The filtering we do on these is required due to delays in removal caused by animation of node removal.
+        // Before I added the D3 transition to the node removal function, this worked fine, but it throws errors
+        // when the selection with a runnign transition suddenly loses members.
         d3.selectAll("g.node_g")
             .filter((node: ConceptGraph.Node, i: number)=>{ return transitionOnlyFixedNodes ? node.fixed : true; })
+            .filter((node: ConceptGraph.Node, i: number)=>{ return null !== outerThis.graph.containsNode(node); })
             .transition()
             .duration(duration)
             .ease("linear")
@@ -257,12 +261,29 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 
         // NB If we are doing translateOnlyFixedNodes, will transitioning unfixed arcs break things?
         d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
+            .filter(
+                (link: ConceptGraph.Link, i: number)=>{
+                    return null !== outerThis.graph.containsNodeById(link.sourceId)
+                        && null !== outerThis.graph.containsNodeById(link.targetId)
+                        && null !== link.source
+                        && null !== link.target
+                        ;
+                }
+            )
             .transition()
             .duration(duration)
             .ease("linear")
             .attr("points", outerThis.graphView.updateArcLineFunc);
         
         d3.selectAll(GraphView.BaseGraphView.linkMarkerSvgClass)
+            .filter(
+                (link: ConceptGraph.Link, i: number)=>{
+                    return null !== outerThis.graph.containsNodeById(link.sourceId)
+                        && null !== outerThis.graph.containsNodeById(link.targetId)
+                        && null !== link.source
+                        && null !== link.target;
+                }
+            )
             .transition()
             .duration(duration)
             .ease("linear")

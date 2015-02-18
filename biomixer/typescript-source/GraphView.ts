@@ -128,8 +128,10 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     static nodeSvgClassSansDot = "node";
     static nodeInnerSvgClassSansDot = "inner_node"; // Needed for ontology double-node effect
     static nodeGSvgClassSansDot = "node_g";
+    static nodeSubGSvgClassSansDot = "node_sub_g";
     static nodeLabelSvgClassSansDot = "nodetext";
     static linkSvgClassSansDot = "link";
+    static linkSubGSvgClassSansDot = "sub_link";
     static linkMarkerSvgClassSansDot = "linkmarker";
     static linkLabelSvgClassSansDot = "linktext";
     static linkClassSelectorPrefix = "link_";

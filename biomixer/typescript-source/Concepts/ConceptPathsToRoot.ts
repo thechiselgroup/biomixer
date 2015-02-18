@@ -102,6 +102,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     nodeLabelPaddingWidth = 10;
     nodeLabelPaddingHeight = 10;
+    
+    enteringElementTransitionDuration = 1000;
+    exitingElementTransitionDuration = 300;
 
     
     // TODO Refactor something. Leaving this way to prevent too much code change that isn't simply TypeScript refactoring.
@@ -917,9 +920,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 +" "+outerThis.getLinkCssClass(d.relationType, d.relationSpecificToOntologyAcronym);
             }
         )
-        .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id});
+        .attr("id", function(d: ConceptGraph.Link){ return "link_g_"+d.id})
+        ;
         
-        var enteringPolylines = enteringLinks.append("svg:polyline")
+        // Need a sub container to allow for both transparency and layout animations
+        var enteringSubG = enteringLinks.append("svg:g")
+        .attr("id", function(d: ConceptGraph.Node){ return "link_sub_g_"+d.id})
+        .attr("class", GraphView.BaseGraphView.linkSubGSvgClassSansDot)
+        .style("opacity", 0.0)
+        ;
+        
+        var enteringPolylines = enteringSubG.append("svg:polyline")
         .attr("class",
             function(d: ConceptGraph.Link){
                 return GraphView.BaseGraphView.linkSvgClassSansDot
@@ -934,7 +945,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // .attr("marker-mid", this.markerAdderLambda() )
         .attr("data-thickness_basis", function(d) { return d.value;});
         
-        var enteringArcMarkers = enteringLinks.append("svg:polyline")
+        var enteringArcMarkers = enteringSubG.append("svg:polyline")
         .attr("class",
             function(d: ConceptGraph.Link){
                 return GraphView.BaseGraphView.linkMarkerSvgClassSansDot
@@ -952,6 +963,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .text(this.conceptLinkSimplePopupFunction)
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
         
+        // Make the arc opaque over time, just like the nodes.
+        enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0");
         
         if(!enteringLinks.empty()){
             if(!temporaryEdges){
@@ -1120,8 +1133,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true))
         ;
         
+        // The subG container is needed so that we can have spatial layout transitions occurring
+        // on the upper g container (thus all the children), while also having fade in and fade out
+        // transitions on the child elements.
+        var enteringSubG = enteringNodes.append("svg:g")
+        .attr("id", function(d: ConceptGraph.Node){ return "node_sub_g_"+d.conceptUriForIds})
+        .attr("class", GraphView.BaseGraphView.nodeSubGSvgClassSansDot)
+        .style("opacity", 0.0)
+        ;
+        
         // Basic properties
-        enteringNodes
+        enteringSubG
         .append("svg:rect")
         .attr("id", function(d: ConceptGraph.Node){ return "node_rect_"+d.conceptUriForIds})
         .attr("class",
@@ -1148,7 +1170,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         //   .text(function(d) { return "Number Of Terms: "+d.number; });
         
         // Label
-        enteringNodes.append("svg:text")
+        enteringSubG.append("svg:text")
         .attr("id", function(d: ConceptGraph.Node){ return "node_text_"+d.conceptUriForIds})
         .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable")
         // .attr("dx", "0em")
@@ -1178,11 +1200,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // $(d).attr("dx", nodeLabelPaddingWidth/2).attr("dy", textSize.height);
         });
         
-        this.attachNodeMenu(enteringNodes);
+        this.attachNodeMenu(enteringSubG);
         
         // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
         // nodes.exit().remove();
         
+        // Animate the new nodes into view.
+        enteringSubG // initialize as transparent, and animate to opaque
+            .transition().duration(this.enteringElementTransitionDuration)
+            .style("opacity", 1.0)
+        ;
         
         if(!enteringNodes.empty()){
             this.runCurrentLayout(true);
@@ -1214,15 +1241,28 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var nodes = this.vis.selectAll("g.node_g").data(this.conceptGraph.graphD3Format.nodes, ConceptGraph.Node.d3IdentityFunc);
         var links = this.vis.selectAll("g."+ GraphView.BaseGraphView.linkSvgClassSansDot).data(this.conceptGraph.graphD3Format.links, ConceptGraph.Link.d3IdentityFunc);
         
-        var nodesRemoved = nodes.exit().remove();
-        var linksRemoved = links.exit().remove();
+        // Original simple removal. Now we do transitions, and remove after that is completed. Other code needed
+        // to be adapted to work under such "asynchronous" conditions.
+        // var nodesRemoved = nodes.exit().remove();
+        // var linksRemoved = links.exit().remove();
         
+        // Removal with animation
+        var exitingNodes = nodes.exit();
+        var exitingLinks = links.exit();
+        
+        var linksRemoved = exitingLinks.transition().duration(this.exitingElementTransitionDuration).style("opacity", 0.0);
+        var nodesRemoved = exitingNodes.transition().duration(this.exitingElementTransitionDuration).style("opacity", 0.0)
+        // Only call the remove call after the nodes are gone, rather than after links are
+        // gone. Tried combining selections and didn't find a way that worked.
+        .call(()=>{ exitingLinks.remove(); exitingNodes.remove(); })
+        ;
+                
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
         this.filterSliders.updateTopMappingsSliderRange();
         this.filterSliders.rangeSliderSlideEvent(null, null); // Bad to pass nulls when I know it will work, or ok?
         
         // Note that the length of the Selection is not the definition of empty().
-        if(!nodesRemoved.empty() || !linksRemoved.empty()){
+        if(!exitingNodes.empty() || !exitingLinks.empty()){
             // This is somewhat correct, but if we do this, then when people delete nodes
             // the view they are working with will be shifting around...
             //if(!nodesRemoved.empty()){
