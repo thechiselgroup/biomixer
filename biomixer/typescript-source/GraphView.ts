@@ -478,9 +478,9 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     // Returns "Node" from JQuery/HTML, not a graph node model object
     private findSubNode(nodeData: N): Node{
-        var subnode = d3.selectAll(BaseGraphView.nodeSvgClass)
+        var subnode = d3.selectAll(BaseGraphView.nodeGSvgClass)
             .filter(function(d: N, i){ return d === nodeData; })
-            .node()
+            .node();
         
         if(subnode === null){
             // When we have deleted nodes (which can be re-done), then hide an expansion
@@ -491,7 +491,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             return null;
         }
         
-        return subnode.parentNode;
+        return subnode;
     }
     
     private nodeHider(nodeData: N, hiding: boolean){
