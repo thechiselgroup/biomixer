@@ -1164,7 +1164,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // tipsy stickiness from:
         // http://stackoverflow.com/questions/4720804/can-i-make-this-jquery-tooltip-stay-on-when-my-cursor-is-over-it
-        enteringNodes.each(TipsyToolTipsOnClick.nodeTooltipOnClickLambda(this));
+        enteringSubG.each(TipsyToolTipsOnClick.nodeTooltipOnClickLambda(this));
             
         // Dumb Tool tip...not needed with tipsy popups.
         // nodesEnter.append("title")
