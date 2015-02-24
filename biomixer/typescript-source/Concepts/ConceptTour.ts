@@ -303,7 +303,7 @@ export class Tour {
         return [
             {
                 
-            text: "<h1 class='introjs-header'>Welcome</h1> Welcome to the interactive visualization tour. We advise that you use the tour in a freshly loaded visualization. <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
+            text: "<h1 class='introjs-header'>Welcome</h1> This will take you on an interactive tour of the visualization tools. We recommend you start the tour in a freshly loaded visualization that you haven't manipulated. <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
             nextMethod: ()=>{ this.closeMenuIfVisible(); },
             position: "bottom"
             },
@@ -311,58 +311,58 @@ export class Tour {
 //- three base modes: Path to Root, Term Neighborhood, and Mapping Neighborhood
             {
             target: $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)[0],
-            text: "<h1 class='introjs-header'>Graph Modes</h1> The visualization begins differently depending on which mode it starts in. Feel free to click and see what is available. Click Next when you are ready.",
+            text: "<h1 class='introjs-header'>Graph Modes</h1> The initial display of a visualization varies depending on which mode it starts in. Click the list to see what modes are available. Click Next when you are ready to continue with the tour.",
             position: "bottom"
             },
 //- a menu button in the top right corner toggles the side bar menu visibility
              {
             target: $("#"+Menu.Menu.triggerId)[0],
-            text: "<h1 class='introjs-header'>Main Menu</h1> The menu allows access to much of the visualization functionality. We will explore this later. Let's turn to node interactions first.",
+            text: "<h1 class='introjs-header'>Main Menu</h1> This menu provides access to a variety of more advanced visualization tools. We will explore this later. Let's cover some basics first.",
             nextMethod: ()=>{ this.closeMenuIfVisible(); },
             position: "left",
             },
 //- node details are accessible by clicking on the node. A single popup is displayed at a time, until the user clicks anywhere else in the graph.
              {
             target: $(".centralNode").parent()[0],
-            text: "<h1 class='introjs-header'>Node Details</h1> Node details can be seen if you click on a node. The popup stays visible until you click somewhere else. Try it!",
+            text: "<h1 class='introjs-header'>Node Details</h1> Click a node to display more information about a concept or mapping. The popup remains visible until you click somewhere else. Try it!",
             position: "bottom"
             },
              {
 //            target: $(".node_container")[0],
-            text: "Try clicking in some white space to make the info box disappear, if you have not already.",
+            text: "If the popup is still open, try clicking the white space. This will make the popup disappear.",
 //            position: "bottom"
             },
 
 //- hovering over a node in the graph will highlight it and the nodes that are connected to it
              {
             
-            text: "<h1 class='introjs-header'>Hovering Nodes</h1> You may have noticed, but hovering over any node highlights the nodes related to it.",
+            text: "<h1 class='introjs-header'>Hovering over Nodes</h1> Hover over a node to highlight the concept or mapping's immediate parent and children.",
             position: "bottom"
             },
 //- hovering over arcs triggers a popup indicating the endpoint node names and the relation type
              {
 //            target: $(".link_container")[0],
-            text: "<h1 class='introjs-header'>Hovering Links</h1> Hovering the mouse carefully over the links between nodes will provide more details about their relationship. Try it out.",
+            text: "<h1 class='introjs-header'>Hovering over Links</h1> Hover (carefully) over the line or arrow between two nodes to display more details about their relationship.",
 //            position: "bottom"
             },
 //- node dragging to reposition individual nodes
              {
 //            target: $(ConceptLayouts.ConceptLayouts.layoutMenuContainerId)[0],
-            text: "Try dragging nodes around to reposition them.",
+            text: "Drag nodes to reposition them.",
 //            position: "bottom"
             },
 
 //- search for nodes in a dense graph, via field in menu. Will trigger radar blips around each matching node
              {
             target: $("#nodeNameSearchButton")[0],
-            text: "<h1 class='introjs-header'>Node Radar</h1> A node included in the graph can be visually located by searching for part of its name or synonym in this box. Try it out.",
+            text: "<h1 class='introjs-header'>Node Radar</h1> Highlight a concept or mapping in a visualization by searching for part of its name or synonym using the Locate Node tool.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
             position: "left"
             },
 //- node expansions to add related nodes. Each node has a drop down menu attached, allowing the user to add either related terms in the same ontology, or mapped terms in other ontologies. Node expansion is optionally capped when many nodes already exist in the graph. An estimate of the number of available related nodes is given.
              {
             target: $("rect[id^='node_expander_indicator']")[0],
-            text: "<h1 class='introjs-header'>Node Expansion Menus</h1> New concepts that are related to a concept in the graph can be added by clicking the menu on any node. Please click the menu hanging below a node to see. Feel free to add some nodes this way.",
+            text: "<h1 class='introjs-header'>Node Expansion Menus</h1> Display other related concepts and mappings by clicking the drop-down arrow beneath a node.",
             position: "top"
             },
 //             {
@@ -375,7 +375,7 @@ export class Tour {
 //- individual nodes from any ontology may be added if their unique URI is provided to a field in the menu
              {
             target: $("#singleNodeImportMessageBoxTextArea")[0],
-            text: "<h1 class='introjs-header'>Single Node Import</h1> You can add a specific node based on its ID, possibly unrelated to those already in the graph. These are easily found through the main Bioportal search interface. If it's not already in the graph, try adding http://purl.org/stemnet/MHC#Mouse",
+            text: "<h1 class='introjs-header'>Single Node Import</h1> You can add a specific concept or mapping based on its BioPortal ID, even ones that are unrelated to those already in the visualization. These are easily found through the main Bioportal search interface. For example, try adding http://purl.org/stemnet/MHC#Mouse (if not already in the visualization).",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
             position: "left"
             },
@@ -387,7 +387,7 @@ export class Tour {
 //- six layout algorithms available in menu (Center, Circle, Force-Directed, Vertical Tree, Horizontal Tree, and Radial layouts)
              {
             target: $("#"+ConceptLayouts.ConceptLayouts.layoutMenuContainerId)[0],
-            text: "<h1 class='introjs-header'>Layout Algorithms</h1> There are six layout algorithms that can help untangle relationships. Try them out.",
+            text: "<h1 class='introjs-header'>Layouts</h1> There are six layout algorithms that can help untangle relationships. Try them out.",
             nextMethod: ()=>{ this.showMenuIfNotVisible(); },
             position: "bottom"
             },
@@ -395,7 +395,7 @@ export class Tour {
 //- undo and redo: both buttons and drop down lists. Can step between any set of changes to the graph's node population, but not things like layouts or display customization
              {
             target: $("#undo_redo_breadcrumb_trail")[0],
-            text: "<h1 class='introjs-header'>Undo/Redo</h1> Changes to the graph's composition can be undone, and redone. You cannot undo node movements, though. Try going back and forth a bit.",
+            text: "<h1 class='introjs-header'>Undo/Redo</h1> Changes to a visualization can be undone and reapplied. However, you cannot undo node movements (nodes you dragged to a new location). Try playing with both the undo/redo arrows, as well as the drop-down arrows (which display a list of the changes you've made).",
             position: "bottom"
             },
             
@@ -403,26 +403,26 @@ export class Tour {
 //- filter/dim nodes by ontology; can dim out nodes based on their ontology
              {
             
-            text: "<h1 class='introjs-header'>Adding Nodes from other Ontologies</h1> For the next step, I need you to click some node's menu, and do a Mapping Expansion if there are about 5 available. It shows you the number to expand in parentheses. When you have done that, click next.",
+            text: "<h1 class='introjs-header'>Adding Nodes from Other Ontologies</h1> For the next step, click a node's drop-down arrow and select Expand Mappings (if there are about 5 available--it shows you the number of available mappings in parentheses). When you have done that, click Next.",
             position: "bottom"
             },
             {
             target: $("#NestedOntologyConceptFilterOuterContainer")[0],
-            text: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When there are concepts from multiple ontologies present, you can hide them based on their ontology. Try hiding all the nodes in an ontology. Also try clicking the checkboxes with concept names to hide only a few concepts.",
+            text: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When a visualization contains concepts from multiple ontologies, you can hide nodes based on their ontology. Try hiding all the nodes in an ontology. Also try clicking the check boxes with concept names to hide only a few concepts.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "left"
             },
 //- remove all dimmed/filtered nodes from the graph view (can undo/redo this)
              {
             target: $("#NestedOntologyConceptFilterCheckboxResetButton")[0],
-            text: "You can re-check all those checkboxes at once with this button",
+            text: "You can re-select all those check boxes at once with this button.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "top"
             },
 //- remove all node filters with button in menu
              {
             target: $("#NestedOntologyConceptFilterCheckboxDeleteButton")[0],
-            text: "<h1 class='introjs-header'>Deleting Nodes</h1> And you can delete all the hidden nodes with this button. Try hiding one node, then pressing the button. This may be undone with the undo button visited at another step in this tour.",
+            text: "<h1 class='introjs-header'>Deleting Nodes</h1> And you can delete all the hidden nodes with this button. Try hiding one node, then pressing the button. This may be undone with the undo tools previously covered in this tour.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "top"
             },
@@ -434,33 +434,33 @@ export class Tour {
 //            },
              {
             
-            text: "<h1 class='introjs-header'>More Node Filtering Controls</h1> Nodes can also be filtered from their node menus, or from their tool tips. Click a node to see the tool tip, and toggle the checkbox there. Then, click the menu beneath a node to see a 'hide' option. ",
+            text: "<h1 class='introjs-header'>More Node Filtering Controls</h1> Nodes can also be filtered from the node menu or tool tip. Click a node to see the tool tip and toggle the check box there. Then, click the drop-down arrow beneath a node to see the 'Hide Node' option.",
             position: "bottom"
             },
 //- filter/dim expansion sets, groups of nodes that were added to the graph together, usually via a node expansion
              {
             
-            text: "<h1 class='introjs-header'>Creating Expansion Sets</h1> For the next step, I need you to click some node's menu, and do a Concept expansion if there are about 5 available. It shows you the number to expand in parentheses. When you have done that, click next.",
+            text: "<h1 class='introjs-header'>Creating Expansion Sets</h1> For the next step, click a node's drop-down arrow and select Expand Concepts (if there are about 5 available--it shows you the number of available concepts in parentheses). When you have done that, click Next.",
             position: "bottom"
             },
              {
             target: $("#NestedExpansionSetConceptFilterOuterContainer")[0],
-            text: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a node, and a bunch of related nodes were added to the graph. This is called an Expansion Set. You can see these groupings here in the menu. You can hide entire sets, or individual nodes, the same way you can work with ontology filters.",
+            text: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a bunch of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can hide entire sets or individual nodes--the same way you can work with ontology filters.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedExpansionSetConceptFilterScrollContainer"), true); },
             position: "left"
             },
 
             
-//- filter edge types. Concepts can have different types of relations between them, depending on the ontology, and these may be hidden or re-colored via the menu.
+//- filter edge types. Concepts can have different types of relationships between them, depending on the ontology, and these may be hidden or re-colored via the menu.
              {
             target: $("#ConceptEdgeTypeFilterOuterContainer")[0],
-            text: "<h1 class='introjs-header'>Edge Filters</h1> To focus on certain types of relationships or to visually simplify a graph, try filtering edges out.",
+            text: "<h1 class='introjs-header'>Edge Filters</h1> To focus on certain types of relationships, or to visually simplify a visualization, try filtering out the edges by toggling the check boxes.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#ConceptEdgeTypeFilterScrollContainer"), true); },
             position: "left"
             },
             {
             target: $("#ConceptEdgeTypeFilterOuterContainer")[0],
-            text: "Clicking on the sample arrow allows you to assign a new color to that arc type. Try it.",
+            text: "Click the arrow (beside the check box) to assign a new color to that arc type.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#ConceptEdgeTypeFilterScrollContainer"), true); },
             position: "left"
             },
@@ -468,15 +468,15 @@ export class Tour {
 //- sharing of graphs via export and import, via the menu. Export provides json code that another user may paste into the import field, and receive the nodes, their positions and any custom edge colors, that existed at the time of export. Undo/redo state is not transferred.
              {
             target: $("#"+GraphImporterExporter.Widget.outerContainerId)[0],
-            text: "<h1 class='introjs-header'>Sharing</h1> You can share a graph and layout you have constructed. The export data provided to you can be emailed or otherwise sent to collaborators. <br/<br/> Try Exporting the current graph, copying exported data, and Importing it into the new window that opens when you click <a target='_blank' href='"+GraphImporterExporter.SavedGraph.getUrlIFrameOrNot()+"'>here</a>",
+            text: "<h1 class='introjs-header'>Sharing</h1> You can share a visualization that includes all the changes you've made. The system provides you with  data that you can copy and then paste into an email to collaborators.<br/<br/> Try it! Click Export and copy the presented data. Then, in the new window that opens when you click <a target='_blank' href='"+GraphImporterExporter.SavedGraph.getUrlIFrameOrNot()+"'>here</a>, paste the data.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#"+GraphImporterExporter.Widget.innerContainerId), true); },
             position: "left"
             },
 //            
-////- hovering over any of the node filtering checkboxes will highlight the corresponding nodes in the graph
+////- hovering over any of the node filtering check boxes will highlight the corresponding nodes in the graph
 //             {
 //            target: $("#NestedOntologyConceptFilterOuterContainer")[0],
-//            text: "You can also hover over checkboxes to highlight all the nodes corresponding to them.",
+//            text: "You can also hover over check boxes to highlight all the nodes corresponding to them.",
 //            nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterOuterContainer")); },
 //            position: "bottom"
 //            },
