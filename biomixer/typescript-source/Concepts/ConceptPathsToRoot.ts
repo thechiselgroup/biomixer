@@ -283,19 +283,21 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
      * This is used for both initial expansions and refocus expansions.
      * It is also used for importing graphs.
      */
-    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer, expansionType: ConceptGraph.PathOption, exceptionsFromDeletion: Array<ConceptGraph.Node>): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
+    public prepareForExpansionFromScratch(expId: ExpansionSets.ExpansionSetIdentifer, expansionType: ConceptGraph.PathOption, initParent: ConceptGraph.Node): CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>{
         // We may have nodes that we are getting rid of in order to do the expansion, so we do it this way
         // expansionType is typically this.visualization (the PathOption gotten from the drop down), but in the case of importing data
         // it could be null.
         
-        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType);
+        // I need to prevent *any* old expansion sets from showing up from this method deeper. After all, it says *from scratch*.
+        // This is artificial in that the nodes in the graph may not all be deleted (e.g. refocus node operation).
+        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType, this.nestedExpansionConceptFilter.updateFilterLabelLambda(), initParent);
         initSet.getGraphModifier().addActiveStepCallback(this.refreshVisualizationModeLambda());
-        this.deleteNodesForGraphInitialization(initSet, exceptionsFromDeletion);
+        this.deleteNodesForGraphInitialization(initSet, initParent);
         return initSet;
     }
     
-    deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>, exceptionsFromDeletion: Array<ConceptGraph.Node>) {
-        var toDelete = this.conceptGraph.graphD3Format.nodes.filter((node: ConceptGraph.Node, i: number)=>{ return -1 === exceptionsFromDeletion.indexOf(node); });
+    deleteNodesForGraphInitialization(initSet: CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>, exceptionFromDeletion: ConceptGraph.Node) {
+        var toDelete = this.conceptGraph.graphD3Format.nodes.filter((node: ConceptGraph.Node, i: number)=>{ return exceptionFromDeletion !== node; });
         initSet.addAllDeleting(toDelete);
         
         // Execute the deletion by "redoing" the deletion set.
@@ -313,7 +315,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
 
         var expId = new ExpansionSets.ExpansionSetIdentifer("conceptPathToRootInitialExpansion_"+this.centralOntologyAcronym+"__"+Utils.escapeIdentifierForId(this.centralConceptUri), String(this.visualization));
-        var initSet = this.prepareForExpansionFromScratch(expId, this.visualization, [incomingRoot]);
+        var initSet = this.prepareForExpansionFromScratch(expId, this.visualization, incomingRoot);
         var expansionSet = initSet.expansionSet;
         
 		// All of the initial expansions rely ont he expansion set getting the parent node at a slightly delayed time. See each specialized callback
@@ -1361,7 +1363,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 conceptExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
-                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss,
+                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
                                 ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
                             outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
                         };
@@ -1410,7 +1412,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 mappingExpandMouseUpFunc = function(){
                             $("#expanderMenu").first().remove();
                             var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
-                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.undoRedoBoss,
+                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
                                 ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
                             outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
                         };
@@ -1634,7 +1636,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // When we undo...the checkboxes aren't necessarily in the correct state, but they do
             // re-appear.
             
-            var deletionSet = new DeletionSet.DeletionSet<ConceptGraph.Node>(this.conceptGraph, this.undoRedoBoss);
+            var deletionSet = new DeletionSet.DeletionSet<ConceptGraph.Node>(this.conceptGraph, this.conceptGraph.expMan.getActiveExpansionSets(), this.undoRedoBoss);
             var hiddenNodes = computeNodesToDeleteFunc();
             deletionSet.addAll(hiddenNodes);
             

@@ -36,13 +36,16 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         public id: ExpansionSetIdentifer,
         public parentNode: N,
         public graph: GraphView.Graph<N>,
+        liveExpansionSets: Array<ExpansionSet<N>>,
         undoRedoBoss: UndoRedoManager.UndoRedoManager,
         public expansionType: UndoRedoManager.NodeInteraction
         ){
         if(null != parentNode){
             parentNode.expansionSetAsParent = this;
         }
-        this.graphModifier = new GraphModifierCommand.GraphAddNodesCommand<N>(graph, this);
+       
+        liveExpansionSets.push(this);
+        this.graphModifier = new GraphModifierCommand.GraphAddNodesCommand<N>(graph, this, liveExpansionSets);
         
         if(null != undoRedoBoss){
             undoRedoBoss.addCommand(this.graphModifier);

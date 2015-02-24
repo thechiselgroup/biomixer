@@ -1598,7 +1598,7 @@ export class SearchOneConceptCallback extends Fetcher.CallbackObject {
             return;
         } else {
             var expId = new ExpansionSets.ExpansionSetIdentifer("arbitraryConceptAddition_"+Utils.escapeIdentifierForId(this.conceptUri), "Added Arbitrary Node");
-            var expansionSet = new ExpansionSets.ExpansionSet(expId, null, this.graph, this.graph.undoBoss, PathOptionConstants.singleNodeConstant);
+            var expansionSet = new ExpansionSets.ExpansionSet(expId, null, this.graph, this.graph.expMan.getActiveExpansionSets(), this.graph.undoBoss, PathOptionConstants.singleNodeConstant);
             var lastConceptNode: Node;
             var lastConceptNodeData;
             var fetchCall = ()=>{

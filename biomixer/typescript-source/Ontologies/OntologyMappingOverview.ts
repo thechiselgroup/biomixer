@@ -123,7 +123,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
         // Will do async stuff and add to graph
         var expId = new ExpansionSets.ExpansionSetIdentifer("ontology_neighbourhood_"+this.centralOntologyAcronym, "Initial load: "+this.centralOntologyAcronym);
-        var expansionSet = new ExpansionSets.ExpansionSet(expId, null, this.ontologyGraph, this.undoRedoBoss, null);
+        var expansionSet = new ExpansionSets.ExpansionSet(expId, null, this.ontologyGraph, [], this.undoRedoBoss, null);
         this.ontologyGraph.fetchOntologyNeighbourhood(this.centralOntologyAcronym, expansionSet);
         
         // If you want to toy with the original static data, try this:

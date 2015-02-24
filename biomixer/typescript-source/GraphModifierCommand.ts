@@ -116,9 +116,11 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
      */
     extraInteractions: { [conceptId: string]: UndoRedoManager.NodeInteraction } = {};
     
+    
     constructor(
         public graph: GraphView.Graph<N>,
-        public expansionSet: ExpansionSets.ExpansionSet<N>
+        public expansionSet: ExpansionSets.ExpansionSet<N>,
+        public liveExpansionSets: Array<ExpansionSets.ExpansionSet<N>>
         
     ){
         super(graph);
@@ -220,7 +222,8 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends Commo
     // into one set of removed nodes.
     constructor(
         public graph: GraphView.Graph<N>,
-        public nodesToRemove: DeletionSet.DeletionSet<N>
+        public nodesToRemove: DeletionSet.DeletionSet<N>,
+        public liveExpansionSets: Array<ExpansionSets.ExpansionSet<N>>
     ){
         super(graph);
         this.childImpl = this;
@@ -293,14 +296,14 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
     
     commands: UndoRedoManager.ICommand[] = [];
     
-
     
 
     constructor(
         public graph: GraphView.Graph<N>,
         public displayName: string,
         private deletionSet: DeletionSet.DeletionSet<N>,
-        private additionSet: ExpansionSets.ExpansionSet<N>
+        private additionSet: ExpansionSets.ExpansionSet<N>,
+        public liveExpansionSets: Array<ExpansionSets.ExpansionSet<N>>
     ){
         super(graph);
         this.childImpl = this;

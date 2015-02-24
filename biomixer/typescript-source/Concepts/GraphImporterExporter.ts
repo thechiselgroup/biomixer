@@ -298,7 +298,7 @@ export class GraphImporter {
         // Maybe...
         
         var expId = new ExpansionSets.ExpansionSetIdentifer("importedGraphInitialExpansion_"+GraphImporter.importNumber, "Imported Graph "+GraphImporter.importNumber);
-        var initSet = this.pathsToRoot.prepareForExpansionFromScratch(expId, null, []);
+        var initSet = this.pathsToRoot.prepareForExpansionFromScratch(expId, null, null);
         var expansionSet = initSet.expansionSet;
 
         // The init set has the expansion set I would otherwise have made, but is the right way to delete and add at the same time.

@@ -75,27 +75,33 @@ export class ExpansionManager{
      * Collect all expansion sets that are from the current undo level backwards.
      * Do not return ones that are empty (expansions that resulted in no nodes being added),
      * and do not return expansion sets for which no node is rendered currently.
+     * Addendum: Do not return expansion sets for which all nodes it contains are also
+     * included in *younger* expansion sets.
+     * NB When implementing that last part, the easiest way is probably to maintain the
+     * active expansion sets as a complete collection for each undo level, checking for
+     * each set to see whether it died. It may also require explicitly associating
+     * nodes with which set they are in (a node could be deleted then re-added, and thus
+     * be associated with two active expansion sets, when we only want it associated with
+     * the youngest one. That is a problem above this level; this just gives the sets, not
+     * which has the priority...but if we have  anode-to-set registry implementation, then
+     * we can easily inspect that to find which set each node will belong to...
      */
     getActiveExpansionSets(): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{
-        var expansionSets = new Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>();
         var history = this.undoBoss.getCrumbHistory();
-        this.recursiveExpansionSets(history, expansionSets);
-        return expansionSets;
+        var currentUndoLevel = history[history.length - 1];
+        return this.getExpansionSets(currentUndoLevel).slice(); // slice to make a copy of the array
     }
     
-    private recursiveExpansionSets(commands: Array<UndoRedoManager.ICommand>, expansionSets: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>){
-        for(var i = commands.length -1; i >= 0; i--){
-            var command = commands[i];
-            if(command instanceof GraphModifierCommand.GraphAddNodesCommand){
-                var expansionSet = (<GraphModifierCommand.GraphAddNodesCommand<any>>command).expansionSet
-                if(expansionSet.nodes.length > 0 && expansionSet.getNumberOfNodesCurrentlyInGraph() > 0){
-                    expansionSets.push(expansionSet);
-                }
-            } else if(command instanceof GraphModifierCommand.GraphCompositeNodeCommand){
-                var moreCommands = (<GraphModifierCommand.GraphCompositeNodeCommand<any>>command).commands;
-                this.recursiveExpansionSets(moreCommands, expansionSets);
-            }
+    private getExpansionSets(command: UndoRedoManager.ICommand): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{
+        // Refactor, don't check types, but don't entangle expansion sets with ICommand either...
+        if(command instanceof GraphModifierCommand.GraphAddNodesCommand){
+            return (<GraphModifierCommand.GraphAddNodesCommand<any>>command).liveExpansionSets;
+        } else if(command instanceof GraphModifierCommand.GraphCompositeNodeCommand){
+            return (<GraphModifierCommand.GraphCompositeNodeCommand<any>>command).liveExpansionSets;
+        } else if(command instanceof GraphModifierCommand.GraphRemoveNodesCommand){
+            return (<GraphModifierCommand.GraphRemoveNodesCommand<any>>command).liveExpansionSets;
         }
+        return [];
     }
     
     getExpansionSetsThatNodeIsParentOf(node: ConceptGraph.Node): Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>{

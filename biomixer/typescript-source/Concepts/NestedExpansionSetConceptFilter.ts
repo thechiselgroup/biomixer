@@ -131,6 +131,17 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
         return "conceptDiv_"+this.expansionsFilter.computeCheckId(expansionSet);
     }
     
+    updateFilterLabelLambda(){
+        return (target: ExpansionSets.ExpansionSet<ConceptGraph.Node>)=>{
+            var checkId = this.implementation.computeCheckId(target);
+            var checkboxLabel = this.implementation.generateCheckboxLabel(target);
+            var checkboxColoredSquare = this.implementation.generateColoredSquareIndicator(target);
+            var label  = $("label[for="+checkId+"]");
+            label.empty();
+            label.append(checkboxColoredSquare+"&nbsp;"+checkboxLabel);
+        }
+    }
+    
     // Override for nesting
     updateFilterUI(){
         // Remove missing ones, whatever is left over in this collection
@@ -142,14 +153,10 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
         // Can I generalize this sorting and node group for when we will have expansion sets? Maybe...
         var expansionFilterTargets = this.expansionsFilter.getFilterTargets();
         var conceptFilterTargets = this.conceptFilter.getFilterTargets();
-        
-        var expansionSets: Array<ExpansionSets.ExpansionSet<ConceptGraph.Node>>= [];
-        
         // Add new expansion set checkboxes.
         // Differs from parent class version at least because there is a +/- expander button preceding the checkbox
         $.each(expansionFilterTargets, (i, target: ExpansionSets.ExpansionSet<ConceptGraph.Node>) =>
             {
-                expansionSets.push(target);
                 var checkId = this.implementation.computeCheckId(target);
                 var spanId = "span_"+checkId;
                 if(0 === $("#"+spanId).length){
@@ -213,6 +220,7 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
         
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
+                        .addClass("expSet_"+checkboxSpanClass)
                         .mouseenter(
                                 outerThis.implementation.checkboxHoveredLambda(target)
                             )
@@ -234,8 +242,10 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
             }
         );
         
+        
+        var expansionSetsWithConceptsPresent = $("");
         // Add new concept checkboxes, nested below corresponding expansion set checkbox
-        $.each(expansionSets, (i, expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>) =>{
+        $.each(expansionFilterTargets, (i, expSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>) =>{
         
         // Originally I iterated over the concept filter targets, but it was more sensible
         // to collect the expansion sets and iterate over those, knowing that the concepts
@@ -266,6 +276,7 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                     correspondingExpansionInnerHidingContainer
                     .append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
+                        .addClass("concept_"+checkboxSpanClass)
                         // To offset the nested element from the parent.
                         .css("padding-left", "2em")
                         .mouseenter(
@@ -294,6 +305,7 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                     correspondingExpansionInnerHidingContainer.append($("#"+spanId));
                 }
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#"+spanId);
+                expansionSetsWithConceptsPresent = expansionSetsWithConceptsPresent.add($("#"+"span_"+this.implementation.computeCheckId(expSet)));
             }
         );
         }
@@ -301,6 +313,9 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
         
         // Keep only those checkboxes for which we looped over a node
         preExistingCheckboxes.not(checkboxesPopulatedOrReUsed).remove();
+        
+        // Also keep only those expansion set checkboxes for which there are some nodes beneath
+        var removed = $(".expSet_"+checkboxSpanClass).not(expansionSetsWithConceptsPresent).remove();
     }
     
     /**

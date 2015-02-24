@@ -36,15 +36,20 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
         public graph: GraphView.Graph<N>,
         id: ExpansionSet.ExpansionSetIdentifer,
         private undoRedoBoss: UndoRedoManager.UndoRedoManager,
-        expansionType: UndoRedoManager.NodeInteraction
+        expansionType: UndoRedoManager.NodeInteraction,
+        private labelUpdateFunc: (target: ExpansionSet.ExpansionSet<N>)=>void,
+        parentNode: N = null
         ){
         // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
         // with null parent node and it worked.
-        this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, null, this.graph, null, expansionType)
-        this.deletionSet = new DeletionSet.DeletionSet<N>(this.graph, null);
-        
+        // We always want this for the initialization deletion set.
+        var liveExpansionSets = [];
+        this.deletionSet = new DeletionSet.DeletionSet<N>(this.graph, liveExpansionSets, null);
+        this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, parentNode, this.graph, liveExpansionSets, null, expansionType)
+        this.deletionSet.addAssociatedExpansionSet(this.expansionSet);
+
         this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.displayId,
-            this.deletionSet, this.expansionSet);
+            this.deletionSet, this.expansionSet, liveExpansionSets);
         
         undoRedoBoss.addCommand(this.graphModifier);
     }
@@ -52,6 +57,9 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
     updateExpansionNodeDisplayName(nodeDisplayName:string){
         this.graphModifier.setDisplayName(this.graphModifier.getDisplayName()+": "+nodeDisplayName);
         this.undoRedoBoss.updateUI(this.graphModifier);
+        // This is intended to update filter UI components from the GraphView component, but I want light coupling...
+        this.expansionSet.id.displayId = this.graphModifier.getDisplayName();
+        this.labelUpdateFunc(this.expansionSet);
     }
     
     addAllExpanding(nodes: Array<N>): void{
