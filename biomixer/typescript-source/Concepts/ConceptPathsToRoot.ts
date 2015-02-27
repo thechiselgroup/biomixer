@@ -6,6 +6,7 @@
 ///<amd-dependency path="JQueryExtension" />
 
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="MouseSpinner" />
 ///<amd-dependency path="Menu" />
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
@@ -32,6 +33,7 @@
 ///<amd-dependency path="Concepts/ConceptRenderScaler" />
 
 import Utils = require("../Utils");
+import MouseSpinner = require("../MouseSpinner");
 import Fetch = require("../FetchFromApi");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
@@ -277,6 +279,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.prepGraphMenu();
         
         this.fetchInitialExpansion();
+        MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
     }
     
     /**

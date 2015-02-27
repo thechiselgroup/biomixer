@@ -336,7 +336,7 @@ export class GraphImporter {
             var url = this.conceptGraph.buildConceptUrlNewApi(ontologyAcronym, simpleConceptUri);
             var callback = new FetchAndApplyLayoutCallback(this.conceptGraph, this.pathsToRoot, nodeData, url, conceptUri, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(url);
-            fetcher.fetch(callback);
+            fetcher.fetch(callback, true);
         }
     }
     
@@ -360,7 +360,7 @@ class FetchAndApplyLayoutCallback extends Fetcher.CallbackObject {
         public expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>
         ){
             super(url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
-            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, null, expansionSet, true);
+            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, expansionSet, true);
         }
     
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {

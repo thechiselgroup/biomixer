@@ -19,6 +19,7 @@
 ///<amd-dependency path="JQueryExtension" />
 
 import Utils = require("../Utils");
+import MouseSpinner = require("../MouseSpinner");
 import Fetch = require("../FetchFromApi");
 import Menu = require("../Menu");
 import GraphView = require("../GraphView");
@@ -754,12 +755,16 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         $.each(json.links, updateLinksFromJson);
         $.each(json.nodes, updateNodesFromJson);
         
+        // The timer prevents us from calling the update too frequently, and slowing the visualization down.
         if(outerThis.nodeUpdateTimer == false){
             outerThis.nodeUpdateTimer = true;
+            var busyCursorIdentifer = "ScalingTimer_"+new Date().toDateString();
+            MouseSpinner.MouseSpinner.applyMouseSpinner(busyCursorIdentifer);
             window.setTimeout(function(){
                     console.log("TIMER RESET");
                     outerThis.nodeUpdateTimer = false;
                     outerThis.renderScaler.updateNodeScalingFactor();
+                    MouseSpinner.MouseSpinner.haltSpinner(busyCursorIdentifer);
                     // The link thickness does not receive new data right now,
                     // otherwise we'd want to call the update factor function here.
                     // updateLinkScalingFactor();

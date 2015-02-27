@@ -8,12 +8,14 @@
 
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="MouseSpinner" />
 "use strict";
 
 declare var purl;
 
 import GraphView = require('./GraphView');
 import Utils = require('./Utils');
+import MouseSpinner = require('./MouseSpinner');
     
     interface ApiCallRegistry {
         [url: string]: RestCallCache ;
@@ -432,6 +434,7 @@ export class RetryingJsonFetcher {
                         // Callback trigger doesn't ever receive or handle errors...after all, how could it?
                         // We can therefore safely run through them all, dispatch them, and remove them.
                         cacheItem.markAsServed(callbackObj);
+                        MouseSpinner.MouseSpinner.haltSpinner(callbackObj.getCallbackName());
                         callbackObj.callback(data, textStatus, jqXHR);
                     }
                 },
@@ -444,6 +447,7 @@ export class RetryingJsonFetcher {
                         // Callback trigger doesn't ever receive or handle errors...after all, how could it?
                         // We can therefore safely run through them all, dispatch them, and remove them.
                         cacheItem.markAsServed(callbackObj);
+                        MouseSpinner.MouseSpinner.haltSpinner(callbackObj.getCallbackName());
                         callbackObj.callback({errors: true, status: errorThrown}, textStatus, jqXHR);
                     }
                 },
@@ -472,7 +476,11 @@ export class RetryingJsonFetcher {
      *  0: error with no retry advisable
      *  1: success
      */
-    public fetch(callbackObject: CallbackObject) : number {
+    public fetch(callbackObject: CallbackObject, giveUserBusyIndicator: boolean) : number {
+        if(giveUserBusyIndicator){
+            // Start up the busy spinner right away
+            MouseSpinner.MouseSpinner.applyMouseSpinner(callbackObject.getCallbackName());
+        }
         var cacheItem = CacheRegistry.getCachedItem(this.restUrl);
         if(cacheItem.alreadyServed(callbackObject)){
             // Used to print this when these were uncommon, to see what was going on, but with import functionality,
@@ -493,12 +501,16 @@ export class RetryingJsonFetcher {
             // Browser caching can be unreliable, and we don't want to cache between page loads.
             
             //console.log("Used cache ("+CacheRegistry.getCurrentMBStored()+"MB) for callback named "+callbackObject.getCallbackName());
+            MouseSpinner.MouseSpinner.haltSpinner(callbackObject.getCallbackName());
             callbackObject.callback(cachedData, "manually cached", null);
             return 1;
         }
         
         if(!CacheRegistry.checkUrlNotBad(this.restUrl)){
             // Unusable URLs should not be re-visited
+            MouseSpinner.MouseSpinner.haltSpinner(callbackObject.getCallbackName());
+            // TODO Do I want to cache the error maybe? Pass that in via the cache system?
+            // callbackObject.callback(cachedData, "manually cached", null);
             return 0;
         }
             

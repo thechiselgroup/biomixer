@@ -5,13 +5,17 @@
 
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
+///<amd-dependency path="MouseSpinner" />
 
 import PathsToRoot = require('./ConceptPathsToRoot');
 import ConceptGraph = require('./ConceptGraph');
+import MouseSpinner = require('../MouseSpinner');
 
 // Simplest way to include non-TypeScript defined libraries. Like usual, will need to
 // be served to browser to function.
 declare var purl;
+
+MouseSpinner.MouseSpinner.applyMouseSpinner("ConceptMain");
 
 var centralOntologyAcronym: ConceptGraph.RawAcronym = purl().param("ontology_acronym");
 var centralConceptSimpleUri: ConceptGraph.SimpleConceptURI = purl().param("full_concept_id");

@@ -213,7 +213,7 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     	var ontologyMappingUrl = buildOntologyMappingUrlNewApi(centralOntologyAcronym);
     	var ontologyMappingCallback = new OntologyMappingCallback(this, ontologyMappingUrl, centralOntologyAcronym, expansionSet);
     	var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMappingUrl);
-    	fetcher.fetch(ontologyMappingCallback);
+    	fetcher.fetch(ontologyMappingCallback, true);
     }
    
    /**
@@ -244,7 +244,7 @@ export class OntologyGraph implements GraphView.Graph<Node> {
             // The metric call has much of the info we need
             var ontologyMetricsCallback = new OntologyMetricsCallback(this, ontologyMetricsUrl, node);
             var fetcher = new Fetcher.RetryingJsonFetcher(ontologyMetricsUrl);
-            fetcher.fetch(ontologyMetricsCallback);
+            fetcher.fetch(ontologyMetricsCallback, true);
         }
     }
         
@@ -258,7 +258,7 @@ export class OntologyGraph implements GraphView.Graph<Node> {
             // Descriptions are in the submissions, so we need an additional call.
             var ontologyDescriptionCallback = new OntologyDescriptionCallback(this, ontologyDescriptionUrl, node);
             var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDescriptionUrl);
-            fetcher.fetch(ontologyDescriptionCallback);
+            fetcher.fetch(ontologyDescriptionCallback, true);
         }
     }
     
@@ -515,7 +515,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 //		var fetcher = new RetryingJsonpFetcher(ontologyDetailsCallback);
 //		fetcher.retryFetch();
 		var fetcher = new Fetcher.RetryingJsonFetcher(ontologyDetailsUrl);
-		fetcher.fetch(ontologyDetailsCallback);
+		fetcher.fetch(ontologyDetailsCallback, true);
 	}
 	
 }

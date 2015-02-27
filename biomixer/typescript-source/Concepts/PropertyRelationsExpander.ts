@@ -65,7 +65,7 @@ export class OntologyPropertyRelationsRegistry {
             var ontologyPropertyRelationsUrl = this.buildOntologyPropertyRelationsUrl(conceptNode.ontologyAcronym);
             var ontologyPropertyRelationsCallback = new OntologyPropertyRelationsCallback(ontologyPropertyRelationsUrl, conceptNode);
             var fetcher = new Fetcher.RetryingJsonFetcher(ontologyPropertyRelationsUrl);
-            fetcher.fetch(ontologyPropertyRelationsCallback);
+            fetcher.fetch(ontologyPropertyRelationsCallback, false);
         }
         
         // Regardless of whether this is the request that triggers the actual fetch, we add the callback to the queue.
