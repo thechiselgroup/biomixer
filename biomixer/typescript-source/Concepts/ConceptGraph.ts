@@ -1652,7 +1652,7 @@ export class SearchOneConceptCallback extends Fetcher.CallbackObject {
             // var ontologyUri = conceptData.links.ontology;
             // Check cap using the last node we found in the search results.
             var lastNodeId = this.graph.computeNodeId(conceptPropertiesData[0]);
-            this.graph.checkForNodeCap(fetchCall, expansionSet, conceptPropertiesData.length - 1);
+            this.graph.checkForNodeCap(fetchCall, expansionSet, conceptPropertiesData.length);
         }
     };
     

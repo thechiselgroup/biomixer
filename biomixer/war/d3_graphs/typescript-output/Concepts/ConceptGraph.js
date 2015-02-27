@@ -1483,7 +1483,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     // var ontologyUri = conceptData.links.ontology;
                     // Check cap using the last node we found in the search results.
                     var lastNodeId = _this.graph.computeNodeId(conceptPropertiesData[0]);
-                    _this.graph.checkForNodeCap(fetchCall, expansionSet, conceptPropertiesData.length - 1);
+                    _this.graph.checkForNodeCap(fetchCall, expansionSet, conceptPropertiesData.length);
                 }
             };
         }
