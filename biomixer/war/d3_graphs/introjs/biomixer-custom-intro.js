@@ -684,10 +684,27 @@
       if (currentElement.position == 'floating') {
         widthHeightPadding = 0;
       }
+      
+	    // Grabbed patch for SVG support in IE and Firefox	    
+		// Patched from https://github.com/ajah/tipsy/commit/b9cf0e1c0731d3265cd0cebded44a2af2278f979
+		var pos;
+		var $element = $(currentElement.element);
+		try {
+		  pos = $.extend({}, $element.offset(), {
+		    width: $element[0].getBBox().width,
+		    height: $element[0].getBBox().height
+		  });
+		}
+		catch (TypeError) {
+		  pos = $.extend({}, $element.offset(), {
+		      width: $element[0].offsetWidth,
+		      height: $element[0].offsetHeight
+		  });
+		} 
 
       //set new position to helper layer
-      helperLayer.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding)  + 'px; ' +
-                                        'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
+      helperLayer.setAttribute('style', 'width: ' + (pos.width  + widthHeightPadding)  + 'px; ' +
+                                        'height:' + (pos.height + widthHeightPadding)  + 'px; ' +
                                         'top:'    + (elementPosition.top    - 5)   + 'px;' +
                                         'left: '  + (elementPosition.left   - 5)   + 'px;');
 
@@ -709,6 +726,23 @@
 	        widthHeightPadding = 0;
 	        rectLineThickness = 0;
 	      }
+	      
+	    // Grabbed patch for SVG support in IE and Firefox	    
+		// Patched from https://github.com/ajah/tipsy/commit/b9cf0e1c0731d3265cd0cebded44a2af2278f979
+		var pos;
+		var $element = $(currentElement.element);
+		try {
+		  pos = $.extend({}, $element.offset(), {
+		    width: $element[0].getBBox().width,
+		    height: $element[0].getBBox().height
+		  });
+		}
+		catch (TypeError) {
+		  pos = $.extend({}, $element.offset(), {
+		      width: $element[0].offsetWidth,
+		      height: $element[0].offsetHeight
+		  });
+		} 
 
 		//  //set new position to helper layer
 		//	helperLayer.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding)  + 'px; ' +
@@ -719,24 +753,24 @@
 	                                        'height:' + (0)  + 'px; ' +
 	                                        'top:'    + (elementPosition.top    - 5)   + 'px;' +
 	                                        'left: '  + (elementPosition.left   - 5)   + 'px;');
-	      topLine.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding - rectLineThickness)  + 'px; ' +
+	      topLine.setAttribute('style', 'width: ' + (pos.width  + widthHeightPadding - rectLineThickness)  + 'px; ' +
 	    		  							'height:' + (rectLineThickness)  + 'px; ' +
 	    		  							'top:'    + (elementPosition.top    - 5)   + 'px;' +
 	    		  							// Remove overlap that makes the lines uglier when opacity is used.
 	    		  							'left: '  + (elementPosition.left   - 5 + rectLineThickness)   + 'px;');
 	      // Bottom has rectLineThickness added on to cover a missed pixel. Simplest and looks best when using non-opaque lines.
-	      bottomLine.setAttribute('style', 'width: ' + (elementPosition.width  + widthHeightPadding + rectLineThickness)  + 'px; ' +
+	      bottomLine.setAttribute('style', 'width: ' + (pos.width  + widthHeightPadding + rectLineThickness)  + 'px; ' +
 	    		  							'height:' + (rectLineThickness)  + 'px; ' +
-	    		  							'top:'    + (elementPosition.top    - 5 + elementPosition.height + widthHeightPadding)   + 'px;' +
+	    		  							'top:'    + (elementPosition.top    - 5 + pos.height + widthHeightPadding)   + 'px;' +
 	    		  							'left: '  + (elementPosition.left   - 5)   + 'px;');
 	      leftLine.setAttribute('style', 'width: ' + (rectLineThickness)  + 'px; ' +
-	    		  							'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
+	    		  							'height:' + (pos.height + widthHeightPadding)  + 'px; ' +
 	    		  							'top:'    + (elementPosition.top    - 5)   + 'px;' +
 	    		  							'left: '  + (elementPosition.left   - 5)   + 'px;');
 	      rightLine.setAttribute('style', 'width: ' + (rectLineThickness)  + 'px; ' +
-	    		  							'height:' + (elementPosition.height + widthHeightPadding)  + 'px; ' +
+	    		  							'height:' + (pos.height + widthHeightPadding)  + 'px; ' +
 	    		  							'top:'    + (elementPosition.top    - 5)   + 'px;' +
-	    		  							'left: '  + (elementPosition.left   - 5 + elementPosition.width  + widthHeightPadding)   + 'px;');
+	    		  							'left: '  + (elementPosition.left   - 5 + pos.width  + widthHeightPadding)   + 'px;');
 
 	    }
 	  }
