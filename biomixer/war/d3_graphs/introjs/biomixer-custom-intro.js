@@ -415,10 +415,8 @@
 //    		console.log("1"+item);
     		if(item.indexOf("introjs-") === 0){
     			showElement.classList.remove(item);
-    		} else {
-    			// Only increment if we are keeping the element
-    			j++
     		}
+    		j++
     	}
 //    	console.log(showElement.classList);
     }
@@ -436,10 +434,8 @@
 //      		console.log("2"+item);
       		if(item.indexOf("introjs-fixParent") === 0){
       			fixParents[i].classList.remove(item);
-      		} else {
-    			// Only increment if we are keeping the element
-    			j++
-    		}
+      		}
+    		j++
       	}
 //      	console.log(fixParents[i].classList);
       };
@@ -864,10 +860,8 @@
 //        		console.log("3"+item);
         		if(item.indexOf("introjs-fixParent") === 0){
         			fixParents[i].classList.remove(item);
-        		} else {
-        			// Only increment if we are keeping the element
-        			j++
         		}
+        		j++
         	}
 //        	console.log(fixParents[i].classList);
         }
@@ -884,10 +878,8 @@
 //		  console.log("4"+item);
 		  if(item.indexOf("introjs-") === 0){
 			  oldShowElement.classList.remove(item);
-		  } else {
-  			// Only increment if we are keeping the element
-  			j++
-  		  }
+		  }
+  		j++
 	  }
 //	  console.log(oldShowElement.classList);
 
