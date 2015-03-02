@@ -64,6 +64,7 @@ tr.introjs-showElement > th {
 }
 
 .introjs-helperLayerTop, .introjs-helperLayerRight, .introjs-helperLayerBottom, .introjs-helperLayerLeft {
+  pointer-events: none;
   position: absolute;
   z-index: 9999998;
   background-color: #777;
