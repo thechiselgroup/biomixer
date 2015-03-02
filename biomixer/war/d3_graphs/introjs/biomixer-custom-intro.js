@@ -415,6 +415,8 @@
 //    		console.log("1"+item);
     		if(item.indexOf("introjs-") === 0){
     			showElement.classList.remove(item);
+    			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
+    			j = 0;
     		}
     		j++
     	}
@@ -434,6 +436,8 @@
 //      		console.log("2"+item);
       		if(item.indexOf("introjs-fixParent") === 0){
       			fixParents[i].classList.remove(item);
+    			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
+    			j = 0;
       		}
     		j++
       	}
@@ -860,6 +864,8 @@
 //        		console.log("3"+item);
         		if(item.indexOf("introjs-fixParent") === 0){
         			fixParents[i].classList.remove(item);
+        			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
+        			j = 0;
         		}
         		j++
         	}
@@ -878,6 +884,8 @@
 //		  console.log("4"+item);
 		  if(item.indexOf("introjs-") === 0){
 			  oldShowElement.classList.remove(item);
+  			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
+  			j = 0;
 		  }
   		j++
 	  }
@@ -1113,7 +1121,9 @@
 
     var currentElementPosition = _getPropValue(targetElement.element, 'position');
     if (currentElementPosition !== 'absolute' &&
-        currentElementPosition !== 'relative') {
+        currentElementPosition !== 'relative' &&
+        currentElementPosition !== 'static') {
+    	// Added static because the undo/redo dropdown was being hidden behind SVG when the realtive position was added
       //change to new intro item
 //      targetElement.element.className += ' introjs-relativePosition';
     	targetElement.element.classList.add('introjs-relativePosition');
