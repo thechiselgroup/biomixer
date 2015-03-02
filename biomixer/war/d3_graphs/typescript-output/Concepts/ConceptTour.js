@@ -55,7 +55,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                 /* Previous button label in tooltip box */
                 prevLabel: '&larr; Back',
                 /* Skip button label in tooltip box */
-                skipLabel: 'Skip',
+                skipLabel: 'Stop',
                 /* Done button label in tooltip box */
                 doneLabel: 'Done',
                 /* Default tooltip box position */
