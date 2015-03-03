@@ -11,19 +11,21 @@
 #confirm {display:none;}
 
 #simplemodal-GrabHandle {
-	background-size: 16px; background-repeat:no-repeat !important;
-	width: 16px; height: 16px;
+	background-size: 20px !important;
+	background-repeat:no-repeat !important;
+	width: 20px; height: 20px;
 	/*
 	margin: 2px 2px 2px 2px; padding: 0;
 	*/ 
 	border-style: solid; border-width: 0px;
-	background:url(..//icons/open-iconic/svg/move.svg);
+	background:url(../icons/open-iconic/svg/move.svg);
+	cursor: move;
 	
 	/* Get lined up with header */
 	display: inline-block;
 	float: left;
-	margin-top: 10px;
-	margin-left: 10px;
+	margin-top: 5px;
+	margin-left: 5px;
 }
 
 /* Overlay */
