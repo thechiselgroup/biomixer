@@ -84,7 +84,9 @@ export class Tour {
         /* Precedence of positions, when auto is enabled */
         positionPrecedence: ["bottom", "top", "right", "left"],
         /* Disable an interaction with element? */
-        disableInteraction: false
+        disableInteraction: false,
+        /* Drag by handle on lower left corner */
+        dragByLowerLeftHandle: true
     };
     
 //    static hopscotchSettings = {

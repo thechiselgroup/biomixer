@@ -111,6 +111,9 @@ export function nodeTooltipOnClickLambda(outerThis: GraphView.GraphView<any, any
                 outerThis.lastDisplayedTipsyData = meData;
                 outerThis.lastDisplayedTipsySvg = me;
                 
+                // http://jqueryui.com/draggable/#handle
+                tipsy.draggable({handle: $("#popups-GrabHandle") });
+                
                 // For the tipsy specific listeners, change opacity.
                 // enter and leave functions used to be triggered, but with clicking it is different.
                 tipsy.mouseenter(function(){tipsy.css("opacity",1.0);  }).mouseleave(function(){tipsy.css("opacity",0.8); });

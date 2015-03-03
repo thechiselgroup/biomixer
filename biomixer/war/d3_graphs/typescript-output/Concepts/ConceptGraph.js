@@ -533,6 +533,9 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     $(".yes").text("Add " + outerThis.nodeCapInterval);
                     $(".no").text("Stop");
                     $("div.buttons").css("padding", "0px 5px 5px 0px");
+
+                    // http://jqueryui.com/draggable/#handle
+                    $($("#confirm-container")).draggable({ handle: $("#simplemodal-GrabHandle") });
                 }
             });
         };

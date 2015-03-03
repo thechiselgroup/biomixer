@@ -216,6 +216,26 @@ tr.introjs-showElement > th {
           transition: opacity 0.1s ease-out;
 }
 
+.introjs-header {
+	
+}
+
+
+#introjs-GrabHandle {
+	background-size: 16px; background-repeat: no-repeat !important;
+	width: 16px; height: 16px;
+	/*
+	margin: 2px 2px 2px 2px; padding: 0;
+	*/ 
+	border-style: solid; border-width: 0px;
+	background:url(../../icons/open-iconic/svg/move.svg); 
+	
+	/* Get lined up with buttons */
+	display: inline-block;
+	float: left;
+	margin-top: 10px;
+}
+
 .introjs-tooltipbuttons {
   text-align: right;
   white-space: nowrap;

@@ -65,7 +65,9 @@
       /* Precedence of positions, when auto is enabled */
       positionPrecedence: ["bottom", "top", "right", "left"],
       /* Disable an interaction with element? */
-      disableInteraction: false
+      disableInteraction: false,
+      /* Drag by handle on lower left corner */
+      dragByLowerLeftHandle: false
     };
   }
 
@@ -1009,6 +1011,14 @@
       progressBar.setAttribute('style', 'width:' + _getProgress.call(this) + '%;');
 
       progressLayer.appendChild(progressBar);
+      
+      
+      if(this._options.dragByLowerLeftHandle){
+          var dragger = $("<div>").attr("id","introjs-GrabHandle");
+          $(buttonsLayer).append(dragger);
+          // http://jqueryui.com/draggable/#handle
+          $(tooltipLayer).draggable({handle: dragger})
+      }
 
       buttonsLayer.className = 'introjs-tooltipbuttons';
       if (this._options.showButtons === false) {

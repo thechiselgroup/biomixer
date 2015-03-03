@@ -208,9 +208,6 @@ div#menuTriggerContainer {
 	*/
 }
 
-.introjs-header {
-	
-}
 
 .nonVisibleIntroJsHelperLayer {
 	/* IntroJs is not SVG aware, so I must make this transparent to prevent

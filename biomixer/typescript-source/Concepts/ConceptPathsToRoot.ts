@@ -756,6 +756,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                        $("<td></td>").append(
                                $("<div></div>").text(conceptData["name"]).attr("class","popups-Header")
                        )
+                 ).append(
+                       $("<td></td>").append(
+                               $("<div>").attr("id","popups-GrabHandle")
+                       )
                )
          );
          

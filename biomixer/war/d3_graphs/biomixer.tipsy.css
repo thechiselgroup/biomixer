@@ -84,6 +84,16 @@ zoom: 1;
 
 }
 
+#popups-GrabHandle {
+	background-size: 16px; background-repeat:no-repeat !important;
+	width: 16px; height: 16px;
+	/*
+	margin: 2px 2px 2px 2px; padding: 0;
+	*/ 
+	border-style: solid; border-width: 0px;
+	background:url(..//icons/open-iconic/svg/move.svg); 
+}
+
 /*
 These styles are a horrible combination of manual tweaks (with comments),
 and copying and pasting from inspections in Chrome.

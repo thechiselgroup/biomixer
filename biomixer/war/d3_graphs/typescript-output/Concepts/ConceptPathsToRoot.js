@@ -602,7 +602,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             outerDiv.append(table);
             table.append(tBody);
 
-            tBody.append($("<tr></tr>").append($("<td></td>").append($("<div></div>").text(conceptData["name"]).attr("class", "popups-Header"))));
+            tBody.append($("<tr></tr>").append($("<td></td>").append($("<div></div>").text(conceptData["name"]).attr("class", "popups-Header"))).append($("<td></td>").append($("<div>").attr("id", "popups-GrabHandle"))));
 
              {
                 var outerThis = this;

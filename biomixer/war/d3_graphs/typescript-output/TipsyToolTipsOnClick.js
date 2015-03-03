@@ -103,6 +103,9 @@ define(["require", "exports", './GraphView', "GraphView"], function(require, exp
                     outerThis.lastDisplayedTipsyData = meData;
                     outerThis.lastDisplayedTipsySvg = me;
 
+                    // http://jqueryui.com/draggable/#handle
+                    tipsy.draggable({ handle: $("#popups-GrabHandle") });
+
                     // For the tipsy specific listeners, change opacity.
                     // enter and leave functions used to be triggered, but with clicking it is different.
                     tipsy.mouseenter(function () {
