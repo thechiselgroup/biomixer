@@ -107,7 +107,7 @@ define(["require", "exports"], function(require, exports) {
             };
 
             // The label labels the section, and acts as a huge collapse button
-            var label = $("<label>").addClass(Menu.menuLabelClass).addClass("unselectable").attr("unselectable", "on").text(labelText);
+            var label = $("<label>").addClass(Menu.menuLabelClass).addClass("unselectable").attr("unselectable", "on").addClass(Menu.expandableMenuLabelClass).text(labelText);
 
             var expanderClickFunction = function (open, whenComplete) {
                 // Used for the button, as well as for a programmatic callback for when we want to display the submenu
@@ -154,6 +154,8 @@ define(["require", "exports"], function(require, exports) {
         Menu.closeActionClass = "menuLabelIconCloseAction";
 
         Menu.menuLabelClass = "menuLabel";
+
+        Menu.expandableMenuLabelClass = "expandableMenuLabel";
 
         Menu.menuItemExpanderLabelClass = "mainMenuLabelExpander";
 

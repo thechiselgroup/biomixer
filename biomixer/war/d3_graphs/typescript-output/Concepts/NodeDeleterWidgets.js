@@ -16,7 +16,7 @@ define(["require", "exports", "../Menu", "../JQueryExtension", "GraphView", "Men
             deleterContainer.append($("<br>"));
 
              {
-                deleterContainer.append($("<input>").attr("class", "addSingleConceptButton nodeCommandButton").attr("id", "addSingleConceptButton").attr("type", "button").attr("value", "Add Concept Using URI"));
+                deleterContainer.append($("<input>").addClass("addSingleConceptButton").addClass("nodeCommandButton").attr("id", "addSingleConceptButton").attr("type", "button").attr("value", "Add Concept Using URI"));
                 d3.selectAll("#addSingleConceptButton").on("click", this.showSingleNodeImportDialog());
                 var footer = $("<div>").attr("id", NodeDeleterWidgets.nodeImporterFooterDiv).css("clear", "both");
                 deleterContainer.append($("<br>"));
@@ -107,10 +107,10 @@ define(["require", "exports", "../Menu", "../JQueryExtension", "GraphView", "Men
                 okCallback = this.closeDialogLambda();
                 okButtonText = "Close";
             } else {
-                cancelButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton").text("Cancel").click(this.closeDialogLambda());
+                cancelButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton").addClass("plainBoxButton").text("Cancel").click(this.closeDialogLambda());
                 okButtonText = "Apply";
             }
-            var okButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton").text(okButtonText).click(okCallback);
+            var okButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton").addClass("plainBoxButton").text(okButtonText).click(okCallback);
             dialog.append(messageParagraph).append(messageField).append($("<br>")).append(okButton);
             if (undefined !== cancelButton) {
                 dialog.append(cancelButton);

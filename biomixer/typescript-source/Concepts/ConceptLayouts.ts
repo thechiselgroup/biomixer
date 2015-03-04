@@ -39,8 +39,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         
         var forceButton = $("<div>")
             .attr("id", "forceLayoutButton")
-            .addClass("unselectable")
-            .text("Force")
+            .addClass("unselectable").addClass("layoutTextButton")
             .append(
                 $("<div>")
                 .attr("id", "forceLayoutButtonIcon")
@@ -49,12 +48,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 .addClass("iconLayoutButton")
                 .attr("title", "Force-Directed Layout")
             )
+            .append($("<div>").addClass("layoutText").text("Force"))
             ;
         
         var circleButton = $("<div>")
             .attr("id", "circleLayoutButton")
-            .addClass("unselectable")
-            .text("Circle")
+            .addClass("unselectable").addClass("layoutTextButton")
             .append(
                 $("<div>")
                 .attr("id", "circleLayoutButtonIcon")
@@ -63,12 +62,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 .addClass("iconLayoutButton")
                 .attr("title", "Circle Layout")
             )
+            .append($("<div>").addClass("layoutText").text("Circle"))
             ;
         
         var centerButton = $("<div>")
             .attr("id", "centerLayoutButton")
-            .addClass("unselectable")
-            .text("Center")
+            .addClass("unselectable").addClass("layoutTextButton")
             .append(
                 $("<div>")
                 .attr("id", "centerLayoutButtonIcon")
@@ -77,12 +76,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 .addClass("iconLayoutButton")
                 .attr("title", "Center Layout")
             )
+            .append($("<div>").addClass("layoutText").text("Center"))
             ;
         
         var horizTreeButton = $("<div>")
             .attr("id", "horizontalTreeLayoutButton")
-            .addClass("unselectable")
-            .text("Horizontal")
+            .addClass("unselectable").addClass("layoutTextButton")
             .append(
                 $("<div>")
                 .attr("id", "horizontalTreeLayoutButtonIcon")
@@ -91,12 +90,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 .addClass("iconLayoutButton")
                 .attr("title", "Horizontal Tree Layout")
             )
+            .append($("<div>").addClass("layoutText").text("Horizontal"))
             ;
     
         var vertTreeButton = $("<div>")
             .attr("id", "verticalTreeLayoutButton")
-            .addClass("unselectable")
-            .text("Vertical")
+            .addClass("unselectable").addClass("layoutTextButton")
             .append(
                 $("<div>")
                 .attr("id", "verticalTreeLayoutButtonIcon")
@@ -105,12 +104,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 .addClass("iconLayoutButton")
                 .attr("title", "Vertical Tree Layout")
             )
+            .append($("<div>").addClass("layoutText").text("Vertical"))
             ;
     
         var radialButton = $("<div>")
             .attr("id", "radialLayoutButton")
-            .addClass("unselectable")
-            .text("Radial")
+            .addClass("unselectable").addClass("layoutTextButton")
             .append(
                 $("<div>")
                 .attr("id", "radialLayoutButtonIcon")
@@ -119,6 +118,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 .addClass("iconLayoutButton")
                 .attr("title", "Radial Layout")
             )
+            .append($("<div>").addClass("layoutText").text("Radial"))
             ;
 
         var importButton = $("<input>")

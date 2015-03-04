@@ -13,6 +13,8 @@ export class Menu {
     static closeActionClass = "menuLabelIconCloseAction";
     
     static menuLabelClass = "menuLabel";
+
+    static expandableMenuLabelClass = "expandableMenuLabel";
     
     static menuItemExpanderLabelClass = "mainMenuLabelExpander";
     
@@ -121,7 +123,6 @@ export class Menu {
             innerHidingContainer.css("display", "none");
         }
         
-     
         
         // This only indicates collapsability and status
         var labelExpanderIcon = $("<label>")
@@ -148,6 +149,7 @@ export class Menu {
         // The label labels the section, and acts as a huge collapse button
         var label = $("<label>").addClass(Menu.menuLabelClass)
             .addClass("unselectable").attr("unselectable", "on") // IE8
+            .addClass(Menu.expandableMenuLabelClass)
             .text(labelText);
      
         var expanderClickFunction = (open?: boolean, whenComplete?: ()=>void)=>{

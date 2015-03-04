@@ -45,6 +45,7 @@
 }
 
 .link, .filter_link_sample {
+  cursor: pointer;
   stroke-linecap: round;
   /* Dark colored arcs look better at 2px due to antialiasing :( 
    * The antialiasing causes barber pole effects when the lines are
@@ -185,6 +186,16 @@ div#menuTriggerContainer {
 	*/
 }
 
+#trigger {
+	cursor: pointer;
+}
+#trigger:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+/*
+https://developer.mozilla.org/en-US/docs/Web/CSS/Tools/Box-shadow_generator
+*/
+
 .topBarButton {
 	float: right;
 	/*
@@ -200,12 +211,16 @@ div#menuTriggerContainer {
 }
 
 #tourButton {
+	cursor: pointer;
    /*
 	color: rgb(230, 250, 240);
 	background-color: rgb(220,220,220);
 	background:#ccc;
 	border-color:#bbb #888 #666 #aaa;
 	*/
+}
+#tourButton:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
 }
 
 
@@ -236,6 +251,7 @@ div.introjs-overlay {
 }
 
 .mainMenuButtonIcon {
+    cursor: pointer;
 	background:url(..//icons/open-iconic/svg/menu.svg);
 	background-size: 16px; background-repeat:no-repeat;
 	width: 16px; height: 16px;
@@ -246,6 +262,9 @@ div.introjs-overlay {
 	margin-left: 2px;
     margin-top: -1px;
 }
+.mainmenuButtonIcon:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
 
 .pressedMenuButton {
 	background: rgb(61, 149, 210);
@@ -254,6 +273,7 @@ div.introjs-overlay {
 }
 
 .menuExpanderButton {
+	cursor: pointer;
 	background-size: 8px; background-repeat:no-repeat;
 	width: 8px; height: 8px;
 	margin: 2px 2px 2px 2px; padding: 0; 
@@ -275,6 +295,7 @@ div.introjs-overlay {
 }
 
 .mainMenuLabelExpander, .nestedTreeExpander {
+	cursor: pointer;
 	background-size: 8px; background-repeat:no-repeat;
 	width: 8px; height: 8px;
 	margin: 2px 2px 2px 2px; padding: 0; 
@@ -300,6 +321,56 @@ div.introjs-overlay {
 	width: 1em;
 	padding-top: 4px;
 
+}
+
+.plainBoxButton {
+	cursor: pointer;
+}
+.plainBoxButton:hover {
+	/*
+	box-shadow: inset 0px 0px 12px 1px orange;
+	*/
+}
+
+.boxButton {
+	cursor: pointer;
+	margin: 1px;
+    display: block;
+    float: left;
+	
+	background-color:rgb(193, 217, 241);
+	padding:4px;
+	padding-left:2px;
+	position:relative;
+	font-family: 'Open Sans', sans-serif;
+	font-size:12px;
+	text-decoration:none;
+	border: solid 1px rgb(61, 149, 210);
+	background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
+	border-radius: 5px;
+}
+.boxButton:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+
+.boxButton:active {
+	padding-bottom:3px;
+	padding-left:2px;
+	padding-right:4px;
+	padding-top:5px;
+	top:1px;
+	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
+}
+
+.boxButtonIconSegment {
+	cursor: pointer;
+	background-size: 14px !important;
+	background-repeat:no-repeat !important;
+	width: 14px; height: 14px;
+	margin: 0px 2px 0px 2px;
+	padding: 0; 
+	border-style: solid; border-width: 0px;
+}
 }
 
 div#slider-gap {
@@ -354,8 +425,48 @@ div#hoveringGraphMenu {
 }
 
 .importExportButton {
+	cursor: pointer;
 	margin: 7px !important;
 	font-size: 100%;
+}
+.importExportButton:hover {
+	/*
+	box-shadow: inset 0px 0px 12px 1px orange;
+	*/
+}
+
+.layoutText {
+	margin-top: 6px;
+	float: left;
+}
+
+.layoutTextButton {
+	cursor: pointer;
+	height: 24px;
+	margin: 1px;
+	
+	background-color:rgb(193, 217, 241);
+	padding:6px;
+	padding-left:2px;
+	position:relative;
+	font-family: 'Open Sans', sans-serif;
+	font-size:12px;
+	text-decoration:none;
+	border: solid 1px rgb(61, 149, 210);
+	background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
+	border-radius: 5px;
+}
+.layoutTextButton:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+
+.layoutTextButton:active {
+	padding-bottom:5px;
+	padding-left:2px;
+	padding-right:6px;
+	padding-top:7px;
+	top:1px;
+	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
 }
 
 .nonIconlayoutButton {
@@ -364,8 +475,9 @@ div#hoveringGraphMenu {
 }
 
 .iconLayoutButton {
-	background-size: 16px; background-repeat:no-repeat;
-	width: 16px; height: 16px;
+	background-size: 24px !important;
+	background-repeat:no-repeat !important;
+	width: 24px; height: 24px;
 	margin: 0px 2px 0px 6px; padding: 0; 
 	border-style: solid; border-width: 1px;
 }
@@ -415,6 +527,10 @@ div#hoveringGraphMenu {
 	width: 390px;
 }
 
+.expandableMenuLabel {
+	cursor: pointer;
+}
+
 .menuLabel {
 	background-color: rgb(193, 217, 241);
 	padding: 2px;
@@ -428,12 +544,17 @@ div#hoveringGraphMenu {
 }
 
 .locateNodeByNameInput{
-	float: left;	
+	float: left;
+	margin: 4px 0px 0px 0px; 	
 }
 
 .locateNodeByNameButtonIcon{
 	float: left;
 	background:url(..//icons/open-iconic/svg/target.svg);
+}
+
+.nodeUtilityContainer {
+	margin: 4px 0px 0px 0px;
 }
 
 .clearfix:after {
@@ -463,7 +584,9 @@ div#hoveringGraphMenu {
 }
 
 .menuExpanderUtilityButton {
-	background-size: 14px; background-repeat:no-repeat;
+	cursor: pointer;
+	background-size: 14px !important;
+	background-repeat:no-repeat !important;
 	width: 14px; height: 14px;
 	margin: 2px 2px 2px 2px; padding: 0; 
 	border-style: solid; border-width: 0px;
@@ -488,8 +611,12 @@ div#undo_redo_breadcrumb_label {
 }
 
 .undo_redo_button {
+	cursor: pointer;
 	float: left;
 	padding: 2px;
+}
+.undo_redo_button:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
 }
 
 .undo_redo_spacer {
@@ -498,8 +625,12 @@ div#undo_redo_breadcrumb_label {
 }
 
 .undo_redo_list_button {
+	cursor: pointer;
 	float: left;
 	padding: 2px;
+}
+.undo_redo_list_button:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
 }
 
 .crumb_for_, div#undo_redo_breadcrumb_label {

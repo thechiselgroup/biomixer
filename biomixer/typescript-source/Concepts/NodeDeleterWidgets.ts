@@ -47,7 +47,7 @@ export class NodeDeleterWidgets {
         
         {
             deleterContainer.append($("<input>")
-                    .attr("class", "addSingleConceptButton nodeCommandButton")
+                    .addClass("addSingleConceptButton").addClass("nodeCommandButton")
                     .attr("id", "addSingleConceptButton")
                     .attr("type", "button")
                     .attr("value", "Add Concept Using URI"));
@@ -149,11 +149,11 @@ export class NodeDeleterWidgets {
             okCallback = this.closeDialogLambda();
             okButtonText = "Close";
         } else {
-            cancelButton =  $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton")
+            cancelButton =  $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton").addClass("plainBoxButton")
                 .text("Cancel").click(this.closeDialogLambda());
             okButtonText = "Apply";
         }
-        var okButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton")
+        var okButton = $("<button>").addClass(NodeDeleterWidgets.messageBoxButtonClass).addClass("addSingleConceptButton").addClass("plainBoxButton")
             .text(okButtonText).click(okCallback);
         dialog
             .append(messageParagraph)

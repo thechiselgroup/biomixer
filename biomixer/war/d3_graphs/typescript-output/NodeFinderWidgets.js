@@ -16,23 +16,21 @@ define(["require", "exports", "./Menu", "GraphView", "Menu"], function(require, 
 
             var findFunc = this.highlightNodeNameMatches(this.graphModel, this.graphView, searchInput);
 
-            var searchButton = $("<div>").attr("id", "nodeNameSearchButton").addClass("unselectable").attr("title", NodeFinder.locateNodesButtonText).append($("<div>").addClass("unselectable").addClass(NodeFinder.locateNodesButtonClass).addClass(NodeFinder.menuExpanderButton)).append($("<label>").text("Locate Node").css("padding-top", "2px").css("display", "block"));
+            var searchButton = $("<div>").attr("id", "nodeNameSearchButton").addClass("unselectable").addClass("boxButton").attr("title", NodeFinder.locateNodesButtonText).append($("<div>").addClass("unselectable").addClass(NodeFinder.locateNodesButtonClass).addClass(NodeFinder.iconButton)).append($("<label>").text("Locate Node").css("padding-top", "2px").css("padding-bottom", "-2px").addClass("unselectable").addClass("plainBoxButton"));
 
-            var searchDiv = $("<div>").addClass("clearfix");
+            var searchDiv = $("<div>").addClass(NodeFinder.nodeUtilityContainer).addClass("clearfix");
             searchDiv.append(searchInput);
             searchDiv.append(searchButton);
             layoutsContainer.append(searchDiv);
-            layoutsContainer.append($("<br>"));
 
             var addUriInput = $("<input>").addClass(NodeFinder.locateNodesInputClass).attr("id", NodeFinder.singleNodeImportFieldId).addClass(NodeFinder.singleNodeImportFieldId);
 
-            var addUriButton = $("<label>").addClass("unselectable").addClass("addSingleConceptButton").addClass(NodeFinder.singleNodeImportButtonClass).css("padding-top", "1px").css("display", "block").text("Add Concept Using URI").css("margin-left", "2px").css("padding-left", "3px").css("padding-right", "3px").css("border-width", "1px").css("border-style", "solid").css("float", "left");
+            var addUriButton = $("<label>").addClass("unselectable").addClass("addSingleConceptButton").addClass(NodeFinder.singleNodeImportButtonClass).addClass("plainBoxButton").addClass("boxButton").text("Add Concept Using URI");
 
-            var addUriDiv = $("<div>").addClass("clearfix").attr("title", NodeFinder.nodeAdditionText);
+            var addUriDiv = $("<div>").addClass(NodeFinder.nodeUtilityContainer).addClass("clearfix").attr("title", NodeFinder.nodeAdditionText);
             addUriDiv.append(addUriInput);
             addUriDiv.append(addUriButton);
             layoutsContainer.append(addUriDiv);
-            layoutsContainer.append($("<br>"));
 
             addUriButton.click(this.importSingleNodeCallbackLambda());
 
@@ -88,9 +86,10 @@ define(["require", "exports", "./Menu", "GraphView", "Menu"], function(require, 
         NodeFinder.singleNodeImportButtonClass = "singleNodeImportMessageBoxButton";
         NodeFinder.nodeAdditionText = "To import a single node, paste the URI id (found via BioPortal) into the field.";
 
+        NodeFinder.nodeUtilityContainer = "nodeUtilityContainer";
         NodeFinder.locateNodesInputClass = "locateNodeByNameInput";
         NodeFinder.locateNodesButtonClass = "locateNodeByNameButtonIcon";
-        NodeFinder.menuExpanderButton = "menuExpanderUtilityButton";
+        NodeFinder.iconButton = "boxButtonIconSegment";
         NodeFinder.locateNodesButtonText = "Locate nodes in graph based on Name/Synonyms";
         return NodeFinder;
     })();
