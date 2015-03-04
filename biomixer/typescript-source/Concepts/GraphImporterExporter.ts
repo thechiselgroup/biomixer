@@ -97,16 +97,22 @@ export class Widget {
         this.menuSelector = menuSelector; // store for later
         $(menuSelector).append(outerContainer);
         
-        var exportButton = $("<input>")
-                .attr("class", "importExportButton")
+        var exportButton = $("<div>")
+                .addClass("unselectable")
+                .addClass("importExportButton")
+                .addClass("boxButton")
                 .attr("id", "exportButton")
                 .attr("type", "button")
+                .text("Export")
                 .attr("value", "Export");
 
-        var importButton = $("<input>")
-                .attr("class", "importExportButton")
+        var importButton = $("<div>")
+                .addClass("unselectable")
+                .addClass("importExportButton")
+                .addClass("boxButton")
                 .attr("id", "importButton")
                 .attr("type", "button")
+                .text("Import")
                 .attr("value", "Import");
         
         
@@ -208,16 +214,23 @@ export class Widget {
             okCallback = this.closeDialogLambda();
             okButtonText = "Close";
         } else {
-            cancelButton =  $("<button>").addClass(Widget.messageBoxButtonClass).addClass("importExportButton")
+            cancelButton =  $("<div>")
+                .addClass("boxButton")
+                .addClass("unselectable")
+                .addClass(Widget.messageBoxButtonClass)
+                .addClass("importExportButton")
                 .text("Cancel").click(this.closeDialogLambda());
             okButtonText = "Apply";
         }
-        var okButton = $("<button>").addClass(Widget.messageBoxButtonClass).addClass("importExportButton")
+        var okButton = $("<div>")
+            .addClass("boxButton")
+            .addClass("unselectable")
+            .addClass(Widget.messageBoxButtonClass)
+            .addClass("importExportButton")
             .text(okButtonText).click(okCallback);
         dialog
             .append(messageParagraph)
             .append(messageField)
-            .append($("<br>"))
             .append(okButton)
         ;
         if(undefined !== cancelButton){
