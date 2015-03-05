@@ -1017,7 +1017,11 @@
           var dragger = $("<div>").attr("id","introjs-GrabHandle");
           $(buttonsLayer).append(dragger);
           // http://jqueryui.com/draggable/#handle
-          $(tooltipLayer).draggable({handle: dragger})
+          $(tooltipLayer).draggable({handle: dragger});
+          // Hackarooney! The draggable modifies position to be relative,
+          // which breaks tour behavior. Simply re-setting it to absolute here
+          // fixes it.
+          $(tooltipLayer).css("position", "absolute");
       }
 
       buttonsLayer.className = 'introjs-tooltipbuttons';
