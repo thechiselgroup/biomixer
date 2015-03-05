@@ -313,7 +313,22 @@ export class Tour {
 //- three base modes: Path to Root, Term Neighborhood, and Mapping Neighborhood
             {
             target: $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)[0],
-            text: "<h1 class='introjs-header'>Graph Modes</h1> The initial display of a visualization varies depending on which mode it starts in. Click the list to see what modes are available. Click Next when you are ready to continue with the tour.",
+            text: "<h1 class='introjs-header'>Graph Modes</h1> The initial display of a visualization varies depending on which mode it starts in. Additional terms may be added by interacting with the graph, but we will explore these starting modes first.",
+            position: "bottom"
+            },
+            {
+            target: $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)[0],
+            text: "<h1 class='introjs-header'>Graph Modes: Term Neighborhood</h1> Try clicking and selecting 'Term Neighborhood'.<br/><br/> This mode initializes the graph with the terms that are directly related to the target term, and which occur in the same ontology.",
+            position: "bottom"
+            },
+            {
+            target: $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)[0],
+            text: "<h1 class='introjs-header'>Graph Modes: Mapping Neighborhood</h1> Try clicking and selecting 'Mapping Neighborhood'.<br/><br/> This mode initializes the graph with terms from other ontologies which have been mapped together; they represent the same concept in separate ontologies.",
+            position: "bottom"
+            },
+            {
+            target: $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)[0],
+            text: "<h1 class='introjs-header'>Graph Modes: Paths to Root</h1> Try clicking and selecting 'Path to Root'.<br/><br/> This mode shows all terms between the target node and the root node of its ontology.",
             position: "bottom"
             },
 //- a menu button in the top right corner toggles the side bar menu visibility
@@ -356,7 +371,7 @@ export class Tour {
 
 //- search for nodes in a dense graph, via field in menu. Will trigger radar blips around each matching node
              {
-            target: $("#nodeNameSearchButton")[0],
+            target: $("#findNodeInputBox")[0],
             text: "<h1 class='introjs-header'>Node Radar</h1> Highlight a concept or mapping in a visualization by searching for part of its name or synonym using the Locate Node tool.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#nodeFinderMenuContainerScrollContainer"), true); },
             position: "left"
@@ -436,7 +451,12 @@ export class Tour {
 //            },
              {
             
-            text: "<h1 class='introjs-header'>More Node Filtering Controls</h1> Nodes can also be filtered from the node menu or tool tip. Click a node to see the tool tip and toggle the check box there. Then, click the drop-down arrow beneath a node to see the 'Hide Node' option.",
+            text: "<h1 class='introjs-header'>More Node Filtering Controls: Tool Tip</h1> Nodes can also be filtered from the tool tip. Click a node to see the tool tip and toggle the check box there.",
+            position: "bottom"
+            },
+            {
+            
+            text: "<h1 class='introjs-header'>More Node Filtering Controls: Node Menu</h1> In addition, nodes can also be filtered from the node menu. Click the drop-down arrow beneath a node to see the 'Hide Node' option.",
             position: "bottom"
             },
 //- filter/dim expansion sets, groups of nodes that were added to the graph together, usually via a node expansion
@@ -447,7 +467,7 @@ export class Tour {
             },
              {
             target: $("#NestedExpansionSetConceptFilterOuterContainer")[0],
-            text: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a bunch of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can hide entire sets or individual nodes--the same way you can work with ontology filters.",
+            text: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a number of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can hide entire sets or individual nodes--the same way you can work with ontology filters.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#NestedExpansionSetConceptFilterScrollContainer"), true); },
             position: "left"
             },
@@ -470,7 +490,7 @@ export class Tour {
 //- sharing of graphs via export and import, via the menu. Export provides json code that another user may paste into the import field, and receive the nodes, their positions and any custom edge colors, that existed at the time of export. Undo/redo state is not transferred.
              {
             target: $("#"+GraphImporterExporter.Widget.outerContainerId)[0],
-            text: "<h1 class='introjs-header'>Sharing</h1> You can share a visualization that includes all the changes you've made. The system provides you with  data that you can copy and then paste into an email to collaborators.<br/<br/> Try it! Click Export and copy the presented data. Then, in the new window that opens when you click <a target='_blank' href='"+GraphImporterExporter.SavedGraph.getUrlIFrameOrNot()+"'>here</a>, paste the data.",
+            text: "<h1 class='introjs-header'>Sharing</h1> You can share a visualization that includes all the changes you've made. The system provides you with  data that you can copy and then paste into an email to collaborators.<br/><br/> Try it! Click Export and copy the presented data.<br/><br/> Then, in the new window that opens when you click <a target='_blank' href='"+GraphImporterExporter.SavedGraph.getUrlIFrameOrNot()+"'>here</a>, paste the data into the box provided there.",
             nextMethod: ()=>{ this.showSubMenuIfNotVisible($("#"+GraphImporterExporter.Widget.innerContainerId), true); },
             position: "left"
             },
