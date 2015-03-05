@@ -305,7 +305,7 @@ export class Tour {
         return [
             {
                 
-            text: "<h1 class='introjs-header'>Welcome</h1> This will take you on an interactive tour of the visualization tools. We recommend you start the tour in a freshly loaded visualization that you haven't manipulated. <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
+            text: "<h1 class='introjs-header'>Welcome</h1> This will take you on an interactive tour of the visualization tools. We recommend you start the tour in a <a href='#' onclick='location.reload(); return false;' > freshly loaded visualization </a> that you haven't manipulated. <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
             nextMethod: ()=>{ this.closeMenuIfVisible(); },
             position: "bottom"
             },
