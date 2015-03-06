@@ -340,7 +340,7 @@ export class Tour {
             },
 //- node details are accessible by clicking on the node. A single popup is displayed at a time, until the user clicks anywhere else in the graph.
              {
-            target: $(".centralNode").parent()[0],
+            target: ()=>{ return $(".centralNode").parent()[0] },
             text: "<h1 class='introjs-header'>Node Details</h1> Click a node to display more information about a concept or mapping. The popup remains visible until you click somewhere else. Try it!",
             position: "bottom"
             },
@@ -378,7 +378,7 @@ export class Tour {
             },
 //- node expansions to add related nodes. Each node has a drop down menu attached, allowing the user to add either related terms in the same ontology, or mapped terms in other ontologies. Node expansion is optionally capped when many nodes already exist in the graph. An estimate of the number of available related nodes is given.
              {
-            target: $("rect[id^='node_expander_indicator']")[0],
+            target: ()=>{ $("rect[id^='node_expander_indicator']")[0] },
             text: "<h1 class='introjs-header'>Node Expansion Menus</h1> Display other related concepts and mappings by clicking the drop-down arrow beneath a node.",
             position: "top"
             },

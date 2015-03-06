@@ -71,6 +71,20 @@
     };
   }
 
+  function attachFunc(currentItem){
+	  if(jQuery.isFunction(currentItem.element)){
+  		var emFunc = currentItem.element;
+  		currentItem.elementFunc = function(){
+  			return emFunc();
+		};
+  	} else {
+	  currentItem.elementFunc = function(){
+			return currentItem.element;
+		};
+  	}
+	  
+  }
+  
   /**
    * Initiate a new introduction/guide from an element in the page
    *
@@ -113,6 +127,34 @@
         }
 
         if (currentItem.element != null) {
+        	// If the element is a function, store the function, and always fetch its results
+        	// to treat as the element.
+        	// Javacript scoping was killing me when I assigned the element function,
+        	// and I only fixed it by shoving the code into this function below.
+        	// Is there a better way? Try unpacking that function to here, and watch how the
+        	// preceding steps get the function intended for the current one on ever step.
+        	// That is, print current item element func, and the one from the top of the
+        	// stack, or two from the top...
+        	// See http://www.adequatelygood.com/JavaScript-Scoping-and-Hoisting.html
+        	attachFunc(currentItem);
+
+        	
+//        	console.log(" ");
+//        	console.log(" ");
+//        	console.log("CHECKITOUT");
+//        	
+//            if(undefined !== introItems[introItems.length-2]){
+//            	console.log("introItems[introItems.length-2].elementFunc produces: ");
+//            	console.log(introItems[introItems.length-2].elementFunc());
+//            	console.log("introItems[introItems.length-2].element produces: ");
+//            	console.log(introItems[introItems.length-2].element);
+//            }
+//        	console.log("currentItem.elementFunc produces: ");
+//        	console.log(currentItem.elementFunc());
+//        	console.log("currentItem.element produces: ");
+//        	console.log(currentItem.element);
+
+            
           introItems.push(currentItem);
         }
       }
@@ -320,7 +362,7 @@
 	} else if (typeof (this._introBeforeChangeCallback) !== 'undefined') {
 //		this._introBeforeChangeCallback.call(this, nextStep.element);
 		// Or, since we're customizing anyway, let's make this one callback available on steps.
-		this._introBeforeChangeCallback.call(this, nextStep.element, nextStep.step);
+		this._introBeforeChangeCallback.call(this, nextStep.elementFunc(), nextStep.step);
     }
 
     _showElement.call(this, nextStep);
@@ -345,7 +387,7 @@
 		// to support step-specific dispatch
 		nextStep.onbeforechange();
 	} else if (typeof (this._introBeforeChangeCallback) !== 'undefined') {
-      this._introBeforeChangeCallback.call(this, nextStep.element);
+      this._introBeforeChangeCallback.call(this, nextStep.elementFunc());
     }
 
     _showElement.call(this, nextStep);
@@ -680,7 +722,7 @@
       if (!this._introItems[this._currentStep]) return;
 
       var currentElement  = this._introItems[this._currentStep],
-          elementPosition = _getOffset(currentElement.element),
+          elementPosition = _getOffset(currentElement.elementFunc()),
           widthHeightPadding = 10;
 
       if (currentElement.position == 'floating') {
@@ -690,7 +732,7 @@
 	    // Grabbed patch for SVG support in IE and Firefox	    
 		// Patched from https://github.com/ajah/tipsy/commit/b9cf0e1c0731d3265cd0cebded44a2af2278f979
 		var pos;
-		var $element = $(currentElement.element);
+		var $element = $(currentElement.elementFunc());
 		try {
 		  pos = $.extend({}, $element.offset(), {
 		    width: $element[0].getBBox().width,
@@ -719,7 +761,7 @@
 	      if (!this._introItems[this._currentStep]) return;
 
 	      var currentElement  = this._introItems[this._currentStep],
-	          elementPosition = _getOffset(currentElement.element),
+	          elementPosition = _getOffset(currentElement.elementFunc()),
 	          widthHeightPadding = 10;
 
 	      var rectLineThickness = 2;
@@ -732,7 +774,7 @@
 	    // Grabbed patch for SVG support in IE and Firefox	    
 		// Patched from https://github.com/ajah/tipsy/commit/b9cf0e1c0731d3265cd0cebded44a2af2278f979
 		var pos;
-		var $element = $(currentElement.element);
+		var $element = $(currentElement.elementFunc());
 		try {
 		  pos = $.extend({}, $element.offset(), {
 		    width: $element[0].getBBox().width,
@@ -804,14 +846,14 @@
   function _showElement(targetElement) {
 
     if (typeof (this._introChangeCallback) !== 'undefined') {
-      this._introChangeCallback.call(this, targetElement.element);
+      this._introChangeCallback.call(this, targetElement.elementFunc());
     }
 
     var self = this,
         oldHelperLayer = document.querySelector('.introjs-helperLayer'),
         oldReferenceLayer = document.querySelector('.introjs-tooltipReferenceLayer'),
         highlightClass = 'introjs-helperLayer',
-        elementPosition = _getOffset(targetElement.element);
+        elementPosition = _getOffset(targetElement.elementFunc());
     var oldtop = document.querySelector('.introjs-helperLayerTop');
     var oldright = document.querySelector('.introjs-helperLayerRight');
     var oldbottom = document.querySelector('.introjs-helperLayerBottom');
@@ -877,6 +919,7 @@
 
       //remove old classes
       var oldShowElement = document.querySelector('.introjs-showElement');
+      if(oldShowElement){
 //      oldShowElement.className = oldShowElement.className.replace(/introjs-[a-zA-Z]+/g, '').replace(/^\s+|\s+$/g, '');
       var list = oldShowElement.classList;
 //      console.log(list);
@@ -892,6 +935,7 @@
   		j++
 	  }
 //	  console.log(oldShowElement.classList);
+      }
 
       //we should wait until the CSS3 transition is competed (it's 0.3 sec) to prevent incorrect `height` and `width` calculation
       if (self._lastShowElementTimer) {
@@ -906,7 +950,7 @@
         oldtooltipLayer.innerHTML = targetElement.intro;
         //set the tooltip position
         oldtooltipContainer.style.display = "block";
-        _placeTooltip.call(self, targetElement.element, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer);
+        _placeTooltip.call(self, targetElement.elementFunc(), oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer);
 
         //change active bullet
         oldReferenceLayer.querySelector('.introjs-bullets li > a.active').className = '';
@@ -1098,7 +1142,7 @@
       tooltipLayer.appendChild(buttonsLayer);
 
       //set proper position
-      _placeTooltip.call(self, targetElement.element, tooltipLayer, arrowLayer, helperNumberLayer);
+      _placeTooltip.call(self, targetElement.elementFunc(), tooltipLayer, arrowLayer, helperNumberLayer);
     }
 
     //disable interaction
@@ -1130,20 +1174,20 @@
 
     //add target element position style
 //    targetElement.element.className += ' introjs-showElement';
-    targetElement.element.classList.add('introjs-showElement');
+    targetElement.elementFunc().classList.add('introjs-showElement');
 
 
-    var currentElementPosition = _getPropValue(targetElement.element, 'position');
+    var currentElementPosition = _getPropValue(targetElement.elementFunc(), 'position');
     if (currentElementPosition !== 'absolute' &&
         currentElementPosition !== 'relative' &&
         currentElementPosition !== 'static') {
     	// Added static because the undo/redo dropdown was being hidden behind SVG when the realtive position was added
       //change to new intro item
 //      targetElement.element.className += ' introjs-relativePosition';
-    	targetElement.element.classList.add('introjs-relativePosition');
+    	targetElement.elementFunc().classList.add('introjs-relativePosition');
     }
 
-    var parentElm = targetElement.element.parentNode;
+    var parentElm = targetElement.elementFunc().parentNode;
     while (parentElm != null) {
       if (parentElm.tagName.toLowerCase() === 'body') break;
 
@@ -1160,14 +1204,14 @@
       parentElm = parentElm.parentNode;
     }
 
-    if (!_elementInViewport(targetElement.element) && this._options.scrollToElement === true) {
-      var rect = targetElement.element.getBoundingClientRect(),
+    if (!_elementInViewport(targetElement.elementFunc()) && this._options.scrollToElement === true) {
+      var rect = targetElement.elementFunc().getBoundingClientRect(),
         winHeight = _getWinSize().height,
         top = rect.bottom - (rect.bottom - rect.top),
         bottom = rect.bottom - winHeight;
 
       //Scroll up
-      if (top < 0 || targetElement.element.clientHeight > winHeight) {
+      if (top < 0 || targetElement.elementFunc().clientHeight > winHeight) {
         window.scrollBy(0, top - 30); // 30px padding from edge to look nice
 
       //Scroll down
@@ -1177,7 +1221,7 @@
     }
 
     if (typeof (this._introAfterChangeCallback) !== 'undefined') {
-      this._introAfterChangeCallback.call(this, targetElement.element);
+      this._introAfterChangeCallback.call(this, targetElement.elementFunc());
     }
   }
 
