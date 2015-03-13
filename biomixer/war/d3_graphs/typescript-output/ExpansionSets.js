@@ -68,7 +68,7 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
         };
 
         ExpansionSet.prototype.getNumberOfNodesMissing = function () {
-            return this.graph.getNumberOfPotentialNodesToExpand(String(this.parentNode.getEntityId()), this.expansionType);
+            return this.graph.getNumberOfPotentialNodesToExpand(this.parentNode, this.expansionType);
         };
 
         /**

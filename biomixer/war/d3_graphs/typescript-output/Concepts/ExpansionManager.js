@@ -210,6 +210,7 @@ define(["require", "exports", "../GraphModifierCommand", "Concepts/ConceptGraph"
             }
 
             this.inaccessibleNodes.push(conceptUri);
+            console.log("Purged " + conceptUri);
         };
 
         EdgeRegistry.prototype.nodeIsInaccessible = function (conceptUri) {

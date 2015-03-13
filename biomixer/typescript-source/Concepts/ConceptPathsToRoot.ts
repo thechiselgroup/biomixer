@@ -185,7 +185,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     cleanSlate(){
         // Had to set div#chart.gallery height = 100% in CSS,
         // but this was only required in Firefox. I can't see why.
-        console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
+        // console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
         
         // Experimental...seems like a good idea
         if(this.forceLayout !== undefined){
@@ -240,7 +240,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     
     initAndPopulateGraph(){
         // Used to happen on window load.
-        console.log("Window loaded,starting visualization")
+        // console.log("Window loaded,starting visualization")
         this.cleanSlate();
         
         // These here or elsewhere like in runGraph??
@@ -1359,7 +1359,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var conceptExpandFontFillColor;
             var conceptExpandMouseUpFunc;
 
-            var hardTermExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.nodeId), ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+            var hardTermExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
 
             if(hardTermExpansionCount != 0){
                 conceptExpandTextValue = "Expand Concepts";
@@ -1410,7 +1410,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             var mappingExpandFontFillColor;
             var mappingExpandMouseUpFunc;
 
-            var hardMappingExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(String(nodeData.nodeId), ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+            var hardMappingExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
 
             if(hardMappingExpansionCount !== 0){
                 mappingExpandTextValue = "Expand Mappings";
@@ -1515,7 +1515,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             maxWidth += 2*fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
             $("#"+innerSvg.attr("id")).attr("width", maxWidth);
             $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
-            console.log("Resized things, maxWidth: "+maxWidth);
+            // console.log("Resized things, maxWidth: "+maxWidth);
             }
             
             

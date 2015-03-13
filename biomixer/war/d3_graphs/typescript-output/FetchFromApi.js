@@ -400,6 +400,22 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
                     }
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
+                    var errorOrRetry = outerThis.processResponse(jqXHR);
+
+                    // These error handlers are from the older API with the embedded error codes.
+                    if (-1 == errorOrRetry) {
+                        // retrying, do nothing.
+                        return;
+                    } else if (0 == errorOrRetry) {
+                        // This is standard for when the 500 will not be retired...an error.
+                        // Do not return, continue with cleaning up here.
+                    } else if (1 == errorOrRetry) {
+                        // Success? Why are we in the error handler if this happens?
+                        // I do not expect this to ever occur.
+                        console.log("Success found in error handler:");
+                        console.log(jqXHR);
+                    }
+
                     console.log("Error Code: " + jqXHR.status + " (" + errorThrown + "; " + textStatus + ")");
                     var cacheItem = CacheRegistry.getCachedItem(outerThis.restUrl);
                     var queue = cacheItem.getUnservedCallbacks();
@@ -505,12 +521,12 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
                     console.log("Error: " + this.restUrl + " --> Data: " + resultData.error);
                     CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 4 /* ERROR */);
                     return 0;
-                } else if (resultData.status == "403" && resultData.error.indexOf("Forbidden") >= 0) {
+                } else if (resultData.status == "403") {
                     console.log("Forbidden Error, no retry: " + "\nURL: " + this.restUrl + "\nReply: " + resultData.error);
                     CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 5 /* FORBIDDEN */);
                     return 0;
                 } else if (resultData.status == "500") {
-                    if (this.previousTriesRemade < 4) {
+                    if (this.previousTriesRemade < 3) {
                         this.previousTriesRemade++;
                         console.log("Retrying: " + this.restUrl);
                         this.callAgain();
@@ -519,7 +535,8 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
                         return -1;
                     } else {
                         // Error, but we are done retrying.
-                        console.log("No retry, Error: " + resultData);
+                        console.log("No retry, Error: ");
+                        console.log(resultData);
                         CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 4 /* ERROR */);
                         return 0;
                     }

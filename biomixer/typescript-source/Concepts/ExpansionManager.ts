@@ -231,6 +231,7 @@ export class EdgeRegistry {
         }
         
         this.inaccessibleNodes.push(conceptUri);
+        console.log("Purged "+conceptUri);
     }
     
     public nodeIsInaccessible(conceptUri: ConceptGraph.ConceptURI){

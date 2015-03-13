@@ -373,7 +373,7 @@ class FetchAndApplyLayoutCallback extends Fetcher.CallbackObject {
         public expansionSet: ExpansionSets.ExpansionSet<ConceptGraph.Node>
         ){
             super(url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
-            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, expansionSet, true);
+            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, expansionSet);
         }
     
     public callback = (conceptPropertiesData: any, textStatus: string, jqXHR: any) => {

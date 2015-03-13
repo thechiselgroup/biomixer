@@ -310,7 +310,7 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
                 // Casting to prevent need for re-boxing data. Would need to remove elements and leave just x and y.
                 _this.pathsToRoot.layouts.updateFixedLayoutDatum(_this.conceptUri, _this.nodeData);
             };
-            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, expansionSet, true);
+            this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, expansionSet);
         }
         return FetchAndApplyLayoutCallback;
     })(Fetcher.CallbackObject);

@@ -89,7 +89,7 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
     }
     
     getNumberOfNodesMissing(): number{
-        return this.graph.getNumberOfPotentialNodesToExpand(String(this.parentNode.getEntityId()), this.expansionType);
+        return this.graph.getNumberOfPotentialNodesToExpand(this.parentNode, this.expansionType);
     }
     
     /**

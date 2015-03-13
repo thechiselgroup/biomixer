@@ -264,7 +264,7 @@ export class OntologyGraph implements GraphView.Graph<Node> {
     
     // 2nd arg is actually UndoRedoManager.NodeInteraction, but we don't sue undo here yet
     // and I didn't want to increase dependencies until we need to.
-    getNumberOfPotentialNodesToExpand(incomingNodeId: string, nodeInteraction: UndoRedoManager.NodeInteraction): number{
+    getNumberOfPotentialNodesToExpand(incomingNodeId: Node, nodeInteraction: UndoRedoManager.NodeInteraction): number{
         // Unimplemented.
         return -1;
     }

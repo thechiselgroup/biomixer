@@ -76,7 +76,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             this.wrappedParseNodeCallbacks = [];
         }
         DeferredCallbacks.prototype.addCallback = function (callback, expansionSet) {
-            var expSetUpdateWrapper = function (haltExpansions) {
+            var expSetUpdateWrapper = function (haltExpansions, maxNodesToGet) {
                 // Have to check if we are stopping, mark the related expansion set if so,
                 // or fetch the node otherwise.
                 if (haltExpansions || expansionSet.expansionCutShort()) {
@@ -87,7 +87,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     expansionSet.expansionCutShort(haltExpansions);
                     return;
                 } else {
-                    callback();
+                    callback(maxNodesToGet);
                 }
             };
             this.wrappedParseNodeCallbacks.push(expSetUpdateWrapper);
@@ -118,7 +118,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 // We also tell each expansion how many nodes it was allowed to load
                 // via this process, although it will need to account for any nodes loaded
                 // prior to the node cap dialog being presented.
-                this.wrappedParseNodeCallbacks[i](haltExpansions);
+                this.wrappedParseNodeCallbacks[i](haltExpansions, maxNodesToGet);
             }
 
             // Cut out whatever we processed. Leave any we didn't (due to max nodes argument).
@@ -383,18 +383,22 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         * not any others). This allows us ot estimate the number of nodes that would be added if the expansion were performed.
         * Gives the current outstanding number, not the total.
         */
-        ConceptGraph.prototype.getNumberOfPotentialNodesToExpand = function (incomingNodeId, nodeInteraction) {
+        ConceptGraph.prototype.getNumberOfPotentialNodesToExpand = function (expandingNode, nodeInteraction) {
             var _this = this;
+            var expandingNodeId = expandingNode.nodeId;
             var numNewNodesIncoming = 0;
-            var edges = this.expMan.edgeRegistry.getEdgesFor(incomingNodeId);
-            var nodesSeen = [];
+            var otherCount = 0;
+            var edges = this.expMan.edgeRegistry.getEdgesFor(expandingNodeId);
+            var nodesSeen = {};
             edges.forEach(function (edge) {
                 // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
-                var edgeTypeCorrect = (edge.relationType === "maps_to" && nodeInteraction === PathOptionConstants.mappingsNeighborhoodConstant) || (!(edge.relationType === "maps_to") && nodeInteraction === PathOptionConstants.termNeighborhoodConstant);
-                var otherConceptId = (String(edge.sourceId) === incomingNodeId) ? edge.targetId : edge.sourceId;
-                if (edgeTypeCorrect && !_this.containsNodeById(otherConceptId) && nodesSeen.indexOf(otherConceptId) === -1) {
+                var edgeExpansionType = edge.relationType === "maps_to" ? PathOptionConstants.mappingsNeighborhoodConstant : PathOptionConstants.termNeighborhoodConstant;
+
+                var otherConceptId = (edge.sourceId === expandingNodeId) ? edge.targetId : edge.sourceId;
+
+                if (_this.nodeMayBeExpanded1(otherConceptId, expandingNodeId, nodeInteraction, edgeExpansionType) && null == nodesSeen[String(otherConceptId)]) {
                     numNewNodesIncoming++;
-                    nodesSeen.push(otherConceptId);
+                    nodesSeen[String(otherConceptId)] = true;
                 }
             });
 
@@ -412,31 +416,32 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         ConceptGraph.prototype.checkForNodeCap = function (fetchCallback, expansionSet, numberNewNodesComing) {
             // Assuming we reliably check for capping prior to dispatching node fetches, we can
             // know how many nodes are incoming for a given expansion set by incrementing it here.
-            if (typeof numberNewNodesComing === "undefined") { numberNewNodesComing = 0; }
             if (0 === numberNewNodesComing) {
-                numberNewNodesComing = this.getNumberOfPotentialNodesToExpand(expansionSet.parentNode.getEntityId(), expansionSet.expansionType);
+                // Not actually adding anything, skip dialog check. Better for caller to check, isn't it?
+                return;
             }
-
-            if (undefined === this.nextNodeWarningCount) {
-                this.nextNodeWarningCount = this.softNodeCap;
-            }
-
-            while (this.nextNodeWarningCount > this.softNodeCap && this.graphD3Format.nodes.length < (this.nextNodeWarningCount - this.nodeCapInterval)) {
-                // We have to account for shrinking graphs. Just because the user said ok to lots of nodes previously
-                // doesn't mean they will say ok again.
-                // Decrement our current cap until we are closer to the existing number of nodes.
-                this.nextNodeWarningCount -= this.nodeCapInterval;
-                console.log("I think I need to set cut off to false for expansion we have here...for all expansions? Is that done in the deferred object above?");
-            }
-
-            var dialogOpen = $("#confirm").is(":visible");
 
             if (expansionSet.expansionCutShort()) {
                 // If we are rejecting node parse callbacks for this expansion set, then let the callback that was passed in
                 // simply fade away into the everlasting garbage collector.
                 // NB The expansion set will not be reused even if the same expansion is retriggered.
                 return;
-            } else if (dialogOpen || ((this.graphD3Format.nodes.length + 1) > this.nextNodeWarningCount && expansionSet.expansionCutShort() === false)) {
+            }
+
+            if (undefined === this.nextNodeWarningCount) {
+                this.nextNodeWarningCount = this.softNodeCap;
+            }
+
+            while (this.graphD3Format.nodes.length < (this.nextNodeWarningCount - this.nodeCapInterval) && this.softNodeCap < this.nextNodeWarningCount) {
+                // We have to account for shrinking graphs. Just because the user said ok to lots of nodes previously
+                // doesn't mean they will say ok again.
+                // Decrement our current cap until we are closer to the existing number of nodes.
+                this.nextNodeWarningCount -= this.nodeCapInterval;
+                this.nextNodeWarningCount = Math.max(this.nextNodeWarningCount, this.softNodeCap);
+            }
+
+            var dialogOpen = $("#confirm").is(":visible");
+            if (dialogOpen || ((this.graphD3Format.nodes.length + 1) > this.nextNodeWarningCount) || ((this.graphD3Format.nodes.length + numberNewNodesComing) > this.nextNodeWarningCount)) {
                 // So, this logic lets all possible mappings through, because mappings calls are registered in a quick loop
                 // and the fetches get called before any node is processed from any of those fetches.
                 if (undefined === this.deferredParseNodeCallBack) {
@@ -450,11 +455,10 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 this.deferredParseNodeCallBack.addCallback(fetchCallback, expansionSet);
 
                 this.showNodeCapDialog(numberNewNodesComing);
-            } else if (!dialogOpen && expansionSet.expansionCutShort() === false) {
+            } else if (!dialogOpen) {
                 // We're below the cap and the expansion hasn't been previously cut short
                 // so we will execute the fetch.
-                fetchCallback();
-                var prevNode = expansionSet.nodes.length - 1 > 0 ? expansionSet.nodes[expansionSet.nodes.length - 1] : null;
+                fetchCallback(numberNewNodesComing);
             }
         };
 
@@ -466,13 +470,12 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         };
 
         ConceptGraph.prototype.refreshNodeCapDialogNodeCount = function (numberNewNodesComing) {
-            $("p#nodeCapDialogMessage").text("You are about to add multiple nodes to the visualization." + "\n" + "In total, " + this.graphD3Format.nodes.length + " nodes are in the graph, but " + numberNewNodesComing + " more can be added." + "\n\n" + "Would you like to limit or stop adding nodes? If you change your mind, you can re-expand the concepts/mappings later.");
+            $("#nodeCapDialogMessage").empty().append($("<span>").text("You are about to add multiple nodes to the visualization." + "\n" + "In total, ")).append($("<b>").text(this.graphD3Format.nodes.length)).append($("<span>").text(" nodes are in the graph, but ")).append($("<b>").text(numberNewNodesComing)).append($("<span>").text(" more may be added." + "\n\n" + "Would you like to limit the number of nodes? If you change your mind, you can re-expand the concepts/mappings later."));
 
+            $("label#capDialogLabel").text("Load up to: ");
             if (undefined === numberNewNodesComing) {
-                $("label#capDialogLabel").text("Num. of Nodes to Load");
                 $("input#capDialogInput").attr("max", 20 + "");
             } else {
-                $("label#capDialogLabel").text("Of " + numberNewNodesComing + " nodes, load: ");
                 $("input#capDialogInput").attr("max", numberNewNodesComing + "");
                 this.currentModalDialogIncomingNodeCount = numberNewNodesComing;
             }
@@ -489,7 +492,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 onShow: function (dialog) {
                     var modal = this;
 
-                    var message = $("<p>").attr("id", "nodeCapDialogMessage").css("white-space", "pre-wrap");
+                    var message = $("<div>").attr("id", "nodeCapDialogMessage").css("white-space", "pre-wrap");
 
                     // Tired of fighting with CSS
                     $("#confirm-container").css("height", "auto");
@@ -511,12 +514,13 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
 
                         // call the callback
                         // If we allow anything less than all of the nodes in, the expansion has to be treated as halted.
-                        var nodesToAdd = parseInt(nodesToLoadInput.val());
-                        var haltExpansion = nodesToAdd === outerThis.currentModalDialogIncomingNodeCount;
+                        var nodesToAdd = parseInt(nodesToLoadInput.val(), 10);
 
+                        // Do not want to *halt* the expansion if it is all the nodes available...
+                        // var haltExpansion: boolean = nodesToAdd === outerThis.currentModalDialogIncomingNodeCount;
                         // TODO What about the fact that there are still incoming counts arriving when the user
                         // has the opportunity to select how many to add?
-                        outerThis.nodeCapResponseCallback(haltExpansion, nodesToAdd);
+                        outerThis.nodeCapResponseCallback(false, nodesToAdd);
                     });
 
                     $('.no', dialog.data[0]).click(function () {
@@ -653,10 +657,11 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         * and when we know the ontology of that node (such as when doing concept expansions).
         */
         ConceptGraph.prototype.expandMappedConcept = function (newConceptId, newConceptMappingData, relatedConceptId, expansionType, expansionSet) {
-            var newNodeRawUri = newConceptMappingData["@id"];
-            if (expansionType === PathOptionConstants.mappingsNeighborhoodConstant && this.nodeMayBeExpanded(newNodeRawUri, relatedConceptId, expansionType, expansionSet)) {
+            var newNodeUri = this.computeNodeId(newConceptMappingData);
+            if (expansionType === PathOptionConstants.mappingsNeighborhoodConstant && this.nodeMayBeExpanded(newNodeUri, relatedConceptId, expansionType, expansionSet)) {
+                // Moved node cap check to caller of this, where we have an estimate of incoming nodes.
                 var url = newConceptMappingData.links.self;
-                var callback = new FetchOneConceptCallback(this, url, newNodeRawUri, expansionSet);
+                var callback = new FetchOneConceptCallback(this, url, newNodeUri, expansionSet);
                 var fetcher = new Fetcher.RetryingJsonFetcher(url);
                 fetcher.fetch(callback, true);
             }
@@ -668,7 +673,8 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         */
         ConceptGraph.prototype.expandRelatedConcept = function (conceptsOntology, newConceptId, relatedConceptId, expansionType, expansionSet) {
             var newNodeId = this.computeNodeId(newConceptId, conceptsOntology);
-            if (this.nodeMayBeExpanded(newNodeId, relatedConceptId, expansionType, expansionSet) && this.nodeIsAccessible(newNodeId)) {
+            if (this.nodeMayBeExpanded(newNodeId, relatedConceptId, expansionType, expansionSet)) {
+                // Moved node cap check to caller of this, where we have an estimate of incoming nodes.
                 var url = this.buildConceptUrlNewApi(conceptsOntology, newConceptId);
                 var callback = new FetchOneConceptCallback(this, url, newNodeId, expansionSet);
                 var fetcher = new Fetcher.RetryingJsonFetcher(url);
@@ -688,11 +694,15 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             fetcher.fetch(callback, true);
         };
 
-        ConceptGraph.prototype.nodeMayBeExpanded = function (newConceptId, relatedConceptId, expansionType, expansionSet) {
-            if (null === expansionSet.parentNode || null === expansionType) {
+        ConceptGraph.prototype.nodeMayBeExpanded1 = function (newConceptId, relatedConceptId, nodeRelationExpansionType, desiredRelationType) {
+            return relatedConceptId !== newConceptId && nodeRelationExpansionType === desiredRelationType && !(String(newConceptId) in this.conceptIdNodeMap) && this.nodeIsAccessible(newConceptId);
+        };
+
+        ConceptGraph.prototype.nodeMayBeExpanded = function (newConceptId, relatedConceptId, nodeRelationExpansionType, expansionSet) {
+            if (null === expansionSet.parentNode || null === nodeRelationExpansionType) {
                 return false;
             }
-            return relatedConceptId === expansionSet.parentNode.nodeId && expansionType === expansionSet.expansionType && !(String(newConceptId) in this.conceptIdNodeMap);
+            return relatedConceptId === expansionSet.parentNode.nodeId && this.nodeMayBeExpanded1(newConceptId, expansionSet.parentNode.nodeId, nodeRelationExpansionType, expansionSet.expansionType);
         };
 
         /**
@@ -1382,14 +1392,12 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
 
     var FetchOneConceptCallback = (function (_super) {
         __extends(FetchOneConceptCallback, _super);
-        function FetchOneConceptCallback(graph, url, conceptUri, expansionSet, priorityLoadNoCapCheck) {
-            if (typeof priorityLoadNoCapCheck === "undefined") { priorityLoadNoCapCheck = false; }
+        function FetchOneConceptCallback(graph, url, conceptUri, expansionSet) {
             var _this = this;
             _super.call(this, url, String(conceptUri), 0 /* nodeSingle */); //+":"+directCallForExpansionType);
             this.graph = graph;
             this.conceptUri = conceptUri;
             this.expansionSet = expansionSet;
-            this.priorityLoadNoCapCheck = priorityLoadNoCapCheck;
             this.directCallForExpansionType = PathOptionConstants.singleNodeOrSubordinateConstant;
             this.callback = function (conceptPropertiesData, textStatus, jqXHR) {
                 // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
@@ -1412,12 +1420,9 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     _this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, _this.expansionSet);
                 };
 
-                if (_this.priorityLoadNoCapCheck) {
-                    // When loading for import, we will ignore cap checking.
-                    fetchCall();
-                } else {
-                    _this.graph.checkForNodeCap(fetchCall, _this.expansionSet);
-                }
+                // Removed cap check within FetchOneConceptCallback, because it is better to check prior to this.
+                // Used to conditionally check the cap on the basis of incoming argument.
+                fetchCall();
             };
         }
         return FetchOneConceptCallback;
@@ -1593,6 +1598,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 // other apparent relations, such as has_laterality). I am keeping the two hard coded ones here,
                 // and using published property relations for additional arc types.
                 // Loop over results, properties, then mappings, parents, children.
+                var funcsToCall = [];
                 $.each(relationsDataRaw.properties, function (propertyId, propertyValue) {
                     // NB Composition relations can only be parsed from properties received with the "include=properties"
                     // parameter. This means that although properties are received elsewhere (path to root, children),
@@ -1625,7 +1631,11 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                             }
                             var newRelatedNodeId = _this.graph.computeNodeId(relatedPartId, _this.conceptNode.ontologyAcronym);
                             _this.graph.manifestOrRegisterImplicitRelation(_this.conceptNode.nodeId, newRelatedNodeId, matchedRelationProp.idEscaped, matchedRelationProp);
-                            _this.graph.expandRelatedConcept(_this.conceptNode.ontologyAcronym, relatedPartId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet);
+                            if (_this.graph.nodeMayBeExpanded(newRelatedNodeId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet)) {
+                                funcsToCall.push(function () {
+                                    _this.graph.expandRelatedConcept(_this.conceptNode.ontologyAcronym, relatedPartId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet);
+                                });
+                            }
                         });
                         return;
                     }
@@ -1646,7 +1656,12 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                             // if the relation exists so I can fetch the node data...
                             var newChildNodeId = _this.graph.computeNodeId(childPartId, _this.conceptNode.ontologyAcronym);
                             _this.graph.manifestOrRegisterImplicitRelation(_this.conceptNode.nodeId, newChildNodeId, _this.graph.relationLabelConstants.composition);
-                            _this.graph.expandRelatedConcept(_this.conceptNode.ontologyAcronym, childPartId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet);
+
+                            if (_this.graph.nodeMayBeExpanded(newChildNodeId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet)) {
+                                funcsToCall.push(function () {
+                                    _this.graph.expandRelatedConcept(_this.conceptNode.ontologyAcronym, childPartId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet);
+                                });
+                            }
                         });
                         return;
                     }
@@ -1655,11 +1670,33 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         $.each(propertyValue, function (index, parentPartId) {
                             var newParentNodeId = _this.graph.computeNodeId(parentPartId, _this.conceptNode.ontologyAcronym);
                             _this.graph.manifestOrRegisterImplicitRelation(newParentNodeId, _this.conceptNode.nodeId, _this.graph.relationLabelConstants.composition);
-                            _this.graph.expandRelatedConcept(_this.conceptNode.ontologyAcronym, parentPartId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet);
+
+                            if (_this.graph.nodeMayBeExpanded(newParentNodeId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet)) {
+                                funcsToCall.push(function () {
+                                    _this.graph.expandRelatedConcept(_this.conceptNode.ontologyAcronym, parentPartId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet);
+                                });
+                            }
                         });
                         return;
                     }
                 });
+
+                if (funcsToCall.length === 0) {
+                    return;
+                }
+
+                var fetchCall = function (maxToAdd) {
+                    var numAdded = 0;
+                    $.each(funcsToCall, function (i, propertyRelationFunc) {
+                        if (null != maxToAdd && numAdded >= maxToAdd) {
+                            return;
+                        }
+                        numAdded++;
+                        propertyRelationFunc();
+                    });
+                };
+
+                _this.graph.checkForNodeCap(fetchCall, _this.expansionSet, funcsToCall.length);
             };
         }
         return ConceptCompositionRelationsCallback;
@@ -1687,27 +1724,42 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 }
 
                 // Example: http://data.bioontology.org/ontologies/SNOMEDCT/classes/http%3A%2F%2Fpurl.bioontology.org%2Fontology%2FSNOMEDCT%2F91837002/children
+                var childrenToAdd = [];
                 $.each(relationsDataRaw.collection, function (index, child) {
                     var childId = _this.graph.computeNodeId(child);
-                    if (!_this.graph.nodeMayBeExpanded(childId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet) && _this.graph.nodeIsAccessible(childId)) {
-                        _this.graph.manifestOrRegisterImplicitRelation(_this.conceptNode.nodeId, childId, _this.graph.relationLabelConstants.inheritance);
+                    _this.graph.manifestOrRegisterImplicitRelation(_this.conceptNode.nodeId, childId, _this.graph.relationLabelConstants.inheritance);
+                    if (_this.graph.nodeMayBeExpanded(childId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet)) {
+                        childrenToAdd.push(child);
                         return;
                     }
+                });
 
-                    // Wrap what we want to do, so that it can be controlled by the node-cap dialog system.
-                    // We can indeed allow these to be asyncrhonously returned to, while still executing the
-                    // paging fetch seen after this loop
-                    var fetchCall = function () {
+                // Wrap what we want to do, so that it can be controlled by the node-cap dialog system.
+                // We can indeed allow these to be asyncrhonously returned to, while still executing the
+                // paging fetch seen after this loop
+                var groupedFetchCall = function (maxToAdd) {
+                    var numAdded = 0;
+                    $.each(childrenToAdd, function (index, child) {
+                        if (null != maxToAdd && numAdded >= maxToAdd) {
+                            return false;
+                        }
+                        numAdded++;
+
+                        var childId = _this.graph.computeNodeId(child);
+
                         // Was parsed in ConceptRelationshipJsonParser near line 75 (parseNewChildren)
                         // We have a complication though...paged results! Oh great...
                         // That alone is reason to fire these events separately anyway, but we can keep all the parsing stuck in this same
                         // place and fire off an additional REST call.
                         _this.graph.expandAndParseNodeIfNeeded(childId, _this.conceptNode.nodeId, child, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet, _this.conceptNode.name);
                         _this.graph.manifestOrRegisterImplicitRelation(_this.conceptNode.nodeId, childId, _this.graph.relationLabelConstants.inheritance);
-                    };
+                    });
+                };
 
-                    _this.graph.checkForNodeCap(fetchCall, _this.expansionSet);
-                });
+                // As we loop through children, the dialog will likely increment the count while the user looks at it.
+                // if the user stops the expansion via this dialog, the expansion set is told that it was halted,
+                // and it should not harass the user with the same question for this expansion.
+                _this.graph.checkForNodeCap(groupedFetchCall, _this.expansionSet, childrenToAdd.length);
 
                 // Children paging...only if children called directly?
                 var pageNumber = relationsDataRaw["page"];
@@ -1741,24 +1793,36 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     }
                 }
 
+                var parentsToAdd = [];
                 $.each(relationsDataRaw, function (index, parent) {
                     var parentId = _this.graph.computeNodeId(parent);
-                    if (!_this.graph.nodeMayBeExpanded(parentId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet)) {
-                        _this.graph.manifestOrRegisterImplicitRelation(parentId, _this.conceptNode.nodeId, _this.graph.relationLabelConstants.inheritance);
+                    _this.graph.manifestOrRegisterImplicitRelation(parentId, _this.conceptNode.nodeId, _this.graph.relationLabelConstants.inheritance);
+                    if (_this.graph.nodeMayBeExpanded(parentId, _this.conceptNode.nodeId, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet)) {
+                        parentsToAdd.push(parent);
                         return;
                     }
+                });
 
-                    // Wrap what we want to do, so that it can be controlled by the node-cap dialog system.
-                    // We can indeed allow these to be asynchronously returned to, while still executing the
-                    // paging fetch seen after this loop
-                    var fetchCall = function () {
+                // Wrap what we want to do, so that it can be controlled by the node-cap dialog system.
+                // We can indeed allow these to be asynchronously returned to, while still executing the
+                // paging fetch seen after this loop
+                var groupedFetchCall = function (maxToAdd) {
+                    var numAdded = 0;
+                    $.each(parentsToAdd, function (index, parent) {
+                        if (null != maxToAdd && numAdded >= maxToAdd) {
+                            return false;
+                        }
+                        numAdded++;
+
+                        var parentId = _this.graph.computeNodeId(parent);
+
                         // Save the data in case we expand to include this node
                         _this.graph.expandAndParseNodeIfNeeded(parentId, _this.conceptNode.nodeId, parent, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet, _this.conceptNode.name);
                         _this.graph.manifestOrRegisterImplicitRelation(parentId, _this.conceptNode.nodeId, _this.graph.relationLabelConstants.inheritance);
-                    };
+                    });
+                };
 
-                    _this.graph.checkForNodeCap(fetchCall, _this.expansionSet);
-                });
+                _this.graph.checkForNodeCap(groupedFetchCall, _this.expansionSet, parentsToAdd.length);
             };
         }
         return ConceptParentsRelationsCallback;
@@ -1786,7 +1850,9 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 }
 
                 // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
-                var mappingTargets = {};
+                var mappingTargetIds = {};
+                var mappingTargets = [];
+                var expectedExpansionCount = 0;
                 $.each(relationsDataRaw, function (index, mapping) {
                     var firstConceptId = _this.graph.computeNodeId(mapping.classes[0]);
                     var secondConceptId = _this.graph.computeNodeId(mapping.classes[1]);
@@ -1806,21 +1872,38 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     if (newConceptId === _this.conceptNode.nodeId) {
                         // This data error is not very helpful to see...
                         // console.log("Error: mapping occurred without source as at both endpoints: "+firstConceptId+" and "+secondConceptId+" for call to "+this.url);
-                    } else if (newConceptId === undefined || newConceptId === "" || newConceptId === null) {
+                    } else if (newConceptId === undefined || String(newConceptId) === "" || newConceptId === null) {
                         console.log("Error: mapping occurred without source as an endpoint: " + firstConceptId + " and " + secondConceptId + " for source " + _this.conceptNode.nodeId + " for call to " + _this.url);
                     } else {
+                        // Sort endpoints to make mapping edges singular. Otherwise we get an edge going each way.
+                        var firstId = newConceptId > _this.conceptNode.nodeId ? newConceptId : _this.conceptNode.nodeId;
+                        var secondId = newConceptId > _this.conceptNode.nodeId ? _this.conceptNode.nodeId : newConceptId;
+                        _this.graph.manifestOrRegisterImplicitRelation(firstId, secondId, _this.graph.relationLabelConstants.mapping);
+
                         // Catches self referential maps,
-                        mappingTargets[newConceptId] = newConceptData;
+                        var newNodeRawUri = _this.graph.computeNodeId(newConceptData);
+                        if (null == mappingTargetIds[String(newConceptId)]) {
+                            if (_this.graph.nodeMayBeExpanded(newNodeRawUri, _this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, _this.expansionSet)) {
+                                mappingTargetIds[String(newConceptId)] = true;
+                                mappingTargets.push(newConceptData);
+                                expectedExpansionCount++;
+                            }
+                        }
                     }
                 });
 
-                $.each(mappingTargets, function (newConceptId, newConceptData) {
-                    // Sort endpoints to make mapping edges singular. Otherwise we get an edge going each way.
-                    var firstId = newConceptId > _this.conceptNode.nodeId ? newConceptId : _this.conceptNode.nodeId;
-                    var secondId = newConceptId > _this.conceptNode.nodeId ? _this.conceptNode.nodeId : newConceptId;
-                    _this.graph.manifestOrRegisterImplicitRelation(firstId, secondId, _this.graph.relationLabelConstants.mapping);
-                    _this.graph.expandMappedConcept(newConceptId, newConceptData, _this.conceptNode.nodeId, _this.directCallForExpansionType, _this.expansionSet);
-                });
+                var fetchCall = function (maxToAdd) {
+                    var added = 0;
+                    $.each(mappingTargets, function (newConceptId, newConceptData) {
+                        if (null != maxToAdd && added >= maxToAdd) {
+                            return false;
+                        }
+                        _this.graph.expandMappedConcept(newConceptId, newConceptData, _this.conceptNode.nodeId, _this.directCallForExpansionType, _this.expansionSet);
+                        added++;
+                    });
+                };
+
+                _this.graph.checkForNodeCap(fetchCall, _this.expansionSet, expectedExpansionCount);
             };
         }
         return ConceptMappingsRelationsCallback;

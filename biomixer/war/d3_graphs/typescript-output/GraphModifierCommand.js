@@ -132,7 +132,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                 // this.layoutSnapshot.executeRedo();
                 this.applyLayout();
             } else {
-                console.log("Trying to redo same command twice in a row");
+                // console.log("Trying to redo same command twice in a row");
             }
         };
 
@@ -143,7 +143,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                 // NB We don't undo layouts, we only do them.
                 // The incoming command will apply its layout.
             } else {
-                console.log("Trying to undo same command twice in a row");
+                // console.log("Trying to undo same command twice in a row");
             }
         };
 
@@ -224,7 +224,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                 // Don't undo layouts, onyl redo, so that incoming step will apply its layout.
                 this.applyLayout();
             } else {
-                console.log("Trying to redo same command twice in a row");
+                // console.log("Trying to redo same command twice in a row");
             }
         };
 
@@ -233,7 +233,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                 this.redidLast = false;
                 this.graph.addNodes(this.nodesToRemove.nodes, null);
             } else {
-                console.log("Trying to undo same command twice in a row");
+                // console.log("Trying to undo same command twice in a row");
             }
         };
 
@@ -310,7 +310,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                 // Only apply layouts on redo, so that incoming steps get their layout.
                 this.applyLayout();
             } else {
-                console.log("Trying to redo same command twice in a row");
+                // console.log("Trying to redo same command twice in a row");
             }
         };
 
@@ -321,7 +321,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                     this.commands[i].executeUndo();
                 }
             } else {
-                console.log("Trying to undo same command twice in a row");
+                // console.log("Trying to undo same command twice in a row");
             }
         };
 

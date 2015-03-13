@@ -73,7 +73,7 @@ export interface Graph<N extends BaseNode>  {
    addNodes(newNodes: Array<N>, expansionSet: ExpansionSets.ExpansionSet<N>);
    removeNodes(nodesToRemove: Array<N>);
    containsNode(node: N): boolean;
-   getNumberOfPotentialNodesToExpand(incomingNodeId: string, nodeInteraction: UndoRedoManager.NodeInteraction): number;
+   getNumberOfPotentialNodesToExpand(incomingNode: N, nodeInteraction: UndoRedoManager.NodeInteraction): number;
     
    getLayoutProvider(): LayoutProvider.ILayoutProvider;
    setLayoutProvider(layoutProvider: LayoutProvider.ILayoutProvider);

@@ -160,7 +160,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
             // this.layoutSnapshot.executeRedo();
             this.applyLayout();
         } else {
-            console.log("Trying to redo same command twice in a row");
+            // console.log("Trying to redo same command twice in a row");
         }
     }
     
@@ -171,7 +171,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
             // NB We don't undo layouts, we only do them.
             // The incoming command will apply its layout.
         } else {
-            console.log("Trying to undo same command twice in a row");
+            // console.log("Trying to undo same command twice in a row");
         }
     }
     
@@ -257,7 +257,7 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends Commo
             // Don't undo layouts, onyl redo, so that incoming step will apply its layout.
             this.applyLayout();
         } else {
-            console.log("Trying to redo same command twice in a row");
+            // console.log("Trying to redo same command twice in a row");
         }
     }
     
@@ -266,7 +266,7 @@ export class GraphRemoveNodesCommand<N extends GraphView.BaseNode> extends Commo
             this.redidLast = false;
             this.graph.addNodes(this.nodesToRemove.nodes, null);
         } else {
-            console.log("Trying to undo same command twice in a row");
+            // console.log("Trying to undo same command twice in a row");
         }
     }
     
@@ -350,7 +350,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
             // Only apply layouts on redo, so that incoming steps get their layout.
             this.applyLayout();
         } else {
-            console.log("Trying to redo same command twice in a row");
+            // console.log("Trying to redo same command twice in a row");
         }
     }
     
@@ -361,7 +361,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
                 this.commands[i].executeUndo();
             }
         } else {
-            console.log("Trying to undo same command twice in a row");
+            // console.log("Trying to undo same command twice in a row");
         }
     }
     
