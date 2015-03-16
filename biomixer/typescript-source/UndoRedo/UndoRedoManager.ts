@@ -46,6 +46,9 @@ export class UndoRedoManager {
      * 
      */
     addCommand(newCommand: ICommand): void{
+        if(this.trail.indexOf(newCommand) !== -1){
+            return;
+        }
         // console.log("Adding to trail at: "+(this.currentTrailIndex + 1));
         // console.log("Remove from trail: "+(this.trail.length-1 - this.currentTrailIndex));
         // If we have 10 items, and the current item is 7 (index 0, so 8th item), then when we splice, we want to
