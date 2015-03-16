@@ -51,7 +51,9 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
         this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.displayId,
             this.deletionSet, this.expansionSet, liveExpansionSets);
         
-        undoRedoBoss.addCommand(this.graphModifier);
+        if(null != undoRedoBoss){
+            undoRedoBoss.addCommand(this.graphModifier);
+        }
     }
     
     updateExpansionNodeDisplayName(nodeDisplayName:string){

@@ -37,7 +37,7 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         public parentNode: N,
         public graph: GraphView.Graph<N>,
         liveExpansionSets: Array<ExpansionSet<N>>,
-        undoRedoBoss: UndoRedoManager.UndoRedoManager,
+        private undoRedoBoss: UndoRedoManager.UndoRedoManager,
         public expansionType: UndoRedoManager.NodeInteraction
         ){
         if(null != parentNode){
@@ -47,8 +47,23 @@ export class ExpansionSet<N extends GraphView.BaseNode>{
         liveExpansionSets.push(this);
         this.graphModifier = new GraphModifierCommand.GraphAddNodesCommand<N>(graph, this, liveExpansionSets);
         
-        if(null != undoRedoBoss){
-            undoRedoBoss.addCommand(this.graphModifier);
+        // Not really necessary, but maybe it would be convenient?
+        // if(registerImmediately){
+        //     this.thunderbirdsAreGo();
+        // }
+    }
+    
+    /**
+     * The expansion set is cleared for application. Register in the undo/redo set.
+     * Originally this was in the constructor. Using this method works when node cap checks are performed
+     * when we know how many REST calls we will make, rather than when we are
+     * adding the nodes subsequent to those REST calls.
+     * That is, we ask the user about how many nodes they would like earlier rather than later,
+     * and thus we need to register the expansion set at a different time than when we create it.
+     */
+    thunderbirdsAreGo(){
+        if(null != this.undoRedoBoss){
+            this.undoRedoBoss.addCommand(this.graphModifier);
         }
     }
             

@@ -87,6 +87,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     expansionSet.expansionCutShort(haltExpansions);
                     return;
                 } else {
+                    expansionSet.thunderbirdsAreGo();
                     callback(maxNodesToGet);
                 }
             };

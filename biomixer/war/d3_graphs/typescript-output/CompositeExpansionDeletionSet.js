@@ -26,7 +26,9 @@ define(["require", "exports", "./GraphModifierCommand", "./DeletionSet", "./Expa
 
             this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand(graph, id.displayId, this.deletionSet, this.expansionSet, liveExpansionSets);
 
-            undoRedoBoss.addCommand(this.graphModifier);
+            if (null != undoRedoBoss) {
+                undoRedoBoss.addCommand(this.graphModifier);
+            }
         }
         InitializationDeletionSet.prototype.updateExpansionNodeDisplayName = function (nodeDisplayName) {
             this.graphModifier.setDisplayName(this.graphModifier.getDisplayName() + ": " + nodeDisplayName);

@@ -189,6 +189,7 @@ class DeferredCallbacks{
                     expansionSet.expansionCutShort(haltExpansions);
                     return;
                 } else {
+                    expansionSet.thunderbirdsAreGo();
                     callback(maxNodesToGet);
                 }
             }
