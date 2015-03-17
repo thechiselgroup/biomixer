@@ -587,6 +587,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         } else if(!dialogOpen) {
             // We're below the cap and the expansion hasn't been previously cut short
             // so we will execute the fetch.
+            // This also gets called on the expansion set internal to deferredParseNodeCallback above.
+            expansionSet.thunderbirdsAreGo();
             fetchCallback(numberNewNodesComing);
         }
     }
