@@ -19,6 +19,8 @@ export class BreadcrumbTrail {
     
     static fadedCrumbClassName = "faded_crumb";
     
+    static crumbTextClass = "crumb_text";
+    
     static undoMenuText = "Undo/Redo >> ";
     static undoButtonSuffix = " >";
     
@@ -37,14 +39,14 @@ export class BreadcrumbTrail {
         .append(
             $("<div>").attr("id", BreadcrumbTrail.breadcrumbTrailLabelId)
                 .append(
-                    $("<p>").text(BreadcrumbTrail.undoMenuText).addClass("crumb_text")
+                    $("<p>").text(BreadcrumbTrail.undoMenuText).addClass(BreadcrumbTrail.crumbTextClass)
                 )
         );
     }
     
     updateElementText(existingCommand: UndoRedoManager.ICommand){
         $("div#"+this.generateCrumbElementId(existingCommand))
-            .children(".crumb_text")
+            .children("."+BreadcrumbTrail.crumbTextClass)
             .text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
     }
     
@@ -101,7 +103,12 @@ export class BreadcrumbTrail {
             .click(newCrumb.breadcrumbClickedLambda(newCrumb))
             .hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb))
             ;
-        newCrumbElement.append($("<p>").text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix).addClass("crumb_text"));
+        var crumbName = $("<p>").text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix).addClass("crumb_text")
+        newCrumbElement.append(crumbName);
+        command.addNameUpdateListener(
+            this.generateCrumbElementId(command),
+            ()=>{ crumbName.text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix); }
+        );
         // Use it
         crumbElementPredecessor.after(newCrumbElement);
         // Sort it

@@ -28,12 +28,13 @@ export class CommonImplementor<N extends GraphView.BaseNode> {
     // in the child constructor calls.
     childImpl: UndoRedoManager.ICommand;
     
+    private displayNameChangeCallbacks: { [idName: string]: ()=>void } = {};
+    
     private activeStepCallback = (command: UndoRedoManager.ICommand)=>{};
     
     constructor(
         public graph: GraphView.Graph<N>
     ){
-        
     }
     
     applyLayoutImpl(){
@@ -91,6 +92,21 @@ export class CommonImplementor<N extends GraphView.BaseNode> {
         	this.activeStepCallback(this.childImpl);
     	}
     }
+    
+    addNameUpdateListener(targetId: string, callback: ()=>void ): void{
+        if(null == this.displayNameChangeCallbacks[targetId]){
+            this.displayNameChangeCallbacks[targetId] = callback;
+        }
+    }
+    
+    displayNameUpdated(){
+	    // TODO Inherent leak as we accumulate then fail tod elete targets herein.
+	    // Should not cost much, but should fix.
+        for(var key in this.displayNameChangeCallbacks){
+            this.displayNameChangeCallbacks[key]();
+        }
+    }
+
 }
 
 /**
@@ -145,7 +161,7 @@ export class GraphAddNodesCommand<N extends GraphView.BaseNode> extends CommonIm
     }
     
     getDisplayName(): string{
-        return this.expansionSet.id.displayId;
+        return this.expansionSet.getFullDisplayId();
     }
     
     // TODO This implies that nodes should be added to the graph only
@@ -300,7 +316,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
 
     constructor(
         public graph: GraphView.Graph<N>,
-        public displayName: string,
+        private displayName: string,
         private deletionSet: DeletionSet.DeletionSet<N>,
         private additionSet: ExpansionSets.ExpansionSet<N>,
         public liveExpansionSets: Array<ExpansionSets.ExpansionSet<N>>
@@ -339,6 +355,7 @@ export class GraphCompositeNodeCommand<N extends GraphView.BaseNode> extends Com
         // Danger! Caller is wholly responsible for content of this display name.
         // It shouldn't change twice, and the caller shouldn't be trying to change it twice.
         this.displayName = newName;
+        this.displayNameUpdated()
     }
     
     executeRedo(): void{

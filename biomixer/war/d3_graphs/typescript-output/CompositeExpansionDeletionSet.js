@@ -13,9 +13,11 @@ define(["require", "exports", "./GraphModifierCommand", "./DeletionSet", "./Expa
         */
         function InitializationDeletionSet(graph, id, undoRedoBoss, expansionType, labelUpdateFunc, parentNode) {
             if (typeof parentNode === "undefined") { parentNode = null; }
+            var _this = this;
             this.graph = graph;
             this.undoRedoBoss = undoRedoBoss;
             this.labelUpdateFunc = labelUpdateFunc;
+            this.nodeDisplayName = "";
             // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
             // with null parent node and it worked.
             // We always want this for the initialization deletion set.
@@ -24,23 +26,39 @@ define(["require", "exports", "./GraphModifierCommand", "./DeletionSet", "./Expa
             this.expansionSet = new ExpansionSet.ExpansionSet(id, parentNode, this.graph, liveExpansionSets, null, expansionType);
             this.deletionSet.addAssociatedExpansionSet(this.expansionSet);
 
-            this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand(graph, id.displayId, this.deletionSet, this.expansionSet, liveExpansionSets);
+            this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand(graph, id.getDisplayId(), this.deletionSet, this.expansionSet, liveExpansionSets);
+
+            this.expansionSet.graphModifier.addNameUpdateListener(id.internalId, function () {
+                _this.updateDisplayName();
+            });
 
             if (null != undoRedoBoss) {
                 undoRedoBoss.addCommand(this.graphModifier);
             }
         }
+        /**
+        * We need to be able to add the expansion node's name to the set. Use this when that is available.
+        */
         InitializationDeletionSet.prototype.updateExpansionNodeDisplayName = function (nodeDisplayName) {
-            this.graphModifier.setDisplayName(this.graphModifier.getDisplayName() + ": " + nodeDisplayName);
+            this.nodeDisplayName = nodeDisplayName;
+        };
+
+        InitializationDeletionSet.prototype.updateDisplayName = function () {
+            // Hackish. I don't see a more elegant way, but maybe I can refactor display names altogether?
+            if (-1 == this.expansionSet.getFullDisplayId().indexOf(this.nodeDisplayName)) {
+                this.expansionSet.id.setDisplayId(this.expansionSet.id.getDisplayId() + ": " + this.nodeDisplayName);
+            }
+            this.graphModifier.setDisplayName(this.expansionSet.getFullDisplayId());
             this.undoRedoBoss.updateUI(this.graphModifier);
 
             // This is intended to update filter UI components from the GraphView component, but I want light coupling...
-            this.expansionSet.id.displayId = this.graphModifier.getDisplayName();
             this.labelUpdateFunc(this.expansionSet);
+            this.graphModifier.displayNameUpdated();
         };
 
         InitializationDeletionSet.prototype.addAllExpanding = function (nodes) {
             this.expansionSet.addAll(nodes);
+            this.graphModifier.displayNameUpdated();
         };
 
         InitializationDeletionSet.prototype.addAllDeleting = function (nodes) {

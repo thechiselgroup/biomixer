@@ -43,7 +43,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         if(expSet == undefined){
             return "undefined";
         }
-        return expSet.id.displayId;
+        return expSet.getFullDisplayId();
     }
     
     generateColoredSquareIndicator(node: ExpansionSets.ExpansionSet<ConceptGraph.Node>): string {

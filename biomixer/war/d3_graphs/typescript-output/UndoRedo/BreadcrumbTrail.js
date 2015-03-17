@@ -6,11 +6,11 @@ define(["require", "exports", "UndoRedo/UndoRedoManager"], function(require, exp
             this.trailMap = {};
         }
         BreadcrumbTrail.prototype.initGui = function () {
-            $("#" + BreadcrumbTrail.breadcrumbMenuId).append($("<div>").attr("id", BreadcrumbTrail.breadcrumbTrailLabelId).append($("<p>").text(BreadcrumbTrail.undoMenuText).addClass("crumb_text")));
+            $("#" + BreadcrumbTrail.breadcrumbMenuId).append($("<div>").attr("id", BreadcrumbTrail.breadcrumbTrailLabelId).append($("<p>").text(BreadcrumbTrail.undoMenuText).addClass(BreadcrumbTrail.crumbTextClass)));
         };
 
         BreadcrumbTrail.prototype.updateElementText = function (existingCommand) {
-            $("div#" + this.generateCrumbElementId(existingCommand)).children(".crumb_text").text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
+            $("div#" + this.generateCrumbElementId(existingCommand)).children("." + BreadcrumbTrail.crumbTextClass).text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
         };
 
         /**
@@ -59,7 +59,11 @@ define(["require", "exports", "UndoRedo/UndoRedoManager"], function(require, exp
 
             // Make it
             var newCrumbElement = $("<div>").attr("id", this.generateCrumbElementId(command)).addClass(BreadcrumbTrail.crumbIdPrefixAndClassName).click(newCrumb.breadcrumbClickedLambda(newCrumb)).hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb));
-            newCrumbElement.append($("<p>").text(command.getDisplayName() + BreadcrumbTrail.undoButtonSuffix).addClass("crumb_text"));
+            var crumbName = $("<p>").text(command.getDisplayName() + BreadcrumbTrail.undoButtonSuffix).addClass("crumb_text");
+            newCrumbElement.append(crumbName);
+            command.addNameUpdateListener(this.generateCrumbElementId(command), function () {
+                crumbName.text(command.getDisplayName() + BreadcrumbTrail.undoButtonSuffix);
+            });
 
             // Use it
             crumbElementPredecessor.after(newCrumbElement);
@@ -153,6 +157,8 @@ define(["require", "exports", "UndoRedo/UndoRedoManager"], function(require, exp
         BreadcrumbTrail.activeCrumbClassName = "active_crumb";
 
         BreadcrumbTrail.fadedCrumbClassName = "faded_crumb";
+
+        BreadcrumbTrail.crumbTextClass = "crumb_text";
 
         BreadcrumbTrail.undoMenuText = "Undo/Redo >> ";
         BreadcrumbTrail.undoButtonSuffix = " >";

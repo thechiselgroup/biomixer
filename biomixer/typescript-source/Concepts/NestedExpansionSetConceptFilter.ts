@@ -218,6 +218,8 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                     
                     labelExpanderIcon.text( $(innerHidingContainer).css("display") === "none" ? "+" : "-"); 
         
+                    var label = $("<label>").attr("for",checkId).append(checkboxColoredSquare+"&nbsp;"+checkboxLabel);
+                    
                     this.filterContainer.append(
                     $("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox")
                         .addClass("expSet_"+checkboxSpanClass)
@@ -230,12 +232,15 @@ export class NestedExpansionSetConceptFilter extends ConceptFilterWidget.Abstrac
                         .append(
                             spanOfExpanderAndCheckbox
                         )
-                        .append(
-                            $("<label>").attr("for",checkId)
-                            .append(checkboxColoredSquare+"&nbsp;"+checkboxLabel)
-                        ).append(
-                            innerHidingContainer
-                        )
+                        .append(label)
+                        .append(innerHidingContainer)
+                    );
+                    
+                    // As the expansion is performed, update the label text
+                    // or use this updateFilterLabelLambda
+                    target.getGraphModifier().addNameUpdateListener(
+                        checkId,
+                        ()=>{ this.updateFilterLabelLambda()(target) }
                     );
                 }
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#"+spanId);

@@ -21,7 +21,7 @@ define(["require", "exports", "../NodeFilterWidget", "./ConceptNodeFilterWidget"
             if (expSet == undefined) {
                 return "undefined";
             }
-            return expSet.id.displayId;
+            return expSet.getFullDisplayId();
         };
 
         ExpansionSetFilter.prototype.generateColoredSquareIndicator = function (node) {

@@ -22,9 +22,9 @@ define(["require", "exports", "./BreadcrumbTrail", "UndoRedo/BreadcrumbTrail", "
             var undoButton = $("<div>").attr("id", BackForwardBreadcrumbButtons.undoButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoButtonClass).addClass(BackForwardBreadcrumbButtons.undoButtonIconClass).attr("title", BackForwardBreadcrumbButtons.undoButtonText);
             var redoButton = $("<div>").attr("id", BackForwardBreadcrumbButtons.redoButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoButtonClass).addClass(BackForwardBreadcrumbButtons.redoButtonIconClass).attr("title", BackForwardBreadcrumbButtons.redoButtonText);
 
-            var undoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass).attr("title", BackForwardBreadcrumbButtons.undoListButtonText).addClass("crumb_text");
+            var undoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass).attr("title", BackForwardBreadcrumbButtons.undoListButtonText).addClass(BackForwardBreadcrumbButtons.crumbTextClass);
             var undoList = $("<div>").attr("id", BackForwardBreadcrumbButtons.undoListButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoListButtonClass).append(undoDropDownButton).append($("<div>").attr("id", BackForwardBreadcrumbButtons.undoListCrumbContainerId).addClass(BackForwardBreadcrumbButtons.undoredoVerticalListContainer));
-            var redoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass).attr("title", BackForwardBreadcrumbButtons.redoListButtonText).addClass("crumb_text");
+            var redoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass).attr("title", BackForwardBreadcrumbButtons.redoListButtonText).addClass(BackForwardBreadcrumbButtons.crumbTextClass);
             var redoList = $("<div>").attr("id", BackForwardBreadcrumbButtons.redoListButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoListButtonClass).append(redoDropDownButton).append($("<div>").attr("id", BackForwardBreadcrumbButtons.redoListCrumbContainerId).addClass(BackForwardBreadcrumbButtons.undoredoVerticalListContainer));
 
             undoButton.click(function () {
@@ -57,7 +57,11 @@ define(["require", "exports", "./BreadcrumbTrail", "UndoRedo/BreadcrumbTrail", "
 
             // Make it
             var newCrumbElement = $("<div>").attr("id", this.generateCrumbElementId(command)).addClass(BackForwardBreadcrumbButtons.crumbIdPrefixAndClassName).addClass(BackForwardBreadcrumbButtons.verticalCrumbDivClass).click(newCrumb.breadcrumbClickedLambda(newCrumb)).hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb));
-            newCrumbElement.append($("<p>").text(command.getDisplayName()).addClass("crumb_text"));
+            var crumbName = $("<p>").text(command.getDisplayName()).addClass(BackForwardBreadcrumbButtons.crumbTextClass);
+            newCrumbElement.append(crumbName);
+            command.addNameUpdateListener(this.generateCrumbElementId(command), function () {
+                crumbName.text(command.getDisplayName());
+            });
 
             // Use it
             // Note that whenever we add a crumb, it is modifying redo, and thus is always going on the

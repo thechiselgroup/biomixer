@@ -27,6 +27,8 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
 
     public expansionSet: ExpansionSet.ExpansionSet<N>;
     public deletionSet: DeletionSet.DeletionSet<N>;
+    
+    private nodeDisplayName = "";
 
     /**
      * Parent node can be null for the initial expansion, when the expansion is not triggered
@@ -48,24 +50,38 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
         this.expansionSet = new ExpansionSet.ExpansionSet<N>(id, parentNode, this.graph, liveExpansionSets, null, expansionType)
         this.deletionSet.addAssociatedExpansionSet(this.expansionSet);
 
-        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.displayId,
+        this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.getDisplayId(),
             this.deletionSet, this.expansionSet, liveExpansionSets);
+        
+        this.expansionSet.graphModifier.addNameUpdateListener(id.internalId, ()=>{ this.updateDisplayName() });
         
         if(null != undoRedoBoss){
             undoRedoBoss.addCommand(this.graphModifier);
         }
     }
     
-    updateExpansionNodeDisplayName(nodeDisplayName:string){
-        this.graphModifier.setDisplayName(this.graphModifier.getDisplayName()+": "+nodeDisplayName);
+    /**
+     * We need to be able to add the expansion node's name to the set. Use this when that is available.
+     */
+    public updateExpansionNodeDisplayName(nodeDisplayName:string){
+        this.nodeDisplayName = nodeDisplayName;
+    }
+        
+    private updateDisplayName(){
+        // Hackish. I don't see a more elegant way, but maybe I can refactor display names altogether?
+        if(-1 == this.expansionSet.getFullDisplayId().indexOf(this.nodeDisplayName)){
+            this.expansionSet.id.setDisplayId(this.expansionSet.id.getDisplayId()+": "+this.nodeDisplayName);
+        }
+        this.graphModifier.setDisplayName(this.expansionSet.getFullDisplayId());
         this.undoRedoBoss.updateUI(this.graphModifier);
         // This is intended to update filter UI components from the GraphView component, but I want light coupling...
-        this.expansionSet.id.displayId = this.graphModifier.getDisplayName();
         this.labelUpdateFunc(this.expansionSet);
+        this.graphModifier.displayNameUpdated();
     }
     
     addAllExpanding(nodes: Array<N>): void{
         this.expansionSet.addAll(nodes);
+        this.graphModifier.displayNameUpdated();
     }
     
     addAllDeleting(nodes: Array<N>): void{
@@ -75,5 +91,4 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
     getGraphModifier(){
         return this.graphModifier;
     }
-    
 }

@@ -1483,9 +1483,9 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                             }
                         }
                         if (expansionSet.nodes.length === 1) {
-                            expansionSet.id.displayId += " (" + lastConceptNode.ontologyAcronym + ")";
+                            expansionSet.id.setDisplayId(expansionSet.id.getDisplayId() + " (" + lastConceptNode.ontologyAcronym + ")");
                         } else {
-                            expansionSet.id.displayId += " (multiple ontologies)";
+                            expansionSet.id.setDisplayId(expansionSet.id.getDisplayId() + " (multiple ontologies)");
                         }
                     };
 
@@ -1503,7 +1503,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             }
 
             if (expansionSet.nodes.length === 0) {
-                expansionSet.id.displayId = "Added: " + conceptNode.name;
+                expansionSet.id.setDisplayId("Added: " + conceptNode.name);
             }
 
             // Update the display id.

@@ -57,7 +57,7 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
         
         var undoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass)
             .attr("title", BackForwardBreadcrumbButtons.undoListButtonText)
-            .addClass("crumb_text");
+            .addClass(BackForwardBreadcrumbButtons.crumbTextClass);
         var undoList = $("<div>").attr("id", BackForwardBreadcrumbButtons.undoListButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoListButtonClass)
             .append(undoDropDownButton)
             .append(
@@ -65,7 +65,7 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
             );
         var redoDropDownButton = $("<div>").addClass(BackForwardBreadcrumbButtons.undoListButtonIconClass)
             .attr("title", BackForwardBreadcrumbButtons.redoListButtonText)
-            .addClass("crumb_text");
+            .addClass(BackForwardBreadcrumbButtons.crumbTextClass);
         var redoList = $("<div>").attr("id", BackForwardBreadcrumbButtons.redoListButtonId).addClass(BackForwardBreadcrumbButtons.undoRedoListButtonClass)
             .append(redoDropDownButton)
             .append(
@@ -112,7 +112,13 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
             .click(newCrumb.breadcrumbClickedLambda(newCrumb))
             .hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb))
             ;
-        newCrumbElement.append($("<p>").text(command.getDisplayName()).addClass("crumb_text"));
+        var crumbName = $("<p>").text(command.getDisplayName()).addClass(BackForwardBreadcrumbButtons.crumbTextClass);
+        newCrumbElement.append(crumbName);
+        command.addNameUpdateListener(
+            this.generateCrumbElementId(command),
+            ()=>{
+             crumbName.text(command.getDisplayName()); }
+        );
         
         // Use it
         // Note that whenever we add a crumb, it is modifying redo, and thus is always going on the

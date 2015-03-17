@@ -33,7 +33,6 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
             //     this.thunderbirdsAreGo();
             // }
         }
-        
         /**
         * The expansion set is cleared for application. Register in the undo/redo set.
         * Originally this was in the constructor. Using this method works when node cap checks are performed
@@ -58,7 +57,7 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
                     // Also, I want to know if there are attempts to add a node to multiple expansion sets.
                     // We don't want that, because it would complicate semantics, especially for undo-redo
                     // functionality that relies on expansion sets.
-                    console.log("Attempted change of set expansion ID on node: " + _this.id.displayId + ", expansion ID " + node.getEntityId());
+                    console.log("Attempted change of set expansion ID on node: " + _this.id.getDisplayId() + ", expansion ID " + node.getEntityId());
                 } else if (node.expansionSetAsMember !== undefined && node.expansionSetAsMember === _this) {
                     // No need to set the id, and it should be in the node array already. I won't check.
                     // We might indeed try to add nodes to this again, due to the way that the undo/redo system is designed.
@@ -67,6 +66,7 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
                     _this.nodes.push(node);
                 }
             });
+            this.graphModifier.displayNameUpdated();
         };
 
         ExpansionSet.prototype.getGraphModifier = function () {
@@ -104,6 +104,10 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
         ExpansionSet.prototype.getNodes = function () {
             return this.nodes;
         };
+
+        ExpansionSet.prototype.getFullDisplayId = function () {
+            return this.id.getDisplayId() + " [" + this.nodes.length + "]";
+        };
         return ExpansionSet;
     })();
     exports.ExpansionSet = ExpansionSet;
@@ -115,6 +119,13 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
             this.internalId = internalId;
             this.displayId = displayId;
         }
+        ExpansionSetIdentifer.prototype.getDisplayId = function () {
+            return this.displayId;
+        };
+
+        ExpansionSetIdentifer.prototype.setDisplayId = function (newString) {
+            this.displayId = newString;
+        };
         return ExpansionSetIdentifer;
     })();
     exports.ExpansionSetIdentifer = ExpansionSetIdentifer;

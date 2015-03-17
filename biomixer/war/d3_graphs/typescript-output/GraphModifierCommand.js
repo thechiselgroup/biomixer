@@ -15,6 +15,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
         function CommonImplementor(graph) {
             this.graph = graph;
             this.fixedLayout = {};
+            this.displayNameChangeCallbacks = {};
             this.activeStepCallback = function (command) {
             };
             this.finalSnapshotTaken = false;
@@ -74,6 +75,18 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
                 this.activeStepCallback(this.childImpl);
             }
         };
+
+        CommonImplementor.prototype.addNameUpdateListener = function (targetId, callback) {
+            if (null == this.displayNameChangeCallbacks[targetId]) {
+                this.displayNameChangeCallbacks[targetId] = callback;
+            }
+        };
+
+        CommonImplementor.prototype.displayNameUpdated = function () {
+            for (var key in this.displayNameChangeCallbacks) {
+                this.displayNameChangeCallbacks[key]();
+            }
+        };
         return CommonImplementor;
     })();
     exports.CommonImplementor = CommonImplementor;
@@ -116,7 +129,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
         };
 
         GraphAddNodesCommand.prototype.getDisplayName = function () {
-            return this.expansionSet.id.displayId;
+            return this.expansionSet.getFullDisplayId();
         };
 
         // TODO This implies that nodes should be added to the graph only
@@ -298,6 +311,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager", "GraphView", "Expansio
             // Danger! Caller is wholly responsible for content of this display name.
             // It shouldn't change twice, and the caller shouldn't be trying to change it twice.
             this.displayName = newName;
+            this.displayNameUpdated();
         };
 
         GraphCompositeNodeCommand.prototype.executeRedo = function () {

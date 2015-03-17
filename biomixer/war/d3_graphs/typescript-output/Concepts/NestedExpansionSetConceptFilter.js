@@ -161,7 +161,15 @@ define(["require", "exports", "../Utils", "./ConceptNodeFilterWidget", "./Expans
 
                     labelExpanderIcon.text($(innerHidingContainer).css("display") === "none" ? "+" : "-");
 
-                    _this.filterContainer.append($("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox").addClass("expSet_" + checkboxSpanClass).mouseenter(outerThis.implementation.checkboxHoveredLambda(target)).mouseleave(outerThis.implementation.checkboxUnhoveredLambda(target)).append(spanOfExpanderAndCheckbox).append($("<label>").attr("for", checkId).append(checkboxColoredSquare + "&nbsp;" + checkboxLabel)).append(innerHidingContainer));
+                    var label = $("<label>").attr("for", checkId).append(checkboxColoredSquare + "&nbsp;" + checkboxLabel);
+
+                    _this.filterContainer.append($("<span>").attr("id", spanId).addClass(checkboxSpanClass).addClass("filterCheckbox").addClass("expSet_" + checkboxSpanClass).mouseenter(outerThis.implementation.checkboxHoveredLambda(target)).mouseleave(outerThis.implementation.checkboxUnhoveredLambda(target)).append(spanOfExpanderAndCheckbox).append(label).append(innerHidingContainer));
+
+                    // As the expansion is performed, update the label text
+                    // or use this updateFilterLabelLambda
+                    target.getGraphModifier().addNameUpdateListener(checkId, function () {
+                        _this.updateFilterLabelLambda()(target);
+                    });
                 }
                 checkboxesPopulatedOrReUsed = checkboxesPopulatedOrReUsed.add("#" + spanId);
             });

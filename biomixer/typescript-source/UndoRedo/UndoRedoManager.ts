@@ -225,6 +225,18 @@ export interface ICommand {
     getDisplayName(): string;
     
     /**
+     * Register UI components that use the command's display text here, and they
+     * will be updated when the text is changed.
+     */
+    addNameUpdateListener(targetId: string, callback: ()=>void ): void;
+    
+    /**
+     * When the display text for the command has changed, it should result in updates to
+     * registered UI components.
+     */
+    displayNameUpdated();
+    
+    /**
      * Add or remove elements as appropriate. Must be reversable.
      * Must also take care of applying layout snapshot.
      */
