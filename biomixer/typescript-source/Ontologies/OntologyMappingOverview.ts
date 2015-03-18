@@ -260,6 +260,10 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
                        $("<td></td>").append(
                                $("<div></div>").text(ontologyData["rawAcronym"]+":"+ontologyData["name"]).attr("class","popups-Header")
                        )
+               ).append(
+                       $("<td></td>").append(
+                               $("<div>").attr("id","popups-GrabHandle")
+                       )
                )
          );
        

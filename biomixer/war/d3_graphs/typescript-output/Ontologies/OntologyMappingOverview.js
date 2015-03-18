@@ -193,7 +193,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             outerDiv.append(table);
             table.append(tBody);
 
-            tBody.append($("<tr></tr>").append($("<td></td>").append($("<div></div>").text(ontologyData["rawAcronym"] + ":" + ontologyData["name"]).attr("class", "popups-Header"))));
+            tBody.append($("<tr></tr>").append($("<td></td>").append($("<div></div>").text(ontologyData["rawAcronym"] + ":" + ontologyData["name"]).attr("class", "popups-Header"))).append($("<td></td>").append($("<div>").attr("id", "popups-GrabHandle"))));
 
             var urlText = "http://bioportal.bioontology.org/ontologies/" + ontologyData["rawAcronym"] + "?p=summary";
             tBody.append($("<tr></tr>").append($("<td></td>").attr("align", "left").css({ "vertical-align": "top" }).append($("<div></div>").css(noWrapStyle).append($("<a></a>").attr("target", "_blank").attr("href", urlText).text("Open ontology homepage in tab")))));
