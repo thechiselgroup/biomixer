@@ -67,9 +67,7 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
             this.liveExpansionSets = this.liveExpansionSets.filter(function (expSet, i) {
                 return -1 === deathRow.indexOf(expSet);
             });
-            if (null != this.undoRedoBoss) {
-                this.undoRedoBoss.updateUI(this.graphModifier);
-            }
+            this.graphModifier.displayNameUpdated();
         };
 
         DeletionSet.prototype.getGraphModifier = function () {

@@ -11,12 +11,11 @@ define(["require", "exports", "./GraphModifierCommand", "./DeletionSet", "./Expa
         * Parent node can be null for the initial expansion, when the expansion is not triggered
         * by a menu on an existing node.
         */
-        function InitializationDeletionSet(graph, id, undoRedoBoss, expansionType, labelUpdateFunc, parentNode) {
+        function InitializationDeletionSet(graph, id, undoRedoBoss, expansionType, parentNode) {
             if (typeof parentNode === "undefined") { parentNode = null; }
             var _this = this;
             this.graph = graph;
             this.undoRedoBoss = undoRedoBoss;
-            this.labelUpdateFunc = labelUpdateFunc;
             this.nodeDisplayName = "";
             // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
             // with null parent node and it worked.
@@ -49,11 +48,6 @@ define(["require", "exports", "./GraphModifierCommand", "./DeletionSet", "./Expa
                 this.expansionSet.id.setDisplayId(this.expansionSet.id.getDisplayId() + ": " + this.nodeDisplayName);
             }
             this.graphModifier.setDisplayName(this.expansionSet.getFullDisplayId());
-            this.undoRedoBoss.updateUI(this.graphModifier);
-
-            // This is intended to update filter UI components from the GraphView component, but I want light coupling...
-            this.labelUpdateFunc(this.expansionSet);
-            this.graphModifier.displayNameUpdated();
         };
 
         InitializationDeletionSet.prototype.addAllExpanding = function (nodes) {

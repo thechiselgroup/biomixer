@@ -76,13 +76,6 @@ define(["require", "exports", "./BreadcrumbTrail", "./BackForwardBreadcrumbButto
         };
 
         /**
-        * Useful for when the text of a crumb is not fixed at creation time.
-        */
-        UndoRedoManager.prototype.updateUI = function (existingCommand) {
-            this.crumblez.updateElementText(existingCommand);
-        };
-
-        /**
         * Go back to another crumb. Really a convenience method, since
         * we will know whether it is a redo or undo internally.
         */

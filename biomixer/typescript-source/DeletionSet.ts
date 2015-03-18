@@ -85,9 +85,7 @@ export class DeletionSet<N extends GraphView.BaseNode>{
         }
         // Execute them.
         this.liveExpansionSets = this.liveExpansionSets.filter((expSet, i)=>{ return -1 === deathRow.indexOf(expSet) });
-        if(null != this.undoRedoBoss){
-            this.undoRedoBoss.updateUI(this.graphModifier);
-        }
+        this.graphModifier.displayNameUpdated();
     }
     
     getGraphModifier(){

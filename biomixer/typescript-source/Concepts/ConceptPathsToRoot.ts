@@ -293,7 +293,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         // I need to prevent *any* old expansion sets from showing up from this method deeper. After all, it says *from scratch*.
         // This is artificial in that the nodes in the graph may not all be deleted (e.g. refocus node operation).
-        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType, this.nestedExpansionConceptFilter.updateFilterLabelLambda(), initParent);
+        var initSet = new CompositeExpansionDeletionSet.InitializationDeletionSet<ConceptGraph.Node>(this.conceptGraph, expId, this.undoRedoBoss, expansionType, initParent);
+
         initSet.getGraphModifier().addActiveStepCallback(this.refreshVisualizationModeLambda());
         this.deleteNodesForGraphInitialization(initSet, initParent);
         return initSet;

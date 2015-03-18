@@ -27,7 +27,7 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
 
     public expansionSet: ExpansionSet.ExpansionSet<N>;
     public deletionSet: DeletionSet.DeletionSet<N>;
-    
+
     private nodeDisplayName = "";
 
     /**
@@ -39,9 +39,8 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
         id: ExpansionSet.ExpansionSetIdentifer,
         private undoRedoBoss: UndoRedoManager.UndoRedoManager,
         expansionType: UndoRedoManager.NodeInteraction,
-        private labelUpdateFunc: (target: ExpansionSet.ExpansionSet<N>)=>void,
         parentNode: N = null
-        ){
+        ) {
         // We don't know the parent node for initial expansions. Before this composite class, we used ExpansionSet
         // with null parent node and it worked.
         // We always want this for the initialization deletion set.
@@ -52,43 +51,39 @@ export class InitializationDeletionSet<N extends GraphView.BaseNode>{
 
         this.graphModifier = new GraphModifierCommand.GraphCompositeNodeCommand<N>(graph, id.getDisplayId(),
             this.deletionSet, this.expansionSet, liveExpansionSets);
-        
-        this.expansionSet.graphModifier.addNameUpdateListener(id.internalId, ()=>{ this.updateDisplayName() });
-        
-        if(null != undoRedoBoss){
+
+        this.expansionSet.graphModifier.addNameUpdateListener(id.internalId, () => { this.updateDisplayName() });
+
+        if (null != undoRedoBoss) {
             undoRedoBoss.addCommand(this.graphModifier);
         }
     }
-    
+
     /**
      * We need to be able to add the expansion node's name to the set. Use this when that is available.
      */
-    public updateExpansionNodeDisplayName(nodeDisplayName:string){
+    public updateExpansionNodeDisplayName(nodeDisplayName: string) {
         this.nodeDisplayName = nodeDisplayName;
     }
-        
-    private updateDisplayName(){
+
+    private updateDisplayName() {
         // Hackish. I don't see a more elegant way, but maybe I can refactor display names altogether?
-        if(-1 == this.expansionSet.getFullDisplayId().indexOf(this.nodeDisplayName)){
-            this.expansionSet.id.setDisplayId(this.expansionSet.id.getDisplayId()+": "+this.nodeDisplayName);
+        if (-1 == this.expansionSet.getFullDisplayId().indexOf(this.nodeDisplayName)) {
+            this.expansionSet.id.setDisplayId(this.expansionSet.id.getDisplayId() + ": " + this.nodeDisplayName);
         }
         this.graphModifier.setDisplayName(this.expansionSet.getFullDisplayId());
-        this.undoRedoBoss.updateUI(this.graphModifier);
-        // This is intended to update filter UI components from the GraphView component, but I want light coupling...
-        this.labelUpdateFunc(this.expansionSet);
-        this.graphModifier.displayNameUpdated();
     }
-    
-    addAllExpanding(nodes: Array<N>): void{
+
+    addAllExpanding(nodes: Array<N>): void {
         this.expansionSet.addAll(nodes);
         this.graphModifier.displayNameUpdated();
     }
-    
-    addAllDeleting(nodes: Array<N>): void{
+
+    addAllDeleting(nodes: Array<N>): void {
         this.deletionSet.addAll(nodes);
     }
-    
-    getGraphModifier(){
+
+    getGraphModifier() {
         return this.graphModifier;
     }
 }

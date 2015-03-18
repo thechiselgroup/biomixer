@@ -43,11 +43,9 @@ export class BreadcrumbTrail {
                 )
         );
     }
-    
-    updateElementText(existingCommand: UndoRedoManager.ICommand){
-        $("div#"+this.generateCrumbElementId(existingCommand))
-            .children("."+BreadcrumbTrail.crumbTextClass)
-            .text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
+
+    private updateCrumbText(crumbNameDisplay: JQuery, command: UndoRedoManager.ICommand){
+            return ()=>{ crumbNameDisplay.text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix) };
     }
     
     /**
@@ -107,8 +105,9 @@ export class BreadcrumbTrail {
         newCrumbElement.append(crumbName);
         command.addNameUpdateListener(
             this.generateCrumbElementId(command),
-            ()=>{ crumbName.text(command.getDisplayName()+BreadcrumbTrail.undoButtonSuffix); }
+            this.updateCrumbText(crumbName, command)
         );
+          
         // Use it
         crumbElementPredecessor.after(newCrumbElement);
         // Sort it

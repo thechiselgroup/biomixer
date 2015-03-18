@@ -9,8 +9,10 @@ define(["require", "exports", "UndoRedo/UndoRedoManager"], function(require, exp
             $("#" + BreadcrumbTrail.breadcrumbMenuId).append($("<div>").attr("id", BreadcrumbTrail.breadcrumbTrailLabelId).append($("<p>").text(BreadcrumbTrail.undoMenuText).addClass(BreadcrumbTrail.crumbTextClass)));
         };
 
-        BreadcrumbTrail.prototype.updateElementText = function (existingCommand) {
-            $("div#" + this.generateCrumbElementId(existingCommand)).children("." + BreadcrumbTrail.crumbTextClass).text(existingCommand.getDisplayName()); //+BreadcrumbTrail.undoButtonSuffix);
+        BreadcrumbTrail.prototype.updateCrumbText = function (crumbNameDisplay, command) {
+            return function () {
+                crumbNameDisplay.text(command.getDisplayName() + BreadcrumbTrail.undoButtonSuffix);
+            };
         };
 
         /**
@@ -61,9 +63,7 @@ define(["require", "exports", "UndoRedo/UndoRedoManager"], function(require, exp
             var newCrumbElement = $("<div>").attr("id", this.generateCrumbElementId(command)).addClass(BreadcrumbTrail.crumbIdPrefixAndClassName).click(newCrumb.breadcrumbClickedLambda(newCrumb)).hover(newCrumb.breadcrumbHoveredLambda(newCrumb), newCrumb.breadcrumbUnhoveredLambda(newCrumb));
             var crumbName = $("<p>").text(command.getDisplayName() + BreadcrumbTrail.undoButtonSuffix).addClass("crumb_text");
             newCrumbElement.append(crumbName);
-            command.addNameUpdateListener(this.generateCrumbElementId(command), function () {
-                crumbName.text(command.getDisplayName() + BreadcrumbTrail.undoButtonSuffix);
-            });
+            command.addNameUpdateListener(this.generateCrumbElementId(command), this.updateCrumbText(crumbName, command));
 
             // Use it
             crumbElementPredecessor.after(newCrumbElement);

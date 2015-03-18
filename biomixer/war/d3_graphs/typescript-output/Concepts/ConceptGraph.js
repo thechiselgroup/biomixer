@@ -1508,9 +1508,6 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 expansionSet.id.setDisplayId("Added: " + conceptNode.name);
             }
 
-            // Update the display id.
-            this.graph.undoBoss.updateUI(expansionSet.graphModifier);
-
             // As we grab related concepts, we might expand them if their relation matches the expansion we are using.
             this.graph.fetchConceptRelations(conceptNode, conceptPropertiesData, expansionSet);
 
