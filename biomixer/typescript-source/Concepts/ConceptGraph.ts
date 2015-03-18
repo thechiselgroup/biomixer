@@ -170,13 +170,13 @@ export class ConceptD3Data extends GraphView.GraphDataForD3<Node, Link> {
 
 
 class DeferredCallbacks{
-    wrappedParseNodeCallbacks: Array<{(halt: boolean, maxToAdd: number): void}> = [];
+    wrappedParseNodeCallbacks: Array<{(halt: boolean, maxToAdd: number): number}> = [];
     
     constructor(
         public graph: ConceptGraph
         ){}
     
-    addCallback(callback: {(maxToAdd: number): void}, expansionSet: ExpansionSets.ExpansionSet<Node>){
+    addCallback(callback: {(maxToAdd: number): number}, expansionSet: ExpansionSets.ExpansionSet<Node>){
         var expSetUpdateWrapper =
             (haltExpansions: boolean, maxNodesToGet: number)=>{
                 // Have to check if we are stopping, mark the related expansion set if so,
@@ -190,7 +190,7 @@ class DeferredCallbacks{
                     return;
                 } else {
                     expansionSet.thunderbirdsAreGo();
-                    callback(maxNodesToGet);
+                    return callback(maxNodesToGet);
                 }
             }
         ;
@@ -224,7 +224,10 @@ class DeferredCallbacks{
             // We also tell each expansion how many nodes it was allowed to load
             // via this process, although it will need to account for any nodes loaded
             // prior to the node cap dialog being presented.
-            this.wrappedParseNodeCallbacks[i](haltExpansions, maxNodesToGet);
+            var claimedNodes = this.wrappedParseNodeCallbacks[i](haltExpansions, maxNodesToGet);
+            // However many nodes the callback claims it will expand, we must decrement from
+            // our maximum amount.
+            maxNodesToGet -= claimedNodes;
         }
         // Cut out whatever we processed. Leave any we didn't (due to max nodes argument).
         this.wrappedParseNodeCallbacks = this.wrappedParseNodeCallbacks.slice(i);
@@ -533,7 +536,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     // NB We could have this inside the fetching utility or inside the node related callbacks, except
     // that the former would complicate non-node fetches, and the latter would necessitate doing the
     // fetch and calling the callback, costing us the fetch but still saving on node load.
-    checkForNodeCap(fetchCallback: {(maxToAdd: number): void}, expansionSet: ExpansionSets.ExpansionSet<Node>, numberNewNodesComing: number){
+    checkForNodeCap(fetchCallback: {(maxToAdd: number): number}, expansionSet: ExpansionSets.ExpansionSet<Node>, numberNewNodesComing: number){
         // Assuming we reliably check for capping prior to dispatching node fetches, we can
         // know how many nodes are incoming for a given expansion set by incrementing it here.
         
@@ -1675,8 +1678,11 @@ export class SearchOneConceptCallback extends Fetcher.CallbackObject {
             var expansionSet = new ExpansionSets.ExpansionSet(expId, null, this.graph, this.graph.expMan.getActiveExpansionSets(), this.graph.undoBoss, PathOptionConstants.singleNodeConstant);
             var lastConceptNode: Node;
             var lastConceptNodeData;
-            var fetchCall = ()=>{
+            var fetchCall = (maxNodesToGet: number): number=>{
                 for(var j = 0; j < conceptPropertiesData.length; j++){
+                    if(j >= maxNodesToGet){
+                        break;
+                    }
                     lastConceptNodeData = conceptPropertiesData[j];
                     var node = this.addNode(lastConceptNodeData, expansionSet);
                     if(null !== node){
@@ -1688,6 +1694,8 @@ export class SearchOneConceptCallback extends Fetcher.CallbackObject {
                 } else {
                     expansionSet.id.setDisplayId(expansionSet.id.getDisplayId()+" (multiple ontologies)");
                 }
+                
+                return j;
             }
             // var ontologyUri = conceptData.links.ontology;
             // Check cap using the last node we found in the search results.
@@ -1895,17 +1903,18 @@ class ConceptCompositionRelationsCallback extends Fetcher.CallbackObject {
             return;
         }
         
-        var fetchCall = (maxToAdd: number)=>{
+        var fetchCall = (maxToAdd: number): number=>{
             var numAdded = 0;
             $.each(funcsToCall,
                 (i: number, propertyRelationFunc)=>{
                     if(null != maxToAdd && numAdded >= maxToAdd){
-                    return;
+                        return;
                     }
                     numAdded++;
                     propertyRelationFunc();
                 }
             );
+            return numAdded;
         };
             
         this.graph.checkForNodeCap(fetchCall, this.expansionSet, funcsToCall.length);
@@ -1953,7 +1962,7 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
         // Wrap what we want to do, so that it can be controlled by the node-cap dialog system.
         // We can indeed allow these to be asyncrhonously returned to, while still executing the
         // paging fetch seen after this loop
-        var groupedFetchCall = (maxToAdd: number)=>{
+        var groupedFetchCall = (maxToAdd: number): number=>{
             var numAdded = 0;
             $.each(childrenToAdd,
                 (index, child) => {
@@ -1971,6 +1980,7 @@ class ConceptChildrenRelationsCallback extends Fetcher.CallbackObject {
                     this.graph.manifestOrRegisterImplicitRelation(this.conceptNode.nodeId, childId, this.graph.relationLabelConstants.inheritance);
                 }
             );
+            return numAdded;
         };
             
         // As we loop through children, the dialog will likely increment the count while the user looks at it.
@@ -2027,7 +2037,7 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
         // Wrap what we want to do, so that it can be controlled by the node-cap dialog system.
         // We can indeed allow these to be asynchronously returned to, while still executing the
         // paging fetch seen after this loop
-        var groupedFetchCall = (maxToAdd: number)=>{
+        var groupedFetchCall = (maxToAdd: number): number=>{
             var numAdded = 0;
             $.each(parentsToAdd,
                 (index, parent) => {
@@ -2042,6 +2052,7 @@ class ConceptParentsRelationsCallback extends Fetcher.CallbackObject {
                     this.graph.manifestOrRegisterImplicitRelation(parentId, this.conceptNode.nodeId, this.graph.relationLabelConstants.inheritance);
                 }
             );
+            return numAdded;
         };
                     
         this.graph.checkForNodeCap(groupedFetchCall, this.expansionSet, parentsToAdd.length);
@@ -2117,7 +2128,7 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
             }
         });
         
-        var fetchCall = (maxToAdd: number)=>{
+        var fetchCall = (maxToAdd: number): number=>{
             var added = 0;
             $.each(mappingTargets,
                 (newConceptId: ConceptURI, newConceptData) => {
@@ -2128,6 +2139,7 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
                       added++;
                 }
             );
+            return added;
         };
 
         this.graph.checkForNodeCap(fetchCall, this.expansionSet, expectedExpansionCount);

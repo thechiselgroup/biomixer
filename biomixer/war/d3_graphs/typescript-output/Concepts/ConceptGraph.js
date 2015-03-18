@@ -88,7 +88,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     return;
                 } else {
                     expansionSet.thunderbirdsAreGo();
-                    callback(maxNodesToGet);
+                    return callback(maxNodesToGet);
                 }
             };
             this.wrappedParseNodeCallbacks.push(expSetUpdateWrapper);
@@ -119,7 +119,11 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 // We also tell each expansion how many nodes it was allowed to load
                 // via this process, although it will need to account for any nodes loaded
                 // prior to the node cap dialog being presented.
-                this.wrappedParseNodeCallbacks[i](haltExpansions, maxNodesToGet);
+                var claimedNodes = this.wrappedParseNodeCallbacks[i](haltExpansions, maxNodesToGet);
+
+                // However many nodes the callback claims it will expand, we must decrement from
+                // our maximum amount.
+                maxNodesToGet -= claimedNodes;
             }
 
             // Cut out whatever we processed. Leave any we didn't (due to max nodes argument).
@@ -1484,8 +1488,11 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                     var expansionSet = new ExpansionSets.ExpansionSet(expId, null, _this.graph, _this.graph.expMan.getActiveExpansionSets(), _this.graph.undoBoss, PathOptionConstants.singleNodeConstant);
                     var lastConceptNode;
                     var lastConceptNodeData;
-                    var fetchCall = function () {
+                    var fetchCall = function (maxNodesToGet) {
                         for (var j = 0; j < conceptPropertiesData.length; j++) {
+                            if (j >= maxNodesToGet) {
+                                break;
+                            }
                             lastConceptNodeData = conceptPropertiesData[j];
                             var node = _this.addNode(lastConceptNodeData, expansionSet);
                             if (null !== node) {
@@ -1497,6 +1504,8 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         } else {
                             expansionSet.id.setDisplayId(expansionSet.id.getDisplayId() + " (multiple ontologies)");
                         }
+
+                        return j;
                     };
 
                     // var ontologyUri = conceptData.links.ontology;
@@ -1702,6 +1711,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         numAdded++;
                         propertyRelationFunc();
                     });
+                    return numAdded;
                 };
 
                 _this.graph.checkForNodeCap(fetchCall, _this.expansionSet, funcsToCall.length);
@@ -1762,6 +1772,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         _this.graph.expandAndParseNodeIfNeeded(childId, _this.conceptNode.nodeId, child, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet, _this.conceptNode.name);
                         _this.graph.manifestOrRegisterImplicitRelation(_this.conceptNode.nodeId, childId, _this.graph.relationLabelConstants.inheritance);
                     });
+                    return numAdded;
                 };
 
                 // As we loop through children, the dialog will likely increment the count while the user looks at it.
@@ -1828,6 +1839,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         _this.graph.expandAndParseNodeIfNeeded(parentId, _this.conceptNode.nodeId, parent, PathOptionConstants.termNeighborhoodConstant, _this.expansionSet, _this.conceptNode.name);
                         _this.graph.manifestOrRegisterImplicitRelation(parentId, _this.conceptNode.nodeId, _this.graph.relationLabelConstants.inheritance);
                     });
+                    return numAdded;
                 };
 
                 _this.graph.checkForNodeCap(groupedFetchCall, _this.expansionSet, parentsToAdd.length);
@@ -1909,6 +1921,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         _this.graph.expandMappedConcept(newConceptId, newConceptData, _this.conceptNode.nodeId, _this.directCallForExpansionType, _this.expansionSet);
                         added++;
                     });
+                    return added;
                 };
 
                 _this.graph.checkForNodeCap(fetchCall, _this.expansionSet, expectedExpansionCount);
