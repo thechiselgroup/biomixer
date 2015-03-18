@@ -1162,7 +1162,10 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
 
         ConceptGraph.prototype.buildConceptUrlNewApi = function (ontologyAcronym, conceptUri) {
             // String() converts object String back to primitive string. Go figure.
-            return "http://" + Utils.getBioportalUrl() + "/ontologies/" + ontologyAcronym + "/classes/" + encodeURIComponent(String(conceptUri));
+            //        return "http://"+Utils.getBioportalUrl()+"/ontologies/"+ontologyAcronym+"/classes/"+encodeURIComponent(String(conceptUri));
+            // Using include=properties,definition,synonyms gets us the same info, with fewer REST calls, without too much
+            // cost in latency.
+            return this.buildConceptCompositionsRelationUrl(null, ontologyAcronym, conceptUri);
         };
 
         ConceptGraph.prototype.buildConceptSearchUrlNewApi = function (conceptUri) {
@@ -1170,8 +1173,13 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             return "http://" + Utils.getBioportalUrl() + "/search/?require_exact_match=true&also_search_properties=false&q=" + encodeURIComponent(String(conceptUri));
         };
 
-        ConceptGraph.prototype.buildConceptCompositionsRelationUrl = function (concept) {
-            return "http://" + Utils.getBioportalUrl() + "/ontologies/" + concept.ontologyAcronym + "/classes/" + encodeURIComponent(String(concept.simpleConceptUri)) + "?include=properties";
+        ConceptGraph.prototype.buildConceptCompositionsRelationUrl = function (concept, ontologyAcronym, conceptUri) {
+            if (null != concept) {
+                ontologyAcronym = concept.ontologyAcronym;
+                conceptUri = concept.simpleConceptUri;
+            }
+            return "http://" + Utils.getBioportalUrl() + "/ontologies/" + ontologyAcronym + "/classes/" + encodeURIComponent(String(conceptUri)) + "?include=properties,definition,synonym,prefLabel";
+            //        +"?include=properties";
         };
 
         //If we can use batch calls for the parent, child and mappings of each node, we save 2 REST calls per node.
