@@ -1,7 +1,4 @@
-///<reference path="headers/require.d.ts" />
-define(["require", "exports"], function(require, exports) {
-    ///<reference path="headers/jquery.d.ts" />
-    ///<reference path="headers/spin.d.ts" />
+define(["require", "exports"], function (require, exports) {
     var MouseSpinner = (function () {
         function MouseSpinner() {
         }
@@ -17,18 +14,15 @@ define(["require", "exports"], function(require, exports) {
                     });
                 });
             }
-
             if (null != MouseSpinner.outstandingSpinnerRegistry[callbackName]) {
-                // Multiple requests are ok, since the same related URL might be requested from multiple concepts
-                // console.log("Multiple spinner request from callback named: "+callbackName);
-            } else {
+            }
+            else {
                 MouseSpinner.outstandingSpinnerRegistry[callbackName] = true;
                 MouseSpinner.outstandingCount++;
             }
             MouseSpinner.spinnerDiv.show();
             MouseSpinner.spinner.spin(MouseSpinner.spinnerDiv[0]);
         };
-
         MouseSpinner.haltSpinner = function (callbackName) {
             if (MouseSpinner.outstandingCount === 0) {
                 return;
@@ -41,9 +35,8 @@ define(["require", "exports"], function(require, exports) {
             if (MouseSpinner.outstandingCount === 0) {
                 MouseSpinner.spinner.stop();
                 MouseSpinner.spinnerDiv.hide();
-            } else {
-                // Problems with outstanding spinners? Start by checking here.
-                // console.log(MouseSpinner.outstandingSpinnerRegistry);
+            }
+            else {
             }
         };
         MouseSpinner.opts = {
@@ -64,7 +57,6 @@ define(["require", "exports"], function(require, exports) {
             top: '50%',
             left: '50%'
         };
-
         MouseSpinner.spinner = null;
         MouseSpinner.spinnerDiv = null;
         MouseSpinner.outstandingSpinnerRegistry = {};

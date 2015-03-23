@@ -1,5 +1,3 @@
-///<reference path="headers/require.d.ts" />
-
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="Concepts/ConceptGraph" />

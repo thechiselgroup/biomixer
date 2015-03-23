@@ -1,4 +1,4 @@
-define(["require", "exports"], function(require, exports) {
+define(["require", "exports"], function (require, exports) {
     var ConceptRendererScaler = (function () {
         function ConceptRendererScaler() {
         }

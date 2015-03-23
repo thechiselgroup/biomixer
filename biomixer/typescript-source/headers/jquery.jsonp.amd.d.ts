@@ -1,4 +1,3 @@
-/// <reference path="../jquery/jquery.d.ts"/>
 
 declare module JQueryJsonp {
 

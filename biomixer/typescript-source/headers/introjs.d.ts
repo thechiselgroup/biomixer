@@ -1,4 +1,3 @@
-/// <reference path="../jquery/introjs.d.ts"/>
 
 declare module IntroJS {
 

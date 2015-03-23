@@ -1,10 +1,4 @@
-///<reference path="headers/require.d.ts" />
-
-///<reference path="headers/d3.d.ts" />
-///<reference path="headers/jquery.d.ts" />
-
 ///<amd-dependency path="JQueryExtension" />
-
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="MouseSpinner" />
 ///<amd-dependency path="Menu" />

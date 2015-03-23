@@ -1,8 +1,3 @@
-///<reference path="headers/require.d.ts" />
-
-///<reference path="headers/d3.d.ts" />
-///<reference path="headers/jquery.d.ts" />
-
 ///<amd-dependency path="Menu" />
 
 import Menu = require("../Menu");

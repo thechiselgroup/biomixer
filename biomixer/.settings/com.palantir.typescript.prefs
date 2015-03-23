@@ -1,6 +1,8 @@
+build.path.exportedFolder=
 build.path.sourceFolder=typescript-source
 compiler.codeGenTarget=ECMASCRIPT5
 compiler.compileOnSave=true
+compiler.generateDeclarationFiles=false
 compiler.mapSourceFiles=false
 compiler.moduleGenTarget=ASYNCHRONOUS
 compiler.noImplicitAny=false

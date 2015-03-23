@@ -1,6 +1,3 @@
-///<reference path="headers/require.d.ts" />
-///<reference path="headers/simplemodal.d.ts" />
-
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="MouseSpinner" />
 ///<amd-dependency path="FetchFromApi" />

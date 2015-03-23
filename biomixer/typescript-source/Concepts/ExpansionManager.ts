@@ -1,5 +1,3 @@
-///<reference path="headers/require.d.ts" />
-
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="GraphModifierCommand" />

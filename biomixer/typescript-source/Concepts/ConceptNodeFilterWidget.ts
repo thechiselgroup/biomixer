@@ -1,5 +1,3 @@
-///<reference path="headers/require.d.ts" />
-
 ///<amd-dependency path="../Utils" />
 ///<amd-dependency path="../FilterWidget" />
 ///<amd-dependency path="../Menu" />

@@ -1,5 +1,3 @@
-///<reference path="headers/require.d.ts" />
-
 ///<amd-dependency path="Utils" />
 ///<amd-dependency path="FetchFromApi" />
 ///<amd-dependency path="GraphView" />
@@ -376,7 +374,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 			this.graph.sortedAcronymsByMappingCount.push({acronym: index, node: undefined});
 			}
 		);
-		this.graph.sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[b.acronym]-mappingData[a.acronym]});
+		this.graph.sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[String(b.acronym)]-mappingData[String(a.acronym)]});
 		
 		// Reduce to a useful number of nodes.
 		if(hardNodeCap != 0 && this.graph.sortedAcronymsByMappingCount.length > hardNodeCap){
@@ -439,7 +437,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 		$.each(this.graph.sortedAcronymsByMappingCount,
 			(index, sortedAcronym)=>{
 				var acronym = sortedAcronym.acronym;
-				var mappingCount = mappingData[acronym];
+				var mappingCount = mappingData[String(acronym)];
 
 				if(typeof acronym === "undefined"){
 					console.log("Undefined ontology entry");

@@ -1,6 +1,3 @@
-///<reference path="headers/require.d.ts" />
-///<reference path="headers/d3.d.ts" />
-
 ///<amd-dependency path="../JQueryExtension" />
 
 ///<amd-dependency path="LayoutProvider" />

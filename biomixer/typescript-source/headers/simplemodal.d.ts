@@ -1,5 +1,3 @@
-/// <reference path="../jquery/simplemodal.d.ts"/>
-
 declare module SimpleModal {
 
 //export interface XOptions {
