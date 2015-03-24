@@ -52,6 +52,13 @@ import ConceptLayouts = require("./ConceptLayouts");
 import ImporterExporter = require("./GraphImporterExporter");
 import NodeFinder = require("../NodeFinderWidgets");
 
+ type Config = {
+            rectWidth: number;
+            rectHeight: number;
+            fontXSvgPadding: number;
+            fontYSvgPadding: number;
+        };
+
 
 export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Node, ConceptGraph.Link> implements GraphView.GraphView<ConceptGraph.Node, ConceptGraph.Link> {
     
@@ -1312,12 +1319,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         ;
      }
     
+    
+    static expanderMenuConfig = {
+            rectWidth: 110,
+            rectHeight: 35,
+            fontXSvgPadding: 7,
+            fontYSvgPadding: 23,
+        };
     showNodeExpanderPopupMenuLambda(outerThis: ConceptPathsToRoot){
-        return function(nodeData: ConceptGraph.Node){
-            var rectWidth = 110;
-            var rectHeight = 35;
-            var fontXSvgPadding = 7;
-            var fontYSvgPadding = 23;
+        return function(nodeData: ConceptGraph.Node){      
+            var config = ConceptPathsToRoot.expanderMenuConfig;
             
             // JQuery does not allow the specification of a namespace when creating elements.
             // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
@@ -1326,8 +1337,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             
             var innerSvg = d3.select(this).append("svg:svg")
                     .attr("id", "expanderMenu")
-                    .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (rectWidth/2 + parseInt(d3.select(this).attr("x"), 0)))
-                    .attr("width", rectWidth).attr("height", rectHeight * 2)
+                    .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth/2 + parseInt(d3.select(this).attr("x"), 0)))
+                    .attr("width", config.rectWidth).attr("height", config.rectHeight * 2)
                     .style("z-index", 100)
                     .on("mouseleave", function(){ outerThis.unhighlightHoveredNodeLambda(outerThis, false)(nodeData, 0); $("#expanderMenu").first().remove(); })
                     // The mouseup one is required due to a silly graphical bug I could not fix.
@@ -1341,156 +1352,21 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // We also add hover effects to text children lower down
             
             // Create concept expander button
-            {
-            var conceptExpandSvg = innerSvg.append("svg:svg")
-                    .attr("overflow", "visible").attr("y", 0)
-                    .classed("expanderMenuItem", true)
-            ;
-                        
-            // If this node is currently cleared for expansion within the undo/stack current context,
-            // then it means we already did this expansion (possibly via another means).
-            // Let's alter the menu to reflect this.
-            var conceptExpandTextValue;
-            var conceptExpandFontFillColor;
-            var conceptExpandMouseUpFunc;
-
-            var hardTermExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
-
-            if(hardTermExpansionCount != 0){
-                conceptExpandTextValue = "Expand Concepts";
-                conceptExpandTextValue +=" ("+hardTermExpansionCount+")"; // +" ("+conceptExpState.numMissing+";
-
-                
-                conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
-                conceptExpandMouseUpFunc = function(){
-                            $("#expanderMenu").first().remove();
-                            var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
-                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
-                                ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
-                            outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
-                        };
-            } else {
-                conceptExpandTextValue = "Concepts Already Expanded";
-                conceptExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
-                conceptExpandMouseUpFunc = function(){return false;};
-            }
-            
-            conceptExpandSvg.append("svg:rect")
-                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup", conceptExpandMouseUpFunc);
-            conceptExpandSvg.append("svg:text")
-                .text(conceptExpandTextValue)
-                .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",conceptExpandFontFillColor).attr("dx", fontXSvgPadding).attr("dy", fontYSvgPadding)
-                .style("font-weight", "inherit")
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
-                .style("pointer-events", "none")
-                // Why cannot we stop selection in IE? They are rude.
-                .attr("unselectable", "on") // IE 8
-                .attr("onmousedown", "noselect") // IE ?
-                .attr("onselectstart", "function(){ return false;}") // IE 8?
-            ;
-            }
+            outerThis.appendConceptExpandingButton(innerSvg, config, nodeData);
             
             // Create mapping expander button
-            {
-            var mappingExpandSvg = innerSvg.append("svg:svg")
-                    .attr("overflow", "visible").attr("y", rectHeight)
-                    .classed("expanderMenuItem", true)
-            ;
-            
-            // If this node is currently cleared for expansion within the undo/stack current context,
-            // then it means we already did this expansion (possibly via another means).
-            // Let's alter the menu to reflect this.
-            var mappingExpandTextValue;
-            var mappingExpandFontFillColor;
-            var mappingExpandMouseUpFunc;
-
-            var hardMappingExpansionCount = outerThis.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
-
-            if(hardMappingExpansionCount !== 0){
-                mappingExpandTextValue = "Expand Mappings";
-                mappingExpandTextValue +=" ("+hardMappingExpansionCount+")"; // +" ("+mappingExpState.numMissing+")";
-                mappingExpandFontFillColor = ""; // empty works to *not* add a value at all
-                mappingExpandMouseUpFunc = function(){
-                            $("#expanderMenu").first().remove();
-                            var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
-                            var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
-                                ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
-                            outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
-                        };
-            } else {
-                mappingExpandTextValue = "Mappings Already Expanded";
-                mappingExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
-                mappingExpandMouseUpFunc = function(){return false;};
-            }
-            
-            mappingExpandSvg.append("svg:rect")
-                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup", mappingExpandMouseUpFunc);
-            
-            mappingExpandSvg.append("svg:text")
-                .text(mappingExpandTextValue)
-                .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",mappingExpandFontFillColor).attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
-                .style("font-weight", "inherit")
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
-                .style("pointer-events", "none")
-                // Why cannot we stop selection in IE? They are rude.
-                .attr("unselectable", "on") // IE 8
-                .attr("onmousedown", "noselect") // IE ?
-                .attr("onselectstart", "function(){ return false;}") // IE 8?
-            ;
-            }
+            outerThis.appendMappingExpanderButton(innerSvg, config, nodeData);
             
             // Create menu item for refocussing on node
-            {
-            var centralizeNodeSvg = innerSvg.append("svg:svg")
-                    .attr("overflow", "visible").attr("y", 2*rectHeight)
-                    .classed("expanderMenuItem", true)
-            ;
-            centralizeNodeSvg.append("svg:rect")
-                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.recomputeVisualizationOntoNode(nodeData); })
-            ;
-            centralizeNodeSvg.append("svg:text")
-                .text(ConceptPathsToRoot.REFOCUS_NODE_TEXT)
-                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
-                .style("font-weight", "inherit")
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
-                .style("pointer-events", "none")
-                // Why cannot we stop selection in IE? They are rude.
-                .attr("unselectable", "on") // IE 8
-                .attr("onmousedown", "noselect") // IE ?
-                .attr("onselectstart", "function(){ return false;}") // IE 8?
-            ;
-            }
+            outerThis.appendRefocusNodeButton(innerSvg, config, nodeData);
         
             // Create menu item for hiding or dimming the node (also marking it for deletion, in the current design)[[
-            {
-            var hideNodeSvg = innerSvg.append("svg:svg")
-                    .attr("overflow", "visible").attr("y", 3*rectHeight)
-                    .classed("expanderMenuItem", true)
-            ;
-            hideNodeSvg.append("svg:rect")
-                    .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",rectWidth).attr("height",rectHeight)
-                    .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.toggleHideNodeLambda(outerThis)(nodeData, 0); outerThis.refreshOtherFilterCheckboxStates([nodeData], null)})
-            ;
-            hideNodeSvg.append("svg:text")
-                .text(outerThis.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node")
-                .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", fontXSvgPadding).attr("y", fontYSvgPadding)
-                .style("font-weight", "inherit")
-                .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
-                .style("pointer-events", "none")
-                // Why cannot we stop selection in IE? They are rude.
-                .attr("unselectable", "on") // IE 8
-                .attr("onmousedown", "noselect") // IE ?
-                .attr("onselectstart", "function(){ return false;}") // IE 8?
-            ;
-            }
+            outerThis.appendNodeHideMenuItem(innerSvg, config, nodeData);
             
             // Resize the parent rectangles as necessary based on all of the children text elements
             // It does things fairly automatically and agnostic of the number of menu item text elements.
             // Obviously if we change the overall design of the menu this won't work as is.
-            {
+            
             // Size the parent rect according to the longest text child
             var maxWidth = 0;
             $("#"+innerSvg.attr("id")).find("text").each(
@@ -1507,11 +1383,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             
             // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
             // The right side will need the same effective padding as well.
-            maxWidth += 2*fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
+            maxWidth += 2*config.fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
             $("#"+innerSvg.attr("id")).attr("width", maxWidth);
             $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
             // console.log("Resized things, maxWidth: "+maxWidth);
-            }
+        
             
             
             // Make the menu labels bold when hovered over
@@ -1520,7 +1396,153 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .on("mouseout", function(node: Node){ d3.select(this).classed("boldText", false); })
             ;
         }
+    }
+    
+    private appendConceptExpandingButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var conceptExpandSvg = innerSvg.append("svg:svg")
+                .attr("overflow", "visible").attr("y", 0)
+                .classed("expanderMenuItem", true)
+        ;
+                    
+        // If this node is currently cleared for expansion within the undo/stack current context,
+        // then it means we already did this expansion (possibly via another means).
+        // Let's alter the menu to reflect this.
+        var conceptExpandTextValue;
+        var conceptExpandFontFillColor;
+        var conceptExpandMouseUpFunc;
+
+        var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+
+        if(hardTermExpansionCount != 0){
+            conceptExpandTextValue = "Expand Concepts";
+            conceptExpandTextValue +=" ("+hardTermExpansionCount+")"; // +" ("+conceptExpState.numMissing+";
+
+            
+            conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
+            conceptExpandMouseUpFunc = function(){
+                        $("#expanderMenu").first().remove();
+                        var expId = new ExpansionSets.ExpansionSetIdentifer("concept_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
+                        var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
+                            ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                        outerThis.conceptGraph.expandConceptNeighbourhood(nodeData, expansionSet);
+                    };
+        } else {
+            conceptExpandTextValue = "Concepts Already Expanded";
+            conceptExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
+            conceptExpandMouseUpFunc = function(){return false;};
+        }
         
+        conceptExpandSvg.append("svg:rect")
+                .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",config.rectWidth).attr("height",config.rectHeight)
+                .on("mouseup", conceptExpandMouseUpFunc);
+        conceptExpandSvg.append("svg:text")
+            .text(conceptExpandTextValue)
+            .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",conceptExpandFontFillColor).attr("dx", config.fontXSvgPadding).attr("dy", config.fontYSvgPadding)
+            .style("font-weight", "inherit")
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .style("pointer-events", "none")
+            // Why cannot we stop selection in IE? They are rude.
+            .attr("unselectable", "on") // IE 8
+            .attr("onmousedown", "noselect") // IE ?
+            .attr("onselectstart", "function(){ return false;}") // IE 8?
+        ;
+    }
+    
+    private appendMappingExpanderButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var mappingExpandSvg = innerSvg.append("svg:svg")
+                .attr("overflow", "visible").attr("y", config.rectHeight)
+                .classed("expanderMenuItem", true)
+        ;
+        
+        // If this node is currently cleared for expansion within the undo/stack current context,
+        // then it means we already did this expansion (possibly via another means).
+        // Let's alter the menu to reflect this.
+        var mappingExpandTextValue;
+        var mappingExpandFontFillColor;
+        var mappingExpandMouseUpFunc;
+
+        var hardMappingExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+
+        if(hardMappingExpansionCount !== 0){
+            mappingExpandTextValue = "Expand Mappings";
+            mappingExpandTextValue +=" ("+hardMappingExpansionCount+")"; // +" ("+mappingExpState.numMissing+")";
+            mappingExpandFontFillColor = ""; // empty works to *not* add a value at all
+            mappingExpandMouseUpFunc = function(){
+                        $("#expanderMenu").first().remove();
+                        var expId = new ExpansionSets.ExpansionSetIdentifer("mapping_expand_"+nodeData.conceptUriForIds, "Mappings: "+nodeData.name+" ("+nodeData.ontologyAcronym+")")
+                        var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
+                            ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
+                        outerThis.conceptGraph.expandMappingNeighbourhood(nodeData, expansionSet);
+                    };
+        } else {
+            mappingExpandTextValue = "Mappings Already Expanded";
+            mappingExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
+            mappingExpandMouseUpFunc = function(){return false;};
+        }
+        
+        mappingExpandSvg.append("svg:rect")
+                .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",config.rectWidth).attr("height",config.rectHeight)
+                .on("mouseup", mappingExpandMouseUpFunc);
+        
+        mappingExpandSvg.append("svg:text")
+            .text(mappingExpandTextValue)
+            .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",mappingExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
+            .style("font-weight", "inherit")
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .style("pointer-events", "none")
+            // Why cannot we stop selection in IE? They are rude.
+            .attr("unselectable", "on") // IE 8
+            .attr("onmousedown", "noselect") // IE ?
+            .attr("onselectstart", "function(){ return false;}") // IE 8?
+        ;
+    }
+
+    private appendRefocusNodeButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var centralizeNodeSvg = innerSvg.append("svg:svg")
+                .attr("overflow", "visible").attr("y", 2*config.rectHeight)
+                .classed("expanderMenuItem", true)
+        ;
+        centralizeNodeSvg.append("svg:rect")
+                .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",config.rectWidth).attr("height",config.rectHeight)
+                .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.recomputeVisualizationOntoNode(nodeData); })
+        ;
+        centralizeNodeSvg.append("svg:text")
+            .text(ConceptPathsToRoot.REFOCUS_NODE_TEXT)
+            .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
+            .style("font-weight", "inherit")
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .style("pointer-events", "none")
+            // Why cannot we stop selection in IE? They are rude.
+            .attr("unselectable", "on") // IE 8
+            .attr("onmousedown", "noselect") // IE ?
+            .attr("onselectstart", "function(){ return false;}") // IE 8?
+        ;
+    }
+    
+    private appendNodeHideMenuItem(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var hideNodeSvg = innerSvg.append("svg:svg")
+                .attr("overflow", "visible").attr("y", 3*config.rectHeight)
+                .classed("expanderMenuItem", true)
+        ;
+        hideNodeSvg.append("svg:rect")
+                .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",config.rectWidth).attr("height",config.rectHeight)
+                .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.toggleHideNodeLambda(outerThis)(nodeData, 0); outerThis.refreshOtherFilterCheckboxStates([nodeData], null)})
+        ;
+        hideNodeSvg.append("svg:text")
+            .text(this.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node")
+            .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
+            .style("font-weight", "inherit")
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .style("pointer-events", "none")
+            // Why cannot we stop selection in IE? They are rude.
+            .attr("unselectable", "on") // IE 8
+            .attr("onmousedown", "noselect") // IE ?
+            .attr("onselectstart", "function(){ return false;}") // IE 8?
+        ;
     }
     
     beforeNodeHighlight(targetNodeData){
