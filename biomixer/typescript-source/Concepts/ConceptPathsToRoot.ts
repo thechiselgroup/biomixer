@@ -1438,9 +1438,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .on("mouseup", conceptExpandMouseUpFunc);
         conceptExpandSvg.append("svg:text")
             .text(conceptExpandTextValue)
-            .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",conceptExpandFontFillColor).attr("dx", config.fontXSvgPadding).attr("dy", config.fontYSvgPadding)
-            .style("font-weight", "inherit")
+            .style("fill",conceptExpandFontFillColor)
+            .attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
             .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .classed("svgFont", true)
             .style("pointer-events", "none")
             // Why cannot we stop selection in IE? They are rude.
             .attr("unselectable", "on") // IE 8
@@ -1488,9 +1489,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         mappingExpandSvg.append("svg:text")
             .text(mappingExpandTextValue)
-            .style("font-family","Arial, sans-serif").style("font-size","12px").style("fill",mappingExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
-            .style("font-weight", "inherit")
+            .style("fill",mappingExpandFontFillColor)
+            .attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
             .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .classed("svgFont", true)
             .style("pointer-events", "none")
             // Why cannot we stop selection in IE? They are rude.
             .attr("unselectable", "on") // IE 8
@@ -1511,9 +1513,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         ;
         centralizeNodeSvg.append("svg:text")
             .text(ConceptPathsToRoot.REFOCUS_NODE_TEXT)
-            .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
+            .attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
             .style("font-weight", "inherit")
             .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .classed("svgFont", true)
             .style("pointer-events", "none")
             // Why cannot we stop selection in IE? They are rude.
             .attr("unselectable", "on") // IE 8
@@ -1534,9 +1537,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         ;
         hideNodeSvg.append("svg:text")
             .text(this.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node")
-            .style("font-family","Arial, sans-serif").style("font-size","12px").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
-            .style("font-weight", "inherit")
+            .attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
             .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .classed("svgFont", true)
             .style("pointer-events", "none")
             // Why cannot we stop selection in IE? They are rude.
             .attr("unselectable", "on") // IE 8

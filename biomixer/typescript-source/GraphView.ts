@@ -11,7 +11,8 @@ import ExpansionSets = require("./ExpansionSets");
 import UndoRedoManager = require("./UndoRedo/UndoRedoManager");
 import Utils = require("./Utils");
 import LayoutProvider = require("./LayoutProvider");
-
+import Menu = require("./Menu");
+import PrintSvg = require("./ExportSvgToImage");
 
 export class GraphDataForD3<N extends BaseNode, L extends BaseLink<any>> {
     public nodes: Array<N> = [];
@@ -118,6 +119,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     constructor(
         ){
         this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false, true);
+        
+        this.attachScreenshotButton();
     }
     
     //var defaultNodeColor = "#496BB0";
@@ -638,4 +641,20 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         
     }
     
+    attachScreenshotButton(){
+        // <a href=url download="biomixer_render.pdf">Download The Current Graph View</a>
+        // <label onclick="window.open('"+url+"')">Download The Current Graph View</label>
+        var screenshotButton = $("<label>")
+            .attr("id", "graphToJpegButton")
+            .attr("class", "nodeCommandButton")
+            .addClass("unselectable")
+            .addClass(Menu.Menu.topBarButtonClass)
+            .text("Screenshot")
+        ;
+        
+        $(Menu.Menu.menuBarSelector).append(screenshotButton);
+        
+        screenshotButton.click((event)=>{ event.stopPropagation(); PrintSvg.ExportSvgToImage.exportSvgAsPng("#graphSvg"); });
+    }
+
 }

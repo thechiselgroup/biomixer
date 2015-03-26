@@ -26,10 +26,17 @@
   fill-opacity: 0.9;
 }
 
+.svgFont {
+	font-weight: inherit;
+	font-family: 'Neue Helevetica', Helvetica, Arial, sans-serif;
+	font-size: 12px;
+}
+
 .nodetext {
 	fill: rgb(0,0,0);
 	font-weight: normal;
-	font-size: 12;
+	font-family: 'Neue Helevetica', Helvetica, Arial, sans-serif;
+	font-size: 12px;
 	pointer-events: none;
 }
 
