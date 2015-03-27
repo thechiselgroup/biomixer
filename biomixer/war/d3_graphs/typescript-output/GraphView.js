@@ -1,4 +1,5 @@
-define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "ExpansionSets", "UndoRedo/UndoRedoManager", "Utils", "LayoutProvider"], function (require, exports, UndoRedoManager, Utils) {
+///<reference path="headers/require.d.ts" />
+define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu", "./ExportSvgToImage", "ExpansionSets", "UndoRedo/UndoRedoManager", "Utils", "LayoutProvider"], function (require, exports, UndoRedoManager, Utils, Menu, PrintSvg) {
     var GraphDataForD3 = (function () {
         function GraphDataForD3() {
             this.nodes = [];
@@ -7,6 +8,12 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
         return GraphDataForD3;
     })();
     exports.GraphDataForD3 = GraphDataForD3;
+    // The silly extends are to facilitate specialized typing to the inheriting classes.
+    // In Java, it'd be more like ? extends in the things that need.
+    // If we don't like it, we need to change the expansionSet references in nodes
+    // to something like strings, which can be used in a registry. This was what I changed
+    // from because it was an annoying pattern; annoying generics in class defs are better.
+    //export class BaseNode<SubN extends BaseNode<any>> implements D3.Layout.GraphNode {
     var BaseNode = (function () {
         function BaseNode() {
         }
@@ -28,26 +35,33 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
     var BaseGraphView = (function () {
         function BaseGraphView() {
             var _this = this;
+            //var defaultNodeColor = "#496BB0";
             this.defaultNodeColor = "#000000";
             this.defaultLinkColor = "#999";
             this.nodeHighlightColor = "#FC6854";
-            this.alphaCutoff = 0.01;
+            this.alphaCutoff = 0.01; // used to stop the layout early in the tick() callback
             this.forceLayout = undefined;
             this.dragging = false;
             this.resizedWindowLambda = function () {
                 d3.select("#graphRect").attr("width", _this.visWidth()).attr("height", _this.visHeight());
                 d3.select("#graphSvg").attr("width", _this.visWidth()).attr("height", _this.visHeight());
+                // TODO Layouts not relying on force need additional support here.
+                // This might need to call back into an instance method named something like "layoutResized"
                 if (_this.forceLayout) {
                     _this.forceLayout.size([_this.visWidth(), _this.visHeight()]).linkDistance(_this.linkMaxDesiredLength());
-                    _this.currentLambda(true);
+                    // If needed, move all the nodes towards the new middle here.
+                    // this.forceLayout.resume(); // wasn't doing the trick
+                    _this.currentLambda(true); // direct retrigger the current layout.
                 }
             };
             this.lastTimeChange = new Date().getTime();
+            // These are needed to do a refresh of popups when new data arrives and the user has the popup open
             this.lastDisplayedTipsy = null;
             this.lastDisplayedTipsyData = null;
             this.lastDisplayedTipsySvg = null;
             this.layoutTimer = null;
             this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false, true);
+            this.attachScreenshotButton();
         }
         BaseGraphView.prototype.visWidth = function () {
             return $("#chart").width();
@@ -59,6 +73,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
             return Math.min(this.visWidth(), this.visHeight()) / 2 - 50;
         };
         BaseGraphView.prototype.stampTimeGraphModified = function () {
+            // Things like temporary edges, etc, indicate that the caller must control this.
             this.lastTimeChange = new Date().getTime();
         };
         BaseGraphView.prototype.getTimeStampLastGraphModification = function () {
@@ -66,6 +81,8 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
         };
         BaseGraphView.prototype.updateStartWithoutResume = function () {
             var _this = this;
+            // When start(0 is called, the last thing it does is to call resume(),
+            // which calls alpha(.1). I need this to not occur...
             var resume = this.forceLayout.resume;
             this.forceLayout.resume = function () {
                 return _this.forceLayout;
@@ -74,14 +91,22 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
             this.forceLayout.resume = resume;
         };
         BaseGraphView.prototype.setCurrentLayout = function (layoutLambda) {
+            // This timer delay plus time stamp system cut from 56 calls down to 6 calls in a 5 node 6 arc graph load.
             var outerLayoutTimer = this.layoutTimer;
             var outerThis = this;
             var layoutLastCalled = null;
             var timerWait = 100;
             this.currentLambda = layoutLambda;
             this.runCurrentLayout = function (refreshLayoutInner) {
+                // We only allow one layout request to run at a time, and with
+                // a short delay between requests. Ok, it's always single threaded,
+                // but the point is to avoid hitting a layout because we added one
+                // node or edge, only to hit it again milliseconds later. Using the
+                // timer lets the next few edges or nodes to come in before making
+                // the call, thus thinning out layour refreshes.
                 if (outerLayoutTimer == null && (layoutLastCalled == null || outerThis.getTimeStampLastGraphModification() > layoutLastCalled)) {
                     outerLayoutTimer = setTimeout(function () {
+                        // console.log("calling");
                         clearTimeout(outerLayoutTimer);
                         outerLayoutTimer = null;
                         layoutLastCalled = new Date().getTime();
@@ -90,20 +115,29 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                 }
             };
         };
+        //    
+        //    immediateLayoutRun(layoutLambda: {(refreshLayout?: boolean):void}){
+        //        layoutLambda();
+        //    }
         BaseGraphView.prototype.getAdjacentLinks = function (node) {
             return d3.selectAll(BaseGraphView.linkSvgClass).filter(function (d, i) {
                 return d.source === node || d.target === node;
             });
         };
         BaseGraphView.prototype.getNodeElement = function (node) {
+            // TODO Refactor these #node_g_ constants! There's an issue for this.
             return $("#node_g_" + Utils.escapeIdentifierForId(node.getEntityId()));
         };
         BaseGraphView.prototype.isNodeHidden = function (node) {
+            // TODO Refactor these #node_g_ constants! There's an issue for this.
             var element = d3.select("#node_g_" + Utils.escapeIdentifierForId(node.getEntityId()));
             if (null == element[0][0]) {
+                // Already deleted
                 return true;
             }
             else if (element.classed(BaseGraphView.hiddenNodeClass)) {
+                // hidden...but...is this the old way of deleting, before I changed it to remove
+                // nodes entirely from the graph?
                 return true;
             }
             else {
@@ -121,10 +155,19 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                 d3.selectAll(BaseGraphView.nodeLabelSvgClass).classed("highlightedNodeLabel", true).filter(function (aText, i) {
                     return aText.getEntityId() === linkLine.source.getEntityId() || aText.getEntityId() === linkLine.target.getEntityId();
                 }).classed("dimmedNodeLabel", false).classed("highlightedNodeLabel", true);
+                // TODO change the getEntityId to accessing the source and target uri,
+                // because sometimes links have null on either point due to race conditions,
+                // when the user moves off of a node onto a temporary arc, just as it is to
+                // be removed.
                 d3.selectAll(BaseGraphView.nodeSvgClass + ", " + BaseGraphView.nodeInnerSvgClass).classed("highlightedNode", true).filter(function (aNode, i) {
                     return aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId();
                 }).classed("dimmedNode", false).classed("highlightedNode", true);
                 d3.selectAll(BaseGraphView.linkSvgClass).classed("dimmedLink", true);
+                // if we ever use this method attached to anything other than a link hover over, it won't
+                // work, because the "this" reference below won't be a line rendered, but whatever we
+                // attached the method to.
+                // d3.select(this)
+                // Defensively, I changed it to grab the correct link via d3.select().filter() instead.
                 d3.selectAll(BaseGraphView.linkSvgClass).filter(function (d, i) {
                     return d === linkLine;
                 }).classed("dimmedLink", false).classed("highlightedLink", true);
@@ -136,6 +179,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                     return;
                 }
                 outerThis.beforeNodeHighlight(nodeData);
+                // In a previous pass, we may have highlighted a link. Don't clobber it!
                 d3.selectAll(BaseGraphView.linkSvgClass).classed("dimmedLink", function (aLink, i) {
                     return !d3.select(this).classed("highlightedLink");
                 });
@@ -147,10 +191,16 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                 }).filter(function (aText, i) {
                     return aText.getEntityId() === nodeData.getEntityId();
                 }).classed("dimmedNodeLabel", false).classed("highlightedNodeLabel", true);
+                // D3 doesn't have a way to get from bound data to what it is bound to?
+                // Doing it thsi way isntead of d3.select(this) so I can re-use this method with things like
+                // checkboxes outside the graph, which will trigger graph behaviors.
                 var sourceNode = d3.selectAll(BaseGraphView.nodeSvgClass + ", " + BaseGraphView.nodeInnerSvgClass).filter(function (d, i) {
                     return d === nodeData;
                 });
                 sourceNode.classed("highlightedNode", true).classed("dimmedNode", false);
+                // Get the hovered node to the top of the SVG render stack.
+                // This is important for node menu rendering, so that it will inherit
+                // the z-order of the node, and be above other nodes rather than beneath.
                 d3.select("#node_container").selectAll('.node_g').sort(function (a, b) {
                     if (a.getEntityId() === nodeData.getEntityId()) {
                         return 1;
@@ -164,6 +214,9 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                         }
                     }
                 });
+                // There must be a less loopy, data oriented way to achieve this.
+                // I recently modified it to *not* use x and y coordinates to identify ndoes and edges, which was heinous.
+                // Looping over everything is just as ugly (but fast enough in practice).
                 var adjacentLinks = outerThis.getAdjacentLinks(nodeData);
                 if (highlightAdjacentNodes) {
                     adjacentLinks.each(function (aLink) {
@@ -176,7 +229,10 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                         });
                     });
                 }
+                // Hide all edges, then show those that have both endpoints shown
                 adjacentLinks.classed("dimmedLink", false).classed("highlightedLink", function (aLink, i) {
+                    // Would use JQuery, but across diff node types we could have future problems with ID creation.
+                    // This is more future proof.
                     var firstEndpoints = d3.selectAll(BaseGraphView.nodeSvgClass).filter(function (otherNode, i) {
                         return aLink.source.getEntityId() === otherNode.getEntityId();
                     });
@@ -222,35 +278,52 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
                 outerThis.nodeHider(nodeData, undefined);
             };
         };
+        // Returns "Node" from JQuery/HTML, not a graph node model object
         BaseGraphView.prototype.findSubNode = function (nodeData) {
             var subnode = d3.selectAll(BaseGraphView.nodeGSvgClass).filter(function (d, i) {
                 return d === nodeData;
             }).node();
             if (subnode === null) {
+                // When we have deleted nodes (which can be re-done), then hide an expansion
+                // set that included some deleted nodes, we need to fall out fo this. There
+                // might be other occassions where this happens, and I don't want expansion
+                // sets, nor ontology filter systems, to be aware of deletion status, so
+                // I will recover from the error here.
                 return null;
             }
             return subnode;
         };
         BaseGraphView.prototype.nodeHider = function (nodeData, hiding) {
+            // Hide the node and label away first
             var sourceGNode = this.findSubNode(nodeData);
+            // When we have deleted nodes (which can be re-done), then hide an expansion
+            // set that included some deleted nodes, we need to fall out fo this. There
+            // might be other occassions where this happens, and I don't want expansion
+            // sets, nor ontology filter systems, to be aware of deletion status, so
+            // I will recover from the error here.
             if (null == sourceGNode) {
                 return;
             }
             if (hiding == null) {
                 hiding = !(d3.select(sourceGNode).classed(BaseGraphView.hiddenNodeClass));
             }
+            // In order to hide any baggage (like expander menu indicators), we need to grab the parent
             d3.select(sourceGNode).classed(BaseGraphView.hiddenNodeClass, hiding);
             d3.selectAll(BaseGraphView.nodeLabelSvgClass).filter(function (d, i) {
                 return d === nodeData;
             }).classed(BaseGraphView.hiddenNodeLabelClass, hiding);
+            // Hide edges too
             var adjacentLinks = this.getAdjacentLinks(nodeData);
             adjacentLinks.classed(BaseGraphView.hiddenLinkBecauseOfHiddenNodeLabelClass, function (linkData, i) {
+                // Look at both endpoints of link, see if both are hidden
                 var source = d3.selectAll(BaseGraphView.nodeGSvgClass).filter(function (d, i) {
                     return d === linkData.source;
                 });
                 var target = d3.selectAll(BaseGraphView.nodeGSvgClass).filter(function (d, i) {
                     return d === linkData.target;
                 });
+                // if hiding, we hide the link no matter what
+                // if not hiding, then we pass false if either node is hidden
                 return hiding || source.classed(BaseGraphView.hiddenNodeClass) || target.classed(BaseGraphView.hiddenNodeClass);
             });
         };
@@ -261,24 +334,71 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "Expansio
             this.linkHider(links, false);
         };
         BaseGraphView.prototype.linkHider = function (links, hiding) {
+            // Different style from the node hider() above, but I don't mind much.
             links.classed("hiddenLink", hiding);
         };
         BaseGraphView.prototype.beforeNodeHighlight = function (targetNodeData) {
+            // Nothing by default
         };
         BaseGraphView.prototype.afterNodeUnhighlight = function (targetNodeData) {
+            // Nothing by default
         };
         BaseGraphView.prototype.animateHighlightNodesDeactivate = function () {
         };
         BaseGraphView.prototype.animateHighlightNodesActivate = function (matchingNodes) {
             var particle = function (d) {
+                // console.log(d);
                 d3.select("#graphSvg").append("circle").attr("cx", d.x).attr("cy", d.y).attr("r", 1e-6).style("stroke", d.nodeColor).style("stroke-width", 3).style("stroke-opacity", 1).style("fill-opacity", 0).transition().duration(2000).ease(Math.sqrt).attr("r", 100).style("stroke-opacity", 1e-6).remove();
             };
+            //        console.log(matchingNodes);
+            //        
+            //        console.log(d3.selectAll(".node_g")
+            //        .filter((d)=>{return matchingNodes.indexOf(d) !== -1; }));
             d3.selectAll(".node_g").filter(function (d) {
                 return matchingNodes.indexOf(d) !== -1;
             }).each(particle);
+            //        function pulse() {
+            //          var rect = d3.select(this);
+            //          (function loop() {
+            //            rect = rect.transition()
+            //                .duration(750)
+            //                .style("fill", color(Math.random() * 5 | 0))
+            //                .each("end", function() { if (this.__transition__.count < 2) loop(); });
+            //          })();
+            /////////
+            //        d3.timer(function() {
+            //  context.clearRect(0, 0, width, height);
+            //
+            //  var z = d3.hsl(++i % 360, 1, .5).rgb(),
+            //      c = "rgba(" + z.r + "," + z.g + "," + z.b + ",",
+            //      x = x0 += (x1 - x0) * .1,
+            //      y = y0 += (y1 - y0) * .1;
+            //
+            //  d3.select({}).transition()
+            //      .duration(2000)
+            //      .ease(Math.sqrt)
+            //      .tween("circle", function() {
+            //        return function(t) {
+            //          context.strokeStyle = c + (1 - t) + ")";
+            //          context.beginPath();
+            //          context.arc(x, y, r * t, 0, pithing);
+            //          context.stroke();
+            //        };
+            //      });
+            //});
+        };
+        BaseGraphView.prototype.attachScreenshotButton = function () {
+            // <a href=url download="biomixer_render.pdf">Download The Current Graph View</a>
+            // <label onclick="window.open('"+url+"')">Download The Current Graph View</label>
+            var screenshotButton = $("<label>").attr("id", "graphToJpegButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Screenshot");
+            $(Menu.Menu.menuBarSelector).append(screenshotButton);
+            screenshotButton.click(function (event) {
+                event.stopPropagation();
+                PrintSvg.ExportSvgToImage.exportSvgAsPng("#graphSvg");
+            });
         };
         BaseGraphView.nodeSvgClassSansDot = "node";
-        BaseGraphView.nodeInnerSvgClassSansDot = "inner_node";
+        BaseGraphView.nodeInnerSvgClassSansDot = "inner_node"; // Needed for ontology double-node effect
         BaseGraphView.nodeGSvgClassSansDot = "node_g";
         BaseGraphView.nodeSubGSvgClassSansDot = "node_sub_g";
         BaseGraphView.nodeLabelSvgClassSansDot = "nodetext";

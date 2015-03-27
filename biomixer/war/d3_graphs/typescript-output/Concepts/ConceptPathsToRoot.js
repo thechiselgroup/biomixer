@@ -1002,7 +1002,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 };
             }
             conceptExpandSvg.append("svg:rect").style("fill", "#FFFFFF").style("stroke", "#000000").attr("x", 0).attr("y", 0).attr("width", config.rectWidth).attr("height", config.rectHeight).on("mouseup", conceptExpandMouseUpFunc);
-            conceptExpandSvg.append("svg:text").text(conceptExpandTextValue).style("font-family", "Arial, sans-serif").style("font-size", "12px").style("fill", conceptExpandFontFillColor).attr("dx", config.fontXSvgPadding).attr("dy", config.fontYSvgPadding).style("font-weight", "inherit").attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            conceptExpandSvg.append("svg:text").text(conceptExpandTextValue).style("fill", conceptExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
         };
         ConceptPathsToRoot.prototype.appendMappingExpanderButton = function (innerSvg, config, nodeData) {
             var outerThis = this;
@@ -1033,7 +1033,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 };
             }
             mappingExpandSvg.append("svg:rect").style("fill", "#FFFFFF").style("stroke", "#000000").attr("x", 0).attr("y", 0).attr("width", config.rectWidth).attr("height", config.rectHeight).on("mouseup", mappingExpandMouseUpFunc);
-            mappingExpandSvg.append("svg:text").text(mappingExpandTextValue).style("font-family", "Arial, sans-serif").style("font-size", "12px").style("fill", mappingExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).style("font-weight", "inherit").attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            mappingExpandSvg.append("svg:text").text(mappingExpandTextValue).style("fill", mappingExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
         };
         ConceptPathsToRoot.prototype.appendRefocusNodeButton = function (innerSvg, config, nodeData) {
             var outerThis = this;
@@ -1042,7 +1042,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 $("#expanderMenu").first().remove();
                 outerThis.recomputeVisualizationOntoNode(nodeData);
             });
-            centralizeNodeSvg.append("svg:text").text(ConceptPathsToRoot.REFOCUS_NODE_TEXT).style("font-family", "Arial, sans-serif").style("font-size", "12px").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).style("font-weight", "inherit").attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            centralizeNodeSvg.append("svg:text").text(ConceptPathsToRoot.REFOCUS_NODE_TEXT).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).style("font-weight", "inherit").attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
         };
         ConceptPathsToRoot.prototype.appendNodeHideMenuItem = function (innerSvg, config, nodeData) {
             var outerThis = this;
@@ -1052,7 +1052,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 outerThis.toggleHideNodeLambda(outerThis)(nodeData, 0);
                 outerThis.refreshOtherFilterCheckboxStates([nodeData], null);
             });
-            hideNodeSvg.append("svg:text").text(this.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node").style("font-family", "Arial, sans-serif").style("font-size", "12px").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).style("font-weight", "inherit").attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            hideNodeSvg.append("svg:text").text(this.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
         };
         ConceptPathsToRoot.prototype.beforeNodeHighlight = function (targetNodeData) {
             this.conceptGraph.manifestTemporaryHoverEdges(targetNodeData);
