@@ -284,7 +284,7 @@ export class Tour {
             },
             {
             element: $("#NestedOntologyConceptFilterOuterContainer")[0],
-            intro: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When a visualization contains concepts from multiple ontologies, you can hide nodes based on their ontology. Try hiding all the nodes in an ontology. Also try clicking the check boxes with concept names to hide only a few concepts.",
+            intro: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When a visualization contains concepts from multiple ontologies, you can dim nodes based on their ontology. Try dimming all the nodes in an ontology. Also try clicking the check boxes with concept names to dim only a few concepts.",
             onbeforechange: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "left"
             },
@@ -298,7 +298,7 @@ export class Tour {
 //- remove all node filters with button in menu
              {
             element: $("#NestedOntologyConceptFilterCheckboxDeleteButton")[0],
-            intro: "<h1 class='introjs-header'>Deleting Nodes</h1> And you can delete all the hidden nodes with this button. Try hiding one node, then pressing the button. This may be undone with the undo tools previously covered in this tour.",
+            intro: "<h1 class='introjs-header'>Excluding Nodes</h1> And you can exclude all the dimmed nodes with this button. Try dimming one node, then pressing the button. This may be undone with the undo tools previously covered in this tour.",
             onbeforechange: ()=>{ this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true); },
             position: "top"
             },
@@ -315,7 +315,7 @@ export class Tour {
             },
             {
             
-            intro: "<h1 class='introjs-header'>More Node Filtering Controls: Node Menu</h1> In addition, nodes can also be filtered from the node menu. Click the drop-down arrow beneath a node to see the 'Hide Node' option.",
+            intro: "<h1 class='introjs-header'>More Node Filtering Controls: Node Menu</h1> In addition, nodes can also be filtered from the node menu. Click the drop-down arrow beneath a node to see the 'Dim Node' option.",
             position: "bottom"
             },
 //- filter/dim expansion sets, groups of nodes that were added to the graph together, usually via a node expansion
@@ -326,7 +326,7 @@ export class Tour {
             },
              {
             element: $("#NestedExpansionSetConceptFilterOuterContainer")[0],
-            intro: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a number of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can hide entire sets or individual nodes--the same way you can work with ontology filters.",
+            intro: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a number of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can dim entire sets or individual nodes--the same way you can work with ontology filters.",
             onbeforechange: ()=>{ this.showSubMenuIfNotVisible($("#NestedExpansionSetConceptFilterScrollContainer"), true); },
             position: "left"
             },

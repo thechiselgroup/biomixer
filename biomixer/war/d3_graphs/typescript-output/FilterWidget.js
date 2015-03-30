@@ -1,3 +1,4 @@
+///<reference path="headers/require.d.ts" />
 define(["require", "exports", "./Utils", "./Menu", "./Utils", "./Menu"], function (require, exports, Utils, Menu) {
     var AbstractFilterWidget = (function () {
         function AbstractFilterWidget(subMenuTitle) {
@@ -19,10 +20,12 @@ define(["require", "exports", "./Utils", "./Menu", "./Utils", "./Menu"], functio
             return this.getClassName() + "_filterCheckbox";
         };
         AbstractFilterWidget.prototype.addMenuComponents = function (menuSelector, defaultHideContainer) {
+            // This container holds the checkbox widgets
             var containers = Menu.Menu.slideToggleHeaderContainer(this.getClassName() + "OuterContainer", this.className + "ScrollContainer", this.subMenuTitle, defaultHideContainer);
             var outerContainer = containers.outer;
             this.filterContainer = containers.inner;
             this.filterContainer.addClass("scroll-div").css("height", 100);
+            // This container is the encapsulating one for this entire widget item.
             $(menuSelector).append(outerContainer);
         };
         AbstractFilterWidget.prototype.addResetAndDeleteButtonsToMenuComponents = function (resetHandler, deleteHandler) {
@@ -34,7 +37,7 @@ define(["require", "exports", "./Utils", "./Menu", "./Utils", "./Menu"], functio
         AbstractFilterWidget.deleteNodesButtonIconClass = "deleteNodesButton";
         AbstractFilterWidget.gapperButtonIconClass = "menuExpanderButtonGapper";
         AbstractFilterWidget.resetCheckboxesButtonText = "Re-check all of these checkboxes";
-        AbstractFilterWidget.deleteNodesButtonText = "Delete all unchecked and dimmed nodes from graph";
+        AbstractFilterWidget.deleteNodesButtonText = "Exclude all unchecked and dimmed nodes from graph";
         return AbstractFilterWidget;
     })();
     exports.AbstractFilterWidget = AbstractFilterWidget;

@@ -785,7 +785,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 )
                 .append(
                     $("<label>").attr("for", "popupCheckId")
-                    .append("Hide Node")
+                    .append("Dim Node")
                 )
             ;
 
@@ -1536,7 +1536,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .on("mouseup",  function(){ $("#expanderMenu").first().remove(); outerThis.toggleHideNodeLambda(outerThis)(nodeData, 0); outerThis.refreshOtherFilterCheckboxStates([nodeData], null)})
         ;
         hideNodeSvg.append("svg:text")
-            .text(this.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node")
+            .text(this.isNodeHidden(nodeData) ? "Un-dim Node" : "Dim Node")
             .attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
             .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
             .classed("svgFont", true)

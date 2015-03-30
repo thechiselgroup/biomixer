@@ -21,7 +21,7 @@ export class AbstractFilterWidget {
     static deleteNodesButtonIconClass = "deleteNodesButton";
     static gapperButtonIconClass = "menuExpanderButtonGapper";
     static resetCheckboxesButtonText = "Re-check all of these checkboxes";
-    static deleteNodesButtonText = "Delete all unchecked and dimmed nodes from graph";
+    static deleteNodesButtonText = "Exclude all unchecked and dimmed nodes from graph";
     
     constructor(
         public subMenuTitle: string

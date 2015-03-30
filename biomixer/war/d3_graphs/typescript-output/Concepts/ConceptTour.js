@@ -1,28 +1,52 @@
+///<amd-dependency path="JQueryExtension" />
 define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayouts", "./GraphImporterExporter", "JQueryExtension", "Utils", "Menu", "Concepts/ConceptPathsToRoot", "Concepts/ConceptLayouts", "Concepts/GraphImporterExporter"], function (require, exports, Menu, PathsToRoot, ConceptLayouts, GraphImporterExporter) {
+    /**
+     * Using intro.js library for this, customized to have several new features (SVG compatible highlighting, function
+     * defined targets).
+     */
     var Tour = (function () {
         function Tour(pathsToRoot, menu) {
             this.pathsToRoot = pathsToRoot;
             this.menu = menu;
             this.tourButtonId = "tourButton";
             this.introJsSettings = {
+                /* Next button label in tooltip box */
                 nextLabel: 'Next &rarr;',
+                /* Previous button label in tooltip box */
                 prevLabel: '&larr; Back',
+                /* Skip button label in tooltip box */
                 skipLabel: 'Stop',
+                /* Done button label in tooltip box */
                 doneLabel: 'Done',
+                /* Default tooltip box position */
                 tooltipPosition: 'auto',
+                /* Next CSS class for tooltip boxes */
                 tooltipClass: '',
+                /* CSS class that is added to the helperLayer */
                 highlightClass: 'nonVisibleIntroJsHelperLayer',
+                /* Close introduction when pressing Escape button? */
                 exitOnEsc: true,
+                /* Close introduction when clicking on overlay layer? */
                 exitOnOverlayClick: false,
+                /* Show step numbers in introduction? */
                 showStepNumbers: false,
+                /* Let user use keyboard to navigate the tour? */
                 keyboardNavigation: true,
+                /* Show tour control buttons? */
                 showButtons: true,
+                /* Show tour bullets? */
                 showBullets: false,
+                /* Show tour progress? */
                 showProgress: true,
+                /* Scroll to highlighted element? */
                 scrollToElement: false,
+                /* Set the overlay opacity */
                 overlayOpacity: 0.8,
+                /* Precedence of positions, when auto is enabled */
                 positionPrecedence: ["bottom", "top", "right", "left"],
+                /* Disable an interaction with element? */
                 disableInteraction: false,
+                /* Drag by handle on lower left corner */
                 dragByLowerLeftHandle: true
             };
         }
@@ -53,12 +77,16 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                     }
                     var label = $(menuItem).siblings("." + Menu.Menu.menuItemExpanderLabelClass);
                     if (label.hasClass(Menu.Menu.closeActionClass)) {
-                        label.click();
+                        label.click(); // label[class$='']
                     }
                 });
             }
+            // Find the parent menu collapsible section for the element,
+            // and ensure it is expanded. Perhaps collapse the others?
             var label = childMenuItem.siblings("." + Menu.Menu.menuItemExpanderLabelClass);
             if (!label.hasClass(Menu.Menu.closeActionClass)) {
+                // The animation for the menu takes a moment, so after a delay, refresh the tour toget the outline positioned
+                // more accurately.
                 label.trigger("click", function () {
                     _this.refreshIntro();
                 });
@@ -68,6 +96,9 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
             var tourSteps = this.getSteps();
             this.intro = introJs();
             this.intro.setOptions(this.introJsSettings);
+            // We can probably always use the presets for the main settings,
+            // then provide the step settings afterwards. Makes it easier to
+            // have multiple tour types or stages of tours.
             var tour = {
                 steps: tourSteps
             };
@@ -81,6 +112,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
         };
         Tour.prototype.getSteps = function () {
             var _this = this;
+            // intro.js is element for element selection, intro for text, position for positioning, and onbeforechange for methods.
             return [
                 {
                     intro: "<h1 class='introjs-header'>Welcome</h1> This will take you on an interactive tour of the visualization tools. We recommend you start the tour in a <a href='#' onclick='location.reload(); return false;' > freshly loaded visualization </a> that you haven't manipulated. <br/><br/> More documentation is available on the <a target='_blank' href='http://www.bioontology.org/wiki/index.php/Visualizing_Concepts_and_Mappings'>Bioportal Wiki</a>.",
@@ -125,6 +157,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                     position: "bottom"
                 },
                 {
+                    //            element: $(".node_container")[0],
                     intro: "If the popup is still open, try clicking the white space. This will make the popup disappear.",
                 },
                 {
@@ -132,9 +165,11 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                     position: "bottom"
                 },
                 {
+                    //            element: $(".link_container")[0],
                     intro: "<h1 class='introjs-header'>Hovering over Links</h1> Hover (carefully) over the line or arrow between two nodes to display more details about their relationship.",
                 },
                 {
+                    //            element: $(ConceptLayouts.ConceptLayouts.layoutMenuContainerId)[0],
                     intro: "Drag nodes to reposition them.",
                 },
                 {
@@ -179,7 +214,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                 },
                 {
                     element: $("#NestedOntologyConceptFilterOuterContainer")[0],
-                    intro: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When a visualization contains concepts from multiple ontologies, you can hide nodes based on their ontology. Try hiding all the nodes in an ontology. Also try clicking the check boxes with concept names to hide only a few concepts.",
+                    intro: "<h1 class='introjs-header'>Filtering and Dimming Nodes</h1> When a visualization contains concepts from multiple ontologies, you can dim nodes based on their ontology. Try dimming all the nodes in an ontology. Also try clicking the check boxes with concept names to dim only a few concepts.",
                     onbeforechange: function () {
                         _this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true);
                     },
@@ -195,7 +230,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                 },
                 {
                     element: $("#NestedOntologyConceptFilterCheckboxDeleteButton")[0],
-                    intro: "<h1 class='introjs-header'>Deleting Nodes</h1> And you can delete all the hidden nodes with this button. Try hiding one node, then pressing the button. This may be undone with the undo tools previously covered in this tour.",
+                    intro: "<h1 class='introjs-header'>Excluding Nodes</h1> And you can exclude all the dimmed nodes with this button. Try dimming one node, then pressing the button. This may be undone with the undo tools previously covered in this tour.",
                     onbeforechange: function () {
                         _this.showSubMenuIfNotVisible($("#NestedOntologyConceptFilterScrollContainer"), true);
                     },
@@ -206,7 +241,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                     position: "bottom"
                 },
                 {
-                    intro: "<h1 class='introjs-header'>More Node Filtering Controls: Node Menu</h1> In addition, nodes can also be filtered from the node menu. Click the drop-down arrow beneath a node to see the 'Hide Node' option.",
+                    intro: "<h1 class='introjs-header'>More Node Filtering Controls: Node Menu</h1> In addition, nodes can also be filtered from the node menu. Click the drop-down arrow beneath a node to see the 'Dim Node' option.",
                     position: "bottom"
                 },
                 {
@@ -215,7 +250,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                 },
                 {
                     element: $("#NestedExpansionSetConceptFilterOuterContainer")[0],
-                    intro: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a number of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can hide entire sets or individual nodes--the same way you can work with ontology filters.",
+                    intro: "<h1 class='introjs-header'>Filtering Expansion Sets</h1> You just expanded a concept and the system added a number of related nodes to the visualization. This is called an Expansion Set. You can see these groupings in the menu on the right-hand side. You can dim entire sets or individual nodes--the same way you can work with ontology filters.",
                     onbeforechange: function () {
                         _this.showSubMenuIfNotVisible($("#NestedExpansionSetConceptFilterScrollContainer"), true);
                     },

@@ -541,7 +541,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                     outerThis.toggleHideNodeLambda(outerThis)(conceptData, 0);
                     outerThis.refreshOtherFilterCheckboxStates([conceptData], null);
                 });
-                var checkboxUnit = $("<span>").addClass("popupNodeHideCheckbox").append(checkboxInput).append($("<label>").attr("for", "popupCheckId").append("Hide Node"));
+                var checkboxUnit = $("<span>").addClass("popupNodeHideCheckbox").append(checkboxInput).append($("<label>").attr("for", "popupCheckId").append("Dim Node"));
                 tBody.append($("<tr></tr>").append($("<td></td>").append(checkboxUnit)));
             }
             var urlText = "http://bioportal.bioontology.org/ontologies/" + conceptData["ontologyAcronym"] + "?p=classes&conceptid=" + conceptData["simpleConceptUri"];
@@ -1052,7 +1052,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 outerThis.toggleHideNodeLambda(outerThis)(nodeData, 0);
                 outerThis.refreshOtherFilterCheckboxStates([nodeData], null);
             });
-            hideNodeSvg.append("svg:text").text(this.isNodeHidden(nodeData) ? "Unhide Node" : "Hide Node").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            hideNodeSvg.append("svg:text").text(this.isNodeHidden(nodeData) ? "Un-dim Node" : "Dim Node").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
         };
         ConceptPathsToRoot.prototype.beforeNodeHighlight = function (targetNodeData) {
             this.conceptGraph.manifestTemporaryHoverEdges(targetNodeData);
