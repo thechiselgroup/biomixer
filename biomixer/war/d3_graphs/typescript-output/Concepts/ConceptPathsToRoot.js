@@ -36,7 +36,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         __extends(ConceptPathsToRoot, _super);
         function ConceptPathsToRoot(centralOntologyAcronym, centralConceptSimpleUri, softNodeCap) {
             var _this = this;
-            _super.call(this);
+            _super.call(this, false);
             this.centralOntologyAcronym = centralOntologyAcronym;
             this.centralConceptSimpleUri = centralConceptSimpleUri;
             this.softNodeCap = softNodeCap;
@@ -222,6 +222,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.forceLayout.resume();
             this.runCurrentLayout();
             this.prepGraphMenu();
+            this.attachScreenshotButton();
             this.fetchInitialExpansion();
             MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
         };

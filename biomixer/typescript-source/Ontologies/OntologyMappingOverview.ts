@@ -56,7 +56,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         public centralOntologyAcronym: OntologyGraph.RawAcronym,
         public softNodeCap: number
         ){
-        super();
+        super(false);
         
         this.menu = new Menu.Menu();
         this.legend = new OntologyLegend.OntologyLegend(this.menu);
@@ -893,6 +893,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     prepGraphMenu(){
         // Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
         this.menu.initializeMenu();
+        this.attachScreenshotButton();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
         this.legend.initialize();
     }

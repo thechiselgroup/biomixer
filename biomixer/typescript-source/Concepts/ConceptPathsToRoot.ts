@@ -124,7 +124,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         public centralConceptSimpleUri: ConceptGraph.SimpleConceptURI,
         public softNodeCap: number
     ){
-        super();
+        super(false);
         // When opened without URL arguments, we have a blank graph.
         if(null != this.centralConceptSimpleUri && null != this.centralOntologyAcronym){
             this.centralConceptUri = ConceptGraph.ConceptGraph.computeNodeId(this.centralConceptSimpleUri, this.centralOntologyAcronym);
@@ -278,6 +278,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.runCurrentLayout();
         
         this.prepGraphMenu();
+        
+        this.attachScreenshotButton();
         
         this.fetchInitialExpansion();
         MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");

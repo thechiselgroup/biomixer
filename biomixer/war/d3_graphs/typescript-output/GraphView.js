@@ -33,7 +33,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
     })();
     exports.BaseLink = BaseLink;
     var BaseGraphView = (function () {
-        function BaseGraphView() {
+        function BaseGraphView(attachScreenshotButton) {
             var _this = this;
             //var defaultNodeColor = "#496BB0";
             this.defaultNodeColor = "#000000";
@@ -61,7 +61,9 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             this.lastDisplayedTipsySvg = null;
             this.layoutTimer = null;
             this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false, true);
-            this.attachScreenshotButton();
+            if (attachScreenshotButton) {
+                this.attachScreenshotButton();
+            }
         }
         BaseGraphView.prototype.visWidth = function () {
             return $("#chart").width();

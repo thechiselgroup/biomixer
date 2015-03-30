@@ -117,10 +117,13 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     public undoRedoBoss: UndoRedoManager.UndoRedoManager;
     
     constructor(
+        attachScreenshotButton: boolean
         ){
         this.undoRedoBoss = new UndoRedoManager.UndoRedoManager(false, true);
         
-        this.attachScreenshotButton();
+        if(attachScreenshotButton){
+            this.attachScreenshotButton();
+        }
     }
     
     //var defaultNodeColor = "#496BB0";
