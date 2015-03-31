@@ -894,6 +894,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Node filter for ontology graphs. Allows filtering of nodes by size, and arcs by size.
         this.menu.initializeMenu();
         this.attachScreenshotButton();
+        this.attachFullscreenButton();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
         this.legend.initialize();
     }

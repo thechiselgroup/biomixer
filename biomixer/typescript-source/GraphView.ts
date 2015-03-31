@@ -645,8 +645,6 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     }
     
     attachScreenshotButton(){
-        // <a href=url download="biomixer_render.pdf">Download The Current Graph View</a>
-        // <label onclick="window.open('"+url+"')">Download The Current Graph View</label>
         var screenshotButton = $("<label>")
             .attr("id", "graphToJpegButton")
             .attr("class", "nodeCommandButton")
@@ -660,4 +658,33 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         screenshotButton.click((event)=>{ event.stopPropagation(); PrintSvg.ExportSvgToImage.exportSvgAsPng("#graphSvg"); });
     }
 
+    attachFullscreenButton(){
+        var fullScreenButton = $("<label>")
+            .attr("id", "iframeToFullscreenButton")
+            .attr("class", "nodeCommandButton")
+            .addClass("unselectable")
+            .addClass(Menu.Menu.topBarButtonClass)
+            .text("Fullscreen")
+        ;
+        
+        $(Menu.Menu.menuBarSelector).append(fullScreenButton);
+        
+        fullScreenButton.click(
+            (event)=>{
+                event.stopPropagation();
+                // The "*" means I don't care what the origin of the receiving window is. For this request,
+                // no data is moving across, so anything works.
+                window.top.postMessage("biomixer_full_screen_request", '*')
+            }
+        );
+        
+        window.onmessage = (e: any)=>{
+            if (e.data === "biomixer_full_screen_request") {
+                console.log("Full sreen button pressed, when Biomixer loaded as main frame.");
+            }
+        };
+        
+        
+        
+    }
 }

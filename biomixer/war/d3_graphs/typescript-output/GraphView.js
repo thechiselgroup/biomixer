@@ -390,14 +390,27 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             //});
         };
         BaseGraphView.prototype.attachScreenshotButton = function () {
-            // <a href=url download="biomixer_render.pdf">Download The Current Graph View</a>
-            // <label onclick="window.open('"+url+"')">Download The Current Graph View</label>
             var screenshotButton = $("<label>").attr("id", "graphToJpegButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Screenshot");
             $(Menu.Menu.menuBarSelector).append(screenshotButton);
             screenshotButton.click(function (event) {
                 event.stopPropagation();
                 PrintSvg.ExportSvgToImage.exportSvgAsPng("#graphSvg");
             });
+        };
+        BaseGraphView.prototype.attachFullscreenButton = function () {
+            var fullScreenButton = $("<label>").attr("id", "iframeToFullscreenButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Fullscreen");
+            $(Menu.Menu.menuBarSelector).append(fullScreenButton);
+            fullScreenButton.click(function (event) {
+                event.stopPropagation();
+                // The "*" means I don't care what the origin of the receiving window is. For this request,
+                // no data is moving across, so anything works.
+                window.top.postMessage("biomixer_full_screen_request", '*');
+            });
+            window.onmessage = function (e) {
+                if (e.data === "biomixer_full_screen_request") {
+                    console.log("Full sreen button pressed, when Biomixer loaded as main frame.");
+                }
+            };
         };
         BaseGraphView.nodeSvgClassSansDot = "node";
         BaseGraphView.nodeInnerSvgClassSansDot = "inner_node"; // Needed for ontology double-node effect

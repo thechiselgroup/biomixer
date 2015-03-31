@@ -184,25 +184,6 @@ td.vis{
 	*/
 }
 
-div#menuTriggerContainer {
-   /*
-	color: rgb(230, 250, 240);
-	background-color: rgb(220,220,220);
-	background:#ccc;
-	border-color:#bbb #888 #666 #aaa;
-	*/
-}
-
-#trigger {
-	cursor: pointer;
-}
-#trigger:hover {
-	box-shadow: inset 0px 0px 12px 1px orange;
-}
-/*
-https://developer.mozilla.org/en-US/docs/Web/CSS/Tools/Box-shadow_generator
-*/
-
 .topBarButton {
 	float: right;
 	/*
@@ -215,20 +196,15 @@ https://developer.mozilla.org/en-US/docs/Web/CSS/Tools/Box-shadow_generator
 	margin: 1px 1px 1px 1px;
 	border-width: 1px 1px 1px 1px;
 	border-style: solid;
-}
-
-#tourButton {
 	cursor: pointer;
-   /*
-	color: rgb(230, 250, 240);
-	background-color: rgb(220,220,220);
-	background:#ccc;
-	border-color:#bbb #888 #666 #aaa;
-	*/
 }
-#tourButton:hover {
+.topBarButton:hover {
 	box-shadow: inset 0px 0px 12px 1px orange;
 }
+}
+/*
+https://developer.mozilla.org/en-US/docs/Web/CSS/Tools/Box-shadow_generator
+*/
 
 
 .nonVisibleIntroJsHelperLayer {
@@ -268,9 +244,6 @@ div.introjs-overlay {
 	margin-right: 2px;
 	margin-left: 2px;
     margin-top: -1px;
-}
-.mainmenuButtonIcon:hover {
-	box-shadow: inset 0px 0px 12px 1px orange;
 }
 
 .pressedMenuButton {

@@ -223,6 +223,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.runCurrentLayout();
             this.prepGraphMenu();
             this.attachScreenshotButton();
+            this.attachFullscreenButton();
             this.fetchInitialExpansion();
             MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
         };

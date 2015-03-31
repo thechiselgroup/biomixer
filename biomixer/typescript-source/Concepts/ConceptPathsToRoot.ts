@@ -280,6 +280,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.prepGraphMenu();
         
         this.attachScreenshotButton();
+        this.attachFullscreenButton();
         
         this.fetchInitialExpansion();
         MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
