@@ -474,6 +474,19 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             }
         }
         
+        // There is also the problem of mapping edges that should be removed because an undo
+        // event has been performed. All remaining edges need to be inspected, and those that
+        // are not still valid to show must be removed as well.
+        this.graphD3Format.links.forEach(
+            (edge: Link, index: number, edges: Link[])=>{
+                // Keep only those that would be temporary hover edges
+                // NB This should work as long as the redo state is resolved before adding/removing graph elements.
+                if(this.isEdgeForTemporaryRenderOnly(edge)){
+                    edgesToDelete.push(edge);
+                }
+            }
+        );
+        
         this.graphView.stampTimeGraphModified();
                 
         this.removeEdges(edgesToDelete);

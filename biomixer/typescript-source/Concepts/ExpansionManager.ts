@@ -47,9 +47,6 @@ export class ExpansionManager{
      * determine if the expansion set associated with the node is currently fully loaded into the graph.
      */
      wasConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption): boolean{
-        // Not willing to remove the more elaborate command status approach yet.
-        // It might become relevant again. Otherwise...I prefer this simple obolean version of the method.
-        // return this.findConceptExpansionSetInHistory(conceptUri, expansionType).cleared;
         var returnVal = false;
         var crumbTrail = this.undoBoss.getCrumbHistory();
         var conceptUriForIds: string = String(conceptUri);
