@@ -33,7 +33,6 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         function Node() {
             _super.call(this);
         }
-        // nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
         //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
         //    LABEL: string; // = ontologyDetails.name;
         Node.prototype.getEntityId = function () {
@@ -366,8 +365,9 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
          * not any others). This allows us ot estimate the number of nodes that would be added if the expansion were performed.
          * Gives the current outstanding number, not the total.
          */
-        ConceptGraph.prototype.getNumberOfPotentialNodesToExpand = function (expandingNode, nodeInteraction) {
+        ConceptGraph.prototype.getNumberOfPotentialNodesToExpand = function (expandingNode, nodeInteraction, specificRelationType) {
             var _this = this;
+            if (specificRelationType === void 0) { specificRelationType = "any"; }
             var expandingNodeId = expandingNode.nodeId;
             var numNewNodesIncoming = 0;
             var otherCount = 0;
@@ -375,11 +375,19 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             var nodesSeen = {};
             edges.forEach(function (edge) {
                 // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
-                var edgeExpansionType = edge.relationType === "maps_to" ? PathOptionConstants.mappingsNeighborhoodConstant : PathOptionConstants.termNeighborhoodConstant;
+                var edgeExpansionType = edge.relationType === _this.relationLabelConstants.mapping ? PathOptionConstants.mappingsNeighborhoodConstant : PathOptionConstants.termNeighborhoodConstant;
                 var otherConceptId = (edge.sourceId === expandingNodeId) ? edge.targetId : edge.sourceId;
                 if (_this.nodeMayBeExpanded1(otherConceptId, expandingNodeId, nodeInteraction, edgeExpansionType) && null == nodesSeen[String(otherConceptId)]) {
-                    numNewNodesIncoming++;
-                    nodesSeen[String(otherConceptId)] = true;
+                    if ("parents" === specificRelationType && (edge.targetId !== expandingNodeId || edge.relationType !== _this.relationLabelConstants.inheritance)) {
+                    }
+                    else if ("children" === specificRelationType && (edge.sourceId !== expandingNodeId || edge.relationType !== _this.relationLabelConstants.inheritance)) {
+                    }
+                    else if ("other" === specificRelationType && edge.relationType === _this.relationLabelConstants.inheritance) {
+                    }
+                    else {
+                        numNewNodesIncoming++;
+                        nodesSeen[String(otherConceptId)] = true;
+                    }
                 }
             });
             return numNewNodesIncoming;
@@ -575,6 +583,8 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             conceptNode.ontologyUri = conceptData.links.ontology;
             conceptNode.ontologyUriForIds = encodeURIComponent(conceptNode.ontologyUri);
             conceptNode.nodeColor = this.nextNodeColor(conceptNode.ontologyAcronym);
+            conceptNode.linkParents = conceptData.links.parents;
+            conceptNode.linkChildren = conceptData.links.children;
             // TODO Shall I reference the caller, or handle these in another way? How did I do similar stuff in ontology graph?
             // Could accumulate in caller?
             this.addNodes([conceptNode], expansionSet);

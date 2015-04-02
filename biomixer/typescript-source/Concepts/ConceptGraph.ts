@@ -103,6 +103,8 @@ export class Node extends GraphView.BaseNode {
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
     // nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
     
+    linkParents: string;
+    linkChildren: string;
 
 //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
 //    LABEL: string; // = ontologyDetails.name;
@@ -503,7 +505,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * not any others). This allows us ot estimate the number of nodes that would be added if the expansion were performed.
      * Gives the current outstanding number, not the total.
      */
-    getNumberOfPotentialNodesToExpand(expandingNode: Node, nodeInteraction: UndoRedoManager.NodeInteraction){
+    getNumberOfPotentialNodesToExpand(expandingNode: Node, nodeInteraction: UndoRedoManager.NodeInteraction, specificRelationType:string = "any"){
         var expandingNodeId = expandingNode.nodeId;
         var numNewNodesIncoming = 0;
         var otherCount = 0;
@@ -512,7 +514,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         edges.forEach((edge: Link)=>{
             // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
             var edgeExpansionType =
-                edge.relationType === "maps_to"
+                edge.relationType === this.relationLabelConstants.mapping
                 ? PathOptionConstants.mappingsNeighborhoodConstant
                 : PathOptionConstants.termNeighborhoodConstant;
 
@@ -521,8 +523,21 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             if(this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
                 && null == nodesSeen[String(otherConceptId)]
                 ){
-                numNewNodesIncoming++;
-                nodesSeen[String(otherConceptId)] = true;
+                    if("parents" === specificRelationType
+                        && (edge.targetId !== expandingNodeId || edge.relationType !== this.relationLabelConstants.inheritance)){
+                        // Nope
+                    } else if("children" === specificRelationType
+                        && (edge.sourceId !== expandingNodeId || edge.relationType !== this.relationLabelConstants.inheritance)){
+                        // Nope
+                    } else if("other" === specificRelationType
+                        && edge.relationType === this.relationLabelConstants.inheritance){
+                        // or mapping, which was skipped already
+                        // Allow composite and all other ontology specific ones
+                        // Nope
+                    } else {
+                        numNewNodesIncoming++;
+                        nodesSeen[String(otherConceptId)] = true;
+                    }
             }
         });
         
@@ -784,6 +799,8 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.ontologyUri = conceptData.links.ontology;
             conceptNode.ontologyUriForIds = encodeURIComponent(conceptNode.ontologyUri);
             conceptNode.nodeColor = this.nextNodeColor(conceptNode.ontologyAcronym);
+            conceptNode.linkParents = conceptData.links.parents;
+            conceptNode.linkChildren = conceptData.links.children;
             
             // TODO Shall I reference the caller, or handle these in another way? How did I do similar stuff in ontology graph?
             // Could accumulate in caller?
