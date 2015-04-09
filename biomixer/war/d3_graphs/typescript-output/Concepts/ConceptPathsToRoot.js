@@ -1034,7 +1034,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var submenuSvg = conceptExpandSvg.append("svg:svg").attr("width", "100%").attr("height", "100%").attr("preserveAspectRatio", "xMaxYMin meet") // maybe meet too as value after space
             ;
             var submenuG = submenuSvg.append("svg:g").attr("x", config.rectWidth).attr("y", config.rectHeight - config.subMenuSize * 2).attr("height", config.subMenuSize * 2).attr("width", config.subMenuSize * 2).attr("overflow", "visible");
-            var submenuRect = submenuG.append("svg:circle").style("fill", "blue").attr("cx", config.subMenuSize).attr("cy", config.subMenuSize).style("stroke", "#afc6e5").attr("r", config.subMenuSize).attr("overflow", "visible").on("mouseup", function () {
+            var submenuRect = submenuG.append("svg:circle").style("fill", "blue").attr("cx", config.subMenuSize + 1).attr("cy", config.subMenuSize + 1).style("stroke", "#afc6e5").attr("r", config.subMenuSize).attr("overflow", "visible").on("mouseup", function () {
                 $("#expanderMenu").remove();
                 _this.toggleToExpansionSubMenu(nodeData, target);
             });

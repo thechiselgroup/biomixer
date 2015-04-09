@@ -1507,8 +1507,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var submenuRect = submenuG
             .append("svg:circle")
             .style("fill", "blue")
-            .attr("cx", config.subMenuSize)
-            .attr("cy", config.subMenuSize)
+            .attr("cx", config.subMenuSize+1)
+            .attr("cy", config.subMenuSize+1)
             .style("stroke", "#afc6e5")
             .attr("r", config.subMenuSize)
             .attr("overflow", "visible")
