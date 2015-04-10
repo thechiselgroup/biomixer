@@ -61,15 +61,9 @@
    */
    /* No longer use stroke thickness, use double backed polylines */
    /* Allows mouse interaction to occur in a wider space, for thinner visible lines. */
-  stroke-width: 2;
   stroke-opacity: 0.0;
-}
-
-.conceptLink
-{
-  /* stroke-opacity: .6; No longer use stroke thickness, use double backed polylines*/
-  fill-opacity: .6;
-  stroke-width: 2;
+  fill-opacity: 1.0;
+  stroke-width: 12;
 }
 
 .ontologyMappingLink {

@@ -63,61 +63,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 if (ignoreOffset === true) {
                     offset = 0;
                 }
-                var sourceX = linkData.source.x;
-                var sourceY = linkData.source.y;
-                var targetX = linkData.target.x;
-                var targetY = linkData.target.y;
-                if (offset != 0) {
-                    // Make is_a and has_a arcs move away from each other by enough that we can see them both
-                    // for when both relations exist in a pair of nodes
-                    // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-                    // We'll want the vector relative to source, then the same repeated for target...but since
-                    // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-                    // infer it.
-                    var targetVectorX = targetX - sourceX;
-                    var targetVectorY = targetY - sourceY;
-                    targetVectorX += (targetVectorX === 0) ? 1 : 0;
-                    targetVectorY += (targetVectorY === 0) ? 1 : 0;
-                    var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
-                    var targetOrthVectorX = -1 * targetVectorY / norm;
-                    var targetOrthVectorY = targetVectorX / norm;
-                    var xDist = offset * targetOrthVectorX;
-                    var yDist = offset * targetOrthVectorY;
-                    // Kick the composition arcs a coupel pixels away
-                    sourceX += xDist;
-                    sourceY += yDist;
-                    targetX += xDist;
-                    targetY += yDist;
-                }
-                // Will give arcs that are 2 pixels wide. The CSS will control the stroke width and thus the mouse activation area.
-                var halfArcFillThickness = 0.5;
-                // Now, make the switchbacks, that will make the polyline into a box. This way we can
-                // have transparent edges that can be moused over, and opaque centers that can be seen.
-                var targetVectorX = targetX - sourceX;
-                var targetVectorY = targetY - sourceY;
-                targetVectorX += (targetVectorX === 0) ? 1 : 0;
-                targetVectorY += (targetVectorY === 0) ? 1 : 0;
-                var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
-                var targetOrthVectorX = -1 * targetVectorY / norm;
-                var targetOrthVectorY = targetVectorX / norm;
-                var xDist = halfArcFillThickness * targetOrthVectorX;
-                var yDist = halfArcFillThickness * targetOrthVectorY;
-                var sourceXb = sourceX + xDist;
-                var sourceYb = sourceY + yDist;
-                var targetXb = targetX + xDist;
-                var targetYb = targetY + yDist;
-                sourceX -= xDist;
-                sourceY -= yDist;
-                targetX -= xDist;
-                targetY -= yDist;
-                var points = sourceX + "," + sourceY + " " + targetX + "," + targetY + " ";
-                // Add the segment for the fill thickness
-                points += +targetXb + "," + targetYb + " ";
-                // Add back in reverse order
-                points += targetXb + "," + targetYb + " " + sourceXb + "," + sourceYb + " ";
-                // Add the other segment for the fill thickness
-                points += +sourceX + "," + sourceY + " ";
-                return points;
+                return _this.computeStrokeAndFillLinkEndpointsString(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 1, offset);
             };
             this.updateArcMarkerFunc = function (linkData, ignoreOffset) {
                 if (ignoreOffset === void 0) { ignoreOffset = false; }
@@ -440,20 +386,25 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         };
         ConceptPathsToRoot.prototype.computeArcMarkerForInheritance = function (linkData, ignoreOffset) {
             if (ignoreOffset === void 0) { ignoreOffset = false; }
-            var sourceX = linkData.source.x;
-            var sourceY = linkData.source.y;
-            var targetX = linkData.target.x;
-            var targetY = linkData.target.y;
+            // 0 for desired thickness since we want the abstract line, not the polyline coordinates.
+            // var pointsObj = this.computeStrokeAndFillLinkEndpoints(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 0, 0);
+            // could bypass, since we are really literally just using the source and target coordinates, with no offset at all...
+            var pointsObj = {
+                sourceX: linkData.source.x,
+                sourceY: linkData.source.y,
+                targetX: linkData.target.x,
+                targetY: linkData.target.y
+            };
             // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
             // a bit gives better marker positioning.
-            var midPointX = sourceX + (targetX - sourceX) / 2;
-            var midPointY = sourceY + (targetY - sourceY) / 2;
+            var midPointX = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX) / 2;
+            var midPointY = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY) / 2;
             // But...I need to make a triangular convolution, to replace the markers.
             // Marker path was: path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
             // Rotate a triangleSide line in both directions, and add the midpoint to each.
             // From the endpoint of the first and startpoint of the second, draw an additional segment.
             // 0.5 * PI because I need to rotate the whole thing by 90 degrees
-            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(pointsObj.sourceX - pointsObj.targetX, pointsObj.sourceY - pointsObj.targetY);
             var triAngle1 = atanSourceTarget + this.triangleMarkerPointAngle;
             var triAngle2 = atanSourceTarget - this.triangleMarkerPointAngle;
             // Since y = 0 always, let's save some CPU cycles
@@ -480,35 +431,11 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             if (ignoreOffset === true) {
                 offset = 0;
             }
-            var sourceX = linkData.source.x;
-            var sourceY = linkData.source.y;
-            var targetX = linkData.target.x;
-            var targetY = linkData.target.y;
-            // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-            // We'll want the vector relative to source, then the same repeated for target...but since
-            // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-            // infer it.
-            var targetVectorX = targetX - sourceX;
-            var targetVectorY = targetY - sourceY;
-            targetVectorX += (targetVectorX === 0) ? 1 : 0;
-            targetVectorY += (targetVectorY === 0) ? 1 : 0;
-            var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
-            var targetOrthVectorX = -1 * targetVectorY / norm;
-            var targetOrthVectorY = targetVectorX / norm;
-            var xDist = offset * targetOrthVectorX;
-            var yDist = offset * targetOrthVectorY;
-            // Make is_a and has_a arcs move away from eachother by enough that we can see them both
-            // for when both relations exist in a pair of nodes
-            if (linkData.relationType === this.conceptGraph.relationLabelConstants.composition) {
-                // Kick the composition arcs a coupel pixels away
-                sourceX += xDist;
-                sourceY += yDist;
-                targetX += xDist;
-                targetY += yDist;
-            }
+            // 0 for desired thickness since we want the abstract line, not the polyline coordinates.
+            var pointsObj = this.computeStrokeAndFillLinkEndpoints(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 0, 0);
             // the path will go from the tip of a diamond shape, around the perimeter, then cut again through
             // the middle to recommence the line.
-            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(pointsObj.sourceX - pointsObj.targetX, pointsObj.sourceY - pointsObj.targetY);
             var diamondAngle1 = atanSourceTarget + (this.diamondAngle); // sign controls above/below line
             var diamondAngle2 = atanSourceTarget - (this.diamondAngle);
             // Since y = 0 always, let's save some CPU cycles
@@ -523,10 +450,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // a bit gives better marker positioning.
             var diamondXDelta = (this.diamondLength / 2 * Math.cos(atanSourceTarget));
             var diamondYDelta = (this.diamondLength / 2 * Math.sin(atanSourceTarget));
-            var midPointX1 = sourceX + (targetX - sourceX) / 2 - diamondXDelta;
-            var midPointY1 = sourceY + (targetY - sourceY) / 2 - diamondYDelta;
-            var midPointX2 = sourceX + (targetX - sourceX) / 2 + diamondXDelta;
-            var midPointY2 = sourceY + (targetY - sourceY) / 2 + diamondYDelta;
+            var midPointX1 = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX) / 2 - diamondXDelta;
+            var midPointY1 = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY) / 2 - diamondYDelta;
+            var midPointX2 = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX) / 2 + diamondXDelta;
+            var midPointY2 = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY) / 2 + diamondYDelta;
             // Make relative to the midPoint
             // I would move the marker half of its length back towards the source, but I want to save
             // CPU cycles...this method is called a lot.

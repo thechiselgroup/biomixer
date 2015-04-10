@@ -51,40 +51,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.updateArcLineFunc = function (linkData) {
                 // This is a lot easier than markers, except that we also have to offset
                 // the line if there are two arc types.
-                var sourceX = linkData.source.x;
-                var sourceY = linkData.source.y;
-                var targetX = linkData.target.x;
-                var targetY = linkData.target.y;
-                // Will give arcs that are 2 pixels wide. The CSS will control the stroke width and thus the mouse activation area.
-                var halfArcFillThickness = _this.renderScaler.ontologyLinkScalingFunc(linkData.value) / 2; //0.5;
-                // Now, make the switchbacks, that will make the polyline into a box. This way we can
-                // have transparent edges that can be moused over, and opaque centers that can be seen.
-                var targetVectorX = targetX - sourceX;
-                var targetVectorY = targetY - sourceY;
-                targetVectorX += (targetVectorX === 0) ? 1 : 0;
-                targetVectorY += (targetVectorY === 0) ? 1 : 0;
-                var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
-                var targetOrthVectorX = -1 * targetVectorY / norm;
-                var targetOrthVectorY = targetVectorX / norm;
-                var xDist = halfArcFillThickness * targetOrthVectorX;
-                var yDist = halfArcFillThickness * targetOrthVectorY;
-                var sourceXb = sourceX + xDist;
-                var sourceYb = sourceY + yDist;
-                var targetXb = targetX + xDist;
-                var targetYb = targetY + yDist;
-                sourceX -= xDist;
-                sourceY -= yDist;
-                targetX -= xDist;
-                targetY -= yDist;
-                // Create starting point
-                var points = sourceX + "," + sourceY + " " + targetX + "," + targetY + " ";
-                // Add the segment for the fill thickness
-                points += +targetXb + "," + targetYb + " ";
-                // Add back in reverse order
-                points += targetXb + "," + targetYb + " " + sourceXb + "," + sourceYb + " ";
-                // Add the other segment for the fill thickness
-                points += +sourceX + "," + sourceY + " ";
-                return points;
+                var arcFillThickness = _this.renderScaler.ontologyLinkScalingFunc(linkData.value); //0.5;
+                return _this.computeStrokeAndFillLinkEndpointsString(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, arcFillThickness, 0);
             };
             this.nodeUpdateTimer = false;
             // Seeing if I can modulate graph gravity using bounding boxes...

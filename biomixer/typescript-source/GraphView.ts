@@ -687,4 +687,94 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         
         
     }
+    
+    computeStrokeAndFillLinkEndpoints(sourceX: number, sourceY: number, targetX: number, targetY: number, desiredEdgeThickness: number, extraOffset: number = 0)
+        : {sourceX: number; sourceY: number; targetX: number; targetY: number;
+           sourceXb: number; sourceYb: number; targetXb: number; targetYb: number;}
+    {
+
+        var pointsObj = {sourceX: sourceX, sourceY: sourceY, targetX: targetX, targetY: targetY,
+           sourceXb: sourceX, sourceYb: sourceY, targetXb: targetX, targetYb: targetY};
+        
+        // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
+        // We'll want the vector relative to source, then the same repeated for target...but since
+        // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
+        // infer it.
+        // We need it separately for the offset and line thickness, since the offset applies to both legs
+        // of the polyline with the same sign, and the thickness applies to both with opposite sign.
+        
+        
+        // Make is_a and has_a arcs move away from each other by enough that we can see them both
+        // for when both relations exist ilinkData.source.xn a pair of nodes
+        
+        // Do it for the offset
+        // Kick the special arcs (composition) a couple pixels away
+        var xDistOffset = 0;
+        var yDistOffset = 0;
+        if(extraOffset !== 0){
+            // Pretty much same logic as below, but diff variable names.
+            // Could route it through itself recursively, but is that easier to maintain??
+            var targetVectorXOffset = pointsObj.targetX - pointsObj.sourceX;
+            var targetVectorYOffset = pointsObj.targetY - pointsObj.sourceY;
+            targetVectorXOffset += (targetVectorXOffset === 0) ? 1 : 0;
+            targetVectorYOffset += (targetVectorYOffset === 0) ? 1 : 0;
+            var normOffset = Math.sqrt(targetVectorXOffset*targetVectorXOffset + targetVectorYOffset * targetVectorYOffset);
+            var targetOrthVectorXOffset = -1 * targetVectorYOffset / normOffset;
+            var targetOrthVectorYOffset = targetVectorXOffset / normOffset;
+            xDistOffset = extraOffset * targetOrthVectorXOffset;
+            yDistOffset = extraOffset * targetOrthVectorYOffset;
+        }
+    
+        // Now do it for the arc thickness
+        var halfEdgeThickness = desiredEdgeThickness/2;
+        // Now, make the switchbacks, that will make the polyline into a box. This way we can
+        // have transparent edges that can be moused over, and opaque centers that can be seen.
+        var targetVectorX = pointsObj.targetX - pointsObj.sourceX;
+        var targetVectorY = pointsObj.targetY - pointsObj.sourceY;
+        targetVectorX += (targetVectorX === 0) ? 1 : 0;
+        targetVectorY += (targetVectorY === 0) ? 1 : 0;
+        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
+        var targetOrthVectorX = -1 * targetVectorY / norm;
+        var targetOrthVectorY = targetVectorX / norm;
+        var xDist = halfEdgeThickness * targetOrthVectorX;
+        var yDist = halfEdgeThickness * targetOrthVectorY;
+        
+        // Apply to points object. Note signs of these.
+        pointsObj.sourceXb += +xDist + xDistOffset;
+        pointsObj.sourceYb += +yDist + yDistOffset;
+        pointsObj.targetXb += +xDist + xDistOffset;
+        pointsObj.targetYb += +yDist + yDistOffset;
+        
+        pointsObj.sourceX += -xDist + xDistOffset;
+        pointsObj.sourceY += -yDist + yDistOffset;
+        pointsObj.targetX += -xDist + xDistOffset;
+        pointsObj.targetY += -yDist + yDistOffset;
+        
+        return pointsObj;
+    }
+        
+    computeStrokeAndFillLinkEndpointsString(sourceX: number, sourceY: number, targetX: number, targetY: number, desiredEdgeThickness: number, extraOffset: number = 0)
+    : string
+    {
+        
+        var pointsObj = this.computeStrokeAndFillLinkEndpoints(sourceX, sourceY, targetX, targetY, desiredEdgeThickness, extraOffset)
+        
+        // Create starting point
+         var points =
+           pointsObj.sourceX+","+pointsObj.sourceY+" "
+         + pointsObj.targetX+","+pointsObj.targetY+" "
+        ;
+        
+        // Add the segment for the fill thickness
+        points += pointsObj.targetXb+","+pointsObj.targetYb+" "
+        
+        // Add back in reverse order
+        points += pointsObj.targetXb+","+pointsObj.targetYb+" "
+          + pointsObj.sourceXb+","+pointsObj.sourceYb+" ";
+        
+        // Add the other segment for the fill thickness
+        points += pointsObj.sourceX+","+pointsObj.sourceY+" ";
+        
+        return points;
+    }
 }
