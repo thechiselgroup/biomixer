@@ -24,6 +24,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
     var OntologyMappingOverview = (function (_super) {
         __extends(OntologyMappingOverview, _super);
         function OntologyMappingOverview(centralOntologyAcronym, softNodeCap) {
+            var _this = this;
             _super.call(this, false);
             this.centralOntologyAcronym = centralOntologyAcronym;
             this.softNodeCap = softNodeCap;
@@ -47,6 +48,44 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // Also, it's naming...I believe it is a lambda and a closure (closes over context,
             // and returns an anonymous function (returns a lambda).
             this.alreadyHidTipsy = false;
+            this.updateArcLineFunc = function (linkData) {
+                // This is a lot easier than markers, except that we also have to offset
+                // the line if there are two arc types.
+                var sourceX = linkData.source.x;
+                var sourceY = linkData.source.y;
+                var targetX = linkData.target.x;
+                var targetY = linkData.target.y;
+                // Will give arcs that are 2 pixels wide. The CSS will control the stroke width and thus the mouse activation area.
+                var halfArcFillThickness = _this.renderScaler.ontologyLinkScalingFunc(linkData.value) / 2; //0.5;
+                // Now, make the switchbacks, that will make the polyline into a box. This way we can
+                // have transparent edges that can be moused over, and opaque centers that can be seen.
+                var targetVectorX = targetX - sourceX;
+                var targetVectorY = targetY - sourceY;
+                targetVectorX += (targetVectorX === 0) ? 1 : 0;
+                targetVectorY += (targetVectorY === 0) ? 1 : 0;
+                var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
+                var targetOrthVectorX = -1 * targetVectorY / norm;
+                var targetOrthVectorY = targetVectorX / norm;
+                var xDist = halfArcFillThickness * targetOrthVectorX;
+                var yDist = halfArcFillThickness * targetOrthVectorY;
+                var sourceXb = sourceX + xDist;
+                var sourceYb = sourceY + yDist;
+                var targetXb = targetX + xDist;
+                var targetYb = targetY + yDist;
+                sourceX -= xDist;
+                sourceY -= yDist;
+                targetX -= xDist;
+                targetY -= yDist;
+                // Create starting point
+                var points = sourceX + "," + sourceY + " " + targetX + "," + targetY + " ";
+                // Add the segment for the fill thickness
+                points += +targetXb + "," + targetYb + " ";
+                // Add back in reverse order
+                points += targetXb + "," + targetYb + " " + sourceXb + "," + sourceYb + " ";
+                // Add the other segment for the fill thickness
+                points += +sourceX + "," + sourceY + " ";
+                return points;
+            };
             this.nodeUpdateTimer = false;
             // Seeing if I can modulate graph gravity using bounding boxes...
             // when the nodes are outside the box, tweak the gravity higher by a small amount,
@@ -145,14 +184,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 });
                 outerThis.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).filter(function (e, i) {
                     return e.source == d || e.target == d;
-                }).attr("x1", function (e) {
-                    return e.source.x;
-                }).attr("y1", function (e) {
-                    return e.source.y;
-                }).attr("x2", function (e) {
-                    return e.target.x;
-                }).attr("y2", function (e) {
-                    return e.target.y;
+                }).attr("points", function (e) {
+                    return outerThis.updateArcLineFunc(e);
                 });
             };
         };
@@ -230,21 +263,13 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var links = this.vis.select("#link_container").selectAll(GraphView.BaseGraphView.linkSvgClass).data(linksData, OntologyGraph.Link.D3IdentityFunction);
             // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
             // Add new stuff
-            var enteringLinks = links.enter().append("svg:line").attr("class", GraphView.BaseGraphView.linkSvgClassSansDot + " " + GraphView.BaseGraphView.ontologyLinkSvgClassSansDot).attr("id", function (d) {
+            var enteringLinks = links.enter().append("svg:polyline").attr("class", GraphView.BaseGraphView.linkSvgClassSansDot + " " + GraphView.BaseGraphView.ontologyLinkSvgClassSansDot).attr("id", function (d) {
                 return "link_line_" + d.source.acronymForIds + "-to-" + d.target.acronymForIds;
             }).on("mouseover", this.highlightHoveredLinkLambda(this)).on("mouseout", this.unhighlightHoveredLinkLambda(this)); //this.removeNodeAndLinkHighlightingLambda(this));
             // console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
             // Update Basic properties
             if (!enteringLinks.empty()) {
-                enteringLinks.attr("x1", function (d) {
-                    return d.source.x;
-                }).attr("y1", function (d) {
-                    return d.source.y;
-                }).attr("x2", function (d) {
-                    return d.target.x;
-                }).attr("y2", function (d) {
-                    return d.target.y;
-                }).attr("data-thickness_basis", function (d) {
+                enteringLinks.attr("data-thickness_basis", function (d) {
                     return d.value;
                 });
                 // Update Tool tip
@@ -255,8 +280,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 });
                 // Update *all* links scalings given new links are present
                 this.renderScaler.updateLinkScalingFactor();
-                links.style("stroke-width", function (d) {
-                    return _this.renderScaler.ontologyLinkScalingFunc(d.value);
+                // Using double-backed polyline with variable width of fill instead of thickness of line
+                // links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+                links.attr("points", function (e) {
+                    return _this.updateArcLineFunc(e);
                 });
             }
             if (!enteringLinks.empty()) {
@@ -503,15 +530,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                         return "translate(" + d.x + "," + d.y + ")";
                     });
                 }
-                links.attr("x1", function (d) {
-                    return d.source.x;
-                }).attr("y1", function (d) {
-                    return d.source.y;
-                }).attr("x2", function (d) {
-                    return d.target.x;
-                }).attr("y2", function (d) {
-                    return d.target.y;
-                });
+                links.attr("points", _this.updateArcLineFunc);
                 // I want labels to aim out of middle of graph, to make more room
                 // It slows rendering, so I will only do it sometimes
                 // Commented all this out because I liked centering them instead.
@@ -688,15 +707,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 d3.selectAll("g.node_g").transition().duration(animationDuration).attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
-                d3.selectAll(GraphView.BaseGraphView.linkSvgClass).transition().duration(animationDuration).attr("x1", function (d) {
-                    return d.source.x;
-                }).attr("y1", function (d) {
-                    return d.source.y;
-                }).attr("x2", function (d) {
-                    return d.target.x;
-                }).attr("y2", function (d) {
-                    return d.target.y;
-                });
+                d3.selectAll(GraphView.BaseGraphView.linkSvgClass).transition().duration(animationDuration).attr("points", _this.updateArcLineFunc);
             };
         };
         OntologyMappingOverview.prototype.prepGraphMenu = function () {

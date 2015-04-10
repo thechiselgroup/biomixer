@@ -216,10 +216,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
             outerThis.vis.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e, i){ return e.source == d || e.target == d; })
-                .attr("x1", function(e) { return e.source.x; })
-                .attr("y1", function(e) { return e.source.y; })
-                .attr("x2", function(e) { return e.target.x; })
-                .attr("y2", function(e) { return e.target.y; });
+                .attr("points", function(e){ return outerThis.updateArcLineFunc(e); })
+                ;
            
         }
     }
@@ -344,7 +342,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
     
         // Add new stuff
-        var enteringLinks = links.enter().append("svg:line")
+        var enteringLinks = links.enter().append("svg:polyline")
         .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyLinkSvgClassSansDot) // Make svg:g like nodes if we need labels
         .attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
         .on("mouseover", this.highlightHoveredLinkLambda(this)) // this.highlightLinkLambda(this))
@@ -355,11 +353,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Update Basic properties
         if(!enteringLinks.empty()){
             enteringLinks
-            .attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; })
-            .attr("data-thickness_basis", function(d) { return d.value;});
+            .attr("data-thickness_basis", function(d) { return d.value;})
+            // .attr("points", this.updateArcLineFunc) // Down below, do them all.
+            ;
             
             // Update Tool tip
             enteringLinks.append("title") // How would I *update* this if I needed to?
@@ -368,7 +364,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
             // Update *all* links scalings given new links are present
             this.renderScaler.updateLinkScalingFactor();
-            links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+            // Using double-backed polyline with variable width of fill instead of thickness of line
+            // links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+            links.attr("points", (e)=>{ return this.updateArcLineFunc(e); })
         }
         
     
@@ -376,6 +374,56 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         	this.filterSliders.updateTopMappingsSliderRange();
             this.updateStartWithoutResume();
         }
+    }
+    
+    public updateArcLineFunc = (linkData: OntologyGraph.Link): string => {
+        // This is a lot easier than markers, except that we also have to offset
+        // the line if there are two arc types.
+        
+        var sourceX = linkData.source.x;
+        var sourceY = linkData.source.y;
+        var targetX = linkData.target.x;
+        var targetY = linkData.target.y;
+    
+        // Will give arcs that are 2 pixels wide. The CSS will control the stroke width and thus the mouse activation area.
+        var halfArcFillThickness = this.renderScaler.ontologyLinkScalingFunc(linkData.value)/2; //0.5;
+        // Now, make the switchbacks, that will make the polyline into a box. This way we can
+        // have transparent edges that can be moused over, and opaque centers that can be seen.
+        var targetVectorX = targetX - sourceX;
+        var targetVectorY = targetY - sourceY;
+        targetVectorX += (targetVectorX === 0) ? 1 : 0;
+        targetVectorY += (targetVectorY === 0) ? 1 : 0;
+        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
+        var targetOrthVectorX = -1 * targetVectorY / norm;
+        var targetOrthVectorY = targetVectorX / norm;
+        var xDist = halfArcFillThickness * targetOrthVectorX;
+        var yDist = halfArcFillThickness * targetOrthVectorY;
+        var sourceXb = sourceX + xDist;
+        var sourceYb = sourceY + yDist;
+        var targetXb = targetX + xDist;
+        var targetYb = targetY + yDist;
+        sourceX -= xDist;
+        sourceY -= yDist;
+        targetX -= xDist;
+        targetY -= yDist;
+        
+        // Create starting point
+         var points =
+           sourceX+","+sourceY+" "
+         + targetX+","+targetY+" "
+        ;
+        
+        // Add the segment for the fill thickness
+        points += + targetXb+","+targetYb+" "
+        
+        // Add back in reverse order
+        points += targetXb+","+targetYb+" "
+          + sourceXb+","+sourceYb+" ";
+        
+        // Add the other segment for the fill thickness
+        points += + sourceX+","+sourceY+" ";
+        
+        return points;
     }
         
     populateNewGraphNodes(nodesData: Array<OntologyGraph.Node>){
@@ -667,10 +715,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             }
     
             links
-              .attr("x1", function(d) { return d.source.x; })
-              .attr("y1", function(d) { return d.source.y; })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; });
+              .attr("points", this.updateArcLineFunc)
+            ;
             
             // I want labels to aim out of middle of graph, to make more room
             // It slows rendering, so I will only do it sometimes
@@ -883,10 +929,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(animationDuration)
-              .attr("x1", function(d) { return d.source.x; })
-              .attr("y1", function(d) { return d.source.y; })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; });
+                .attr("points", this.updateArcLineFunc)
+            ;
         };         
     }
     

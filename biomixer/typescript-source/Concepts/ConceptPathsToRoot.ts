@@ -537,6 +537,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     }
     
     pixelMap = [0, 10, -10, -7, -4, 4, 7]; // currently only supports 5 extra edges, could cut to diffs of 2 pixels instead.
+    // Modified from being a simple line to being a round-trip line, allowing for invisible mouse activated borders, while still
+    // having an opaque center fill.
     public updateArcLineFunc = (linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string => {
         // This is a lot easier than markers, except that we also have to offset
         // the line if there are two arc types.
@@ -563,6 +565,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // infer it.
             var targetVectorX = targetX - sourceX;
             var targetVectorY = targetY - sourceY;
+            targetVectorX += (targetVectorX === 0) ? 1 : 0;
+            targetVectorY += (targetVectorY === 0) ? 1 : 0;
             var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
             var targetOrthVectorX = -1 * targetVectorY / norm;
             var targetOrthVectorY = targetVectorX / norm;
@@ -577,11 +581,42 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             targetY += yDist;
         }
         
+        // Will give arcs that are 2 pixels wide. The CSS will control the stroke width and thus the mouse activation area.
+        var halfArcFillThickness = 0.5;
+        // Now, make the switchbacks, that will make the polyline into a box. This way we can
+        // have transparent edges that can be moused over, and opaque centers that can be seen.
+        var targetVectorX = targetX - sourceX;
+        var targetVectorY = targetY - sourceY;
+        targetVectorX += (targetVectorX === 0) ? 1 : 0;
+        targetVectorY += (targetVectorY === 0) ? 1 : 0;
+        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
+        var targetOrthVectorX = -1 * targetVectorY / norm;
+        var targetOrthVectorY = targetVectorX / norm;
+        var xDist = halfArcFillThickness * targetOrthVectorX;
+        var yDist = halfArcFillThickness * targetOrthVectorY;
+        var sourceXb = sourceX + xDist;
+        var sourceYb = sourceY + yDist;
+        var targetXb = targetX + xDist;
+        var targetYb = targetY + yDist;
+        sourceX -= xDist;
+        sourceY -= yDist;
+        targetX -= xDist;
+        targetY -= yDist;
+        
          var points =
            sourceX+","+sourceY+" "
          + targetX+","+targetY+" "
         ;
         
+        // Add the segment for the fill thickness
+        points += + targetXb+","+targetYb+" "
+        
+        // Add back in reverse order
+        points += targetXb+","+targetYb+" "
+          + sourceXb+","+sourceYb+" ";
+        
+        // Add the other segment for the fill thickness
+        points += + sourceX+","+sourceY+" "
         return points;
     }
     
@@ -665,6 +700,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // infer it.
         var targetVectorX = targetX - sourceX;
         var targetVectorY = targetY - sourceY;
+        targetVectorX += (targetVectorX === 0) ? 1 : 0;
+        targetVectorY += (targetVectorY === 0) ? 1 : 0;
         var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
         var targetOrthVectorX = -1 * targetVectorY / norm;
         var targetOrthVectorY = targetVectorX / norm;

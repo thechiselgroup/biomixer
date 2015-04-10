@@ -21,7 +21,7 @@ export class OntologyRenderScaler {
     private NODE_MIN_ON_SCREEN_SIZE: number = 4;
     private minNodeRawSize: number = -1;
     private maxNodeRawSize: number = -1;
-    private LINK_MAX_ON_SCREEN_SIZE: number = 7; // 6 looks good...but if I change colors it may not.
+    private LINK_MAX_ON_SCREEN_SIZE: number = 9; // 6 looks good...but if I change colors it may not.
     private LINK_MIN_ON_SCREEN_SIZE: number = 1;
     private minLinkRawSize: number = -1;
     private maxLinkRawSize: number = -1;
@@ -74,14 +74,21 @@ export class OntologyRenderScaler {
             }
         });
         
+        // Actually, this is done by the caller after the update occurs.
+        /*
         // Dynamic scoping of "this" required for the D3 function,
         // but we need an object reference closured into it as well. So....outerThis!
         $.each(this.vis.selectAll(GraphView.BaseGraphView.linkSvgClass)[0], function(i, link){
             // Given a json encoded graph element, update all of the nested elements associated with it
             // cherry pick elements that we might otherwise get by class "node"
             link = $(link);
-            link.css("stroke-width", function(d) { return outerThis.ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
+            // Using double-backed polyline with variable width of fill instead of thickness of line
+            // link.css("stroke-width", function(d) { return outerThis.ontologyLinkScalingFunc(link.attr("data-thickness_basis")); });
+            // Actually, this is done by the caller after the update occurs.
+            // link.attr("points", function(e){ return outerThis.updateArcLineFunc(e); })
+            
         });
+        */
     }
     
     ontologyNodeScalingFunc = (rawValue, acronym) => {
@@ -129,9 +136,12 @@ export class OntologyRenderScaler {
     }
     
     ontologyLinkScalingFunc = (rawValue) => {
+        // Used to be used for stroke-width, but now we use invisible stroke to have a larger mousable area for thin arcs.
+        // Now this is used to define how wide the fill region for each arc's polyine drawn rectangle.
         rawValue = parseInt(rawValue);
         if(this.maxLinkRawSize == this.minLinkRawSize){
-            return rawValue;
+			// Used to retrun rawValue here, but that led to problems in loading. Re-assess if needed.
+            return 1;
         }
         var factor = this.computeFactorOfRange(rawValue, this.minLinkRawSize, this.maxLinkRawSize);
         // The linear area algorithm used for nodes happens to work really well for the edges thickness too.
@@ -152,6 +162,11 @@ export class OntologyRenderScaler {
               * Math.PI * Math.pow(maxOnScreenSize, 2);
         var diameter = Math.sqrt(linearArea / Math.PI);
         return diameter;
+    }
+    
+    linearWidthRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
+        var linearWidth = minOnScreenSize + factor * (maxOnScreenSize - minOnScreenSize);
+        return linearWidth;
     }
     
     /*
