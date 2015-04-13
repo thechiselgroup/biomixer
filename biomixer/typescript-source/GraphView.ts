@@ -296,7 +296,9 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                       
             d3.selectAll(BaseGraphView.nodeLabelSvgClass)
                 .classed("highlightedNodeLabel", true)
-                .filter(function(aText: N, i){return aText.getEntityId() ===linkLine.source.getEntityId() || aText.getEntityId() ===linkLine.target.getEntityId();})
+                .filter(function(aText: N, i){return (null !== linkLine.source && null !== linkLine.target)
+                    && ( aText.getEntityId() === linkLine.source.getEntityId() || aText.getEntityId() === linkLine.target.getEntityId() );
+                })
                 .classed("dimmedNodeLabel", false)
                 .classed("highlightedNodeLabel", true)
                 ;
@@ -307,7 +309,9 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             // be removed.
             d3.selectAll(BaseGraphView.nodeSvgClass+", "+BaseGraphView.nodeInnerSvgClass)
                 .classed("highlightedNode", true)
-                .filter(function(aNode: N, i){return aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId();})
+                .filter(function(aNode: N, i){return (null !== linkLine.source && null !== linkLine.target)
+                    && ( aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId() );
+                })
                 .classed("dimmedNode", false)
                 .classed("highlightedNode", true)
                 ;

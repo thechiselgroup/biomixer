@@ -155,14 +155,14 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                     return;
                 }
                 d3.selectAll(BaseGraphView.nodeLabelSvgClass).classed("highlightedNodeLabel", true).filter(function (aText, i) {
-                    return aText.getEntityId() === linkLine.source.getEntityId() || aText.getEntityId() === linkLine.target.getEntityId();
+                    return (null !== linkLine.source && null !== linkLine.target) && (aText.getEntityId() === linkLine.source.getEntityId() || aText.getEntityId() === linkLine.target.getEntityId());
                 }).classed("dimmedNodeLabel", false).classed("highlightedNodeLabel", true);
                 // TODO change the getEntityId to accessing the source and target uri,
                 // because sometimes links have null on either point due to race conditions,
                 // when the user moves off of a node onto a temporary arc, just as it is to
                 // be removed.
                 d3.selectAll(BaseGraphView.nodeSvgClass + ", " + BaseGraphView.nodeInnerSvgClass).classed("highlightedNode", true).filter(function (aNode, i) {
-                    return aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId();
+                    return (null !== linkLine.source && null !== linkLine.target) && (aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId());
                 }).classed("dimmedNode", false).classed("highlightedNode", true);
                 d3.selectAll(BaseGraphView.linkSvgClass).classed("dimmedLink", true);
                 // if we ever use this method attached to anything other than a link hover over, it won't
