@@ -1,5 +1,8 @@
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 ///<amd-dependency path="Utils" />
+///<amd-dependency path="GraphView" />
 
+import NodeAreaToggler = require("./NodeAreaToggleWidget");
 import Utils = require("../Utils");
 import GraphView = require("../GraphView");
 
@@ -45,7 +48,7 @@ export class OntologyRenderScaler {
                     }
             });
 
-        circles.transition().attr("r", function(d) { return outerThis.ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));});
+        circles.transition().attr("r", function(d) { return outerThis.ontologyOuterNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));});
         
         // Inner circles use the same scaling factor.
         var innerCircles = this.vis.selectAll(GraphView.BaseGraphView.nodeInnerSvgClass);
@@ -91,7 +94,46 @@ export class OntologyRenderScaler {
         */
     }
     
-    ontologyNodeScalingFunc = (rawValue, acronym) => {
+    ontologyOuterNodeScalingFunc = (rawValue, acronym, outerRawValue = null ) => {
+        if(NodeAreaToggler.NodeAreaToggleWidgets.usePercentile){
+            return this.ontologyProportionalCountsNodeScalingFunc(rawValue, acronym);
+        } else {
+            return this.ontologyConstantPercentileNodeScalingFunc(rawValue, acronym, outerRawValue);
+        }
+    }
+    
+    /**
+     * Scales nodes so that all of them have the same outer size, and so that the inner
+     * circle corresponds to the percentage of mappings in that ontology.
+     */
+    ontologyConstantPercentileNodeScalingFunc = (rawValue, acronym, outerRawValue = null ) => {
+        rawValue = parseInt(rawValue);
+        if(null === outerRawValue){
+            outerRawValue = rawValue;
+        } else {
+            outerRawValue = parseInt(outerRawValue);
+        }
+        
+        var diameter = 20;
+        if(rawValue !== outerRawValue){
+            // Steven's Power Law: area is perceived as area to the power of 0.8, times a scaling factor.
+            // So, raise this to power of 0.8
+            diameter = this.linearAreaRelativeScaledRangeValue((rawValue / outerRawValue), 0, 20);
+            // power of diameter sort of works.
+            // Best results were applying exponent to radius, not diameter, not area.
+            diameter = 2*Math.pow(diameter/2, 0.8);
+            if(isNaN(diameter)){
+                return 0;
+            }
+        }
+        return diameter;
+    }
+    
+    /**
+     * Scales nodes so that the largest ontology is set as the largest allowed node size, and so that
+     * the inner circle corresponds to the number of mappings in that ontology.
+     */
+    ontologyProportionalCountsNodeScalingFunc = (rawValue, acronym) => {
         rawValue = parseInt(rawValue);
             
         if(rawValue == 0){
@@ -121,18 +163,10 @@ export class OntologyRenderScaler {
             return 0;
         }
         if(outerRawValue == this.minNodeRawSize){
-            return (rawValue/outerRawValue) * this.ontologyNodeScalingFunc(outerRawValue, acronym);
+            return (rawValue/outerRawValue) * this.ontologyOuterNodeScalingFunc(outerRawValue, acronym, outerRawValue);
         }
         
-        return this.ontologyNodeScalingFunc(rawValue, acronym);
-        
-        // var outerRadius = ontologyNodeScalingFunc(rawValue, acronym);
-        // var outerArea = Math.PI*(outerRadius*outerRadius);
-        // var innerArea = outerArea * (rawValue / outerRawValue);
-        // var innerRadius = outerRadius * (rawValue / outerRawValue);
-        // // var innerRadius = Math.sqrt(innerArea/Math.PI);
-        //  console.log([acronym, "raw", rawValue / outerRawValue, rawValue, outerRawValue, "area", outerArea/innerArea, outerArea, innerArea, "radius", outerRadius/innerRadius, outerRadius, innerRadius]);
-        // return innerRadius;
+        return this.ontologyOuterNodeScalingFunc(rawValue, acronym, outerRawValue);
     }
     
     ontologyLinkScalingFunc = (rawValue) => {
@@ -160,6 +194,8 @@ export class OntologyRenderScaler {
     linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
         var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor
               * Math.PI * Math.pow(maxOnScreenSize, 2);
+        // power of the linear area doesn't work so well
+        // linearArea = Math.pow(linearArea, 0.8);
         var diameter = Math.sqrt(linearArea / Math.PI);
         return diameter;
     }
@@ -168,17 +204,5 @@ export class OntologyRenderScaler {
         var linearWidth = minOnScreenSize + factor * (maxOnScreenSize - minOnScreenSize);
         return linearWidth;
     }
-    
-    /*
-        private double linearFunction(double value) {
-            // Ha! A sqrt makes this not linear. Mis-named now...
-            return 2 * (4 + Math.sqrt((value) / 10));
-            return (1 + Math.sqrt((value)));
-        }
-    
-        private double logFunction(double value) {
-            return 4 + Math.log(value) * 10;
-        }
-     */
     
 }

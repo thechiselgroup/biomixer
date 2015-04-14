@@ -8,6 +8,7 @@
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
 ///<amd-dependency path="Ontologies/OntologyLegend" />
 var __extends = this.__extends || function (d, b) {
@@ -16,7 +17,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../TipsyToolTipsOnClick", "./OntologyGraph", "./OntologyRenderScaler", "./OntologyFilterSliders", "./OntologyLegend", "Utils", "Menu", "FetchFromApi", "GraphView", "ExpansionSets", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "Ontologies/OntologyGraph", "Ontologies/OntologyFilterSliders", "Ontologies/OntologyRenderScaler", "Ontologies/OntologyLegend", "JQueryExtension"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, TipsyToolTips, OntologyGraph, OntologyRenderScaler, OntologyFilterSliders, OntologyLegend) {
+define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../TipsyToolTipsOnClick", "./OntologyGraph", "./OntologyRenderScaler", "./OntologyFilterSliders", "./NodeAreaToggleWidget", "./OntologyLegend", "Utils", "Menu", "FetchFromApi", "GraphView", "ExpansionSets", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "Ontologies/OntologyGraph", "Ontologies/OntologyFilterSliders", "Ontologies/NodeAreaToggleWidget", "Ontologies/OntologyRenderScaler", "Ontologies/OntologyLegend", "JQueryExtension"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, TipsyToolTips, OntologyGraph, OntologyRenderScaler, OntologyFilterSliders, NodeAreaToggleWidget, OntologyLegend) {
     // If I don't extend and implement both, I have to define things I want implemented in the base class,
     // and I won't be forced to define things declared in the interface. Using the interface as the
     // type later leads to a full contract of behavior; the doubling up of interface and base class
@@ -93,6 +94,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
             this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
             this.filterSliders = new OntologyFilterSliders.MappingRangeSliders(this.ontologyGraph, this, this.centralOntologyAcronym);
+            this.percentileToggleButton = new NodeAreaToggleWidget.NodeAreaToggleWidgets(this, this.ontologyGraph);
             this.initGraph();
             this.setCurrentLayout(this.executeCenterLayoutLambda(this));
             this.prepGraphMenu();
@@ -282,7 +284,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             }).attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot + " " + GraphView.BaseGraphView.ontologyNodeSvgClassSansDot).attr("cx", "0px").attr("cy", "0px").style("fill", this.defaultNodeColor).style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor)).attr("data-radius_basis", function (d) {
                 return d.number;
             }).attr("r", function (d) {
-                return _this.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym);
+                return _this.renderScaler.ontologyOuterNodeScalingFunc(d.number, d.rawAcronym);
             }).on("mouseover", this.highlightHoveredNodeLambda(this, true)).on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
             // Add a second circle that represents the mapped classes of the ontology.
             enteringNodes.append("svg:circle").attr("id", function (d) {
@@ -684,6 +686,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.attachScreenshotButton();
             this.attachFullscreenButton();
             this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+            this.percentileToggleButton.addMenuComponents(this.menu.getMenuSelector(), false);
             this.legend.initialize();
         };
         OntologyMappingOverview.prototype.sortConceptNodesCentralOntologyName = function () {

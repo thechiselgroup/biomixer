@@ -1,5 +1,7 @@
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 ///<amd-dependency path="Utils" />
-define(["require", "exports", "../Utils", "../GraphView", "Utils"], function (require, exports, Utils, GraphView) {
+///<amd-dependency path="GraphView" />
+define(["require", "exports", "./NodeAreaToggleWidget", "../Utils", "../GraphView", "Ontologies/NodeAreaToggleWidget", "Utils", "GraphView"], function (require, exports, NodeAreaToggler, Utils, GraphView) {
     var OntologyRenderScaler = (function () {
         function OntologyRenderScaler(vis) {
             var _this = this;
@@ -19,7 +21,47 @@ define(["require", "exports", "../Utils", "../GraphView", "Utils"], function (re
             this.maxLinkRawSize = -1;
             this.REFRESH_LOOP_DELAY_MS = 500;
             this.defaultNumOfTermsForSize = 10;
-            this.ontologyNodeScalingFunc = function (rawValue, acronym) {
+            this.ontologyOuterNodeScalingFunc = function (rawValue, acronym, outerRawValue) {
+                if (outerRawValue === void 0) { outerRawValue = null; }
+                if (NodeAreaToggler.NodeAreaToggleWidgets.usePercentile) {
+                    return _this.ontologyProportionalCountsNodeScalingFunc(rawValue, acronym);
+                }
+                else {
+                    return _this.ontologyConstantPercentileNodeScalingFunc(rawValue, acronym, outerRawValue);
+                }
+            };
+            /**
+             * Scales nodes so that all of them have the same outer size, and so that the inner
+             * circle corresponds to the percentage of mappings in that ontology.
+             */
+            this.ontologyConstantPercentileNodeScalingFunc = function (rawValue, acronym, outerRawValue) {
+                if (outerRawValue === void 0) { outerRawValue = null; }
+                rawValue = parseInt(rawValue);
+                if (null === outerRawValue) {
+                    outerRawValue = rawValue;
+                }
+                else {
+                    outerRawValue = parseInt(outerRawValue);
+                }
+                var diameter = 20;
+                if (rawValue !== outerRawValue) {
+                    // Steven's Power Law: area is perceived as area to the power of 0.8, times a scaling factor.
+                    // So, raise this to power of 0.8
+                    diameter = _this.linearAreaRelativeScaledRangeValue((rawValue / outerRawValue), 0, 20);
+                    // power of diameter sort of works.
+                    // Best results were applying exponent to radius, not diameter, not area.
+                    diameter = 2 * Math.pow(diameter / 2, 0.8);
+                    if (isNaN(diameter)) {
+                        return 0;
+                    }
+                }
+                return diameter;
+            };
+            /**
+             * Scales nodes so that the largest ontology is set as the largest allowed node size, and so that
+             * the inner circle corresponds to the number of mappings in that ontology.
+             */
+            this.ontologyProportionalCountsNodeScalingFunc = function (rawValue, acronym) {
                 rawValue = parseInt(rawValue);
                 if (rawValue == 0) {
                     return _this.defaultNumOfTermsForSize;
@@ -45,16 +87,9 @@ define(["require", "exports", "../Utils", "../GraphView", "Utils"], function (re
                     return 0;
                 }
                 if (outerRawValue == _this.minNodeRawSize) {
-                    return (rawValue / outerRawValue) * _this.ontologyNodeScalingFunc(outerRawValue, acronym);
+                    return (rawValue / outerRawValue) * _this.ontologyOuterNodeScalingFunc(outerRawValue, acronym, outerRawValue);
                 }
-                return _this.ontologyNodeScalingFunc(rawValue, acronym);
-                // var outerRadius = ontologyNodeScalingFunc(rawValue, acronym);
-                // var outerArea = Math.PI*(outerRadius*outerRadius);
-                // var innerArea = outerArea * (rawValue / outerRawValue);
-                // var innerRadius = outerRadius * (rawValue / outerRawValue);
-                // // var innerRadius = Math.sqrt(innerArea/Math.PI);
-                //  console.log([acronym, "raw", rawValue / outerRawValue, rawValue, outerRawValue, "area", outerArea/innerArea, outerArea, innerArea, "radius", outerRadius/innerRadius, outerRadius, innerRadius]);
-                // return innerRadius;
+                return _this.ontologyOuterNodeScalingFunc(rawValue, acronym, outerRawValue);
             };
             this.ontologyLinkScalingFunc = function (rawValue) {
                 // Used to be used for stroke-width, but now we use invisible stroke to have a larger mousable area for thin arcs.
@@ -86,7 +121,7 @@ define(["require", "exports", "../Utils", "../GraphView", "Utils"], function (re
                 }
             });
             circles.transition().attr("r", function (d) {
-                return outerThis.ontologyNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));
+                return outerThis.ontologyOuterNodeScalingFunc(this.getAttribute("data-radius_basis"), this.getAttribute("id"));
             });
             // Inner circles use the same scaling factor.
             var innerCircles = this.vis.selectAll(GraphView.BaseGraphView.nodeInnerSvgClass);
@@ -136,6 +171,8 @@ define(["require", "exports", "../Utils", "../GraphView", "Utils"], function (re
         };
         OntologyRenderScaler.prototype.linearAreaRelativeScaledRangeValue = function (factor, minOnScreenSize, maxOnScreenSize) {
             var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor * Math.PI * Math.pow(maxOnScreenSize, 2);
+            // power of the linear area doesn't work so well
+            // linearArea = Math.pow(linearArea, 0.8);
             var diameter = Math.sqrt(linearArea / Math.PI);
             return diameter;
         };

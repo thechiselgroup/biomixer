@@ -8,6 +8,7 @@
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
 ///<amd-dependency path="Ontologies/OntologyLegend" />
 
@@ -24,6 +25,7 @@ import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
 import OntologyFilterSliders = require("./OntologyFilterSliders");
+import NodeAreaToggleWidget = require("./NodeAreaToggleWidget");
 import OntologyLegend = require("./OntologyLegend");
 
 // If I don't extend and implement both, I have to define things I want implemented in the base class,
@@ -37,6 +39,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     ontologyGraph: OntologyGraph.OntologyGraph;
     renderScaler: OntologyRenderScaler.OntologyRenderScaler;
     filterSliders: OntologyFilterSliders.MappingRangeSliders;
+    percentileToggleButton: NodeAreaToggleWidget.NodeAreaToggleWidgets;
     
     menu: Menu.Menu;
     
@@ -111,6 +114,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
         this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
         this.filterSliders = new OntologyFilterSliders.MappingRangeSliders(this.ontologyGraph, this, this.centralOntologyAcronym);
+        this.percentileToggleButton = new NodeAreaToggleWidget.NodeAreaToggleWidgets(this, this.ontologyGraph);
         this.initGraph();
         
         this.setCurrentLayout(this.executeCenterLayoutLambda(this));
@@ -420,7 +424,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .style("fill", this.defaultNodeColor)
         .style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor))
         .attr("data-radius_basis", function(d) { return d.number;})
-        .attr("r", (d)=>{ return this.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym); })
+        .attr("r", (d)=>{ return this.renderScaler.ontologyOuterNodeScalingFunc(d.number, d.rawAcronym); })
         .on("mouseover", this.highlightHoveredNodeLambda(this, true))
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
@@ -898,6 +902,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.attachScreenshotButton();
         this.attachFullscreenButton();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.percentileToggleButton.addMenuComponents(this.menu.getMenuSelector(), false);
         this.legend.initialize();
     }
     
