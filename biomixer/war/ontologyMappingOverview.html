@@ -23,6 +23,9 @@
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" type="text/css" />
     
+    <script type="text/javascript" src="./d3_graphs/jquery.simplemodal.1.4.4.min.js"></script>
+    <link href="./d3_graphs/simplemodal_confirm.css" rel="stylesheet" type="text/css">
+    
     <script type="text/javascript" src="./d3_graphs/biomixer.jquery.tipsy.js"></script>
     <link href="./d3_graphs/biomixer.tipsy.css" rel="stylesheet" type="text/css" />
     
@@ -49,6 +52,23 @@
 <div class="gallery" id="chart"></div>
 
 <div id='mouseSpinnerDiv'>
+</div>
+
+<div id='container'>
+		<!-- modal content -->
+		<div id='confirm'>
+			<div class='header'><span><div id="simplemodal-GrabHandle"></div>Confirm</span></div>
+			<div class='message'></div>
+			<div class='buttons'>
+				<div class='no simplemodal-close'>No</div><div class='yes'>Yes</div>
+			</div>
+			<div style="clear:both;"></div>
+		</div>
+		<!-- preload the images -->
+		<div style='display:none'>
+			<img src='./img/confirm/header.gif' alt='' />
+			<img src='./img/confirm/button.gif' alt='' />
+		</div>
 </div>
 
 <script src="require_config.js"></script>

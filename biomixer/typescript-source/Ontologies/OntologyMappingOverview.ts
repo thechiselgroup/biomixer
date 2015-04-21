@@ -301,7 +301,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
              var propertyKey: string = properties["key"];
              var value = ontologyData[propertyKey];
              if(label === "Mapped: "){
-                 value = outerThis.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
+                 value = outerThis.precise_round(100*(parseInt(1.0+ontologyData["mapped_classes_to_central_node"]))/(parseInt(1.0 + ontologyData["numberOfClasses"])), 1);
                  value += "%";
              }
              tBody.append(

@@ -2,11 +2,13 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="Ontologies/OntologyMappingOverview" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 
 import Utils = require("../Utils");
 import GraphView = require("../GraphView");
 import OntMap = require("./OntologyMappingOverview");
 import OntologyGraph = require("./OntologyGraph");
+import NodeAreaToggleWidget = require("./NodeAreaToggleWidget");
     
 export class MappingRangeSliders {
     
@@ -75,19 +77,19 @@ export class MappingRangeSliders {
     }
     
     updateTopMappingsSliderRange(){
+        // TODO I do not think we need this, we can use the pre-sorted one from the graph,
+        // although it is of different objects, which include nodes...
         this.sortedLinksByMapping = [];
         // Fill the sorted set every time in caase we are updating.
         // This shouldn't get called too often.
         var i = 0;
         var outerThis = this;
-        d3.selectAll(GraphView.BaseGraphView.linkSvgClass).each( 
-                function(d,i){
-                    outerThis.sortedLinksByMapping[i] = d;
-                }
-        );
-        
-        // Descending sort so we can pick the top n.
-        this.sortedLinksByMapping.sort(function(a,b){return b.value-a.value});
+
+        this.sortedLinksByMapping = [];
+        for(var j in this.graph.sortedAcronymsByMappingCount){
+            var nodePair = this.graph.sortedAcronymsByMappingCount[j];
+            this.sortedLinksByMapping.push(nodePair.node.arcOut);
+        }
         
         var mappingMin = 1;
         var mappingMax = this.sortedLinksByMapping.length;

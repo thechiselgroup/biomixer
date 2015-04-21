@@ -205,7 +205,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 var propertyKey = properties["key"];
                 var value = ontologyData[propertyKey];
                 if (label === "Mapped: ") {
-                    value = outerThis.precise_round(100 * parseInt(ontologyData["mapped_classes_to_central_node"]) / parseInt(ontologyData["numberOfClasses"]), 1);
+                    value = outerThis.precise_round(100 * (parseInt(1.0 + ontologyData["mapped_classes_to_central_node"])) / (parseInt(1.0 + ontologyData["numberOfClasses"])), 1);
                     value += "%";
                 }
                 tBody.append($("<tr></tr>").append($("<td></td>").attr("align", "left").css({ "vertical-align": "top" }).append($("<div></div>").css(style).append($("<b></b>").text(label)).append($("<span></span>").text(value)))));

@@ -118,7 +118,7 @@ export class OntologyRenderScaler {
         if(rawValue !== outerRawValue){
             // Steven's Power Law: area is perceived as area to the power of 0.8, times a scaling factor.
             // So, raise this to power of 0.8
-            diameter = this.linearAreaRelativeScaledRangeValue((rawValue / outerRawValue), 0, 20);
+            diameter = this.linearAreaRelativeScaledRangeValue((rawValue+1 / outerRawValue+1), 0, 20);
             // power of diameter sort of works.
             // Best results were applying exponent to radius, not diameter, not area.
             diameter = 2*Math.pow(diameter/2, 0.8);
@@ -192,6 +192,7 @@ export class OntologyRenderScaler {
     }
     
     linearAreaRelativeScaledRangeValue(factor, minOnScreenSize, maxOnScreenSize) {
+        var factor = (factor > 1) ? 1.0 : factor;
         var linearArea = Math.PI * Math.pow(minOnScreenSize, 2) + factor
               * Math.PI * Math.pow(maxOnScreenSize, 2);
         // power of the linear area doesn't work so well

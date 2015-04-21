@@ -3,6 +3,7 @@
 ///<amd-dependency path="GraphView" />
 ///<amd-dependency path="ExpansionSets" />
 ///<amd-dependency path="LayoutProvider" />
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 
 import Utils = require("../Utils");
 import Fetcher = require("../FetchFromApi");
@@ -10,13 +11,11 @@ import GraphView = require("../GraphView");
 import ExpansionSets = require("../ExpansionSets");
 import LayoutProvider = require("../LayoutProvider");
 import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
+import NodeAreaToggleWidget = require("./NodeAreaToggleWidget");
 
 
 // Apparently all modules in the same level directory can see eachother? I deleted the imports
 // above and I could still access everything!
-    
-// Use these caps with a sorted array of nodes
-var hardNodeCap: number = 0; // 10 and 60 are nice number for dev, but set to 0 for all nodes.
 
 export interface RawAcronym extends String {
     // Only assign the original unadulterated acronym strings to this
@@ -48,15 +47,18 @@ export class Node extends GraphView.BaseNode {
     // nodeColor: string; // = nextNodeColor();
     innerNodeColor: string; // = brightenColor(centralOntologyNode.nodeColor);
     nodeStrokeColor: string; // = darkenColor(centralOntologyNode.nodeColor);
-    mapped_classes_to_central_node: number; // = 0;
+    mapped_classes_to_central_node: number = 0; // = 0;
+    metricsFetched: boolean = undefined;
     
     uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
     LABEL: string; // = ontologyDetails.name;
     
     // These come from details REST call
-    numberOfClasses: number; // = numClasses;
+    numberOfClasses: number = 0; // = numClasses;
     numberOfIndividuals: number; // = numIndividuals;
     numberOfProperties: number; // = numProperties;
+    
+    arcOut: Link; // In ontology one, except for root, all have only one edge out.
     
     getEntityId(): string{
         return String(this.acronymForIds);
@@ -333,6 +335,53 @@ export class OntologyGraph implements GraphView.Graph<Node> {
         return d3.lab(outerColor).darker(1).toString();
     }
     
+    getOntologySortFunction(){
+        var outerThis = this;
+        var sortFunc;
+        if(NodeAreaToggleWidget.NodeAreaToggleWidgets.sortPercentile){
+            sortFunc = function(a: AcronymNodePair, b: AcronymNodePair){
+                // Base order on percentage mapped
+                if(isNaN(a.node.numberOfClasses)){
+                    console.log(a.node);
+                }
+                if(a.node === outerThis.centralOntologyNode){
+                    console.log("a");
+                    console.log(a.node);
+                }
+                if(b.node === outerThis.centralOntologyNode){
+                    console.log("b");
+                    console.log(b.node);
+                }
+                // Do not let the denominator be 0. Also, "fix" the numerator to match.
+                var bAmount = ((1.0+b.node.mapped_classes_to_central_node)/(b.node.numberOfClasses+1.0));
+                var aAmount =  ((1.0+a.node.mapped_classes_to_central_node)/(a.node.numberOfClasses+1.0))
+                var order = (bAmount > aAmount) ? 1 : -1;
+                
+                if(aAmount === bAmount){
+                    order = (b.acronym > a.acronym) ? 1 : -1;
+                }
+                
+                return order;
+            };
+            
+        } else {
+            sortFunc = function(a: AcronymNodePair, b: AcronymNodePair){
+                // Base order on total number mapped
+                var order;
+                if(null == a.node || null == b.node){
+                    order = b.node > a.node;
+                } else {
+                    order = (b.node.mapped_classes_to_central_node > a.node.mapped_classes_to_central_node) ? 1 : -1;
+                }
+                if(0 === order){
+                    order = (b.acronym > a.acronym) ? 1 : -1;
+                }
+                return order;
+            };
+        }
+                
+        return sortFunc;
+    }
 }
     
 // Doesn't need REST call registry, so if I refactor, keep that in mind.
@@ -374,12 +423,8 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 			this.graph.sortedAcronymsByMappingCount.push({acronym: index, node: undefined});
 			}
 		);
-		this.graph.sortedAcronymsByMappingCount.sort(function(a,b){return mappingData[String(b.acronym)]-mappingData[String(a.acronym)]});
-		
-		// Reduce to a useful number of nodes.
-		if(hardNodeCap != 0 && this.graph.sortedAcronymsByMappingCount.length > hardNodeCap){
-			this.graph.sortedAcronymsByMappingCount = this.graph.sortedAcronymsByMappingCount.slice(0, hardNodeCap);
-		} 
+        // Sort later
+		// this.graph.sortOntologies();
 
 		// Base this off of the possibly-filtered list.
 		var numberOfMappedOntologies = this.graph.sortedAcronymsByMappingCount.length;
@@ -459,7 +504,7 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyNode.nodeColor = this.graph.nextNodeColor();
 				ontologyNode.innerNodeColor = this.graph.brightenColor(ontologyNode.nodeColor);
 				ontologyNode.nodeStrokeColor = this.graph.darkenColor(ontologyNode.nodeColor);
-				ontologyNode.mapped_classes_to_central_node = 0;
+				ontologyNode.mapped_classes_to_central_node = mappingCount;
                 newNodesForExpansionSet.push(ontologyNode);
 				// TODO I feel like JS doesn't allow references like this...
 //				$(ontologyAcronymNodeMap).attr("vid:"+ontologyNode.rawAcronym, ontologyNode);
@@ -473,12 +518,21 @@ class OntologyMappingCallback extends Fetcher.CallbackObject {
 				ontologyLink.value = mappingCount; // This gets used for link stroke thickness later.
 				ontologyLink.numMappings = mappingCount;
                 newLinks.push(ontologyLink);
+                if(ontologyNode.rawAcronym !== this.centralOntologyAcronym){
+                    ontologyNode.arcOut = ontologyLink;
+                } else {
+                    ontologyNode.arcOut = null;
+                }
 				
 				// Get the node the data it needs from the link
 				ontologyNode.mapped_classes_to_central_node = ontologyLink.value;
 	
 			}
 		);
+        
+//        this.graph.sortOntologies();
+        var sortFunc = this.graph.getOntologySortFunction();
+        this.graph.sortedAcronymsByMappingCount = this.graph.sortedAcronymsByMappingCount.sort(sortFunc);
 		
 		// Make calls on all nodes we want to show when the graph first loads up
 		// Well, we could, but there are lots of ontologies that do not have metric or details accessible to us,
@@ -627,6 +681,7 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
             if(metricDataRaw.errors != null){
                 // We had an error. Handle it.
 //                remove this from the dataset, it's no good!
+                this.node.metricsFetched = false;
                 return;
             }
         }
@@ -654,6 +709,7 @@ class OntologyMetricsCallback extends Fetcher.CallbackObject {
 		this.node.numberOfIndividuals = numIndividuals;
 		this.node.numberOfProperties = numProperties;
 		this.node.number = nodeSizeBasis;
+        this.node.metricsFetched = true;
 		
 		// console.log("ontologyMetricsCallback");
 		this.graph.graphView.updateDataForNodesAndLinks({nodes:[this.node], links:[]});
