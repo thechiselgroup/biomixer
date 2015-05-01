@@ -221,19 +221,16 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
        if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
             this.lastTransition = new Date().getTime();
        }
-
     }
-    
 //    private decycledLinks: ConceptGraph.Link[] = [];
     
     
     private findCycleLinks(parentNode: ConceptGraph.Node){
         var cycleLinks: ConceptGraph.Link[] = []; // links that create cycles
-        var stack = new Array();
-        
-        
+        var stack = new Array();    
         return cycleLinks;
     }
+    
     private decycle(graphLinks: ConceptGraph.Link[]){
         var newDecycledLinks: ConceptGraph.Link[] = [];
         
@@ -338,10 +335,157 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         });  
     }
     
+    private dft(parent:ConceptGraph.Node, treeData){
+         var outerThis = this; 
+       
+        
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.decycle(outerThis.graph.graphD3Format.links);
+            if(parent.visited==true){
+                return treeData;
+            }else{
+                parent.visited=true;
+                var children = outerThis.getChildren(parent, graphLinks);
+                var treeChildren: ConceptGraph.Node[] = [];
+                children.forEach(function(node){
+                    if (node.visited==false){
+                        treeChildren.push(node);
+                        outerThis.dft(node, treeData);
+                    }
+                    
+                });
+                console.log("checking nodes");
+                treeData[parent.index]=treeChildren;
+             
+                console.log(treeData[parent.index]);
+                return treeData;
+            }
+        }
     
     private buildTree(width, height){
-        var outerThis = this;
+        var outerThis = this; 
+        outerThis.resetGraphValues();
         
+        var graphNodes = outerThis.graph.graphD3Format.nodes;
+        var graphLinks = outerThis.decycle(outerThis.graph.graphD3Format.links);
+        var treeData = {};
+        var posttreeData = {};
+        
+        console.log(graphNodes);
+        console.log(graphLinks);
+        
+        
+       //if(graphNodes.length>0){treeData = outerThis.dft(graphNodes[0], treeData);}
+        
+        //get rid of cycles
+        graphNodes.forEach(function(node:ConceptGraph.Node){
+            outerThis.resetGraphValues();
+            treeData = outerThis.dft(node, treeData);
+        });
+         
+         console.log("before children clean up");
+         console.log(treeData);
+        //get rid of repeating parents
+         outerThis.resetGraphValues();
+         graphNodes.forEach(function(node:ConceptGraph.Node){
+            //outerThis.resetGraphValues();
+             var children: ConceptGraph.Node[] = treeData[node.index];
+             var treeChildren: ConceptGraph.Node[] = [];
+             console.log("logging children");
+             children.forEach(function(child){
+                if(child.visited==false){
+                      child.visited=true;
+                      treeChildren.push(child);
+                    
+                }
+             });
+             posttreeData[node.index]=treeChildren;
+        });
+        console.log("after children clean up");
+         console.log(posttreeData);
+        /*graphNodes.forEach(function(node:ConceptGraph.Node){
+            console.log(node.index);
+            var children: ConceptGraph.Node[] = outerThis.getChildren(node, graphLinks);
+            //console.log(children);
+            var treeChildren: ConceptGraph.Node[] = [];
+            node.visited = true;
+            children.forEach(function(child){
+                  if(child.visited==false){
+                    treeChildren.push(child);    
+                  }
+            });
+            treeData[node.index]=children;
+        });*/
+        console.log("checking");
+
+        console.log(treeData);
+        
+        var ontologies = outerThis.getAllOntologyAcronyms();
+       
+        var fullTreeDepth = 0;
+             
+        var ontologyRoots: ConceptGraph.Node[] = [];
+        
+        //create ontology roots
+        ontologies.forEach(function(ontologyName){
+            var ontologyRoot = new ConceptGraph.Node();
+            ontologyRoot.name = ontologyName;
+            ontologyRoots.push(ontologyRoot);
+            var roots: ConceptGraph.Node[];
+            
+            roots = outerThis.getRoots(ontologyName, graphLinks);   
+                    
+            /*roots.forEach(function(root){
+                var ontologyDepth = outerThis.calculateDepth(root, 0, graphLinks);
+                if (ontologyDepth > fullTreeDepth) { fullTreeDepth = ontologyDepth; }
+            });*/
+            
+            
+        });
+               
+        var allChildren: ConceptGraph.Node[] = [];
+        
+        //calculate tree height and adjust for phantom nodes
+        var oldHeight = height;
+
+        if(fullTreeDepth==0){
+            fullTreeDepth++;
+        }else{
+            height = height*(fullTreeDepth+2)/(fullTreeDepth);
+        }
+        
+        var mainTree = d3.layout.tree()
+            .size([width, height])
+            .children(function(parent: ConceptGraph.Node){
+                if(parent.name == "main_phantom_root"){  
+                    return ontologyRoots;
+                }else if($.inArray(parent.name, ontologies) != -1){  
+                    
+                    var roots: ConceptGraph.Node[];
+                    roots = outerThis.getRoots(parent.name, graphLinks);   
+                 
+                    roots.forEach(function(root){
+                        if($.inArray(root, allChildren) === -1){ allChildren.push(root); }
+                    });
+                
+                    return roots;
+                }else{
+                    console.log(parent.index);
+                    return posttreeData[parent.index];
+                }
+           });
+           
+        var primaryRoot = new ConceptGraph.Node();
+        primaryRoot.name = "main_phantom_root"; //temporary identifier for the primary root
+        var treeNodes = mainTree.nodes(primaryRoot);  // build tree based on primary phantom root  
+       
+        // shift the tree by 2 node distances 
+        graphNodes.forEach(function(node){
+            node.y = node.y-2/(fullTreeDepth+2)*height;
+        });
+        /*
+        
+        var outerThis = this; 
         outerThis.resetGraphValues();
         
         var graphNodes = outerThis.graph.graphD3Format.nodes;
@@ -426,7 +570,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         // shift the tree by 2 node distances 
         graphNodes.forEach(function(node){
             node.y = node.y-2/(fullTreeDepth+2)*height;
-        });
+        });*/
 
     }
     
