@@ -96,7 +96,7 @@ export class Node extends GraphView.BaseNode {
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
     nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
-    
+    treeChildren: Node[];
 
 //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
 //    LABEL: string; // = ontologyDetails.name;
@@ -613,6 +613,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.tempDepth = 0;
             conceptNode.visited = false;
             conceptNode.fixed = false;
+            conceptNode.treeChildren = [];
             // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
             // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward
             var ontologyUri = conceptData.links.ontology;
