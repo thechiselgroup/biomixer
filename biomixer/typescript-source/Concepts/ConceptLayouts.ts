@@ -394,9 +394,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         
         graphNodes.forEach(function(node:ConceptGraph.Node){
             node.treeChildren = outerThis.getChildren(node, graphLinks);
-           
         });
-       console.log(graphNodes);
+        console.log(graphNodes);
 //        graphNodes.forEach({});
 
         //get rid of cycles and calculate depth
@@ -409,9 +408,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         });
         console.log(fullTreeDepth);
         console.log();
-/*        graphNodes.forEach(function(node:ConceptGraph.Node){
-            node.treeChildren = outerThis.getChildren(node, graphLinks);
-        });
+         
+/*       
        
 //        graphNodes.forEach({});
 
@@ -423,7 +421,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 fullTreeDepth = ConceptLayouts.treeDepth;
             }
         });*/
-         outerThis.resetGraphValues();
+        
+        outerThis.resetGraphValues();
         graphNodes.forEach(function(node:ConceptGraph.Node){
             var children: ConceptGraph.Node[] = node.treeChildren;
             var treeChildren: ConceptGraph.Node[] = [];
