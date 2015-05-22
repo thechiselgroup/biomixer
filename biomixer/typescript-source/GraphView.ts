@@ -659,7 +659,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         
         $(Menu.Menu.menuBarSelector).append(screenshotButton);
         
-        screenshotButton.click((event)=>{ event.stopPropagation(); PrintSvg.ExportSvgToImage.exportSvgAsPng("#graphSvg"); });
+        screenshotButton.click((event)=>{ event.stopPropagation(); PrintSvg.ExportSvgToImage.exportSvgAsPng("graphSvg"); });
     }
 
     attachFullscreenButton(){

@@ -28,14 +28,18 @@
 
 .svgFont {
 	font-weight: inherit;
-	font-family: 'Neue Helevetica', Helvetica, Arial, sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12px;
 }
 
 .nodetext {
 	fill: rgb(0,0,0);
+	/* fill-opacity: 1.0; */
+	stroke-width: 0px;
+	stroke: rgb(0,255,0);
+	stroke-opacity: 0.0;
 	font-weight: normal;
-	font-family: 'Neue Helevetica', Helvetica, Arial, sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12px;
 	pointer-events: none;
 }
