@@ -253,7 +253,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps_to"){
                 graphNodes.forEach(function(node){
                     if(node.rawConceptUri == link.targetId && $.inArray(node, children) === -1&&parentNode.ontologyAcronym==node.ontologyAcronym){
-                        if(link.relationType=="is_a"||(link.relationType=="is_a"&&node.inheritanceChild==false)){
+                        if(link.relationType=="is_a"||(link.relationType!="is_a"&&node.inheritanceChild==false)){
                             children.push(node);
                         }
                     }
@@ -321,7 +321,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     
     private resetInheritanceChildValues(){
         var graphNodes = this.graph.graphD3Format.nodes;
-        //reset values for next layout
+        //reset values for the next layout
         graphNodes.forEach(function (node){ 
             node.inheritanceChild = false; 
         });       
@@ -420,13 +420,14 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         var graphLinks = outerThis.graph.graphD3Format.links;
                 
         outerThis.prepareTreeData();
-          
+      
         //calculate tree height and adjust for phantom nodes
         ConceptLayouts.fullTreeDepth--; //adjust depth for the number of links (not nodes)
         if(ConceptLayouts.fullTreeDepth==0){
             ConceptLayouts.fullTreeDepth = 1;
+        }else{
+            height = height*(ConceptLayouts.fullTreeDepth+2)/(ConceptLayouts.fullTreeDepth);
         }
-        height = height*(ConceptLayouts.fullTreeDepth+2)/(ConceptLayouts.fullTreeDepth);
         
 
         var ontologies = outerThis.getAllOntologyAcronyms();     
