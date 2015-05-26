@@ -435,9 +435,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
       
         //calculate tree height and adjust for phantom nodes
         ConceptLayouts.fullTreeDepth--; //adjust depth for the number of links (not nodes)
-        if(ConceptLayouts.fullTreeDepth==0){
-            ConceptLayouts.fullTreeDepth = 1;
-        }else{
+        if(ConceptLayouts.fullTreeDepth!=0){
             height = height*(ConceptLayouts.fullTreeDepth+2)/(ConceptLayouts.fullTreeDepth);
         }
         
@@ -492,8 +490,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 numOfRoots+=roots.length;   
             });
             
-            var minShift = 100;
-            var maxShift = outerThis.graphView.visHeight()/2-100;  
+            var minShift = 0.05 * outerThis.graphView.visHeight();
+            var maxShift = outerThis.graphView.visHeight()/2-minShift;  
             var yShift = numOfRoots*20;
             
             if( yShift < minShift ){ yShift = minShift; }
@@ -522,8 +520,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     		}
             outerThis.forceLayout.stop();
 
-            var xShift = 100;
-            var yShift = 200;
+            var xShift = 0.05 * outerThis.graphView.visWidth();
+            var yShift = 0.1 * outerThis.graphView.visHeight();
             var treeWidth = outerThis.graphView.visWidth()-xShift;
             var treeHeight = outerThis.graphView.visHeight()-yShift; 
             var graphNodes = outerThis.graph.graphD3Format.nodes;
@@ -549,8 +547,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
-            var xShift = 300;
-            var yShift = 100;
+            var xShift = 0.3 * outerThis.graphView.visHeight();
+            var yShift = 0.05 * outerThis.graphView.visWidth();
             var treeWidth = outerThis.graphView.visHeight()-yShift;
             var treeHeight = outerThis.graphView.visWidth()-xShift;   
                    
