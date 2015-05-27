@@ -410,11 +410,10 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         var graphNodes = outerThis.graph.graphD3Format.nodes;
         var graphLinks = outerThis.graph.graphD3Format.links;
         
-        
         graphNodes = graphNodes.sort(function(a, b){
-            if(a.rawConceptUri>b.rawConceptUri){
+            if(a.ontologyAcronym>b.ontologyAcronym){
                  return -1;    
-            }else if(a.rawConceptUri<b.rawConceptUri){
+            }else if(a.ontologyAcronym<b.ontologyAcronym){
                   return 1;
             }else{
                   return 0;    
@@ -422,9 +421,9 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         });
         
         graphNodes = graphNodes.sort(function(a, b){
-            if(a.ontologyAcronym>b.ontologyAcronym){
+            if(a.rawConceptUri>b.rawConceptUri){
                  return -1;    
-            }else if(a.ontologyAcronym<b.ontologyAcronym){
+            }else if(a.rawConceptUri<b.rawConceptUri){
                   return 1;
             }else{
                   return 0;    
@@ -521,7 +520,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             outerThis.forceLayout.stop();
 
             var xShift = 0.05 * outerThis.graphView.visWidth();
-            var yShift = 0.1 * outerThis.graphView.visHeight();
+            var yShift = 0.2 * outerThis.graphView.visHeight();
             var treeWidth = outerThis.graphView.visWidth()-xShift;
             var treeHeight = outerThis.graphView.visHeight()-yShift; 
             var graphNodes = outerThis.graph.graphD3Format.nodes;
