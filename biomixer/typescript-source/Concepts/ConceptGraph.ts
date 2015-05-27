@@ -420,7 +420,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return matchNodes;
     }
     
-    private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
+    private addEdges(newEdges: Array<Link>, temporaryEdges: boolean = false){
         if(newEdges.length == 0){
             // Saves a lot of work deeper down.
             return;
@@ -1042,6 +1042,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      */
     private manifestEdge(edges: Link[], allowTemporary: boolean){
          var edgesToRender: Link[] = [];
+         var tempEdgesToRender: Link[] = [];
          $.each(edges,
             (index: number, edge: Link)=>{
                 // Only ever manifest edges with endpoints in the graph
@@ -1051,11 +1052,15 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                     return;
                 }
                 
-                if(!allowTemporary && this.isEdgeForTemporaryRenderOnly(edge)){
-                    return;
+                if(this.isEdgeForTemporaryRenderOnly(edge)){
+                    if(!allowTemporary){
+                        return;
+                    } else {
+                        tempEdgesToRender.push(edge);
+                    }
+                } else {
+                    edgesToRender.push(edge);
                 }
-                     
-                 edgesToRender.push(edge);
              }
          );
         
@@ -1063,7 +1068,13 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             this.graphView.stampTimeGraphModified();
         }
         
-        this.addEdges(edgesToRender, allowTemporary);
+        // Add normal edges first
+        this.addEdges(edgesToRender, false);
+        
+        // If we are allowing temporary, add any of those too
+        if(allowTemporary){
+            this.addEdges(tempEdgesToRender, true);
+        }
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){

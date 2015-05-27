@@ -294,6 +294,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             return matchNodes;
         };
         ConceptGraph.prototype.addEdges = function (newEdges, temporaryEdges) {
+            if (temporaryEdges === void 0) { temporaryEdges = false; }
             if (newEdges.length == 0) {
                 // Saves a lot of work deeper down.
                 return;
@@ -794,6 +795,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         ConceptGraph.prototype.manifestEdge = function (edges, allowTemporary) {
             var _this = this;
             var edgesToRender = [];
+            var tempEdgesToRender = [];
             $.each(edges, function (index, edge) {
                 // Only ever manifest edges with endpoints in the graph
                 var source = _this.conceptIdNodeMap[String(edge.sourceId)];
@@ -801,15 +803,27 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 if (undefined === source || undefined === target || !_this.nodeInGraph(source) || !_this.nodeInGraph(target)) {
                     return;
                 }
-                if (!allowTemporary && _this.isEdgeForTemporaryRenderOnly(edge)) {
-                    return;
+                if (_this.isEdgeForTemporaryRenderOnly(edge)) {
+                    if (!allowTemporary) {
+                        return;
+                    }
+                    else {
+                        tempEdgesToRender.push(edge);
+                    }
                 }
-                edgesToRender.push(edge);
+                else {
+                    edgesToRender.push(edge);
+                }
             });
             if (!allowTemporary) {
                 this.graphView.stampTimeGraphModified();
             }
-            this.addEdges(edgesToRender, allowTemporary);
+            // Add normal edges first
+            this.addEdges(edgesToRender, false);
+            // If we are allowing temporary, add any of those too
+            if (allowTemporary) {
+                this.addEdges(tempEdgesToRender, true);
+            }
         };
         ConceptGraph.prototype.manifestEdgesForNewNode = function (conceptNode) {
             // Because registry contains edges for which there *was* no node for the index,

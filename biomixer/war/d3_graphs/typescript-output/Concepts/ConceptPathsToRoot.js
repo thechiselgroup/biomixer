@@ -579,6 +579,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // this.forceLayout.start();
         };
         ConceptPathsToRoot.prototype.populateNewGraphEdges = function (linksData, temporaryEdges) {
+            if (temporaryEdges === void 0) { temporaryEdges = false; }
             // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
             if (linksData.length == 0) {
                 return [];

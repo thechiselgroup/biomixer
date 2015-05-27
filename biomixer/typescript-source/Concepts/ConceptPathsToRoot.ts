@@ -860,7 +860,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.forceLayout.start();
     }
     
-    populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges?: boolean){
+    populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges: boolean = false){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
             return [];
