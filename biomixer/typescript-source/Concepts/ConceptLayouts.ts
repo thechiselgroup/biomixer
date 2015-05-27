@@ -246,7 +246,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     private getChildren(parentNode: ConceptGraph.Node, graphLinks: ConceptGraph.Link[], graphNodes:ConceptGraph.Node[]){
         var outerThis = this;
         var children: ConceptGraph.Node[] = [];
-             
         graphLinks.forEach(function(link){
             if(link.sourceId==parentNode.rawConceptUri&&link.relationType!="maps_to"){
                 graphNodes.forEach(function(node){
@@ -258,7 +257,6 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 });               
             }
         });
-    
         return children;
     }
     
@@ -280,15 +278,12 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     
     private getRoots(ontologyAcronym, graphNodes:ConceptGraph.Node[], graphLinks:ConceptGraph.Link[]){
         var outerThis = this;
-        graphNodes = graphNodes.filter(function(n){return n.ontologyAcronym==ontologyAcronym});
-        
-        var graphLinks = graphLinks.filter(function(l){return l.relationType!="maps_to"});
-         
+        var nodes = graphNodes.filter(function(n){return n.ontologyAcronym==ontologyAcronym});         
         var roots: ConceptGraph.Node[] = [];       
         var isRoot = true;   
         
-        graphNodes.forEach(function(node){
-            graphNodes.forEach(function(parent){
+        nodes.forEach(function(node){
+            nodes.forEach(function(parent){
                 parent.treeChildren.forEach(function(child){
                     if(child.rawConceptUri==node.rawConceptUri){ isRoot = false; }
                 });
@@ -324,7 +319,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         });       
     }
     
-    private computeDepth(parent:ConceptGraph.Node, graphNodes:ConceptGraph.Node[], graphLinks:ConceptGraph.Link[]){
+    private computeDepth(parent:ConceptGraph.Node){
         if(parent.visited==false){
             parent.visited=true;
             var outerThis = this; 
@@ -333,7 +328,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             var children = parent.treeChildren;
             children.forEach(function(node){
                 if (node.visited==false){
-                    outerThis.computeDepth(node, graphNodes, graphLinks);                   
+                    outerThis.computeDepth(node);                   
                 }
             });
             if(ConceptLayouts.tempDepth>ConceptLayouts.tempTreeDepth){
@@ -344,7 +339,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     }
     
 
-    private depthFirstTraversal(parent:ConceptGraph.Node, graphNodes:ConceptGraph.Node[], graphLinks:ConceptGraph.Link[]){
+    private depthFirstTraversal(parent:ConceptGraph.Node){
         if(parent.visited==false){
             parent.visited=true;
             var outerThis = this; 
@@ -354,7 +349,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             children.forEach(function(node){                
                 if (node.visited==false){
                     treeChildren.push(node);                
-                    outerThis.depthFirstTraversal(node, graphNodes, graphLinks);                    
+                    outerThis.depthFirstTraversal(node);                    
                 }
             });
             parent.treeChildren = treeChildren;         
@@ -372,10 +367,17 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             node.treeChildren = outerThis.getChildren(node, graphLinks, graphNodes);
         });
 
-        //remove cycles
-        graphNodes.forEach(function(node:ConceptGraph.Node){
+        //remove cycles first on non-inheritance then on inheritance children
+        var nonInheritanceNodes = graphNodes.filter(function(node){return node.inheritanceChild==false;});
+        nonInheritanceNodes.forEach(function(node:ConceptGraph.Node){
             outerThis.resetGraphValues();
-            outerThis.depthFirstTraversal(node, graphNodes, graphLinks);
+            outerThis.depthFirstTraversal(node);
+        });
+        
+        var inheritanceNodes = graphNodes.filter(function(node){return node.inheritanceChild==true;});
+        inheritanceNodes.forEach(function(node:ConceptGraph.Node){
+            outerThis.resetGraphValues();
+            outerThis.depthFirstTraversal(node);
         });
                 
         //remove additional parents
@@ -398,7 +400,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         ConceptLayouts.tempDepth = 0;
         graphNodes.forEach(function(node){
             outerThis.resetGraphValues();           
-            outerThis.computeDepth(node, graphNodes, graphLinks);
+            outerThis.computeDepth(node);
             if(ConceptLayouts.fullTreeDepth<ConceptLayouts.tempTreeDepth){
                 ConceptLayouts.fullTreeDepth = ConceptLayouts.tempTreeDepth;             
             }
