@@ -114,6 +114,35 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         d3.selectAll("#importedLayoutButton").on("click", this.applyNewLayoutLambda(this.runFixedPositionLayoutLambda()));
         $("#importedLayoutButton").slideUp();
         
+         var spacingContainer = $("<div>").attr("id", "spacingSliderContainer");
+        $(menuSelector).append(spacingContainer);
+                
+        spacingContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Spacing"));
+        spacingContainer.append($("<br>"));
+        
+        
+//        var zoom = d3.behavior.zoom()
+//        .scaleExtent([1, 10])
+//        .on("zoom", this.zoomLambda());
+        
+        
+        var spacingSliderDiv = $("<div>").attr("id", "spacingSliderDiv");
+        spacingContainer.append(spacingSliderDiv);
+        var spacingSlider = $("#spacingSliderDiv").slider({
+            range: "min",
+            min:1000,
+            max: 10000,
+            value: 1000,
+            slide: this.semanticZoom()
+//            this.zoomLambda(),
+//            change: this.zoomLambda()
+           
+        });
+        
+//        d3.selectAll("#spacingSlider").on("drag", this.zoomLambda());
+//        spacingSliderDiv.append(spacingSlider);
+//        spacingContainer.append(spacingSliderDiv);
+        
     }
     
     /**
@@ -228,6 +257,45 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
        }
     }
     
+    
+    
+    semanticZoom(){
+        var outerThis = this;
+        return function(){
+                        
+            var zoomValue = $("#spacingSliderDiv").slider("value")/1000;
+            outerThis.forceLayout.stop();
+         
+            var graphNodes = outerThis.graph.graphD3Format.nodes;
+
+             
+             graphNodes.forEach(function(node){
+                console.log("x before = ");
+                console.log(node.x);
+                node.x = node.x*zoomValue;
+                console.log("x after = ");
+                console.log(node.x);
+                node.y = node.y*zoomValue; 
+            });                 
+
+//            d3.select("#link_container")
+//                .attr("transform", "scale(" + zoomValue + ")");
+//            d3.select("#node_container")
+//                .attr("transform", "scale(" + zoomValue + ")");
+
+             d3.selectAll("g.node_g")
+            .attr("transform", function(d) { return "translate("+d.x+", "+d.y+")"; });
+            
+             d3.selectAll(GraphView.BaseGraphView.linkSvgClass)            
+                .attr("points", outerThis.graphView.updateArcLineFunc);
+        
+            d3.selectAll(GraphView.BaseGraphView.linkMarkerSvgClass)
+                .attr("points", outerThis.graphView.updateArcMarkerFunc);
+           
+        }
+        
+    
+    }
     
     private getAllOntologyAcronyms(graphNodes:ConceptGraph.Node[]){
         var ontologies = [];

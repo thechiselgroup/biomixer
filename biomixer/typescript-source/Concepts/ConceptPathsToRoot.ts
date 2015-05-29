@@ -139,6 +139,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         $("#chart").empty();
         d3.select("#chart").remove;
         
+        
+        
         var outerThis = this;
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
@@ -152,7 +154,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         }
                 )
             .append("g")
-            .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.redraw()));
+            .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom()));
   
         //  .call(d3.behavior.zoom().on("zoom", redraw))
         

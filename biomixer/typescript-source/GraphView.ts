@@ -397,7 +397,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         }
     }
     
-    redraw() {
+    geometricZoom() {
        var outerThis = this;
        return function(){
             if(outerThis.dragging){
@@ -410,6 +410,8 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
            }
     }
+    
+    
     
     unhighlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){
         return function(linkData, i){
