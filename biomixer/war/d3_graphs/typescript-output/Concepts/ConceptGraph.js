@@ -378,7 +378,8 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
                 var edgeExpansionType = edge.relationType === _this.relationLabelConstants.mapping ? PathOptionConstants.mappingsNeighborhoodConstant : PathOptionConstants.termNeighborhoodConstant;
                 var otherConceptId = (edge.sourceId === expandingNodeId) ? edge.targetId : edge.sourceId;
-                if (_this.nodeMayBeExpanded1(otherConceptId, expandingNodeId, nodeInteraction, edgeExpansionType) && null == nodesSeen[String(otherConceptId)]) {
+                // Check if temporary, because we want to allow expansion along those edges.
+                if ((_this.isEdgeForTemporaryRenderOnly(edge) || _this.nodeMayBeExpanded1(otherConceptId, expandingNodeId, nodeInteraction, edgeExpansionType)) && null == nodesSeen[String(otherConceptId)]) {
                     if ("parents" === specificRelationType && (edge.targetId !== expandingNodeId || edge.relationType !== _this.relationLabelConstants.inheritance)) {
                     }
                     else if ("children" === specificRelationType && (edge.sourceId !== expandingNodeId || edge.relationType !== _this.relationLabelConstants.inheritance)) {
@@ -406,6 +407,9 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             // know how many nodes are incoming for a given expansion set by incrementing it here.
             if (0 === numberNewNodesComing) {
                 // Not actually adding anything, skip dialog check. Better for caller to check, isn't it?
+                // But...if we are expanding mappings that are all present, but the edges are permanent, we need
+                // to actually add those edges. Let's do that.
+                fetchCallback(null);
                 return;
             }
             if (expansionSet.expansionCutShort()) {
@@ -890,6 +894,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             });
             this.manifestEdge(temporaryEdges, true);
         };
+        // Safe to pass null for those in the know, but meeting an API by asking for the node.
         ConceptGraph.prototype.removeTemporaryHoverEdges = function (conceptNode) {
             var temporaryEdgesSelected = d3.selectAll("." + GraphView.BaseGraphView.temporaryEdgeClass);
             var temporaryEdgeData = [];
@@ -971,6 +976,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
         };
         ConceptGraph.prototype.expandMappingNeighbourhood = function (nodeData, expansionSet) {
             // Cannot just call fetchMappings() directly because we need the link from the base concept URL
+            this.removeTemporaryHoverEdges(null); // (nodeData);
             var centralConceptUrl = this.buildConceptUrlNewApi(nodeData.ontologyAcronym, nodeData.simpleConceptUri);
             var centralCallback = new FetchConceptRelationsCallback(this, centralConceptUrl, nodeData, PathOptionConstants.mappingsNeighborhoodConstant, expansionSet);
             var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
@@ -1733,7 +1739,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 }
                 // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
                 var mappingTargetIds = {};
-                var mappingTargets = [];
+                var mappingTargets = {};
                 var expectedExpansionCount = 0;
                 $.each(relationsDataRaw, function (index, mapping) {
                     var firstConceptId = _this.graph.computeNodeId(mapping.classes[0]);
@@ -1761,10 +1767,13 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                         _this.graph.manifestOrRegisterImplicitRelation(firstId, secondId, _this.graph.relationLabelConstants.mapping);
                         // Catches self referential maps,
                         var newNodeRawUri = _this.graph.computeNodeId(newConceptData);
+                        var edge = _this.graph.expMan.edgeRegistry.getEdgesFor(firstId, secondId).filter(function (e) {
+                            return e.relationType === _this.graph.relationLabelConstants.mapping;
+                        })[0];
                         if (null == mappingTargetIds[String(newConceptId)]) {
-                            if (_this.graph.nodeMayBeExpanded(newNodeRawUri, _this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, _this.expansionSet)) {
+                            if (_this.graph.nodeMayBeExpanded(newNodeRawUri, _this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, _this.expansionSet) || (_this.directCallForExpansionType === PathOptionConstants.mappingsNeighborhoodConstant && edge != null && _this.graph.isEdgeForTemporaryRenderOnly(edge))) {
                                 mappingTargetIds[String(newConceptId)] = true;
-                                mappingTargets.push(newConceptData);
+                                mappingTargets[String(newConceptId)] = newConceptData;
                                 expectedExpansionCount++;
                             }
                         }
@@ -1772,13 +1781,16 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 });
                 var fetchCall = function (maxToAdd) {
                     var added = 0;
-                    $.each(mappingTargets, function (newConceptId, newConceptData) {
+                    $.each(mappingTargets, function (newConceptId) {
+                        var newConceptData = mappingTargets[String(newConceptId)];
                         if (null != maxToAdd && added >= maxToAdd) {
                             return false;
                         }
                         _this.graph.expandMappedConcept(newConceptId, newConceptData, _this.conceptNode.nodeId, _this.directCallForExpansionType, _this.expansionSet);
                         added++;
                     });
+                    // As a special case for when we expand mappings only to get temporary edges made permanent, we do this:
+                    _this.graph.manifestEdgesForNewNode(_this.conceptNode);
                     return added;
                 };
                 _this.graph.checkForNodeCap(fetchCall, _this.expansionSet, expectedExpansionCount);

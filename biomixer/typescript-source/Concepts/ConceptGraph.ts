@@ -520,7 +520,13 @@ export class ConceptGraph implements GraphView.Graph<Node> {
 
             var otherConceptId: ConceptURI = (edge.sourceId === expandingNodeId) ? edge.targetId : edge.sourceId;
 
-            if(this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
+            // Check if temporary, because we want to allow expansion along those edges.
+            if(
+                (
+                this.isEdgeForTemporaryRenderOnly(edge)
+                ||
+                this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
+                    )
                 && null == nodesSeen[String(otherConceptId)]
                 ){
                     if("parents" === specificRelationType
@@ -567,6 +573,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         
         if(0 === numberNewNodesComing){
             // Not actually adding anything, skip dialog check. Better for caller to check, isn't it?
+            // But...if we are expanding mappings that are all present, but the edges are permanent, we need
+            // to actually add those edges. Let's do that.
+            fetchCallback(null);
             return;
         }
         
@@ -1124,6 +1133,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return false;
     }
     
+
     manifestTemporaryHoverEdges(conceptNode: Node){
         var temporaryEdges = [];
         var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(conceptNode.nodeId);
@@ -1152,6 +1162,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         this.manifestEdge(temporaryEdges, true);
     }
     
+    // Safe to pass null for those in the know, but meeting an API by asking for the node.
     removeTemporaryHoverEdges(conceptNode: Node){
         var temporaryEdgesSelected = d3.selectAll("."+GraphView.BaseGraphView.temporaryEdgeClass);
         var temporaryEdgeData: Array<Link> = [];
@@ -1242,6 +1253,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     
     public expandMappingNeighbourhood(nodeData: Node, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // Cannot just call fetchMappings() directly because we need the link from the base concept URL
+        this.removeTemporaryHoverEdges(null); // (nodeData);
         var centralConceptUrl = this.buildConceptUrlNewApi(nodeData.ontologyAcronym, nodeData.simpleConceptUri);
         var centralCallback = new FetchConceptRelationsCallback(this, centralConceptUrl, nodeData, PathOptionConstants.mappingsNeighborhoodConstant, expansionSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
@@ -2124,7 +2136,7 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         
         // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
         var mappingTargetIds = {};
-        var mappingTargets = [];
+        var mappingTargets = {};
         var expectedExpansionCount = 0;
         $.each(relationsDataRaw,
                 (index, mapping)=>{
@@ -2156,10 +2168,19 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
             	
                 // Catches self referential maps,
                 var newNodeRawUri = this.graph.computeNodeId(newConceptData);
+                var edge: Link = this.graph.expMan.edgeRegistry.getEdgesFor(firstId, secondId).filter((e: Link)=>{ return e.relationType ===  this.graph.relationLabelConstants.mapping; })[0];
                 if(null == mappingTargetIds[String(newConceptId)]){
-                    if(this.graph.nodeMayBeExpanded(newNodeRawUri, this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, this.expansionSet)){
+                    if(
+                    this.graph.nodeMayBeExpanded(newNodeRawUri, this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, this.expansionSet)
+                    ||
+                    (
+                        this.directCallForExpansionType === PathOptionConstants.mappingsNeighborhoodConstant
+                        && edge !=  null
+                        && this.graph.isEdgeForTemporaryRenderOnly(edge)
+                    )
+                        ){
                         mappingTargetIds[String(newConceptId)] = true;
-                        mappingTargets.push(newConceptData);
+                        mappingTargets[String(newConceptId)] = newConceptData;
                         expectedExpansionCount++;
                     }
                 }
@@ -2169,7 +2190,8 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         var fetchCall = (maxToAdd: number): number=>{
             var added = 0;
             $.each(mappingTargets,
-                (newConceptId: ConceptURI, newConceptData) => {
+                (newConceptId: ConceptURI) => {
+                    var newConceptData = mappingTargets[String(newConceptId)];
                     if(null != maxToAdd && added >= maxToAdd){
                         return false;
                     }
@@ -2177,6 +2199,9 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
                       added++;
                 }
             );
+            
+            // As a special case for when we expand mappings only to get temporary edges made permanent, we do this:
+            this.graph.manifestEdgesForNewNode(this.conceptNode);
             return added;
         };
 
