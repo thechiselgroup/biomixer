@@ -51,7 +51,7 @@ define(["require", "exports", "./GraphModifierCommand", "UndoRedo/UndoRedoManage
                     // the expansion set was alive just prior to now).
                     if (this.graph.containsNode(node) && this.nodes.indexOf(node) === -1) {
                         guilty = false;
-                        continue;
+                        break;
                     }
                 }
                 if (guilty && expSet !== this.associatedExpansionSet) {

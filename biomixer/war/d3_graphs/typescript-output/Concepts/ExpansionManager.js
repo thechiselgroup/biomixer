@@ -42,7 +42,6 @@ define(["require", "exports", "../GraphModifierCommand", "Concepts/ConceptGraph"
                 var command = crumbTrail[i];
                 var nodeInteractions = command.nodeInteraction(conceptUriForIds);
                 if (null == nodeInteractions) {
-                    return returnVal;
                 }
                 else if (nodeInteractions.indexOf(expansionType) !== -1) {
                     returnVal = true;

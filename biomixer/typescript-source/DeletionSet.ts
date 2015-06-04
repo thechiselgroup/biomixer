@@ -75,7 +75,7 @@ export class DeletionSet<N extends GraphView.BaseNode>{
                 if(this.graph.containsNode(node)
                     && this.nodes.indexOf(node) === -1){
                     guilty = false;
-                    continue;
+                    break;
                 }
             }
             
