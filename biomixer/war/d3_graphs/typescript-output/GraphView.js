@@ -245,6 +245,16 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                 });
             };
         };
+        BaseGraphView.prototype.geometricZoom = function () {
+            var outerThis = this;
+            return function () {
+                if (outerThis.dragging) {
+                    return;
+                }
+                d3.select("#link_container").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+                d3.select("#node_container").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            };
+        };
         BaseGraphView.prototype.unhighlightHoveredLinkLambda = function (outerThis) {
             return function (linkData, i) {
                 outerThis.removeAllNodeHighlighting();

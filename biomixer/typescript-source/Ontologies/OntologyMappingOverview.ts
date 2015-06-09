@@ -73,7 +73,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             .attr("pointer-events", "all")
             .on("click", this.menu.closeMenuLambda())
         //  .append('svg:g')
-            .call(d3.behavior.zoom().on("zoom", this.redraw))
+            .call(d3.behavior.zoom().on("zoom", this.geometricZoom))
         //  .append('svg:g')
             .on("click",
              function(){
@@ -101,12 +101,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     }
     
     
-    private redraw() {
-    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-    //  vis.attr("transform",
-    //      "translate(" + d3.event.translate + ")"
-    //      + " scale(" + d3.event.scale + ")");
-    }
+//    private redraw() {
+//    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
+//    //  vis.attr("transform",
+//    //      "translate(" + d3.event.translate + ")"
+//    //      + " scale(" + d3.event.scale + ")");
+//    }
     
     
     

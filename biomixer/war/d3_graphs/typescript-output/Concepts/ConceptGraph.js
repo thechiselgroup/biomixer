@@ -579,9 +579,11 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             conceptNode.definition = conceptData["definition"];
             conceptNode.synonym = (null == conceptData["synonym"]) ? [] : conceptData["synonym"];
             conceptNode.weight = 1;
-            //            conceptNode.depth = 0;
-            conceptNode.tempDepth = 0;
             conceptNode.fixed = false;
+            conceptNode.tempDepth = 0;
+            conceptNode.visited = false;
+            conceptNode.inheritanceChild = false;
+            conceptNode.treeChildren = [];
             // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
             // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward
             conceptNode.ontologyAcronym = ontologyAcronym;

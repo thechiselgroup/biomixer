@@ -97,14 +97,16 @@ export class Node extends GraphView.BaseNode {
 //    x: number; // = visWidth()/2;
 //    y: number; // = visHeight()/2;      
     weight: number; // = numberOfMappedOntologies; // will increment as we loop
-    tempDepth: number;
     ontologyAcronym: RawAcronym; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
-    // nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
+    linkParents: string; //URL from REST data
+    linkChildren: string; //URL from REST data
     
-    linkParents: string;
-    linkChildren: string;
+    tempDepth: number;
+    visited: boolean;
+    inheritanceChild: boolean;
+    treeChildren: Node[]; // for tree layouts
 
 //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
 //    LABEL: string; // = ontologyDetails.name;
@@ -799,9 +801,11 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.definition = conceptData["definition"];
             conceptNode.synonym = (null == conceptData["synonym"]) ? [] : conceptData["synonym"];
             conceptNode.weight = 1;
-//            conceptNode.depth = 0;
-            conceptNode.tempDepth = 0;
             conceptNode.fixed = false;
+            conceptNode.tempDepth = 0;
+            conceptNode.visited = false;
+            conceptNode.inheritanceChild = false;
+            conceptNode.treeChildren = [];
             // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
             // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward
             conceptNode.ontologyAcronym = ontologyAcronym;

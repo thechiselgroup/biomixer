@@ -197,6 +197,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         $("#chart").empty();
         d3.select("#chart").remove;
         
+        
+        
         var outerThis = this;
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
@@ -209,9 +211,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                             TipsyToolTipsOnClick.closeOtherTipsyTooltips();
                         }
                 )
+            .append("g")
+            //  .call(d3.behavior.zoom().on("zoom", redraw))
+            .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom()))
             ;
-        //  .call(d3.behavior.zoom().on("zoom", redraw))
-          
+        
         // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
         // this.defineCustomSVG();
         
@@ -230,14 +234,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.resizedWindowLambda();
         
         Fetch.CacheRegistry.clearAllServiceRecordsKeepCacheData();
-    }
-    
-    
-    redraw() {
-    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-    //  vis.attr("transform",
-    //      "translate(" + d3.event.translate + ")"
-    //      + " scale(" + d3.event.scale + ")");
     }
     
     initAndPopulateGraph(){

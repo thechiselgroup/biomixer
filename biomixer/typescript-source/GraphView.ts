@@ -171,6 +171,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     visHeight(){ return $("#chart").height(); }
     linkMaxDesiredLength(){ return Math.min(this.visWidth(), this.visHeight())/2 - 50; }
     
+    
     resizedWindowLambda  = () => {
         d3.select("#graphRect")
         .attr("width", this.visWidth())
@@ -432,6 +433,20 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 );
             
         }
+    }
+    
+    geometricZoom() {
+       var outerThis = this;
+       return function(){
+            if(outerThis.dragging){
+                return;
+            }      
+       
+            d3.select("#link_container")
+                .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            d3.select("#node_container")
+                .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+           }
     }
     
     unhighlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){

@@ -153,8 +153,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
                 // outerThis.menu.closeMenuLambda()()
                 TipsyToolTipsOnClick.closeOtherTipsyTooltips();
-            });
-            //  .call(d3.behavior.zoom().on("zoom", redraw))
+            }).append("g").call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom()));
             // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
             // this.defineCustomSVG();
             this.vis.append("svg:rect").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("id", "graphRect").style("fill", "white");
@@ -164,12 +163,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             $(window).resize(this.resizedWindowLambda);
             this.resizedWindowLambda();
             Fetch.CacheRegistry.clearAllServiceRecordsKeepCacheData();
-        };
-        ConceptPathsToRoot.prototype.redraw = function () {
-            //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-            //  vis.attr("transform",
-            //      "translate(" + d3.event.translate + ")"
-            //      + " scale(" + d3.event.scale + ")");
         };
         ConceptPathsToRoot.prototype.initAndPopulateGraph = function () {
             // Used to happen on window load.

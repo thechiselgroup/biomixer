@@ -66,7 +66,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.legend = new OntologyLegend.OntologyLegend(this.menu);
             // Had to set div#chart.gallery height = 100% in CSS,
             // but this was only required in Firefox. I can't see why.
-            this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", this.menu.closeMenuLambda()).call(d3.behavior.zoom().on("zoom", this.redraw)).on("click", function () {
+            this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", this.menu.closeMenuLambda()).call(d3.behavior.zoom().on("zoom", this.geometricZoom)).on("click", function () {
                 TipsyToolTips.closeOtherTipsyTooltips();
             });
             this.vis.append('svg:rect').attr("width", this.visWidth()).attr("height", this.visHeight()).attr("id", "graphRect").style('fill', 'white');
@@ -84,12 +84,12 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         OntologyMappingOverview.prototype.filterGraphOnMappingCounts = function () {
             this.filterSliders.filterGraphOnMappingCounts();
         };
-        OntologyMappingOverview.prototype.redraw = function () {
-            //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-            //  vis.attr("transform",
-            //      "translate(" + d3.event.translate + ")"
-            //      + " scale(" + d3.event.scale + ")");
-        };
+        //    private redraw() {
+        //    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
+        //    //  vis.attr("transform",
+        //    //      "translate(" + d3.event.translate + ")"
+        //    //      + " scale(" + d3.event.scale + ")");
+        //    }
         OntologyMappingOverview.prototype.initAndPopulateGraph = function () {
             this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
             this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
