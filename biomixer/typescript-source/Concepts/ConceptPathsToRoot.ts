@@ -212,7 +212,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         }
                 )
             .append("g")
-            //  .call(d3.behavior.zoom().on("zoom", redraw))
             .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom()))
             ;
         
@@ -482,6 +481,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     alreadyHidTipsy = false;
     dragstartLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
+            d3.event.sourceEvent.stopPropagation();
             outerThis.dragging = true;
             outerThis.alreadyHidTipsy = false;
 

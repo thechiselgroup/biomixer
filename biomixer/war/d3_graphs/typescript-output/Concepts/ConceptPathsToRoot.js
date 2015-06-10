@@ -339,6 +339,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         };
         ConceptPathsToRoot.prototype.dragstartLambda = function (outerThis) {
             return function (d, i) {
+                d3.event.sourceEvent.stopPropagation();
                 outerThis.dragging = true;
                 outerThis.alreadyHidTipsy = false;
                 // stops the force auto positioning before you start dragging
