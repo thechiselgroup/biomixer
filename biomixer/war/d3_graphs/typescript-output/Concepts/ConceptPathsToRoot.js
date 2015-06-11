@@ -150,10 +150,11 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             $("#chart").empty();
             d3.select("#chart").remove;
             var outerThis = this;
+            this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom());
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
                 // outerThis.menu.closeMenuLambda()()
                 TipsyToolTipsOnClick.closeOtherTipsyTooltips();
-            }).append("g").call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom()));
+            }).append("g").call(this.zoom);
             // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
             // this.defineCustomSVG();
             this.vis.append("svg:rect").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("id", "graphRect").style("fill", "white");

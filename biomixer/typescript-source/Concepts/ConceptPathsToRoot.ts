@@ -200,6 +200,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         
         var outerThis = this;
+        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom());
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
             .attr("width", this.visWidth())
@@ -212,7 +213,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                         }
                 )
             .append("g")
-            .call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom()))
+            .call(this.zoom)
             ;
         
         // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.

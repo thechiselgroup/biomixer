@@ -99,6 +99,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             var layoutLastCalled = null;
             var timerWait = 100;
             this.currentLambda = layoutLambda;
+            this.resetZoom();
             this.runCurrentLayout = function (refreshLayoutInner) {
                 // We only allow one layout request to run at a time, and with
                 // a short delay between requests. Ok, it's always single threaded,
@@ -254,6 +255,10 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                 d3.select("#link_container").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
                 d3.select("#node_container").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             };
+        };
+        BaseGraphView.prototype.resetZoom = function () {
+            this.zoom.scale(1).translate([0, 0]);
+            this.zoom.event(d3.select("#graphSvg").transition().duration(1500));
         };
         BaseGraphView.prototype.unhighlightHoveredLinkLambda = function (outerThis) {
             return function (linkData, i) {

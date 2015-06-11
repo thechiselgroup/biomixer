@@ -230,6 +230,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         var layoutLastCalled = null;
         var timerWait = 100;
         this.currentLambda = layoutLambda;
+        this.resetZoom();
         this.runCurrentLayout =
             function(refreshLayoutInner?: boolean){
                 // We only allow one layout request to run at a time, and with
@@ -435,18 +436,24 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         }
     }
     
+    zoom: D3.Behavior.Zoom;    
     geometricZoom() {
        var outerThis = this;
        return function(){
             if(outerThis.dragging){
                 return;
             }      
-       
+           
             d3.select("#link_container")
                 .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             d3.select("#node_container")
                 .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
            }
+    }
+    
+    resetZoom() {
+        this.zoom.scale(1).translate([0, 0]);
+        (<any>this.zoom).event(d3.select("#graphSvg").transition().duration(1500));
     }
     
     unhighlightHoveredLinkLambda(outerThis: BaseGraphView<N, L>){
