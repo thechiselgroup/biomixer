@@ -721,4 +721,57 @@ div#undo_redo_breadcrumb_label {
 	border-style: solid; border-width: 1px;
 }
 
+#frameGradient {
+    stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.4;
+    fill: #000000;
+    fill: url(#minimapGradient);
+    filter: url(#minimapDropShadow);
+    cursor: move;
+   	fill-opacity: 0.1;
+	fill: "white";
+	stroke-opacity: 1.0;
+	stroke: "black";
+}
+.panCanvas {
+    cursor: move;
+}
 
+/*
+.minimapFrame{
+	opacity: 0.2;
+	border-color: black;
+	border-width: 2px;
+}
+
+.canvas .wrapper.outer > .background {
+    fill: #000000;
+}
+.canvas .wrapper.inner > .background {
+    fill: #CCCCCC;
+    cursor: move;
+}
+.canvas .background {
+    fill: #F6F6F6;
+    stroke: #333333;
+    cursor: move;
+}
+
+.canvas .minimap .frame .background {
+    stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.4;
+    fill: #000000;
+    fill: url(#minimapGradient);
+    filter: url(#minimapDropShadow);
+    cursor: move;
+}
+
+.background {
+	fill-opacity: 0.1;
+	fill: "white";
+	stroke-opacity: 1.0;
+	stroke: "black";
+}
+*/

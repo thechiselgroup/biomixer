@@ -31,7 +31,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../DeletionSet", "../TipsyToolTipsOnClick", "../CompositeExpansionDeletionSet", "./ConceptGraph", "./NestedOntologyConceptFilter", "./NestedExpansionSetConceptFilter", "./ConceptEdgeTypeFilter", "./ConceptFilterSliders", "./ConceptTour", "./ConceptLayouts", "./GraphImporterExporter", "../NodeFinderWidgets", "JQueryExtension", "Utils", "MouseSpinner", "Menu", "GraphView", "ExpansionSets", "DeletionSet", "FetchFromApi", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "CompositeExpansionDeletionSet", "Concepts/ConceptGraph", "Concepts/ConceptFilterSliders", "Concepts/CherryPickConceptFilter", "Concepts/OntologyConceptFilter", "Concepts/NestedOntologyConceptFilter", "Concepts/ExpansionSetFilter", "Concepts/NestedExpansionSetConceptFilter", "Concepts/ConceptNodeFilterWidget", "Concepts/ConceptEdgeTypeFilter", "Concepts/ConceptFilterSliders", "Concepts/ConceptTour", "Concepts/ConceptLayouts", "Concepts/GraphImporterExporter", "NodeFinderWidgets", "Concepts/ConceptRenderScaler"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, DeletionSet, TipsyToolTipsOnClick, CompositeExpansionDeletionSet, ConceptGraph, NestedOntologyConceptFilter, NestedExpansionSetConceptFilter, ConceptEdgeTypeFilter, ConceptFilterSliders, ConceptTour, ConceptLayouts, ImporterExporter, NodeFinder) {
+define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../DeletionSet", "../TipsyToolTipsOnClick", "../CompositeExpansionDeletionSet", "./ConceptGraph", "./NestedOntologyConceptFilter", "./NestedExpansionSetConceptFilter", "./ConceptEdgeTypeFilter", "./ConceptFilterSliders", "./ConceptTour", "./ConceptLayouts", "./GraphImporterExporter", "../NodeFinderWidgets", "../MiniMap", "JQueryExtension", "Utils", "MouseSpinner", "Menu", "GraphView", "ExpansionSets", "DeletionSet", "FetchFromApi", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "CompositeExpansionDeletionSet", "Concepts/ConceptGraph", "Concepts/ConceptFilterSliders", "Concepts/CherryPickConceptFilter", "Concepts/OntologyConceptFilter", "Concepts/NestedOntologyConceptFilter", "Concepts/ExpansionSetFilter", "Concepts/NestedExpansionSetConceptFilter", "Concepts/ConceptNodeFilterWidget", "Concepts/ConceptEdgeTypeFilter", "Concepts/ConceptFilterSliders", "Concepts/ConceptTour", "Concepts/ConceptLayouts", "Concepts/GraphImporterExporter", "NodeFinderWidgets", "Concepts/ConceptRenderScaler"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, DeletionSet, TipsyToolTipsOnClick, CompositeExpansionDeletionSet, ConceptGraph, NestedOntologyConceptFilter, NestedExpansionSetConceptFilter, ConceptEdgeTypeFilter, ConceptFilterSliders, ConceptTour, ConceptLayouts, ImporterExporter, NodeFinder, MiniMap) {
     var ConceptPathsToRoot = (function (_super) {
         __extends(ConceptPathsToRoot, _super);
         function ConceptPathsToRoot(centralOntologyAcronym, centralConceptSimpleUri, softNodeCap) {
@@ -142,6 +142,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // Had to set div#chart.gallery height = 100% in CSS,
             // but this was only required in Firefox. I can't see why.
             // console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
+            var _this = this;
             // Experimental...seems like a good idea
             if (this.forceLayout !== undefined) {
                 this.forceLayout.nodes([]);
@@ -150,11 +151,15 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             $("#chart").empty();
             d3.select("#chart").remove;
             var outerThis = this;
-            this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom());
+            // Performs zoom and pan behaviors.
+            this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", function () {
+                _this.geometricZoom()();
+                _this.miniMap.render();
+            });
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
                 // outerThis.menu.closeMenuLambda()()
                 TipsyToolTipsOnClick.closeOtherTipsyTooltips();
-            }).append("g").call(this.zoom);
+            }).call(this.zoom).append("g").attr("id", "graph_g");
             // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
             // this.defineCustomSVG();
             this.vis.append("svg:rect").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("id", "graphRect").style("fill", "white");
@@ -196,6 +201,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.attachScreenshotButton();
             this.attachFullscreenButton();
             this.fetchInitialExpansion();
+            this.miniMap = new MiniMap.MiniMap(d3.select("#graphSvg"), this, this.zoom);
+            this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
             MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
         };
         /**
@@ -336,6 +343,9 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 if (null != _this.tour) {
                     _this.tour.refreshIntro();
                 }
+                if (null != _this.miniMap) {
+                    _this.miniMap.render();
+                }
             };
         };
         ConceptPathsToRoot.prototype.dragstartLambda = function (outerThis) {
@@ -377,6 +387,9 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 outerThis.vis.selectAll("polyline" + GraphView.BaseGraphView.linkMarkerSvgClass).filter(function (e) {
                     return e.source === d || e.target === d;
                 }).attr("points", outerThis.updateArcMarkerFunc);
+                if (null != outerThis.miniMap) {
+                    outerThis.miniMap.render();
+                }
             };
         };
         ConceptPathsToRoot.prototype.computeArcMarkerForInheritance = function (linkData, ignoreOffset) {
@@ -572,6 +585,9 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // this.runCurrentLayout();
             // Call start() only if we actually added (or removed) anything
             // this.forceLayout.start();
+            if (null != this.miniMap) {
+                this.miniMap.render();
+            }
         };
         ConceptPathsToRoot.prototype.populateNewGraphEdges = function (linksData, temporaryEdges) {
             if (temporaryEdges === void 0) { temporaryEdges = false; }

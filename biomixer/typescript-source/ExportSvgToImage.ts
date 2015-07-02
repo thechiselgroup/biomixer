@@ -37,6 +37,21 @@ export class  ExportSvgToImage {
         var instance = new ExportSvgToImage();
         MouseSpinner.MouseSpinner.applyMouseSpinner("screenshot");
 
+        var svgStr = instance.getSvgStringClone(svgId, "cloneGraph");
+        
+        var testCanvas = document.createElement("canvas");
+        if(null != testCanvas.msToBlob){ //null !== window.navigator && null !== window.navigator.msSaveOrOpenBlob){
+        	// IE way
+            var svgGraph = d3.select("#"+svgId); // e.g. "#graphSvg"
+            instance.ieApiWay(svgStr, svgGraph); //, svgHtmlClone);
+        } else {
+            // Chrome, FF way
+            instance.pabloDownloadWay(svgStr, "exportImageClone");
+        }
+        $(testCanvas).remove();
+    }
+    
+    getSvgStringClone(svgId: string, cloneId: string): string{
         // Make a full copy of the SVG, then copy the styles from
         // the original to the new one
         // This is necessary, because the CSS defined styles are not
@@ -49,37 +64,25 @@ export class  ExportSvgToImage {
         // This CSS copy does not appear to hard-code styles down into the markup
         // var svgClone = d3.select(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
         // Trying to make the SVG without attaching it to DOM leads to an entirely black exported image.
-        var svgHtmlCloneContainer = d3.select("body").append("div").attr("id", "svgHtmlContainer"); //.append("svg:svg");
+        d3.select("body").append("div").attr("id", "svgHtmlContainer"); //.append("svg:svg");
         var svgGraph = d3.select("#"+svgId); // e.g. "#graphSvg"
         var origSvgHtml = d3.select(svgGraph.node().parentNode).html();
-        origSvgHtml = origSvgHtml.replace('id="'+svgId+'"', 'id="graphclone"');
+        origSvgHtml = origSvgHtml.replace('id="'+svgId+'"', 'id="'+cloneId+'"');
         // innerHTML of SVG reached via svgpolyfill library called innersvg.js (for IE in particular)
         document.getElementById("svgHtmlContainer").innerHTML = origSvgHtml;
-        
         // Styles need to be pushed down into the elements, so that when
         // we put it all into the canvas, it renders properly. Canvas ignores
         // CSS classes.
-        var svgHtmlClone = d3.select("#graphclone");
-        instance.setInlineStyles(svgHtmlClone[0][0]);
-        
+        var svgHtmlClone = d3.select("#"+cloneId);
+        this.setInlineStyles(svgHtmlClone[0][0], true);
+        var svgHtmlCloneContainer = d3.select("#svgHtmlContainer");
         var svgForSerializing = $(svgHtmlCloneContainer[0][0]).children().first()[0];
         
-        var svgStr = (new XMLSerializer()).serializeToString(svgForSerializing);
-        
-        var testCanvas = document.createElement("canvas");
-        if(null != testCanvas.msToBlob){ //null !== window.navigator && null !== window.navigator.msSaveOrOpenBlob){
-        	// IE way
-            instance.ieApiWay(svgStr, svgGraph, svgHtmlClone);
-        } else {
-            // Chrome, FF way
-            instance.pabloDownloadWay(svgStr);
-        }
-        $(testCanvas).remove();
+        return (new XMLSerializer()).serializeToString(svgForSerializing);
     }
     
-    pabloDownloadWay(svgStr){
-        var pabloSvg = Pablo(svgStr);
-        var pabloCollection = Pablo(pabloSvg).crop();
+    pabloDownloadWay(svgStr, cloneId){
+        var pabloCollection = this.pabloGetSvgClone(svgStr, cloneId);
         pabloCollection.download('png', 'biomixer_export_' + Date.now() + '.png',
             (result)=>{
                 // console.log(result.error ? 'Failed to export image :(' : 'Successfully exported image :)');
@@ -89,7 +92,24 @@ export class  ExportSvgToImage {
         );
     }
     
-    ieApiWay(svg: string, svgGraph, svgGraphClone){
+    pabloGetSvgClone(svgStr: string, cloneId: string){
+        var pabloSvg = Pablo(svgStr);
+        return Pablo(pabloSvg).crop();
+    }
+    
+    // More general utility version of things.
+    static getPabloSvgClone(svgId: string, cloneId: string, fullView: boolean){
+        var instance = new ExportSvgToImage();
+        var clone = instance.pabloGetSvgClone(instance.getSvgStringClone(svgId, cloneId), cloneId);
+        if(fullView){
+            // Very important when things are panned and scaled and we want a full view
+            d3.select(clone[0].children[0]).attr("transform", "translate(0, 0)scale(1)");
+        }
+
+        return clone;
+    }
+    
+    ieApiWay(svg: string, svgGraph){
         var svgStr: string = (typeof svg === "string") ? svg : null;
         var canvas = document.createElement("canvas");
         var w = parseInt(svgGraph.attr("width"), 10);
@@ -127,7 +147,7 @@ export class  ExportSvgToImage {
     }
     
     // Modified from Crowbar 2 library:
-    private setInlineStyles(svg) {
+    private setInlineStyles(svg, stripClasses: boolean) {
         var prefix = {
             xmlns: "http://www.w3.org/2000/xmlns/",
             xlink: "http://www.w3.org/1999/xlink",
@@ -146,7 +166,7 @@ export class  ExportSvgToImage {
           var i, len, key, value, parentValue;
           // initialize to be the hard coded style of the element
           var computedStyleStr = element.getAttribute('style') || '';
-          computedStyleStr = computedStyleStr+emptySvgDeclarationComputed.cssText;
+//          computedStyleStr = computedStyleStr+emptySvgDeclarationComputed.cssText;
           for (i=0, len=cSSStyleDeclarationComputed.length; i<len; i++) {
             key=cSSStyleDeclarationComputed[i];
             value=cSSStyleDeclarationComputed.getPropertyValue(key);
@@ -155,7 +175,9 @@ export class  ExportSvgToImage {
             } else {
                 parentValue = null;
             }
-            if(parentValue != null && parentValue !== undefined && parentValue !== value){
+            if(parentValue != null && parentValue !== undefined && parentValue !== value
+            && ("" !== value && null !== value && undefined !== value)
+                ){
                 // Get rid of things that will be inherited
                 computedStyleStr+=key+":"+value+";";
             }
@@ -188,6 +210,15 @@ export class  ExportSvgToImage {
         var i = allElements.tree.length;
         while (i--){
           explicitlySetStyle(allElements.tree[i], allElements.parents[i]);
+        }
+        
+        if(stripClasses){
+            // Go over them again, strip off classes
+            i = allElements.tree.length;
+            while (i--){
+                allElements.tree[i].setAttribute("class", "");
+                allElements.tree[i].removeAttribute("id"); // clones don't need ids, right?
+            }
         }
   }
     

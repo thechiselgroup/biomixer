@@ -38,6 +38,9 @@ define(["require", "exports"], function (require, exports) {
                 $("#" + Menu.triggerId).addClass("pressedMenuButton");
                 $("#" + Menu.triggerId).attr("title", Menu.menuOpenPrefix + this.menuName);
             }
+            for (var i in Menu.menuMadeVisibleCallbacks) {
+                Menu.menuMadeVisibleCallbacks[i]();
+            }
         };
         Menu.prototype.toggleMenu = function () {
             var _this = this;
@@ -71,7 +74,10 @@ define(["require", "exports"], function (require, exports) {
          * 1) attach the outer element to the menu or other html container of your choice. This outer element is always visible.
          * 2) attach your menu's elements to the inner element. They will be shown or hidden.
          */
-        Menu.slideToggleHeaderContainer = function (outerContainerId, innerContainerId, labelText, defaultHideContainer) {
+        Menu.slideToggleHeaderContainer = function (outerContainerId, innerContainerId, labelText, defaultHideContainer, visibleCallback) {
+            if (null != visibleCallback) {
+                Menu.menuMadeVisibleCallbacks.push(visibleCallback);
+            }
             var outerContainer = $("<div>").attr("id", outerContainerId);
             var innerHidingContainer = $("<div>").attr("id", innerContainerId).addClass(Menu.hidingMenuContainerClass);
             if (defaultHideContainer) {
@@ -142,6 +148,7 @@ define(["require", "exports"], function (require, exports) {
         Menu.menuTriggerContainerId = "menuTriggerContainer";
         Menu.triggerId = "trigger";
         Menu.hidingMenuContainerClass = "hidingMenu";
+        Menu.menuMadeVisibleCallbacks = [];
         return Menu;
     })();
     exports.Menu = Menu;

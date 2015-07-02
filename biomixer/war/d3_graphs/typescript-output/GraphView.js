@@ -252,8 +252,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                 if (outerThis.dragging) {
                     return;
                 }
-                d3.select("#link_container").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-                d3.select("#node_container").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+                d3.select("#graph_g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
             };
         };
         BaseGraphView.prototype.resetZoom = function () {

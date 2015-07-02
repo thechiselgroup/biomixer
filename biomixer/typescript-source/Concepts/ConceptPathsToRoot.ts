@@ -51,6 +51,7 @@ import ConceptTour = require("./ConceptTour");
 import ConceptLayouts = require("./ConceptLayouts");
 import ImporterExporter = require("./GraphImporterExporter");
 import NodeFinder = require("../NodeFinderWidgets");
+import MiniMap = require("../MiniMap");
 
  type Config = {
             rectWidth: number;
@@ -89,6 +90,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     nestedOntologyConceptFilter: NestedOntologyConceptFilter.NestedOntologyConceptFilter;
     // expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     nestedExpansionConceptFilter: NestedExpansionSetConceptFilter.NestedExpansionSetConceptFilter;
+    miniMap: MiniMap.MiniMap;
     
     tour: ConceptTour.Tour;
     
@@ -198,9 +200,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         d3.select("#chart").remove;
         
         
-        
         var outerThis = this;
-        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", this.geometricZoom());
+        // Performs zoom and pan behaviors.
+        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", ()=>{ this.geometricZoom()(); this.miniMap.render(); });
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
             .attr("width", this.visWidth())
@@ -212,8 +214,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                             TipsyToolTipsOnClick.closeOtherTipsyTooltips();
                         }
                 )
-            .append("g")
             .call(this.zoom)
+            .append("g").attr("id", "graph_g")
             ;
         
         // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
@@ -255,7 +257,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.nodeFinder = new NodeFinder.NodeFinder(this, this.conceptGraph);
         
         this.importerExporterWidget = new ImporterExporter.Widget(this);
-         
+        
+
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         // this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         // this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
@@ -280,7 +283,11 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.attachFullscreenButton();
         
         this.fetchInitialExpansion();
-        MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
+        
+        this.miniMap = new MiniMap.MiniMap(d3.select("#graphSvg"), this, this.zoom);
+        this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
+        
+         MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
     }
     
     /**
@@ -474,6 +481,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             if(null != this.tour){
                 this.tour.refreshIntro();
             }
+            
+            if(null != this.miniMap){
+                this.miniMap.render();
+            }
         }
             
     }
@@ -529,7 +540,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
                 .attr("points", outerThis.updateArcMarkerFunc);
 
-           
+            if(null != outerThis.miniMap){
+                outerThis.miniMap.render();
+            }
         }
     }
     
@@ -855,6 +868,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.runCurrentLayout();
         // Call start() only if we actually added (or removed) anything
         // this.forceLayout.start();
+        if(null != this.miniMap){
+            this.miniMap.render();
+        }
     }
     
     populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges: boolean = false){
@@ -1696,6 +1712,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        
     }
     
     /**

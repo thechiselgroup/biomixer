@@ -443,12 +443,9 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
             if(outerThis.dragging){
                 return;
             }      
-           
-            d3.select("#link_container")
+            d3.select("#graph_g")
                 .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-            d3.select("#node_container")
-                .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-           }
+       }
     }
     
     resetZoom() {
