@@ -1,5 +1,5 @@
 import Menu = require("./Menu");
-import ExportSvgToImage = require("./ExportSvgtoImage");
+import ExportSvgToImage = require("./ExportSvgToImage");
 import GraphView = require("./GraphView");
 
 declare var Pablo;

@@ -1,4 +1,4 @@
-define(["require", "exports", "./Menu", "./ExportSvgtoImage"], function (require, exports, Menu, ExportSvgToImage) {
+define(["require", "exports", "./Menu", "./ExportSvgToImage"], function (require, exports, Menu, ExportSvgToImage) {
     var MiniMap = (function () {
         function MiniMap(parentVisualization, parentGraph, parentZoom) {
             var _this = this;
