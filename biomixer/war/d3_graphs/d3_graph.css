@@ -11,6 +11,11 @@
   
 }
 
+#chart {
+	fill: white;
+	overflow: hidden;
+}
+
 .centralNode {
   stroke-width: 2;
   stroke-opacity: 1;
@@ -737,6 +742,7 @@ div#undo_redo_breadcrumb_label {
 .panCanvas {
     cursor: move;
 }
+
 
 /*
 .minimapFrame{

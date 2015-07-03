@@ -27,6 +27,8 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage"], function (require
             this.parentGraph = parentGraph;
             var pc = document.createElementNS(d3.ns.prefix.svg, 'svg');
             pc.setAttribute("id", "outerMMSVG");
+            // Avoids some IE and Firefox errors in Pablo, with the getBBox() method.
+            d3.select("#outerMMSVG").attr("width", "0").attr("height", "0").attr("x", "0").attr("y", "0");
             this.outerCanvas = d3.select(pc);
             this.addDefs();
             this.miniMap = this.outerCanvas.append("g").attr("class", "minimap");
@@ -175,6 +177,7 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage"], function (require
                 callback();
             }
         };
+        //    private oldViewbox;
         MiniMap.prototype.renderImplementation = function (force) {
             if (force === void 0) { force = false; }
             this.svgDefs.select("#frameGradient").attr("width", this._mmwidth).attr("height", this._mmheight);
@@ -195,8 +198,7 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage"], function (require
                 this.firstTimeRendering = false;
                 // Update the SVG in the minimap
                 var pabloClone = ExportSvgToImage.ExportSvgToImage.getPabloSvgClone("graphSvg", "minimapClone", true); //this.parentVisualization.
-                var node = d3.select(pabloClone);
-                node = d3.select(pabloClone[0].children).node()[0];
+                var node = d3.select(pabloClone.children()[0]).node();
                 // Also, I want to remove the background that came from the graph, because it has sizing that
                 // makes it hard to work with
                 $(node).children("rect").remove();
@@ -204,16 +206,18 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage"], function (require
                 this.minimapKiddle.selectAll("*").remove(); // d3.selectAll(".minimap .panCanvas").remove();
                 this.minimapKiddle.node().appendChild(node);
                 // I need that white space shrunk down
-                Pablo("#outerMMSVG").crop();
-                this.oldViewbox = Pablo("#outerMMSVG").viewbox();
-                Pablo("#outerMMSVG").viewbox([0, 0, this.oldViewbox[2], this.oldViewbox[3]]);
+                if (null !== d3.select("#outerMMSVG")[0][0]) {
+                    Pablo("#outerMMSVG").crop();
+                }
                 this.frame.node().parentNode.appendChild(this.frame.node());
                 $("#svgHtmlContainer").remove();
                 $("#minimapClone").remove();
             }
             var targetTransform = this.getXYFromTranslate(this._target.attr("transform"));
-            var width = this.oldViewbox[2];
-            var height = this.oldViewbox[3];
+            var width;
+            var height;
+            //        var width = this.oldViewbox[2];
+            //        var height = this.oldViewbox[3];
             var gRect = d3.select("#graph_g").select("rect");
             if (gRect[0][0] != null) {
                 width = Math.max(0, parseFloat(gRect.attr("width"))) / this._zoom.scale();

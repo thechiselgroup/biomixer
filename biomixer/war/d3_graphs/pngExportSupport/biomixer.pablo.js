@@ -1450,9 +1450,13 @@
             // All elements in the collection are in the DOM
             if (allInDocument){
                 if (this.length === 1){
-                	// getBBox() doesn't work for SVG unless we go through JQuery
-                	// total = this[0].getBBox();
-                    total = $(this)[0].getBBox();
+                	try{
+	                	// Need try/catch for know FF and IE bugs
+                		// getBBox() doesn't work for SVG unless we go through JQuery
+                		total = this[0].getBBox();
+                	} catch(err){
+                		total = {x:0, y:0, width:0, height:0};
+                	}
                 }
 
                 else {

@@ -64,7 +64,7 @@ define(["require", "exports", './MouseSpinner', "MouseSpinner"], function (requi
             var clone = instance.pabloGetSvgClone(instance.getSvgStringClone(svgId, cloneId), cloneId);
             if (fullView) {
                 // Very important when things are panned and scaled and we want a full view
-                d3.select(clone[0].children[0]).attr("transform", "translate(0, 0)scale(1)");
+                d3.select(clone.children()[0]).attr("transform", "translate(0, 0)scale(1)");
             }
             return clone;
         };
