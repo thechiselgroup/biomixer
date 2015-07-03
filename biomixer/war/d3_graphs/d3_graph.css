@@ -743,6 +743,10 @@ div#undo_redo_breadcrumb_label {
     cursor: move;
 }
 
+#outerMMSVG {
+	background-color: #FFFFFF;
+	stroke-width: 0px;
+}
 
 /*
 .minimapFrame{

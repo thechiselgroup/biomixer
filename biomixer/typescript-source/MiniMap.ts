@@ -18,7 +18,8 @@ export class MiniMap {
         
         containers.inner.append(this.outerCanvas.node());
         
-        $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "white");
+        $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "white").css("overflow", "hidden");
+        $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "rgb(193, 217, 241)");
         
     }
     

@@ -88,7 +88,8 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage"], function (require
             var layoutsContainer = containers.inner;
             $(menuSelector).append(containers.outer);
             containers.inner.append(this.outerCanvas.node());
-            $("#" + MiniMap.menuContainerScrollContainerId).css("background-color", "white");
+            $("#" + MiniMap.menuContainerScrollContainerId).css("background-color", "white").css("overflow", "hidden");
+            $("#" + MiniMap.menuContainerScrollContainerId).css("background-color", "rgb(193, 217, 241)");
         };
         MiniMap.prototype.menuMadeVisibleLambda = function () {
             var _this = this;
