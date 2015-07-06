@@ -617,7 +617,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-    		
+    		outerThis.graph.graphView.stampTimeLayoutModified();
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -657,6 +657,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
+            outerThis.graph.graphView.stampTimeLayoutModified();
             outerThis.forceLayout.stop();
 
             var xShift = 0.05 * outerThis.graphView.visWidth();
@@ -683,6 +684,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
+            outerThis.graph.graphView.stampTimeLayoutModified();
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
@@ -709,7 +711,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-                        
+            outerThis.graph.graphView.stampTimeLayoutModified();
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -740,7 +742,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         	if(refreshLayout){
     			// Act normal, redo the whole layout
     		}
-            
+            outerThis.graph.graphView.stampTimeLayoutModified();
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             var graphLinks = outerThis.graph.graphD3Format.links;
@@ -779,7 +781,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
                 outerThis.forceLayout.resume();
                 return;
             }
-            
+            outerThis.graph.graphView.stampTimeLayoutModified();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
 
             // The nodes may have been fixed in the fixed layout, or when dragging them.
@@ -804,7 +806,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             if(refreshLayout){
                 // Act normal, redo the whole layout
             }
-            
+            outerThis.graph.graphView.stampTimeLayoutModified();
             outerThis.forceLayout.stop();
             var graphNodes = outerThis.graph.graphD3Format.nodes;
             

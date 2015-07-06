@@ -1,6 +1,7 @@
 import Menu = require("./Menu");
 import ExportSvgToImage = require("./ExportSvgToImage");
 import GraphView = require("./GraphView");
+import MouseSpinner = require("./MouseSpinner");
 
 declare var Pablo;
 
@@ -21,12 +22,48 @@ export class MiniMap {
         $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "white").css("overflow", "hidden");
         $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "rgb(193, 217, 241)");
         
+        this.attachZoomHandlers();
     }
     
     menuMadeVisibleLambda(){
         return (): void=>{
              this.render(true);
         }
+    }
+    
+    attachZoomHandlers(){
+        // In order to control when the user may zoom and drag the minimap, we must add
+        // and remove the zoom handler when the mosue goes voer the minimap. There wasn't
+        // another way I could see to control zooming applicability.
+        var fakeZoomHandler = d3.behavior.zoom();
+        d3.select("#"+MiniMap.menuContainerScrollContainerId).on("mousemove", ()=>{
+            var currentTime = new Date().getTime();
+            if(this.parentGraph.getTimeStampLastLayoutModification() + 500 > currentTime){
+                d3.select("#outerMMSVG").call(fakeZoomHandler);
+                MouseSpinner.MouseSpinner.applyMouseSpinner("MiniMapNoDrag");
+            } else {
+                MouseSpinner.MouseSpinner.haltSpinner("MiniMapNoDrag");
+                // This gives us instant zoom behavior when scrolling on minimap, when we have
+                // also done the container.call(parentZoom).
+                d3.select("#outerMMSVG").call(this._zoom);
+                this._zoom.on("zoom.minimap", ()=>{
+                    var zoomTime = new Date().getTime();
+                    if(this.parentGraph.getTimeStampLastLayoutModification() + 500 > zoomTime){
+                        return;
+                    }
+                    this._scale = d3.event.scale;
+                    this.renderImplementation();
+                    return;
+                });
+                // this.container.call(parentZoom);
+            }
+        });
+        
+        d3.select("#"+MiniMap.menuContainerScrollContainerId).on("mouseleave", ()=>{
+            MouseSpinner.MouseSpinner.haltSpinner("MiniMapNoDrag");
+            d3.select("#outerMMSVG").call(fakeZoomHandler);
+            this._zoom.on("zoom.minimap", null);
+        });   
     }
 
     private parentVisualization     = null;
@@ -108,16 +145,6 @@ export class MiniMap {
         this._x = this._mmwidth + this._minimapPadding;
         this._y = this._mmheight + this._minimapPadding;
 
-        this.container.call(this._zoom);
-
-        // This gives us instant zoom behavior when scrolling on minimap, when we have
-        // also done the container.call(parentZoom).
-        this._zoom.on("zoom.minimap", ()=>{
-            this._scale = d3.event.scale;
-            this.renderImplementation();
-        });
-        this.container.call(parentZoom);
-
         this.frame = this.container.append("g")
             .attr("class", "frame");
 
@@ -128,14 +155,24 @@ export class MiniMap {
             .attr("fill", "url(#frameGradient)")
         ;
         
+        var dragstarted = false;
         var drag = d3.behavior.drag()
             .on("dragstart.minimap", ()=>{
+                var currentTime = new Date().getTime();
+                if(this.parentGraph.getTimeStampLastLayoutModification() + 1000 > currentTime){
+                    return;
+                }
+                dragstarted = true;
                 var frameTranslate = this.getXYFromTranslate(this.frame.attr("transform"));
                 this._frameX = frameTranslate[0];
                 this._frameY = frameTranslate[1];
             })
             .on("drag.minimap", ()=>{
                 d3.event.sourceEvent.stopImmediatePropagation();
+                var currentTime = new Date().getTime();
+                if(!dragstarted || this.parentGraph.getTimeStampLastLayoutModification() + 1000 > currentTime){
+                    return;
+                }
                 this._frameX += d3.event.dx;
                 this._frameY += d3.event.dy;
                 
@@ -155,7 +192,11 @@ export class MiniMap {
                 $("#graph_g").attr("transform", "translate(" + graphX + "," + graphY + ") scale(" + this._scale + ")");
 
                 this._zoom.translate(translate); // got rid of in original and it didn't affect anything
-            });
+            })
+            .on("dragend.minimap", ()=>{
+                dragstarted = false;
+            })
+            ;
         
         
         this.frame.call(drag);

@@ -191,14 +191,24 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         }  
     }
     
-    lastTimeChange = new Date().getTime();
+    lastTimeLayoutChange = new Date().getTime();
+    stampTimeLayoutModified(){
+        // Things like layout steps and node drags modify this
+        this.lastTimeLayoutChange = new Date().getTime();
+    }
+    
+     getTimeStampLastLayoutModification(): number {
+        return this.lastTimeLayoutChange;
+    }
+    
+    lastTimeGraphChange = new Date().getTime();
     stampTimeGraphModified(){
         // Things like temporary edges, etc, indicate that the caller must control this.
-        this.lastTimeChange = new Date().getTime();
+        this.lastTimeGraphChange = new Date().getTime();
     }
     
     getTimeStampLastGraphModification(): number {
-        return this.lastTimeChange;
+        return this.lastTimeGraphChange;
     }
     
     updateStartWithoutResume(): void{

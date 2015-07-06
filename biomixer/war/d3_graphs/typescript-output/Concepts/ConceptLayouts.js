@@ -435,6 +435,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function (refreshLayout) {
                 if (refreshLayout) {
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 outerThis.forceLayout.stop();
                 var graphNodes = outerThis.graph.graphD3Format.nodes;
                 var graphLinks = outerThis.graph.graphD3Format.links;
@@ -470,6 +471,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function (refreshLayout) {
                 if (refreshLayout) {
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 outerThis.forceLayout.stop();
                 var xShift = 0.05 * outerThis.graphView.visWidth();
                 var yShift = 0.2 * outerThis.graphView.visHeight();
@@ -489,6 +491,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function (refreshLayout) {
                 if (refreshLayout) {
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 outerThis.forceLayout.stop();
                 var graphNodes = outerThis.graph.graphD3Format.nodes;
                 var xShift = 0.3 * outerThis.graphView.visHeight();
@@ -509,6 +512,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function (refreshLayout) {
                 if (refreshLayout) {
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 outerThis.forceLayout.stop();
                 var graphNodes = outerThis.graph.graphD3Format.nodes;
                 var graphLinks = outerThis.graph.graphD3Format.links;
@@ -530,6 +534,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function (refreshLayout) {
                 if (refreshLayout) {
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 outerThis.forceLayout.stop();
                 var graphNodes = outerThis.graph.graphD3Format.nodes;
                 var graphLinks = outerThis.graph.graphD3Format.links;
@@ -560,6 +565,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
                     outerThis.forceLayout.resume();
                     return;
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 var graphNodes = outerThis.graph.graphD3Format.nodes;
                 // The nodes may have been fixed in the fixed layout, or when dragging them.
                 // If we are not merely refreshing, let them all be free to move.
@@ -576,6 +582,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function (refreshLayout) {
                 if (refreshLayout) {
                 }
+                outerThis.graph.graphView.stampTimeLayoutModified();
                 outerThis.forceLayout.stop();
                 var graphNodes = outerThis.graph.graphD3Format.nodes;
                 $.each(graphNodes, function (index, node) {

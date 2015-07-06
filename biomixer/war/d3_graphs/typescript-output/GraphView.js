@@ -54,7 +54,8 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                     _this.currentLambda(true); // direct retrigger the current layout.
                 }
             };
-            this.lastTimeChange = new Date().getTime();
+            this.lastTimeLayoutChange = new Date().getTime();
+            this.lastTimeGraphChange = new Date().getTime();
             // These are needed to do a refresh of popups when new data arrives and the user has the popup open
             this.lastDisplayedTipsy = null;
             this.lastDisplayedTipsyData = null;
@@ -74,12 +75,19 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
         BaseGraphView.prototype.linkMaxDesiredLength = function () {
             return Math.min(this.visWidth(), this.visHeight()) / 2 - 50;
         };
+        BaseGraphView.prototype.stampTimeLayoutModified = function () {
+            // Things like layout steps and node drags modify this
+            this.lastTimeLayoutChange = new Date().getTime();
+        };
+        BaseGraphView.prototype.getTimeStampLastLayoutModification = function () {
+            return this.lastTimeLayoutChange;
+        };
         BaseGraphView.prototype.stampTimeGraphModified = function () {
             // Things like temporary edges, etc, indicate that the caller must control this.
-            this.lastTimeChange = new Date().getTime();
+            this.lastTimeGraphChange = new Date().getTime();
         };
         BaseGraphView.prototype.getTimeStampLastGraphModification = function () {
-            return this.lastTimeChange;
+            return this.lastTimeGraphChange;
         };
         BaseGraphView.prototype.updateStartWithoutResume = function () {
             var _this = this;

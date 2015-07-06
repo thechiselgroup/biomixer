@@ -314,6 +314,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var maxLayoutRunDuration = 10000;
             var maxGravityFrequency = 4000;
             return function () {
+                _this.stampTimeLayoutModified();
                 // This improved layout behavior dramatically.
                 var boundNodes = _this.vis.selectAll("g.node_g");
                 // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
