@@ -220,6 +220,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return ()=>{
             outerThis.graphView.setCurrentLayout(layoutLambda);
             outerThis.graphView.runCurrentLayout();
+            outerThis.graphView.renderMiniMap();
         };
     }
     
@@ -319,6 +320,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             .duration(duration)
             .ease("linear")
             .attr("points", outerThis.graphView.updateArcMarkerFunc);
+        
+       window.setTimeout(()=>{this.graphView.renderMiniMap(true);}, duration+100);
     
        if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
             this.lastTransition = new Date().getTime();

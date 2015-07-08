@@ -99,6 +99,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function () {
                 outerThis.graphView.setCurrentLayout(layoutLambda);
                 outerThis.graphView.runCurrentLayout();
+                outerThis.graphView.renderMiniMap();
             };
         };
         ConceptLayouts.prototype.setNewLayoutWithoutRunning = function (layoutLambda) {
@@ -115,6 +116,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
          * while we animate all of the fixed position nodes into their fixed positions).
          */
         ConceptLayouts.prototype.transitionNodes = function (refresh, transitionOnlyFixedNodes) {
+            var _this = this;
             if (transitionOnlyFixedNodes === void 0) { transitionOnlyFixedNodes = false; }
             var outerThis = this;
             var graphNodes = outerThis.graph.graphD3Format.nodes;
@@ -165,6 +167,9 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             d3.selectAll(GraphView.BaseGraphView.linkMarkerSvgClass).filter(function (link, i) {
                 return null !== outerThis.graph.containsNodeById(link.sourceId) && null !== outerThis.graph.containsNodeById(link.targetId) && null !== link.source && null !== link.target;
             }).transition().duration(duration).ease("linear").attr("points", outerThis.graphView.updateArcMarkerFunc);
+            window.setTimeout(function () {
+                _this.graphView.renderMiniMap(true);
+            }, duration + 100);
             if (this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold) {
                 this.lastTransition = new Date().getTime();
             }

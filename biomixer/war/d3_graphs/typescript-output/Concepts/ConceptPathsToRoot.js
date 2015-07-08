@@ -154,7 +154,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // Performs zoom and pan behaviors.
             this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", function () {
                 _this.geometricZoom()();
-                _this.miniMap.render();
+                _this.renderMiniMap(true);
             });
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
                 // outerThis.menu.closeMenuLambda()()
@@ -204,6 +204,16 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.miniMap = new MiniMap.MiniMap(d3.select("#graphSvg"), this, this.zoom);
             this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
             MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
+        };
+        ConceptPathsToRoot.prototype.renderMiniMap = function (immediate, force) {
+            if (immediate === void 0) { immediate = false; }
+            if (force === void 0) { force = false; }
+            if (null != this.miniMap) {
+                this.miniMap.render(immediate, force);
+            }
+        };
+        ConceptPathsToRoot.prototype.layoutRefreshed = function () {
+            this.renderMiniMap(true);
         };
         /**
          * This is used for both initial expansions and refocus expansions.
@@ -344,9 +354,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 if (null != _this.tour) {
                     _this.tour.refreshIntro();
                 }
-                if (null != _this.miniMap) {
-                    _this.miniMap.render();
-                }
+                _this.renderMiniMap(false, true);
             };
         };
         ConceptPathsToRoot.prototype.dragstartLambda = function (outerThis) {
@@ -388,9 +396,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 outerThis.vis.selectAll("polyline" + GraphView.BaseGraphView.linkMarkerSvgClass).filter(function (e) {
                     return e.source === d || e.target === d;
                 }).attr("points", outerThis.updateArcMarkerFunc);
-                if (null != outerThis.miniMap) {
-                    outerThis.miniMap.render();
-                }
+                outerThis.stampTimeLayoutModified();
+                outerThis.renderMiniMap(true, true);
             };
         };
         ConceptPathsToRoot.prototype.computeArcMarkerForInheritance = function (linkData, ignoreOffset) {
@@ -484,6 +491,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         ConceptPathsToRoot.prototype.dragendLambda = function (outerThis) {
             return function (d, i) {
                 outerThis.dragging = false;
+                outerThis.stampTimeLayoutModified();
                 // $(this).tipsy('show');
                 // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
                 // $(".tipsy").show();
@@ -586,9 +594,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // this.runCurrentLayout();
             // Call start() only if we actually added (or removed) anything
             // this.forceLayout.start();
-            if (null != this.miniMap) {
-                this.miniMap.render();
-            }
+            this.renderMiniMap();
         };
         ConceptPathsToRoot.prototype.populateNewGraphEdges = function (linksData, temporaryEdges) {
             if (temporaryEdges === void 0) { temporaryEdges = false; }
@@ -642,6 +648,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
                 this.edgeTypeFilter.updateFilterUI();
             }
+            this.renderMiniMap(true);
         };
         ConceptPathsToRoot.prototype.markerAdderLambda = function () {
             var outerThis = this;
@@ -840,6 +847,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // this.expansionSetFilter.updateFilterUI();
                 this.nestedExpansionConceptFilter.updateFilterUI();
             }
+            this.renderMiniMap(true);
         };
         ConceptPathsToRoot.prototype.removeMissingGraphElements = function () {
             //console.log("Removing some graph elements "+Utils.getTime());
@@ -882,6 +890,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // this.expansionSetFilter.updateFilterUI();
                 this.nestedExpansionConceptFilter.updateFilterUI();
             }
+            this.renderMiniMap(true);
         };
         ConceptPathsToRoot.prototype.attachNodeMenu = function (enteringNodes) {
             // Menu indicator:

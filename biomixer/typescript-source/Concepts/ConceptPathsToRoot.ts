@@ -202,7 +202,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         var outerThis = this;
         // Performs zoom and pan behaviors.
-        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", ()=>{ this.geometricZoom()(); this.miniMap.render(); });
+        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", ()=>{ this.geometricZoom()(); this.renderMiniMap(true); });
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
             .attr("width", this.visWidth())
@@ -288,6 +288,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
         
          MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
+    }
+    
+    renderMiniMap(immediate: boolean = false, force: boolean = false){
+        if(null != this.miniMap){
+            this.miniMap.render(immediate, force);
+        }
+    }
+    
+    layoutRefreshed(){
+        this.renderMiniMap(true);
     }
     
     /**
@@ -483,9 +493,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 this.tour.refreshIntro();
             }
             
-            if(null != this.miniMap){
-                this.miniMap.render();
-            }
+            this.renderMiniMap(false, true);
         }
             
     }
@@ -541,9 +549,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
                 .attr("points", outerThis.updateArcMarkerFunc);
 
-            if(null != outerThis.miniMap){
-                outerThis.miniMap.render();
-            }
+            outerThis.stampTimeLayoutModified();
+            
+            outerThis.renderMiniMap(true, true);
         }
     }
     
@@ -695,6 +703,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
             outerThis.dragging = false;
+            outerThis.stampTimeLayoutModified();
             // $(this).tipsy('show');
             // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
             // $(".tipsy").show();
@@ -869,9 +878,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.runCurrentLayout();
         // Call start() only if we actually added (or removed) anything
         // this.forceLayout.start();
-        if(null != this.miniMap){
-            this.miniMap.render();
-        }
+        this.renderMiniMap();
     }
     
     populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges: boolean = false){
@@ -958,6 +965,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
             this.edgeTypeFilter.updateFilterUI();
         }
+        this.renderMiniMap(true);
     }
     
     private giveIEMarkerWarning = true;
@@ -1202,6 +1210,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.nestedExpansionConceptFilter.updateFilterUI();
         
         }
+        this.renderMiniMap(true);
     }
 
     removeMissingGraphElements(){
@@ -1254,6 +1263,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // this.expansionSetFilter.updateFilterUI();
             this.nestedExpansionConceptFilter.updateFilterUI();
         }
+        this.renderMiniMap(true);
     }
     
     attachNodeMenu(enteringNodes: D3.Selection){

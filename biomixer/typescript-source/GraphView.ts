@@ -257,6 +257,7 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                             outerLayoutTimer = null;
                             layoutLastCalled = new Date().getTime();
                             outerThis.currentLambda(refreshLayoutInner);
+                            outerThis.layoutRefreshed();
                         }
                     , timerWait);
                 }
@@ -266,6 +267,10 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
 //    immediateLayoutRun(layoutLambda: {(refreshLayout?: boolean):void}){
 //        layoutLambda();
 //    }
+    
+    layoutRefreshed(){
+        // Feel free to extend this   
+    }
     
     getAdjacentLinks(node: N){
         return d3.selectAll(BaseGraphView.linkSvgClass)

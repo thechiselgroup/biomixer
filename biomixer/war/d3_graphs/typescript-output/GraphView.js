@@ -122,6 +122,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                         outerLayoutTimer = null;
                         layoutLastCalled = new Date().getTime();
                         outerThis.currentLambda(refreshLayoutInner);
+                        outerThis.layoutRefreshed();
                     }, timerWait);
                 }
             };
@@ -130,6 +131,9 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
         //    immediateLayoutRun(layoutLambda: {(refreshLayout?: boolean):void}){
         //        layoutLambda();
         //    }
+        BaseGraphView.prototype.layoutRefreshed = function () {
+            // Feel free to extend this   
+        };
         BaseGraphView.prototype.getAdjacentLinks = function (node) {
             return d3.selectAll(BaseGraphView.linkSvgClass).filter(function (d, i) {
                 return d.source === node || d.target === node;

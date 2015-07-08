@@ -37,9 +37,7 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             this.container = this.miniMap;
             var xScale = d3.scale.linear().domain([-this._mmwidth / 2, this._mmwidth / 2]).range([0, this._mmwidth]);
             var yScale = d3.scale.linear().domain([-this._mmheight / 2, this._mmheight / 2]).range([this._mmheight, 0]);
-            var zoom = d3.behavior.zoom().x(xScale).y(yScale).scaleExtent([0.5, 3]).on("zoom.canvas", this.zoomHandlerF);
-            zoom = parentZoom;
-            this._zoom = zoom;
+            this._zoom = parentZoom;
             this._target = parentVisualization;
             this._mmwidth = parseInt(this._target.attr("width"), 10);
             this._mmheight = parseInt(this._target.attr("height"), 10);
@@ -66,8 +64,6 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
                 }
                 _this._frameX += d3.event.dx;
                 _this._frameY += d3.event.dy;
-                //                var bbox = this.frame.node().getBBox();
-                //                var outerBbox = this.getMaxMiniMapSize();
                 _this.frame.attr("transform", "translate(" + _this._frameX + "," + _this._frameY + ")");
                 var translate = [(-_this._frameX * _this._scale), (-_this._frameY * _this._scale)];
                 var gRect = d3.select("#graph_g"); // .select("rect");
@@ -94,13 +90,23 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             containers.inner.append(this.outerCanvas.node());
             $("#" + MiniMap.menuContainerScrollContainerId).css("background-color", "white").css("overflow", "hidden");
             $("#" + MiniMap.menuContainerScrollContainerId).css("background-color", "rgb(193, 217, 241)");
+            $("#" + MiniMap.menuContainerScrollContainerId).css("min-width", "inherit");
+            $("#" + MiniMap.menuContainerScrollContainerId).css("min-height", "inherit");
+            $("#" + MiniMap.menuContainerScrollContainerId).css("width", "inherit");
+            $("#" + MiniMap.menuContainerScrollContainerId).css("height", "inherit");
             this.attachZoomHandlers();
         };
         MiniMap.prototype.menuMadeVisibleLambda = function () {
             var _this = this;
             return function () {
+                var outerBbox = _this.getMaxMiniMapSize();
+                _this.outerMMSVG().attr("width", outerBbox.width);
+                _this.outerMMSVG().attr("height", outerBbox.height);
                 _this.render(true);
             };
+        };
+        MiniMap.prototype.outerMMSVG = function () {
+            return d3.select("#outerMMSVG");
         };
         MiniMap.prototype.attachZoomHandlers = function () {
             var _this = this;
@@ -111,14 +117,14 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             d3.select("#" + MiniMap.menuContainerScrollContainerId).on("mousemove", function () {
                 var currentTime = new Date().getTime();
                 if (_this.parentGraph.getTimeStampLastLayoutModification() + 500 > currentTime) {
-                    d3.select("#outerMMSVG").call(fakeZoomHandler);
+                    _this.outerMMSVG().call(fakeZoomHandler);
                     MouseSpinner.MouseSpinner.applyMouseSpinner("MiniMapNoDrag");
                 }
                 else {
                     MouseSpinner.MouseSpinner.haltSpinner("MiniMapNoDrag");
                     // This gives us instant zoom behavior when scrolling on minimap, when we have
                     // also done the container.call(parentZoom).
-                    d3.select("#outerMMSVG").call(_this._zoom);
+                    _this.outerMMSVG().call(_this._zoom);
                     _this._zoom.on("zoom.minimap", function () {
                         var zoomTime = new Date().getTime();
                         if (_this.parentGraph.getTimeStampLastLayoutModification() + 500 > zoomTime) {
@@ -128,11 +134,16 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
                         _this.renderImplementation();
                         return;
                     });
+                    _this._zoom.on("zoomstart.minimap", function () {
+                        _this.oldViewbox = _this.outerMMSVG().attr("viewBox");
+                        _this.oldmmsvgWidth = _this.outerMMSVG().attr("width");
+                        _this.oldmmsvgHeight = _this.outerMMSVG().attr("height");
+                    });
                 }
             });
             d3.select("#" + MiniMap.menuContainerScrollContainerId).on("mouseleave", function () {
                 MouseSpinner.MouseSpinner.haltSpinner("MiniMapNoDrag");
-                d3.select("#outerMMSVG").call(fakeZoomHandler);
+                _this.outerMMSVG().call(fakeZoomHandler);
                 _this._zoom.on("zoom.minimap", null);
             });
         };
@@ -195,45 +206,45 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             var y = split[1] ? parseFloat(split[1].split(")")[0]) : 0;
             return [x, y];
         };
-        MiniMap.prototype.render = function (force) {
+        MiniMap.prototype.render = function (immediate, force) {
             var _this = this;
+            if (immediate === void 0) { immediate = false; }
             if (force === void 0) { force = false; }
             var currentTime = new Date().getTime();
             var callback = function () {
                 clearTimeout(_this.outerLayoutTimer);
                 _this.outerLayoutTimer = null;
                 _this.minimapRefreshLastCallTime = new Date().getTime();
-                _this.renderImplementation(force);
+                _this.renderImplementation(immediate || force);
             };
-            if (this.minimapRefreshLastCallTime + this.timerWait >= currentTime && this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime) {
+            var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.timerWait < currentTime;
+            var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
+            if (immediate || (longEnoughSinceLastRender && longEnoughAfterGraphChange)) {
+                callback();
+            }
+            else {
                 // if we called this within .2 seconds, defer for a bit
                 // The minimap render can be called very very often, but we only need it to refresh at perhaps 60HZ
-                if (this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime === 0 || this.minimapRefreshLastCallTime + this.timerWait > currentTime)) {
-                    console.log("Only use timer when there is actual change to graph, not when it is pan and zoom");
+                if (this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)) {
+                    // Only use timer when there is actual change to graph, not when it is pan and zoom
                     this.outerLayoutTimer = setTimeout(callback, this.timerWait);
                 }
             }
-            else {
-                callback();
-            }
         };
-        //    private oldViewbox;
         MiniMap.prototype.renderImplementation = function (force) {
             if (force === void 0) { force = false; }
             this.svgDefs.select("#frameGradient").attr("width", this._mmwidth).attr("height", this._mmheight);
             this._scale = this._zoom.scale();
             this.container.attr("transform", "scale(" + this._minimapScale + ")");
-            // try using pablo clone
-            // Remove old Pablo clone
-            $("#minimapClone").remove();
+            // When the menu hasn't been shown, and in early processing, this doesn't exist yet:
             if ($("#graphSvg").length == 0) {
                 return;
             }
-            var currentTime = new Date().getTime();
             var graphChanged = true;
-            if (this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime) {
+            if (this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < this.minimapRefreshLastCallTime || this.parentGraph.getTimeStampLastLayoutModification() + this.timerWait < this.minimapRefreshLastCallTime) {
                 graphChanged = false;
             }
+            // We will make a clone of the graph and miniaturize it.
             if (force || graphChanged || this.firstTimeRendering) {
                 this.firstTimeRendering = false;
                 // Update the SVG in the minimap
@@ -246,18 +257,24 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
                 this.minimapKiddle.selectAll("*").remove(); // d3.selectAll(".minimap .panCanvas").remove();
                 this.minimapKiddle.node().appendChild(node);
                 // I need that white space shrunk down
-                if (null !== d3.select("#outerMMSVG")[0][0]) {
+                if (null !== this.outerMMSVG()[0][0]) {
                     Pablo("#outerMMSVG").crop();
+                    if (null != this.oldViewbox) {
+                        var newViewbox = this.outerMMSVG().attr("viewBox");
+                        // Make the viewport start at origin always
+                        var viewPortString = "0 0 " + newViewbox.split(" ")[2] + " " + newViewbox.split(" ")[3];
+                        this.outerMMSVG().attr("viewBox", viewPortString);
+                        this.outerMMSVG().attr("viewBox", this.oldViewbox);
+                        this.outerMMSVG().attr("width", this.oldmmsvgWidth);
+                        this.outerMMSVG().attr("height", this.oldmmsvgHeight);
+                    }
                 }
                 this.frame.node().parentNode.appendChild(this.frame.node());
                 $("#svgHtmlContainer").remove();
                 $("#minimapClone").remove();
             }
-            var targetTransform = this.getXYFromTranslate(this._target.attr("transform"));
             var width;
             var height;
-            //        var width = this.oldViewbox[2];
-            //        var height = this.oldViewbox[3];
             var gRect = d3.select("#graph_g").select("rect");
             if (gRect[0][0] != null) {
                 width = Math.max(0, parseFloat(gRect.attr("width"))) / this._zoom.scale();

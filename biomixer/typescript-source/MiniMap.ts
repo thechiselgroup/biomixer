@@ -21,14 +21,25 @@ export class MiniMap {
         
         $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "white").css("overflow", "hidden");
         $("#"+MiniMap.menuContainerScrollContainerId).css("background-color", "rgb(193, 217, 241)");
+        $("#"+MiniMap.menuContainerScrollContainerId).css("min-width", "inherit");
+        $("#"+MiniMap.menuContainerScrollContainerId).css("min-height", "inherit");
+        $("#"+MiniMap.menuContainerScrollContainerId).css("width", "inherit");
+        $("#"+MiniMap.menuContainerScrollContainerId).css("height", "inherit");
         
         this.attachZoomHandlers();
     }
     
     menuMadeVisibleLambda(){
         return (): void=>{
-             this.render(true);
+            var outerBbox = this.getMaxMiniMapSize();
+            this.outerMMSVG().attr("width", outerBbox.width);
+            this.outerMMSVG().attr("height", outerBbox.height);
+            this.render(true);
         }
+    }
+    
+    outerMMSVG(){
+        return d3.select("#outerMMSVG");
     }
     
     attachZoomHandlers(){
@@ -39,13 +50,13 @@ export class MiniMap {
         d3.select("#"+MiniMap.menuContainerScrollContainerId).on("mousemove", ()=>{
             var currentTime = new Date().getTime();
             if(this.parentGraph.getTimeStampLastLayoutModification() + 500 > currentTime){
-                d3.select("#outerMMSVG").call(fakeZoomHandler);
+                this.outerMMSVG().call(fakeZoomHandler);
                 MouseSpinner.MouseSpinner.applyMouseSpinner("MiniMapNoDrag");
             } else {
                 MouseSpinner.MouseSpinner.haltSpinner("MiniMapNoDrag");
                 // This gives us instant zoom behavior when scrolling on minimap, when we have
                 // also done the container.call(parentZoom).
-                d3.select("#outerMMSVG").call(this._zoom);
+                this.outerMMSVG().call(this._zoom);
                 this._zoom.on("zoom.minimap", ()=>{
                     var zoomTime = new Date().getTime();
                     if(this.parentGraph.getTimeStampLastLayoutModification() + 500 > zoomTime){
@@ -55,13 +66,17 @@ export class MiniMap {
                     this.renderImplementation();
                     return;
                 });
-                // this.container.call(parentZoom);
+                this._zoom.on("zoomstart.minimap", ()=>{
+                    this.oldViewbox = this.outerMMSVG().attr("viewBox");
+                    this.oldmmsvgWidth = this.outerMMSVG().attr("width");
+                    this.oldmmsvgHeight = this.outerMMSVG().attr("height");
+                });
             }
         });
         
         d3.select("#"+MiniMap.menuContainerScrollContainerId).on("mouseleave", ()=>{
             MouseSpinner.MouseSpinner.haltSpinner("MiniMapNoDrag");
-            d3.select("#outerMMSVG").call(fakeZoomHandler);
+            this.outerMMSVG().call(fakeZoomHandler);
             this._zoom.on("zoom.minimap", null);
         });   
     }
@@ -128,16 +143,7 @@ export class MiniMap {
             .domain([-this._mmheight / 2, this._mmheight / 2])
             .range([this._mmheight, 0]);
               
-        var zoom = d3.behavior.zoom()
-            .x(xScale)
-            .y(yScale)
-            .scaleExtent([0.5, 3])
-            .on("zoom.canvas", this.zoomHandlerF);
-        
-        zoom = parentZoom;
-        
-        
-        this._zoom = zoom;
+        this._zoom = parentZoom;
         this._target = parentVisualization;
         this._mmwidth  = parseInt(this._target.attr("width"),  10);
         this._mmheight = parseInt(this._target.attr("height"), 10);
@@ -176,9 +182,6 @@ export class MiniMap {
                 this._frameX += d3.event.dx;
                 this._frameY += d3.event.dy;
                 
-//                var bbox = this.frame.node().getBBox();
-//                var outerBbox = this.getMaxMiniMapSize();
-                
                 this.frame.attr("transform", "translate(" + this._frameX + "," + this._frameY + ")");
                 var translate =  [(-this._frameX*this._scale),(-this._frameY*this._scale)];
                 
@@ -204,7 +207,7 @@ export class MiniMap {
         // startoff zoomed in a bit to show pan/zoom rectangle
         this._zoom.scale(1.5);
         this.zoomHandlerF(1, null);
-        
+
         this.renderImplementation();
     }
     
@@ -347,51 +350,54 @@ export class MiniMap {
     minimapRefreshLastCallTime = 0;
     timerWait = 500;
     outerLayoutTimer = null;
-    render(force: boolean = false) {
+    render(immediate: boolean = false, force: boolean = false) {
         var currentTime = new Date().getTime();
         var callback = ()=> {
                             clearTimeout(this.outerLayoutTimer);
                             this.outerLayoutTimer = null;
                             this.minimapRefreshLastCallTime = new Date().getTime();
-                            this.renderImplementation(force);
+                            this.renderImplementation(immediate || force);
                         };
-        if(this.minimapRefreshLastCallTime + this.timerWait >= currentTime && this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime){
+        var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.timerWait < currentTime;
+        var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
+        if(immediate || (longEnoughSinceLastRender && longEnoughAfterGraphChange)){
+            callback();
+        } else {
             // if we called this within .2 seconds, defer for a bit
             // The minimap render can be called very very often, but we only need it to refresh at perhaps 60HZ
-            if(this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime === 0 || this.minimapRefreshLastCallTime + this.timerWait > currentTime)){
-                console.log("Only use timer when there is actual change to graph, not when it is pan and zoom");
+            if(this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)){
+                // Only use timer when there is actual change to graph, not when it is pan and zoom
                 this.outerLayoutTimer = setTimeout(callback, this.timerWait);
             }
-        } else {
-            callback();
         }
     }
         
     private firstTimeRendering = true;
-//    private oldViewbox;
+    private oldViewbox;
+    private oldmmsvgWidth;
+    private oldmmsvgHeight;
     private renderImplementation(force: boolean = false) {
     
         this.svgDefs
-         .select("#frameGradient")
+        .select("#frameGradient")
         .attr("width", this._mmwidth)
         .attr("height", this._mmheight);
         
         this._scale = this._zoom.scale();
         this.container.attr("transform", "scale(" + this._minimapScale + ")");
 
-        // try using pablo clone
-        // Remove old Pablo clone
-        $("#minimapClone").remove();
+        // When the menu hasn't been shown, and in early processing, this doesn't exist yet:
         if($("#graphSvg").length == 0){
             return;
         }
         
-        var currentTime = new Date().getTime();
         var graphChanged = true;
-        if(this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime){
+        if(this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < this.minimapRefreshLastCallTime
+            || this.parentGraph.getTimeStampLastLayoutModification() + this.timerWait < this.minimapRefreshLastCallTime){
             graphChanged = false;
         }
         
+        // We will make a clone of the graph and miniaturize it.
         if(force || graphChanged || this.firstTimeRendering){
             this.firstTimeRendering = false;
             // Update the SVG in the minimap
@@ -407,12 +413,18 @@ export class MiniMap {
             this.minimapKiddle.node().appendChild(node);
             
             // I need that white space shrunk down
-            if(null !== d3.select("#outerMMSVG")[0][0]){
+            if(null !== this.outerMMSVG()[0][0]){
                 Pablo("#outerMMSVG").crop();
-//            this.oldViewbox = Pablo("#outerMMSVG").viewbox();
-//            Pablo("#outerMMSVG").viewbox([0, 0, this.oldViewbox[2], this.oldViewbox[3]]);
+                if(null != this.oldViewbox){
+                    var newViewbox = this.outerMMSVG().attr("viewBox");
+                    // Make the viewport start at origin always
+                    var viewPortString = "0 0 "+newViewbox.split(" ")[2]+" "+newViewbox.split(" ")[3];
+                    this.outerMMSVG().attr("viewBox", viewPortString);
+                    this.outerMMSVG().attr("viewBox", this.oldViewbox);
+                    this.outerMMSVG().attr("width", this.oldmmsvgWidth);
+                    this.outerMMSVG().attr("height", this.oldmmsvgHeight);
+                }
             }
-
             
             this.frame.node().parentNode.appendChild(this.frame.node());
         
@@ -420,11 +432,8 @@ export class MiniMap {
             $("#minimapClone").remove();
         }
         
-        var targetTransform = this.getXYFromTranslate(this._target.attr("transform"));
         var width;
         var height;
-//        var width = this.oldViewbox[2];
-//        var height = this.oldViewbox[3];
         var gRect = d3.select("#graph_g").select("rect");
         if(gRect[0][0] != null){
             width = Math.max(0, parseFloat(gRect.attr("width")))/this._zoom.scale();
@@ -437,8 +446,8 @@ export class MiniMap {
         this.frame
             .attr("transform", "translate(" + x + "," + y + ")") 
             .select(".background, #frameRect")
-            .attr("width", width) // var oldViewbox = Pablo("#outerMMSVG").viewbox();
-            .attr("height", height) // Pablo("#outerMMSVG").viewbox([0, 0, oldViewbox[2], oldViewbox[3]]);
+            .attr("width", width)
+            .attr("height", height)
         ;
     }
 
