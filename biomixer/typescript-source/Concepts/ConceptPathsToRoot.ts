@@ -202,14 +202,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         var outerThis = this;
         // Performs zoom and pan behaviors.
-        var prevZoomLevel = 0.0;
+        var prevZoomLevel;
+        var prevTranslate;
         this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom",
             ()=>{
                 this.geometricZoom()();
                 // Is called a few times on layout change, but I only want to do this on actual zoom.
-                if(prevZoomLevel !== d3.event.scale){
+                if(prevZoomLevel !== d3.event.scale || prevTranslate !== d3.event.translate){
                     this.renderMiniMap(true);
                     prevZoomLevel = d3.event.scale;
+                    prevTranslate = d3.event.translate;
                 }
             }
         );

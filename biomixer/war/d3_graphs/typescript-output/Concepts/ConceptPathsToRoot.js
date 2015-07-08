@@ -152,13 +152,15 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             d3.select("#chart").remove;
             var outerThis = this;
             // Performs zoom and pan behaviors.
-            var prevZoomLevel = 0.0;
+            var prevZoomLevel;
+            var prevTranslate;
             this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", function () {
                 _this.geometricZoom()();
                 // Is called a few times on layout change, but I only want to do this on actual zoom.
-                if (prevZoomLevel !== d3.event.scale) {
+                if (prevZoomLevel !== d3.event.scale || prevTranslate !== d3.event.translate) {
                     _this.renderMiniMap(true);
                     prevZoomLevel = d3.event.scale;
+                    prevTranslate = d3.event.translate;
                 }
             });
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
