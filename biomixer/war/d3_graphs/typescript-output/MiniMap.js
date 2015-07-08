@@ -24,6 +24,7 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             this.timerWait = 500;
             this.outerLayoutTimer = null;
             this.firstTimeRendering = true;
+            this.oldViewbox = null;
             this.parentVisualization = parentVisualization;
             this.parentGraph = parentGraph;
             var pc = document.createElementNS(d3.ns.prefix.svg, 'svg');
@@ -101,8 +102,17 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             var _this = this;
             return function () {
                 var outerBbox = _this.getMaxMiniMapSize();
+                // Use width for everything, because it is not initialized properly under certain circumstances.
+                // We get height by checking the aspect ratio of the window.
+                var heightScale = parseFloat(d3.select("#graphSvg").attr("height")) / parseFloat(d3.select("#graphSvg").attr("width"));
                 _this.outerMMSVG().attr("width", outerBbox.width);
-                _this.outerMMSVG().attr("height", outerBbox.height);
+                _this.outerMMSVG().attr("height", outerBbox.width * heightScale);
+                _this.outerMMSVG().attr("viewBox", "0 0 " + outerBbox.width + " " + outerBbox.width * heightScale);
+                _this.outerMMSVG().attr("width", outerBbox.width);
+                _this.outerMMSVG().attr("height", outerBbox.width * heightScale);
+                _this.oldViewbox = _this.outerMMSVG().attr("viewBox");
+                _this.oldmmsvgWidth = _this.outerMMSVG().attr("width");
+                _this.oldmmsvgHeight = _this.outerMMSVG().attr("height");
                 _this.render(true);
             };
         };
@@ -216,7 +226,6 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             var callback = function () {
                 clearTimeout(_this.outerLayoutTimer);
                 _this.outerLayoutTimer = null;
-                _this.minimapRefreshLastCallTime = new Date().getTime();
                 _this.renderImplementation(force || slow);
             };
             var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.timerWait < currentTime;
@@ -249,12 +258,13 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
                 return;
             }
             var graphChanged = true;
-            if (this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < this.minimapRefreshLastCallTime || this.parentGraph.getTimeStampLastLayoutModification() + this.timerWait < this.minimapRefreshLastCallTime) {
+            if (this.parentGraph.getTimeStampLastGraphModification() < this.minimapRefreshLastCallTime && this.parentGraph.getTimeStampLastLayoutModification() < this.minimapRefreshLastCallTime) {
                 graphChanged = false;
             }
             // We will make a clone of the graph and miniaturize it.
             if (force || graphChanged || this.firstTimeRendering) {
                 this.firstTimeRendering = false;
+                this.minimapRefreshLastCallTime = new Date().getTime();
                 // Update the SVG in the minimap
                 var pabloClone = ExportSvgToImage.ExportSvgToImage.getPabloSvgClone("graphSvg", "minimapClone", true); //this.parentVisualization.
                 var node = d3.select(pabloClone.children()[0]).node();
@@ -268,10 +278,7 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
                 if (null !== this.outerMMSVG()[0][0]) {
                     Pablo("#outerMMSVG").crop();
                     if (null != this.oldViewbox) {
-                        var newViewbox = this.outerMMSVG().attr("viewBox");
                         // Make the viewport start at origin always
-                        var viewPortString = "0 0 " + newViewbox.split(" ")[2] + " " + newViewbox.split(" ")[3];
-                        this.outerMMSVG().attr("viewBox", viewPortString);
                         this.outerMMSVG().attr("viewBox", this.oldViewbox);
                         this.outerMMSVG().attr("width", this.oldmmsvgWidth);
                         this.outerMMSVG().attr("height", this.oldmmsvgHeight);

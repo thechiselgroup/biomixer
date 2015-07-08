@@ -322,7 +322,11 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
             .ease("linear")
             .attr("points", outerThis.graphView.updateArcMarkerFunc);
         
-       window.setTimeout(()=>{this.graphView.renderMiniMap(true);}, duration+100);
+       window.setTimeout(()=>{
+               this.graphView.stampTimeLayoutModified();
+               this.graphView.renderMiniMap(true);
+          },
+          duration+100);
     
        if(this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold){
             this.lastTransition = new Date().getTime();

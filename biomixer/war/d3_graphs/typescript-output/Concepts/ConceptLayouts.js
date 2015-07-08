@@ -169,6 +169,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
                 return null !== outerThis.graph.containsNodeById(link.sourceId) && null !== outerThis.graph.containsNodeById(link.targetId) && null !== link.source && null !== link.target;
             }).transition().duration(duration).ease("linear").attr("points", outerThis.graphView.updateArcMarkerFunc);
             window.setTimeout(function () {
+                _this.graphView.stampTimeLayoutModified();
                 _this.graphView.renderMiniMap(true);
             }, duration + 100);
             if (this.lastTransition === null || !refresh || (now - this.lastTransition) > this.staleTimerThreshold) {
