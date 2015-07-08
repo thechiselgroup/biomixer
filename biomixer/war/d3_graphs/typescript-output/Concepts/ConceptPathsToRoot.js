@@ -216,9 +216,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             if (slow === void 0) { slow = false; }
             if (null != this.miniMap) {
                 this.miniMap.render(immediate, force, slow);
-                var e = new Error('dummy');
-                var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '').replace(/^\s+at\s+/gm, '').replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@').split('\n');
-                console.log(stack);
             }
         };
         //    layoutRefreshed(){
