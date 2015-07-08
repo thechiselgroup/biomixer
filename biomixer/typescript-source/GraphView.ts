@@ -102,7 +102,7 @@ export interface GraphView<N extends BaseNode, L extends BaseLink<BaseNode>> ext
     populateNewGraphElements(data: GraphDataForD3<N, L>);
     populateNewGraphEdges(links: Array<L>, temporaryEdges?: boolean);
     populateNewGraphNodes(nodes: Array<N>);
-    removeMissingGraphElements(data: GraphDataForD3<N, L>);
+    removeMissingGraphElements(data: GraphDataForD3<N, L>, temporaryEdgesOnly?: boolean);
     filterGraphOnMappingCounts();
     updateDataForNodesAndLinks(newDataSubset: GraphDataForD3<N, L>);
     createNodePopupTable(nodeSvg, nodeData);

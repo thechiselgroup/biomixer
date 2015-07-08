@@ -443,7 +443,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * prior to removing edges from the view.
      * Gets called when removing temporary mapping edges (those edges that only render on node hover).
      */
-    private removeEdges(edgesToRemove: Array<Link>){
+    private removeEdges(edgesToRemove: Array<Link>, temporaryOnly: boolean = false){
         this.graphD3Format.links = this.graphD3Format.links.filter(
             function(link: Link, index: number, links: Link[]): boolean {
                 // Keep only those that do not appear in the removal array
@@ -453,7 +453,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         
         this.graphView.stampTimeGraphModified();
         
-        this.graphView.removeMissingGraphElements(this.graphD3Format);
+        this.graphView.removeMissingGraphElements(this.graphD3Format, temporaryOnly);
         
         for(var l = 0; l < edgesToRemove.length; l++){
             // Was doing this earlier, but D3 cries if I do it before re-binding,
@@ -1173,7 +1173,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         temporaryEdgesSelected.each(function(d: Link, i: number){
             temporaryEdgeData.push(d);
         });
-        this.removeEdges(temporaryEdgeData);
+        this.removeEdges(temporaryEdgeData, true);
     }
     
     /**

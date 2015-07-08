@@ -99,7 +99,8 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             return function () {
                 outerThis.graphView.setCurrentLayout(layoutLambda);
                 outerThis.graphView.runCurrentLayout();
-                outerThis.graphView.renderMiniMap();
+                // No, don't refresh minimap, it worsens performance
+                // outerThis.graphView.renderMiniMap();
             };
         };
         ConceptLayouts.prototype.setNewLayoutWithoutRunning = function (layoutLambda) {

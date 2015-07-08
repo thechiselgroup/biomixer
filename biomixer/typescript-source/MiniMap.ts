@@ -348,20 +348,26 @@ export class MiniMap {
     }
     
     minimapRefreshLastCallTime = 0;
+    longTimerWait = 1200;
     timerWait = 500;
     outerLayoutTimer = null;
-    render(immediate: boolean = false, force: boolean = false) {
+    render(immediate: boolean = false, force: boolean = false, slow: boolean = false) {
         var currentTime = new Date().getTime();
         var callback = ()=> {
                             clearTimeout(this.outerLayoutTimer);
                             this.outerLayoutTimer = null;
                             this.minimapRefreshLastCallTime = new Date().getTime();
-                            this.renderImplementation(immediate || force);
+                            this.renderImplementation(force || slow);
                         };
         var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.timerWait < currentTime;
         var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
         if(immediate || (longEnoughSinceLastRender && longEnoughAfterGraphChange)){
             callback();
+        } else if (slow){
+             if(this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)){
+                // Only use timer when there is actual change to graph, not when it is pan and zoom
+                this.outerLayoutTimer = setTimeout(callback, this.longTimerWait);
+            }
         } else {
             // if we called this within .2 seconds, defer for a bit
             // The minimap render can be called very very often, but we only need it to refresh at perhaps 60HZ

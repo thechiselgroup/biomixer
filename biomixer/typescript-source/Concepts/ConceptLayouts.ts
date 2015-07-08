@@ -220,7 +220,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         return ()=>{
             outerThis.graphView.setCurrentLayout(layoutLambda);
             outerThis.graphView.runCurrentLayout();
-            outerThis.graphView.renderMiniMap();
+            // No, don't refresh minimap, it worsens performance
+            // outerThis.graphView.renderMiniMap();
         };
     }
     

@@ -314,13 +314,14 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
          * prior to removing edges from the view.
          * Gets called when removing temporary mapping edges (those edges that only render on node hover).
          */
-        ConceptGraph.prototype.removeEdges = function (edgesToRemove) {
+        ConceptGraph.prototype.removeEdges = function (edgesToRemove, temporaryOnly) {
+            if (temporaryOnly === void 0) { temporaryOnly = false; }
             this.graphD3Format.links = this.graphD3Format.links.filter(function (link, index, links) {
                 // Keep only those that do not appear in the removal array
                 return edgesToRemove.indexOf(link) === -1;
             });
             this.graphView.stampTimeGraphModified();
-            this.graphView.removeMissingGraphElements(this.graphD3Format);
+            this.graphView.removeMissingGraphElements(this.graphD3Format, temporaryOnly);
             for (var l = 0; l < edgesToRemove.length; l++) {
                 // Was doing this earlier, but D3 cries if I do it before re-binding,
                 // I think because I use the source and target as parts of the
@@ -903,7 +904,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
             temporaryEdgesSelected.each(function (d, i) {
                 temporaryEdgeData.push(d);
             });
-            this.removeEdges(temporaryEdgeData);
+            this.removeEdges(temporaryEdgeData, true);
         };
         /**
          * This is important because children and parent calls can result in the same relations

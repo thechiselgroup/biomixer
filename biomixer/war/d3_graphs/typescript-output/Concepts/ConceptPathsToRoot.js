@@ -152,9 +152,14 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             d3.select("#chart").remove;
             var outerThis = this;
             // Performs zoom and pan behaviors.
+            var prevZoomLevel = 0.0;
             this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", function () {
                 _this.geometricZoom()();
-                _this.renderMiniMap(true);
+                // Is called a few times on layout change, but I only want to do this on actual zoom.
+                if (prevZoomLevel !== d3.event.scale) {
+                    _this.renderMiniMap(true);
+                    prevZoomLevel = d3.event.scale;
+                }
             });
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
                 // outerThis.menu.closeMenuLambda()()
@@ -205,16 +210,20 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
             MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
         };
-        ConceptPathsToRoot.prototype.renderMiniMap = function (immediate, force) {
+        ConceptPathsToRoot.prototype.renderMiniMap = function (immediate, force, slow) {
             if (immediate === void 0) { immediate = false; }
             if (force === void 0) { force = false; }
+            if (slow === void 0) { slow = false; }
             if (null != this.miniMap) {
-                this.miniMap.render(immediate, force);
+                this.miniMap.render(immediate, force, slow);
+                var e = new Error('dummy');
+                var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '').replace(/^\s+at\s+/gm, '').replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@').split('\n');
+                console.log(stack);
             }
         };
-        ConceptPathsToRoot.prototype.layoutRefreshed = function () {
-            this.renderMiniMap(true);
-        };
+        //    layoutRefreshed(){
+        //        this.renderMiniMap(true);
+        //    }
         /**
          * This is used for both initial expansions and refocus expansions.
          * It is also used for importing graphs.
@@ -354,7 +363,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 if (null != _this.tour) {
                     _this.tour.refreshIntro();
                 }
-                _this.renderMiniMap(false, true);
+                _this.renderMiniMap(false, true, true);
             };
         };
         ConceptPathsToRoot.prototype.dragstartLambda = function (outerThis) {
@@ -397,7 +406,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                     return e.source === d || e.target === d;
                 }).attr("points", outerThis.updateArcMarkerFunc);
                 outerThis.stampTimeLayoutModified();
-                outerThis.renderMiniMap(true, true);
+                // Better to have nice movement than to have the minimap reflect the changes of dragging.
+                // outerThis.renderMiniMap();
             };
         };
         ConceptPathsToRoot.prototype.computeArcMarkerForInheritance = function (linkData, ignoreOffset) {
@@ -594,7 +604,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // this.runCurrentLayout();
             // Call start() only if we actually added (or removed) anything
             // this.forceLayout.start();
-            this.renderMiniMap();
         };
         ConceptPathsToRoot.prototype.populateNewGraphEdges = function (linksData, temporaryEdges) {
             if (temporaryEdges === void 0) { temporaryEdges = false; }
@@ -648,7 +657,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
                 this.edgeTypeFilter.updateFilterUI();
             }
-            this.renderMiniMap(true);
+            this.renderMiniMap(true, true);
         };
         ConceptPathsToRoot.prototype.markerAdderLambda = function () {
             var outerThis = this;
@@ -847,10 +856,11 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // this.expansionSetFilter.updateFilterUI();
                 this.nestedExpansionConceptFilter.updateFilterUI();
             }
-            this.renderMiniMap(true);
+            this.renderMiniMap(true, true);
         };
-        ConceptPathsToRoot.prototype.removeMissingGraphElements = function () {
+        ConceptPathsToRoot.prototype.removeMissingGraphElements = function (data, temporaryOnly) {
             //console.log("Removing some graph elements "+Utils.getTime());
+            if (temporaryOnly === void 0) { temporaryOnly = false; }
             // Have problems if we don't pass the containers back in like this.
             // Removed edges will not be properly removed, and exceptions will
             // be thrown.
@@ -890,7 +900,9 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // this.expansionSetFilter.updateFilterUI();
                 this.nestedExpansionConceptFilter.updateFilterUI();
             }
-            this.renderMiniMap(true);
+            if (!temporaryOnly) {
+                this.renderMiniMap(true, true);
+            }
         };
         ConceptPathsToRoot.prototype.attachNodeMenu = function (enteringNodes) {
             // Menu indicator:

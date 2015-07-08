@@ -202,7 +202,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         
         var outerThis = this;
         // Performs zoom and pan behaviors.
-        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", ()=>{ this.geometricZoom()(); this.renderMiniMap(true); });
+        var prevZoomLevel = 0.0;
+        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom",
+            ()=>{
+                this.geometricZoom()();
+                // Is called a few times on layout change, but I only want to do this on actual zoom.
+                if(prevZoomLevel !== d3.event.scale){
+                    this.renderMiniMap(true);
+                    prevZoomLevel = d3.event.scale;
+                }
+            }
+        );
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
             .attr("width", this.visWidth())
@@ -290,15 +300,22 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
     }
     
-    renderMiniMap(immediate: boolean = false, force: boolean = false){
+    renderMiniMap(immediate: boolean = false, force: boolean = false, slow: boolean = false){
         if(null != this.miniMap){
-            this.miniMap.render(immediate, force);
+            this.miniMap.render(immediate, force, slow);
+              var e: any = new Error('dummy');
+  var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+      .replace(/^\s+at\s+/gm, '')
+      .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+      .split('\n');
+
+            console.log(stack);
         }
     }
     
-    layoutRefreshed(){
-        this.renderMiniMap(true);
-    }
+//    layoutRefreshed(){
+//        this.renderMiniMap(true);
+//    }
     
     /**
      * This is used for both initial expansions and refocus expansions.
@@ -492,8 +509,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             if(null != this.tour){
                 this.tour.refreshIntro();
             }
-            
-            this.renderMiniMap(false, true);
+            this.renderMiniMap(false, true, true);
         }
             
     }
@@ -551,7 +567,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
 
             outerThis.stampTimeLayoutModified();
             
-            outerThis.renderMiniMap(true, true);
+            // Better to have nice movement than to have the minimap reflect the changes of dragging.
+            // outerThis.renderMiniMap();
         }
     }
     
@@ -878,7 +895,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.runCurrentLayout();
         // Call start() only if we actually added (or removed) anything
         // this.forceLayout.start();
-        this.renderMiniMap();
     }
     
     populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges: boolean = false){
@@ -965,7 +981,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
             this.edgeTypeFilter.updateFilterUI();
         }
-        this.renderMiniMap(true);
+        this.renderMiniMap(true, true);
     }
     
     private giveIEMarkerWarning = true;
@@ -1210,10 +1226,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.nestedExpansionConceptFilter.updateFilterUI();
         
         }
-        this.renderMiniMap(true);
+        this.renderMiniMap(true, true);
     }
 
-    removeMissingGraphElements(){
+    removeMissingGraphElements(data, temporaryOnly: boolean = false){
         //console.log("Removing some graph elements "+Utils.getTime());
         
         // Have problems if we don't pass the containers back in like this.
@@ -1263,7 +1279,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // this.expansionSetFilter.updateFilterUI();
             this.nestedExpansionConceptFilter.updateFilterUI();
         }
-        this.renderMiniMap(true);
+        if(!temporaryOnly){
+            this.renderMiniMap(true, true);
+        }
     }
     
     attachNodeMenu(enteringNodes: D3.Selection){

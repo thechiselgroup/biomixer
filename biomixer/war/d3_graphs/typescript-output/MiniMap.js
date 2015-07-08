@@ -20,6 +20,7 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             this._frameX = 0;
             this._frameY = 0;
             this.minimapRefreshLastCallTime = 0;
+            this.longTimerWait = 1200;
             this.timerWait = 500;
             this.outerLayoutTimer = null;
             this.firstTimeRendering = true;
@@ -206,21 +207,28 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             var y = split[1] ? parseFloat(split[1].split(")")[0]) : 0;
             return [x, y];
         };
-        MiniMap.prototype.render = function (immediate, force) {
+        MiniMap.prototype.render = function (immediate, force, slow) {
             var _this = this;
             if (immediate === void 0) { immediate = false; }
             if (force === void 0) { force = false; }
+            if (slow === void 0) { slow = false; }
             var currentTime = new Date().getTime();
             var callback = function () {
                 clearTimeout(_this.outerLayoutTimer);
                 _this.outerLayoutTimer = null;
                 _this.minimapRefreshLastCallTime = new Date().getTime();
-                _this.renderImplementation(immediate || force);
+                _this.renderImplementation(force || slow);
             };
             var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.timerWait < currentTime;
             var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
             if (immediate || (longEnoughSinceLastRender && longEnoughAfterGraphChange)) {
                 callback();
+            }
+            else if (slow) {
+                if (this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)) {
+                    // Only use timer when there is actual change to graph, not when it is pan and zoom
+                    this.outerLayoutTimer = setTimeout(callback, this.longTimerWait);
+                }
             }
             else {
                 // if we called this within .2 seconds, defer for a bit
