@@ -416,7 +416,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             //});
         };
         BaseGraphView.prototype.attachScreenshotButton = function () {
-            var screenshotButton = $("<label>").attr("id", "graphToJpegButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Screenshot");
+            var screenshotButton = $("<label>").attr("id", "graphToJpegButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Screenshot");
             $(Menu.Menu.menuBarSelector).append(screenshotButton);
             screenshotButton.click(function (event) {
                 event.stopPropagation();
@@ -424,7 +424,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             });
         };
         BaseGraphView.prototype.attachFullscreenButton = function () {
-            var fullScreenButton = $("<label>").attr("id", "iframeToFullscreenButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Fullscreen");
+            var fullScreenButton = $("<label>").attr("id", "iframeToFullscreenButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Fullscreen");
             $(Menu.Menu.menuBarSelector).append(fullScreenButton);
             fullScreenButton.click(function (event) {
                 event.stopPropagation();

@@ -685,7 +685,6 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     attachScreenshotButton(){
         var screenshotButton = $("<label>")
             .attr("id", "graphToJpegButton")
-            .attr("class", "nodeCommandButton")
             .addClass("unselectable")
             .addClass(Menu.Menu.topBarButtonClass)
             .text("Screenshot")
@@ -699,7 +698,6 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     attachFullscreenButton(){
         var fullScreenButton = $("<label>")
             .attr("id", "iframeToFullscreenButton")
-            .attr("class", "nodeCommandButton")
             .addClass("unselectable")
             .addClass(Menu.Menu.topBarButtonClass)
             .text("Fullscreen")
