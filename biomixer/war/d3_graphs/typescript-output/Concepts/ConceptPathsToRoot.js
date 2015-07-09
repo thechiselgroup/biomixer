@@ -501,6 +501,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             return function (d, i) {
                 outerThis.dragging = false;
                 outerThis.stampTimeLayoutModified();
+                outerThis.renderMiniMap(true, true);
                 // $(this).tipsy('show');
                 // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
                 // $(".tipsy").show();
