@@ -157,7 +157,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", function () {
                 _this.geometricZoom()();
                 // Is called a few times on layout change, but I only want to do this on actual zoom.
-                if (prevZoomLevel !== d3.event.scale || prevTranslate !== d3.event.translate) {
+                if (prevZoomLevel !== d3.event.scale || prevTranslate[0] !== d3.event.translate[0] || prevTranslate[1] !== d3.event.translate[1]) {
                     _this.renderMiniMap(true);
                     prevZoomLevel = d3.event.scale;
                     prevTranslate = d3.event.translate;
@@ -644,7 +644,13 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 return "link_title_" + d.id;
             });
             // Make the arc opaque over time, just like the nodes.
-            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0");
+            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0").each("end", function (d, i) {
+                if (temporaryEdges) {
+                    return;
+                }
+                outerThis.renderMiniMap(false, true, true);
+                return;
+            });
             if (!enteringLinks.empty()) {
                 if (!temporaryEdges) {
                     this.runCurrentLayout(true);
@@ -657,7 +663,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
                 this.edgeTypeFilter.updateFilterUI();
             }
-            this.renderMiniMap(true, true);
         };
         ConceptPathsToRoot.prototype.markerAdderLambda = function () {
             var outerThis = this;
@@ -842,7 +847,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
             // nodes.exit().remove();
             // Animate the new nodes into view.
-            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", 1.0);
+            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", 1.0).each("end", function (d, i) {
+                outerThis.renderMiniMap(false, true, true);
+                return;
+            });
             if (!enteringNodes.empty()) {
                 this.runCurrentLayout(true);
                 this.updateStartWithoutResume();
@@ -856,10 +864,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // this.expansionSetFilter.updateFilterUI();
                 this.nestedExpansionConceptFilter.updateFilterUI();
             }
-            this.renderMiniMap(true, true);
         };
         ConceptPathsToRoot.prototype.removeMissingGraphElements = function (data, temporaryOnly) {
             //console.log("Removing some graph elements "+Utils.getTime());
+            var _this = this;
             if (temporaryOnly === void 0) { temporaryOnly = false; }
             // Have problems if we don't pass the containers back in like this.
             // Removed edges will not be properly removed, and exceptions will
@@ -881,6 +889,12 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var nodesRemoved = exitingNodes.transition().duration(this.exitingElementTransitionDuration).style("opacity", 0.0).call(function () {
                 exitingLinks.remove();
                 exitingNodes.remove();
+            }).each("end", function (d, i) {
+                if (temporaryOnly) {
+                    return;
+                }
+                _this.renderMiniMap(false, true, true);
+                return;
             });
             // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
             this.filterSliders.updateTopMappingsSliderRange();
@@ -899,9 +913,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 this.edgeTypeFilter.updateFilterUI();
                 // this.expansionSetFilter.updateFilterUI();
                 this.nestedExpansionConceptFilter.updateFilterUI();
-            }
-            if (!temporaryOnly) {
-                this.renderMiniMap(true, true);
             }
         };
         ConceptPathsToRoot.prototype.attachNodeMenu = function (enteringNodes) {

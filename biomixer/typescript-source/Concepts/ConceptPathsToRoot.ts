@@ -208,7 +208,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             ()=>{
                 this.geometricZoom()();
                 // Is called a few times on layout change, but I only want to do this on actual zoom.
-                if(prevZoomLevel !== d3.event.scale || prevTranslate !== d3.event.translate){
+                if(prevZoomLevel !== d3.event.scale || prevTranslate[0] !== d3.event.translate[0] || prevTranslate[1] !== d3.event.translate[1]){
                     this.renderMiniMap(true);
                     prevZoomLevel = d3.event.scale;
                     prevTranslate = d3.event.translate;
@@ -961,7 +961,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
         
         // Make the arc opaque over time, just like the nodes.
-        enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0");
+        enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0")
+        .each("end",
+                (d: any, i: number)=>{
+                    if(temporaryEdges){
+                        return;
+                    }
+                    outerThis.renderMiniMap(false, true, true);
+                    return;
+                }
+            )
+        ;
         
         if(!enteringLinks.empty()){
             if(!temporaryEdges){
@@ -977,7 +987,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
             this.edgeTypeFilter.updateFilterUI();
         }
-        this.renderMiniMap(true, true);
+
     }
     
     private giveIEMarkerWarning = true;
@@ -1118,7 +1128,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
         
         var outerThis = this;
-        
+
         var nodes = this.vis.select("#node_container")
         .selectAll("g.node_g").data(nodesData, ConceptGraph.Node.d3IdentityFunc);
         // Add new stuff
@@ -1207,6 +1217,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         enteringSubG // initialize as transparent, and animate to opaque
             .transition().duration(this.enteringElementTransitionDuration)
             .style("opacity", 1.0)
+            .each("end",
+                (d: any, i: number)=>{
+                    outerThis.renderMiniMap(false, true, true);
+                    return;
+                }
+            )
         ;
         
         if(!enteringNodes.empty()){
@@ -1222,7 +1238,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.nestedExpansionConceptFilter.updateFilterUI();
         
         }
-        this.renderMiniMap(true, true);
+
     }
 
     removeMissingGraphElements(data, temporaryOnly: boolean = false){
@@ -1254,6 +1270,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Only call the remove call after the nodes are gone, rather than after links are
         // gone. Tried combining selections and didn't find a way that worked.
         .call(()=>{ exitingLinks.remove(); exitingNodes.remove(); })
+        .each("end",
+            (d: any, i: number)=>{
+                if(temporaryOnly){
+                        return;
+                }
+                this.renderMiniMap(false, true, true);
+                return;
+            }
+        )
         ;
                 
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
@@ -1275,9 +1300,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // this.expansionSetFilter.updateFilterUI();
             this.nestedExpansionConceptFilter.updateFilterUI();
         }
-        if(!temporaryOnly){
-            this.renderMiniMap(true, true);
-        }
+
     }
     
     attachNodeMenu(enteringNodes: D3.Selection){

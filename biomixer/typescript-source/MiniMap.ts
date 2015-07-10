@@ -220,7 +220,6 @@ export class MiniMap {
         // startoff zoomed in a bit to show pan/zoom rectangle
         this._zoom.scale(1.5);
         this.zoomHandlerF(1, null);
-
         this.renderImplementation();
     }
     
@@ -363,29 +362,45 @@ export class MiniMap {
     minimapRefreshLastCallTime = 0;
     longTimerWait = 1200;
     timerWait = 500;
-    outerLayoutTimer = null;
+    nextTimerDue = 0;
+    outerLayoutShortTimer = null;
+    outerLayoutLongTimer = null;
     render(immediate: boolean = false, force: boolean = false, slow: boolean = false) {
         var currentTime = new Date().getTime();
-        var callback = ()=> {
-                            clearTimeout(this.outerLayoutTimer);
-                            this.outerLayoutTimer = null;
-                            this.renderImplementation(force || slow);
-                        };
-        var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.timerWait < currentTime;
+        var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.longTimerWait < currentTime;
         var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
         if(immediate || (longEnoughSinceLastRender && longEnoughAfterGraphChange)){
-            callback();
+            this.renderImplementation(force || slow);
         } else if (slow){
-             if(this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)){
+             if(this.outerLayoutLongTimer == null && (this.minimapRefreshLastCallTime + this.longTimerWait > currentTime)){
                 // Only use timer when there is actual change to graph, not when it is pan and zoom
-                this.outerLayoutTimer = setTimeout(callback, this.longTimerWait);
+                if(currentTime > this.nextTimerDue){
+                    this.outerLayoutLongTimer = setTimeout(
+                        ()=> {
+                            clearTimeout(this.outerLayoutLongTimer);
+                            this.outerLayoutLongTimer = null;
+                            this.renderImplementation(force || slow);
+                        }
+                        , this.longTimerWait
+                        );
+                    this.nextTimerDue = currentTime + this.longTimerWait;
+                }
             }
         } else {
             // if we called this within .2 seconds, defer for a bit
             // The minimap render can be called very very often, but we only need it to refresh at perhaps 60HZ
-            if(this.outerLayoutTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)){
+            if(this.outerLayoutShortTimer == null && (this.minimapRefreshLastCallTime + this.timerWait > currentTime)){
                 // Only use timer when there is actual change to graph, not when it is pan and zoom
-                this.outerLayoutTimer = setTimeout(callback, this.timerWait);
+                if(currentTime > this.nextTimerDue){
+                    this.outerLayoutShortTimer = setTimeout(
+                        ()=> {
+                            clearTimeout(this.outerLayoutShortTimer);
+                            this.outerLayoutShortTimer = null;
+                            this.renderImplementation(force || slow);
+                        }
+                        , this.timerWait);
+                    this.nextTimerDue = currentTime + this.timerWait;
+                }
             }
         }
     }
