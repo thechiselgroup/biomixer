@@ -525,10 +525,10 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             // Check if temporary, because we want to allow expansion along those edges.
             if(
                 (
-                this.isEdgeForTemporaryRenderOnly(edge)
-                ||
-                this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
-                    )
+                    (this.isEdgeForTemporaryRenderOnly(edge) && edgeExpansionType === PathOptionConstants.termNeighborhoodConstant)
+                    ||
+                    this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
+                )
                 && null == nodesSeen[String(otherConceptId)]
                 ){
                     if("parents" === specificRelationType

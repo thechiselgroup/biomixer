@@ -380,7 +380,7 @@ define(["require", "exports", "../Utils", "../FetchFromApi", "../GraphView", "..
                 var edgeExpansionType = edge.relationType === _this.relationLabelConstants.mapping ? PathOptionConstants.mappingsNeighborhoodConstant : PathOptionConstants.termNeighborhoodConstant;
                 var otherConceptId = (edge.sourceId === expandingNodeId) ? edge.targetId : edge.sourceId;
                 // Check if temporary, because we want to allow expansion along those edges.
-                if ((_this.isEdgeForTemporaryRenderOnly(edge) || _this.nodeMayBeExpanded1(otherConceptId, expandingNodeId, nodeInteraction, edgeExpansionType)) && null == nodesSeen[String(otherConceptId)]) {
+                if (((_this.isEdgeForTemporaryRenderOnly(edge) && edgeExpansionType === PathOptionConstants.termNeighborhoodConstant) || _this.nodeMayBeExpanded1(otherConceptId, expandingNodeId, nodeInteraction, edgeExpansionType)) && null == nodesSeen[String(otherConceptId)]) {
                     if ("parents" === specificRelationType && (edge.targetId !== expandingNodeId || edge.relationType !== _this.relationLabelConstants.inheritance)) {
                     }
                     else if ("children" === specificRelationType && (edge.sourceId !== expandingNodeId || edge.relationType !== _this.relationLabelConstants.inheritance)) {

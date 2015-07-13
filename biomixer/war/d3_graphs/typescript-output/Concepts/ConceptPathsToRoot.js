@@ -994,11 +994,11 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
             // To do so, you need to do verbose things like: document.createElementNS('http://www.w3.org/2000/svg', 'svg');
             // So, I don't get to use JQuery as much as D3 it turns out.
-            var innerSvg = d3.select(target).append("svg:svg").attr("id", "expanderMenu").attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth / 2 + parseInt(d3.select(target).attr("x"), 0))).attr("width", config.rectWidth).attr("height", config.rectHeight * 2).style("z-index", 100).on("mouseleave", function () {
+            var innerSvg = d3.select(target).append("svg:svg").attr("id", "expanderSubMenu").attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth / 2 + parseInt(d3.select(target).attr("x"), 0))).attr("width", config.rectWidth).attr("height", config.rectHeight * 2).style("z-index", 100).on("mouseleave", function () {
                 _this.unhighlightHoveredNodeLambda(_this, false)(nodeData, 0);
-                $("#expanderMenu").first().remove();
+                $("#expanderSubMenu").first().remove();
             }).on("mouseup", function () {
-                $("#expanderMenu").first().remove();
+                $("#expanderSubMenu").first().remove();
             });
             this.appendConceptExpandChildrenButton(innerSvg, config, nodeData);
             this.appendConceptExpandParentsButton(innerSvg, config, nodeData);
@@ -1039,7 +1039,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var submenuSvg = conceptExpandSvg.append("svg:svg").attr("width", "100%").attr("height", "100%").attr("preserveAspectRatio", "xMaxYMin meet") // maybe meet too as value after space
             ;
             var submenuG = submenuSvg.append("svg:g").attr("x", config.rectWidth).attr("y", config.rectHeight - config.subMenuSize * 2).attr("height", config.subMenuSize * 2).attr("width", config.subMenuSize * 2).attr("overflow", "visible");
-            var submenuRect = submenuG.append("svg:circle").style("fill", "blue").attr("cx", config.subMenuSize + 1).attr("cy", config.subMenuSize + 1).style("stroke", "#afc6e5").attr("r", config.subMenuSize).attr("overflow", "visible").on("mouseup", function () {
+            var submenuRect = submenuG.append("svg:circle").style("fill", "blue").attr("cx", config.subMenuSize + 1).attr("cy", config.subMenuSize + 1).style("stroke", "#afc6e5").attr("r", config.subMenuSize).attr("overflow", "visible").on("mousedown", function () {
+                d3.event.stopPropagation();
+            }).on("mouseup", function () {
+                d3.event.stopPropagation();
                 $("#expanderMenu").remove();
                 _this.toggleToExpansionSubMenu(nodeData, target);
             });

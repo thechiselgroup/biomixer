@@ -1428,18 +1428,18 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // So, I don't get to use JQuery as much as D3 it turns out.
         
         var innerSvg = d3.select(target).append("svg:svg")
-                .attr("id", "expanderMenu")
+                .attr("id", "expanderSubMenu")
                 .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth/2 + parseInt(d3.select(target).attr("x"), 0)))
                 .attr("width", config.rectWidth).attr("height", config.rectHeight * 2)
                 .style("z-index", 100)
-                .on("mouseleave", ()=>{ this.unhighlightHoveredNodeLambda(this, false)(nodeData, 0); $("#expanderMenu").first().remove(); })
+                .on("mouseleave", ()=>{ this.unhighlightHoveredNodeLambda(this, false)(nodeData, 0); $("#expanderSubMenu").first().remove();})
                 // The mouseup one is required due to a silly graphical bug I could not fix.
                 // If a greyed-out menu item was clicked, it also triggered a re-dispatch of the menu creating function,
                 // and produced a broken container relative to the text elements within.
                 // I tried many things which didn't work. Eventually I decided to get rid of the box altogether
                 // whenever a greyed-out menu item is clicked; that is, if the item doesn't have a body to its handler,
                 // it allows this one to close the menu.
-                .on("mouseup", ()=>{ $("#expanderMenu").first().remove(); })
+                .on("mouseup", ()=>{ $("#expanderSubMenu").first().remove(); })
         ;
         
         this.appendConceptExpandChildrenButton(innerSvg, config, nodeData);
@@ -1522,7 +1522,9 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .style("stroke", "#afc6e5")
             .attr("r", config.subMenuSize)
             .attr("overflow", "visible")
+            .on("mousedown", ()=>{ d3.event.stopPropagation(); })
             .on("mouseup", ()=>{
+                d3.event.stopPropagation();
                 $("#expanderMenu").remove();
                 this.toggleToExpansionSubMenu(nodeData, target);
             })
