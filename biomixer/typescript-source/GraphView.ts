@@ -717,6 +717,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
         window.onmessage = (e: any)=>{
             if (e.data === "biomixer_full_screen_request") {
                 console.log("Full sreen button pressed, when Biomixer loaded as main frame.");
+                if( $("#iframeToFullscreenButton").text() === "Fullscreen"){
+                    $("#iframeToFullscreenButton").text("Exit Fullscreen");
+                } else {
+                    $("#iframeToFullscreenButton").text("Fullscreen");
+                }
             }
         };
         

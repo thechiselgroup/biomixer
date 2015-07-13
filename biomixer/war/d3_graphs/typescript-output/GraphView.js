@@ -435,6 +435,12 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             window.onmessage = function (e) {
                 if (e.data === "biomixer_full_screen_request") {
                     console.log("Full sreen button pressed, when Biomixer loaded as main frame.");
+                    if ($("#iframeToFullscreenButton").text() === "Fullscreen") {
+                        $("#iframeToFullscreenButton").text("Exit Fullscreen");
+                    }
+                    else {
+                        $("#iframeToFullscreenButton").text("Fullscreen");
+                    }
                 }
             };
         };
