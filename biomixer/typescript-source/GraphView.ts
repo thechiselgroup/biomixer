@@ -716,17 +716,17 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
                 // The "*" means I don't care what the origin of the receiving window is. For this request,
                 // no data is moving across, so anything works.
                 window.top.postMessage("biomixer_full_screen_request", '*')
+                if( $("#iframeToFullscreenButton").text() === "Fullscreen"){
+                    $("#iframeToFullscreenButton").text("Exit Fullscreen");
+                } else {
+                    $("#iframeToFullscreenButton").text("Fullscreen");
+                }
             }
         );
         
         window.onmessage = (e: any)=>{
             if (e.data === "biomixer_full_screen_request") {
                 console.log("Full sreen button pressed, when Biomixer loaded as main frame.");
-                if( $("#iframeToFullscreenButton").text() === "Fullscreen"){
-                    $("#iframeToFullscreenButton").text("Exit Fullscreen");
-                } else {
-                    $("#iframeToFullscreenButton").text("Fullscreen");
-                }
             }
         };
         
