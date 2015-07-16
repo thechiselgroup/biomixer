@@ -294,8 +294,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.attachScreenshotButton();
         this.attachFullscreenButton();
         
-        this.sizeIframe();
-        
         this.fetchInitialExpansion();
         
         this.miniMap = new MiniMap.MiniMap(d3.select("#graphSvg"), this, this.zoom);
@@ -307,30 +305,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     renderMiniMap(immediate: boolean = false, force: boolean = false, slow: boolean = false){
         if(null != this.miniMap){
             this.miniMap.render(immediate, force, slow);
-        }
-    }
-    
-    sizeIframe(){
-        var inIframe = null;
-        try{
-            inIframe = window.frameElement;
-            inIframe = inIframe !== null;
-        } catch(e){
-            // In a cross site iframe. Really bad check, but works for my limited needs.
-            inIframe = true;
-        }
-        
-        if(inIframe){ // && notFullScreen || 
-	        // This max height should be the height of the iframe *as shown*, but
-	        // iframes are like browser windows, with their size specified from the outside.
-	        // Unfortuantely, if the rendered space does not match the size specified from the outside
-	        // we cannot know the size of the shown iframe. With a browser frame, you can, but there is no
-	        // way to get that same information relative only to the iframe. It gives you things relative
-	        // to the browser frame only.
-            $("html").css("max-height", "750px"); /* (880 - 124)px; */
-            $("#graphSvg").css("max-height", "750px");
-        } else {
-            $("html").css("max-height", null); /* (880 - 124)px; */
         }
     }
     
