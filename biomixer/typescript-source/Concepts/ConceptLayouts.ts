@@ -161,16 +161,17 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
         d3.selectAll("#importedLayoutButton").on("click", this.applyNewLayoutLambda(this.runFixedPositionLayoutLambda()));
         $("#importedLayoutButton").slideUp();
         
+/*
          var spacingContainer = $("<div>").attr("id", "spacingSliderContainer");
         $(menuSelector).append(spacingContainer);
                 
         spacingContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Spacing"));
         spacingContainer.append($("<br>"));
         
-        
 //        var zoom = d3.behavior.zoom()
 //        .scaleExtent([1, 10])
 //        .on("zoom", this.zoomLambda());
+        
         
         
         var spacingSliderDiv = $("<div>").attr("id", "spacingSliderDiv");
@@ -189,6 +190,8 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
 //        d3.selectAll("#spacingSlider").on("drag", this.zoomLambda());
 //        spacingSliderDiv.append(spacingSlider);
 //        spacingContainer.append(spacingSliderDiv);
+        
+*/
         
     }
     
@@ -334,6 +337,7 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     }
     
     semanticZoom(){
+        // Unused. Was linked up to the Spacing slider before, but needs work.
         var outerThis = this;
         return function(){
                         

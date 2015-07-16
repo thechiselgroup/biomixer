@@ -57,25 +57,37 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             d3.selectAll("#radialLayoutButton").on("click", this.applyNewLayoutLambda(this.runRadialLayoutLambda()));
             d3.selectAll("#importedLayoutButton").on("click", this.applyNewLayoutLambda(this.runFixedPositionLayoutLambda()));
             $("#importedLayoutButton").slideUp();
-            var spacingContainer = $("<div>").attr("id", "spacingSliderContainer");
-            $(menuSelector).append(spacingContainer);
-            spacingContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Spacing"));
-            spacingContainer.append($("<br>"));
+            /*
+                     var spacingContainer = $("<div>").attr("id", "spacingSliderContainer");
+                    $(menuSelector).append(spacingContainer);
+                            
+                    spacingContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Spacing"));
+                    spacingContainer.append($("<br>"));
+                    
             //        var zoom = d3.behavior.zoom()
             //        .scaleExtent([1, 10])
             //        .on("zoom", this.zoomLambda());
-            var spacingSliderDiv = $("<div>").attr("id", "spacingSliderDiv");
-            spacingContainer.append(spacingSliderDiv);
-            var spacingSlider = $("#spacingSliderDiv").slider({
-                range: "min",
-                min: 1000,
-                max: 10000,
-                value: 1000,
-                slide: this.semanticZoom()
-            });
+                    
+                    
+                    
+                    var spacingSliderDiv = $("<div>").attr("id", "spacingSliderDiv");
+                    spacingContainer.append(spacingSliderDiv);
+                    var spacingSlider = $("#spacingSliderDiv").slider({
+                        range: "min",
+                        min:1000,
+                        max: 10000,
+                        value: 1000,
+                        slide: this.semanticZoom()
+            //            this.zoomLambda(),
+            //            change: this.zoomLambda()
+                       
+                    });
+                    
             //        d3.selectAll("#spacingSlider").on("drag", this.zoomLambda());
             //        spacingSliderDiv.append(spacingSlider);
             //        spacingContainer.append(spacingSliderDiv);
+                    
+            */
         };
         ConceptLayouts.prototype.getLayoutPositionSnapshot = function () {
             var positions = {};
@@ -177,6 +189,7 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
             }
         };
         ConceptLayouts.prototype.semanticZoom = function () {
+            // Unused. Was linked up to the Spacing slider before, but needs work.
             var outerThis = this;
             return function () {
                 var zoomValue = $("#spacingSliderDiv").slider("value") / 1000;
