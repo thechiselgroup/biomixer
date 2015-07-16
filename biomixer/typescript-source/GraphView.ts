@@ -173,6 +173,11 @@ export class BaseGraphView<N extends BaseNode, L extends BaseLink<BaseNode>> {
     
     
     resizedWindowLambda  = () => {
+	    // The height + 5 is to visually show the lower bound of the graph within the provided space.
+	    // Element below is simply for reference back to the element made elswhere.
+	    $("#testHeight"); // I also added an element there so that we can visually debug space issues, called testHeight.
+        $("#chart").height($("#chart").parent().height() - ($("#top_menu_bar").height()+5));
+        
         d3.select("#graphRect")
         .attr("width", this.visWidth())
         .attr("height", this.visHeight());

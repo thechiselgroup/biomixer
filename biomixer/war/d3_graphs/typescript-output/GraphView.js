@@ -43,6 +43,10 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             this.forceLayout = undefined;
             this.dragging = false;
             this.resizedWindowLambda = function () {
+                // The height + 5 is to visually show the lower bound of the graph within the provided space.
+                // Element below is simply for reference back to the element made elswhere.
+                $("#testHeight"); // I also added an element there so that we can visually debug space issues, called testHeight.
+                $("#chart").height($("#chart").parent().height() - ($("#top_menu_bar").height() + 5));
                 d3.select("#graphRect").attr("width", _this.visWidth()).attr("height", _this.visHeight());
                 d3.select("#graphSvg").attr("width", _this.visWidth()).attr("height", _this.visHeight());
                 // TODO Layouts not relying on force need additional support here.
