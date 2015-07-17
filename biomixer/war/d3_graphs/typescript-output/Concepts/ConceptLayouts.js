@@ -19,10 +19,11 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
         }
         ConceptLayouts.prototype.addMenuComponents = function (menuSelector) {
             // Add the butttons to the pop-out panel
-            var layoutsContainer = $("<div>").attr("id", ConceptLayouts.layoutMenuContainerId);
-            $(menuSelector).append(layoutsContainer);
-            layoutsContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Layouts"));
-            layoutsContainer.append($("<br>"));
+            this.containers = Menu.Menu.slideToggleHeaderContainer(ConceptLayouts.layoutMenuContainerId, ConceptLayouts.innerContainerId, "Layout", false);
+            var layoutsContainer = this.containers.inner;
+            $(menuSelector).append(this.containers.outer);
+            // Reduce margin on this label
+            this.containers.outer.children(".menuLabel").css("margin-top", "4px").css("margin-bottom", "8px");
             var forceButton = $("<div>").attr("id", "forceLayoutButton").addClass("unselectable").addClass("layoutTextButton").append($("<div>").attr("id", "forceLayoutButtonIcon").css("float", "left").addClass("unselectable").addClass("iconLayoutButton").attr("title", "Force-Directed Layout")).append($("<div>").addClass("layoutText").text("Force"));
             var circleButton = $("<div>").attr("id", "circleLayoutButton").addClass("unselectable").addClass("layoutTextButton").append($("<div>").attr("id", "circleLayoutButtonIcon").css("float", "left").addClass("unselectable").addClass("iconLayoutButton").attr("title", "Circle Layout")).append($("<div>").addClass("layoutText").text("Circle"));
             var centerButton = $("<div>").attr("id", "centerLayoutButton").addClass("unselectable").addClass("layoutTextButton").append($("<div>").attr("id", "centerLayoutButtonIcon").css("float", "left").addClass("unselectable").addClass("iconLayoutButton").attr("title", "Center Layout")).append($("<div>").addClass("layoutText").text("Center"));
@@ -633,7 +634,8 @@ define(["require", "exports", "../GraphView", "../Menu", "./ConceptGraph", "../J
                 $("#importedLayoutButton").slideUp();
             }
         };
-        ConceptLayouts.layoutMenuContainerId = "layoutMenuContainer";
+        ConceptLayouts.layoutMenuContainerId = "layoutMenuOuterContainer";
+        ConceptLayouts.innerContainerId = "layoutMenuInnerContainer";
         return ConceptLayouts;
     })();
     exports.ConceptLayouts = ConceptLayouts;

@@ -381,7 +381,7 @@ div#hoveringGraphMenu {
   position: absolute;
   right:0;
   width: 350px;
-  padding: 10px;
+  padding: 0px 10px 10px 10px;
   margin: 2px -2px 0 0 ;
 }
 

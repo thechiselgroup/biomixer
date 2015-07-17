@@ -17,7 +17,11 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     static tempDepth: number;
     static fullTreeDepth: number;
 
-    static layoutMenuContainerId = "layoutMenuContainer";
+    static layoutMenuContainerId = "layoutMenuOuterContainer";
+    
+    static innerContainerId = "layoutMenuInnerContainer";
+    
+    private containers: {outer: JQuery; inner: JQuery; expanderCallback: (open?: boolean, whenComplete?: () => void) => void; };
     
     constructor(
         public forceLayout: D3.Layout.ForceLayout,
@@ -33,11 +37,11 @@ export class ConceptLayouts implements LayoutProvider.ILayoutProvider {
     
     addMenuComponents(menuSelector: string){
         // Add the butttons to the pop-out panel
-        var layoutsContainer = $("<div>").attr("id", ConceptLayouts.layoutMenuContainerId);
-        $(menuSelector).append(layoutsContainer);
-                
-        layoutsContainer.append($("<label>").addClass(Menu.Menu.menuLabelClass).text("Layouts"));
-        layoutsContainer.append($("<br>"));
+        this.containers =  Menu.Menu.slideToggleHeaderContainer(ConceptLayouts.layoutMenuContainerId, ConceptLayouts.innerContainerId, "Layout", false);
+        var layoutsContainer = this.containers.inner;
+        $(menuSelector).append(this.containers.outer);
+        // Reduce margin on this label
+        this.containers.outer.children(".menuLabel").css("margin-top", "4px").css("margin-bottom", "8px");
         
         var forceButton = $("<div>")
             .attr("id", "forceLayoutButton")
