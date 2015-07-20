@@ -99,8 +99,6 @@ define(["require", "exports", './MouseSpinner', "MouseSpinner"], function (requi
                 xlink: "http://www.w3.org/1999/xlink",
                 svg: "http://www.w3.org/2000/svg"
             };
-            var emptySvg = window.document.createElementNS(prefix.svg, 'svg');
-            var emptySvgDeclarationComputed = getComputedStyle(emptySvg);
             var explicitlySetStyle = function (element, parentSvg) {
                 var cSSStyleDeclarationComputed = getComputedStyle(element);
                 var parentSvgDeclarationComputed = null;

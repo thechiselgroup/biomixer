@@ -153,9 +153,6 @@ export class  ExportSvgToImage {
             xlink: "http://www.w3.org/1999/xlink",
             svg: "http://www.w3.org/2000/svg"
           };
-        var emptySvg = window.document.createElementNS(prefix.svg, 'svg');
-        
-        var emptySvgDeclarationComputed = getComputedStyle(emptySvg);
         
         var explicitlySetStyle = (element, parentSvg)=>{
           var cSSStyleDeclarationComputed = getComputedStyle(element);
@@ -166,7 +163,6 @@ export class  ExportSvgToImage {
           var i, len, key, value, parentValue;
           // initialize to be the hard coded style of the element
           var computedStyleStr = element.getAttribute('style') || '';
-//          computedStyleStr = computedStyleStr+emptySvgDeclarationComputed.cssText;
           for (i=0, len=cSSStyleDeclarationComputed.length; i<len; i++) {
             key=cSSStyleDeclarationComputed[i];
             value=cSSStyleDeclarationComputed.getPropertyValue(key);
@@ -182,6 +178,7 @@ export class  ExportSvgToImage {
                 computedStyleStr+=key+":"+value+";";
             }
           }
+            
           element.setAttribute('style', computedStyleStr);
         };
         var traverse = (obj)=>{
