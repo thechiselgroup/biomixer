@@ -224,6 +224,10 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
             if (immediate === void 0) { immediate = false; }
             if (force === void 0) { force = false; }
             if (slow === void 0) { slow = false; }
+            if (!$("#" + MiniMap.menuContainerScrollContainerId).is(':visible') && !this.firstTimeRendering) {
+                // If the minimap isn't visible, let's not update it.
+                return;
+            }
             var currentTime = new Date().getTime();
             var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.longTimerWait < currentTime;
             var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
@@ -261,6 +265,10 @@ define(["require", "exports", "./Menu", "./ExportSvgToImage", "./MouseSpinner"],
         };
         MiniMap.prototype.renderImplementation = function (force) {
             if (force === void 0) { force = false; }
+            if (!$("#" + MiniMap.menuContainerScrollContainerId).is(':visible') && !this.firstTimeRendering) {
+                // If the minimap isn't visible, let's not update it.
+                return;
+            }
             this.svgDefs.select("#frameGradient").attr("width", this._mmwidth).attr("height", this._mmheight);
             this._scale = this._zoom.scale();
             this.container.attr("transform", "scale(" + this._minimapScale + ")");

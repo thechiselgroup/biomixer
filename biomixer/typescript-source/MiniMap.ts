@@ -366,6 +366,11 @@ export class MiniMap {
     outerLayoutShortTimer = null;
     outerLayoutLongTimer = null;
     render(immediate: boolean = false, force: boolean = false, slow: boolean = false) {
+        if(!$("#"+MiniMap.menuContainerScrollContainerId).is(':visible') && !this.firstTimeRendering){
+            // If the minimap isn't visible, let's not update it.
+            return;
+        } 
+        
         var currentTime = new Date().getTime();
         var longEnoughSinceLastRender = this.minimapRefreshLastCallTime + this.longTimerWait < currentTime;
         var longEnoughAfterGraphChange = this.parentGraph.getTimeStampLastGraphModification() + this.timerWait < currentTime;
@@ -410,7 +415,12 @@ export class MiniMap {
     private oldmmsvgWidth;
     private oldmmsvgHeight;
     private renderImplementation(force: boolean = false) {
-    
+        if(!$("#"+MiniMap.menuContainerScrollContainerId).is(':visible') && ! this.firstTimeRendering){
+            // If the minimap isn't visible, let's not update it.
+            return;
+        }    
+        
+        
         this.svgDefs
         .select("#frameGradient")
         .attr("width", this._mmwidth)
