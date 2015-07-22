@@ -9,7 +9,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(["require", "exports", "./ConceptNodeFilterWidget", "../Utils", "../NodeFilterWidget", "./ConceptNodeFilterWidget", "./ConceptPathsToRoot", "./ConceptGraph"], function (require, exports, ConceptFilterWidget) {
+define(["require", "exports", "../NodeFilterWidget", "./ConceptNodeFilterWidget", "../Utils", "../NodeFilterWidget", "./ConceptNodeFilterWidget", "./ConceptPathsToRoot", "./ConceptGraph"], function (require, exports, FilterWidget, ConceptFilterWidget) {
     var OntologyConceptFilter = (function (_super) {
         __extends(OntologyConceptFilter, _super);
         function OntologyConceptFilter(conceptGraph, graphView, centralConceptUri) {
@@ -39,8 +39,8 @@ define(["require", "exports", "./ConceptNodeFilterWidget", "../Utils", "../NodeF
             var outerThis = this;
             var acronym = checkboxContextData;
             var affectedNodes = [];
-            checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
-            if (checkbox.is(':checked')) {
+            if (checkbox.is(':checked') || checkbox.hasClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS)) {
+                checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
                 // Unhide those that are checked, as well as edges with both endpoints visible
                 // Also, we will re-check any checkboxes for individual nodes in that ontology.
                 $.each(setOfHideCandidates, function (i, node) {
@@ -52,6 +52,7 @@ define(["require", "exports", "./ConceptNodeFilterWidget", "../Utils", "../NodeF
                 });
             }
             else {
+                checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
                 // Hide those that are unchecked, as well as edges with no endpoints visible
                 // Also, we will un-check any checkboxes for individual nodes in that ontology.
                 $.each(setOfHideCandidates, function (i, node) {
