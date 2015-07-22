@@ -530,6 +530,10 @@
     tooltipLayer.style.left       = null;
     tooltipLayer.style.marginLeft = null;
     tooltipLayer.style.marginTop  = null;
+    
+    // Fully clear the slate. I needed to modify things for the draggable feature.
+    tooltipLayer.style.width      = null;
+    tooltipLayer.style.height     = null;
 
     arrowLayer.style.display = 'inherit';
 
@@ -1077,7 +1081,17 @@
           var dragger = $("<div>").attr("id","introjs-GrabHandle");
           $(buttonsLayer).append(dragger);
           // http://jqueryui.com/draggable/#handle
-          $(tooltipLayer).draggable({handle: dragger});
+          $(tooltipLayer).draggable(
+    		  {
+			  	handle: dragger,
+		  		start: function(event, ui){
+		            // Need to do this to prevent resizing when dragging in certain conditions.
+		            var tootlip = $(".introjs-tooltip");
+		            tootlip.css("height", tootlip.css("height")).css("width", tootlip.css("width"))
+		                .css("bottom", "auto").css("right", "auto");
+		  		}
+	        }
+          );
           // Hackarooney! The draggable modifies position to be relative,
           // which breaks tour behavior. Simply re-setting it to absolute here
           // fixes it.
