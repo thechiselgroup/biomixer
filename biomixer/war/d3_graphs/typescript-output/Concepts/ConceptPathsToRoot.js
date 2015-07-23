@@ -523,7 +523,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // Since this is turned into html, any JQuery event bindings will get lost. We have to do the binding later,
                 // and we need to prevent re-binding by calling off() first, as seen here.
                 $(document.body).off().on("change", "#popupCheckId", function () {
-                    console.log("hey");
                     outerThis.toggleHideNodeLambda(outerThis)(conceptData, 0);
                     outerThis.refreshOtherFilterCheckboxStates([conceptData], null);
                 });

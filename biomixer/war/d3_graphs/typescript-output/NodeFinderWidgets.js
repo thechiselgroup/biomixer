@@ -61,6 +61,7 @@ define(["require", "exports", "./Menu", "GraphView", "Menu"], function (require,
                 event.stopPropagation();
                 var messageField = $("#" + NodeFinder.singleNodeImportFieldId);
                 var importData = messageField.first().val();
+                importData = $.trim(importData);
                 if (importData.length === 0) {
                     return;
                 }
