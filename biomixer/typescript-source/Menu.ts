@@ -30,6 +30,8 @@ export class Menu {
     
     static hidingMenuContainerClass = "hidingMenu";
     
+    static menuMadeVisibleCallbacks: Array<{():void}> = [];
+    
     private menuName: string = "";
 
     
@@ -85,6 +87,10 @@ export class Menu {
             $("#"+Menu.triggerId).addClass("pressedMenuButton");
             $("#"+Menu.triggerId).attr("title", Menu.menuOpenPrefix+this.menuName);
         }
+        
+        for(var i in Menu.menuMadeVisibleCallbacks){
+            Menu.menuMadeVisibleCallbacks[i]();
+        }
     }
     
     toggleMenu(){
@@ -115,7 +121,11 @@ export class Menu {
      * 1) attach the outer element to the menu or other html container of your choice. This outer element is always visible.
      * 2) attach your menu's elements to the inner element. They will be shown or hidden.
      */
-     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean): {outer: JQuery; inner: JQuery; expanderCallback: (open?: boolean, whenComplete?: () => void) => void; } {
+     static slideToggleHeaderContainer(outerContainerId: string, innerContainerId:string, labelText: string, defaultHideContainer?:boolean, visibleCallback?: {():void}): {outer: JQuery; inner: JQuery; expanderCallback: (open?: boolean, whenComplete?: () => void) => void; } {
+        if(null != visibleCallback){
+            Menu.menuMadeVisibleCallbacks.push(visibleCallback);
+        }
+         
         var outerContainer = $("<div>").attr("id", outerContainerId);
         var innerHidingContainer = $("<div>").attr("id", innerContainerId).addClass(Menu.hidingMenuContainerClass);
         

@@ -47,9 +47,6 @@ export class ExpansionManager{
      * determine if the expansion set associated with the node is currently fully loaded into the graph.
      */
      wasConceptClearedForExpansion(conceptUri: ConceptGraph.ConceptURI, expansionType: ConceptGraph.PathOption): boolean{
-        // Not willing to remove the more elaborate command status approach yet.
-        // It might become relevant again. Otherwise...I prefer this simple obolean version of the method.
-        // return this.findConceptExpansionSetInHistory(conceptUri, expansionType).cleared;
         var returnVal = false;
         var crumbTrail = this.undoBoss.getCrumbHistory();
         var conceptUriForIds: string = String(conceptUri);
@@ -57,7 +54,15 @@ export class ExpansionManager{
             var command = crumbTrail[i];
             var nodeInteractions = command.nodeInteraction(conceptUriForIds);
             if(null == nodeInteractions){
-                return returnVal;
+                // Not the same as an empty set? I changed the deletion set non-interaction return from null to []
+                // The other case where null can be returned is in a composite set.
+                // I changed it from null to [] in order to fix the bug where, if a node with a mapping arc was deleted,
+                // all of the mapping arcs disappeared too.
+                // That doesn't seem like the solution. It seems like, if a node does not interact with a given set, that we must
+                // look at the previous set for whether it was cleared or not. Figuring out if this is a bug or by design...
+                // Letting the loop continue...it makes logical sense, though there may have been some reason I set it up to return
+                // on null, which has either changed, was an corner case, etc.
+                // return returnVal;
             } else if(nodeInteractions.indexOf(expansionType) !== -1){
                 returnVal = true;
                 return returnVal;

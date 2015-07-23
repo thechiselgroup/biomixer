@@ -1,3 +1,5 @@
+///<reference path="headers/require.d.ts" />
+///<reference path="headers/d3.d.ts" />
 define(["require", "exports", "./Menu", "GraphView", "Menu"], function (require, exports, Menu) {
     var NodeFinder = (function () {
         function NodeFinder(graphView, graphModel) {
@@ -27,7 +29,9 @@ define(["require", "exports", "./Menu", "GraphView", "Menu"], function (require,
                     event.preventDefault();
                     findFunc();
                 }
+                // console.log(event.keyCode);
             });
+            // for the button, after click or Enter key press, move focus back to the input box for nicer interactions.
             searchButton.on("click", function () {
                 findFunc();
                 searchInput.focus();
@@ -37,6 +41,7 @@ define(["require", "exports", "./Menu", "GraphView", "Menu"], function (require,
                     findFunc();
                     searchInput.focus();
                 }
+                // console.log(event.keyCode);
             });
         };
         NodeFinder.prototype.highlightNodeNameMatches = function (graphModel, graphView, textInput) {
@@ -56,6 +61,7 @@ define(["require", "exports", "./Menu", "GraphView", "Menu"], function (require,
                 event.stopPropagation();
                 var messageField = $("#" + NodeFinder.singleNodeImportFieldId);
                 var importData = messageField.first().val();
+                importData = $.trim(importData);
                 if (importData.length === 0) {
                     return;
                 }

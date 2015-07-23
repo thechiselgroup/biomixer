@@ -145,7 +145,7 @@ export class BackForwardBreadcrumbButtons extends BreadcrumbTrail.BreadcrumbTrai
         // Clean up three containers
         var popped: string = this.trailOfCrumbs.pop();
         if(popped !== command.getUniqueId()){
-            console.log("Sequence problem in breadcrumbs: popped element does not match expected.");
+            console.log("Sequence problem in breadcrumbs: popped element does not match expected: "+popped+" popped vs "+command.getUniqueId()+" removed.");
         }
         var crumbElement = this.selectCrumbElement(this.trailMap[command.getUniqueId()].command);
         var isActiveCrumb = crumbElement.hasClass(BackForwardBreadcrumbButtons.activeCrumbClassName);

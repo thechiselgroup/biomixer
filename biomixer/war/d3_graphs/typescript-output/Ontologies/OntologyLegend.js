@@ -1,3 +1,4 @@
+///<amd-dependency path="Menu" />
 define(["require", "exports", "Menu"], function (require, exports) {
     var OntologyLegend = (function () {
         function OntologyLegend(menu) {

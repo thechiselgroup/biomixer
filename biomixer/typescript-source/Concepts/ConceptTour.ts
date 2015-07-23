@@ -83,7 +83,6 @@ export class Tour {
         
         var introJsTourButton = $("<label>")
             .attr("id", this.tourButtonId)
-            .attr("class", "nodeCommandButton")
             .addClass("unselectable")
             .addClass(Menu.Menu.topBarButtonClass)  
             .text("Take a Tour!")

@@ -51,12 +51,14 @@ import ConceptTour = require("./ConceptTour");
 import ConceptLayouts = require("./ConceptLayouts");
 import ImporterExporter = require("./GraphImporterExporter");
 import NodeFinder = require("../NodeFinderWidgets");
+import MiniMap = require("../MiniMap");
 
  type Config = {
             rectWidth: number;
             rectHeight: number;
             fontXSvgPadding: number;
             fontYSvgPadding: number;
+            subMenuSize: number;
         };
 
 
@@ -88,6 +90,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     nestedOntologyConceptFilter: NestedOntologyConceptFilter.NestedOntologyConceptFilter;
     // expansionSetFilter: ExpansionSetFilter.ExpansionSetFilter;
     nestedExpansionConceptFilter: NestedExpansionSetConceptFilter.NestedExpansionSetConceptFilter;
+    miniMap: MiniMap.MiniMap;
     
     tour: ConceptTour.Tour;
     
@@ -196,7 +199,22 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         $("#chart").empty();
         d3.select("#chart").remove;
         
+        
         var outerThis = this;
+        // Performs zoom and pan behaviors.
+        var prevZoomLevel;
+        var prevTranslate;
+        this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom",
+            ()=>{
+                this.geometricZoom()();
+                // Is called a few times on layout change, but I only want to do this on actual zoom.
+                if(prevZoomLevel !== d3.event.scale || prevTranslate[0] !== d3.event.translate[0] || prevTranslate[1] !== d3.event.translate[1]){
+                    this.renderMiniMap(true);
+                    prevZoomLevel = d3.event.scale;
+                    prevTranslate = d3.event.translate;
+                }
+            }
+        );
         this.vis = d3.select("#chart").append("svg:svg")
             .attr("id", "graphSvg")
             .attr("width", this.visWidth())
@@ -208,9 +226,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                             TipsyToolTipsOnClick.closeOtherTipsyTooltips();
                         }
                 )
+            .call(this.zoom)
+            .append("g").attr("id", "graph_g")
             ;
-        //  .call(d3.behavior.zoom().on("zoom", redraw))
-          
+        
         // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
         // this.defineCustomSVG();
         
@@ -229,14 +248,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.resizedWindowLambda();
         
         Fetch.CacheRegistry.clearAllServiceRecordsKeepCacheData();
-    }
-    
-    
-    redraw() {
-    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-    //  vis.attr("transform",
-    //      "translate(" + d3.event.translate + ")"
-    //      + " scale(" + d3.event.scale + ")");
     }
     
     initAndPopulateGraph(){
@@ -258,7 +269,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.nodeFinder = new NodeFinder.NodeFinder(this, this.conceptGraph);
         
         this.importerExporterWidget = new ImporterExporter.Widget(this);
-         
+        
+
         this.edgeTypeFilter = new ConceptEdgeTypeFilter.ConceptEdgeTypeFilter(this.conceptGraph, this, this.centralConceptUri);
         // this.ontologyFilter = new OntologyConceptFilter.OntologyConceptFilter(this.conceptGraph, this, this.centralConceptUri);
         // this.individualConceptFilter = new CherryPickConceptFilter.CherryPickConceptFilter(this.conceptGraph, this, this.centralConceptUri);
@@ -283,7 +295,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         this.attachFullscreenButton();
         
         this.fetchInitialExpansion();
-        MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
+        
+        this.miniMap = new MiniMap.MiniMap(d3.select("#graphSvg"), this, this.zoom);
+        this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
+        
+         MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
+    }
+    
+    renderMiniMap(immediate: boolean = false, force: boolean = false, slow: boolean = false){
+        if(null != this.miniMap){
+            this.miniMap.render(immediate, force, slow);
+        }
     }
     
     /**
@@ -428,6 +450,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         var maxGravityFrequency = 4000;
         
         return () => {
+            this.stampTimeLayoutModified();
             // This improved layout behavior dramatically.
             var boundNodes = this.vis.selectAll("g.node_g");
             // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
@@ -477,6 +500,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             if(null != this.tour){
                 this.tour.refreshIntro();
             }
+            this.renderMiniMap(false, true, true);
         }
             
     }
@@ -485,6 +509,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     alreadyHidTipsy = false;
     dragstartLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
+            d3.event.sourceEvent.stopPropagation();
             outerThis.dragging = true;
             outerThis.alreadyHidTipsy = false;
 
@@ -531,11 +556,16 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .filter(function(e: ConceptGraph.Link){ return e.source === d || e.target === d; })
                 .attr("points", outerThis.updateArcMarkerFunc);
 
-           
+            outerThis.stampTimeLayoutModified();
+            
+            // Better to have nice movement than to have the minimap reflect the changes of dragging.
+            // outerThis.renderMiniMap();
         }
     }
     
     pixelMap = [0, 10, -10, -7, -4, 4, 7]; // currently only supports 5 extra edges, could cut to diffs of 2 pixels instead.
+    // Modified from being a simple line to being a round-trip line, allowing for invisible mouse activated borders, while still
+    // having an opaque center fill.
     public updateArcLineFunc = (linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string => {
         // This is a lot easier than markers, except that we also have to offset
         // the line if there are two arc types.
@@ -547,41 +577,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             offset = 0;
         }
         
-        var sourceX = linkData.source.x;
-        var sourceY = linkData.source.y;
-        var targetX = linkData.target.x;
-        var targetY = linkData.target.y;
-    
-        if(offset != 0){
-            // Make is_a and has_a arcs move away from each other by enough that we can see them both
-            // for when both relations exist in a pair of nodes
-            
-            // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-            // We'll want the vector relative to source, then the same repeated for target...but since
-            // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-            // infer it.
-            var targetVectorX = targetX - sourceX;
-            var targetVectorY = targetY - sourceY;
-            var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
-            var targetOrthVectorX = -1 * targetVectorY / norm;
-            var targetOrthVectorY = targetVectorX / norm;
-            var xDist = offset * targetOrthVectorX;
-            var yDist = offset * targetOrthVectorY;
-            
-            
-            // Kick the composition arcs a coupel pixels away
-            sourceX += xDist;
-            sourceY += yDist;
-            targetX += xDist;
-            targetY += yDist;
-        }
-        
-         var points =
-           sourceX+","+sourceY+" "
-         + targetX+","+targetY+" "
-        ;
-        
-        return points;
+        return this.computeStrokeAndFillLinkEndpointsString(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 1, offset);
     }
     
     public updateArcMarkerFunc = (linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string => {
@@ -601,22 +597,27 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     triSegLen = 14;
     triangleMarkerPointAngle = (25/360) * (2 * Math.PI);
     private computeArcMarkerForInheritance(linkData: ConceptGraph.Link, ignoreOffset: boolean = false): string{
-        var sourceX = linkData.source.x;
-        var sourceY = linkData.source.y;
-        var targetX = linkData.target.x;
-        var targetY = linkData.target.y;
+        // 0 for desired thickness since we want the abstract line, not the polyline coordinates.
+        // var pointsObj = this.computeStrokeAndFillLinkEndpoints(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 0, 0);
+        // could bypass, since we are really literally just using the source and target coordinates, with no offset at all...
+        var pointsObj = {
+            sourceX: linkData.source.x,
+            sourceY: linkData.source.y,
+            targetX: linkData.target.x,
+            targetY: linkData.target.y
+        };
 
         // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
         // a bit gives better marker positioning.
-        var midPointX = sourceX + (targetX - sourceX)/2;
-        var midPointY = sourceY + (targetY - sourceY)/2;
+        var midPointX = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX)/2;
+        var midPointY = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY)/2;
         
         // But...I need to make a triangular convolution, to replace the markers.
         // Marker path was: path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
         // Rotate a triangleSide line in both directions, and add the midpoint to each.
         // From the endpoint of the first and startpoint of the second, draw an additional segment.
         // 0.5 * PI because I need to rotate the whole thing by 90 degrees
-        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(pointsObj.sourceX - pointsObj.targetX, pointsObj.sourceY - pointsObj.targetY);
         var triAngle1 = atanSourceTarget + this.triangleMarkerPointAngle;
         var triAngle2 = atanSourceTarget - this.triangleMarkerPointAngle;
         // Since y = 0 always, let's save some CPU cycles
@@ -653,36 +654,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             offset = 0;
         }
         
-        var sourceX = linkData.source.x;
-        var sourceY = linkData.source.y;
-        var targetX = linkData.target.x;
-        var targetY = linkData.target.y;
-    
-        // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-        // We'll want the vector relative to source, then the same repeated for target...but since
-        // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-        // infer it.
-        var targetVectorX = targetX - sourceX;
-        var targetVectorY = targetY - sourceY;
-        var norm = Math.sqrt(targetVectorX*targetVectorX + targetVectorY * targetVectorY);
-        var targetOrthVectorX = -1 * targetVectorY / norm;
-        var targetOrthVectorY = targetVectorX / norm;
-        var xDist = offset * targetOrthVectorX;
-        var yDist = offset * targetOrthVectorY;
-        
-        // Make is_a and has_a arcs move away from eachother by enough that we can see them both
-        // for when both relations exist in a pair of nodes
-        if(linkData.relationType === this.conceptGraph.relationLabelConstants.composition){
-            // Kick the composition arcs a coupel pixels away
-            sourceX += xDist;
-            sourceY += yDist;
-            targetX += xDist;
-            targetY += yDist;
-        }
+        // 0 for desired thickness since we want the abstract line, not the polyline coordinates.
+        var pointsObj = this.computeStrokeAndFillLinkEndpoints(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 0, 0);
         
         // the path will go from the tip of a diamond shape, around the perimeter, then cut again through
         // the middle to recommence the line.
-        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+        var atanSourceTarget = Math.PI * 0.5 - Math.atan2(pointsObj.sourceX - pointsObj.targetX, pointsObj.sourceY - pointsObj.targetY);
         
         var diamondAngle1 = atanSourceTarget + (this.diamondAngle); // sign controls above/below line
         var diamondAngle2 = atanSourceTarget - (this.diamondAngle);
@@ -699,10 +676,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // a bit gives better marker positioning.
         var diamondXDelta = (this.diamondLength/2 * Math.cos(atanSourceTarget) );
         var diamondYDelta = (this.diamondLength/2 * Math.sin(atanSourceTarget) );
-        var midPointX1 = sourceX + (targetX - sourceX)/2 - diamondXDelta;
-        var midPointY1 = sourceY + (targetY - sourceY)/2 - diamondYDelta;
-        var midPointX2 = sourceX + (targetX - sourceX)/2 + diamondXDelta;
-        var midPointY2 = sourceY + (targetY - sourceY)/2 + diamondYDelta;
+        var midPointX1 = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX)/2 - diamondXDelta;
+        var midPointY1 = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY)/2 - diamondYDelta;
+        var midPointX2 = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX)/2 + diamondXDelta;
+        var midPointY2 = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY)/2 + diamondYDelta;
         
         // Make relative to the midPoint
         // I would move the marker half of its length back towards the source, but I want to save
@@ -734,6 +711,8 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
     dragendLambda(outerThis: ConceptPathsToRoot): {(d: any, i: number): void} {
         return function(d, i) {
             outerThis.dragging = false;
+            outerThis.stampTimeLayoutModified();
+            outerThis.renderMiniMap(true, true);
             // $(this).tipsy('show');
             // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
             // $(".tipsy").show();
@@ -775,7 +754,6 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
          // Since this is turned into html, any JQuery event bindings will get lost. We have to do the binding later,
          // and we need to prevent re-binding by calling off() first, as seen here.
          $(document.body).off().on("change", "#popupCheckId", function(){
-                            console.log("hey");
                             outerThis.toggleHideNodeLambda(outerThis)(conceptData, 0);
                             outerThis.refreshOtherFilterCheckboxStates([conceptData], null);
                         }
@@ -910,7 +888,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.forceLayout.start();
     }
     
-    populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges?: boolean){
+    populateNewGraphEdges(linksData: ConceptGraph.Link[], temporaryEdges: boolean = false){
         // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
         if(linksData.length == 0){
             return [];
@@ -978,7 +956,17 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                 .attr("id", function(d: ConceptGraph.Link){ return "link_title_"+d.id});
         
         // Make the arc opaque over time, just like the nodes.
-        enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0");
+        enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0")
+        .each("end",
+                (d: any, i: number)=>{
+                    if(temporaryEdges){
+                        return;
+                    }
+                    outerThis.renderMiniMap(false, true, true);
+                    return;
+                }
+            )
+        ;
         
         if(!enteringLinks.empty()){
             if(!temporaryEdges){
@@ -994,6 +982,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             enteringArcMarkers.attr("points", this.updateArcMarkerFunc);
             this.edgeTypeFilter.updateFilterUI();
         }
+
     }
     
     private giveIEMarkerWarning = true;
@@ -1134,7 +1123,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
         
         var outerThis = this;
-        
+
         var nodes = this.vis.select("#node_container")
         .selectAll("g.node_g").data(nodesData, ConceptGraph.Node.d3IdentityFunc);
         // Add new stuff
@@ -1223,6 +1212,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         enteringSubG // initialize as transparent, and animate to opaque
             .transition().duration(this.enteringElementTransitionDuration)
             .style("opacity", 1.0)
+            .each("end",
+                (d: any, i: number)=>{
+                    outerThis.renderMiniMap(false, true, true);
+                    return;
+                }
+            )
         ;
         
         if(!enteringNodes.empty()){
@@ -1238,9 +1233,10 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             this.nestedExpansionConceptFilter.updateFilterUI();
         
         }
+
     }
 
-    removeMissingGraphElements(){
+    removeMissingGraphElements(data, temporaryOnly: boolean = false){
         //console.log("Removing some graph elements "+Utils.getTime());
         
         // Have problems if we don't pass the containers back in like this.
@@ -1269,6 +1265,15 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // Only call the remove call after the nodes are gone, rather than after links are
         // gone. Tried combining selections and didn't find a way that worked.
         .call(()=>{ exitingLinks.remove(); exitingNodes.remove(); })
+        .each("end",
+            (d: any, i: number)=>{
+                if(temporaryOnly){
+                        return;
+                }
+                this.renderMiniMap(false, true, true);
+                return;
+            }
+        )
         ;
                 
         // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
@@ -1290,6 +1295,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // this.expansionSetFilter.updateFilterUI();
             this.nestedExpansionConceptFilter.updateFilterUI();
         }
+
     }
     
     attachNodeMenu(enteringNodes: D3.Selection){
@@ -1328,6 +1334,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             rectHeight: 35,
             fontXSvgPadding: 7,
             fontYSvgPadding: 23,
+            subMenuSize: 4,
         };
     showNodeExpanderPopupMenuLambda(outerThis: ConceptPathsToRoot){
         return function(nodeData: ConceptGraph.Node){      
@@ -1350,12 +1357,12 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
                     // I tried many things which didn't work. Eventually I decided to get rid of the box altogether
                     // whenever a greyed-out menu item is clicked; that is, if the item doesn't have a body to its handler,
                     // it allows this one to close the menu.
-                    .on("mouseup", function(){ $("#expanderMenu").first().remove(); })
+                    .on("click", function(){ $("#expanderMenu").first().remove(); })
             ;
             // We also add hover effects to text children lower down
             
             // Create concept expander button
-            outerThis.appendConceptExpandingButton(innerSvg, config, nodeData);
+            outerThis.appendConceptExpandingButton(innerSvg, config, nodeData, this);
             
             // Create mapping expander button
             outerThis.appendMappingExpanderButton(innerSvg, config, nodeData);
@@ -1369,29 +1376,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             // Resize the parent rectangles as necessary based on all of the children text elements
             // It does things fairly automatically and agnostic of the number of menu item text elements.
             // Obviously if we change the overall design of the menu this won't work as is.
-            
-            // Size the parent rect according to the longest text child
-            var maxWidth = 0;
-            $("#"+innerSvg.attr("id")).find("text").each(
-                function(index, element){
-                    // Works for Chrome
-                    // Only one to work for Firefox
-                    // Only one to work for IE
-                    var box = element.getBoundingClientRect();
-                    var elemWidth = box.right-box.left;
-                    
-                    maxWidth = Math.max(maxWidth, elemWidth);
-                }
-            );
-            
-            // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
-            // The right side will need the same effective padding as well.
-            maxWidth += 2*config.fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
-            $("#"+innerSvg.attr("id")).attr("width", maxWidth);
-            $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
-            // console.log("Resized things, maxWidth: "+maxWidth);
-        
-            
+            outerThis.resizeMenuWidths(innerSvg, config);
             
             // Make the menu labels bold when hovered over
             d3.selectAll(".expanderMenuItem")
@@ -1401,7 +1386,65 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         }
     }
     
-    private appendConceptExpandingButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+    private resizeMenuWidths(innerSvg, config){
+        // Size the parent rect according to the longest text child
+        var maxWidth = 0;
+        $("#"+innerSvg.attr("id")).find("text").each(
+            function(index, element){
+                // Works for Chrome
+                // Only one to work for Firefox
+                // Only one to work for IE
+                var box = element.getBoundingClientRect();
+                var elemWidth = box.right-box.left;
+                
+                maxWidth = Math.max(maxWidth, elemWidth);
+            }
+        );
+        
+        // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
+        // The right side will need the same effective padding as well.
+        maxWidth += 2*config.fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
+        $("#"+innerSvg.attr("id")).attr("width", maxWidth);
+        $("#"+innerSvg.attr("id")).find("rect").attr("width", maxWidth);
+        // Get the sub-menu indicator(s) and move them to the right
+        $("#"+innerSvg.attr("id")).find("g").attr("x", maxWidth);//-config.subMenuSize*2);
+        // console.log("Resized things, maxWidth: "+maxWidth);
+    }
+    
+    private toggleToExpansionSubMenu(nodeData: ConceptGraph.Node, target: Element){
+        // User activated the node expansion sub menu, where we can let them specify that they want to
+        // expand only child, only parent, or only other relations.
+        
+        var config = ConceptPathsToRoot.expanderMenuConfig;
+            
+        // JQuery does not allow the specification of a namespace when creating elements.
+        // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
+        // To do so, you need to do verbose things like: document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        // So, I don't get to use JQuery as much as D3 it turns out.
+        
+        var innerSvg = d3.select(target).append("svg:svg")
+                .attr("id", "expanderSubMenu")
+                .attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth/2 + parseInt(d3.select(target).attr("x"), 0)))
+                .attr("width", config.rectWidth).attr("height", config.rectHeight * 2)
+                .style("z-index", 100)
+                .on("mouseleave", ()=>{ this.unhighlightHoveredNodeLambda(this, false)(nodeData, 0); $("#expanderSubMenu").first().remove();})
+                // The mouseup one is required due to a silly graphical bug I could not fix.
+                // If a greyed-out menu item was clicked, it also triggered a re-dispatch of the menu creating function,
+                // and produced a broken container relative to the text elements within.
+                // I tried many things which didn't work. Eventually I decided to get rid of the box altogether
+                // whenever a greyed-out menu item is clicked; that is, if the item doesn't have a body to its handler,
+                // it allows this one to close the menu.
+                .on("mouseup", ()=>{ $("#expanderSubMenu").first().remove(); })
+        ;
+        
+        this.appendConceptExpandChildrenButton(innerSvg, config, nodeData);
+        this.appendConceptExpandParentsButton(innerSvg, config, nodeData);
+        this.appendConceptExpandOthersButton(innerSvg, config, nodeData);
+        
+        this.resizeMenuWidths(innerSvg, config);
+    }
+    
+    private appendConceptExpandingButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node, target: Element){
         var outerThis = this;
         var conceptExpandSvg = innerSvg.append("svg:svg")
                 .attr("overflow", "visible").attr("y", 0)
@@ -1436,7 +1479,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             conceptExpandMouseUpFunc = function(){return false;};
         }
         
-        conceptExpandSvg.append("svg:rect")
+        var conceptRect = conceptExpandSvg.append("svg:rect")
                 .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",config.rectWidth).attr("height",config.rectHeight)
                 .on("mouseup", conceptExpandMouseUpFunc);
         conceptExpandSvg.append("svg:text")
@@ -1451,6 +1494,60 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
             .attr("onmousedown", "noselect") // IE ?
             .attr("onselectstart", "function(){ return false;}") // IE 8?
         ;
+        
+        var submenuSvg = conceptExpandSvg.append("svg:svg")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("preserveAspectRatio", "xMaxYMin meet") // maybe meet too as value after space
+        ;
+        var submenuG = submenuSvg
+            .append("svg:g")
+            .attr("x", config.rectWidth)
+            .attr("y", config.rectHeight - config.subMenuSize*2)
+            .attr("height", config.subMenuSize*2)
+            .attr("width", config.subMenuSize*2)
+            .attr("overflow", "visible")
+        ;
+        
+        var submenuRect = submenuG
+            .append("svg:circle")
+            .style("fill", "blue")
+            .attr("cx", config.subMenuSize+1)
+            .attr("cy", config.subMenuSize+1)
+            .style("stroke", "#afc6e5")
+            .attr("r", config.subMenuSize)
+            .attr("overflow", "visible")
+            .on("mousedown", ()=>{ d3.event.stopPropagation(); })
+            .on("mouseup", ()=>{
+                d3.event.stopPropagation();
+                $("#expanderMenu").remove();
+                this.toggleToExpansionSubMenu(nodeData, target);
+            })
+            ;
+        submenuRect
+            .append("title").attr("text", "Click here for different expansion options")
+            ;
+        submenuG
+            .append("svg:text")
+            .text("+")
+            .style("fill",conceptExpandFontFillColor)
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .classed("svgFont", true)
+            .style("pointer-events", "none")
+            .attr("unselectable", "on") // IE 8
+            .attr("onmousedown", "noselect") // IE ?
+            .attr("onselectstart", "function(){ return false;}") // IE 8?
+        ;
+        
+//        submenuRect
+//        .append("svg:polygon")
+//        .attr("points", "11.25,2 18.75,2 15,6 ")
+//        .style("fill", "#000000")
+//        .attr("x", function(d: ConceptGraph.Node){ return -1 * (this.getAttribute("width")/2);} )
+//        .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
+//        .attr("overflow", "visible")
+//        ;
+        
     }
     
     private appendMappingExpanderButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
@@ -1551,6 +1648,88 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         ;
     }
     
+    private appendConceptExpandChildrenButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var callback = function(){
+                        $("#expanderMenu").first().remove();
+                        var expId = new ExpansionSets.ExpansionSetIdentifer("concept_children_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
+                        var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
+                            ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                        outerThis.conceptGraph.fetchChildren(nodeData, nodeData.linkChildren, 1, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, expansionSet);
+                    };
+        var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, "children");
+        this.appendConceptSubButton("Children", callback, hardTermExpansionCount, innerSvg, config, nodeData);
+    }
+    
+    private appendConceptExpandParentsButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var callback = function(){
+                        $("#expanderMenu").first().remove();
+                        var expId = new ExpansionSets.ExpansionSetIdentifer("concept_parent_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
+                        var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
+                            ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                        outerThis.conceptGraph.fetchParents(nodeData, nodeData.linkParents, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, expansionSet);
+                    };
+       var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, "parents");
+       this.appendConceptSubButton("Parents", callback, hardTermExpansionCount, innerSvg, config, nodeData);
+    }
+    
+    private appendConceptExpandOthersButton(innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var outerThis = this;
+        var callback = function(){
+                        $("#expanderMenu").first().remove();
+                        var expId = new ExpansionSets.ExpansionSetIdentifer("concept_composite_expand_"+nodeData.conceptUriForIds, "Concepts: "+nodeData.name+" ("+nodeData.ontologyAcronym+")");
+                        var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss,
+                            ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                        outerThis.conceptGraph.fetchCompositionRelations(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, expansionSet);
+                    };
+       var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, "other");
+       this.appendConceptSubButton("Relations", callback, hardTermExpansionCount, innerSvg, config, nodeData);
+    }
+    
+    private appendConceptSubButton(name: string, callback, hardTermExpansionCount: number, innerSvg: D3.Selection, config: Config, nodeData: ConceptGraph.Node){
+        var conceptExpandSvg = innerSvg.append("svg:svg")
+                .attr("overflow", "visible").attr("y", $(".expanderMenuItem").length*config.rectHeight)
+                .classed("expanderMenuItem", true)
+        ;
+                    
+        // If this node is currently cleared for expansion within the undo/stack current context,
+        // then it means we already did this expansion (possibly via another means).
+        // Let's alter the menu to reflect this.
+        var conceptExpandTextValue;
+        var conceptExpandFontFillColor;
+        var conceptExpandMouseUpFunc;
+
+        if(hardTermExpansionCount != 0){
+            conceptExpandTextValue = "Expand "+name;
+            conceptExpandTextValue +=" ("+hardTermExpansionCount+")"; // +" ("+conceptExpState.numMissing+";
+
+            
+            conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
+            conceptExpandMouseUpFunc = callback;
+        } else {
+            conceptExpandTextValue = name+" Already Expanded";
+            conceptExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
+            conceptExpandMouseUpFunc = function(){return false;};
+        }
+        
+        var conceptRect = conceptExpandSvg.append("svg:rect")
+                .style("fill","#FFFFFF").style("stroke","#000000").attr("x",0).attr("y",0).attr("width",config.rectWidth).attr("height",config.rectHeight)
+                .on("mouseup", conceptExpandMouseUpFunc);
+        conceptExpandSvg.append("svg:text")
+            .text(conceptExpandTextValue)
+            .style("fill",conceptExpandFontFillColor)
+            .attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding)
+            .attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot+" unselectable "+" expanderMenuText")
+            .classed("svgFont", true)
+            .style("pointer-events", "none")
+            // Why cannot we stop selection in IE? They are rude.
+            .attr("unselectable", "on") // IE 8
+            .attr("onmousedown", "noselect") // IE ?
+            .attr("onselectstart", "function(){ return false;}") // IE 8?
+        ;
+    }
+    
     beforeNodeHighlight(targetNodeData){
          this.conceptGraph.manifestTemporaryHoverEdges(targetNodeData);
     }
@@ -1578,6 +1757,7 @@ export class ConceptPathsToRoot extends GraphView.BaseGraphView<ConceptGraph.Nod
         // this.individualConceptFilter.addMenuComponents(this.menu.getMenuSelector(), true);
         
 //        this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        
     }
     
     /**

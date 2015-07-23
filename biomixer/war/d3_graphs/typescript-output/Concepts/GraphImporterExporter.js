@@ -1,3 +1,9 @@
+///<amd-dependency path="Utils" />
+///<amd-dependency path="FetchFromApi" />
+///<amd-dependency path="GraphView" />
+///<amd-dependency path="Concepts/ConceptGraph" />
+///<amd-dependency path="Menu" />
+///<amd-dependency path="ExpansionSets" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -5,6 +11,19 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph", "../Menu", "../ExpansionSets", "Utils", "FetchFromApi", "GraphView", "Concepts/ConceptGraph", "Menu", "ExpansionSets"], function (require, exports, Fetcher, GraphView, ConceptGraph, Menu, ExpansionSets) {
+    /**
+     * This format is used for exporting and importing graphs and their layouts.
+     * This can be transmitted across browsing sessions or between different people
+     * using the visualization.
+     * It is a relatively simple but self contained format that requires expansion
+     * of each node included.
+     *
+     * I opted for shorter property names, expecting that this would likely be transmitted
+     * as raw JSON text without compression.
+     *
+     * Each node indexed by its own, id, data including its ontology, x and y coordinate,
+     *
+     */
     var SavedGraphSeed = (function () {
         function SavedGraphSeed() {
         }
@@ -15,9 +34,10 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
         function SavedGraph() {
             this.NB = "Greetings! This is a BioMixer portable graph." + " Paste this entire data structure into the Import dialog box, accessible via the menu." + " Use the url: " + SavedGraph.getUrlIFrameOrNot() + " .";
             this.n = [];
-            this.s = {};
+            this.s = {}; // Store styles here, just colors for now. Not much format.
         }
         SavedGraph.prototype.addNode = function (nodeData, graph) {
+            // Would make the graph an instance variable, but then it would get serialized later.
             var nodeSeed = {
                 c: nodeData.simpleConceptUri,
                 o: nodeData.ontologyAcronym,
@@ -47,7 +67,7 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
             this.containers = Menu.Menu.slideToggleHeaderContainer(Widget.outerContainerId, Widget.innerContainerId, "Sharing", true);
             var outerContainer = this.containers.outer;
             var innerContainer = this.containers.inner;
-            this.menuSelector = menuSelector;
+            this.menuSelector = menuSelector; // store for later
             $(menuSelector).append(outerContainer);
             var exportButton = $("<div>").addClass("unselectable").addClass("importExportButton").addClass("boxButton").attr("id", "exportButton").attr("type", "button").text("Export").attr("value", "Export");
             var importButton = $("<div>").addClass("unselectable").addClass("importExportButton").addClass("boxButton").attr("id", "importButton").attr("type", "button").text("Import").attr("value", "Import");
@@ -64,6 +84,10 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
             d3.selectAll("#exportButton").on("click", this.showExportDialogLambda());
             d3.selectAll("#importButton").on("click", this.showImportDialogLambda());
         };
+        /**
+         * When we are opening an empty page, we like to assume the user will be importing, so we can open all the required elements
+         * for them.
+         */
         Widget.prototype.openShareAndImportMenu = function () {
             $('#trigger').trigger("click");
             this.containers.expanderCallback();
@@ -111,16 +135,20 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
             };
         };
         Widget.prototype.messagePrompt = function (message, fieldContent, okCallback) {
+            // Remove any existing version of this panel. It is an embedded modal singleton unique as a unicorn.
             var dialog = $("#" + Widget.messageDivId);
             if (undefined !== dialog) {
                 dialog.detach();
             }
+            // Create the new one.
             dialog = $("<div>").attr("id", Widget.messageDivId).addClass(Widget.messageDivClass).addClass("opaqueMenu");
             var messageParagraph = $("<p>").addClass(Widget.messageParagraphId);
             messageParagraph.text(message);
             var messageField = $("<textarea>").attr("id", Widget.messageTextId).addClass(Widget.messageTextId);
             messageField.text(fieldContent);
             messageField.select();
+            // Default the ok button to close the box. If it is to something more useful, then create a cancel button
+            // to allow the user to simply close the box.
             var cancelButton = undefined;
             var okButtonText;
             if (null === okCallback) {
@@ -159,6 +187,7 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
         GraphExporter.prototype.getExportData = function () {
             var _this = this;
             var savedGraph = new SavedGraph();
+            // Fill it up!
             var nodes = this.graph.graphView.getUnhiddenNodes();
             nodes.each(function (index, node) {
                 var nodeId = node.getAttribute("id").replace(GraphView.BaseGraphView.nodeGSvgClassSansDot + "_", "");
@@ -187,9 +216,17 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
                 console.log("No keys available in data that was imported.");
                 return;
             }
+            // Set the graph's layout to be agnostic. We are presumably getting all of the layout data from the imported
+            // data, and we don't want any other layout algorithm overriding that when calls to refresh the layout occurs.
+            // I expected to need to set the layout here, but it didn't work. Had to do it after adding all the data.
+            // this.conceptGraph.graphView.setCurrentLayout(this.pathsToRoot.layouts.runFixedPositionLayoutLambda());
+            // It's ok if the id for this expansion set is simplistic. We do want to allow for multiple imports within a page though...
+            // Maybe...
             var expId = new ExpansionSets.ExpansionSetIdentifer("importedGraphInitialExpansion_" + GraphImporter.importNumber, "Imported Graph " + GraphImporter.importNumber);
             var initSet = this.pathsToRoot.prepareForExpansionFromScratch(expId, null, null);
             var expansionSet = initSet.expansionSet;
+            // The init set has the expansion set I would otherwise have made, but is the right way to delete and add at the same time.
+            // var expansionSet = new ExpansionSets.ExpansionSet<ConceptGraph.Node>(expId, null, this.conceptGraph, this.pathsToRoot.undoRedoBoss, null);
             GraphImporter.importNumber++;
             for (var className in this.importData.s) {
                 var color = this.importData.s[className];
@@ -198,17 +235,20 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
                 sheet.css("stroke", color);
             }
             for (var i = 0; i < this.importData.n.length; i++) {
+                // Verify the structure's contents. It was imported via casting, not parsing.
                 var nodeData = this.importData.n[i];
                 var conceptUri = ConceptGraph.ConceptGraph.computeNodeId(nodeData.c, nodeData.o);
                 if (nodeData.m) {
                     expansionSet.graphModifier.addExtraInteraction(String(conceptUri), ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant);
                 }
+                // Casting to prevent need for re-boxing data. Would need to remove elements and leave just x and y.
                 this.pathsToRoot.layouts.updateFixedLayoutDatum(conceptUri, nodeData);
                 this.loadNode(conceptUri, nodeData, expansionSet);
             }
             this.conceptGraph.graphView.setCurrentLayout(this.pathsToRoot.layouts.runFixedPositionLayoutLambda());
         };
         GraphImporter.prototype.loadNode = function (conceptUri, nodeData, expansionSet) {
+            // Dumb trick. Only way to do it. Minimizes casting, while allowing typing.
             var ontologyAcronym = nodeData.o;
             var simpleConceptUri = nodeData.c;
             if (!(String(conceptUri) in this.conceptGraph.conceptIdNodeMap)) {
@@ -222,18 +262,25 @@ define(["require", "exports", "../FetchFromApi", "../GraphView", "./ConceptGraph
         return GraphImporter;
     })();
     exports.GraphImporter = GraphImporter;
+    /**
+     * We need to set the node positions, but only after we have actually parsed and built the node.
+     * This callback does just that. If D3 used layouts that did not embed position data into node
+     * data, then we could do this very differently.
+     */
     var FetchAndApplyLayoutCallback = (function (_super) {
         __extends(FetchAndApplyLayoutCallback, _super);
         function FetchAndApplyLayoutCallback(graph, pathsToRoot, nodeData, url, conceptUri, expansionSet) {
             var _this = this;
-            _super.call(this, url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle);
+            _super.call(this, url, String(conceptUri), Fetcher.CallbackVarieties.nodeSingle); //+":"+directCallForExpansionType);
             this.graph = graph;
             this.pathsToRoot = pathsToRoot;
             this.nodeData = nodeData;
             this.conceptUri = conceptUri;
             this.expansionSet = expansionSet;
             this.callback = function (conceptPropertiesData, textStatus, jqXHR) {
+                // textStatus and jqXHR will be undefined, because JSONP and cross domain GET don't use XHR.
                 _this.wrappedCallback.callback(conceptPropertiesData, textStatus, jqXHR);
+                // Casting to prevent need for re-boxing data. Would need to remove elements and leave just x and y.
                 _this.pathsToRoot.layouts.updateFixedLayoutDatum(_this.conceptUri, _this.nodeData);
             };
             this.wrappedCallback = new ConceptGraph.FetchOneConceptCallback(graph, url, conceptUri, expansionSet);

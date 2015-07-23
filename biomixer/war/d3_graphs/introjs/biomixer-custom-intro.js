@@ -453,6 +453,7 @@
 //      showElement.className = showElement.className.replace(/introjs-[a-zA-Z]+/g, '').replace(/^\s+|\s+$/g, ''); // This is a manual trim.
 //        console.log(list);
     	var list = showElement.classList;
+    	var listLength = list.length;
         var j = 0;
     	while(j < list.length){
     		var item = list.item(j);
@@ -460,7 +461,10 @@
     		if(item.indexOf("introjs-") === 0){
     			showElement.classList.remove(item);
     			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
-    			j = 0;
+    			if(list.length !== listLength){
+    				// List has been modified when we modified its source (pointer style)
+    				j = 0;
+    			}
     		}
     		j++
     	}
@@ -473,6 +477,7 @@
       for (var i = fixParents.length - 1; i >= 0; i--) {
 //        fixParents[i].className = fixParents[i].className.replace(/introjs-fixParent/g, '').replace(/^\s+|\s+$/g, '');
     	var list = fixParents[i].classList;
+    	var listLength = list.length;
 //        console.log(list);
         var j = 0;
       	while(j < list.length){
@@ -481,7 +486,10 @@
       		if(item.indexOf("introjs-fixParent") === 0){
       			fixParents[i].classList.remove(item);
     			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
-    			j = 0;
+      			if(list.length !== listLength){
+    				// List has been modified when we modified its source (pointer style)
+    				j = 0;
+      			}
       		}
     		j++
       	}
@@ -522,6 +530,10 @@
     tooltipLayer.style.left       = null;
     tooltipLayer.style.marginLeft = null;
     tooltipLayer.style.marginTop  = null;
+    
+    // Fully clear the slate. I needed to modify things for the draggable feature.
+    tooltipLayer.style.width      = null;
+    tooltipLayer.style.height     = null;
 
     arrowLayer.style.display = 'inherit';
 
@@ -901,6 +913,7 @@
         for (var i = fixParents.length - 1; i >= 0; i--) {
 //          fixParents[i].className = fixParents[i].className.replace(/introjs-fixParent/g, '').replace(/^\s+|\s+$/g, '');
         	var list = fixParents[i].classList;
+        	var listLength = list.length;
 //            console.log(list);
             var j = 0;
         	while( j < list.length){
@@ -909,7 +922,10 @@
         		if(item.indexOf("introjs-fixParent") === 0){
         			fixParents[i].classList.remove(item);
         			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
-        			j = 0;
+        			if(list.length !== listLength){
+        				// List has been modified when we modified its source (pointer style)
+        				j = 0;
+        			}
         		}
         		j++
         	}
@@ -922,6 +938,7 @@
       if(oldShowElement){
 //      oldShowElement.className = oldShowElement.className.replace(/introjs-[a-zA-Z]+/g, '').replace(/^\s+|\s+$/g, '');
       var list = oldShowElement.classList;
+      var listLength = list.length;
 //      console.log(list);
       var j = 0;
 	  while( j < list.length){
@@ -929,10 +946,13 @@
 //		  console.log("4"+item);
 		  if(item.indexOf("introjs-") === 0){
 			  oldShowElement.classList.remove(item);
-  			// so strange, but needed since classList is not an array and may not be copied as arrays normally are
-  			j = 0;
+  			  // so strange, but needed since classList is not an array and may not be copied as arrays normally are
+			  if(list.length !== listLength){
+				// List has been modified when we modified its source (pointer style)
+	  			j = 0;
+			  }
 		  }
-  		j++
+		  j++
 	  }
 //	  console.log(oldShowElement.classList);
       }
@@ -1061,7 +1081,17 @@
           var dragger = $("<div>").attr("id","introjs-GrabHandle");
           $(buttonsLayer).append(dragger);
           // http://jqueryui.com/draggable/#handle
-          $(tooltipLayer).draggable({handle: dragger});
+          $(tooltipLayer).draggable(
+    		  {
+			  	handle: dragger,
+		  		start: function(event, ui){
+		            // Need to do this to prevent resizing when dragging in certain conditions.
+		            var tootlip = $(".introjs-tooltip");
+		            tootlip.css("height", tootlip.css("height")).css("width", tootlip.css("width"))
+		                .css("bottom", "auto").css("right", "auto");
+		  		}
+	        }
+          );
           // Hackarooney! The draggable modifies position to be relative,
           // which breaks tour behavior. Simply re-setting it to absolute here
           // fixes it.

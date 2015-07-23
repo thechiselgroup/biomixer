@@ -1,3 +1,8 @@
+///<amd-dependency path="../Utils" />
+///<amd-dependency path="../NodeFilterWidget" />
+///<amd-dependency path="./ConceptNodeFilterWidget" />
+///<amd-dependency path="./ConceptPathsToRoot" />
+///<amd-dependency path="./ConceptGraph" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -5,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 define(["require", "exports", "./ConceptNodeFilterWidget", "../Utils", "../NodeFilterWidget", "./ConceptNodeFilterWidget", "./ConceptPathsToRoot", "./ConceptGraph"], function (require, exports, ConceptFilterWidget) {
+    // The generics look odd, but the node is both the FilterTarget for the filter widget, as well as the node class.
     var CherryPickConceptFilter = (function (_super) {
         __extends(CherryPickConceptFilter, _super);
         function CherryPickConceptFilter(conceptGraph, graphView, centralConceptUri) {
@@ -29,15 +35,22 @@ define(["require", "exports", "./ConceptNodeFilterWidget", "../Utils", "../NodeF
             return this.graphView.sortConceptNodesCentralOntologyName();
         };
         CherryPickConceptFilter.prototype.checkboxChanged = function (checkboxContextData, setOfHideCandidates, checkbox) {
+            // The checkbox domain here is known to be the single node associated with the checkbox.
             if (checkbox.is(':checked')) {
+                // Unhide those that are checked, as well as edges with both endpoints visible
                 this.graphView.unhideNodeLambda(this.graphView)(checkboxContextData, 0);
             }
             else {
+                // Hide those that are unchecked, as well as edges with no endpoints visible
                 this.graphView.hideNodeLambda(this.graphView)(checkboxContextData, 0);
             }
+            // The ontology checkboxes need to be updated based on changes in visibility 
             this.pathToRootView.refreshOtherFilterCheckboxStates([checkboxContextData], this);
             return [checkboxContextData];
         };
+        /**
+         * Synchronize checkboxes with changes made via other checkboxes.
+         */
         CherryPickConceptFilter.prototype.updateCheckboxStateFromView = function (affectedNodes) {
             var outerThis = this;
             $.each(affectedNodes, function (i, node) {

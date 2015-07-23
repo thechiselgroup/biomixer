@@ -6,10 +6,22 @@ define(["require", "exports"], function (require, exports) {
         Menu.prototype.initializeMenu = function (menuName) {
             if (menuName === void 0) { menuName = Menu.defaultMenuName; }
             this.menuName = menuName;
+            // Append the pop-out panel. It will stay hidden except when moused over.
             var trigger = $("<div>").attr("id", Menu.menuTriggerContainerId).addClass(Menu.topBarButtonClass);
             $(Menu.menuBarSelector).append(trigger);
             trigger.append($("<div>").attr("id", Menu.triggerId).addClass("unselectable").text("Menu").append($("<div>").css("float", "right").addClass("unselectable").addClass(Menu.mainMenuButtonClass)));
             trigger.append($("<div>").attr("id", Menu.menuId));
+            // Opted for click control only
+            //$(Menu.triggerId).hover(
+            //        (e) => {
+            //            $(this.menuSelector).show(); //.css('top', e.pageY).css('left', e.pageX);
+            //             // Looks bad when it's not fully visible, due to children inheriting transparency
+            //            $(this.menuSelector).fadeTo(0, 1.0);
+            //        },
+            //        function() {
+            //        //  $(menuSelector).hide();
+            //        }
+            //);
             var outerThis = this;
             $("#" + Menu.triggerId).click(function (event) {
                 event.stopPropagation();
@@ -25,6 +37,9 @@ define(["require", "exports"], function (require, exports) {
             else {
                 $("#" + Menu.triggerId).addClass("pressedMenuButton");
                 $("#" + Menu.triggerId).attr("title", Menu.menuOpenPrefix + this.menuName);
+            }
+            for (var i in Menu.menuMadeVisibleCallbacks) {
+                Menu.menuMadeVisibleCallbacks[i]();
             }
         };
         Menu.prototype.toggleMenu = function () {
@@ -53,13 +68,24 @@ define(["require", "exports"], function (require, exports) {
         Menu.prototype.getMenuBarSelector = function () {
             return Menu.menuBarSelector;
         };
-        Menu.slideToggleHeaderContainer = function (outerContainerId, innerContainerId, labelText, defaultHideContainer) {
+        /**
+         * Creates a menu panel that has an outer visible div with a header, that when clicked, shows or hides an inner div.
+         * To use, call with appropriate arguments, then use the returned object as follows:
+         * 1) attach the outer element to the menu or other html container of your choice. This outer element is always visible.
+         * 2) attach your menu's elements to the inner element. They will be shown or hidden.
+         */
+        Menu.slideToggleHeaderContainer = function (outerContainerId, innerContainerId, labelText, defaultHideContainer, visibleCallback) {
+            if (null != visibleCallback) {
+                Menu.menuMadeVisibleCallbacks.push(visibleCallback);
+            }
             var outerContainer = $("<div>").attr("id", outerContainerId);
             var innerHidingContainer = $("<div>").attr("id", innerContainerId).addClass(Menu.hidingMenuContainerClass);
             if (defaultHideContainer) {
                 innerHidingContainer.css("display", "none");
             }
-            var labelExpanderIcon = $("<label>").addClass(Menu.menuItemExpanderLabelClass).addClass(Menu.menuExpanderButtonClass).addClass("unselectable").attr("unselectable", "on");
+            // This only indicates collapsability and status
+            var labelExpanderIcon = $("<label>").addClass(Menu.menuItemExpanderLabelClass).addClass(Menu.menuExpanderButtonClass).addClass("unselectable").attr("unselectable", "on") // IE8
+            ;
             var expanderIndicatorUpdateLambda = function (whenComplete) {
                 return function () {
                     if ($(innerHidingContainer).css("display") === "none") {
@@ -75,8 +101,11 @@ define(["require", "exports"], function (require, exports) {
                     }
                 };
             };
+            // The label labels the section, and acts as a huge collapse button
             var label = $("<label>").addClass(Menu.menuLabelClass).addClass("unselectable").attr("unselectable", "on").addClass(Menu.expandableMenuLabelClass).text(labelText);
             var expanderClickFunction = function (open, whenComplete) {
+                // Used for the button, as well as for a programmatic callback for when we want to display the submenu
+                // for special purposes.
                 if (null != open) {
                     if (open) {
                         $(innerHidingContainer).slideDown('fast', expanderIndicatorUpdateLambda(whenComplete));
@@ -86,6 +115,7 @@ define(["require", "exports"], function (require, exports) {
                     }
                 }
                 else {
+                    // Don't have a preference of what to do? Toggle it.
                     $(innerHidingContainer).slideToggle('fast', expanderIndicatorUpdateLambda(whenComplete));
                 }
             };
@@ -97,6 +127,7 @@ define(["require", "exports"], function (require, exports) {
             });
             outerContainer.append(labelExpanderIcon);
             outerContainer.append(label);
+            // We don't know the default necessarily, so set the icon here.
             expanderIndicatorUpdateLambda()();
             outerContainer.append(innerHidingContainer);
             return { outer: outerContainer, inner: innerHidingContainer, expanderCallback: expanderClickFunction };
@@ -117,6 +148,7 @@ define(["require", "exports"], function (require, exports) {
         Menu.menuTriggerContainerId = "menuTriggerContainer";
         Menu.triggerId = "trigger";
         Menu.hidingMenuContainerClass = "hidingMenu";
+        Menu.menuMadeVisibleCallbacks = [];
         return Menu;
     })();
     exports.Menu = Menu;

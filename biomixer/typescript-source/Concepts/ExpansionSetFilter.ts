@@ -92,12 +92,15 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
         // For this one, we pull a trick: we don't want to hide the parent node when we hide the expansion, but we sure
         // want it to stay around when we show the expansion. It's trickier to keep the parent around
         // when other expansion sets hide it, so we can leave that be.
+        // Also, when the checkbox is grey due to expansion parents being kept, clicking it will
+        // turn it to be checked, rather than unchecked.
         
         var expSet = checkboxContextData;
         var parentNode = expSet.parentNode;
         
-        checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
-        if (checkboxIsChecked.is(":checked")) {
+            
+        if(checkboxIsChecked.is(":checked") || checkboxIsChecked.hasClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS)) {
+            checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
             // Unhide those that are checked, as well as edges with both endpoints visible
             // Also, we will re-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
@@ -113,6 +116,7 @@ export class ExpansionSetFilter extends ConceptFilterWidget.AbstractConceptNodeF
             }
             
         } else {
+            checkboxIsChecked.removeClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS);
             // Hide those that are unchecked, as well as edges with no endpoints visible
             // Also, we will un-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,

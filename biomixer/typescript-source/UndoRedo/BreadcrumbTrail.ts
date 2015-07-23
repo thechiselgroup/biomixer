@@ -62,7 +62,8 @@ export class BreadcrumbTrail {
         }
         
         // Actually remove
-        for(var i = 0; i < toRemove.length; i++){
+        // Have to go backwards through 
+        for(var i = toRemove.length-1; i >= 0; i--){
             this.removeCrumbElement(toRemove[i].command);
         }
         

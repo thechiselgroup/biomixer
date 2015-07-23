@@ -52,7 +52,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
         }
         Tour.prototype.initializeMenu = function () {
             var _this = this;
-            var introJsTourButton = $("<label>").attr("id", this.tourButtonId).attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Take a Tour!");
+            var introJsTourButton = $("<label>").attr("id", this.tourButtonId).addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Take a Tour!");
             $(Menu.Menu.menuBarSelector).append(introJsTourButton);
             introJsTourButton.click(function (event) {
                 event.stopPropagation();

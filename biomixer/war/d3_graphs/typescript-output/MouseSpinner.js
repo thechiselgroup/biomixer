@@ -1,4 +1,7 @@
+///<reference path="headers/require.d.ts" />
 define(["require", "exports"], function (require, exports) {
+    ///<reference path="headers/jquery.d.ts" />
+    ///<reference path="headers/spin.d.ts" />
     var MouseSpinner = (function () {
         function MouseSpinner() {
         }
@@ -39,6 +42,7 @@ define(["require", "exports"], function (require, exports) {
             else {
             }
         };
+        // Use the widgets here to reconfigure to taste: http://fgnass.github.io/spin.js/
         MouseSpinner.opts = {
             lines: 5,
             length: 0,
@@ -55,7 +59,7 @@ define(["require", "exports"], function (require, exports) {
             className: 'spinner',
             zIndex: 2e9,
             top: '50%',
-            left: '50%'
+            left: '50%' // Left position relative to parent
         };
         MouseSpinner.spinner = null;
         MouseSpinner.spinnerDiv = null;

@@ -135,6 +135,7 @@ export class NodeFinder<N extends GraphView.BaseNode, L extends GraphView.BaseLi
             event.stopPropagation();
             var messageField = $("#"+NodeFinder.singleNodeImportFieldId);
             var importData = messageField.first().val();
+            importData = $.trim(importData);
             
             if(importData.length === 0){
                 return;
