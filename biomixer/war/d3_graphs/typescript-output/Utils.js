@@ -23,21 +23,24 @@ define(["require", "exports"], function (require, exports) {
         return string.indexOf(suffix, string.length - suffix.length) !== -1;
     }
     exports.endsWith = endsWith;
-    function prepUrlKey(url, includeJsonp) {
+    function prepUrlKey(url, userapikey, includeJsonp) {
         if (includeJsonp === void 0) { includeJsonp = true; }
         var ampersand = "&";
         if (url.indexOf("?") == -1) {
             url = url + "?";
             ampersand = "";
         }
+        if (userapikey === "") {
+            userapikey = "efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1";
+        }
         // Forced '&' is safe as far as I can tell
         // OLD API KEY starts 6700... keep if we like 429 errors. Good for testing.
         //  return url += ampersand+"format=jsonp"+"&apikey=6700f7bc-5209-43b6-95da-44336cbc0a3a"; // OLD API KEY
         if (includeJsonp) {
-            return url += ampersand + "format=jsonp" + "&apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
+            return url += ampersand + "format=jsonp" + "&apikey=" + userapikey; //+"&callback=?";
         }
         else {
-            return url += ampersand + "apikey=efcfb6e1-bcf8-4a5d-a46a-3ae8867241a1"; //+"&callback=?";
+            return url += ampersand + "apikey=" + userapikey; //+"&callback=?";
         }
     }
     exports.prepUrlKey = prepUrlKey;

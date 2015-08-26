@@ -134,7 +134,7 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
                 // Drop off earliest COMPLETE cache elements. If there are no such, too bad for us; the cache will grow.
                 // Would have used grep but these are object properties, not array items.
                 $.each(CacheRegistry.restAndCallbackRegistry, function (uriKey, cacheItem) {
-                    if (cacheItem.status != 3 /* COMPLETED */ || cacheItem.responseData === undefined) {
+                    if (cacheItem.status != RestCallStatus.COMPLETED || cacheItem.responseData === undefined) {
                         return true; // next value...
                     }
                     // Drop it like it's hot.
@@ -171,35 +171,39 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
         CacheRegistry.validRestCallStateTransition = function (oldStatus, newStatus, restCallUriFunction) {
             var isValid = true;
             switch (oldStatus) {
-                case 1 /* ALLOWED */:
-                    if (newStatus !== 2 /* AWAITING */ && newStatus !== 0 /* EXCLUDED */) {
+                case RestCallStatus.ALLOWED:
+                    if (newStatus !== RestCallStatus.AWAITING
+                        && newStatus !== RestCallStatus.EXCLUDED) {
                         isValid = false;
                     }
                     break;
-                case 0 /* EXCLUDED */:
-                    if (newStatus !== 1 /* ALLOWED */) {
+                case RestCallStatus.EXCLUDED:
+                    if (newStatus !== RestCallStatus.ALLOWED) {
                         isValid = false;
                     }
                     break;
-                case 2 /* AWAITING */:
-                    if (newStatus !== 3 /* COMPLETED */ && newStatus !== 4 /* ERROR */ && newStatus !== 5 /* FORBIDDEN */) {
+                case RestCallStatus.AWAITING:
+                    if (newStatus !== RestCallStatus.COMPLETED
+                        && newStatus !== RestCallStatus.ERROR
+                        && newStatus !== RestCallStatus.FORBIDDEN) {
                         isValid = false;
                     }
                     break;
-                case 4 /* ERROR */:
-                    if (newStatus !== 1 /* ALLOWED */) {
+                case RestCallStatus.ERROR:
+                    if (newStatus !== RestCallStatus.ALLOWED) {
                         isValid = false;
                     }
                     break;
-                case 5 /* FORBIDDEN */:
+                case RestCallStatus.FORBIDDEN:
                     isValid = false;
                     break;
-                case 3 /* COMPLETED */:
+                case RestCallStatus.COMPLETED:
                     isValid = false;
                     break;
                 default:
                     // This is no value at all.
-                    if (newStatus !== 1 /* ALLOWED */ && newStatus !== 0 /* EXCLUDED */) {
+                    if (newStatus !== RestCallStatus.ALLOWED
+                        && newStatus !== RestCallStatus.EXCLUDED) {
                         isValid = false;
                     }
                     break;
@@ -252,7 +256,8 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
             }
             else {
                 var entry = restCache.status;
-                return entry === 1 /* ALLOWED */ || entry === 4 /* ERROR */;
+                return entry === RestCallStatus.ALLOWED
+                    || entry === RestCallStatus.ERROR;
             }
         };
         CacheRegistry.MB = 1024 * 1024; // 1000 kilobytes is a MB
@@ -315,7 +320,7 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
             var dataType = "json";
             var type = "GET"; // Later with batch calls, might use POST sometimes
             var data = null;
-            var urlString = Utils.prepUrlKey(this.restUrl, false);
+            var urlString = Utils.prepUrlKey(this.restUrl, RetryingJsonFetcher.userapikey, false);
             if (!browserSupportsCors) {
                 // if CORS isn't available, we cannot receive server status codes off an XHR object,
                 // because JSONP requests don't get that back from the browser. So sad.
@@ -448,10 +453,10 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
             if (cacheItem.status === undefined) {
                 // Only set to awaiting and trigger call if this is truly a new REST call.
                 // console.log("Not using cache for "+callbackObject.getCallbackName());
-                CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 2 /* AWAITING */);
+                CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.AWAITING);
                 this.callAgain();
             }
-            else if (cacheItem.status !== 2 /* AWAITING */) {
+            else if (cacheItem.status !== RestCallStatus.AWAITING) {
                 console.log("Non-cached REST, not AWAITING, but attempted fetch: " + callbackObject.getCallbackName());
             }
             return -1;
@@ -469,12 +474,14 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
                 if (resultData.status == "404" || resultData.error == "timeout") {
                     // 404 Error should fill in some popup data points, so let through...
                     console.log("Error: " + this.restUrl + " --> Data: " + resultData.error);
-                    CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 4 /* ERROR */);
+                    CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.ERROR);
                     return 0;
                 }
                 else if (resultData.status == "403") {
-                    console.log("Forbidden Error, no retry: " + "\nURL: " + this.restUrl + "\nReply: " + resultData.error);
-                    CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 5 /* FORBIDDEN */);
+                    console.log("Forbidden Error, no retry: "
+                        + "\nURL: " + this.restUrl
+                        + "\nReply: " + resultData.error);
+                    CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.FORBIDDEN);
                     return 0;
                 }
                 else if (resultData.status == "500") {
@@ -489,23 +496,24 @@ define(["require", "exports", './Utils', './MouseSpinner', "JQueryExtension", "G
                         // Error, but we are done retrying.
                         console.log("No retry, Error: ");
                         console.log(resultData);
-                        CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 4 /* ERROR */);
+                        CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.ERROR);
                         return 0;
                     }
                 }
                 else {
                     // Don't retry for other errors
                     console.log("Error: " + this.restUrl + " --> Data: " + resultData.error);
-                    CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 4 /* ERROR */);
+                    CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.ERROR);
                     return 0;
                 }
             }
             else {
                 // Success, great!
-                CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, 3 /* COMPLETED */, resultData);
+                CacheRegistry.updateStatusForUrlInRestCallRegistry(this.restUrl, RestCallStatus.COMPLETED, resultData);
                 return 1;
             }
         };
+        RetryingJsonFetcher.userapikey = "";
         return RetryingJsonFetcher;
     })();
     exports.RetryingJsonFetcher = RetryingJsonFetcher;

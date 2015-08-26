@@ -1,13 +1,20 @@
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="MouseSpinner" />
-define(["require", "exports", './ConceptPathsToRoot', './ConceptGraph', '../MouseSpinner', "Concepts/ConceptPathsToRoot", "Concepts/ConceptGraph", "MouseSpinner"], function (require, exports, PathsToRoot, ConceptGraph, MouseSpinner) {
+///<amd-dependency path="FetchFroMApi" />
+define(["require", "exports", './ConceptPathsToRoot', './ConceptGraph', '../MouseSpinner', '../FetchFromApi', "Concepts/ConceptPathsToRoot", "Concepts/ConceptGraph", "MouseSpinner", "FetchFroMApi"], function (require, exports, PathsToRoot, ConceptGraph, MouseSpinner, FetchFromApi) {
     MouseSpinner.MouseSpinner.applyMouseSpinner("ConceptMain");
     var centralOntologyAcronym = purl().param("ontology_acronym");
     var centralConceptSimpleUri = purl().param("full_concept_id");
+    var userapikey = purl().param("userapikey");
+    FetchFromApi.RetryingJsonFetcher.userapikey = userapikey;
     var initialVis = purl().param("initial_vis");
     var softNodeCap = 20;
-    $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID).append('<option value="paths_to_root">' + ConceptGraph.PathOptionConstants.pathsToRootConstant + '</option>').append('<option value="term_neighborhood">' + ConceptGraph.PathOptionConstants.termNeighborhoodConstant + '</option>').append('<option value="mappings_neighborhood">' + ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant + '</option>');
+    $(PathsToRoot.ConceptPathsToRoot.VIZ_SELECTOR_ID)
+        .append('<option value="paths_to_root">' + ConceptGraph.PathOptionConstants.pathsToRootConstant + '</option>') //Path to Root
+        .append('<option value="term_neighborhood">' + ConceptGraph.PathOptionConstants.termNeighborhoodConstant + '</option>') //Term Neighborhood
+        .append('<option value="mappings_neighborhood">' + ConceptGraph.PathOptionConstants.mappingsNeighborhoodConstant + '</option>') //Mappings Neighborhood
+    ;
     $("#visualization_selector option").each(function () {
         // Convert old version Choosel values to the ones we have above, in case old URL is
         // used to access this visualization.
