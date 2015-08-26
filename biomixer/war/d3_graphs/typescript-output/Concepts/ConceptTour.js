@@ -151,7 +151,7 @@ define(["require", "exports", "../Menu", "./ConceptPathsToRoot", "./ConceptLayou
                 },
                 {
                     element: function () {
-                        return $(".centralNode").parent()[0];
+                        return $(".centralNode")[0];
                     },
                     intro: "<h1 class='introjs-header'>Node Details</h1> Click a node to display more information about a concept or mapping. The popup remains visible until you click somewhere else. Try it!",
                     position: "bottom"

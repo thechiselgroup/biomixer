@@ -1,5 +1,6 @@
 ///<amd-dependency path="Ontologies/OntologyMappingOverview" />
-define(["require", "exports", './OntologyMappingOverview', "Ontologies/OntologyMappingOverview"], function (require, exports, Overview) {
+///<amd-dependency path="FetchFromApi" />
+define(["require", "exports", './OntologyMappingOverview', '../FetchFromApi', "Ontologies/OntologyMappingOverview", "FetchFromApi"], function (require, exports, Overview, FetchFromApi) {
     // This is using the new API that is stable in September 2013.
     // I eventually came across the post that sort of discusses our update problem, of
     // having new attributes for nodes from late coming JSON:
@@ -13,6 +14,8 @@ define(["require", "exports", './OntologyMappingOverview', "Ontologies/OntologyM
     // initialization only. Set to 0 means all nodes will be used.
     var softNodeCap = 19;
     var centralOntologyAcronym = purl().param("ontology_acronym");
+    var userapikey = purl().param("userapikey");
+    FetchFromApi.RetryingJsonFetcher.userapikey = userapikey;
     // Run the graph! Don't need the json really, though...
     // d3.json("force_files/set_data.json", initAndPopulateGraph);
     var graphView = new Overview.OntologyMappingOverview(centralOntologyAcronym, softNodeCap);

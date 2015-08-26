@@ -198,7 +198,7 @@ export class Tour {
             },
 //- node details are accessible by clicking on the node. A single popup is displayed at a time, until the user clicks anywhere else in the graph.
              {
-            element: ()=>{ return $(".centralNode").parent()[0] },
+            element: ()=>{ return $(".centralNode")[0] },
             intro: "<h1 class='introjs-header'>Node Details</h1> Click a node to display more information about a concept or mapping. The popup remains visible until you click somewhere else. Try it!",
             position: "bottom"
             },

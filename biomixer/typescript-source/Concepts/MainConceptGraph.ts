@@ -1,10 +1,12 @@
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="MouseSpinner" />
+///<amd-dependency path="FetchFroMApi" />
 
 import PathsToRoot = require('./ConceptPathsToRoot');
 import ConceptGraph = require('./ConceptGraph');
 import MouseSpinner = require('../MouseSpinner');
+import FetchFromApi = require('../FetchFromApi');
 
 // Simplest way to include non-TypeScript defined libraries. Like usual, will need to
 // be served to browser to function.
@@ -14,6 +16,8 @@ MouseSpinner.MouseSpinner.applyMouseSpinner("ConceptMain");
 
 var centralOntologyAcronym: ConceptGraph.RawAcronym = purl().param("ontology_acronym");
 var centralConceptSimpleUri: ConceptGraph.SimpleConceptURI = purl().param("full_concept_id");
+var userapikey: string = purl().param("userapikey");
+FetchFromApi.RetryingJsonFetcher.userapikey = userapikey;
 var initialVis = purl().param("initial_vis");
 var softNodeCap = 20;
 
