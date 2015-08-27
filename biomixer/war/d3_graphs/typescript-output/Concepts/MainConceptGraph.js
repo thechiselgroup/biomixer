@@ -1,8 +1,8 @@
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="MouseSpinner" />
-///<amd-dependency path="FetchFroMApi" />
-define(["require", "exports", './ConceptPathsToRoot', './ConceptGraph', '../MouseSpinner', '../FetchFromApi', "Concepts/ConceptPathsToRoot", "Concepts/ConceptGraph", "MouseSpinner", "FetchFroMApi"], function (require, exports, PathsToRoot, ConceptGraph, MouseSpinner, FetchFromApi) {
+///<amd-dependency path="FetchFromApi" />
+define(["require", "exports", './ConceptPathsToRoot', './ConceptGraph', '../MouseSpinner', '../FetchFromApi', "Concepts/ConceptPathsToRoot", "Concepts/ConceptGraph", "MouseSpinner", "FetchFromApi"], function (require, exports, PathsToRoot, ConceptGraph, MouseSpinner, FetchFromApi) {
     MouseSpinner.MouseSpinner.applyMouseSpinner("ConceptMain");
     var centralOntologyAcronym = purl().param("ontology_acronym");
     var centralConceptSimpleUri = purl().param("full_concept_id");

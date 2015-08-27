@@ -1,7 +1,7 @@
 ///<amd-dependency path="Concepts/ConceptPathsToRoot" />
 ///<amd-dependency path="Concepts/ConceptGraph" />
 ///<amd-dependency path="MouseSpinner" />
-///<amd-dependency path="FetchFroMApi" />
+///<amd-dependency path="FetchFromApi" />
 
 import PathsToRoot = require('./ConceptPathsToRoot');
 import ConceptGraph = require('./ConceptGraph');
