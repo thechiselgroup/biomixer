@@ -54,8 +54,8 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
         var outerThis = this;
         var acronym = checkboxContextData;
         var affectedNodes: ConceptGraph.Node[] = [];
-        checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
-        if (checkbox.is(':checked')) {
+        if (checkbox.is(':checked') || checkbox.hasClass(FilterWidget.AbstractNodeFilterWidget.SOME_SELECTED_CSS)) {
+            checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
             // Unhide those that are checked, as well as edges with both endpoints visible
             // Also, we will re-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,
@@ -68,6 +68,7 @@ export class OntologyConceptFilter extends ConceptFilterWidget.AbstractConceptNo
                 }
             );
         } else {
+            checkbox.removeClass(OntologyConceptFilter.SOME_SELECTED_CSS);
             // Hide those that are unchecked, as well as edges with no endpoints visible
             // Also, we will un-check any checkboxes for individual nodes in that ontology.
             $.each(setOfHideCandidates,

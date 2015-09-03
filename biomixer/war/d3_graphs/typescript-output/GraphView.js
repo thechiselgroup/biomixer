@@ -43,6 +43,10 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             this.forceLayout = undefined;
             this.dragging = false;
             this.resizedWindowLambda = function () {
+                // The height + 5 is to visually show the lower bound of the graph within the provided space.
+                // Element below is simply for reference back to the element made elswhere.
+                $("#testHeight"); // I also added an element there so that we can visually debug space issues, called testHeight.
+                $("#chart").height($("#chart").parent().height() - ($("#top_menu_bar").height() + 5));
                 d3.select("#graphRect").attr("width", _this.visWidth()).attr("height", _this.visHeight());
                 d3.select("#graphSvg").attr("width", _this.visWidth()).attr("height", _this.visHeight());
                 // TODO Layouts not relying on force need additional support here.
@@ -54,7 +58,8 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                     _this.currentLambda(true); // direct retrigger the current layout.
                 }
             };
-            this.lastTimeChange = new Date().getTime();
+            this.lastTimeLayoutChange = new Date().getTime();
+            this.lastTimeGraphChange = new Date().getTime();
             // These are needed to do a refresh of popups when new data arrives and the user has the popup open
             this.lastDisplayedTipsy = null;
             this.lastDisplayedTipsyData = null;
@@ -74,12 +79,19 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
         BaseGraphView.prototype.linkMaxDesiredLength = function () {
             return Math.min(this.visWidth(), this.visHeight()) / 2 - 50;
         };
+        BaseGraphView.prototype.stampTimeLayoutModified = function () {
+            // Things like layout steps and node drags modify this
+            this.lastTimeLayoutChange = new Date().getTime();
+        };
+        BaseGraphView.prototype.getTimeStampLastLayoutModification = function () {
+            return this.lastTimeLayoutChange;
+        };
         BaseGraphView.prototype.stampTimeGraphModified = function () {
             // Things like temporary edges, etc, indicate that the caller must control this.
-            this.lastTimeChange = new Date().getTime();
+            this.lastTimeGraphChange = new Date().getTime();
         };
         BaseGraphView.prototype.getTimeStampLastGraphModification = function () {
-            return this.lastTimeChange;
+            return this.lastTimeGraphChange;
         };
         BaseGraphView.prototype.updateStartWithoutResume = function () {
             var _this = this;
@@ -99,6 +111,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             var layoutLastCalled = null;
             var timerWait = 100;
             this.currentLambda = layoutLambda;
+            this.resetZoom();
             this.runCurrentLayout = function (refreshLayoutInner) {
                 // We only allow one layout request to run at a time, and with
                 // a short delay between requests. Ok, it's always single threaded,
@@ -113,6 +126,7 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                         outerLayoutTimer = null;
                         layoutLastCalled = new Date().getTime();
                         outerThis.currentLambda(refreshLayoutInner);
+                        outerThis.layoutRefreshed();
                     }, timerWait);
                 }
             };
@@ -121,6 +135,9 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
         //    immediateLayoutRun(layoutLambda: {(refreshLayout?: boolean):void}){
         //        layoutLambda();
         //    }
+        BaseGraphView.prototype.layoutRefreshed = function () {
+            // Feel free to extend this   
+        };
         BaseGraphView.prototype.getAdjacentLinks = function (node) {
             return d3.selectAll(BaseGraphView.linkSvgClass).filter(function (d, i) {
                 return d.source === node || d.target === node;
@@ -155,14 +172,14 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                     return;
                 }
                 d3.selectAll(BaseGraphView.nodeLabelSvgClass).classed("highlightedNodeLabel", true).filter(function (aText, i) {
-                    return aText.getEntityId() === linkLine.source.getEntityId() || aText.getEntityId() === linkLine.target.getEntityId();
+                    return (null !== linkLine.source && null !== linkLine.target) && (aText.getEntityId() === linkLine.source.getEntityId() || aText.getEntityId() === linkLine.target.getEntityId());
                 }).classed("dimmedNodeLabel", false).classed("highlightedNodeLabel", true);
                 // TODO change the getEntityId to accessing the source and target uri,
                 // because sometimes links have null on either point due to race conditions,
                 // when the user moves off of a node onto a temporary arc, just as it is to
                 // be removed.
                 d3.selectAll(BaseGraphView.nodeSvgClass + ", " + BaseGraphView.nodeInnerSvgClass).classed("highlightedNode", true).filter(function (aNode, i) {
-                    return aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId();
+                    return (null !== linkLine.source && null !== linkLine.target) && (aNode.getEntityId() === linkLine.source.getEntityId() || aNode.getEntityId() === linkLine.target.getEntityId());
                 }).classed("dimmedNode", false).classed("highlightedNode", true);
                 d3.selectAll(BaseGraphView.linkSvgClass).classed("dimmedLink", true);
                 // if we ever use this method attached to anything other than a link hover over, it won't
@@ -244,6 +261,19 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
                     return firstEndpoints.classed("highlightedNode") && secondEndpoint.classed("highlightedNode");
                 });
             };
+        };
+        BaseGraphView.prototype.geometricZoom = function () {
+            var outerThis = this;
+            return function () {
+                if (outerThis.dragging) {
+                    return;
+                }
+                d3.select("#graph_g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+            };
+        };
+        BaseGraphView.prototype.resetZoom = function () {
+            this.zoom.scale(1).translate([0, 0]);
+            this.zoom.event(d3.select("#graphSvg").transition().duration(1500));
         };
         BaseGraphView.prototype.unhighlightHoveredLinkLambda = function (outerThis) {
             return function (linkData, i) {
@@ -390,27 +420,98 @@ define(["require", "exports", "./UndoRedo/UndoRedoManager", "./Utils", "./Menu",
             //});
         };
         BaseGraphView.prototype.attachScreenshotButton = function () {
-            var screenshotButton = $("<label>").attr("id", "graphToJpegButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Screenshot");
+            var screenshotButton = $("<label>").attr("id", "graphToJpegButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Screenshot");
             $(Menu.Menu.menuBarSelector).append(screenshotButton);
             screenshotButton.click(function (event) {
                 event.stopPropagation();
-                PrintSvg.ExportSvgToImage.exportSvgAsPng("#graphSvg");
+                PrintSvg.ExportSvgToImage.exportSvgAsPng("graphSvg");
             });
         };
         BaseGraphView.prototype.attachFullscreenButton = function () {
-            var fullScreenButton = $("<label>").attr("id", "iframeToFullscreenButton").attr("class", "nodeCommandButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Fullscreen");
+            var fullScreenButton = $("<label>").attr("id", "iframeToFullscreenButton").addClass("unselectable").addClass(Menu.Menu.topBarButtonClass).text("Fullscreen");
             $(Menu.Menu.menuBarSelector).append(fullScreenButton);
             fullScreenButton.click(function (event) {
                 event.stopPropagation();
                 // The "*" means I don't care what the origin of the receiving window is. For this request,
                 // no data is moving across, so anything works.
                 window.top.postMessage("biomixer_full_screen_request", '*');
+                if ($("#iframeToFullscreenButton").text() === "Fullscreen") {
+                    $("#iframeToFullscreenButton").text("Exit Fullscreen");
+                }
+                else {
+                    $("#iframeToFullscreenButton").text("Fullscreen");
+                }
             });
             window.onmessage = function (e) {
                 if (e.data === "biomixer_full_screen_request") {
                     console.log("Full sreen button pressed, when Biomixer loaded as main frame.");
                 }
             };
+        };
+        BaseGraphView.prototype.computeStrokeAndFillLinkEndpoints = function (sourceX, sourceY, targetX, targetY, desiredEdgeThickness, extraOffset) {
+            if (extraOffset === void 0) { extraOffset = 0; }
+            var pointsObj = { sourceX: sourceX, sourceY: sourceY, targetX: targetX, targetY: targetY, sourceXb: sourceX, sourceYb: sourceY, targetXb: targetX, targetYb: targetY };
+            // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
+            // We'll want the vector relative to source, then the same repeated for target...but since
+            // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
+            // infer it.
+            // We need it separately for the offset and line thickness, since the offset applies to both legs
+            // of the polyline with the same sign, and the thickness applies to both with opposite sign.
+            // Make is_a and has_a arcs move away from each other by enough that we can see them both
+            // for when both relations exist ilinkData.source.xn a pair of nodes
+            // Do it for the offset
+            // Kick the special arcs (composition) a couple pixels away
+            var xDistOffset = 0;
+            var yDistOffset = 0;
+            if (extraOffset !== 0) {
+                // Pretty much same logic as below, but diff variable names.
+                // Could route it through itself recursively, but is that easier to maintain??
+                var targetVectorXOffset = pointsObj.targetX - pointsObj.sourceX;
+                var targetVectorYOffset = pointsObj.targetY - pointsObj.sourceY;
+                targetVectorXOffset += (targetVectorXOffset === 0) ? 1 : 0;
+                targetVectorYOffset += (targetVectorYOffset === 0) ? 1 : 0;
+                var normOffset = Math.sqrt(targetVectorXOffset * targetVectorXOffset + targetVectorYOffset * targetVectorYOffset);
+                var targetOrthVectorXOffset = -1 * targetVectorYOffset / normOffset;
+                var targetOrthVectorYOffset = targetVectorXOffset / normOffset;
+                xDistOffset = extraOffset * targetOrthVectorXOffset;
+                yDistOffset = extraOffset * targetOrthVectorYOffset;
+            }
+            // Now do it for the arc thickness
+            var halfEdgeThickness = desiredEdgeThickness / 2;
+            // Now, make the switchbacks, that will make the polyline into a box. This way we can
+            // have transparent edges that can be moused over, and opaque centers that can be seen.
+            var targetVectorX = pointsObj.targetX - pointsObj.sourceX;
+            var targetVectorY = pointsObj.targetY - pointsObj.sourceY;
+            targetVectorX += (targetVectorX === 0) ? 1 : 0;
+            targetVectorY += (targetVectorY === 0) ? 1 : 0;
+            var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
+            var targetOrthVectorX = -1 * targetVectorY / norm;
+            var targetOrthVectorY = targetVectorX / norm;
+            var xDist = halfEdgeThickness * targetOrthVectorX;
+            var yDist = halfEdgeThickness * targetOrthVectorY;
+            // Apply to points object. Note signs of these.
+            pointsObj.sourceXb += +xDist + xDistOffset;
+            pointsObj.sourceYb += +yDist + yDistOffset;
+            pointsObj.targetXb += +xDist + xDistOffset;
+            pointsObj.targetYb += +yDist + yDistOffset;
+            pointsObj.sourceX += -xDist + xDistOffset;
+            pointsObj.sourceY += -yDist + yDistOffset;
+            pointsObj.targetX += -xDist + xDistOffset;
+            pointsObj.targetY += -yDist + yDistOffset;
+            return pointsObj;
+        };
+        BaseGraphView.prototype.computeStrokeAndFillLinkEndpointsString = function (sourceX, sourceY, targetX, targetY, desiredEdgeThickness, extraOffset) {
+            if (extraOffset === void 0) { extraOffset = 0; }
+            var pointsObj = this.computeStrokeAndFillLinkEndpoints(sourceX, sourceY, targetX, targetY, desiredEdgeThickness, extraOffset);
+            // Create starting point
+            var points = pointsObj.sourceX + "," + pointsObj.sourceY + " " + pointsObj.targetX + "," + pointsObj.targetY + " ";
+            // Add the segment for the fill thickness
+            points += pointsObj.targetXb + "," + pointsObj.targetYb + " ";
+            // Add back in reverse order
+            points += pointsObj.targetXb + "," + pointsObj.targetYb + " " + pointsObj.sourceXb + "," + pointsObj.sourceYb + " ";
+            // Add the other segment for the fill thickness
+            points += pointsObj.sourceX + "," + pointsObj.sourceY + " ";
+            return points;
         };
         BaseGraphView.nodeSvgClassSansDot = "node";
         BaseGraphView.nodeInnerSvgClassSansDot = "inner_node"; // Needed for ontology double-node effect

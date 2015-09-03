@@ -97,12 +97,16 @@ export class Node extends GraphView.BaseNode {
 //    x: number; // = visWidth()/2;
 //    y: number; // = visHeight()/2;      
     weight: number; // = numberOfMappedOntologies; // will increment as we loop
-    tempDepth: number;
     ontologyAcronym: RawAcronym; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUri: string; // ontologyUri.substring(ontologyUri.lastIndexOf("ontologies/")+"ontologies/".length);
     ontologyUriForIds: string; // encodeURIComponent(conceptNode.ontologyUri);
-    // nodeColor: string; // nextNodeColor(conceptNode.ontologyAcronym);
+    linkParents: string; //URL from REST data
+    linkChildren: string; //URL from REST data
     
+    tempDepth: number;
+    visited: boolean;
+    inheritanceChild: boolean;
+    treeChildren: Node[]; // for tree layouts
 
 //    uriId: string; // = ontologyDetails["@id"]; // Use the URI instead of virtual id
 //    LABEL: string; // = ontologyDetails.name;
@@ -418,7 +422,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return matchNodes;
     }
     
-    private addEdges(newEdges: Array<Link>, temporaryEdges?: boolean){
+    private addEdges(newEdges: Array<Link>, temporaryEdges: boolean = false){
         if(newEdges.length == 0){
             // Saves a lot of work deeper down.
             return;
@@ -439,7 +443,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * prior to removing edges from the view.
      * Gets called when removing temporary mapping edges (those edges that only render on node hover).
      */
-    private removeEdges(edgesToRemove: Array<Link>){
+    private removeEdges(edgesToRemove: Array<Link>, temporaryOnly: boolean = false){
         this.graphD3Format.links = this.graphD3Format.links.filter(
             function(link: Link, index: number, links: Link[]): boolean {
                 // Keep only those that do not appear in the removal array
@@ -449,7 +453,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         
         this.graphView.stampTimeGraphModified();
         
-        this.graphView.removeMissingGraphElements(this.graphD3Format);
+        this.graphView.removeMissingGraphElements(this.graphD3Format, temporaryOnly);
         
         for(var l = 0; l < edgesToRemove.length; l++){
             // Was doing this earlier, but D3 cries if I do it before re-binding,
@@ -474,6 +478,19 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             }
         }
         
+        // There is also the problem of mapping edges that should be removed because an undo
+        // event has been performed. All remaining edges need to be inspected, and those that
+        // are not still valid to show must be removed as well.
+        this.graphD3Format.links.forEach(
+            (edge: Link, index: number, edges: Link[])=>{
+                // Keep only those that would be temporary hover edges
+                // NB This should work as long as the redo state is resolved before adding/removing graph elements.
+                if(this.isEdgeForTemporaryRenderOnly(edge)){
+                    edgesToDelete.push(edge);
+                }
+            }
+        );
+        
         this.graphView.stampTimeGraphModified();
                 
         this.removeEdges(edgesToDelete);
@@ -490,7 +507,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      * not any others). This allows us ot estimate the number of nodes that would be added if the expansion were performed.
      * Gives the current outstanding number, not the total.
      */
-    getNumberOfPotentialNodesToExpand(expandingNode: Node, nodeInteraction: UndoRedoManager.NodeInteraction){
+    getNumberOfPotentialNodesToExpand(expandingNode: Node, nodeInteraction: UndoRedoManager.NodeInteraction, specificRelationType:string = "any"){
         var expandingNodeId = expandingNode.nodeId;
         var numNewNodesIncoming = 0;
         var otherCount = 0;
@@ -499,17 +516,36 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         edges.forEach((edge: Link)=>{
             // Currently, the only mapping edges are "maps_to", and all others count as term neighbourhood types.
             var edgeExpansionType =
-                edge.relationType === "maps_to"
+                edge.relationType === this.relationLabelConstants.mapping
                 ? PathOptionConstants.mappingsNeighborhoodConstant
                 : PathOptionConstants.termNeighborhoodConstant;
 
             var otherConceptId: ConceptURI = (edge.sourceId === expandingNodeId) ? edge.targetId : edge.sourceId;
 
-            if(this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
+            // Check if temporary, because we want to allow expansion along those edges.
+            if(
+                (
+                    (this.isEdgeForTemporaryRenderOnly(edge) && edgeExpansionType === PathOptionConstants.termNeighborhoodConstant)
+                    ||
+                    this.nodeMayBeExpanded1(otherConceptId, <ConceptURI><any>expandingNodeId, nodeInteraction, edgeExpansionType)
+                )
                 && null == nodesSeen[String(otherConceptId)]
                 ){
-                numNewNodesIncoming++;
-                nodesSeen[String(otherConceptId)] = true;
+                    if("parents" === specificRelationType
+                        && (edge.targetId !== expandingNodeId || edge.relationType !== this.relationLabelConstants.inheritance)){
+                        // Nope
+                    } else if("children" === specificRelationType
+                        && (edge.sourceId !== expandingNodeId || edge.relationType !== this.relationLabelConstants.inheritance)){
+                        // Nope
+                    } else if("other" === specificRelationType
+                        && edge.relationType === this.relationLabelConstants.inheritance){
+                        // or mapping, which was skipped already
+                        // Allow composite and all other ontology specific ones
+                        // Nope
+                    } else {
+                        numNewNodesIncoming++;
+                        nodesSeen[String(otherConceptId)] = true;
+                    }
             }
         });
         
@@ -539,6 +575,9 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         
         if(0 === numberNewNodesComing){
             // Not actually adding anything, skip dialog check. Better for caller to check, isn't it?
+            // But...if we are expanding mappings that are all present, but the edges are permanent, we need
+            // to actually add those edges. Let's do that.
+            fetchCallback(null);
             return;
         }
         
@@ -762,15 +801,19 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             conceptNode.definition = conceptData["definition"];
             conceptNode.synonym = (null == conceptData["synonym"]) ? [] : conceptData["synonym"];
             conceptNode.weight = 1;
-//            conceptNode.depth = 0;
-            conceptNode.tempDepth = 0;
             conceptNode.fixed = false;
+            conceptNode.tempDepth = 0;
+            conceptNode.visited = false;
+            conceptNode.inheritanceChild = false;
+            conceptNode.treeChildren = [];
             // conceptNode.x = this.graphView.visWidth()/2; // start in middle and let them fly outward
             // conceptNode.y = this.graphView.visHeight()/2; // start in middle and let them fly outward
             conceptNode.ontologyAcronym = ontologyAcronym;
             conceptNode.ontologyUri = conceptData.links.ontology;
             conceptNode.ontologyUriForIds = encodeURIComponent(conceptNode.ontologyUri);
             conceptNode.nodeColor = this.nextNodeColor(conceptNode.ontologyAcronym);
+            conceptNode.linkParents = conceptData.links.parents;
+            conceptNode.linkChildren = conceptData.links.children;
             
             // TODO Shall I reference the caller, or handle these in another way? How did I do similar stuff in ontology graph?
             // Could accumulate in caller?
@@ -1012,6 +1055,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
      */
     private manifestEdge(edges: Link[], allowTemporary: boolean){
          var edgesToRender: Link[] = [];
+         var tempEdgesToRender: Link[] = [];
          $.each(edges,
             (index: number, edge: Link)=>{
                 // Only ever manifest edges with endpoints in the graph
@@ -1021,11 +1065,15 @@ export class ConceptGraph implements GraphView.Graph<Node> {
                     return;
                 }
                 
-                if(!allowTemporary && this.isEdgeForTemporaryRenderOnly(edge)){
-                    return;
+                if(this.isEdgeForTemporaryRenderOnly(edge)){
+                    if(!allowTemporary){
+                        return;
+                    } else {
+                        tempEdgesToRender.push(edge);
+                    }
+                } else {
+                    edgesToRender.push(edge);
                 }
-                     
-                 edgesToRender.push(edge);
              }
          );
         
@@ -1033,7 +1081,13 @@ export class ConceptGraph implements GraphView.Graph<Node> {
             this.graphView.stampTimeGraphModified();
         }
         
-        this.addEdges(edgesToRender, allowTemporary);
+        // Add normal edges first
+        this.addEdges(edgesToRender, false);
+        
+        // If we are allowing temporary, add any of those too
+        if(allowTemporary){
+            this.addEdges(tempEdgesToRender, true);
+        }
     }
     
     public manifestEdgesForNewNode(conceptNode: Node){
@@ -1083,6 +1137,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         return false;
     }
     
+
     manifestTemporaryHoverEdges(conceptNode: Node){
         var temporaryEdges = [];
         var nodeEdges = this.expMan.edgeRegistry.getEdgesFor(conceptNode.nodeId);
@@ -1111,13 +1166,14 @@ export class ConceptGraph implements GraphView.Graph<Node> {
         this.manifestEdge(temporaryEdges, true);
     }
     
+    // Safe to pass null for those in the know, but meeting an API by asking for the node.
     removeTemporaryHoverEdges(conceptNode: Node){
         var temporaryEdgesSelected = d3.selectAll("."+GraphView.BaseGraphView.temporaryEdgeClass);
         var temporaryEdgeData: Array<Link> = [];
         temporaryEdgesSelected.each(function(d: Link, i: number){
             temporaryEdgeData.push(d);
         });
-        this.removeEdges(temporaryEdgeData);
+        this.removeEdges(temporaryEdgeData, true);
     }
     
     /**
@@ -1201,6 +1257,7 @@ export class ConceptGraph implements GraphView.Graph<Node> {
     
     public expandMappingNeighbourhood(nodeData: Node, expansionSet: ExpansionSets.ExpansionSet<Node>){
         // Cannot just call fetchMappings() directly because we need the link from the base concept URL
+        this.removeTemporaryHoverEdges(null); // (nodeData);
         var centralConceptUrl = this.buildConceptUrlNewApi(nodeData.ontologyAcronym, nodeData.simpleConceptUri);
         var centralCallback = new FetchConceptRelationsCallback(this, centralConceptUrl, nodeData, PathOptionConstants.mappingsNeighborhoodConstant, expansionSet);
         var fetcher = new Fetcher.RetryingJsonFetcher(centralConceptUrl);
@@ -2083,7 +2140,7 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         
         // We have to collect the mappings to prevent some infinite loops. They can appear multiple times.
         var mappingTargetIds = {};
-        var mappingTargets = [];
+        var mappingTargets = {};
         var expectedExpansionCount = 0;
         $.each(relationsDataRaw,
                 (index, mapping)=>{
@@ -2115,10 +2172,19 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
             	
                 // Catches self referential maps,
                 var newNodeRawUri = this.graph.computeNodeId(newConceptData);
+                var edge: Link = this.graph.expMan.edgeRegistry.getEdgesFor(firstId, secondId).filter((e: Link)=>{ return e.relationType ===  this.graph.relationLabelConstants.mapping; })[0];
                 if(null == mappingTargetIds[String(newConceptId)]){
-                    if(this.graph.nodeMayBeExpanded(newNodeRawUri, this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, this.expansionSet)){
+                    if(
+                    this.graph.nodeMayBeExpanded(newNodeRawUri, this.conceptNode.nodeId, PathOptionConstants.mappingsNeighborhoodConstant, this.expansionSet)
+                    ||
+                    (
+                        this.directCallForExpansionType === PathOptionConstants.mappingsNeighborhoodConstant
+                        && edge !=  null
+                        && this.graph.isEdgeForTemporaryRenderOnly(edge)
+                    )
+                        ){
                         mappingTargetIds[String(newConceptId)] = true;
-                        mappingTargets.push(newConceptData);
+                        mappingTargets[String(newConceptId)] = newConceptData;
                         expectedExpansionCount++;
                     }
                 }
@@ -2128,7 +2194,8 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
         var fetchCall = (maxToAdd: number): number=>{
             var added = 0;
             $.each(mappingTargets,
-                (newConceptId: ConceptURI, newConceptData) => {
+                (newConceptId: ConceptURI) => {
+                    var newConceptData = mappingTargets[String(newConceptId)];
                     if(null != maxToAdd && added >= maxToAdd){
                         return false;
                     }
@@ -2136,6 +2203,9 @@ class ConceptMappingsRelationsCallback extends Fetcher.CallbackObject {
                       added++;
                 }
             );
+            
+            // As a special case for when we expand mappings only to get temporary edges made permanent, we do this:
+            this.graph.manifestEdgesForNewNode(this.conceptNode);
             return added;
         };
 

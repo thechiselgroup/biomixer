@@ -1,6 +1,8 @@
 ///<amd-dependency path="Ontologies/OntologyMappingOverview" />
+///<amd-dependency path="FetchFromApi" />
 
 import Overview = require('./OntologyMappingOverview');
+import FetchFromApi = require('../FetchFromApi');
 
 // Simplest way to include non-TypeScript defined libraries. Like usual, will need to
 // be served to browser to function.
@@ -24,6 +26,8 @@ var softNodeCap = 19;
 
 
 var centralOntologyAcronym = purl().param("ontology_acronym");
+var userapikey: string = purl().param("userapikey");
+FetchFromApi.RetryingJsonFetcher.userapikey = userapikey;
 
 // Run the graph! Don't need the json really, though...
 // d3.json("force_files/set_data.json", initAndPopulateGraph);

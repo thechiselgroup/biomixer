@@ -8,6 +8,7 @@
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
 ///<amd-dependency path="Ontologies/OntologyLegend" />
 
@@ -24,6 +25,7 @@ import UndoRedoManager = require("../UndoRedo/UndoRedoManager");
 import OntologyGraph = require("./OntologyGraph");
 import OntologyRenderScaler = require("./OntologyRenderScaler");
 import OntologyFilterSliders = require("./OntologyFilterSliders");
+import NodeAreaToggleWidget = require("./NodeAreaToggleWidget");
 import OntologyLegend = require("./OntologyLegend");
 
 // If I don't extend and implement both, I have to define things I want implemented in the base class,
@@ -37,6 +39,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     ontologyGraph: OntologyGraph.OntologyGraph;
     renderScaler: OntologyRenderScaler.OntologyRenderScaler;
     filterSliders: OntologyFilterSliders.MappingRangeSliders;
+    percentileToggleButton: NodeAreaToggleWidget.NodeAreaToggleWidgets;
     
     menu: Menu.Menu;
     
@@ -70,7 +73,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             .attr("pointer-events", "all")
             .on("click", this.menu.closeMenuLambda())
         //  .append('svg:g')
-            .call(d3.behavior.zoom().on("zoom", this.redraw))
+            .call(d3.behavior.zoom().on("zoom", this.geometricZoom))
         //  .append('svg:g')
             .on("click",
              function(){
@@ -98,12 +101,12 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
     }
     
     
-    private redraw() {
-    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-    //  vis.attr("transform",
-    //      "translate(" + d3.event.translate + ")"
-    //      + " scale(" + d3.event.scale + ")");
-    }
+//    private redraw() {
+//    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
+//    //  vis.attr("transform",
+//    //      "translate(" + d3.event.translate + ")"
+//    //      + " scale(" + d3.event.scale + ")");
+//    }
     
     
     
@@ -111,6 +114,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
         this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
         this.filterSliders = new OntologyFilterSliders.MappingRangeSliders(this.ontologyGraph, this, this.centralOntologyAcronym);
+        this.percentileToggleButton = new NodeAreaToggleWidget.NodeAreaToggleWidgets(this, this.ontologyGraph);
         this.initGraph();
         
         this.setCurrentLayout(this.executeCenterLayoutLambda(this));
@@ -216,10 +220,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
             outerThis.vis.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .filter(function(e, i){ return e.source == d || e.target == d; })
-                .attr("x1", function(e) { return e.source.x; })
-                .attr("y1", function(e) { return e.source.y; })
-                .attr("x2", function(e) { return e.target.x; })
-                .attr("y2", function(e) { return e.target.y; });
+                .attr("points", function(e){ return outerThis.updateArcLineFunc(e); })
+                ;
            
         }
     }
@@ -299,7 +301,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
              var propertyKey: string = properties["key"];
              var value = ontologyData[propertyKey];
              if(label === "Mapped: "){
-                 value = outerThis.precise_round(100*parseInt(ontologyData["mapped_classes_to_central_node"])/parseInt(ontologyData["numberOfClasses"]), 1);
+                 value = outerThis.precise_round(100*(parseInt(1.0+ontologyData["mapped_classes_to_central_node"]))/(parseInt(1.0 + ontologyData["numberOfClasses"])), 1);
                  value += "%";
              }
              tBody.append(
@@ -344,7 +346,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
     
         // Add new stuff
-        var enteringLinks = links.enter().append("svg:line")
+        var enteringLinks = links.enter().append("svg:polyline")
         .attr("class", GraphView.BaseGraphView.linkSvgClassSansDot+" "+GraphView.BaseGraphView.ontologyLinkSvgClassSansDot) // Make svg:g like nodes if we need labels
         .attr("id", function(d){return "link_line_"+d.source.acronymForIds+"-to-"+d.target.acronymForIds})
         .on("mouseover", this.highlightHoveredLinkLambda(this)) // this.highlightLinkLambda(this))
@@ -355,11 +357,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         // Update Basic properties
         if(!enteringLinks.empty()){
             enteringLinks
-            .attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; })
-            .attr("data-thickness_basis", function(d) { return d.value;});
+            .attr("data-thickness_basis", function(d) { return d.value;})
+            // .attr("points", this.updateArcLineFunc) // Down below, do them all.
+            ;
             
             // Update Tool tip
             enteringLinks.append("title") // How would I *update* this if I needed to?
@@ -368,7 +368,9 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         
             // Update *all* links scalings given new links are present
             this.renderScaler.updateLinkScalingFactor();
-            links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+            // Using double-backed polyline with variable width of fill instead of thickness of line
+            // links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+            links.attr("points", (e)=>{ return this.updateArcLineFunc(e); })
         }
         
     
@@ -376,6 +378,14 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         	this.filterSliders.updateTopMappingsSliderRange();
             this.updateStartWithoutResume();
         }
+    }
+    
+    public updateArcLineFunc = (linkData: OntologyGraph.Link): string => {
+        // This is a lot easier than markers, except that we also have to offset
+        // the line if there are two arc types.
+        
+        var arcFillThickness = this.renderScaler.ontologyLinkScalingFunc(linkData.value); //0.5;
+        return this.computeStrokeAndFillLinkEndpointsString(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, arcFillThickness, 0);
     }
         
     populateNewGraphNodes(nodesData: Array<OntologyGraph.Node>){
@@ -414,7 +424,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         .style("fill", this.defaultNodeColor)
         .style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor))
         .attr("data-radius_basis", function(d) { return d.number;})
-        .attr("r", (d)=>{ return this.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym); })
+        .attr("r", (d)=>{ return this.renderScaler.ontologyOuterNodeScalingFunc(d.number, d.rawAcronym); })
         .on("mouseover", this.highlightHoveredNodeLambda(this, true))
         .on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
         
@@ -667,10 +677,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             }
     
             links
-              .attr("x1", function(d) { return d.source.x; })
-              .attr("y1", function(d) { return d.source.y; })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; });
+              .attr("points", this.updateArcLineFunc)
+            ;
             
             // I want labels to aim out of middle of graph, to make more room
             // It slows rendering, so I will only do it sometimes
@@ -883,10 +891,8 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
             d3.selectAll(GraphView.BaseGraphView.linkSvgClass)
                 .transition()
                 .duration(animationDuration)
-              .attr("x1", function(d) { return d.source.x; })
-              .attr("y1", function(d) { return d.source.y; })
-              .attr("x2", function(d) { return d.target.x; })
-              .attr("y2", function(d) { return d.target.y; });
+                .attr("points", this.updateArcLineFunc)
+            ;
         };         
     }
     
@@ -896,6 +902,7 @@ export class OntologyMappingOverview extends GraphView.BaseGraphView<OntologyGra
         this.attachScreenshotButton();
         this.attachFullscreenButton();
         this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+        this.percentileToggleButton.addMenuComponents(this.menu.getMenuSelector(), false);
         this.legend.initialize();
     }
     

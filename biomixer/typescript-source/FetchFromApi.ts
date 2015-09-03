@@ -375,6 +375,8 @@ import MouseSpinner = require('./MouseSpinner');
 export class RetryingJsonFetcher {
     previousTriesRemade: number = 0;
     
+    static userapikey: string = "";
+    
     constructor(
         public restUrl: string
     ) {
@@ -388,7 +390,7 @@ export class RetryingJsonFetcher {
         var dataType = "json";
         var type = "GET"; // Later with batch calls, might use POST sometimes
         var data = null;
-        var urlString = Utils.prepUrlKey(this.restUrl, false);
+        var urlString = Utils.prepUrlKey(this.restUrl, RetryingJsonFetcher.userapikey, false);
         if(!browserSupportsCors){
             // if CORS isn't available, we cannot receive server status codes off an XHR object,
             // because JSONP requests don't get that back from the browser. So sad.

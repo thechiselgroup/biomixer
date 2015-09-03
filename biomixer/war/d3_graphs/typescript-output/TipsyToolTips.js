@@ -1,3 +1,4 @@
+///<reference path="headers/require.d.ts" />
 define(["require", "exports", "GraphView"], function (require, exports) {
     function nodeTooltipOnHoverLambda(outerThis) {
         return function (d) {
@@ -7,16 +8,22 @@ define(["require", "exports", "GraphView"], function (require, exports) {
             var visible = false;
             var waitingToShowForData = undefined;
             var tipsyId = $(me).attr("id") + "_tipsy";
+            // TODO This creates a timer per popup, which is sort of silly. Figure out another way.
             var leaveMissedTimer = undefined;
             var showDelayTimer = undefined;
             function missedEventTimer() {
                 leaveMissedTimer = setTimeout(missedEventTimer, 1000);
+                // This timer doesn't really work...replacing with click rather than hover popups, so
+                // it's not important to fix unless we come back to hovering.
+                // The hover check doesn't work when we are over children it seems, and the tipsy has plenty of children...
                 if ($("#" + me.id + ":hover").length !== 0 && $(tipsyId + ":hover").length !== 0) {
                     console.log("Not in thing " + me.id + " and tipsyId " + tipsyId);
                     leave();
                 }
             }
             function leave() {
+                // We add a 100 ms timeout to give the user a little time
+                // moving the cursor to/from the tipsy object
                 leaveDelayTimer = setTimeout(function () {
                     $(me).tipsy('hide');
                     visible = false;
@@ -32,9 +39,12 @@ define(["require", "exports", "GraphView"], function (require, exports) {
                 $(me).tipsy({
                     html: true,
                     fade: true,
+                    // offset: parseInt($(me).attr("r")), // works better without this!
                     offset: 15,
                     fallback: "Fetching data...",
                     title: function () {
+                        // var d = this.__data__, c = d.i; //colors(d.i);
+                        // return 'Hi there! My color is <span style="color:' + c + '">' + c + '</span>';
                         return outerThis.createNodePopupTable(me, meData);
                     },
                     trigger: 'manual',
@@ -52,6 +62,7 @@ define(["require", "exports", "GraphView"], function (require, exports) {
                         else {
                             location += "w";
                         }
+                        // console.log("Location "+location);
                         return location;
                     },
                 });
@@ -72,11 +83,14 @@ define(["require", "exports", "GraphView"], function (require, exports) {
                     showDelayTimer = setTimeout(function () {
                         missedEventTimer();
                         $(me).tipsy('show');
+                        // The .tipsy object is destroyed every time it is hidden,
+                        // so we need to add our listener every time its shown
                         var tipsy = $(me).tipsy("tip");
                         tipsy.attr("id", tipsyId);
                         outerThis.lastDisplayedTipsy = tipsy;
                         outerThis.lastDisplayedTipsyData = meData;
                         outerThis.lastDisplayedTipsySvg = me;
+                        // For the tipsy specific listeners, change opacity.
                         tipsy.mouseenter(function () {
                             tipsy.css("opacity", 1.0);
                             enter();
@@ -94,6 +108,13 @@ define(["require", "exports", "GraphView"], function (require, exports) {
                 }
             }
             $(this).hover(enter, leave);
+            //        $(this).mouseover(function(){
+            //            console.log("clearing time out in mouse over");
+            //            clearTimeout(leaveMissedTimer);
+            //        });
+            // TODO Use a timer, poll style, to prevent cases where mouse events are missed by browser.
+            // That happens commonly. We'll want to hide stale open tipsy panels when this happens.
+            // d3.timer(function(){}, -4 * 1000 * 60 * 60, +new Date(2012, 09, 29));
         };
     }
     exports.nodeTooltipOnHoverLambda = nodeTooltipOnHoverLambda;

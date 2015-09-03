@@ -31,7 +31,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../DeletionSet", "../TipsyToolTipsOnClick", "../CompositeExpansionDeletionSet", "./ConceptGraph", "./NestedOntologyConceptFilter", "./NestedExpansionSetConceptFilter", "./ConceptEdgeTypeFilter", "./ConceptFilterSliders", "./ConceptTour", "./ConceptLayouts", "./GraphImporterExporter", "../NodeFinderWidgets", "JQueryExtension", "Utils", "MouseSpinner", "Menu", "GraphView", "ExpansionSets", "DeletionSet", "FetchFromApi", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "CompositeExpansionDeletionSet", "Concepts/ConceptGraph", "Concepts/ConceptFilterSliders", "Concepts/CherryPickConceptFilter", "Concepts/OntologyConceptFilter", "Concepts/NestedOntologyConceptFilter", "Concepts/ExpansionSetFilter", "Concepts/NestedExpansionSetConceptFilter", "Concepts/ConceptNodeFilterWidget", "Concepts/ConceptEdgeTypeFilter", "Concepts/ConceptFilterSliders", "Concepts/ConceptTour", "Concepts/ConceptLayouts", "Concepts/GraphImporterExporter", "NodeFinderWidgets", "Concepts/ConceptRenderScaler"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, DeletionSet, TipsyToolTipsOnClick, CompositeExpansionDeletionSet, ConceptGraph, NestedOntologyConceptFilter, NestedExpansionSetConceptFilter, ConceptEdgeTypeFilter, ConceptFilterSliders, ConceptTour, ConceptLayouts, ImporterExporter, NodeFinder) {
+define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../DeletionSet", "../TipsyToolTipsOnClick", "../CompositeExpansionDeletionSet", "./ConceptGraph", "./NestedOntologyConceptFilter", "./NestedExpansionSetConceptFilter", "./ConceptEdgeTypeFilter", "./ConceptFilterSliders", "./ConceptTour", "./ConceptLayouts", "./GraphImporterExporter", "../NodeFinderWidgets", "../MiniMap", "JQueryExtension", "Utils", "MouseSpinner", "Menu", "GraphView", "ExpansionSets", "DeletionSet", "FetchFromApi", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "CompositeExpansionDeletionSet", "Concepts/ConceptGraph", "Concepts/ConceptFilterSliders", "Concepts/CherryPickConceptFilter", "Concepts/OntologyConceptFilter", "Concepts/NestedOntologyConceptFilter", "Concepts/ExpansionSetFilter", "Concepts/NestedExpansionSetConceptFilter", "Concepts/ConceptNodeFilterWidget", "Concepts/ConceptEdgeTypeFilter", "Concepts/ConceptFilterSliders", "Concepts/ConceptTour", "Concepts/ConceptLayouts", "Concepts/GraphImporterExporter", "NodeFinderWidgets", "Concepts/ConceptRenderScaler"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, DeletionSet, TipsyToolTipsOnClick, CompositeExpansionDeletionSet, ConceptGraph, NestedOntologyConceptFilter, NestedExpansionSetConceptFilter, ConceptEdgeTypeFilter, ConceptFilterSliders, ConceptTour, ConceptLayouts, ImporterExporter, NodeFinder, MiniMap) {
     var ConceptPathsToRoot = (function (_super) {
         __extends(ConceptPathsToRoot, _super);
         function ConceptPathsToRoot(centralOntologyAcronym, centralConceptSimpleUri, softNodeCap) {
@@ -51,6 +51,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.exitingElementTransitionDuration = 300;
             this.alreadyHidTipsy = false;
             this.pixelMap = [0, 10, -10, -7, -4, 4, 7]; // currently only supports 5 extra edges, could cut to diffs of 2 pixels instead.
+            // Modified from being a simple line to being a round-trip line, allowing for invisible mouse activated borders, while still
+            // having an opaque center fill.
             this.updateArcLineFunc = function (linkData, ignoreOffset) {
                 // This is a lot easier than markers, except that we also have to offset
                 // the line if there are two arc types.
@@ -61,32 +63,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 if (ignoreOffset === true) {
                     offset = 0;
                 }
-                var sourceX = linkData.source.x;
-                var sourceY = linkData.source.y;
-                var targetX = linkData.target.x;
-                var targetY = linkData.target.y;
-                if (offset != 0) {
-                    // Make is_a and has_a arcs move away from each other by enough that we can see them both
-                    // for when both relations exist in a pair of nodes
-                    // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-                    // We'll want the vector relative to source, then the same repeated for target...but since
-                    // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-                    // infer it.
-                    var targetVectorX = targetX - sourceX;
-                    var targetVectorY = targetY - sourceY;
-                    var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
-                    var targetOrthVectorX = -1 * targetVectorY / norm;
-                    var targetOrthVectorY = targetVectorX / norm;
-                    var xDist = offset * targetOrthVectorX;
-                    var yDist = offset * targetOrthVectorY;
-                    // Kick the composition arcs a coupel pixels away
-                    sourceX += xDist;
-                    sourceY += yDist;
-                    targetX += xDist;
-                    targetY += yDist;
-                }
-                var points = sourceX + "," + sourceY + " " + targetX + "," + targetY + " ";
-                return points;
+                return _this.computeStrokeAndFillLinkEndpointsString(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 1, offset);
             };
             this.updateArcMarkerFunc = function (linkData, ignoreOffset) {
                 if (ignoreOffset === void 0) { ignoreOffset = false; }
@@ -165,6 +142,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // Had to set div#chart.gallery height = 100% in CSS,
             // but this was only required in Firefox. I can't see why.
             // console.log("Deleting and recreating graph."); // Could there be issues with D3 here?
+            var _this = this;
             // Experimental...seems like a good idea
             if (this.forceLayout !== undefined) {
                 this.forceLayout.nodes([]);
@@ -173,11 +151,22 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             $("#chart").empty();
             d3.select("#chart").remove;
             var outerThis = this;
+            // Performs zoom and pan behaviors.
+            var prevZoomLevel;
+            var prevTranslate;
+            this.zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", function () {
+                _this.geometricZoom()();
+                // Is called a few times on layout change, but I only want to do this on actual zoom.
+                if (prevZoomLevel !== d3.event.scale || prevTranslate[0] !== d3.event.translate[0] || prevTranslate[1] !== d3.event.translate[1]) {
+                    _this.renderMiniMap(true);
+                    prevZoomLevel = d3.event.scale;
+                    prevTranslate = d3.event.translate;
+                }
+            });
             this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", function () {
                 // outerThis.menu.closeMenuLambda()()
                 TipsyToolTipsOnClick.closeOtherTipsyTooltips();
-            });
-            //  .call(d3.behavior.zoom().on("zoom", redraw))
+            }).call(this.zoom).append("g").attr("id", "graph_g");
             // Old, faster way of makign arc triangles. Doesn't work in IE really, and Firefox got fussy with it too.
             // this.defineCustomSVG();
             this.vis.append("svg:rect").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("id", "graphRect").style("fill", "white");
@@ -187,12 +176,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             $(window).resize(this.resizedWindowLambda);
             this.resizedWindowLambda();
             Fetch.CacheRegistry.clearAllServiceRecordsKeepCacheData();
-        };
-        ConceptPathsToRoot.prototype.redraw = function () {
-            //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-            //  vis.attr("transform",
-            //      "translate(" + d3.event.translate + ")"
-            //      + " scale(" + d3.event.scale + ")");
         };
         ConceptPathsToRoot.prototype.initAndPopulateGraph = function () {
             // Used to happen on window load.
@@ -225,7 +208,17 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.attachScreenshotButton();
             this.attachFullscreenButton();
             this.fetchInitialExpansion();
+            this.miniMap = new MiniMap.MiniMap(d3.select("#graphSvg"), this, this.zoom);
+            this.miniMap.addMenuComponents(this.menu.getMenuSelector(), true);
             MouseSpinner.MouseSpinner.haltSpinner("ConceptMain");
+        };
+        ConceptPathsToRoot.prototype.renderMiniMap = function (immediate, force, slow) {
+            if (immediate === void 0) { immediate = false; }
+            if (force === void 0) { force = false; }
+            if (slow === void 0) { slow = false; }
+            if (null != this.miniMap) {
+                this.miniMap.render(immediate, force, slow);
+            }
         };
         /**
          * This is used for both initial expansions and refocus expansions.
@@ -336,6 +329,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var maxLayoutRunDuration = 10000;
             var maxGravityFrequency = 4000;
             return function () {
+                _this.stampTimeLayoutModified();
                 // This improved layout behavior dramatically.
                 var boundNodes = _this.vis.selectAll("g.node_g");
                 // Links have a g element aroudn them too, for ordering effects, but we set the link endpoints, not the g positon.
@@ -365,10 +359,12 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 if (null != _this.tour) {
                     _this.tour.refreshIntro();
                 }
+                _this.renderMiniMap(false, true, true);
             };
         };
         ConceptPathsToRoot.prototype.dragstartLambda = function (outerThis) {
             return function (d, i) {
+                d3.event.sourceEvent.stopPropagation();
                 outerThis.dragging = true;
                 outerThis.alreadyHidTipsy = false;
                 // stops the force auto positioning before you start dragging
@@ -405,24 +401,32 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 outerThis.vis.selectAll("polyline" + GraphView.BaseGraphView.linkMarkerSvgClass).filter(function (e) {
                     return e.source === d || e.target === d;
                 }).attr("points", outerThis.updateArcMarkerFunc);
+                outerThis.stampTimeLayoutModified();
+                // Better to have nice movement than to have the minimap reflect the changes of dragging.
+                // outerThis.renderMiniMap();
             };
         };
         ConceptPathsToRoot.prototype.computeArcMarkerForInheritance = function (linkData, ignoreOffset) {
             if (ignoreOffset === void 0) { ignoreOffset = false; }
-            var sourceX = linkData.source.x;
-            var sourceY = linkData.source.y;
-            var targetX = linkData.target.x;
-            var targetY = linkData.target.y;
+            // 0 for desired thickness since we want the abstract line, not the polyline coordinates.
+            // var pointsObj = this.computeStrokeAndFillLinkEndpoints(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 0, 0);
+            // could bypass, since we are really literally just using the source and target coordinates, with no offset at all...
+            var pointsObj = {
+                sourceX: linkData.source.x,
+                sourceY: linkData.source.y,
+                targetX: linkData.target.x,
+                targetY: linkData.target.y
+            };
             // This is supposed to be division by 2 to find the endpoint, but moving it toward the target
             // a bit gives better marker positioning.
-            var midPointX = sourceX + (targetX - sourceX) / 2;
-            var midPointY = sourceY + (targetY - sourceY) / 2;
+            var midPointX = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX) / 2;
+            var midPointY = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY) / 2;
             // But...I need to make a triangular convolution, to replace the markers.
             // Marker path was: path.setAttribute("d", "M 0 0 L 10 5 L 0 10 z");
             // Rotate a triangleSide line in both directions, and add the midpoint to each.
             // From the endpoint of the first and startpoint of the second, draw an additional segment.
             // 0.5 * PI because I need to rotate the whole thing by 90 degrees
-            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(pointsObj.sourceX - pointsObj.targetX, pointsObj.sourceY - pointsObj.targetY);
             var triAngle1 = atanSourceTarget + this.triangleMarkerPointAngle;
             var triAngle2 = atanSourceTarget - this.triangleMarkerPointAngle;
             // Since y = 0 always, let's save some CPU cycles
@@ -449,33 +453,11 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             if (ignoreOffset === true) {
                 offset = 0;
             }
-            var sourceX = linkData.source.x;
-            var sourceY = linkData.source.y;
-            var targetX = linkData.target.x;
-            var targetY = linkData.target.y;
-            // Get orthogonal vector, by changing x and y and flipping sign on first component (x).
-            // We'll want the vector relative to source, then the same repeated for target...but since
-            // we know the target orthogonal vector is parallel to the source orthogonal vector, we can
-            // infer it.
-            var targetVectorX = targetX - sourceX;
-            var targetVectorY = targetY - sourceY;
-            var norm = Math.sqrt(targetVectorX * targetVectorX + targetVectorY * targetVectorY);
-            var targetOrthVectorX = -1 * targetVectorY / norm;
-            var targetOrthVectorY = targetVectorX / norm;
-            var xDist = offset * targetOrthVectorX;
-            var yDist = offset * targetOrthVectorY;
-            // Make is_a and has_a arcs move away from eachother by enough that we can see them both
-            // for when both relations exist in a pair of nodes
-            if (linkData.relationType === this.conceptGraph.relationLabelConstants.composition) {
-                // Kick the composition arcs a coupel pixels away
-                sourceX += xDist;
-                sourceY += yDist;
-                targetX += xDist;
-                targetY += yDist;
-            }
+            // 0 for desired thickness since we want the abstract line, not the polyline coordinates.
+            var pointsObj = this.computeStrokeAndFillLinkEndpoints(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, 0, 0);
             // the path will go from the tip of a diamond shape, around the perimeter, then cut again through
             // the middle to recommence the line.
-            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(sourceX - targetX, sourceY - targetY);
+            var atanSourceTarget = Math.PI * 0.5 - Math.atan2(pointsObj.sourceX - pointsObj.targetX, pointsObj.sourceY - pointsObj.targetY);
             var diamondAngle1 = atanSourceTarget + (this.diamondAngle); // sign controls above/below line
             var diamondAngle2 = atanSourceTarget - (this.diamondAngle);
             // Since y = 0 always, let's save some CPU cycles
@@ -490,10 +472,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // a bit gives better marker positioning.
             var diamondXDelta = (this.diamondLength / 2 * Math.cos(atanSourceTarget));
             var diamondYDelta = (this.diamondLength / 2 * Math.sin(atanSourceTarget));
-            var midPointX1 = sourceX + (targetX - sourceX) / 2 - diamondXDelta;
-            var midPointY1 = sourceY + (targetY - sourceY) / 2 - diamondYDelta;
-            var midPointX2 = sourceX + (targetX - sourceX) / 2 + diamondXDelta;
-            var midPointY2 = sourceY + (targetY - sourceY) / 2 + diamondYDelta;
+            var midPointX1 = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX) / 2 - diamondXDelta;
+            var midPointY1 = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY) / 2 - diamondYDelta;
+            var midPointX2 = pointsObj.sourceX + (pointsObj.targetX - pointsObj.sourceX) / 2 + diamondXDelta;
+            var midPointY2 = pointsObj.sourceY + (pointsObj.targetY - pointsObj.sourceY) / 2 + diamondYDelta;
             // Make relative to the midPoint
             // I would move the marker half of its length back towards the source, but I want to save
             // CPU cycles...this method is called a lot.
@@ -515,6 +497,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         ConceptPathsToRoot.prototype.dragendLambda = function (outerThis) {
             return function (d, i) {
                 outerThis.dragging = false;
+                outerThis.stampTimeLayoutModified();
+                outerThis.renderMiniMap(true, true);
                 // $(this).tipsy('show');
                 // Added click-for-toooltip, and it seems better if dragging fully cancels tooltips.
                 // $(".tipsy").show();
@@ -539,7 +523,6 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // Since this is turned into html, any JQuery event bindings will get lost. We have to do the binding later,
                 // and we need to prevent re-binding by calling off() first, as seen here.
                 $(document.body).off().on("change", "#popupCheckId", function () {
-                    console.log("hey");
                     outerThis.toggleHideNodeLambda(outerThis)(conceptData, 0);
                     outerThis.refreshOtherFilterCheckboxStates([conceptData], null);
                 });
@@ -619,6 +602,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // this.forceLayout.start();
         };
         ConceptPathsToRoot.prototype.populateNewGraphEdges = function (linksData, temporaryEdges) {
+            if (temporaryEdges === void 0) { temporaryEdges = false; }
             // Advice from http://stackoverflow.com/questions/9539294/adding-new-nodes-to-force-directed-layout
             if (linksData.length == 0) {
                 return [];
@@ -656,7 +640,13 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 return "link_title_" + d.id;
             });
             // Make the arc opaque over time, just like the nodes.
-            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0");
+            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", "1.0").each("end", function (d, i) {
+                if (temporaryEdges) {
+                    return;
+                }
+                outerThis.renderMiniMap(false, true, true);
+                return;
+            });
             if (!enteringLinks.empty()) {
                 if (!temporaryEdges) {
                     this.runCurrentLayout(true);
@@ -853,7 +843,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // TODO I made a different method for removing nodes that we see below. This is bad now, yes?
             // nodes.exit().remove();
             // Animate the new nodes into view.
-            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", 1.0);
+            enteringSubG.transition().duration(this.enteringElementTransitionDuration).style("opacity", 1.0).each("end", function (d, i) {
+                outerThis.renderMiniMap(false, true, true);
+                return;
+            });
             if (!enteringNodes.empty()) {
                 this.runCurrentLayout(true);
                 this.updateStartWithoutResume();
@@ -868,8 +861,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 this.nestedExpansionConceptFilter.updateFilterUI();
             }
         };
-        ConceptPathsToRoot.prototype.removeMissingGraphElements = function () {
+        ConceptPathsToRoot.prototype.removeMissingGraphElements = function (data, temporaryOnly) {
             //console.log("Removing some graph elements "+Utils.getTime());
+            var _this = this;
+            if (temporaryOnly === void 0) { temporaryOnly = false; }
             // Have problems if we don't pass the containers back in like this.
             // Removed edges will not be properly removed, and exceptions will
             // be thrown.
@@ -890,6 +885,12 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var nodesRemoved = exitingNodes.transition().duration(this.exitingElementTransitionDuration).style("opacity", 0.0).call(function () {
                 exitingLinks.remove();
                 exitingNodes.remove();
+            }).each("end", function (d, i) {
+                if (temporaryOnly) {
+                    return;
+                }
+                _this.renderMiniMap(false, true, true);
+                return;
             });
             // Update filter sliders. Filtering and layout refresh should be updated within the slider event function.
             this.filterSliders.updateTopMappingsSliderRange();
@@ -936,12 +937,12 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 var innerSvg = d3.select(this).append("svg:svg").attr("id", "expanderMenu").attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth / 2 + parseInt(d3.select(this).attr("x"), 0))).attr("width", config.rectWidth).attr("height", config.rectHeight * 2).style("z-index", 100).on("mouseleave", function () {
                     outerThis.unhighlightHoveredNodeLambda(outerThis, false)(nodeData, 0);
                     $("#expanderMenu").first().remove();
-                }).on("mouseup", function () {
+                }).on("click", function () {
                     $("#expanderMenu").first().remove();
                 });
                 // We also add hover effects to text children lower down
                 // Create concept expander button
-                outerThis.appendConceptExpandingButton(innerSvg, config, nodeData);
+                outerThis.appendConceptExpandingButton(innerSvg, config, nodeData, this);
                 // Create mapping expander button
                 outerThis.appendMappingExpanderButton(innerSvg, config, nodeData);
                 // Create menu item for refocussing on node
@@ -951,22 +952,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 // Resize the parent rectangles as necessary based on all of the children text elements
                 // It does things fairly automatically and agnostic of the number of menu item text elements.
                 // Obviously if we change the overall design of the menu this won't work as is.
-                // Size the parent rect according to the longest text child
-                var maxWidth = 0;
-                $("#" + innerSvg.attr("id")).find("text").each(function (index, element) {
-                    // Works for Chrome
-                    // Only one to work for Firefox
-                    // Only one to work for IE
-                    var box = element.getBoundingClientRect();
-                    var elemWidth = box.right - box.left;
-                    maxWidth = Math.max(maxWidth, elemWidth);
-                });
-                // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
-                // The right side will need the same effective padding as well.
-                maxWidth += 2 * config.fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
-                $("#" + innerSvg.attr("id")).attr("width", maxWidth);
-                $("#" + innerSvg.attr("id")).find("rect").attr("width", maxWidth);
-                // console.log("Resized things, maxWidth: "+maxWidth);
+                outerThis.resizeMenuWidths(innerSvg, config);
                 // Make the menu labels bold when hovered over
                 d3.selectAll(".expanderMenuItem").on("mouseover", function (node) {
                     d3.select(this).classed("boldText", true);
@@ -975,7 +961,48 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 });
             };
         };
-        ConceptPathsToRoot.prototype.appendConceptExpandingButton = function (innerSvg, config, nodeData) {
+        ConceptPathsToRoot.prototype.resizeMenuWidths = function (innerSvg, config) {
+            // Size the parent rect according to the longest text child
+            var maxWidth = 0;
+            $("#" + innerSvg.attr("id")).find("text").each(function (index, element) {
+                // Works for Chrome
+                // Only one to work for Firefox
+                // Only one to work for IE
+                var box = element.getBoundingClientRect();
+                var elemWidth = box.right - box.left;
+                maxWidth = Math.max(maxWidth, elemWidth);
+            });
+            // Need to account for the effective left padding (not actual padding, since it's SVG positioning)
+            // The right side will need the same effective padding as well.
+            maxWidth += 2 * config.fontXSvgPadding + 4; // + 4 for compensate by bold making text wider 
+            $("#" + innerSvg.attr("id")).attr("width", maxWidth);
+            $("#" + innerSvg.attr("id")).find("rect").attr("width", maxWidth);
+            // Get the sub-menu indicator(s) and move them to the right
+            $("#" + innerSvg.attr("id")).find("g").attr("x", maxWidth); //-config.subMenuSize*2);
+            // console.log("Resized things, maxWidth: "+maxWidth);
+        };
+        ConceptPathsToRoot.prototype.toggleToExpansionSubMenu = function (nodeData, target) {
+            // User activated the node expansion sub menu, where we can let them specify that they want to
+            // expand only child, only parent, or only other relations.
+            var _this = this;
+            var config = ConceptPathsToRoot.expanderMenuConfig;
+            // JQuery does not allow the specification of a namespace when creating elements.
+            // If the namespace is not specified for svg elements, they do not render, though they do get added to the DOM.
+            // To do so, you need to do verbose things like: document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            // So, I don't get to use JQuery as much as D3 it turns out.
+            var innerSvg = d3.select(target).append("svg:svg").attr("id", "expanderSubMenu").attr("overflow", "visible").attr("y", 0).attr("x", -1 * (config.rectWidth / 2 + parseInt(d3.select(target).attr("x"), 0))).attr("width", config.rectWidth).attr("height", config.rectHeight * 2).style("z-index", 100).on("mouseleave", function () {
+                _this.unhighlightHoveredNodeLambda(_this, false)(nodeData, 0);
+                $("#expanderSubMenu").first().remove();
+            }).on("mouseup", function () {
+                $("#expanderSubMenu").first().remove();
+            });
+            this.appendConceptExpandChildrenButton(innerSvg, config, nodeData);
+            this.appendConceptExpandParentsButton(innerSvg, config, nodeData);
+            this.appendConceptExpandOthersButton(innerSvg, config, nodeData);
+            this.resizeMenuWidths(innerSvg, config);
+        };
+        ConceptPathsToRoot.prototype.appendConceptExpandingButton = function (innerSvg, config, nodeData, target) {
+            var _this = this;
             var outerThis = this;
             var conceptExpandSvg = innerSvg.append("svg:svg").attr("overflow", "visible").attr("y", 0).classed("expanderMenuItem", true);
             // If this node is currently cleared for expansion within the undo/stack current context,
@@ -1003,8 +1030,28 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                     return false;
                 };
             }
-            conceptExpandSvg.append("svg:rect").style("fill", "#FFFFFF").style("stroke", "#000000").attr("x", 0).attr("y", 0).attr("width", config.rectWidth).attr("height", config.rectHeight).on("mouseup", conceptExpandMouseUpFunc);
+            var conceptRect = conceptExpandSvg.append("svg:rect").style("fill", "#FFFFFF").style("stroke", "#000000").attr("x", 0).attr("y", 0).attr("width", config.rectWidth).attr("height", config.rectHeight).on("mouseup", conceptExpandMouseUpFunc);
             conceptExpandSvg.append("svg:text").text(conceptExpandTextValue).style("fill", conceptExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            var submenuSvg = conceptExpandSvg.append("svg:svg").attr("width", "100%").attr("height", "100%").attr("preserveAspectRatio", "xMaxYMin meet") // maybe meet too as value after space
+            ;
+            var submenuG = submenuSvg.append("svg:g").attr("x", config.rectWidth).attr("y", config.rectHeight - config.subMenuSize * 2).attr("height", config.subMenuSize * 2).attr("width", config.subMenuSize * 2).attr("overflow", "visible");
+            var submenuRect = submenuG.append("svg:circle").style("fill", "blue").attr("cx", config.subMenuSize + 1).attr("cy", config.subMenuSize + 1).style("stroke", "#afc6e5").attr("r", config.subMenuSize).attr("overflow", "visible").on("mousedown", function () {
+                d3.event.stopPropagation();
+            }).on("mouseup", function () {
+                d3.event.stopPropagation();
+                $("#expanderMenu").remove();
+                _this.toggleToExpansionSubMenu(nodeData, target);
+            });
+            submenuRect.append("title").attr("text", "Click here for different expansion options");
+            submenuG.append("svg:text").text("+").style("fill", conceptExpandFontFillColor).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+            //        submenuRect
+            //        .append("svg:polygon")
+            //        .attr("points", "11.25,2 18.75,2 15,6 ")
+            //        .style("fill", "#000000")
+            //        .attr("x", function(d: ConceptGraph.Node){ return -1 * (this.getAttribute("width")/2);} )
+            //        .attr("y", function(d: ConceptGraph.Node){ return parseInt($("#node_rect_"+d.conceptUriForIds)[0].getAttribute("height"), 0)/2; })
+            //        .attr("overflow", "visible")
+            //        ;
         };
         ConceptPathsToRoot.prototype.appendMappingExpanderButton = function (innerSvg, config, nodeData) {
             var outerThis = this;
@@ -1055,6 +1102,63 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 outerThis.refreshOtherFilterCheckboxStates([nodeData], null);
             });
             hideNodeSvg.append("svg:text").text(this.isNodeHidden(nodeData) ? "Un-dim Node" : "Dim Node").attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
+        };
+        ConceptPathsToRoot.prototype.appendConceptExpandChildrenButton = function (innerSvg, config, nodeData) {
+            var outerThis = this;
+            var callback = function () {
+                $("#expanderMenu").first().remove();
+                var expId = new ExpansionSets.ExpansionSetIdentifer("concept_children_expand_" + nodeData.conceptUriForIds, "Concepts: " + nodeData.name + " (" + nodeData.ontologyAcronym + ")");
+                var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                outerThis.conceptGraph.fetchChildren(nodeData, nodeData.linkChildren, 1, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, expansionSet);
+            };
+            var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, "children");
+            this.appendConceptSubButton("Children", callback, hardTermExpansionCount, innerSvg, config, nodeData);
+        };
+        ConceptPathsToRoot.prototype.appendConceptExpandParentsButton = function (innerSvg, config, nodeData) {
+            var outerThis = this;
+            var callback = function () {
+                $("#expanderMenu").first().remove();
+                var expId = new ExpansionSets.ExpansionSetIdentifer("concept_parent_expand_" + nodeData.conceptUriForIds, "Concepts: " + nodeData.name + " (" + nodeData.ontologyAcronym + ")");
+                var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                outerThis.conceptGraph.fetchParents(nodeData, nodeData.linkParents, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, expansionSet);
+            };
+            var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, "parents");
+            this.appendConceptSubButton("Parents", callback, hardTermExpansionCount, innerSvg, config, nodeData);
+        };
+        ConceptPathsToRoot.prototype.appendConceptExpandOthersButton = function (innerSvg, config, nodeData) {
+            var outerThis = this;
+            var callback = function () {
+                $("#expanderMenu").first().remove();
+                var expId = new ExpansionSets.ExpansionSetIdentifer("concept_composite_expand_" + nodeData.conceptUriForIds, "Concepts: " + nodeData.name + " (" + nodeData.ontologyAcronym + ")");
+                var expansionSet = new ExpansionSets.ExpansionSet(expId, nodeData, outerThis.conceptGraph, outerThis.conceptGraph.expMan.getActiveExpansionSets(), outerThis.undoRedoBoss, ConceptGraph.PathOptionConstants.termNeighborhoodConstant);
+                outerThis.conceptGraph.fetchCompositionRelations(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, expansionSet);
+            };
+            var hardTermExpansionCount = this.conceptGraph.getNumberOfPotentialNodesToExpand(nodeData, ConceptGraph.PathOptionConstants.termNeighborhoodConstant, "other");
+            this.appendConceptSubButton("Relations", callback, hardTermExpansionCount, innerSvg, config, nodeData);
+        };
+        ConceptPathsToRoot.prototype.appendConceptSubButton = function (name, callback, hardTermExpansionCount, innerSvg, config, nodeData) {
+            var conceptExpandSvg = innerSvg.append("svg:svg").attr("overflow", "visible").attr("y", $(".expanderMenuItem").length * config.rectHeight).classed("expanderMenuItem", true);
+            // If this node is currently cleared for expansion within the undo/stack current context,
+            // then it means we already did this expansion (possibly via another means).
+            // Let's alter the menu to reflect this.
+            var conceptExpandTextValue;
+            var conceptExpandFontFillColor;
+            var conceptExpandMouseUpFunc;
+            if (hardTermExpansionCount != 0) {
+                conceptExpandTextValue = "Expand " + name;
+                conceptExpandTextValue += " (" + hardTermExpansionCount + ")"; // +" ("+conceptExpState.numMissing+";
+                conceptExpandFontFillColor = ""; // empty works to *not* add a value at all
+                conceptExpandMouseUpFunc = callback;
+            }
+            else {
+                conceptExpandTextValue = name + " Already Expanded";
+                conceptExpandFontFillColor = "#AAAAAA"; // grey out font when we can't use the item
+                conceptExpandMouseUpFunc = function () {
+                    return false;
+                };
+            }
+            var conceptRect = conceptExpandSvg.append("svg:rect").style("fill", "#FFFFFF").style("stroke", "#000000").attr("x", 0).attr("y", 0).attr("width", config.rectWidth).attr("height", config.rectHeight).on("mouseup", conceptExpandMouseUpFunc);
+            conceptExpandSvg.append("svg:text").text(conceptExpandTextValue).style("fill", conceptExpandFontFillColor).attr("x", config.fontXSvgPadding).attr("y", config.fontYSvgPadding).attr("class", GraphView.BaseGraphView.nodeLabelSvgClassSansDot + " unselectable " + " expanderMenuText").classed("svgFont", true).style("pointer-events", "none").attr("unselectable", "on").attr("onmousedown", "noselect").attr("onselectstart", "function(){ return false;}");
         };
         ConceptPathsToRoot.prototype.beforeNodeHighlight = function (targetNodeData) {
             this.conceptGraph.manifestTemporaryHoverEdges(targetNodeData);
@@ -1216,6 +1320,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             rectHeight: 35,
             fontXSvgPadding: 7,
             fontYSvgPadding: 23,
+            subMenuSize: 4,
         };
         return ConceptPathsToRoot;
     })(GraphView.BaseGraphView);

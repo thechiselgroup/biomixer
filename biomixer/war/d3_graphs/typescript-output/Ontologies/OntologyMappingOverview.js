@@ -8,6 +8,7 @@
 ///<amd-dependency path="UndoRedo/UndoRedoManager" />
 ///<amd-dependency path="Ontologies/OntologyGraph" />
 ///<amd-dependency path="Ontologies/OntologyFilterSliders" />
+///<amd-dependency path="Ontologies/NodeAreaToggleWidget" />
 ///<amd-dependency path="Ontologies/OntologyRenderScaler" />
 ///<amd-dependency path="Ontologies/OntologyLegend" />
 var __extends = this.__extends || function (d, b) {
@@ -16,7 +17,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../TipsyToolTipsOnClick", "./OntologyGraph", "./OntologyRenderScaler", "./OntologyFilterSliders", "./OntologyLegend", "Utils", "Menu", "FetchFromApi", "GraphView", "ExpansionSets", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "Ontologies/OntologyGraph", "Ontologies/OntologyFilterSliders", "Ontologies/OntologyRenderScaler", "Ontologies/OntologyLegend", "JQueryExtension"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, TipsyToolTips, OntologyGraph, OntologyRenderScaler, OntologyFilterSliders, OntologyLegend) {
+define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", "../Menu", "../GraphView", "../ExpansionSets", "../TipsyToolTipsOnClick", "./OntologyGraph", "./OntologyRenderScaler", "./OntologyFilterSliders", "./NodeAreaToggleWidget", "./OntologyLegend", "Utils", "Menu", "FetchFromApi", "GraphView", "ExpansionSets", "TipsyToolTips", "TipsyToolTipsOnClick", "UndoRedo/UndoRedoManager", "Ontologies/OntologyGraph", "Ontologies/OntologyFilterSliders", "Ontologies/NodeAreaToggleWidget", "Ontologies/OntologyRenderScaler", "Ontologies/OntologyLegend", "JQueryExtension"], function (require, exports, Utils, MouseSpinner, Fetch, Menu, GraphView, ExpansionSets, TipsyToolTips, OntologyGraph, OntologyRenderScaler, OntologyFilterSliders, NodeAreaToggleWidget, OntologyLegend) {
     // If I don't extend and implement both, I have to define things I want implemented in the base class,
     // and I won't be forced to define things declared in the interface. Using the interface as the
     // type later leads to a full contract of behavior; the doubling up of interface and base class
@@ -24,6 +25,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
     var OntologyMappingOverview = (function (_super) {
         __extends(OntologyMappingOverview, _super);
         function OntologyMappingOverview(centralOntologyAcronym, softNodeCap) {
+            var _this = this;
             _super.call(this, false);
             this.centralOntologyAcronym = centralOntologyAcronym;
             this.softNodeCap = softNodeCap;
@@ -47,6 +49,12 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             // Also, it's naming...I believe it is a lambda and a closure (closes over context,
             // and returns an anonymous function (returns a lambda).
             this.alreadyHidTipsy = false;
+            this.updateArcLineFunc = function (linkData) {
+                // This is a lot easier than markers, except that we also have to offset
+                // the line if there are two arc types.
+                var arcFillThickness = _this.renderScaler.ontologyLinkScalingFunc(linkData.value); //0.5;
+                return _this.computeStrokeAndFillLinkEndpointsString(linkData.source.x, linkData.source.y, linkData.target.x, linkData.target.y, arcFillThickness, 0);
+            };
             this.nodeUpdateTimer = false;
             // Seeing if I can modulate graph gravity using bounding boxes...
             // when the nodes are outside the box, tweak the gravity higher by a small amount,
@@ -58,7 +66,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.legend = new OntologyLegend.OntologyLegend(this.menu);
             // Had to set div#chart.gallery height = 100% in CSS,
             // but this was only required in Firefox. I can't see why.
-            this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", this.menu.closeMenuLambda()).call(d3.behavior.zoom().on("zoom", this.redraw)).on("click", function () {
+            this.vis = d3.select("#chart").append("svg:svg").attr("id", "graphSvg").attr("width", this.visWidth()).attr("height", this.visHeight()).attr("pointer-events", "all").on("click", this.menu.closeMenuLambda()).call(d3.behavior.zoom().on("zoom", this.geometricZoom)).on("click", function () {
                 TipsyToolTips.closeOtherTipsyTooltips();
             });
             this.vis.append('svg:rect').attr("width", this.visWidth()).attr("height", this.visHeight()).attr("id", "graphRect").style('fill', 'white');
@@ -76,16 +84,17 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
         OntologyMappingOverview.prototype.filterGraphOnMappingCounts = function () {
             this.filterSliders.filterGraphOnMappingCounts();
         };
-        OntologyMappingOverview.prototype.redraw = function () {
-            //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
-            //  vis.attr("transform",
-            //      "translate(" + d3.event.translate + ")"
-            //      + " scale(" + d3.event.scale + ")");
-        };
+        //    private redraw() {
+        //    //  console.log("redrawing D3", d3.event.translate, d3.event.scale);
+        //    //  vis.attr("transform",
+        //    //      "translate(" + d3.event.translate + ")"
+        //    //      + " scale(" + d3.event.scale + ")");
+        //    }
         OntologyMappingOverview.prototype.initAndPopulateGraph = function () {
             this.ontologyGraph = new OntologyGraph.OntologyGraph(this, this.softNodeCap, this.centralOntologyAcronym);
             this.renderScaler = new OntologyRenderScaler.OntologyRenderScaler(this.vis);
             this.filterSliders = new OntologyFilterSliders.MappingRangeSliders(this.ontologyGraph, this, this.centralOntologyAcronym);
+            this.percentileToggleButton = new NodeAreaToggleWidget.NodeAreaToggleWidgets(this, this.ontologyGraph);
             this.initGraph();
             this.setCurrentLayout(this.executeCenterLayoutLambda(this));
             this.prepGraphMenu();
@@ -145,14 +154,8 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 });
                 outerThis.vis.selectAll(GraphView.BaseGraphView.linkSvgClass).filter(function (e, i) {
                     return e.source == d || e.target == d;
-                }).attr("x1", function (e) {
-                    return e.source.x;
-                }).attr("y1", function (e) {
-                    return e.source.y;
-                }).attr("x2", function (e) {
-                    return e.target.x;
-                }).attr("y2", function (e) {
-                    return e.target.y;
+                }).attr("points", function (e) {
+                    return outerThis.updateArcLineFunc(e);
                 });
             };
         };
@@ -202,7 +205,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 var propertyKey = properties["key"];
                 var value = ontologyData[propertyKey];
                 if (label === "Mapped: ") {
-                    value = outerThis.precise_round(100 * parseInt(ontologyData["mapped_classes_to_central_node"]) / parseInt(ontologyData["numberOfClasses"]), 1);
+                    value = outerThis.precise_round(100 * (parseInt(1.0 + ontologyData["mapped_classes_to_central_node"])) / (parseInt(1.0 + ontologyData["numberOfClasses"])), 1);
                     value += "%";
                 }
                 tBody.append($("<tr></tr>").append($("<td></td>").attr("align", "left").css({ "vertical-align": "top" }).append($("<div></div>").css(style).append($("<b></b>").text(label)).append($("<span></span>").text(value)))));
@@ -230,21 +233,13 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             var links = this.vis.select("#link_container").selectAll(GraphView.BaseGraphView.linkSvgClass).data(linksData, OntologyGraph.Link.D3IdentityFunction);
             // console.log("Before append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
             // Add new stuff
-            var enteringLinks = links.enter().append("svg:line").attr("class", GraphView.BaseGraphView.linkSvgClassSansDot + " " + GraphView.BaseGraphView.ontologyLinkSvgClassSansDot).attr("id", function (d) {
+            var enteringLinks = links.enter().append("svg:polyline").attr("class", GraphView.BaseGraphView.linkSvgClassSansDot + " " + GraphView.BaseGraphView.ontologyLinkSvgClassSansDot).attr("id", function (d) {
                 return "link_line_" + d.source.acronymForIds + "-to-" + d.target.acronymForIds;
             }).on("mouseover", this.highlightHoveredLinkLambda(this)).on("mouseout", this.unhighlightHoveredLinkLambda(this)); //this.removeNodeAndLinkHighlightingLambda(this));
             // console.log("After append links: "+links[0].length+" links.enter(): "+links.enter()[0].length+" links.exit(): "+links.exit()[0].length+" links from selectAll: "+vis.selectAll("line.link")[0].length);
             // Update Basic properties
             if (!enteringLinks.empty()) {
-                enteringLinks.attr("x1", function (d) {
-                    return d.source.x;
-                }).attr("y1", function (d) {
-                    return d.source.y;
-                }).attr("x2", function (d) {
-                    return d.target.x;
-                }).attr("y2", function (d) {
-                    return d.target.y;
-                }).attr("data-thickness_basis", function (d) {
+                enteringLinks.attr("data-thickness_basis", function (d) {
                     return d.value;
                 });
                 // Update Tool tip
@@ -255,8 +250,10 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 });
                 // Update *all* links scalings given new links are present
                 this.renderScaler.updateLinkScalingFactor();
-                links.style("stroke-width", function (d) {
-                    return _this.renderScaler.ontologyLinkScalingFunc(d.value);
+                // Using double-backed polyline with variable width of fill instead of thickness of line
+                // links.style("stroke-width", (d)=>{ return this.renderScaler.ontologyLinkScalingFunc(d.value); });
+                links.attr("points", function (e) {
+                    return _this.updateArcLineFunc(e);
                 });
             }
             if (!enteringLinks.empty()) {
@@ -287,7 +284,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             }).attr("class", GraphView.BaseGraphView.nodeSvgClassSansDot + " " + GraphView.BaseGraphView.ontologyNodeSvgClassSansDot).attr("cx", "0px").attr("cy", "0px").style("fill", this.defaultNodeColor).style("stroke", this.ontologyGraph.darkenColor(this.defaultNodeColor)).attr("data-radius_basis", function (d) {
                 return d.number;
             }).attr("r", function (d) {
-                return _this.renderScaler.ontologyNodeScalingFunc(d.number, d.rawAcronym);
+                return _this.renderScaler.ontologyOuterNodeScalingFunc(d.number, d.rawAcronym);
             }).on("mouseover", this.highlightHoveredNodeLambda(this, true)).on("mouseout", this.unhighlightHoveredNodeLambda(this, true));
             // Add a second circle that represents the mapped classes of the ontology.
             enteringNodes.append("svg:circle").attr("id", function (d) {
@@ -503,15 +500,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                         return "translate(" + d.x + "," + d.y + ")";
                     });
                 }
-                links.attr("x1", function (d) {
-                    return d.source.x;
-                }).attr("y1", function (d) {
-                    return d.source.y;
-                }).attr("x2", function (d) {
-                    return d.target.x;
-                }).attr("y2", function (d) {
-                    return d.target.y;
-                });
+                links.attr("points", _this.updateArcLineFunc);
                 // I want labels to aim out of middle of graph, to make more room
                 // It slows rendering, so I will only do it sometimes
                 // Commented all this out because I liked centering them instead.
@@ -688,15 +677,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
                 d3.selectAll("g.node_g").transition().duration(animationDuration).attr("transform", function (d) {
                     return "translate(" + d.x + "," + d.y + ")";
                 });
-                d3.selectAll(GraphView.BaseGraphView.linkSvgClass).transition().duration(animationDuration).attr("x1", function (d) {
-                    return d.source.x;
-                }).attr("y1", function (d) {
-                    return d.source.y;
-                }).attr("x2", function (d) {
-                    return d.target.x;
-                }).attr("y2", function (d) {
-                    return d.target.y;
-                });
+                d3.selectAll(GraphView.BaseGraphView.linkSvgClass).transition().duration(animationDuration).attr("points", _this.updateArcLineFunc);
             };
         };
         OntologyMappingOverview.prototype.prepGraphMenu = function () {
@@ -705,6 +686,7 @@ define(["require", "exports", "../Utils", "../MouseSpinner", "../FetchFromApi", 
             this.attachScreenshotButton();
             this.attachFullscreenButton();
             this.filterSliders.addMenuComponents(this.menu.getMenuSelector(), this.softNodeCap);
+            this.percentileToggleButton.addMenuComponents(this.menu.getMenuSelector(), false);
             this.legend.initialize();
         };
         OntologyMappingOverview.prototype.sortConceptNodesCentralOntologyName = function () {

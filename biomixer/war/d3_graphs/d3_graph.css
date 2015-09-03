@@ -11,6 +11,11 @@
   
 }
 
+#chart {
+	fill: white;
+	overflow: hidden;
+}
+
 .centralNode {
   stroke-width: 2;
   stroke-opacity: 1;
@@ -28,14 +33,18 @@
 
 .svgFont {
 	font-weight: inherit;
-	font-family: 'Neue Helevetica', Helvetica, Arial, sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12px;
 }
 
 .nodetext {
 	fill: rgb(0,0,0);
+	/* fill-opacity: 1.0; */
+	stroke-width: 0px;
+	stroke: rgb(0,255,0);
+	stroke-opacity: 0.0;
 	font-weight: normal;
-	font-family: 'Neue Helevetica', Helvetica, Arial, sans-serif;
+	font-family: Helvetica, Arial, sans-serif;
 	font-size: 12px;
 	pointer-events: none;
 }
@@ -59,19 +68,20 @@
    * almost parallel to screen axes, and this hurts my eyes.
    * But, at 2px, the lines look too chunky...I am torn.
    */
-  stroke-width: 1;
-}
-
-.conceptLink
-{
-  stroke-opacity: .6;
-  stroke-width: 2;
+   /* No longer use stroke thickness, use double backed polylines */
+   /* Allows mouse interaction to occur in a wider space, for thinner visible lines. */
+  stroke-opacity: 0.0;
+  fill-opacity: 1.0;
+  stroke-width: 12;
 }
 
 .ontologyMappingLink {
-	stroke-opacity: .75;
-	stroke: #999;
+	/* No longer use stroke thickness, use double backed polylines */
+	stroke-opacity: 0.0;
+	fill-opacity: .75;
+	stroke: red; /* alarm bells, and for experimentation */
 	fill: #999;
+	stroke-width: 12;
 }
 
 .inheritanceStyleLink {
@@ -106,11 +116,14 @@ polyline.linkmarker, polyline.filter_link_sample_marker {
 
 /* Highlighting takes priority over hiding */
 .highlightedLink {
-	stroke-opacity: 1;
+    /* No longer use stroke thickness, use double backed polylines */
+	/* stroke-opacity: 1; */
+	fill-opacity: 1;
 }
 .highlightedNode {
 	fill-opacity: 1;
-	stroke-opacity: 1;
+	/* No longer use stroke thickness, use double backed polylines */
+	/* stroke-opacity: 1; */
 }
 .highlightedNodeLabel {
 	opacity: 1;
@@ -131,7 +144,9 @@ polyline.linkmarker, polyline.filter_link_sample_marker {
 
 /* Might be unused... */
 .dimmedLink {
-	stroke-opacity: 0.25; /* see above, but default is 0.6 */
+    /* No longer use stroke thickness, use double backed polylines */
+	/* stroke-opacity: 0.25; */ /* see above, but default is 0.6 */
+	fill-opacity: 0.25;
 }
 .dimmedNode {
 	fill-opacity: 0.4;
@@ -191,10 +206,10 @@ td.vis{
 	top:0;
 	right:0;
 	margin-top: 1px;
-	padding: 1px 1px 1px 1px;
 	*/
-	margin: 1px 1px 1px 1px;
-	border-width: 1px 1px 1px 1px;
+	padding: 0px 10px 0px 10px;
+	margin: 1px 0px 1px 0px;
+	border-width: 0px 0px 0px 1px;
 	border-style: solid;
 	cursor: pointer;
 }
@@ -366,7 +381,7 @@ div#hoveringGraphMenu {
   position: absolute;
   right:0;
   width: 350px;
-  padding: 10px;
+  padding: 0px 10px 10px 10px;
   margin: 2px -2px 0 0 ;
 }
 
@@ -711,4 +726,62 @@ div#undo_redo_breadcrumb_label {
 	border-style: solid; border-width: 1px;
 }
 
+#frameGradient {
+    stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.4;
+    fill: #000000;
+    fill: url(#minimapGradient);
+    filter: url(#minimapDropShadow);
+    cursor: move;
+   	fill-opacity: 0.1;
+	fill: "white";
+	stroke-opacity: 1.0;
+	stroke: "black";
+}
+.panCanvas {
+    cursor: move;
+}
 
+#outerMMSVG {
+	background-color: #FFFFFF;
+	stroke-width: 0px;
+}
+
+/*
+.minimapFrame{
+	opacity: 0.2;
+	border-color: black;
+	border-width: 2px;
+}
+
+.canvas .wrapper.outer > .background {
+    fill: #000000;
+}
+.canvas .wrapper.inner > .background {
+    fill: #CCCCCC;
+    cursor: move;
+}
+.canvas .background {
+    fill: #F6F6F6;
+    stroke: #333333;
+    cursor: move;
+}
+
+.canvas .minimap .frame .background {
+    stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.4;
+    fill: #000000;
+    fill: url(#minimapGradient);
+    filter: url(#minimapDropShadow);
+    cursor: move;
+}
+
+.background {
+	fill-opacity: 0.1;
+	fill: "white";
+	stroke-opacity: 1.0;
+	stroke: "black";
+}
+*/
