@@ -1,0 +1,187 @@
+
+.tipsy { padding: 5px; font-size: 10px; position: absolute; z-index: 100000; display: block}
+/*
+  .tipsy-inner { padding: 5px 8px 4px 8px; background-color: black; color: white; max-width: 200px; text-align: center; }
+  .tipsy-inner { border-radius: 3px; -moz-border-radius:3px; -webkit-border-radius:3px; }
+*/
+/*
+	Don't like the gif that tipsy adds, for my purposes.
+  .tipsy-arrow { position: absolute; background: url('../images/tipsy.gif') no-repeat top left; width: 9px; height: 5px; }
+  */
+  .tipsy-arrow { position: absolute; background: url('../images/tipsy.gif') no-repeat top left; width: 0px; height: 0px; }
+  .tipsy-n .tipsy-arrow { top: 0; left: 50%; margin-left: -4px; }
+    .tipsy-nw .tipsy-arrow { top: 0; left: 10px; }
+    .tipsy-ne .tipsy-arrow { top: 0; right: 10px; }
+  .tipsy-s .tipsy-arrow { bottom: 0; left: 50%; margin-left: -4px; background-position: bottom left; }
+    .tipsy-sw .tipsy-arrow { bottom: 0; left: 10px; background-position: bottom left; }
+    .tipsy-se .tipsy-arrow { bottom: 0; right: 10px; background-position: bottom left; }
+  .tipsy-e .tipsy-arrow { top: 50%; margin-top: -4px; right: 0; width: 5px; height: 9px; background-position: top right; }
+  .tipsy-w .tipsy-arrow { top: 50%; margin-top: -4px; left: 0; width: 5px; height: 9px; }
+
+
+
+.popups-Header {
+-webkit-background-clip: border-box;
+-webkit-background-origin: padding-box;
+-webkit-background-size: auto;
+background-attachment: scroll;
+background-clip: border-box;
+background-color: rgb(175, 198, 229);
+background-image: none;
+background-origin: padding-box;
+background-size: auto;
+border-bottom-color: rgb(68, 117, 149);
+border-bottom-left-radius: 10px;
+border-bottom-right-radius: 10px;
+border-bottom-style: solid;
+border-bottom-width: 1px;
+border-collapse: collapse;
+border-image-outset: 0px;
+border-image-repeat: stretch;
+border-image-slice: 100%;
+border-image-source: none;
+border-image-width: 1;
+border-left-color: rgb(68, 117, 149);
+border-left-style: solid;
+border-left-width: 1px;
+border-right-color: rgb(68, 117, 149);
+border-right-style: solid;
+border-right-width: 1px;
+border-top-color: rgb(68, 117, 149);
+border-top-left-radius: 10px;
+border-top-right-radius: 10px;
+border-top-style: solid;
+border-top-width: 1px;
+color: rgb(0, 0, 0);
+cursor: pointer;
+display: block;
+font-family: arial, helvetica, clean, sans-serif;
+font-size: 13px;
+font-style: normal;
+font-variant: normal;
+font-weight: normal;
+height: 16px;
+line-height: 16px;
+margin-bottom: 0px;
+margin-left: 0px;
+margin-right: 0px;
+margin-top: 0px;
+outline-color: rgb(0, 0, 0);
+outline-style: none;
+outline-width: 0px;
+padding-bottom: 2px;
+padding-left: 6px;
+padding-right: 6px;
+padding-top: 2px;
+position: relative;
+vertical-align: baseline;
+white-space: nowrap;
+/*
+width: 401px;
+*/
+z-index: 2;
+zoom: 1;
+
+}
+
+#popups-GrabHandle {
+	background-size: 20px !important;
+	background-repeat:no-repeat !important;
+	width: 20px; height: 20px;
+	/*
+	margin: 2px 2px 2px 2px; padding: 0;
+	*/ 
+	border-style: solid; border-width: 0px;
+	background:url(../icons/open-iconic/svg/move.svg);
+	cursor: move;
+}
+
+/*
+These styles are a horrible combination of manual tweaks (with comments),
+and copying and pasting from inspections in Chrome.
+If working on this further, try cleanign it up, minimizing it, refactoring it.
+*/
+
+.popups-Popup {
+position: absolute;
+border: 1px solid rgb(212, 208, 200);
+background-color: rgb(255, 255, 225);
+padding: 3px;
+box-shadow: 1px 1px 2px #333333;
+-moz-box-shadow: 1px 1px 2px #333333;
+-webkit-box-shadow: 1px 1px 2px #333333;
+display: block;
+color: black;
+
+/* trying to fix table being larger than div
+* http://www.alternategateways.com/tutorials/css/intermediate-and-advanced-tutorials/how-to-make-element-stretch-to-fit-contents
+*/
+height: auto; width: auto; overflow: auto;
+/* this does it! *phew* */
+
+
+/* Overriding tipsy-inner */
+border-radius: 0px; -moz-border-radius:0px; -webkit-border-radius:0px; padding: 3px;
+
+
+/* */
+-webkit-background-clip: border-box;
+-webkit-background-origin: padding-box;
+-webkit-background-size: auto;
+-webkit-box-shadow: rgb(51, 51, 51) 1px 1px 2px 0px;
+background-attachment: scroll;
+background-clip: border-box;
+background-color: rgb(255, 255, 225);
+background-image: none;
+background-origin: padding-box;
+background-size: auto;
+border-bottom-color: rgb(212, 208, 200);
+border-bottom-style: solid;
+border-bottom-width: 1px;
+border-image-outset: 0px;
+border-image-repeat: stretch;
+border-image-slice: 100%;
+border-image-source: none;
+border-image-width: 1;
+border-left-color: rgb(212, 208, 200);
+border-left-style: solid;
+border-left-width: 1px;
+border-right-color: rgb(212, 208, 200);
+border-right-style: solid;
+border-right-width: 1px;
+border-top-color: rgb(212, 208, 200);
+border-top-style: solid;
+border-top-width: 1px;
+box-shadow: rgb(51, 51, 51) 1px 1px 2px 0px;
+display: block;
+font-family: arial, helvetica, clean, sans-serif;
+font-size: 13px;
+font-style: normal;
+font-variant: normal;
+font-weight: normal;
+/* height: 150px; */
+line-height: 16px;
+margin-bottom: 0px;
+margin-left: 0px;
+margin-right: 0px;
+margin-top: 0px;
+opacity: 1;
+outline-color: rgb(0, 0, 0);
+outline-style: none;
+outline-width: 0px;
+padding-bottom: 3px;
+padding-left: 3px;
+padding-right: 3px;
+padding-top: 3px;
+position: absolute;
+vertical-align: baseline;
+/* width: 415px; */
+zoom: 1;
+}
+
+/*
+user agent stylesheetdiv {
+display: block;
+}
+
+*/

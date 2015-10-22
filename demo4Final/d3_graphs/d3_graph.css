@@ -1,0 +1,787 @@
+.unselectable {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.node, .inner_node {
+  
+}
+
+#chart {
+	fill: white;
+	overflow: hidden;
+}
+
+.centralNode {
+  stroke-width: 2;
+  stroke-opacity: 1;
+  stroke: #000;
+  font-weight: bold;
+}
+
+.ontologyNode {
+  fill-opacity: 0.75;
+}
+
+.conceptNode {
+  fill-opacity: 0.9;
+}
+
+.svgFont {
+	font-weight: inherit;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+}
+
+.nodetext {
+	fill: rgb(0,0,0);
+	/* fill-opacity: 1.0; */
+	stroke-width: 0px;
+	stroke: rgb(0,255,0);
+	stroke-opacity: 0.0;
+	font-weight: normal;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	pointer-events: none;
+}
+
+.linktext {
+	fill: rgb(0,0,0);
+	stroke: rgb(0,0,0);
+	font-weight: normal;
+	font-size: 10;
+	stroke-width: 1;
+	stroke: #000;
+	transform: translate3d(0,0,0);
+	pointer-events: none;
+}
+
+.link, .filter_link_sample {
+  cursor: pointer;
+  stroke-linecap: round;
+  /* Dark colored arcs look better at 2px due to antialiasing :( 
+   * The antialiasing causes barber pole effects when the lines are
+   * almost parallel to screen axes, and this hurts my eyes.
+   * But, at 2px, the lines look too chunky...I am torn.
+   */
+   /* No longer use stroke thickness, use double backed polylines */
+   /* Allows mouse interaction to occur in a wider space, for thinner visible lines. */
+  stroke-opacity: 0.0;
+  fill-opacity: 1.0;
+  stroke-width: 12;
+}
+
+.ontologyMappingLink {
+	/* No longer use stroke thickness, use double backed polylines */
+	stroke-opacity: 0.0;
+	fill-opacity: .75;
+	stroke: red; /* alarm bells, and for experimentation */
+	fill: #999;
+	stroke-width: 12;
+}
+
+.inheritanceStyleLink {
+	/* Dark color that doesn't stomp on ontology colors, original was #AFC6E5 */
+	stroke: #002266;
+	fill: #002266;
+}
+polyline.inheritanceStyleLink {
+	stroke-dasharray: none;
+}
+
+.compositionStyleLink {
+	/* Dark color that doesn't stomp on ontology colors, original was #AFC600 */
+	stroke: #003311;
+	fill: #003311;
+}
+polyline.compositionStyleLink {
+	stroke-dasharray: 4,4;
+}
+
+.mappingStyleLink {
+	stroke: #D4D4D4;
+	fill: #D4D4D4;
+}
+polyline.mappingStyleLink{
+	stroke-dasharray: 10,5;
+}
+
+polyline.linkmarker, polyline.filter_link_sample_marker {
+	stroke-dasharray: none;
+}
+
+/* Highlighting takes priority over hiding */
+.highlightedLink {
+    /* No longer use stroke thickness, use double backed polylines */
+	/* stroke-opacity: 1; */
+	fill-opacity: 1;
+}
+.highlightedNode {
+	fill-opacity: 1;
+	/* No longer use stroke thickness, use double backed polylines */
+	/* stroke-opacity: 1; */
+}
+.highlightedNodeLabel {
+	opacity: 1;
+}
+
+.hiddenNode {
+	opacity: 0.10;
+}
+.hiddenNodeLabel {
+	opacity: 0.10;
+}
+.hiddenLink {
+	opacity: 0.10;
+}
+.hiddenBecauseOfNodeLink {
+	opacity: 0.10;
+}
+
+/* Might be unused... */
+.dimmedLink {
+    /* No longer use stroke thickness, use double backed polylines */
+	/* stroke-opacity: 0.25; */ /* see above, but default is 0.6 */
+	fill-opacity: 0.25;
+}
+.dimmedNode {
+	fill-opacity: 0.4;
+	stroke-opacity: 0.4;
+}
+.dimmedNodeLabel{
+	opacity: 0.4; /* Keep text readable */
+}
+
+.line{
+display: block;
+width: 45px;
+height: 10px;
+background: #999;
+}
+
+/*
+legend{
+width:350px;
+padding:2px 0 0 20px;
+float:right;
+} 
+.legend{
+ padding:20px;
+}
+*/
+
+html, body {
+	height: 100%;
+}
+
+body{
+	fill: rgb(255,0,0);
+	margin: 0px;
+}
+
+/*
+* Vital to set the div#chart.gallery height to 100% in CSS, rather than in code, for Firefox.
+*/
+div.gallery{
+	height: 96%;
+	/*
+	border-style:solid;
+	*/
+}
+
+td.vis{
+	/*
+	width: 600px;
+	*/
+}
+
+.topBarButton {
+	float: right;
+	/*
+	position:absolute;
+	top:0;
+	right:0;
+	margin-top: 1px;
+	*/
+	padding: 0px 10px 0px 10px;
+	margin: 1px 0px 1px 0px;
+	border-width: 0px 0px 0px 1px;
+	border-style: solid;
+	cursor: pointer;
+}
+.topBarButton:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+}
+/*
+https://developer.mozilla.org/en-US/docs/Web/CSS/Tools/Box-shadow_generator
+*/
+
+
+.nonVisibleIntroJsHelperLayer {
+	/* IntroJs is not SVG aware, so I must make this transparent to prevent
+	 * mouse interaction problems when we highlight graph elements
+	 */
+	background-color: orange;
+	background-color: transparent;
+	visibility: hidden;
+}
+ 
+div.introjs-tooltipReferenceLayer {
+	/* bug fix; disableInteraction was not able to be set to false */
+ visibility: hidden;
+ background-color: transparent;
+}
+div.introjs-helperNumberLayer {
+	visibility: visible;
+}
+div.introjs-tooltip {
+	visibility: visible;
+}
+
+div.introjs-overlay {
+	/* the shading portion, which cannot easily have click-through on all browsers */
+	visibility: hidden;
+}
+
+.mainMenuButtonIcon {
+    cursor: pointer;
+	background:url(..//icons/open-iconic/svg/menu.svg);
+	background-size: 16px; background-repeat:no-repeat;
+	width: 16px; height: 16px;
+	margin: 0px 0px 0px 0px; padding: 0px; 
+	border-style: solid; border-width: 0px;
+	stroke-width: 8;
+	margin-right: 2px;
+	margin-left: 2px;
+    margin-top: -1px;
+}
+
+.pressedMenuButton {
+	background: rgb(61, 149, 210);
+	/* rgb(31, 119, 180); */ /* rgb(183, 227, 241); */ /* rgb(193, 217, 241); */ /* rgb(159, 188, 215); */
+	opacity: 1.0;
+}
+
+.menuExpanderButton {
+	cursor: pointer;
+	background-size: 8px; background-repeat:no-repeat;
+	width: 8px; height: 8px;
+	margin: 2px 2px 2px 2px; padding: 0; 
+	border-style: solid; border-width: 0px;
+}
+
+.menuLabelIconCloseAction {
+	background:url(..//icons/open-iconic/svg/minus.svg);
+	/*
+	background:url(..//icons/open-iconic/svg/collapse-up.svg);
+	*/
+}
+
+.menuLabelIconOpenAction {
+	background:url(..//icons/open-iconic/svg/plus.svg);
+	/*
+	background:url(..//icons/open-iconic/svg/expand-down.svg);
+	*/
+}
+
+.mainMenuLabelExpander, .nestedTreeExpander {
+	cursor: pointer;
+	background-size: 8px; background-repeat:no-repeat;
+	width: 8px; height: 8px;
+	margin: 2px 2px 2px 2px; padding: 0; 
+	border-style: solid; border-width: 0px;
+}
+
+.mainMenuLabelExpander {
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
+.nestedTreeExpander {
+    margin-top: 8px;
+    margin-bottom: 0px;
+    margin-left: 5px;
+    margin-right: -2px;
+}
+
+.mainMenuLabelExpander, .nestedTreeExpander {
+	text-align: left;
+	font-weight: bold;
+	float: left;
+	width: 1em;
+	padding-top: 4px;
+
+}
+
+.plainBoxButton {
+	cursor: pointer;
+}
+.plainBoxButton:hover {
+	/*
+	box-shadow: inset 0px 0px 12px 1px orange;
+	*/
+}
+
+.boxButton {
+	cursor: pointer;
+	margin: 1px;
+    display: block;
+    float: left;
+	
+	background-color:rgb(193, 217, 241);
+	padding:4px;
+	padding-left:2px;
+	position:relative;
+	font-family: 'Open Sans', sans-serif;
+	font-size:12px;
+	text-decoration:none;
+	border: solid 1px rgb(61, 149, 210);
+	background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
+	border-radius: 5px;
+}
+.boxButton:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+
+.boxButton:active {
+	padding-bottom:3px;
+	padding-left:2px;
+	padding-right:4px;
+	padding-top:5px;
+	top:1px;
+	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
+}
+
+.boxButtonIconSegment {
+	cursor: pointer;
+	background-size: 14px !important;
+	background-repeat:no-repeat !important;
+	width: 14px; height: 14px;
+	margin: 0px 4px 0px 2px;
+	padding: 0; 
+	border-style: solid; border-width: 0px;
+}
+
+.messageBoxButton {
+	display: inline-block;
+	float: none;
+}
+
+div#slider-gap {
+	margin: 15px;
+}
+
+div#hoveringGraphMenu {
+  display: none;
+  position: absolute;
+  right:0;
+  width: 350px;
+  padding: 0px 10px 10px 10px;
+  margin: 2px -2px 0 0 ;
+}
+
+.opaqueMenu, div#hoveringGraphMenu {
+  background: rgb(218,229,243);
+  opacity:0.90 !important;
+  filter:alpha(opacity=90); */ /* For IE8 and earlier */
+  /*
+   background: #eeeeee; 
+  
+  /* background: rgba (200, 200, 200, 0.7); */
+  color: #000000;
+  border: 1px solid #1a1a1a;
+  font-size: 90%;
+}
+
+.scroll-div {
+	overflow-y: scroll;
+	background-color: white;
+}
+
+.messageBoxWithField{
+	position: relative;
+	right:0;
+}
+
+.messageBoxTextArea {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    display: block;
+	width: 98%;
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+.messageBoxMessage {
+	margin: 6px;
+	font-size: 14px;
+}
+
+.importExportButton {
+	cursor: pointer;
+	margin: 7px !important;
+	font-size: 100%;
+}
+.importExportButton:hover {
+	/*
+	box-shadow: inset 0px 0px 12px 1px orange;
+	*/
+}
+
+.layoutText {
+	margin-top: 6px;
+	float: left;
+}
+
+.layoutTextButton {
+	cursor: pointer;
+	height: 24px;
+	margin: 1px;
+	width: 94px;
+	
+	background-color:rgb(193, 217, 241);
+	padding:6px;
+	padding-top:5px;
+	padding-left:2px;
+	position:relative;
+	font-family: 'Open Sans', sans-serif;
+	font-size:12px;
+	text-decoration:none;
+	border: solid 1px rgb(61, 149, 210);
+	background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
+	border-radius: 5px;
+}
+.layoutTextButton:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+
+.layoutTextButton:active {
+	padding-bottom:5px;
+	padding-left:2px;
+	padding-right:6px;
+	padding-top:6px;
+	top:1px;
+	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
+}
+
+.nonIconlayoutButton {
+	margin-right: 15px !important;
+	margin-bottom: 6px !important;
+}
+
+.iconLayoutButton {
+	background-size: 24px !important;
+	background-repeat:no-repeat !important;
+	width: 24px; height: 24px;
+	margin: 0px 6px 0px 6px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+
+#verticalTreeLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/verticalTreeLayoutIcon.svg);
+}
+
+#horizontalTreeLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/horizontalTreeLayoutIcon.svg);
+}
+
+#radialLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/radialLayoutIcon.svg);
+}
+
+#circleLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/circleLayoutIcon.svg);
+}
+
+#centerLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/centerLayoutIcon.svg);
+}
+
+#forceLayoutButtonIcon {
+	background:url(..//icons/custom/layoutButtons/forceLayoutIcon.svg);
+}
+
+.nodeCommandButton {
+	margin-right: 15px !important;
+}
+
+.filterCheckbox {
+	width: auto;
+	display: block;
+}
+
+.filterCheckboxSomeSelected {
+	opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+
+.legend {
+	background-color: rgb(193, 217, 241);
+	color: rgb(0, 0, 0);
+	border-bottom: 1px solid rgb(159, 188, 215);
+	width: 390px;
+}
+
+.expandableMenuLabel {
+	cursor: pointer;
+}
+
+.menuLabel {
+	background-color: rgb(193, 217, 241);
+	padding: 2px;
+	margin: 12px 0px 0px 0px;
+	color: rgb(0, 0, 0);
+	text-align: center;
+	font-weight: bold;
+	border-bottom: 1px solid rgb(159, 188, 215);
+	width: auto;
+	display: block;
+}
+
+.locateNodeByNameInput{
+	float: left;
+	margin: 4px 0px 0px 0px; 	
+}
+
+.locateNodeByNameButtonIcon{
+	float: left;
+	background:url(..//icons/open-iconic/svg/target.svg);
+}
+
+.nodeUtilityContainer {
+	margin: 4px 0px 0px 0px;
+}
+
+.clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.deleteNodesButton {
+	float: right;
+	background:url(..//icons/open-iconic/svg/x.svg);
+	/*
+	background:url(..//icons/open-iconic/svg/delete.svg);
+	*/
+}
+
+.resetCheckboxesButton {
+	float: right;
+	background:url(..//icons/open-iconic/svg/task.svg);
+	/*
+	background:url(..//icons/open-iconic/svg/check.svg);
+	*/
+}
+
+.menuExpanderButtonGapper {
+	float: right;
+}
+
+.menuExpanderUtilityButton {
+	cursor: pointer;
+	background-size: 14px !important;
+	background-repeat:no-repeat !important;
+	width: 14px; height: 14px;
+	margin: 2px 2px 2px 2px; padding: 0; 
+	border-style: solid; border-width: 0px;
+}
+
+.boldText{
+	font-weight: bold;
+}
+
+.view_selection_box {
+	float: left;
+}
+
+div#undo_redo_breadcrumb_label {
+	
+}
+
+.undo_redo_breadcrumb_trail {
+	/* only needed this for tour, so that the border was positioned well */
+	float: left;
+	/* or 	display: block; */
+}
+
+.undo_redo_button {
+	cursor: pointer;
+	float: left;
+	padding: 2px;
+}
+.undo_redo_button:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+
+.undo_redo_spacer {
+	float: left;
+	pad-right: 5em;
+}
+
+.undo_redo_list_button {
+	cursor: pointer;
+	float: left;
+	padding: 2px;
+}
+.undo_redo_list_button:hover {
+	box-shadow: inset 0px 0px 12px 1px orange;
+}
+
+.crumb_for_, div#undo_redo_breadcrumb_label {
+	float: left;
+	margin-right: 1em;
+	padding: 2px;
+}
+
+.crumb_for_ {
+	border-style: solid;
+	border-color: rgb(100,100,100);
+	border-width: 1px;
+	opacity: 50%
+}
+
+.active_crumb {
+	opacity: 100%;
+	font-weight: bold;
+	border-width: 2px;
+}
+.faded_crumb{
+	color: rgb(180,180,180);
+	border-color: rgb(180,180,180);
+}
+.crumb_for_:hover {
+	color: rgb(150,40,40);
+	border-color: rgb(150,40,40);
+}
+
+/*
+.undo_redo_breadcrumb_trail {
+*/
+#top_menu_bar {
+	overflow: hidden;
+	background-color: rgb(200,220,255);
+	border-color: rgb(0,20,55);
+	border-style: solid;
+	border-width: 1px;
+	width: 100%;
+}
+
+.vertical_stack_bread_crumb_div {
+	margin: left;
+	display: block;
+	position: relative;
+	float: left;
+	clear: left;
+	width: auto;
+	border-style: none;
+}
+
+.vertical_stack_bread_crumb_container {
+	display: none;
+	position: absolute;
+	border-color: rgb(180,180,180);
+	border-style: solid;
+	border-width: 1px;
+	background-color: rgb(200,220,255);
+	overflow-y: scroll;
+	background-color: white;
+	max-height: 120px;
+}
+
+.undo_redo_button_disabled {
+	color: rgb(180,180,180);
+	border-color: rgb(180,180,180);
+	/* SVG icon requires fill arg */
+	fill: rgb(180,180,180); 
+	fill-opacity : 0.5;
+}
+
+
+.action-undo-icon{
+	background:url(..//icons/open-iconic/svg/action-undo.svg); 
+	background-size: 14px; background-repeat:no-repeat;
+	width: 14px; height: 14px;
+	margin: 0px 1px 0px 0px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+.action-redo-icon{
+	background:url(..//icons/open-iconic/svg/action-redo.svg); 
+	background-size: 14px; background-repeat:no-repeat;
+	width: 14px; height: 14px;
+	margin: 0px 0px 0px 1px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+.caret-bottom-icon{
+	background:url(..//icons/open-iconic/svg/caret-bottom.svg); 
+	background-size: 8px; background-repeat:no-repeat;
+	width: 8px; height: 8px;
+	margin: 4px 0px 0px 0px; padding: 0; 
+	border-style: solid; border-width: 1px;
+}
+
+#frameGradient {
+    stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.4;
+    fill: #000000;
+    fill: url(#minimapGradient);
+    filter: url(#minimapDropShadow);
+    cursor: move;
+   	fill-opacity: 0.1;
+	fill: "white";
+	stroke-opacity: 1.0;
+	stroke: "black";
+}
+.panCanvas {
+    cursor: move;
+}
+
+#outerMMSVG {
+	background-color: #FFFFFF;
+	stroke-width: 0px;
+}
+
+/*
+.minimapFrame{
+	opacity: 0.2;
+	border-color: black;
+	border-width: 2px;
+}
+
+.canvas .wrapper.outer > .background {
+    fill: #000000;
+}
+.canvas .wrapper.inner > .background {
+    fill: #CCCCCC;
+    cursor: move;
+}
+.canvas .background {
+    fill: #F6F6F6;
+    stroke: #333333;
+    cursor: move;
+}
+
+.canvas .minimap .frame .background {
+    stroke: #111111;
+    stroke-width: 4px;
+    fill-opacity: 0.4;
+    fill: #000000;
+    fill: url(#minimapGradient);
+    filter: url(#minimapDropShadow);
+    cursor: move;
+}
+
+.background {
+	fill-opacity: 0.1;
+	fill: "white";
+	stroke-opacity: 1.0;
+	stroke: "black";
+}
+*/
